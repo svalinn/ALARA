@@ -57,6 +57,7 @@ void Root::solve(topSchedule *schedule)
   Root* ptr=this;
   float totalTime, incrTime;
   int firstNode=0,lastNode=0,rootCtr=0;
+  int chainCtr = 0;
   char isoSym[15];
 
   /* skip over head of rootlist */
@@ -79,6 +80,7 @@ void Root::solve(topSchedule *schedule)
       /* for each chain */
       while (chain->build(schedule)) 
 	{
+	  chainCtr = Statistics::accountChain();
 	  chainCode++;
 	  chain->setupColRates();
 	  /* set the decay matrices for the entire schedule */
@@ -91,8 +93,9 @@ void Root::solve(topSchedule *schedule)
       firstNode = lastNode;
       lastNode = Statistics::numNodes();
       Statistics::cputime(incrTime,totalTime);
-      verbose(2,"   last Root: %d nodes in %0.3f s (%0.3f nodes/s)",
-	      lastNode-firstNode, incrTime,(lastNode-firstNode)/incrTime);
+      verbose(2,"   last Root: %d nodes in %d chains %0.3f s (%0.3f nodes/s)",
+	      lastNode-firstNode, chainCntr, incrTime,
+	      (lastNode-firstNode)/incrTime);
       verbose(2,"   Total Nodes: %d in %0.2f s (%0.3f nodes/s)",
 	      lastNode,totalTime,lastNode/totalTime);
 
