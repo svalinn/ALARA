@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.22 2000-06-20 17:30:30 wilson Exp $ */
+/* $Id: Mixture.C,v 1.23 2000-07-07 02:32:12 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -446,7 +446,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	cout << "\tMass: " << ptr->volume*ptr->totalDensity << endl;
 
       /* write the component breakdown if requested */
-      if (writeComp)
+      if (writeComp && response != OUTFMT_SRC)
 	{
 	  /* get the list of components for this mixture */
 	  Component *compPtr = ptr->compListHead;

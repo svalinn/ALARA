@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.20 2000-06-20 17:30:30 wilson Exp $ */
+/* $Id: Loading.C,v 1.21 2000-07-07 02:32:12 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -276,7 +276,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	  cout << "\tContaining mixture: " << ptr->mixName << endl << endl;
 
 	  /* write the component breakdown if requested */
-	  if (writeComp)
+	  if (writeComp && response != OUTFMT_SRC)
 	    {
 	      /* get the list of components for this mixture */
 	      Component *compPtr = ptr->mixPtr->getCompList();

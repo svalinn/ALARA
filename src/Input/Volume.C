@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.23 2000-06-20 17:30:30 wilson Exp $ */
+/* $Id: Volume.C,v 1.24 2000-07-07 02:32:12 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -550,7 +550,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	       << endl;
 	  
 	  /* write the component breakdown if requested */
-	  if (writeComp)
+	  if (writeComp && response != OUTFMT_SRC)
 	    {
 	      /* get the list of components for this mixture */
 	      Component *compPtr = ptr->mixPtr->getCompList();
