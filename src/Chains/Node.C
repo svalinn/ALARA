@@ -61,15 +61,23 @@ void Node::readData()
 {
   dataLib->readData(kza,this);
 
-  /* this is only true for forward mode */
-  if (nPaths > 0)
+  switch(mode)
     {
-      D = paths[nPaths];
-      
-      /* if a new node is created with TRUNCATE_STABLE state
-       * strip its pure transmutation reactions immediately */
-      if (state == TRUNCATE_STABLE)
-	state = stripNonDecay();
+    case MODE_FORWARD:
+      /* this is only true for forward mode */
+      if (nPaths > 0)
+	{
+	  D = paths[nPaths];
+	  
+	  /* if a new node is created with TRUNCATE_STABLE state
+	   * strip its pure transmutation reactions immediately */
+	  if (state == TRUNCATE_STABLE)
+	    state = stripNonDecay();
+	}
+      break;
+    case MODE_REVERSE:
+      D = single;
+      break;
     }
 }
 
