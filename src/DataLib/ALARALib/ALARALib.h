@@ -24,6 +24,8 @@ DATALIB_EAF      3     eaf      A data library following the formatting
                                 ENDF/B-6) 
 DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
                                 for reverse calculations.
+DATALIB_GAMMA    5     gamma    An alara binary library containing gamma
+                                source information.
 -------------------------------------------------------------------
 
  *** Locally Defined Classes ***
@@ -143,6 +145,7 @@ DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
 #define _ALARALIB_H
 
 #define DATALIB_ALARA 1
+#define DATALIB_GAMMA 5
 
 #include "DataLib/DataLib.h"
 #include "ALARALib_def.h"
@@ -193,6 +196,8 @@ public:
   /* Write Binary Data */
   void writeHead(int,float*,float*);
   void writeData(int, int, float, float*, int*, char**, float**);
+  void writeGammaData(int,int,int*,int*,int*,float**,float**,int**,int**,
+		      float**,float**);
   void appendIdx(char*,int);
   
 

@@ -36,7 +36,7 @@ EAFLib::~EAFLib()
   inDecay.close();
 }
 
-void extract(char* input, float* value)
+void EAFLib::extract(char* input, float* value)
 {
   char section[32];
 
@@ -63,7 +63,7 @@ void extract(char* input, float* value)
   return;
 }
 
-int delKza(float rxnType)
+int EAFLib::delKza(float rxnType)
 {
   int baseType = int(rxnType);
   int otherType = int((rxnType-baseType)*10);
@@ -431,7 +431,10 @@ int EAFLib::getDecayData()
       return LASTISO;
     }
 
-  
+
+  /* extract the number of radiation spectra */
+  buffer[66] = '\0';
+  numSpec = atoi(buffer+55);
   /* extract the za number of the isotope */
   buffer[44] = '\0';
   isoFlag = atoi(buffer+33);
@@ -500,7 +503,7 @@ int EAFLib::getDecayData()
 	}
       
     }
-  
+
   /* put all data in correct variables and arrays */
   /* write alpha and proton production rates */
   nIons = 0;
@@ -520,7 +523,10 @@ int EAFLib::getDecayData()
       nIons++;
     }
   
-  /* skip spectra information */
+  if (numSpec != 0)
+    numSpec = getGammaData();
+
+  /* skip to end of this file section */
   do
     {
       /* scan for last 457 card */
@@ -533,6 +539,283 @@ int EAFLib::getDecayData()
 
   debug(6,"Returning %d decay branches for %d.",nDRxns,zak);
 
-
   return zak;
 }
+
+
+void EAFLib::skipDiscreteGammas(char* buffer, int numGammas)
+{
+  int gammaNum, numParms;
+
+  /* for each discrete gamma */
+  for (gammaNum=0;gammaNum<numGammas;gammaNum++)
+    {
+      /* read first line */
+      inDecay.getline(buffer,MAXLINELENGTH);
+      /* get number of parameters */
+      buffer[55] = '\0';
+      numParms = atoi(buffer+44);
+      /* skip next line */
+      inDecay.getline(buffer,MAXLINELENGTH);
+      /* if necessary */
+      if (numParms>6)
+	/* skip another line */
+	inDecay.getline(buffer,MAXLINELENGTH);
+    }
+}
+
+void EAFLib::skipContGammas(char *buffer)
+{
+  int numPnts, numReg, covFlag;
+  int regNum,pntNum;
+
+  /* skip line */
+  inDecay.getline(buffer,MAXLINELENGTH);
+  /* read covariance flag --> 
+   * number of interpolation regions --> 
+   * number of interpolations points */
+  buffer[66] = '\0';
+  numPnts = atoi(buffer+55);
+  buffer[55] = '\0';
+  numReg = atoi(buffer+44);
+  buffer[44] = '\0';
+  covFlag = atoi(buffer+33);
+  /* skip one line for every three interpolation regions */
+  for (regNum=0;regNum<numReg;regNum+=3)
+    inDecay.getline(buffer,MAXLINELENGTH);
+  /* skip one line for every three data points */
+  for (pntNum=0;pntNum<numPnts;pntNum+=3)
+    inDecay.getline(buffer,MAXLINELENGTH);
+  
+  if (covFlag>0)
+    {
+      inDecay.getline(buffer,MAXLINELENGTH);
+      /* read number of points in table */
+      buffer[66] = '\0';
+      numPnts = atoi(buffer+55);
+      /* skip one line for every three data points */
+      for (pntNum=0;pntNum<numPnts;pntNum+=3)
+	inDecay.getline(buffer,MAXLINELENGTH);
+    }
+}
+
+void EAFLib::readDiscreteGammas(int specNum, int numGammas, 
+				float discFactor, char *buffer ) 
+{ 
+  int gammaNum; 
+  int numParms; 
+  float gammaE, gammaI;
+
+  numDisc[specNum] = numGammas;
+  discGammaE[specNum] = new float[numGammas];
+  discGammaI[specNum] = new float[numGammas];
+  
+  /* read new list of gamma energy and intensities */
+  for (gammaNum=0;gammaNum<numGammas;gammaNum++)
+    {
+      /* extract gamma energy */
+      inDecay.getline(buffer,MAXLINELENGTH);
+      extract(buffer,&gammaE);
+      buffer[55] = '\0';
+      numParms = atoi(buffer+44);
+      
+      /* extract gamma intensity */
+      inDecay.getline(buffer,MAXLINELENGTH);
+      extract(buffer+22,&gammaI);
+      
+      /* throw away extra line if necessary */
+      if (numParms>6)
+	inDecay.getline(buffer,MAXLINELENGTH);
+      
+      discGammaE[specNum][gammaNum] = gammaE;
+      discGammaI[specNum][gammaNum] = gammaI*discFactor;
+    }
+}
+
+void EAFLib::readContGammas(int specNum, float contFactor, char* buffer)
+{
+  int regNum, pntNum;
+  int numPnts, numReg, covFlag;
+  int b[3],t[3];
+  float x, y;
+
+  /* read covariance flag... */
+  inDecay.getline(buffer,MAXLINELENGTH);
+  /* read covariance flag --> 
+   * number of interpolation regions --> 
+   * number of interpolations points */
+  buffer[66] = '\0';
+  numPnts = atoi(buffer+55);
+  buffer[55] = '\0';
+  numReg = atoi(buffer+44);
+  buffer[44] = '\0';
+  covFlag = atoi(buffer+33);
+  
+  /* read interpolation regions */
+  nIntReg[specNum] = numReg;
+  intRegB[specNum] = new int[numReg];
+  intRegT[specNum] = new int[numReg];
+  
+  /* read each interpolation region */
+  for (regNum=0;regNum<numReg;)
+    {
+      /* record first regNum for this input line */
+      int lineStart = regNum;
+      /* read this line */
+      inDecay.getline(buffer,MAXLINELENGTH);
+      /* extract region boundaries and interpolation types */
+      buffer[66] = '\0';
+      sscanf(buffer,"%d %d %d %d %d %d",b,t,b+1,t+1,b+2,t+2);
+      /* for each region on this line */
+      for (;regNum<lineStart+3 && regNum<numReg;regNum++)
+	{
+	  /* set the data */
+	  intRegB[specNum][regNum] = b[regNum-lineStart];
+	  intRegT[specNum][regNum] = t[regNum-lineStart];
+	}
+    }
+  
+  /* read the interpolation table */
+  nPnts[specNum] = numPnts;
+  contX[specNum] = new float[numPnts];
+  contY[specNum] = new float[numPnts];
+  
+  /* read each interpolation point */
+  for (pntNum=0;pntNum<numPnts;)
+    {
+      /* record first pntNum for this input line */
+      int lineStart = pntNum;
+      /* read this line */
+      inDecay.getline(buffer,MAXLINELENGTH);
+      buffer[66] = '\0';
+      /* extract spectrum table data */
+      /* for each point on this line */
+      for (;pntNum<lineStart+3 && pntNum<numPnts;pntNum++)
+	{
+	  extract(buffer+22*(pntNum-lineStart),&x);
+	  extract(buffer+11+22*(pntNum-lineStart),&y);
+	  /* set the data */
+	  contX[specNum][pntNum] = x;
+	  contY[specNum][pntNum] = y*contFactor;
+	}
+    }
+  
+  /* skip covariance data */
+  if (covFlag>0)
+    {
+      inDecay.getline(buffer,MAXLINELENGTH);
+      /* read number of points in table */
+      buffer[66] = '\0';
+      numPnts = atoi(buffer+55);
+      /* skip one line for every three data points */
+      for (pntNum=0;pntNum<numPnts;pntNum+=3)
+	inDecay.getline(buffer,MAXLINELENGTH);
+    }
+}
+
+int EAFLib::getGammaData()
+{
+  
+  char buffer[MAXLINELENGTH];
+  int specNum, numGammas, specType;
+  float radType, discFactor, contFactor;
+  int numGSpec = 0;
+
+  nIntReg = new int[numSpec];
+  intRegB = new int*[numSpec];
+  intRegT = new int*[numSpec];
+  nPnts = new int[numSpec];
+  contX = new float*[numSpec];
+  contY = new float*[numSpec];
+  numDisc = new int[numSpec];
+  discGammaE = new float*[numSpec];
+  discGammaI = new float*[numSpec];
+  
+  /* for each spectrum */
+  for (specNum=0;specNum<numSpec;specNum++)
+    {
+      /* read line */
+      /* --> decay type, data type --> number of discrete values */
+      inDecay.getline(buffer,MAXLINELENGTH);
+      /* extract data */
+      buffer[66] = '\0';
+      /* get the spectrum type */
+      extract(buffer+11,&radType);
+      
+      /* read spectrum type and number of discrete spectra */
+      buffer[66] = '\0';
+      numGammas = atoi(buffer+55);
+      buffer[33] = '\0';
+      specType = atoi(buffer+22);
+      
+      /* read normalization constants */
+      inDecay.getline(buffer,MAXLINELENGTH);
+      buffer[66] = '\0';
+      extract(buffer,&discFactor);
+      extract(buffer+44,&contFactor);
+      
+      /* it is possible that the ENDF entry is all zeros, 
+       * in which case, skip this spectrum */
+      if ( (discFactor == 0.0 || numGammas == 0) && (specType == 0.0 || contFactor == 0.0) )
+	radType = 1;
+      
+      /* if this is not a gamma spectrum entry */
+      if (int(radType) != 0)
+	{
+	  skipDiscreteGammas(buffer,numGammas);
+	  if (specType>0)
+	    skipContGammas(buffer);
+	}
+      /* this is a gamma spectrum entry */
+      else
+	{
+	  /* read this spectrum */
+	  /* read discrete entries */
+	  numDisc[numGSpec] = 0;
+	  discGammaE[numGSpec] = NULL;
+	  discGammaI[numGSpec] = NULL;
+	  
+	  if (numGammas > 0 )
+	    /* if there are valid discrete gammas */
+	    if (discFactor > 0 )
+	      readDiscreteGammas(numGSpec,numGammas,discFactor,buffer);
+	    else
+	      skipDiscreteGammas(buffer,numGammas);
+	  
+	  nIntReg[numGSpec] = 0;
+	  intRegB[numGSpec] = NULL;
+	  intRegT[numGSpec] = NULL;
+	  nPnts[numGSpec] = 0;
+	  contX[numGSpec] = NULL;
+	  contY[numGSpec] = NULL;
+	  
+	  /* read continuous data */
+	  if (specType>0)
+	    /* if the scaling factor is non-zero */
+	    if (contFactor>0)
+	      readContGammas(numGSpec,contFactor,buffer);
+	    else
+	      skipContGammas(buffer);
+	  
+	  /* increment gamma spectra counter */
+	  numGSpec++;
+	}
+    }
+
+  if (numGSpec == 0)
+    {
+      delete numDisc;
+      delete nIntReg;
+      delete nPnts;
+      delete discGammaE;
+      delete discGammaI;
+      delete intRegB;
+      delete intRegT;
+      delete contX;
+      delete contY;
+    }
+
+
+  return numGSpec;
+}  
+

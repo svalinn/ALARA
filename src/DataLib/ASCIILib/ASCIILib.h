@@ -27,6 +27,8 @@ DATALIB_EAF      3     eaf      A data library following the formatting
                                 ENDF/B-6) 
 DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
                                 for reverse calculations.
+DATALIB_GAMMA    5     gamma    An alara binary library containing gamma
+                                source information.
 -------------------------------------------------------------------
 
  *** Class Members ***
@@ -253,8 +255,13 @@ protected:
   int kza, nRxns, *daugKza;
   float mThalf, mE[3], **mXsection;
   char **mEmitted;
+  /*  -- gamma -- */
+  int numSpec;
+  int *numDisc, *nIntReg, *nPnts;
+  int **intRegB, **intRegT;
+  float **discGammaE, **discGammaI, **contX, **contY;
 
-  ALARALib *binLib;
+  ALARALib *binLib, *gammaLib;
 
   /* Merge Data */
   void trans2merge();

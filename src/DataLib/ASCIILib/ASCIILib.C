@@ -326,10 +326,6 @@ void ASCIILib::merge()
   
 }  
 
-/**************************************
- ********** Write binary data *********
- *************************************/
-
 /*****************************************
  ********** Binary Library Mgmt **********
  ****************************************/
@@ -337,14 +333,21 @@ void ASCIILib::merge()
 void ASCIILib::makeBinLib(char *alaraFname)
 {
 
-  int tKza, dKza;
+  int tKza, dKza, nGammaParents=0, writeGamma;
   char alaraIdxName[256], alaraLibName[256];
+  char gammaIdxName[256], gammaLibName[256];
 
   strcpy(alaraIdxName,alaraFname);
   strcat(alaraIdxName,".idx");
   strcpy(alaraLibName,alaraFname);
   strcat(alaraLibName,".lib");  
   binLib = new ALARALib(alaraLibName, alaraIdxName);
+
+  strcpy(gammaIdxName,alaraFname);
+  strcat(gammaIdxName,".gdx");
+  strcpy(gammaLibName,alaraFname);
+  strcat(gammaLibName,".gam");  
+  gammaLib = new ALARALib(gammaLibName,gammaIdxName);
 
   /* get initial info from text files */
   getTransInfo();
@@ -353,6 +356,7 @@ void ASCIILib::makeBinLib(char *alaraFname)
   debug(4,"Got decay header info.");
 
   binLib->writeHead(nGroups,grpBnds,grpWeights);
+  gammaLib->writeHead(0,NULL,NULL);
 
   /* get first entries from each library */
   tKza = getTransData();
@@ -370,6 +374,7 @@ void ASCIILib::makeBinLib(char *alaraFname)
 	  kza = tKza;
 	  trans2merge();
 	  tKza = getTransData();
+	  writeGamma = FALSE;
 	  debug(4,"Got next transmutation entry.");
 	}
       else if (dKza < tKza)
@@ -378,6 +383,13 @@ void ASCIILib::makeBinLib(char *alaraFname)
 	  debug(4,"Writing pure decay entry for %d.",tKza);
 	  kza = dKza;
 	  decay2merge();
+	  if (numSpec > 0)
+	    {
+	      gammaLib->writeGammaData(kza,numSpec,numDisc,nIntReg,nPnts,
+				       discGammaE,discGammaI,intRegB,intRegT,
+				       contX,contY);
+	      nGammaParents++;
+	    }
 	  dKza = getDecayData();
 	  debug(4,"Got next decay entry.");
 	}
@@ -389,6 +401,13 @@ void ASCIILib::makeBinLib(char *alaraFname)
 	  merge();
 	  tKza = getTransData();
 	  debug(4,"Got next transmutation entry.");
+	  if (numSpec > 0)
+	    {
+	      gammaLib->writeGammaData(kza,numSpec,numDisc,nIntReg,nPnts,
+				       discGammaE,discGammaI,intRegB,intRegT,
+				       contX,contY);
+	      nGammaParents++;
+	    }
 	  dKza = getDecayData();
 	  debug(4,"Got next decay entry.");
 	}
@@ -401,6 +420,7 @@ void ASCIILib::makeBinLib(char *alaraFname)
     }
 
   binLib->close(nParents,DATALIB_ALARA,alaraIdxName);
+  gammaLib->close(nGammaParents,DATALIB_GAMMA,gammaIdxName);
 
 }
 

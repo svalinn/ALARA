@@ -240,6 +240,66 @@ void ALARALib::writeData(int kza, int nRxns, float thalf, float *E,
       
 }
 
+void ALARALib::writeGammaData(int kza, int numSpec, int *numDisc, int *nIntReg,
+			      int *nPnts, float **discGammaE, float **discGammaI,
+			      int **intRegB, int **intRegT, 
+			      float **contX, float **contY)
+{
+  int specNum;
+
+  verbose(2,"Writing GAMMA entry for %d (%d)",kza,offset);
+  
+  /* write data to files */
+  tmpIdx << kza << "\t" << numSpec << "\t" << offset << endl;
+  
+  /* write basic info to binLib */
+  offset += fwrite(&kza,SINT,1,binLib)*SINT;
+  offset += fwrite(&numSpec,SINT,1,binLib)*SINT;
+  /* write number of discrete gammas in each spectrum */
+  offset+=fwrite(numDisc,SINT,numSpec,binLib)*SINT;	
+  /* write number of interpolation groups in each spectrum */
+  offset+=fwrite(nIntReg,SINT,numSpec,binLib)*SINT;
+  /* write number of interpolation points in each spectrum */
+  offset+=fwrite(nPnts,SINT,numSpec,binLib)*SINT;
+  
+  /* for each spectrum */
+  for (specNum=0;specNum<numSpec;specNum++)
+    {
+      /* write extra info to index */
+      tmpIdx << "\t" << numDisc[specNum] << "\t" << nIntReg[specNum]
+	     << "\t" << nPnts[specNum] << "\t" << offset << endl;
+      
+      /* gamma Energies */
+      offset+=fwrite(discGammaE[specNum],SFLOAT,numDisc[specNum],binLib)*SFLOAT;
+      delete discGammaE[specNum];
+      /* gamma Intensities */
+      offset+=fwrite(discGammaI[specNum],SFLOAT,numDisc[specNum],binLib)*SFLOAT;
+      delete discGammaI[specNum];
+      /* interpolation region boundaries */
+      offset+=fwrite(intRegB[specNum],SINT,nIntReg[specNum],binLib)*SINT;
+      delete intRegB[specNum];
+      /* interpolation region types */
+      offset+=fwrite(intRegT[specNum],SINT,nIntReg[specNum],binLib)*SINT;
+      delete intRegT[specNum];
+      /* interpolation gamma Energies */
+      offset+=fwrite(contX[specNum],SFLOAT,nPnts[specNum],binLib)*SFLOAT;
+      delete contX[specNum];
+      /* interpolation gamma Intensities */
+      offset+=fwrite(contY[specNum],SFLOAT,nPnts[specNum],binLib)*SFLOAT;
+      delete contY[specNum];
+    }
+  
+  delete numDisc;
+  delete nIntReg;
+  delete nPnts;
+  delete discGammaE;
+  delete discGammaI;
+  delete intRegB;
+  delete intRegT;
+  delete contX;
+  delete contY;
+  
+}
 
 void ALARALib::close(int readNParents, int libType, char *idxName)
 {
@@ -274,6 +334,7 @@ void ALARALib::appendIdx(char* idxName,int libType)
   int parNum, nRxn, rxnNum;
   char emission[64];
   int emittedLen, kza;
+  int nDisc, nRegs, nPnts;
 
   /* open text index */
   tmpIdx.open(idxName, ios::in);
@@ -307,12 +368,28 @@ void ALARALib::appendIdx(char* idxName,int libType)
       /* read and write daughter info */
       for (rxnNum=0;rxnNum<nRxn;rxnNum++)
 	{
-	  tmpIdx >> kza >> emission >> ioffset;
-	  emittedLen = strlen(emission);
-	  offset += fwrite(&kza,SINT,1,binLib)*SINT;
-	  offset += fwrite(&emittedLen,SINT,1,binLib)*SINT;
-	  offset += fwrite(emission,1,emittedLen,binLib);
-	  offset += fwrite(&ioffset,SLONG,1,binLib)*SLONG;
+	  switch(libType)
+	    {
+	    case DATALIB_ALARA:
+	    case DATALIB_ADJOINT:
+	      {
+		tmpIdx >> kza >> emission >> ioffset;
+		emittedLen = strlen(emission);
+		offset += fwrite(&kza,SINT,1,binLib)*SINT;
+		offset += fwrite(&emittedLen,SINT,1,binLib)*SINT;
+		offset += fwrite(emission,1,emittedLen,binLib);
+		offset += fwrite(&ioffset,SLONG,1,binLib)*SLONG;
+		break;
+	      }
+	    case DATALIB_GAMMA:
+	      {
+		tmpIdx >> nDisc >> nRegs >> nPnts >> ioffset;
+		offset += fwrite(&nDisc,SINT,1,binLib)*SINT;
+		offset += fwrite(&nRegs,SINT,1,binLib)*SINT;
+		offset += fwrite(&nPnts,SINT,1,binLib)*SINT;
+		offset += fwrite(&ioffset,SLONG,1,binLib)*SLONG;
+	      }
+	    }
 	}
     } 
 
