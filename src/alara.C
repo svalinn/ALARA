@@ -16,12 +16,24 @@ pu am cm bk cf es fm md no lr ";
 int main(int argc, char *argv[])
 {
   int argNum = 1;
-  Input problemInput(NULL);
+  char *inFname = NULL;
   Root* rootList = new Root;
   topSchedule* schedule;
 
   while (argNum<argc)
     {
+      if (argv[argNum][0] != '-')
+	if (inFname == NULL)
+	  {
+	    inFname = new char[strlen(argv[argNum])+1];
+	    strcpy(inFname,argv[argNum]);
+	    argNum++;
+	    /* get next argument */
+	    continue;
+	  }
+	else
+	  error(200,"Only one input filename can be specified: %s.",inFname);
+
       while (argv[argNum][0] == '-')
 	argv[argNum]++;
       switch (argv[argNum][0])
@@ -75,6 +87,8 @@ int main(int argc, char *argv[])
 	  }
 	}
     }
+
+  Input problemInput(inFname);
 
   /* INPUT */
   verbose(0,"Starting problem input processing.");
