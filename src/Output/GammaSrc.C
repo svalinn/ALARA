@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.13 2003-01-14 22:09:23 wilsonp Exp $ */
+/* $Id: GammaSrc.C,v 1.14 2003-03-25 18:17:55 varuttam Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -413,7 +413,7 @@ double GammaSrc::calcDoseConv(int kza, double *mixGammaAttenCoef)
 
 }
 
-double GammaSrc::calcAdjDose(int kza, double *volAdjDoseConv, double userVol)
+double GammaSrc::calcAdjDose(int kza, double *volAdjDoseConv, double vol)
 {
 
   double adjDose = 0;
@@ -426,7 +426,7 @@ double GammaSrc::calcAdjDose(int kza, double *volAdjDoseConv, double userVol)
 	adjDose += mult[gNum]*volAdjDoseConv[gNum];
     }
 
-  return adjDose*userVol;
+  return adjDose*vol;
   
 
 

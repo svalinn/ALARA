@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.28 2003-01-14 22:09:23 wilsonp Exp $ */
+/* $Id: Result.C,v 1.29 2003-03-25 18:17:55 varuttam Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -359,7 +359,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 	    dataAccess.getLambda(targetKza)*actMult;
 	  break;
         case OUTFMT_ADJ:
-	  multiplier = volPtr->getAdjDoseConv(targetKza, gammaSrc) *
+          multiplier = volPtr->getAdjDoseConv(targetKza, gammaSrc) *
 	    dataAccess.getLambda(targetKza)*actMult;
 	  break;
         default:

@@ -1,9 +1,11 @@
-$Id: ChangeLog,v 1.12 2003-01-14 05:01:18 wilsonp Exp $
+$Id: ChangeLog,v 1.13 2003-03-25 18:17:54 varuttam Exp $
 	
 Version 2.6.???
 	
 BUGS FIXED
-	* Change parameter passed to Result::write so that uservol is 
+        * Modified bio dose calculation to use volume instead 
+          of uservol [AV] (3/25/03) 	
+        * Change parameter passed to Result::write so that uservol is 
 	  correctly processed [AV] (09/18/2002)	
 	* Util/input.C:tokentype() - token conversion to lower case only
 	  changed first character [AV] (08/13/2002)

@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.35 2003-01-14 22:09:23 wilsonp Exp $ */
+/* $Id: Volume.C,v 1.36 2003-03-25 18:17:55 varuttam Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -1009,6 +1009,9 @@ void Volume::readAdjDoseData(int nGroups, ifstream& AdjDoseData)
 
 double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
 {
- 
-  return adjDose->calcAdjDose(kza,adjConv,userVol);
+// adjDose or volume can be NULL if folded dose (bio dose) requested for unsupported resolution
+
+  if (adjDose == NULL || &volume == NULL)
+  	error(9000, "Error in Volume::getAdjDoseConv()" ); 
+  return adjDose->calcAdjDose(kza,adjConv,volume);
 }
