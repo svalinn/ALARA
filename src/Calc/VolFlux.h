@@ -1,4 +1,4 @@
-/* $Id: VolFlux.h,v 1.12 2002-08-23 20:45:31 fateneja Exp $ */
+/* $Id: VolFlux.h,v 1.13 2002-12-07 17:43:08 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _VOLFLUX_H
@@ -32,8 +32,16 @@ protected:
     refflux_type;
 
   double 
-    /// An array of scalar flux values.
-    *flux;
+    /// Neutron flux storage
+    *nflux,
+    
+    /// Charged particle flux storage
+    /** Alpha, Deuteron, Helium-3, Proton, Triton */
+    **CPflux;
+
+  double
+    /// Storage for Charged particle flux
+    *CPfluxStorage;
 
   RateCache 
     /// A data cache to prevent refolding the cross-sections with the
@@ -102,7 +110,7 @@ public:
   /** Inline destructor deletes storage for 'flux' and destroys list of
        VolFlux objects by deleting 'next'. */
   ~VolFlux()
-    { delete flux; delete next; };
+    { delete nflux; delete next; };
 
   /// Overloaded assignment operator
   /** The correct implementation of this operator must ensure that
@@ -142,6 +150,12 @@ public:
 
   /// Inline function provides access to the 'next' object in the list.
   VolFlux* advance() {return next;};
+
+  double *getnflux() {return nflux;};
+  double **getCPflux() {return CPflux;};
+
+  void setCPflux(int CP, int CPEG, double value)
+    {CPflux[CP][CPEG] = value;}
 
 };
 
