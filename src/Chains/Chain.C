@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.17 2000-02-19 05:34:12 wilson Exp $ */
+/* $Id: Chain.C,v 1.18 2002-02-25 14:21:16 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -530,7 +530,7 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
     {
       if (col == row)
 	{
-	  data[idx] = exp(-d[row]*time);
+	  data[idx] = exp(-d[row+fluxOffset]*time);
 	  col = 0;
 	  row++;
 	  switch(mode)
