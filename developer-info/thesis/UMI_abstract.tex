@@ -1,22 +1,24 @@
+\documentclass[12pt,dvips]{article}
 
-\maketitle
+\usepackage{vmargin}
+\setpapersize{USletter}
+\setmarginsrb{1.25in}{1in}{1.1in}{1.1in}{0.25in}{0.25in}{0in}{0in}
+\def\ALARA{\textsf{ALARA}}
+\renewcommand\baselinestretch{1.66}
+\pagestyle{empty}
 
-\newpage
-\thispagestyle{empty}
-
-\vspace*{\stretch{1}}
+\begin{document}
 
 \begin{center}
-  \textsl{to my father, Philip S.~Wilson\\
-with thanks for the Sunday night BASIC lessons}
+  \textbf{\large ALARA: Analytic and Laplactian Adaptive Radioactivity
+    Analysis}\\
+  \ \\
+  \textbf{Paul Philip Hood Wilson}\\
+  Under the supervision of Associate Professor Douglass L.~Henderson\\
+  At the University of Wisconsin-Madison
 \end{center}
 
-\vspace*{\stretch{2}}
 
-\newpage
-
-\begin{myabstract}
-  
   While many codes have been written to compute the induced activation
   and changes in composition caused by neutron irradiation, most of
   those which are still being updated are only slowly adding
@@ -53,22 +55,4 @@ with thanks for the Sunday night BASIC lessons}
   With its modern computational techniques and continuing development,
   it is hoped that \ALARA\ will become a widely used code for the
   activation analysis of nuclear systems.
-
-
-\end{myabstract}
-
-\pagenumbering{roman}
-\tableofcontents
-
-\listoffigures
-
-\listoftables
-
-
-
-
-
-
-
-
-
+\end{document}
