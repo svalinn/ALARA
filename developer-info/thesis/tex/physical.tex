@@ -14,7 +14,7 @@ used in this chapter and others.
   \end{center}
 \end{floatingfigure}
 
-A tree is constructed of \textsl{nodes}, each representing a single
+\noindent\ \ A tree is constructed of \textsl{nodes}, each representing a single
 isotope, and \linebreak \textsl{branches}, each representing a reaction path
 between the \textsl{parent} isotope and \textsl{daughter} isotope for
 that reaction.  The top isotope in the tree will be called the
@@ -216,6 +216,7 @@ computational efficiency and optimum memory usage.
     matrix still prevents the use of the traditional analytic methods
     based on the Bateman equations.
     
+    \newpage
     \noindent In the past, some methods\cite{DKR,DKRICF,DKRP} have simply
     ignored all but the simplest of loops, 1$^{st}$ order loops at
     rank 1, and analytically handled these simple loops as special
@@ -272,16 +273,16 @@ computational efficiency and optimum memory usage.
           $(n,p)$ Reaction & \multicolumn{5}{c|}{\# of
             corrections}\\\cline{2-6}
           & 0 & 1 & 2 & 3 & 4 \\\hline\hline
-          $^{13}$C$(n,p)^{13}$B & 4.05673e-05 & 8.22863e-10 & 1.09741e-14 &
-          1.11998e-16 & 1.11998e-16\\\hline
-          $^{16}$O$(n,p)^{16}$N & 0.000350779 & 6.15303e-08 & 7.19553e-12 &
-          5.61671e-16 & 1.12323e-16 \\\hline
-          $^{28}$Si$(n,p)^{28}$Al & 0.0024263 & 2.94585e-06 & 2.38492e-09 &
-          1.44851e-12 & 1.02186e-15 \\\hline
-          $^{49}$Ti$(n,p)^{49}$V & 0.000246933 & 3.04905e-08 & 2.50984e-12 & 0 &
-          1.20563e-16\\\hline
-          $^{56}$Fe$(n,p)^{56}$Mn & 0.00103427 & 5.35044e-07 & 1.84539e-10 &
-          4.77253e-14 & 0\\\hline\hline
+          $^{13}$C$(n,p)^{13}$B & 4.06e-05 & 8.23e-10 & 1.10e-14 &
+          1.12e-16 & 1.12e-16\\\hline
+          $^{16}$O$(n,p)^{16}$N & 0.000351 & 6.15e-08 & 7.20e-12 &
+          5.62e-16 & 1.12e-16 \\\hline
+          $^{28}$Si$(n,p)^{28}$Al & 0.00243 & 2.95e-06 & 2.38e-09 &
+          1.45e-12 & 1.02e-15 \\\hline
+          $^{49}$Ti$(n,p)^{49}$V & 0.000247 & 3.05e-08 & 2.51e-12 & 0 &
+          1.21e-16\\\hline
+          $^{56}$Fe$(n,p)^{56}$Mn & 0.00103 & 5.35e-07 & 1.85e-10 &
+          4.77e-14 & 0\\\hline\hline
         \end{tabular}
       \end{center}
     \end{table}
@@ -351,8 +352,8 @@ computational efficiency and optimum memory usage.
     here, otherwise the tree continues to grow.  This raises two
     primary issues to be considered:
     \begin{itemize}
-    \item how can the production the isotopes at a certain rank in the
-      chain be calculated or estimated without solving the whole
+    \item how can the production of the isotopes at a certain rank in
+      the chain be calculated or estimated without solving the whole
       problem, and,
     \item how can the importance of that production be measured.
     \end{itemize}
@@ -427,7 +428,7 @@ computational efficiency and optimum memory usage.
     
     A better implementation calculates the relative inventory of the
     entire sub-tree rooted in the node in question.  Fortunately, this
-    is quite easily implemented.  Since all atoms that pass into an
+    is quite easily implemented.  Since all atoms that pass into a
     node will end up either as part of that node's inventory or as
     part of the inventory of that node's sub-tree, it is only
     necessary to calculate how many atoms are passed into the node
@@ -495,8 +496,8 @@ computational efficiency and optimum memory usage.
     noted that this measure of the truncation error in the physical
     model is an upper bound since a group-wise maximum flux is being
     used for the calculations.  In many spatial regions, the actual
-    production in the final solution may be many of orders of
-    magnitude less than that of the truncation calculation.
+    production in the final solution may be many orders of magnitude
+    less than that of the truncation calculation.
     
     The full implementation of this philosophy does have detrimental
     effects on the speed of the solution.  The most significant drag
@@ -613,7 +614,7 @@ computational efficiency and optimum memory usage.
   ensures the correct flux level for the determination of the secular
   equilibrium level of the short-lived isotopes.
   
-  Alternatively, if matrix methods are used, the equation
+  Alternatively, if matrix methods are used, equation
   \ref{eqn:intro.basic_ode} can be solved for each pulse and dwell
   time, and then appropriately multiplied and raised to a power to
   represent the entire history (see section \ref{sec:math.implement}).
@@ -626,11 +627,11 @@ computational efficiency and optimum memory usage.
   occur when the pulsing schedule of an experimental facility follows
   the standard working hours of the staff.  Figure
   \ref{fig:physical.sample_hist} shows such a history with parameters
-  give in table \ref{tab:physical.sample_hist} shows such a history.
-  When using matrix methods and exact history modeling, the activation
-  equation is solved once for the pulse and for each dwell period.
-  These matrices are then multiplied in the correct sequence to
-  generate a transfer matrix solution for the entire history.
+  give in table \ref{tab:physical.sample_hist}.  When using matrix
+  methods and exact history modeling, the activation equation is
+  solved once for the pulse and for each dwell period.  These matrices
+  are then multiplied in the correct sequence to generate a transfer
+  matrix solution for the entire history.
 
   \begin{figure}[htbp]
     \begin{center}
@@ -683,6 +684,8 @@ computational efficiency and optimum memory usage.
   the reprocessing dwell time.  These matrices can then be multiplied
   and raised to a power as appropriate to model the entire history.
   
+  \enlargethispage*{\baselineskip}
+
   \begin{figure}[htbp]
     \begin{center}
       \leavevmode
@@ -807,7 +810,7 @@ computational efficiency and optimum memory usage.
   activation tree is modeled as linear chains created by a depth-first
   search of the straightened activation tree.  Using this technique,
   \ALARA\ must never store information about more than one chain at
-  any time.  As each chain is truncate, it is immediately solved for
+  any time.  As each chain is truncated, it is immediately solved for
   each spatial point, now using that point's flux, in which the root
   isotope exists.  Various parameters of the chain are used to sum
   only the contributions from the \pc-nodes which will not be part of

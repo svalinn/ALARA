@@ -20,8 +20,8 @@
       modifications and extensions.  The code is also made more
       readable by using short functions with specific purposes and
       overloaded operators to perform standard operations on complex
-      classes (such as matrix operations: A = B * C).  Appendix
-      \ref{app:headers} includes selected class headers the
+      classes (such as matrix operations: A = B * C).  See the class
+      header files (distributed with the source code) for the
       documentation and definition of the data classes and their
       interfaces.
       
@@ -62,7 +62,7 @@
       problems.
       
       Similarly, to minimize memory usage throughout the problem,
-      \ALARA\  makes use of a binary file to log the solution of each
+      \ALARA\ makes use of a binary file to log the solution of each
       root isotope in each interval.  In essence, this so-called dump
       file records the concentration of all the isotopes resulting
       from a single root isotope.  This data is loaded again during
@@ -70,7 +70,7 @@
       into the type of output requested by the user.  This dump file
       could also serve as the interface to a graphical post-processor,
       should one be developed.  Since all the engineering responses
-      based on an activation calculation are a generated from the
+      based on an activation calculation are generated from the
       scaling and summing of these individual interval results, the
       input file and dump file can be used to reconstruct the solution
       to the problem.
@@ -78,7 +78,7 @@
     
     \begin{subsection}{User-Oriented Design}
       
-      When choosing new software, one primary factors considered by
+      When choosing new software, one primary factor considered by
       users is the ease of use.  Two aspects of this factor are the
       input file's simplicity and readability and the code's
       flexibility to a variety of applications.
@@ -125,16 +125,21 @@
       applications.
     \end{subsection}
 
-    \newpage
     \begin{subsection}{General Program Flow}
       
+      The program flow of \ALARA\ can be divided into three main
+      phases, as shown in figure \ref{fig:summary.prog_flow}.  The
+      most important of these phases is the solution phase, in which
+      all the physical modeling methods and mathematical techniques
+      described in earlier chapters are implemented.
+      
       \begin{figure}[htbp]
+        \begin{center}
+          \epsfig{file=eps/prog_flow.eps, width=0.7\columnwidth}
+        \end{center}
         \caption{The general flow of \ALARA\  can be described as follows:}
         \label{fig:summary.prog_flow}
       \end{figure}
-      \begin{center}
-        \epsfig{file=eps/prog_flow.eps, width=0.7\columnwidth}
-      \end{center}
     
     \end{subsection}
     
@@ -187,7 +192,7 @@
         \tag{Eqn (4) in Ref. \citen{sequential}}
       \end{equation}
       where\\
-      \begin{tabular}{rcp{12cm}}
+      \begin{tabular}{rcp{11cm}}
         $\Phi_{x_k}$ & $\equiv$ & Charged particle flux of type $x$ and energy group
         $k$,\\
         $\overline{\Phi_{n_i}}$ & $\equiv$ & Neutron flux of energy group $i$,\\
@@ -383,11 +388,11 @@
       accessing individual records to be summed into a single response
       may be inefficient.
       
-      All of these advanced data handling techniques lead to the
-      question of post-processing.  By upgrading the \ALARA\  dump file
-      with an index, a graphical tool could be built to randomly
+      All of these advanced data handling techniques suggest the
+      development of a post-processor.  By upgrading the \ALARA\ dump
+      file with an index, a graphical tool could be built to randomly
       access the file as requested by the user, calculating a wider
-      range of responses than built in to \ALARA\  itself and with more
+      range of responses than built in to \ALARA\ itself and with more
       flexibility.  For example, the specific activity could be
       averaged across a user-defined set of zones in order to lower
       the bulk activity to some acceptable level.  A graphical

@@ -4,7 +4,7 @@
   The usage of ALARA is fairly straightforward, requiring little
   knowledge of the code's inner workings.  Of course, to ensure that
   ALARA is well-suited to the problems that you are trying to solve,
-  you are encouraged to read the chapters \ref{chap:physical} and
+  you are encouraged to read chapters \ref{chap:physical} and
   \ref{chap:math} and understand the physical and mathematical
   modeling characteristics of ALARA.
   
@@ -57,7 +57,7 @@
     input information.  After reading the full input file, \ALARA\ 
     performs various cross-checks and cross-references to ensure that
     the input data is self-consistent.  It then goes on to pre-process
-    the data for the calculation.  All attempts have been made to give
+    the data for the calculation.  Every attempt has been made to give
     useful error messages when the data is not consistent.
 
     \begin{subsection}{General}
@@ -158,10 +158,10 @@
     
     \begin{subsection}{\texttt{geometry}\label{app:user.input.geom}}
     
-      This input block only necessary when defining a geometry using
-      the \texttt{dimension} input block, but may always be included.
-      It should only occur once.  This input block takes a single
-      argument which must be one of the following:
+      This input block is only necessary when defining a geometry
+      using the \texttt{dimension} input block, but may always be
+      included.  It should only occur once.  This input block takes a
+      single argument which must be one of the following:
       \begin{center}
         \texttt{point | rectangular | cylindrical | spherical | torus}
       \end{center}
@@ -323,8 +323,8 @@ end
       name used to refer to this mixture elsewhere in the input file.
       Following this is a list of triplets with one triplet for each
       mixture component.  The list must be terminated with the keyword
-      '\texttt{end}'.  The first element of each triplet describes
-      what the type of that component and should be one of:
+      '\texttt{end}'.  The first element of each triplet describes the
+      type of that component and should be one of:
       \begin{center}
         \texttt{material | element | isotope | like | target}
       \end{center}
@@ -555,11 +555,11 @@ end
 
 # phase 1 schedule
 schedule phase_1_sched
-    # a pulsing regimen with 1800 second pulses at flux 'high_yield_flux' 
-    # pulsed with '5_week_plan_short' after which there is a 1 week delay
+    # a pulsing regimen with 1800 s pulses at flux 'high_yield_flux' 
+    # pulsed with '5_week_plan_short' followed by a 1 week delay
   1800 s high_yield_flux 5_week_plan_short 1 w
     # a special schedule for cleaning the facility, 'cleaning_sched'
-    # with a pulsing history 'cleaning_cycle' after which there is no delay
+    # with a pulsing history 'cleaning_cycle' followed by no delay
   cleaning_sched cleaning_cycle 0 s
 end
 
@@ -896,28 +896,28 @@ zone     shutdown         1 h         1 y
 2       1.8628e+09  1.3445e+09  5.3928e+07  magnet_coil (TF_Coil)
 3       6.7569e+08  2.1433e+08  2.1405e+06  magnet_ins (Insulator)
 4       gap1 (void)                         
-5       2.8115e+09  1.4657e+08  4.2568e+07  in_VV_shield1 (Pb_B4C)
-6       3.7343e+10  3.3576e+10  3.5317e+09  in_VV_wall1 (Inconel)
+5       2.8115e+09  1.4657e+08  4.2568e+07  i_VV_shield1 (Pb_B4C)
+6       3.7343e+10  3.3576e+10  3.5317e+09  i_VV_wall1 (Inconel)
 .
 .
 .
-25      2.0427e+16  1.4648e+16  1.0754e+14  in_fw_cube (Cu-Be-Ni)
-26      5.8139e+15  9.3164e+13  8.8089e+13  in_fw_Be (Be)
-27      in_Scrape (void)                    
+25      2.0427e+16  1.4648e+16  1.0754e+14  i_fw_cube (Cu-Be-Ni)
+26      5.8139e+15  9.3164e+13  8.8089e+13  i_fw_Be (Be)
+27      i_Scrape (void)                    
 28      plasma (void)                       
-29      out_scrape (void)                   
-30      7.6731e+15  1.2204e+14  1.1539e+14  out_fw_Be (Be)
-31      2.3041e+16  1.6188e+16  1.4785e+14  out_fw_cube (Cu-Be-Ni)
+29      o_scrape (void)                   
+30      7.6731e+15  1.2204e+14  1.1539e+14  o_fw_Be (Be)
+31      2.3041e+16  1.6188e+16  1.4785e+14  o_fw_cube (Cu-Be-Ni)
 .
 .
 .
-45      2.3003e+11  2.8462e+06  2.7750e+06  out_b_water1 (water)
-46      9.6034e+12  8.1892e+12  1.2897e+12  out_b_steel1 (steel)
+45      2.3003e+11  2.8462e+06  2.7750e+06  o_b_water1 (water)
+46      9.6034e+12  8.1892e+12  1.2897e+12  o_b_steel1 (steel)
 47      gap3 (void)                         
-48      6.5203e+12  5.7575e+12  6.0297e+11  out_VV_wall2 (Inconel)
-49      4.3277e+11  3.6355e+11  4.6945e+10  out_VV_shield2 (Steel_Water)
-50      5.3731e+09  4.8643e+09  5.1452e+08  out_VV_wall1 (Inconel)
-51      4.1986e+08  2.0902e+07  6.2052e+06  out_VV_shield1 (Pb_B4C)
+48      6.5203e+12  5.7575e+12  6.0297e+11  o_VV_wall2 (Inconel)
+49      4.3277e+11  3.6355e+11  4.6945e+10  o_VV_shield2 (Steel_Water)
+50      5.3731e+09  4.8643e+09  5.1452e+08  o_VV_wall1 (Inconel)
+51      4.1986e+08  2.0902e+07  6.2052e+06  o_VV_shield1 (Pb_B4C)
 ============================================
 \end{boxedverbatim}
       \end{center}
@@ -1075,11 +1075,299 @@ zone     shutdown         1 h         1 y
 
 
   \begin{section}{Error Messages}\label{app:errors}
+    \renewcommand{\baselinestretch}{1.12}\normalsize
+    \begin{description}
+    \item[-1:]\textbf{Memory allocation error: $<\!\!string\!\!>$}\ \\
+      An error in the runtime allocation of memory occured.
+      ``$<\!\!string\!\!>$'' reports the function and variable where
+      the error occurred.
+    \item[0:]\textbf{Option $<\!\!string\!\!>$ is not implemented yet.} \ \\
+      An unsupported command-line option was specified: $string$.
+    \item[1:]\textbf{Only one input filename can be specified:
+        $<\!\!string\!\!>$.}\ \\
+      There appears to be more than one input filename on the
+      command-line.  This may be caused by an error in the other
+      command line options, or a missing option.
+    \end{description}
     
+    \begin{subsection}{Input Phase}
+      
+      Note that all error messages which occur during the input phase
+      may not report the accurate cause of the error.  If there is an
+      error in the input file, \ALARA\ may not immediately recognize
+      the error and then report an error during some later input
+      block.  This is particularly true during the first step, reading
+      the input file itself.
+      
+      \begin{subsubsection}{Read Input File}
+        \begin{description}
+        \item[100:]\textbf{Invalid token in input file:
+            $<\!\!string\!\!>$}\ \\
+          There is an error in the input file causing it to read an
+          invalid keyword.
+        \item[101:]\textbf{Unable to open included file:
+            '$<\!\!string\!\!>$'.}\ \\
+          The file $string$ included in one of the input files can not
+          be openned.
+        \item[110:]\textbf{Unable to open material library:
+            $<\!\!string\!\!>$}\ \\
+          The file $string$ specified in the \texttt{material\_lib} input
+          block cannot be openned.
+        \item[111:]\textbf{Unable to open element library: $<\!\!string\!\!>$}\ \\
+          The file $string$ specified in the \texttt{element\_lib} input
+          block cannot be openned.
+        \item[120:]\textbf{Invalid units in cooling time: \%10g \%c}\ \\
+          The specified cooling time does not have one of the supported
+          time units.
+        \item[121:]\textbf{No after-shutdown/cooling times were defined.}\
+          \\
+          The \texttt{cooling} input block contains no information before
+          the \texttt{end} keyword.
+        \item[130:]\textbf{Invalid dimension type: $<\!\!string\!\!>$}\ \\
+          The type of dimension, $string$, declared in the \texttt{dimension} block
+          is not supported.
+        \item[131:]\textbf{Dimension has no boundaries}\ \\
+          The \texttt{dimension} block has no zone boundary information
+          before the \texttt{end} keyword.
+        \item[140:]\textbf{Invalid flux type: $<\!\!string\!\!>$}\ \\
+          The flux type, $string$, specified in the \texttt{flux} block in
+          not supported.
+        \item[150:]\textbf{Invalid geometry type: $<\!\!string\!\!>$}\ \\
+          The geometry type, $string$, specified in the \texttt{geometry}
+          block is not supported.
+        \item[160:]\textbf{History $<\!\!string\!\!>$ is empty} \ \\
+          The \texttt{history} input block, $string$, contains no
+          information before the \texttt{end} keyword.
+        \item[170:]\textbf{Material Loading is empty.}\ \\
+          The \texttt{mat\_loading} input block contains no information
+          before the \texttt{end} keyword.
+        \item[180:]\textbf{Target materials for reverse calculations can only be
+            elements or isotopes and not '$<\!\!string\!\!>$'}\ \\
+          The component type, $string$, given for this target material
+          is not supported.  It must be either ``element'' or ``isostope''.
+        \item[181:]\textbf{Invalid material constituent:
+            $<\!\!string\!\!>$}\ \\
+          The component type, $string$, specified for this mixture
+          component is not supported.
+        \item[182:]\textbf{Mixture $<\!\!string\!\!>$ has no
+            components}\ \\
+          The \texttt{mixture} input block, $string$, contains no
+          information before the \texttt{end} keyword.
+        \item[190:]\textbf{Invalid units in pulse level: \%10g \%c}\
+          \\
+          The specified pulse level decay time does not have one of
+          the supported time units.
+        \item[200:]\textbf{Schedule $<\!\!string\!\!>$ is empty} \ 
+          \\
+          The \texttt{schedule} input block, $string$, contains no
+          information before the \texttt{end} keyword.
+        \item[210:]\textbf{Invalid units in schedule item delay
+            time:  \%10g \%c}\ \\
+          The specified inter-schedule delay time does not have one
+          of the supported time units.
+        \item[211:]\textbf{Invalid units in single pulse time: \%10g \%c}\ \\
+          The specified pulse length does not have one of the
+          supported time units.
+        \item[230:]\textbf{Output type '$<\!\!string\!\!>$' is not
+            currently supported.}\ \\
+          The output type, $string$, specified for this output
+          format is not supported.
+        \item[240:]\textbf{Unable to open dump file
+            $<\!\!string\!\!>$}\ \\
+          The output ``dump'' file could not be openned.
+        \end{description}
+      \end{subsubsection}
+      
+      \begin{subsubsection}{Input Checking}
+        \begin{description}
+        \item[300:]\textbf{Cannot define both zone dimensions and
+            interval volumes.}\ \\
+          \ALARA\ does not permit the geometry to be defined with both
+          the \texttt{dimension} input block and the \texttt{volumes}
+          input block.  This would result in redundant and possibly
+          inconsistent input.
+        \item[301:]\textbf{A material loading is given for more
+            zones (\%d) than are defined by the zone dimensions
+            (\%d).  Those extra
+            zones are being ignored.}\ \\
+          The number of zones as defined by the
+          \texttt{mat\_loading} input block does is larger than the
+          number defined by the \texttt{dimension} blocks.  This is
+          permissible, but may lead to dubious results.  The extra
+          zones from the \texttt{mat\_loading} block will be ignored.
+        \item[302:]\textbf{Number of zones defined by zone
+            dimensions (\%d) matches number of material
+            loadings defined.(\%d)"}\ \\
+          The number of zones as defined by the
+          \texttt{mat\_loading} input block does is smaller than the
+          number defined by the \texttt{dimension} blocks.  This is
+          NOT permissible as it would leave some zones unfilled.
+        \item[303:]\textbf{Must define either zone dimensions or
+            interval volumes for multi-point problems.}\ \\
+          \ALARA\ requires a definition of the geomery using either
+          the \texttt{dimension} input block or the \texttt{volumes}
+          input block for problems in more than 0 dimensions.
+        \item[310:]\textbf{Could not find element $<\!\!string\!\!>$
+            in element library.}\ \\
+          The element $string$ was not found in the element library.
+          This could be due to an error in the material library,
+          incorrect user input, or an omission in the element
+          library.
+        \item[311:]\textbf{Could not find material
+            $<\!\!string\!\!>$ in material library.}\ \\
+          The material $string$ was not found in the material
+          library.  This could be due to incorrect user input or an
+          omission in the element library.
+        \item[330:]\textbf{Duplicate dimensions of type
+            $<\!\!string\!\!>$.}\ \\
+          The dimension $string$ was defined more that once in the
+          input file.
+        \item[331:]\textbf{$<\!\!string1\!\!>$ geometries don't have
+            dimensions of type $<\!\!string2\!\!>$.}\ \\
+          The dimension type $string2$ was defined for geometry type
+          $string1$, which does not allow this kind of dimension.
+        \item[340:]\textbf{Unable to open flux file
+            $<\!\!string1\!\!>$ for flux $<\!\!string2\!\!>$.}\ \\
+          In the flux definition $string2$ the given flux file
+          $string1$ cannot be openned.
+        \item[350:]\textbf{Toroidal problems with zone dimensions
+            require a major radius.}\ \\
+          All problems defined as having toroidal geometries must
+          define a major radius with the \texttt{major\_radius} input
+          block.
+        \item[351:]\textbf{Toroidal problems with zone dimensions
+            require either a minor radius or a radius dimension.}\ \\
+          All problems defined as having toroidal geometries must
+          define a minor radius with either a \texttt{dimension} block
+          or the \texttt{minor\_radius} input block.
+        \item[370:]\textbf{Zone $<\!\!string1\!\!>$ is loaded with a
+            non-existent mixture: $<\!\!string2\!\!>$}\ \\
+          The mixture $string2$ specified to fill zone $string1$ in
+          the \texttt{mat\_loading} block is not defined in the input
+          file.  Either add a new mixture definition or change the
+          name of the mixture to be used for this zone.
+        \item[380:]\textbf{Component type 'l' of mixture
+            $<\!\!string1\!\!>$ references a non-existent
+            mixture: $<\!\!string2\!\!>$}\ \\
+          The mixture $string2$ specified in the ``similar'' component
+          of mixture $string1$ is not defined in the input file.
+          Either add a new mixture definition or change the name of
+          the mixture to be used for this definition.
+        \item[400:]\textbf{Unable to find top level schedule.  A top
+            level schedule must not used as a sub-schedule.}\ \\
+          All of the defined schedules are referenced as sub-schedules
+          of other schedules.  This means that there is no top to the
+          hierarchical schedule system, as required.
+        \item[410:]\textbf{Flux $<\!\!string1\!\!>$ for simple pulse
+            item of schedule $<\!\!string2\!\!>$ does not exist.}\ \\
+          The flux $string1$ required to calculate the simple pulsing
+          schedule item of schedule $string2$ is not defined.
+        \item[411:]\textbf{Bad flux file for flux $<\!\!string\!\!>$
+            for simple pulse item of schedule $<\!\!string\!\!>$.}\ \\
+          The file for flux $string1$ required to calculate the simple
+          pulsing schedule item of schedule $string2$ cannot be openned.
+        \item[412:]\textbf{Schedule recursion: $<\!\!string\!\!>$.}\ 
+          \\
+          There is a loop in the schedule hierarchy.  This implies an
+          infinitely long and infinitely complex total irradiation
+          history, which is unphysical.  Check the definition of the
+          schedules.
+        \item[413:]\textbf{Schedule $<\!\!string1\!\!>$ for subschedule
+            item of schedule $<\!\!string2\!\!>$ does not exist.}\ \\
+          The sub-schedule $string1$ defined as a schedule item of
+          schedule $string2$ has not been defined.
+        \item[414:]\textbf{Pulse history $<\!\!string1\!\!>$ for
+            item of schedule $<\!\!string2\!\!>$ does not exist.}\ \\
+          The pulsing history $string1$ required to calculate a
+          schedule item of schedule $string2$ has not been defined.
+        \item[420:]\textbf{Zone $<\!\!string\!\!>$ specified in
+            interval volumes was not found in the material loading.}\ 
+          \\
+          The zone $string$ specified to contain one of the volumes in
+          the \texttt{volumes} input block does not exist.
+        \item[440:]\textbf{ALARA now requires a binary dump file.
+            Openning the default file 'alara.dmp'.}\ \\
+          \ALARA\ uses a binary file to store intermediate results.
+          You can set the name of this file using the
+          \texttt{dump\_file} input block.  Otherwise, the default is
+          used.
+        \item[441:]\textbf{Unable to open dump file 'alara.dmp'.}\ \\
+          The default output dump file could not be openned.
+        \end{description}
+      \end{subsubsection}
+      
+      \begin{subsubsection}{Input Cross-referencing}
+        \begin{description}
+        \item[580:]\textbf{Removing mixture $<\!\!string\!\!>$ not
+            used in any zones.}\ \\
+          Mixture $string$ was defined in the input file, but is not
+          used in any zones.  It's definition is being removed.
+        \item[620:]\textbf{You have specified too few normalizations.
+            If you specifiy any normalizations, you must specify one
+            for each interval.}\ \\
+          The \texttt{spatial\_norm} input block must contain an entry
+          for each of the fine mesh intervals.  It is not permissible
+          to have too few.
+        \item[621:]\textbf{You have specified too many normalizations.
+            Extra normalizations will be ignored.}\ \\
+          It permissible to define too many spatial normalizations,
+          but the results may by dubious.  The extra normalizations
+          will be ignored.
+        \item[622:]\textbf{Flux file $<\!\!string\!\!>$ does not
+            contain enough data.}\ \\
+          The flux file $string$ does not contain enough data to
+          provide a flux for each of the fine mesh intervals.
+        \end{description}    
+      \end{subsubsection}
+    \end{subsection}
     
+    \begin{subsection}{Data Library Errors}
+      
+      \begin{description}
+      \item[1000:]\textbf{Data library type $<\!\!string\!\!>$ (\%d) is
+          not yet supported.}\ \\
+        The specified library type $string$ is not supported.
+      \item[1001:]\textbf{Conversion from $<\!\!string1\!\!>$ (\%d) to
+          $<\!\!string2\!\!>$ (\%d) is not yet supported.}\ \\
+        Conversion between the specified library types $string1$ and
+        $string2$ is not supported.
+      \item[1001:]\textbf{Conversion from $<\!\!string\!\!>$ (\%d) to
+          (\%d) is not yet supported.}\ \\
+        Conversion between the specified library types $string1$ and
+        $\%d$ is not supported.
+      \item[1100:]\textbf{You have specified library type 'alaralib' but
+          given the filename of an 'adjlib' library.}\ \\
+        The type of library specified in the input block must match the
+        internally recorded library type.
+      \item[1101:]\textbf{You have specified library type 'alaralib' but
+          given the filename of an unidentified library.}\ \\
+        The type of library specified in the input block must match the
+        internally recorded library type.
+      \item[1102:]\textbf{You have specified library type 'adjlib' but
+          given the filename of an 'alaralib' library.}\ \\
+        The type of library specified in the input block must match the
+        internally recorded library type.
+      \item[1103:]\textbf{You have specified library type 'adjlib' but
+          given the filename of an unidentified library.}\ \\
+        The type of library specified in the input block must match the
+        internally recorded library type.
+      \end{description}    
+    \end{subsection}
+    
+    \begin{subsection}{Programming Errors}
+      
+      In some places, if \ALARA\ reaches that point in the program, it
+      implies an error in the logic of the code.  Please report such
+      errors to the code author.
+      
+      \begin{description}
+      \item[9000:]\textbf{Programming Error:...}
+      \end{description}    
+      
+    \end{subsection}
 
   \end{section}
   
-
+    
 \end{chapter}
-
+  

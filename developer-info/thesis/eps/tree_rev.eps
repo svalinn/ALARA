@@ -1,7 +1,7 @@
 %!
 %%BoundingBox: 16 685 209 782
 %%Title: tree_rev
-%%CreationDate: Sun Mar 21 04:17:10 1999
+%%CreationDate: Wed Mar 31 13:38:08 1999
 %%Creator: Tgif-2.13-p2 by William Chia-Wei Cheng (william@cs.UCLA.edu)
 %%Pages: 1
 %%DocumentFonts: Times-Roman Helvetica Courier NewCenturySchlbk Symbol
@@ -464,16 +464,10 @@ gsave
 gsave
    newpath
       341 131 moveto
-      21 0 atan dup cos 8 mul exch sin 8 mul rmoveto
       341 152 lineto
       117 152 lineto
       117 131 lineto
    stroke
-grestore
-gsave
-   newpath
-      341 131 8 3 0 -21 tgifarrowtip
-   closepath fill
 grestore
 
 % POLY/OPEN-SPLINE
@@ -694,9 +688,37 @@ gsave
    stroke
 grestore
 
+% POLY/OPEN-SPLINE
+gsave
+   newpath
+      341 152 moveto
+      -22 0 atan dup cos 8 mul exch sin 8 mul rmoveto
+      341 130 lineto
+   stroke
+grestore
+gsave
+   newpath
+      341 152 8 3 0 22 tgifarrowtip
+   closepath fill
+grestore
+
+% POLY/OPEN-SPLINE
+gsave
+   newpath
+      117 152 moveto
+      -22 0 atan dup cos 8 mul exch sin 8 mul rmoveto
+      117 130 lineto
+   stroke
+grestore
+gsave
+   newpath
+      117 152 8 3 0 22 tgifarrowtip
+   closepath fill
+grestore
+
 grestore
 tgifsavedpage restore
 end
 %%Trailer
-%MatchingCreationDate: Sun Mar 21 04:17:10 1999
+%MatchingCreationDate: Wed Mar 31 13:38:08 1999
 %%EOF

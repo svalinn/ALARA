@@ -45,7 +45,7 @@
     to decay heat results.  By comparing the radioactivity to
     regulated limits, the waste disposal ratings can be determined,
     indicating how the material must be handled.  Incorporating the
-    gamma ray emission information for each radioactive isotopes gives
+    gamma ray emission information for each radioactive isotope gives
     the gamma ray source, which may be used as the source term for a
     radiation transport calculation to determine a radiation dose at
     some spatial point.
@@ -189,7 +189,7 @@
     $e^{\mat{A}t}$ exponential:
     \begin{equation*}
       e^{\mat{A}t} = \mat{I} + \mat{A}t + \frac{\mat{A}^2t^2}{2!} +
-      \frac{\mat{A}^3t^3}{3!} + \ldots
+      \frac{\mat{A}^3t^3}{3!} + \ldots .
     \end{equation*}
     In addition to being prone to round-off error, this expansion may
     need many terms to converge (if it does converge), which is
@@ -223,9 +223,9 @@
     destruction rates are identical.  While this may happen
     coincidentally in any linear chain, it is guaranteed to be the
     case if the same isotope occurs more than once in the chain.  This
-    issue may not be significant for the simulation of fission reactor
+    issue may be less significant for the simulation of fission reactor
     problems because most of the nuclear reactions required for loops
-    (\textsl{e.g.} (n,p) or (n,2n) ) are threshold reactions with low
+    (\textsl{e.g.} (n,p) or (n,2n)) are threshold reactions with low
     or zero cross-sections in the energy domain of fission neutrons.
   
     Activation codes, many of which have been developed for fusion
@@ -235,7 +235,7 @@
     activation calculations and inventory calculations are one and the
     same, but the wide variety in the nature of the systems being
     simulated in an activation problem can require more flexibility
-    that an inventory code may provide.  For example, as suggested
+    than an inventory code may provide.  For example, as suggested
     above, there are some reaction channels which are not relevant to
     fission inventory calculations.  In systems with higher energy
     neutron fluxes, such as fusion reactors or accelerator-based
@@ -286,6 +286,8 @@
     and ensure that the new code will accomodate those features.
     \ALARA\ is designed to implement the following basic features:
 
+    \enlargethispage*{\baselineskip}
+
     \renewcommand{\baselinestretch}{1.24}\normalsize
     \begin{description}
     \item[Problem Geometry]\ \\
@@ -299,9 +301,6 @@
       \begin{itemize}
       \item user-defined calculation precision
       \end{itemize}
-    \end{description}
-    \newpage
-    \begin{description}
     \item[Irradiation History]\ \\
       \vspace*{-1cm}
       \begin{itemize}
@@ -335,7 +334,7 @@
       \begin{itemize}
       \item fully arbitrary operation schedules
       \end{itemize}
-    \item[Mathematicl Techniques]\ \\
+    \item[Mathematical Techniques]\ \\
       \vspace*{-1cm}
       \begin{itemize}
       \item adaptive selection of mathematical method to optimize
@@ -423,6 +422,7 @@
 
     \begin{subsection}{Simplicity\label{ssec:intro.goals.simp}}
       
+      \enlargethispage*{\baselineskip}
       While accuracy and speed have long been issues in the creation
       of engineering codes, their simplicity is of increasing
       importance.  In this context, simplicity is an issue for both

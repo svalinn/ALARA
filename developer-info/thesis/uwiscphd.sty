@@ -1,0 +1,47 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{uwiscphd}
+                [1999/03/31 v0.1
+U-Wisconsin PhD formatting guidelines]
+
+%% Ensure that page numbers are always top right
+\let\ps@plain=\ps@myheadings
+
+\gdef\major#1{\noexpand\def\@major{#1}}
+\newcounter{@year}
+\setcounter{@year}{\year}
+\gdef\uwyear#1{\setcounter{@year}{#1}}
+
+\renewcommand\maketitle{
+
+  \begin{titlepage}
+    \begin{center}
+%      \vspace*{\stretch{1}}
+      \textbf{\LARGE \@title}
+
+      \vspace*{\stretch{1}}
+      by:\\
+      \ \\
+      {\Large \@author}
+
+      \vspace*{\stretch{1}}
+      A dissertation submitted in partial fulfillment of\\
+      the requirements for the degree of\\
+      \ \\
+      
+      \textbf{\Large DOCTOR OF PHILOSOPHY}
+
+      \vspace{.1in}
+      (\@major)
+
+      \vspace*{\stretch{1}}
+      at the\\
+      \vspace{.1in}
+      \textbf{\Large UNIVERSITY OF WISCONSIN - MADISON}\\
+
+      \vspace*{\stretch{1}}
+      {\Large \the@year}
+
+      \vspace*{\stretch{1}}
+    \end{center}
+  \end{titlepage}
+}

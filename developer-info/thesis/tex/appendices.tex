@@ -120,7 +120,7 @@
   determining the coefficients.  First, it is instructive to relate
   the expansion as shown in equation \ref{eqn:math.expansion.final} to
   a simple difference of exponentials.  Starting with the Bateman
-  solution (equation \ref{eqn:math.bateman.inversion}) for a single
+  solution (equation \ref{eqn:math.bateman.final}) for a single
   matrix element,
 
   \begin{align}
@@ -143,7 +143,7 @@
       &= P_2 P_3 \left [ \frac{(d_2 - d_1)\frac{t^2}{2} + [d_3(d_1-d_2) + (d_1^2-d_2^2)]\frac{t^3}{6} + \ldots }
               {d_2 - d_1} \right ]\\
       &= P_2 P_3 \left [ \frac{t^2}{2} - (d_3 + d_2 + d_1) \frac{t^3}{6} + \ldots \right]\\
-      &= P_2 P_3\;t^2 \left [ \frac{1}{2} - \frac{t}{6} (d_3 + d_2 + d_1) + \ldots \right]
+      &= P_2 P_3\;t^2 \left [ \frac{1}{2} - (d_3 + d_2 + d_1) \frac{t}{6}  + \ldots \right]
     \end{split}
   \end{align}
   which has the form of Equation \ref{eqn:math.expansion.final}.
@@ -223,9 +223,4 @@
 
 \input{tex/user_guide} 
 
-
-\begin{chapter}{Selected  $C\!\!\!\stackrel{+\!\!+}{}$ header files}
-  \label{app:headers}
-
-\end{chapter}
 

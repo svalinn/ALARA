@@ -271,10 +271,9 @@
       \end{split}
     \end{equation}
   
-    It it can be shown that the mathematical operations performed in
-    this method are essentially the same operations that would be
-    carried out if an eigenvector decomposition was used to solve the
-    matrix.
+    It can be shown that the mathematical operations performed in this
+    method are essentially the same operations that would be carried
+    out if an eigenvector decomposition was used to solve the matrix.
 
   \end{section}
 
@@ -299,7 +298,7 @@
     If the pole is not repeated, then the residue, $R_k$, for the pole,
     $-d_k$, is calculated as
     \begin{equation}
-      R_k = \lim_{s\rightarrow d_k} (s+d_k) \tilde{F}_{ij}(s)
+      R_k = \lim_{s\rightarrow -d_k} (s+d_k) \tilde{F}_{ij}(s)
     \end{equation}
     which becomes $R_k e^{-d_kt}$ in the time domain.  If all poles have a
     singular multiplicity, the solution reduces exactly to the Bateman
@@ -318,7 +317,7 @@
     \end{equation}
     in the time domain.  In this case, the residues are found using:
     \begin{equation}
-      R_{kn} = \frac{1}{(m-n)!} \lim_{s\rightarrow d_k}
+      R_{kn} = \frac{1}{(m-n)!} \lim_{s\rightarrow -d_k}
       \frac{d^{m-n}}{ds^{m-n}} \left [ (s+d_k)^m \tilde{F}_{ij}(s) \right].
     \end{equation}
     
@@ -448,7 +447,6 @@
     mathematical solution requires some special implementation to
     enhance its efficiency.
   
-    \enlargethispage*{\baselineskip}
     The first such enhancement is to store the solution matrices from
     one chain to another.  The value of this implementation can be
     seen when considering the solution of many subsequent chains of
@@ -469,7 +467,6 @@
     function of the neutron flux, one of these storage hierarchies is
     required for each interval.
     
-    \enlargethispage*{\baselineskip}
     This is also true for the decay matrices between pulses and after
     shutdown, however in this case, the matrices are not only saved
     from one chain to the next, but across all the intervals being
