@@ -1,4 +1,4 @@
-/* $Id: Statistics.C,v 1.6 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: Statistics.C,v 1.7 2000-03-01 14:33:02 wilson Exp $ */
 #include "Statistics.h"
 
 #include <unistd.h>
@@ -37,11 +37,13 @@ int Statistics::accountNode(int kza, char* emitted, int rank, int state,
 
   if (tree)
     {
-      while (rank-->0)
+      while (rank-->1)
+	treeFile << "\t|";
+      if (rank > -1)
 	treeFile << "\t";
 
       if (emitted)
-	treeFile << "-(" << emitted << ")-> ";
+	treeFile << "|-(" << emitted << ")-> ";
       treeFile << isoName(kza,isoSym);
       if (relProd != NULL)
 	treeFile << " (" << relProd[0] << ")";

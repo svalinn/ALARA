@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.13 2000-02-19 05:34:12 wilson Exp $ */
+/* $Id: Input.C,v 1.14 2000-03-01 14:33:02 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -440,7 +440,7 @@ void Input::clearIncludeComment()
   /* look at the next character in the stream */
   char charInput = input->peek();
 
-  while (charInput != 'A')
+  while (charInput != '?')
     switch (charInput)
       {
       case '#' : /* comment or INCLUDE*/
@@ -493,7 +493,7 @@ void Input::clearIncludeComment()
 	charInput = input->peek();
 	break;
       default:
-	charInput = 'A';
+	charInput = '?';
       }
       
 }
