@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.38 2003-06-18 20:14:06 varuttam Exp $ */
+/* $Id: Volume.C,v 1.39 2004-06-03 21:56:24 wilsonp Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -753,6 +753,8 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 
   cout << endl;
   cout << "Totals for all intervals." << endl;
+
+  cout << Result::getReminderStr() << endl;
 
   /* write header for totals */
   coolList->writeTotalHeader("interval");

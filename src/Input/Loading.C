@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.26 2003-01-14 05:01:18 wilsonp Exp $ */
+/* $Id: Loading.C,v 1.27 2004-06-03 21:56:24 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -448,6 +448,8 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 
   cout << endl;
   cout << "Totals for all zones." << endl;
+
+  cout << Result::getReminderStr() << endl;
 
   /* write header for totals */
   coolList->writeTotalHeader("zone");

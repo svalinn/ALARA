@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.18 2004-06-03 21:24:38 wilsonp Exp $ */
+/* $Id: Result.h,v 1.19 2004-06-03 21:56:27 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _RESULT_H
@@ -132,8 +132,10 @@ public:
   static void setNorm(double,int);
 
   /// This function is used to set outReminderStr so that each table
-  /// makes it clear what is being written.
+  /// makes it clear what is being written.  Corresponding function to query
+  /// the string.
   static void setReminderStr(char*);
+  static char* getReminderStr(){ return outReminderStr;};
 
   /// This function opens and initializes the binary dump file used
   /// throughout the solution and postprocessing.

@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.31 2003-01-14 05:01:18 wilsonp Exp $ */
+/* $Id: Mixture.C,v 1.32 2004-06-03 21:56:24 wilsonp Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -602,6 +602,8 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 
   cout << endl;
   cout << "Totals for all mixtures." << endl;
+
+  cout << Result::getReminderStr() << endl;
 
   /* write header for totals */
   coolList->writeTotalHeader("mixture");
