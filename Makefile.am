@@ -4,4 +4,4 @@ AUTOMAKE_OPTIONS = gnu
 include $(top_srcdir)/Makefile.h
 
 EXTRA_DIST =
-SUBDIRS = src tools doc data samples tests
+SUBDIRS = src tools doc data sample   # tests
