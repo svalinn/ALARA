@@ -158,7 +158,7 @@ void Node::copyRates(double **rates, const int step, int *loopRank)
 
   /* make sure that there is no loop within this natural loop
    * i.e. loopRank must monotonically increase */
-  if (rank > 0 && loopRank[rank]<loopRank[rank-1])
+  if (rank > 0 && loopRank[rank]<loopRank[rank-1] && loopRank[rank-1]>-1)
     loopRank[rank] = loopRank[rank-1];
 }
 
