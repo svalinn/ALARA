@@ -170,6 +170,8 @@ double laplaceInverse(int row, int col, double *d, double t)
       result += poleResult * exp(-pole[idx]*t);
     }
 
+  delete pole;
+
   /* absolute value here takes care of negative results */
   /******* THIS IS AN INCORRECT STOP-GAP **********/
   return fabs(result);
