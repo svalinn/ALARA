@@ -141,7 +141,7 @@ double laplaceInverse(int row, int col, double *d, double t)
   for (idx = col;idx<=row;idx++)
     {
       for (checkIdx=0;checkIdx<numPoles;checkIdx++)
-	if ( fabs((d[idx]-pole[checkIdx])/d[idx])<SMALL_REL_DIFF )
+	if ( fabs((d[idx]-pole[checkIdx]))<SMALL_REL_DIFF*d[idx] )
 	  {
 	    mult[checkIdx]++;
 	    break;
