@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.18 2003-09-04 13:31:02 wilsonp Exp $ */
+/* $Id: alara.C,v 1.19 2004-01-28 17:45:20 wilsonp Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -6,15 +6,13 @@
 #include "Util/Statistics.h"
 #include "Output/Result.h"
 
-/* See why Paul is using these silly STL things? */
-
 int chainCode = 0;
 
-/*!
+/*!  
  This list of elemental symbols is specially formatted to be used for
  looking up the atomic number of a given element.  For each element
- with atomic number, Z, and symbol, CC, the string " CC " exists at
- index Z-1.
+ with atomic number, Z, and symbol, CC, the string " CC " (note
+ spaces) exists at index Z-1.
 */
 const char *SYMBOLS=" h  he li be b  c  n  o  f  ne na mg al si p  s  cl ar \
 k  ca sc ti v  cr mn fe co ni cu zn ga ge as se br kr rb sr y  zr nb mo tc ru \
@@ -39,16 +37,16 @@ usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
 \t -v <n>             Set verbosity level\n\
 \t <input_filename>   Name of input file\n\
 See Users' Guide for more info.\n\
-(http://www.cae.wisc.edu/~wilsonp/research/ALARA/users.guide.html/)\n";
+(http://alara.engr.wisc.edu/)\n";
 
 int main(int argc, char *argv[])
 {
-  int argNum = 1;
-  int solved = FALSE;
-  int doOutput = TRUE;
-  char *inFname = NULL;
-  Root* rootList = new Root;
-  topSchedule* schedule;
+  int argNum = 1; /// count command-line arguments
+  int solved = FALSE; /// command-line derived flag to indicate whether or not the tree has already been solved
+  int doOutput = TRUE; /// command-line derived flag to indicate whether or not to post-process solution
+  char *inFname = NULL; /// input filename
+  Root* rootList = new Root; /// primary data structure 1: is a linked list of Root objects
+  topSchedule* schedule; /// primary data structure 2: irradiation history
 
   verbose(-1,"%s",PACKAGE_STRING);
 
