@@ -151,7 +151,7 @@ void Flux::xRef(Volume *volList)
       verbose(3,"Assigning flux %s",ptr->fluxName);
       switch (ptr->format)
 	{
-	case FLUX_T:
+	case FLUX_D:
 	  /* read entire file into intervals */
 	  volList->readFlux(ptr->fileName,ptr->skip,ptr->scale);
 	  break;
