@@ -205,12 +205,14 @@ double laplaceExpansion(int row, int col, double *d, double t, int numTerms)
   return result;
 }
 
-int small(double *d, double t, int rank)
+int small(double *d, double t, int col, int row)
 {
+
+  int rank = row-col+1;
   double max=0;
 
   /* for each pole in the problem */
-  for (int poleNum=0;poleNum<rank;poleNum++)
+  for (int poleNum=col;poleNum<=row;poleNum++)
     /* determine the larges pole */
     max = d[poleNum]>max?d[poleNum]:max;
 
@@ -247,7 +249,7 @@ double loopSoln(int row, int col, double *P, double *d, double t)
   for (idx=col;idx<row;idx++)
     result *= P[idx+1];
 
-  int numExpansionTerms = small(d,t,row-col+1);
+  int numExpansionTerms = small(d,t,col,row);
 
   if (numExpansionTerms>MAXNUMEXPTERMS)
     result *= laplaceInverse(row, col, d, t);
