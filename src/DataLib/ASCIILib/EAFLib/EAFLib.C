@@ -1,4 +1,4 @@
-/* $Id: EAFLib.C,v 1.10 2002-06-04 18:04:00 wilsonp Exp $ */
+/* $Id: EAFLib.C,v 1.11 2003-06-12 17:00:28 wilsonp Exp $ */
 #include "EAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
@@ -7,8 +7,8 @@ EAFLib::EAFLib(char *transFname, char *decayFname, char *alaraFname)
 {
   if (transFname != NULL && decayFname != NULL)
     {
-      inTrans.open(transFname, ios::in);
-      inDecay.open(decayFname, ios::in);
+      inTrans.open(searchPath(transFname), ios::in);
+      inDecay.open(searchPath(decayFname), ios::in);
 
       makeBinLib(alaraFname);
     }

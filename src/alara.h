@@ -1,4 +1,4 @@
-/* $Id: alara.h,v 1.16 2003-01-08 07:13:15 fateneja Exp $ */
+/* $Id: alara.h,v 1.17 2003-06-12 17:00:27 wilsonp Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 #include <math.h>
 
@@ -14,7 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-
+#include <string>
 
 /* *** STL typedef ***
 

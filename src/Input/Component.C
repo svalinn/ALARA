@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.16 2003-01-13 04:34:54 fateneja Exp $ */
+/* $Id: Component.C,v 1.17 2003-06-12 17:00:29 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -123,24 +123,24 @@ void Component::getMatLib(istream& input)
 {
   char fname[256];
   input >> fname;
-  matLib.open(fname,ios::in);
+  matLib.open(searchPath(fname));
 
   if (matLib == 0)
     error(110,"Unable to open material library: %s",fname);
 
-  verbose(2,"Openned material library %s",fname);
+  verbose(2,"Openned material library %s",searchPath(fname));
 }
 
 void Component::getEleLib(istream& input)
 {
   char fname[256];
   input >> fname;
-  eleLib.open(fname,ios::in);
+  eleLib.open(searchPath(fname),ios::in);
 
   if (eleLib == 0)
     error(111,"Unable to open element library: %s",fname);
 
-  verbose(2,"Openned element library %s",fname);
+  verbose(2,"Openned element library %s",searchPath(fname));
 }
 
 /****************************
@@ -236,7 +236,6 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
   Root *rootList = new Root;
   memCheck(rootList,"Component::expandEle(...) : rootList");
   int numIsos, Z, eleNameLen;
-  ifstream elelib;
   char testName[64],isoName[64];
   double isoDens, eleDens, A;
 
@@ -315,7 +314,6 @@ Root* Component::expandMat(Mixture* mix)
   memCheck(rootList,"Component::expandMat(...) : rootList");
   Component *element;
   int numEles, eleZ;
-  ifstream matlib;
   char testName[64],eleName[64];
   double eleDens, matDens;
 

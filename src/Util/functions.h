@@ -1,9 +1,11 @@
-/* $Id: functions.h,v 1.6 2000-01-20 05:08:27 wilson Exp $ */
+/* $Id: functions.h,v 1.7 2003-06-12 17:00:29 wilsonp Exp $ */
 /* input.C */
-istream* openFile(char*);
+istream* openFile(const char*);
 void clearComment(istream& input);
 int tokenType(char*);
 double convertTime(double,char);
+
+const char* searchPath(const char* filename);
 
 
 /* math.C */

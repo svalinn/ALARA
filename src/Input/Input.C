@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.20 2003-01-13 04:34:56 fateneja Exp $ */
+/* $Id: Input.C,v 1.21 2003-06-12 17:00:29 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -521,7 +521,13 @@ void Input::clearIncludeComment()
 
 	    verbose(2,"Openning included file: %s.",inFileName);
 	    /* open new stream */
-	    input = openFile(inFileName);
+	    /* Allow inclusion of files from a search path
+	     * This allows standard elements of an input file
+	     * to be defined once.  
+	     * Examples: 
+	     *  - "steady_state"  pulse history
+	     *  - library selection */
+	    input = openFile(searchPath(inFileName));
 
 	    if (*input == 0)
 	      error(101,"Unable to open included file: '%s'.",inFileName);

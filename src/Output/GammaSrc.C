@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.15 2003-06-03 19:00:43 varuttam Exp $ */
+/* $Id: GammaSrc.C,v 1.16 2003-06-12 17:00:29 wilsonp Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -87,7 +87,7 @@ void GammaSrc::initContactDose(istream& input)
   input >> token;
   fileName = new char[strlen(token)+1];
   strcpy(fileName,token);
-  gDoseData.open(fileName);
+  gDoseData.open(searchPath(fileName));
   if (!gDoseData)
     error(250,
 	  "Unable to open file for gamma attenuation data input (contact dose): %s\n",

@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.24 2003-06-10 20:26:38 wilsonp Exp $ */
+/* $Id: Node.C,v 1.25 2003-06-12 17:00:28 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -219,7 +219,7 @@ void Node::loadWDR(char *fname)
   char isoName[16], sym[5], *strPtr, isoFlag;
   double wdr;
   Node dataAccess;
-  ifstream wdrFile(fname,ios::in);
+  ifstream wdrFile(searchPath(fname),ios::in);
 
   wdrCache.erase(wdrCache.begin(),wdrCache.end());
 

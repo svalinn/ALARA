@@ -1,4 +1,4 @@
-$Id: TODO,v 1.14 2003-06-10 20:22:44 wilsonp Exp $
+$Id: TODO,v 1.15 2003-06-12 17:04:46 wilsonp Exp $
 
 When claiming a task from this list, please immediately place your
 name beside it, change the date from the date that it was added to
@@ -17,12 +17,11 @@ BUG FIXES
 
 NEW FEATURES
 ------------------
-[AV] Adjoint dose 
-**** (06/06/2003) Automatic path search for libraries, etc.
+[AV] Adjoint dose in zones
+[PW] (08/08/2002) Add response type reminders above each output table
 **** (08/08/2002) Direct writing of SRCDX (?) gamma source file for DANTSYS
 **** (08/08/2002) Direct reading of MCTAL files from MCNP
 **** (08/08/2002) Alternative approximations for dose (e.g. line source)
-**** (08/08/2002) Add response type reminders above each output table
 **** (08/08/2002) Improve volume calculation and output
 	* automatically change units to reduce significant figures (e.g. cm3->m3)
 	* rigorously report volume units in 1-/2-D problems (e.g. cm3 per cm)
@@ -31,14 +30,14 @@ NEW FEATURES
 
 CODE FEATURES
 ------------------
-[PW] (08/08/2002) Improve comments under doxygen
+[MF] (08/08/2002) Improve comments under doxygen
 
 
 USER DOCUMENTATION
 ------------------
+[PW] (08/08/2002) bring up to date with current features
 **** (08/08/2002) add sample problems
 **** (08/08/2002) add tutorials
-**** (08/08/2002) bring up to date with current features
 **** (08/08/2002) add/improve description of supported ASCII Library formats
 
 
@@ -49,7 +48,7 @@ OTHER
 
 RESEARCH
 ------------------
-* data infrastructure
+* data infrastructure [MF]
 * investigate round-off error issues in bateman and inversion methods
 
 

@@ -1,7 +1,9 @@
-/* $Id: input.C,v 1.11 2003-01-08 07:17:48 fateneja Exp $ */
+/* $Id: input.C,v 1.12 2003-06-12 17:00:30 wilsonp Exp $ */
 #include "alara.h"
 #include "input_tokens.h"
-
+#include "dflt_datadir.h"
+#include <sys/types.h>
+#include <sys/stat.h>
 
 const char *tokenList = "\
 geometry     \
@@ -31,9 +33,10 @@ ignore       \
 ref_flux_type\
 cp_libs";
 
+
 #define MAXLINELENGTH 256
 
-istream* openFile(char *fName)
+istream* openFile(const char *fName)
 {
   return new ifstream(fName);
 }
@@ -109,3 +112,65 @@ double convertTime(double inTime, char units)
 
   return inTime;
 }
+
+
+
+const char* searchPath(const char* filename)
+{
+  struct stat stat_info;
+  int stat_result = -1;
+  std::string searchFilename = "./";
+  char *pathVar;
+
+  searchFilename += filename;
+
+  verbose(100,"Looking for %s",searchFilename.c_str());
+
+  if ( (stat_result = stat(searchFilename.c_str(),&stat_info)) != 0)
+    {
+      if (pathVar = getenv("ALARA_DATADIR"))
+	{
+	  std::string envPath = pathVar;
+	  
+	  std::string::size_type begin = 0;
+	  std::string::size_type end = 0;
+	  
+	  if (envPath[envPath.length()-1] != ':')
+	    envPath += ":";
+	  
+	  while (stat_result != 0 && begin < envPath.length())
+	    {
+	      end = envPath.find(":",begin);
+	      std::string thisDir = envPath.substr(begin,end-begin);
+	      if (thisDir[thisDir.length()-1] == '/')
+		thisDir.erase(thisDir.length()-1,1);
+	      searchFilename = thisDir + "/" + filename;
+
+	      verbose(100,"Looking for %s",searchFilename.c_str());
+
+	      stat_result = stat(searchFilename.c_str(),&stat_info);
+	      begin = end + 1;
+	    }
+	}
+
+      if (stat_result != 0)
+	{
+	  searchFilename = DFLT_DATADIR;
+	  searchFilename += "/";
+	  searchFilename += filename;
+	  verbose(100,"Looking for %s",searchFilename.c_str());
+	  stat_result = stat(searchFilename.c_str(),&stat_info);
+	}
+
+    }
+  
+  if (stat_result != 0)
+    searchFilename = filename;
+  else
+    verbose(100,"Found %s",searchFilename.c_str());
+    
+
+  return searchFilename.c_str();
+
+}
+
