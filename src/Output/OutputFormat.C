@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.13 1999-08-25 19:40:47 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.14 1999-08-26 18:11:13 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -8,7 +8,7 @@
 
 #include "Chains/Node.h"
 
-#define Bq2Ci 3.7e10
+#define Bq2Ci 2.7027e-11
 
 const char *Out_Types = "ucnstabgw";
 
