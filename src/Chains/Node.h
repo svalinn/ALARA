@@ -133,12 +133,22 @@ classes, it contains all the information about the isotope itself.
 
 #include "NuclearData.h"
 #include "TreeInfo.h"
+#include <map>
+
+typedef map<int,double,less<int> > DataCache;
 
 class Node : public NuclearData, public TreeInfo
 {
 protected:
   int kza;
   
+  static DataCache lambdaCache;
+  static DataCache heatCache;
+  static DataCache alphaCache;
+  static DataCache betaCache;
+  static DataCache gammaCache;
+  static DataCache wdrCache;
+
   /* Chain */
   int findLoop();
 
@@ -181,7 +191,8 @@ public:
   double getAlpha(int);
   double getBeta(int);
   double getGamma(int);
-
+  double getWDR(int);
+  static void loadWDR(char*);
 };
 
 

@@ -10,6 +10,6 @@
 #define OUTFMT_ALPHA   32
 #define OUTFMT_BETA    64
 #define OUTFMT_GAMMA  128
-
+#define OUTFMT_WDR    256
 
 #endif

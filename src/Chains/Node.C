@@ -18,6 +18,13 @@
  ********* Service **********
  ***************************/
 
+DataCache Node::lambdaCache;
+DataCache Node::heatCache;
+DataCache Node::alphaCache;
+DataCache Node::betaCache;
+DataCache Node::gammaCache;
+DataCache Node::wdrCache;
+
 Node::Node(char *isoName)
 {
   debug(4,"Making new Node: %s.",isoName);
@@ -100,57 +107,126 @@ void Node::readData()
 
 double Node::getLambda(int setKza)
 {
+  if (lambdaCache.count(setKza))
+    return lambdaCache[setKza];
+
   kza = setKza;
   readData();
 
   if (nPaths>0 && D[nGroups]>0)
-    return D[nGroups];
+    {
+      lambdaCache[kza] = D[nGroups];
+      return D[nGroups];
+    }
   else
     return 0;
 }
 
 double Node::getHeat(int setKza)
 {
+  if (heatCache.count(setKza))
+    return heatCache[setKza];
+
   kza = setKza;
   readData();
 
   if (nPaths>0 && D[nGroups]>0)
-    return D[nGroups] * (E[0]+E[1]+E[2]);
+    {
+      heatCache[kza] = D[nGroups] * (E[0]+E[1]+E[2]);
+      return D[nGroups] * (E[0]+E[1]+E[2]);
+    }
   else
     return 0;
 }
 
 double Node::getAlpha(int setKza)
 {
+  if (alphaCache.count(setKza))
+    return alphaCache[setKza];
+
   kza = setKza;
   readData();
 
   if (nPaths>0 && D[nGroups]>0)
-    return D[nGroups] * E[0];
+    {
+      alphaCache[kza] = D[nGroups] * E[0];
+      return D[nGroups] * E[0];
+    }
   else
     return 0;
 }
 
 double Node::getBeta(int setKza)
 {
+  if (betaCache.count(setKza))
+    return betaCache[setKza];
+
   kza = setKza;
   readData();
 
   if (nPaths>0 && D[nGroups]>0)
-    return D[nGroups] * E[1];
+    {
+      betaCache[kza] = D[nGroups] * E[1];
+      return D[nGroups] * E[1];
+    }
   else
     return 0;
 }
 
 double Node::getGamma(int setKza)
 {
+  if (gammaCache.count(setKza))
+    return gammaCache[setKza];
+
   kza = setKza;
   readData();
 
   if (nPaths>0 && D[nGroups]>0)
-    return D[nGroups] * E[2];
+    {
+      gammaCache[kza] = D[nGroups] * E[2];
+      return D[nGroups] * E[2];
+    }
   else
     return 0;
+}
+
+double Node::getWDR(int setKza)
+{
+  if (wdrCache.count(setKza))
+    return wdrCache[setKza];
+  else
+    return 0;
+}
+
+void Node::loadWDR(char *fname)
+{
+  int tmpKza, A, Z;
+  char isoName[16], sym[5], *strPtr;
+  double wdr;
+  ifstream wdrFile(fname,ios::in);
+
+  wdrCache.erase(wdrCache.begin(),wdrCache.end());
+
+  wdrFile >> isoName >> wdr;
+
+  while (!wdrFile.eof())
+    {
+      strPtr = strchr(isoName,'-');
+      *strPtr = '\0';
+
+      sprintf(sym," %s ",isoName);
+      
+      Z = (strstr(SYMBOLS,sym)-SYMBOLS)/3 + 1;
+      A = atoi(strPtr+1);
+      
+      tmpKza = (Z*1000+A)*10;
+
+      wdrCache[tmpKza] = wdr;
+      wdrFile >> tmpKza >> wdr;
+    }
+
+  wdrFile.close();
+
 }
 
 /* function to copy pointers to the chain data */

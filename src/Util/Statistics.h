@@ -1,8 +1,10 @@
 #include "alara.h"
 
+#define max1(x,y) (x>y?x:y)
+
+
 #ifndef _STATISTICS_H
 #define _STATISTICS_H
-
 
 class Statistics 
 {
@@ -16,11 +18,11 @@ public:
   
   static int accountNode(int,char*,int,int,double*);
   static int accountChain(int rank)
-    { chainCtr++; maxRootRank=max(maxRootRank,rank); return chainCtr;};
+    { chainCtr++; maxRootRank=max1(maxRootRank,rank); return chainCtr;};
   static int accountMaxRank()
   {
     int tmp = maxRootRank;
-    maxProblemRank = max(maxRootRank,maxProblemRank);
+    maxProblemRank = max1(maxRootRank,maxProblemRank);
     maxRootRank = 0;
     return tmp;
   };

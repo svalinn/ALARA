@@ -5,6 +5,8 @@
 #include "Input/Mixture.h"
 #include "Input/Loading.h"
 
+#include "Chains/Node.h"
+
 /***************************
  ********* Service *********
  **************************/
@@ -47,7 +49,7 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
 OutputFormat* OutputFormat::getOutFmts(istream& input)
 {
   const char *Out_Res = " izm";
-  const char *Out_Types = "censtabg";
+  const char *Out_Types = "censtabgw";
 
   int type;
   char token[64];
@@ -75,6 +77,14 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
       verbose(3,"Added output type %d (%s)",1<<type,token);
 
+      if (1<<type & OUTFMT_WDR)
+	{
+	  input >> token;
+	  next->wdrFilenames.insert(token);
+	  verbose(4,"Added WDR/Clearance file %s", token);
+	}
+
+
       clearComment(input);
       input >> token;
     }	      
@@ -88,17 +98,19 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 			 CoolingTime *coolList, int targetKza)
 {
   
-  const int nOutTypes = 8;
+  const int nOutTypes = 9;
   const int firstResponse=2;
+  const int lastSingularResponse=8;
   const char *Out_Types_Str[nOutTypes] = {
   "Break-down by Component",
   "Binary Data export",
-  "Number Density",
-  "Specific Activity",
-  "Total Decay Heat",
-  "Alpha Decay Heat",
-  "Beta Decay Heat",
-  "Gamma Decay Heat"};
+  "Number Density [atoms/cm3]",
+  "Specific Activity [Bq/cm3]",
+  "Total Decay Heat [W/cm3]",
+  "Alpha Decay Heat [W/cm3]",
+  "Beta Decay Heat [W/cm3]",
+  "Gamma Decay Heat [W/cm3]",
+  "WDR/Clearance index"};
 
   OutputFormat *ptr = this;
 
@@ -132,7 +144,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       cout << endl << endl;
       
       /* for each indicated response */
-      for (outTypeNum=firstResponse;outTypeNum<nOutTypes;outTypeNum++)
+      for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
 	  {
 	    /* write a response title */
@@ -158,6 +170,41 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 
 	    cout << endl << endl << endl;
 	  }
+
+      if (ptr->outTypes & OUTFMT_WDR)
+	{
+	  for(filenameList::iterator fileName = wdrFilenames.begin();
+	      fileName != wdrFilenames.end(); ++fileName)
+	    {
+	      
+	      /* write a response title */
+	      cout << "*** " << Out_Types_Str[outTypeNum] << ": " 
+		   << *fileName << " ***" << endl;
+	      
+	      Node::loadWDR(*fileName);
+	      
+	      /* call write() on the appropriate object determined by
+		 the resulotition */
+	      switch(ptr->resolution)
+		{
+		case OUTRES_INT:
+		  volList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
+				 coolList,targetKza);
+		  break;
+		case OUTRES_ZONE:
+		  loadList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
+				  coolList,targetKza);
+		  break;
+		case OUTRES_MIX:
+		  mixList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
+				 coolList,targetKza);
+		  break;
+		}
+	      
+	      cout << endl << endl << endl;
+	    }
+	  
+	} 
     }
 
 }

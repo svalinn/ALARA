@@ -10,6 +10,7 @@
 #include <strings.h>
 #include <ctype.h>
 #include <math.h>
+// #include <algorithm>
 
 #ifndef PI
 #define PI M_PI
@@ -23,7 +24,8 @@
 #define SFLOAT sizeof(float)
 #define SDOUBLE sizeof(double)
 
-#define max(x,y) (x>y?x:y)
+/* remove this definition because it is part of STL */
+/* #define max(x,y) (x>y?x:y) */
 
 #define MODE_FORWARD 1
 #define MODE_REVERSE 0
