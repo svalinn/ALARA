@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.17 2000-02-17 00:13:18 wilson Exp $ */
+/* $Id: Loading.C,v 1.18 2000-02-17 16:21:38 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -344,10 +344,10 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		  density = ptr->mixPtr->getTotalDensity();
 		  /* different from constituent: mixture densities 
 		     already take volume fraction into account */
-		  volume_mass = density;
+		  volume_mass = ptr->volume * density;
 		  cout
 		    << "\tDensity: " << density 
-		    << "\tMass: " << volume_mass*ptr->volume;
+		    << "\tMass: " << volume_mass;
 		}
 
 	      cout << endl;

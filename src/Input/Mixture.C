@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.18 2000-02-17 00:13:18 wilson Exp $ */
+/* $Id: Mixture.C,v 1.19 2000-02-17 16:21:38 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -513,10 +513,10 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	    {
 	      /* different from constituent: mixture densities 
 		 already take volume fraction into account */
-	      volume_mass = ptr->totalDensity;
+	      volume_mass = ptr->totalDensity * ptr->volume;
 	      cout
 		<< "\tDensity: " << ptr->totalDensity
-		<< "\tMass: " << volume_mass*ptr->volume;
+		<< "\tMass: " << volume_mass;
 		}
 
 	  cout << endl;
