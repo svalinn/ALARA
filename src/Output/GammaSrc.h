@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.h,v 1.9 2003-01-14 05:01:19 wilsonp Exp $ */
+/* $Id: GammaSrc.h,v 1.10 2003-06-03 19:00:43 varuttam Exp $ */
 #include "alara.h"
 #include <set>
 // NEED COMMENT there are no comments for this class
@@ -23,11 +23,12 @@ protected:
 
   int gammaType, nGroups;
   double *grpBnds;
+  int *intervalptr; 
   char *fileName;
   ofstream gSrcFile;
   ifstream gDoseData;
   double contactDose, *gammaAttenCoef, adjDose;
-
+  float detvolume; // detector volume
   VectorCache gammaMultCache;
 
   int findGroup(float);
@@ -60,7 +61,8 @@ public:
     { return nGroups; };
   int getType()
     { return gammaType; } ;
-
+  int* getintervalptr()
+    { return intervalptr; }; 
 
 };
 

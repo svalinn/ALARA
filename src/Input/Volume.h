@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.19 2003-01-14 05:01:19 wilsonp Exp $ */
+/* $Id: Volume.h,v 1.20 2003-06-03 19:00:42 varuttam Exp $ */
 #include "alara.h"
 
 #ifndef _VOLUME_H
@@ -23,6 +23,10 @@
 
 class Volume
 {
+private:
+  /// Array of int contained requested interval to be summed for 
+  /// adjoint dose output
+  int* intervalptr;
 protected:
   /// The volume of the interval in the units of the problem.
   double volume;
@@ -238,6 +242,9 @@ public:
 
   /// Access function for energyRel
   static int* getEnergyRel() { return energyRel; };
+
+  /// Write function for intervalptr
+  void setintervalptr(int* pvalue) {intervalptr = pvalue;}; 
 };
 
 

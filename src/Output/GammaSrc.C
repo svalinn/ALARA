@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.14 2003-03-25 18:17:55 varuttam Exp $ */
+/* $Id: GammaSrc.C,v 1.15 2003-06-03 19:00:43 varuttam Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -20,9 +20,11 @@ GammaSrc::GammaSrc(istream& input, int inGammaType)
   nGroups = 0;
   contactDose = 0;
   adjDose = 0; 
+  detvolume = 1; 
   grpBnds = NULL;
   dataLib = NULL;
   gammaAttenCoef = NULL;
+  intervalptr = NULL; 
 
   /* get gamma library filename */
   dataLib = DataLib::newLib(libType,input);
@@ -113,6 +115,7 @@ void GammaSrc::initAdjointDose(istream& input)
 
   char token[64];
   int gNum;
+  int suminterval;
 
   /* get adjoint dose field information from file */
   clearComment(input);
@@ -138,6 +141,20 @@ void GammaSrc::initAdjointDose(istream& input)
     {
       input >> grpBnds[gNum];
     }
+  /* read detector volume */
+  input >> detvolume;
+
+
+  /* read number of interval to be summed */
+//input >> suminterval;
+//  if (suminterval>0)
+// 	intervalptr=new int[suminterval*2+1];
+//  else
+//	intervalptr=new int(0);  // in case of no req sum interval set to 0
+    
+//  intervalptr[0]=suminterval;    
+//  for (int counter=1;counter<=suminterval*2;counter++)
+// 	input >> intervalptr[counter]; 
 
 }
 
@@ -150,6 +167,7 @@ GammaSrc::~GammaSrc()
 
   delete dataLib;
   delete grpBnds;
+  delete intervalptr;
 
 }
 
@@ -420,13 +438,14 @@ double GammaSrc::calcAdjDose(int kza, double *volAdjDoseConv, double vol)
   double* mult = getGammaMult(kza);
   int gNum;
 
+ // volAdjDoseConv group order is hi-lo but getGammaMult order is lo-hi 
   if (mult != NULL)
     {
       for (gNum=0;gNum<nGroups;gNum++)
-	adjDose += mult[gNum]*volAdjDoseConv[gNum];
+	adjDose += mult[nGroups-1-gNum]*volAdjDoseConv[gNum];
     }
 
-  return adjDose*vol;
+  return adjDose*vol/detvolume;
   
 
 

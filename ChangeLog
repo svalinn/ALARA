@@ -1,8 +1,12 @@
-$Id: ChangeLog,v 1.13 2003-03-25 18:17:54 varuttam Exp $
+$Id: ChangeLog,v 1.14 2003-06-03 19:00:42 varuttam Exp $
 	
 Version 2.6.???
 	
 BUGS FIXED
+        * Multiplication of importance and gamma source for bio dose
+          calculation is reversed to account for order of gp struc [AV] (6/03/03) 
+        * Bio dose results are now divided by detector volume (hence
+          new input parameter needed for bio dose request line) [AV] (6/03/03) 
         * Modified bio dose calculation to use volume instead 
           of uservol [AV] (3/25/03) 	
         * Change parameter passed to Result::write so that uservol is 

@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.36 2003-03-25 18:17:55 varuttam Exp $ */
+/* $Id: Volume.C,v 1.37 2003-06-03 19:00:42 varuttam Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -33,6 +33,7 @@ void Volume::init()
   userVol=0;
   norm = 1;
  
+  intervalptr = NULL; 
   zoneName = NULL;
   zonePtr = NULL;
   mixPtr = NULL;
@@ -53,6 +54,7 @@ void Volume::init()
 
 void Volume::deinit()
 {
+  delete intervalptr; 
   delete zoneName; 
   delete fluxHead; 
   delete schedT; 
@@ -110,6 +112,7 @@ Volume::Volume(const Volume& v)
 
   volume = v.volume;
   norm = v.norm;
+  intervalptr = v.intervalptr; 
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
   userVol=v.userVol;
@@ -168,6 +171,7 @@ Volume& Volume::operator=(const Volume& v)
 
   volume = v.volume;
   norm = v.norm;
+  intervalptr = v.intervalptr;
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
   userVol = v.userVol;
@@ -761,7 +765,9 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
       if (ptr->mixPtr != NULL)
 	{
 	  cout << intvlCntr << "\t";
-	  for (resNum=0;resNum<nResults;resNum++)
+	  
+          /* for each cooling time */ 
+          for (resNum=0;resNum<nResults;resNum++)
 	    {
 	      sprintf(isoSym,"%-11.4e ",ptr->total[resNum]);
 	      cout << isoSym;
@@ -772,6 +778,54 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
   coolList->writeSeparator();
 
   cout << endl << endl;
+
+/* ***********************  BEGIN OF DOSE SUMMARY FOR SPECIFIED VOLUME RESOLUTION INTERVALS ***********
+ptr = head;  // set ptr to head of fine mesh list
+int* intHEAD = intervalptr; //HEAD of interval list
+int listsize = *intervalptr; //first element of intervalptr is number of element
+int sizectr; //variable used in loop to track advancement of intervalptr pointer 
+int lower,upper; //upper and lower boundary of one set of requested interval
+float* value[nResults];  //Dose for all shutdown times for one fine mesh
+float sum=0;  // Total for dose in mesh range
+
+//stores zone information in intervalptr
+ptr=ptr->next;
+Loading* ldrptr=ptr->zonePtr;
+
+while (ptr->next != NULL)
+{
+ 
+        //  Loops through each shutdown time 
+	for (resNum=0;resNum<nResults;resNum++)
+	{
+	        sum = 0; 
+	        sizectr=listsize-1; //we've read 1 element already	
+		
+		// Loops through all requested set of intervals to be summed
+		while(sizectr>0) 
+		{
+			lower=*(++intervalptr);
+			upper=*(++intervalptr);
+
+			for(int i=0;i<lower;i++) // advances ptr to start of interval to be summed
+				ptr = ptr -> next;
+		
+			//  Loops through mesh interval at a given shutdown time	
+			for(int mesh=lower;mesh<=upper;mesh++)
+			{
+				sum+=ptr->total[resNum];
+				ptr = ptr->next;
+			}
+			sizectr-=2; //we'vre read 2 additional numbers
+		}
+		ptr = head; // reset ptr to mesh head
+		intervalptr=intHEAD; // reset interval list	
+	        listsize = *intervalptr; // reads size of new interval set	
+		cout<<endl<<" "<<"sum;  // write total dose for all requested interval for one cooling time	
+	}		
+
+}
+*********************** END OF DOSE SUMMARY CODE ************************************************ */
 }
 
 
