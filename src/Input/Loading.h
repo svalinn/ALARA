@@ -1,4 +1,4 @@
-/* $Id: Loading.h,v 1.11 2002-08-05 20:23:16 fateneja Exp $ */
+/* $Id: Loading.h,v 1.12 2002-09-09 19:57:53 varuttam Exp $ */
 #include "alara.h"
 
 #ifndef _LOADING_H
@@ -33,8 +33,15 @@ protected:
 
   double
     /// The volume of the zone, for averaging the results.
-    volume;
+    volume,
 
+    /// User-defined (actual) volume of zone for dose calculation.
+    uservol;
+
+  bool
+   /// Flag indicating whether user defines uservol.
+    buservol;
+ 
   int 
     /// The number of components in this zone.
     nComps;
@@ -57,8 +64,8 @@ public:
   ///  Default constructor 
   /**  When called with no arguments, it creates an blank list head with 
        no problem data.  Otherwise, it creates and fills the storage for
-       'zoneName' and 'mixName' and initializes next to NULL. */
-  Loading(char* name=IN_HEAD, char *mxName=NULL);
+       'zoneName' ,'mixName', 'uservol', 'buservol' and initializes next to NULL. */
+  Loading(char* name=IN_HEAD, char *mxName=NULL, bool Buservol=FALSE, double Uservol=0.0);
   
   /// Copy constructor 
   /** This constructor is identical to default constructor.  Therefore,
@@ -170,6 +177,10 @@ public:
   /// of the outputList, since the results are not cummulative across
   /// subsequent targets.
   void resetOutList();
+
+  /// Access function for uservol. Returns uservol if buservol is set
+  /// else returns zero.
+  double getuservol() {return buservol?uservol:0.0;};
 };
 
 #endif

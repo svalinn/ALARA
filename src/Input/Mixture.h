@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.14 2002-08-05 20:23:17 fateneja Exp $ */
+/* $Id: Mixture.h,v 1.15 2002-09-09 19:57:53 varuttam Exp $ */
 #include "alara.h"
 
 #ifndef _MIXTURE_H
@@ -67,6 +67,9 @@ protected:
     /// results.
     volume, 
     
+    /// User defined volume for mixture.
+    uservol,
+
     /// The total mass density of this mixture may be used to normalize
     /// the results.
     totalDensity, 
@@ -221,6 +224,9 @@ public:
       output information can be given. */
   void write(int,int,CoolingTime*,int,int);
 
+  /// Increments uservol by parameter value.
+  void incruservol(double Uservol) {uservol+=Uservol;};
+
   // NEED COMMENT
   double getDoseConv(int, GammaSrc*);
 
@@ -292,6 +298,9 @@ public:
   /// Inline function provides read access to the current value of the
   /// total volume fraction. 
   double getVolFrac() { return volFraction; };
+
+  /// Access function for uservol.
+  double getuservol() { return uservol; };
 };
 
 #endif

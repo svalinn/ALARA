@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.13 2002-08-23 20:46:17 fateneja Exp $ */
+/* $Id: Volume.h,v 1.14 2002-09-09 19:57:53 varuttam Exp $ */
 #include "alara.h"
 
 #ifndef _VOLUME_H
@@ -29,7 +29,10 @@ protected:
     volume, 
     
     /// The spatial normalization of this zone.
-    norm;
+    norm,
+
+    /// The actual volume of the interval.
+    uservol;
 
   char 
     /// The descriptive name of the zone in which this interval is

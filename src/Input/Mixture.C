@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.25 2002-01-07 21:52:23 wilsonp Exp $ */
+/* $Id: Mixture.C,v 1.26 2002-09-09 19:57:53 varuttam Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -31,6 +31,7 @@
 Mixture::Mixture(char *name)
 {
   volume = 0;
+  uservol = 0.0;
   mixName = NULL;
   if (name != NULL)
     {
@@ -59,6 +60,7 @@ Mixture::Mixture(char *name)
 Mixture::Mixture(const Mixture &m)
 {
   volume = m.volume;
+  uservol = m.uservol; 
   mixName = NULL;
   if (m.mixName != NULL)
     {
@@ -103,6 +105,7 @@ Mixture& Mixture::operator=(const Mixture &m)
     return *this;
 
   volume = m.volume;
+  uservol = m.uservol; 
   totalDensity = m.totalDensity;
   totalNDensity = m.totalNDensity;
   volFraction = m.volFraction;
@@ -478,7 +481,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 		{
 		  /* The mixture responses are volume weighted sums already.
 		     For volume integrated results, don't renormalize */
-		  volume_mass = 1.0;
+		  volume_mass = 1.0/ptr->uservol;
 		  cout << "\tVolume Integrated ";
 		}
 

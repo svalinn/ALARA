@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.26 2002-08-23 20:46:17 fateneja Exp $ */
+/* $Id: Volume.C,v 1.27 2002-09-09 19:57:53 varuttam Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -24,6 +24,7 @@
 void Volume::init()
 {
   volume = 1;
+  uservol=0;
   norm = 1;
  
   zoneName = NULL;
@@ -92,6 +93,7 @@ Volume::Volume(const Volume& v)
   norm = v.norm;
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
+  uservol=v.uservol;
 
   if (v.zoneName != NULL)
     {
@@ -142,7 +144,7 @@ Volume& Volume::operator=(const Volume& v)
   norm = v.norm;
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
-
+  uservol = v.uservol;
   if (v.zoneName != NULL)
     {
       zoneName = new char[strlen(v.zoneName)+1];
@@ -512,7 +514,7 @@ void Volume::postProc()
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      
+ 
       if (ptr->mixPtr != NULL)
 	{
 	  verbose(3,"Tallying for interval #%d",++intvlCntr);
@@ -531,6 +533,15 @@ void Volume::postProc()
       else
 	verbose(3,"Skipping VOID interval #%d.",++intvlCntr);
     }
+  ptr=this;
+  while (ptr->next !=NULL)
+  {
+	ptr=ptr->next;
+	if (ptr->mixPtr != NULL)
+        {	ptr->uservol=(ptr->zonePtr->getuservol())*(ptr->volume)/(ptr->zonePtr->getVol());
+ 		ptr->mixPtr->incruservol(ptr->uservol);
+	} 
+  }    
 }
 
 
@@ -597,7 +608,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		    {
 		      /* this effectively multiplies by the interval volume to give
 			 a volume integrated result */
-		      volume_mass = 1.0/ptr->volume;
+		      volume_mass = 1.0/ptr->uservol;
 		      cout << "\tVolume Integrated";
 		    }
 

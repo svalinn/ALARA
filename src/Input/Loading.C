@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.22 2001-12-06 19:20:02 wilsonp Exp $ */
+/* $Id: Loading.C,v 1.23 2002-09-09 19:57:52 varuttam Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -24,9 +24,10 @@
  ********* Service *********
  **************************/
 
-Loading::Loading(char *name, char *mxName)
+Loading::Loading(char *name, char *mxName, bool Buservol, double Uservol)
 {
   volume = 0;
+  
   zoneName = NULL;
   mixName = NULL;
   mixPtr = NULL;
@@ -45,18 +46,32 @@ Loading::Loading(char *name, char *mxName)
       strcpy(mixName,mxName);
     }
 
+  buservol=Buservol;
+  uservol=Uservol; 
   nComps = 0;
   outputList = NULL;
   total = NULL;
 
   next = NULL;
-  
+
+// STARTING DEBUG
+  if (strcmp(zoneName,"_HEAD"))
+  { 
+       verbose(5,"zoneName: %s",zoneName);
+       verbose(5,"mixName: %s",mixName);
+       verbose(5,"buservol: %i",buservol);
+       verbose(5,"uservol: %f",uservol);
+
+  }
+// END DEBUG
 }
 
 Loading::Loading(const Loading &l)
 {
   volume = l.volume;
   mixPtr = l.mixPtr;
+  uservol = l.uservol; 
+  buservol = l.buservol; 
   zoneName = NULL;
   mixName = NULL;
 
@@ -97,6 +112,8 @@ Loading& Loading::operator=(const Loading &l)
   
   volume = l.volume;
   mixPtr = l.mixPtr;
+  uservol = l.uservol;
+  buservol = l.buservol; 
   delete zoneName;
   delete mixName;
 
@@ -138,8 +155,10 @@ Loading& Loading::operator=(const Loading &l)
 /* called by Input::read(...) */
 void Loading::getMatLoading(istream& input)
 {
-  char name[64],token[64];
+  char name[64],token[64],usv[64];
+  bool busv; 
   Loading *ptr = this;
+  bool isusv(char* Usv);	
 
   verbose(2,"Reading the material loading for this problem.");
 
@@ -147,13 +166,19 @@ void Loading::getMatLoading(istream& input)
   input >> token;
   while (strcmp(token,"end"))
     {
-      input >> name;
-      ptr->next = new Loading(token,name);
+      input >> name;  
+      clearComment(input);
+      input >> usv;			 
+      clearComment(input);
+      busv=isusv(usv)?TRUE:FALSE;
+      ptr->next = new Loading(token,name,busv,strtod(usv,NULL));
       memCheck(next,"Loading::getMatLoading(...): next");
       ptr = ptr->next;
       verbose(3,"Adding zone %s with mixture%s.",token,name);
-      clearComment(input);
-      input >> token;
+      if (busv)
+	   input >> token;
+      else
+           strcpy(token,usv);
     }
   
   if (ptr->head())
@@ -161,6 +186,21 @@ void Loading::getMatLoading(istream& input)
 
 }
 
+//********* Function isusv declared in Loading::getMatLoading**********
+bool isusv(char* Usv)	
+{
+	//Checks wheter argument points to real number. If this were the case
+	//then this is assume to be uservol and the function returns TRUE.
+  
+   	char* strptr=new char[64];
+	char* *pcharptr=&strptr;
+
+	strtod(Usv,pcharptr);
+	if (strptr[0]=='\0')
+		return TRUE;
+	else
+		return FALSE;
+}
 /******* get a list of material loadings *******/
 /* called by Input::read(...) */
 void Loading::getSolveList(istream& input)
@@ -308,7 +348,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		    {
 		      /* The loading responses are volume weighted sums already.
 			 For volume integrated results, don't renormalize */
-		      volume_mass = 1.0;
+		      volume_mass = 1.0/ptr->uservol;
 		      cout << "\tVolume Integrated ";
 		    }
 
