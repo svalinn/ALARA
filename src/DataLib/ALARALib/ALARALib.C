@@ -1,4 +1,4 @@
-/* $Id: ALARALib.C,v 1.11 2001-03-21 22:26:16 wilsonp Exp $ */
+/* $Id: ALARALib.C,v 1.12 2002-08-09 19:23:38 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -90,7 +90,7 @@ void ALARALib::readData(int findKza, NuclearData* data)
   int *daugKza = NULL;
   char **emitted = NULL;
   float **xSection = NULL, *totalXSect=NULL;
-  int rxnNum, emittedLen;
+  int rxnNum, emittedLen, numNZGrps, gNum;
 
   verbose(4,"Looking for data for %d",findKza);
 
@@ -137,7 +137,11 @@ void ALARALib::readData(int findKza, NuclearData* data)
 
 	  xSection[rxnNum] = new float[nGroups+1];
 	  memCheck(xSection[rxnNum],"ALARALib::readData(...): xSection[n]");
-	  fread(xSection[rxnNum],SFLOAT,nGroups+1,binLib);
+	  fread(&numNZGrps,SINT,1,binLib);
+	  fread(xSection[rxnNum],SFLOAT,numNZGrps,binLib);
+	  for (gNum=numNZGrps;gNum<nGroups;gNum++)
+	    xSection[rxnNum][gNum] = 0;
+	  fread(xSection[rxnNum]+nGroups,SFLOAT,1,binLib);
 	}
       
       verbose(5,"Read %d reaction path(s) for %d.",nRxns,findKza);
@@ -282,7 +286,7 @@ void ALARALib::writeHead(int readNGrps, float *grpBnds, float *grpWeights)
 void ALARALib::writeData(int kza, int nRxns, float thalf, float *E,
 			 int *daugKza, char **emitted, float **xSection)
 {
-  int unique, emittedLen;
+  int unique, emittedLen, numNZGrps, gNum;
 
   verbose(2,"Writing entry for %d (%d)",kza,offset);
 
@@ -296,13 +300,20 @@ void ALARALib::writeData(int kza, int nRxns, float thalf, float *E,
   /* write info for each daughter */
   for (unique=0;unique<nRxns;unique++)
     {
+      /* determine number of non-zero groups */
+      numNZGrps = nGroups;
+      while (numNZGrps > 1 && xSection[unique][numNZGrps-1] == 0)
+	numNZGrps--;
+
       tmpIdx << "\t" << daugKza[unique] << "\t" << emitted[unique] 
 	     << "\t" << offset << endl;
       offset+=fwrite(daugKza+unique,SINT,1,binLib)*SINT;
       emittedLen = strlen(emitted[unique]);
       offset+=fwrite(&emittedLen,SINT,1,binLib)*SINT;
       offset+=fwrite(*(emitted+unique),1,emittedLen,binLib);
-      offset+=fwrite(*(xSection+unique),SFLOAT,nGroups+1,binLib)*SFLOAT;
+      offset+=fwrite(&numNZGrps,SINT,1,binLib)*SINT;
+      offset+=fwrite(*(xSection+unique),SFLOAT,numNZGrps,binLib)*SFLOAT;
+      offset+=fwrite((*(xSection+unique))+nGroups,SFLOAT,1,binLib)*SFLOAT;
 
       /* delete used info */
       delete emitted[unique];
