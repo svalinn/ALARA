@@ -1,4 +1,4 @@
-/* $Id: VolFlux.C,v 1.7 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: VolFlux.C,v 1.8 2000-06-20 01:47:12 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -16,6 +16,7 @@
 
 int VolFlux::nFluxes = 0;
 int VolFlux::nGroups = 0;
+int VolFlux::refflux_type = REFFLUX_MAX;
 
 VolFlux::VolFlux()
 {
@@ -109,7 +110,7 @@ VolFlux* VolFlux::read(ifstream &fluxFile, double scale)
  ******** Solution **********
  ***************************/
 
-void VolFlux::updateReference(VolFlux *compFlux)
+void VolFlux::updateReference(VolFlux *compFlux, double volWeight)
 {
   int gNum;
   VolFlux *reference = this;
@@ -127,13 +128,42 @@ void VolFlux::updateReference(VolFlux *compFlux)
 	{
 	  reference = reference->next;
 	  for (gNum=0;gNum<nGroups;gNum++)
-	    if (compFlux->flux[gNum]>reference->flux[gNum])
-	      reference->flux[gNum] = compFlux->flux[gNum];
+	    switch (refflux_type) {
+	    case REFFLUX_VOL_AVG:
+	      reference->flux[gNum] += compFlux->flux[gNum]*volWeight;
+	      break;
+	    case REFFLUX_MAX:
+	    default:
+	      if (compFlux->flux[gNum]>reference->flux[gNum])
+		reference->flux[gNum] = compFlux->flux[gNum];
+	      break;
+	    }
 	}
     }
 
 
 }
+
+void VolFlux::scaleReference(double scale)
+{
+  int gNum;
+
+  VolFlux *ptr = this;
+  
+  while (ptr != NULL) {
+    switch (refflux_type) {
+    case REFFLUX_VOL_AVG:
+      for (gNum=0;gNum<nGroups;gNum++)
+	ptr->flux[gNum] *= scale;
+      break;
+    case REFFLUX_MAX:
+    default:
+      break;
+    }
+    ptr = ptr->next;
+  }
+}
+
 
 double VolFlux::fold(double* rateVec, Node* nodePtr)
 {

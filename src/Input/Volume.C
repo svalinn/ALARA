@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.20 2000-04-28 15:33:31 wilson Exp $ */
+/* $Id: Volume.C,v 1.21 2000-06-20 01:50:01 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -106,7 +106,11 @@ Volume::Volume(Root *rootPtr,topSchedule* top)
 {
   init();
 
-  rootPtr->refFlux(fluxHead);
+  volume = 0;
+
+  rootPtr->refFlux(this);
+
+  fluxHead->scaleReference(1.0/volume);
 
   schedT = new topScheduleT(top);
 
@@ -383,7 +387,7 @@ void Volume::makeSchedTs(topSchedule *top)
  ****************************/
 
 /* set reference flux */
-void Volume::refFlux(VolFlux *refFluxHead)
+void Volume::refFlux(Volume *refVolume)
 {
   Volume* ptr= this;
   
@@ -392,7 +396,8 @@ void Volume::refFlux(VolFlux *refFluxHead)
       ptr = ptr->mixNext;
       /* collapse the rates with the flux */
 
-      refFluxHead->updateReference(ptr->fluxHead);
+      refVolume->volume += ptr->volume;
+      refVolume->fluxHead->updateReference(ptr->fluxHead,ptr->volume);
     }
 
 

@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.20 2000-04-28 15:33:31 wilson Exp $ */
+/* $Id: Mixture.C,v 1.21 2000-06-20 01:49:45 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -389,9 +389,9 @@ void Mixture::makeRootList(Root *&masterRootList)
  ********* Solution *********
  ***************************/
 
-void Mixture::refFlux(VolFlux *fluxHead)
+void Mixture::refFlux(Volume *refVolume)
 {
-  volList->refFlux(fluxHead);
+  volList->refFlux(refVolume);
 }
 
 void Mixture::solve(Chain* chain, topSchedule* schedule)

@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.11 2000-01-17 16:57:38 wilson Exp $ */
+/* $Id: Mixture.h,v 1.12 2000-06-20 01:49:45 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -162,10 +162,10 @@ contains no problem data.
 
  * - Solution - *
 
- void refFlux(VolFlux*)
+ void refFlux(Volume*)
     Function simply passes the argument to the list of intervals which
-    contain this mixture.  The reference flux is checked and updated
-    against each interval.
+    contain this mixture.  The reference flux contained in this volume
+    is checked and updated against each interval.
 
  void solve(Chain*, topSchedule*)
     Function simply passes the two arguments, the chain information
@@ -316,7 +316,7 @@ public:
   void makeRootList(Root *&);
 
   /* Solution */
-  void refFlux(VolFlux*);
+  void refFlux(Volume*);
   void solve(Chain*, topSchedule*);
   void writeDump();
 

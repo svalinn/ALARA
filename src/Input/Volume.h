@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.10 2000-01-17 16:57:38 wilson Exp $ */
+/* $Id: Volume.h,v 1.11 2000-06-20 01:50:13 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -179,11 +179,11 @@ member), and contains no problem data.
 
  * - Solution - *
 
- void refFlux(VolFlux*)
+ void refFlux(Volume*)
     This is the master routine for the creation of the reference flux.
-    For each interval in the mixture list, the reference flux (first
-    argument) is compared with the interval's flux and updated if
-    necessary.
+    For each interval in the mixture list, the reference flux (part of
+    the Volume pointed to by the first argument) is compared with the
+    interval's flux and updated if necessary.
 
  void solve(Chain*, topSchedule*)
     This is the master routine for the solution of the chain (argument
@@ -292,7 +292,7 @@ public:
   void makeSchedTs(topSchedule*);
 
   /* Solution */
-  void refFlux(VolFlux*);
+  void refFlux(Volume*);
   void solve(Chain*, topSchedule*);
   topScheduleT* solveRef(Chain*, topSchedule*);
   void writeDump();

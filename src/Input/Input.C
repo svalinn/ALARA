@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.14 2000-03-01 14:33:02 wilson Exp $ */
+/* $Id: Input.C,v 1.15 2000-06-20 01:48:30 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -29,6 +29,7 @@
 #include "Chains/Root.h"
 
 #include "Calc/topSchedule.h"
+#include "Calc/VolFlux.h"
 
 #include "Util/input_tokens.h"
 
@@ -241,6 +242,10 @@ void Input::read()
 		  break;
 		case INTOK_SKIPLIST:
 		  skipList->getSolveList(*input);
+		  break;
+		case INTOK_REFFLUX:
+		  *input >> token;
+		  VolFlux::setRefFluxType(tolower(token[0]));
 		  break;
 		default:
 		  error(100,"Invalid token in input file: %s",token);

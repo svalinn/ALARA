@@ -1,4 +1,4 @@
-/* $Id: Root.h,v 1.6 2000-01-17 18:45:21 wilson Exp $ */
+/* $Id: Root.h,v 1.7 2000-06-20 01:48:10 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -100,7 +100,7 @@ where this root isotope is found.
     
     * - Solution - *
 
-    void refFlux(VolFlux*)
+    void refFlux(Volume*)
        The reference flux for truncation is a group-wise maximum
        across the various intervals.  Each root isotope has a
        different reference flux, based on the set of intervals which
@@ -196,10 +196,10 @@ where this root isotope is found.
  
  * - Solution - *
 
- void refFlux(VolFlux*)
-    This inline function helps establish the group-wise maximum
-    reference flux by passing this flux through 'mixList' to the list
-    of intervals which contain a particular root isotope.
+ void refFlux(Volume*)
+    This inline function helps establish the reference flux by passing
+    this Volume through 'mixList' to the list of intervals which contain
+    a particular root isotope.
 
  void solve(topSchedule*)
     This function is the top level of the solution phase.  For each
@@ -289,7 +289,7 @@ protected:
       void tally(MixCompRef *);
       
       /* Solution */
-      void refFlux(VolFlux *);
+      void refFlux(Volume*);
       void solve(Chain*, topSchedule*);
       void writeDump();
 
@@ -320,8 +320,8 @@ public:
     { delete mixList; delete nextRoot; };
   
   /* Solution */
-  void refFlux(VolFlux *fluxHead)
-    { mixList->refFlux(fluxHead); };
+  void refFlux(Volume *refVolume)
+    { mixList->refFlux(refVolume); };
 
   void solve(topSchedule*);
   

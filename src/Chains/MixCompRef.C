@@ -1,4 +1,4 @@
-/* $Id: MixCompRef.C,v 1.4 1999-12-21 21:37:29 wilson Exp $ */
+/* $Id: MixCompRef.C,v 1.5 2000-06-20 01:48:04 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -108,7 +108,7 @@ void Root::MixCompRef::tally(MixCompRef* tallyList)
  ***************************/
 
 /* setup the reference flux for a particular root isotope */
-void Root::MixCompRef::refFlux(VolFlux *fluxHead)
+void Root::MixCompRef::refFlux(Volume *refVolume)
 {
   MixCompRef *ptr = this;
   MixCompRef *oldPtr;
@@ -118,7 +118,7 @@ void Root::MixCompRef::refFlux(VolFlux *fluxHead)
       oldPtr = ptr;
 
       /* solve mixture */
-      ptr->mixPtr->refFlux(fluxHead);
+      ptr->mixPtr->refFlux(refVolume);
 
       /* find next mixture */
       while (ptr != NULL && ptr->mixPtr == oldPtr->mixPtr)

@@ -1,4 +1,4 @@
-/* $Id: Loading.h,v 1.9 2000-01-18 02:38:12 wilson Exp $ */
+/* $Id: Loading.h,v 1.10 2000-06-20 01:50:21 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -198,6 +198,7 @@ public:
   Loading* advance() { return (this!= NULL)?next:(Loading*)NULL; };
   char* getName() { return zoneName;};
   char* getMix() { return mixName;};
+  double getVol() { return volume;};
   int head() { return (!strcmp(zoneName,IN_HEAD));};
   int nonEmpty() { return (next != NULL || !head()); };
   Loading* findZone(char *);

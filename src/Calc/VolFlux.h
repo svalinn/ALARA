@@ -1,4 +1,4 @@
-/* $Id: VolFlux.h,v 1.8 2000-02-11 20:55:19 wilson Exp $ */
+/* $Id: VolFlux.h,v 1.9 2000-06-20 01:47:12 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -84,10 +84,12 @@ specification.
  
  * - Solution - *
 
- double updateReference(VolFlux*)
+ double updateReference(VolFlux*,double)
     This function compares the flux of the object through which it is
     called with the object pointed to by the argument, and sets the
-    group-wise maximum flux.
+    the reference flux. There are currently two options:
+    1) group-wise maximum flux, or
+    2) group-wise volume weighted average flux
 
  double fold(double*,Node*)
     This function takes a rate vector pointed to by the first argument
@@ -106,12 +108,15 @@ specification.
 #ifndef _VOLFLUX_H
 #define _VOLFLUX_H
 
+#define REFFLUX_MAX     0
+#define REFFLUX_VOL_AVG 1
+
 #include "RateCache.h"
 
 class VolFlux
 {
 protected:
-  static int nFluxes, nGroups;
+  static int nFluxes, nGroups, refflux_type;
 
   double *flux;
   RateCache cache;
@@ -128,6 +133,18 @@ public:
     { nGroups = numGrps; };
   static int getNumGroups() 
     { return nGroups; };
+  static void setRefFluxType(char refflux_type_code)
+    { 
+      switch (refflux_type_code) {
+      case 'v':
+	refflux_type = REFFLUX_VOL_AVG;
+	break;
+      case 'm':
+      default:
+	refflux_type = REFFLUX_MAX;
+	break;
+      }
+    };
 
   /* Service */
   VolFlux();
@@ -142,7 +159,8 @@ public:
   VolFlux* read(ifstream &, double );
   
   /* Solution */
-  void updateReference(VolFlux*);
+  void updateReference(VolFlux*,double);
+  void scaleReference(double);
   double fold(double*,Node*);
 
   /* Utility */

@@ -1,4 +1,4 @@
-/* $Id: input.C,v 1.8 2000-04-28 15:32:54 wilson Exp $ */
+/* $Id: input.C,v 1.9 2000-06-20 01:50:51 wilson Exp $ */
 #include "alara.h"
 #include "input_tokens.h"
 
@@ -27,7 +27,8 @@ dump_file    \
 impurity     \
 solve_zones  \
 skip_zones   \
-ignore       ";
+ignore       \
+ref_flux_type";
 
 #define MAXLINELENGTH 256
 
