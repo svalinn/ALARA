@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.16 2001-12-13 13:53:46 wilsonp Exp $ */
+/* $Id: Input.C,v 1.17 2002-01-07 21:51:05 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -50,7 +50,7 @@ Input::Input(char* inputFname)
       debug(1,"Openning %s for input.",inputFname);
       input = openFile(inputFname);
       if (*input == NULL)
-	error(102,"Unable to open main input file: '%s'.",inputFName);
+	error(102,"Unable to open main input file: '%s'.",inputFname);
 
       verbose(1,"Openned %s for input.",inputFname);
     }
