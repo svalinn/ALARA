@@ -315,9 +315,10 @@ int Chain::build(topSchedule *top)
 void Chain::setupColRates()
 {
 
-  int rank;
+  int rank,idx;
 
   int sliceSize = VolFlux::getNumFluxes()*chainLength;
+  int mode = NuclearData::getMode();
 
   int step = maxChainLength;
   
@@ -344,17 +345,20 @@ void Chain::setupColRates()
   /* set non-flux dependent rates */
   for (rank=0;rank<chainLength;rank++)
     {
+      idx = rank;
+      if (mode == MODE_REVERSE)
+	idx = (chainLength-1)-rank;
       if (rates[rank+2*step] == NULL)
-	L[rank] = 0;
+	L[idx] = 0;
       else
-	L[rank] = *(rates[rank+2*step]);
+	L[idx] = *(rates[rank+2*step]);
       if (rates[rank+3*step] == NULL)
-	l[rank] = 0;
+	l[idx] = 0;
       else
-	l[rank] = *(rates[rank+3*step]);
+	l[idx] = *(rates[rank+3*step]);
     }
 
-  if (solvingRef)
+  if (solvingRef && mode == MODE_FORWARD)
     l[rank-1] = 0;
 
 }
@@ -365,6 +369,7 @@ void Chain::collapseRates(VolFlux* flux)
 {
   int idx,rank;
   int fluxNum = 0;
+  int mode = NuclearData::getMode();
 
   int step = maxChainLength;
   
@@ -375,11 +380,14 @@ void Chain::collapseRates(VolFlux* flux)
       for (rank=0;rank<chainLength;rank++)
 	{
 	  idx = fluxNum*chainLength + rank;
+	  if (mode == MODE_REVERSE)
+	    idx = fluxNum*chainLength + (chainLength-1)-rank;
 	  P[idx] = flux->fold(rates[rank])      + L[rank];
 	  d[idx] = flux->fold(rates[rank+step]) + l[rank];
 	}
-
-      if (solvingRef)
+      
+      /* in forward mode, don't destroy bottom isotope */
+      if (solvingRef && mode == MODE_FORWARD)
 	d[idx] = 0;
 
      fluxNum++;
