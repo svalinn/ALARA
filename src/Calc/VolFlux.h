@@ -1,4 +1,4 @@
-/* $Id: VolFlux.h,v 1.10 2000-06-20 02:37:50 wilson Exp $ */
+/* $Id: VolFlux.h,v 1.11 2002-05-06 18:04:40 wilsonp Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -15,6 +15,10 @@ specification.
 
  nGroups : int
     The number of neutron groups being used in this problem.
+
+ refflux_type : int
+    An indicator of which type of reference flux should be used for
+    truncation calculations.
 
  *** Non-Static Class Members ***
  
