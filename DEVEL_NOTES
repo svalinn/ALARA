@@ -1,0 +1,31 @@
+$Id: DEVEL_NOTES,v 1.1 2003-10-29 06:11:54 wilsonp Exp $
+
+This file contains some information on how to use automake/autoconf
+and reminders about which files are necessary for the user-level
+distribution and which files are only necessary for the
+maintainers/developers.
+
+1. Users should not need to run automake or autoconf.
+
+This means that users don't need copies of configure.in or Makefile.am.
+
+
+2. installation directory locations
+
+datadir = ${prefix}/share
+	pkgdatadir = $(datadir)/alara
+		XXXXXXXX nonxsdir = $(pkgdatadir)/data XXXXXXXXXXX
+		XXXXXXXX docdir = $(pkgdatadir)/doc XXXXXXXXXXX
+		XXXXXXXX sampledir = $(pkgdatadir)/sample XXXXXXXXXXX
+sysconfdir = ${prefix}/etc
+
+
+bindir = ${exec_prefix}/bin
+	XXXXXXXX alara executable XXXXXXXX
+	XXXXXXXX tools:scripts & executables XXXXXXX
+libdir = ${exec_prefix}/lib
+	pkglibdir = $(libdir)/alara
+		XXXXXXX xsdir = $(pkglibdir)/$OSTYPE
+libexecdir = ${exec_prefix}/libexec
+sbindir = ${exec_prefix}/sbin
+
