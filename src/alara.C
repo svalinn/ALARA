@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.11 2000-04-28 17:13:40 wilson Exp $ */
+/* $Id: alara.C,v 1.12 2001-07-10 20:48:33 wilsonp Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -24,7 +24,8 @@ usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
 \t -V                 Show version\n\
 \t -v <n>             Set verbosity level\n\
 \t <input_filename>   Name of input file\n\
-See Users' Guide (http://fti.neep.wisc.edu/ALARA) for more info.\n";
+See Users' Guide for more info.\n\
+(http://www.cae.wisc.edu/~wilsonp/projects/ALARA/users.guide.html/)\n";
 
 int main(int argc, char *argv[])
 {
