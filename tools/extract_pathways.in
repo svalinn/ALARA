@@ -1,5 +1,15 @@
 #!/usr/bin/perl
-# $Id: extract_pathways.in,v 1.1 2000-02-29 01:28:18 wilson Exp $
+# $Id: extract_pathways.in,v 1.2 2000-03-01 21:01:07 wilson Exp $
+
+$usage = "usage: $^X <iso_symbol> [chains]
+Extract chain information from tree files.
+\t iso_symbol : target isotope in extracted chains
+\t chains : optional keyword to force chains instead of mini trees (bushes:)\n";
+
+if ($ARGV[0] eq "-h") {
+    print $usage;
+    exit;
+}
 
 $target = $ARGV[0];
 
@@ -7,18 +17,23 @@ $mode = ($ARGV[1] eq "chains"?0:1);
 
 while (<STDIN>) {
 
-    /\t+/g;
+    /(\t\|)+/g;
     $rank = pos();
+    #print "$rank\n";
     if ($rank < $lastRank) {
 	$lastRank = $rank;
     }
     $line[$rank] = $_;
+
+#    $line[$rank] =~ s/\t\|/\t/g;
     
     /([a-z][a-z]?-[0-9]{1,3}[mn]?)/;
-    if ($1 eq $target && substr($line[$rank],-3,2) ne "< ") {
+    if ($1 eq $target && substr($line[$rank],-2,1) ne "<") {
 	for ($prRank=$lastRank*$mode;$prRank<=$rank;$prRank++) {
 	    print $line[$prRank];
 	}
 	$lastRank = $rank+1;
     }
 }
+
+
