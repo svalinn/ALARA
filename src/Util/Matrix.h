@@ -30,6 +30,8 @@ public:
   Matrix& operator=(const Matrix&);
   double& operator[](int idx) { return data[idx]; };
 
+  int getSize() { return size; };
+
   double rowSum(int);
 
 };
