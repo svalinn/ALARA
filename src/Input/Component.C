@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.7 1999-08-25 15:42:51 wilson Exp $ */
+/* $Id: Component.C,v 1.8 1999-08-31 22:41:29 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -22,7 +22,7 @@ ifstream Component::eleLib;
  ********* Service *********
  **************************/
 Component::Component(int compType, char *name, double dens) :
-  type(compType),density(dens)
+  type(compType),density(dens), volFraction(0)
 {
   compName = NULL;
   if (name != NULL)
@@ -36,7 +36,7 @@ Component::Component(int compType, char *name, double dens) :
 }
 
 Component::Component(const Component& comp) :
-  type(comp.type), density(comp.density)
+  type(comp.type), density(comp.density), volFraction(comp.volFraction)
 { 
   compName = NULL;
   if (comp.compName != NULL)
@@ -57,6 +57,7 @@ Component& Component::operator=(const Component& comp)
 
   type = comp.type;
   density = comp.density;
+  volFraction = comp.volFraction;
 
   delete compName;
   compName = NULL;
@@ -228,14 +229,15 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
       
   if (!eleLib.eof())
     {
-      density *= AVAGADRO/A;
+      volFraction = density/eleDens;
+      double Ndensity = density * AVAGADRO/A;
 
       /* if element is found, add a new root for each isotope */
       verbose(5,"Found element %s in element library",testName);
       while (numIsos-->0)
 	{
 	  eleLib >> isoName >> isoDens;
-	  isoDens *= density/100.0;
+	  isoDens *= Ndensity/100.0;
 	  strcpy(testName,compName);
 	  strcat(testName,"-");
 	  strcat(testName,isoName);
@@ -285,6 +287,7 @@ Root* Component::expandMat(Mixture* mix)
   if (!matLib.eof())
     {
       /* scale relative density by material density from lib */
+      volFraction = density;
       density *= matDens;
 
       verbose(5,"Found material %s in material library.",testName);

@@ -1,4 +1,4 @@
-/* $Id: Component.h,v 1.4 1999-08-25 15:42:51 wilson Exp $ */
+/* $Id: Component.h,v 1.5 1999-08-31 22:41:30 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -171,6 +171,7 @@ protected:
 
   int type;
   double density;
+  double volFraction;
   char *compName;
 
   Component *next;
