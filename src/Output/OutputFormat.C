@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.18 1999-11-09 17:17:52 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.19 1999-11-11 17:51:35 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -228,6 +228,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      case(OUTFMT_ACT):
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 			ptr->actUnits,ptr->normUnits);
+		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],ptr->normUnits);
 	      }
