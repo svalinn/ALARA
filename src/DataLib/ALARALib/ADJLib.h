@@ -1,6 +1,7 @@
-/* $Id: ADJLib.h,v 1.10 2003-01-06 20:12:06 wilsonp Exp $ */
+/* $Id: ADJLib.h,v 1.11 2003-06-10 20:23:11 wilsonp Exp $ */
 #include "alara.h"
-/* ******* Class Description ************
+
+/** \brief Support for "adjoint" library format for reverse calculations
 
 This class provides access to data libraries which follow the ALARA v1
 binary merged library format.  This class is derived directly and
