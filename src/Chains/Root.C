@@ -55,6 +55,8 @@ Root::Root(char* isoName, double isoDens, Mixture* mix,Component* comp) :
 void Root::solve(topSchedule *schedule)
 {
   Root* ptr=this;
+  float totalTime, incrTime;
+  int firstNode=0,lastNode=0;
 
   /* skip over head of rootlist */
   while (ptr != NULL && ptr->kza <1)
@@ -63,7 +65,11 @@ void Root::solve(topSchedule *schedule)
   /* for each root */
   while (ptr != NULL)
     {
-      verbose(2,"Solving Root: %d",ptr->kza);
+      firstNode = lastNode;
+      lastNode = Statistics::numNodes();
+      Statistics::cputime(incrTime,totalTime);
+      verbose(2,"Solving Root: %d (last Root: %d nodes in %0.3f s (Total Nodes: %d in %0.2f s)",
+	      ptr->kza, lastNode-firstNode, incrTime,lastNode,totalTime);
 
       /* start a new chain */
       Chain *chain = new Chain(ptr,schedule);

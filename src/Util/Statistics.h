@@ -8,6 +8,8 @@ class Statistics
 protected:
   static ofstream treeFile;
   static int tree, nodeCtr;
+  static float ticks;
+  static float runtime[2];
 
 public:
   
@@ -15,6 +17,10 @@ public:
 
   static void initTree(char*);
   static void closeTree();
+  static void cputime(float&,float&);
+
+  static int numNodes()
+    { return nodeCtr; };
 
 };
 

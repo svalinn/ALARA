@@ -1,10 +1,15 @@
 #include "Statistics.h"
 
+#include <unistd.h>
+#include <sys/times.h>
+
 #include "Chains/truncate.h"
 
 ofstream Statistics::treeFile;
 int Statistics::tree = FALSE;
 int Statistics::nodeCtr = 0;
+float Statistics::ticks = (float)sysconf(_SC_CLK_TCK);
+float Statistics::runtime[2] = { 0, 0 };
 
 void Statistics::initTree(char* fname)
 {
@@ -59,3 +64,17 @@ int Statistics::accountNode(int kza, char* emitted, int rank, int state,
   return nodeCtr;
 }
 
+/* routine to set cpu time */
+void Statistics::cputime(float &increment, float &total)
+{
+  static struct tms time0;
+
+  times(&time0);
+
+  runtime[1] = runtime[0];
+  runtime[0] = (float)time0.tms_utime/ticks;
+
+  total = runtime[0];
+  increment = total-runtime[1];
+
+}
