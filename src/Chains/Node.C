@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.19 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: Node.C,v 1.20 2000-07-07 02:07:17 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -110,87 +110,84 @@ void Node::readData()
 
 double Node::getLambda(int setKza)
 {
-  if (lambdaCache.count(setKza))
-    return lambdaCache[setKza];
-
-  kza = setKza;
-  readData();
-
-  if (nPaths>0 && D[nGroups]>0)
+  if (!lambdaCache.count(setKza))
     {
-      lambdaCache[kza] = D[nGroups];
-      return D[nGroups];
+      kza = setKza;
+      readData();
+      
+      if (nPaths>0 && D[nGroups]>0)
+	lambdaCache[kza] = D[nGroups];
+      else
+	lambdaCache[kza] = 0;
     }
-  else
-    return 0;
+  
+  return lambdaCache[setKza];
 }
 
 double Node::getHeat(int setKza)
 {
-  if (heatCache.count(setKza))
-    return heatCache[setKza];
-
-  kza = setKza;
-  readData();
-
-  if (nPaths>0 && D[nGroups]>0)
+  if (!heatCache.count(setKza))
     {
-      heatCache[kza] = D[nGroups] * (E[0]+E[1]+E[2]);
-      return D[nGroups] * (E[0]+E[1]+E[2]);
+      kza = setKza;
+      readData();
+      
+      if (nPaths>0 && D[nGroups]>0)
+	heatCache[kza] = D[nGroups] * (E[0]+E[1]+E[2]);
+      else
+	heatCache[kza] = 0;
     }
-  else
-    return 0;
+
+  return heatCache[setKza];
+
 }
 
 double Node::getAlpha(int setKza)
 {
-  if (alphaCache.count(setKza))
-    return alphaCache[setKza];
-
-  kza = setKza;
-  readData();
-
-  if (nPaths>0 && D[nGroups]>0)
+  if (!alphaCache.count(setKza))
     {
-      alphaCache[kza] = D[nGroups] * E[0];
-      return D[nGroups] * E[0];
+      kza = setKza;
+      readData();
+      
+      if (nPaths>0 && D[nGroups]>0)
+	alphaCache[kza] = D[nGroups] * E[0];
+      else
+	alphaCache[kza] = 0;
     }
-  else
-    return 0;
+  
+  return alphaCache[setKza];
+    
 }
 
 double Node::getBeta(int setKza)
 {
-  if (betaCache.count(setKza))
-    return betaCache[setKza];
-
-  kza = setKza;
-  readData();
-
-  if (nPaths>0 && D[nGroups]>0)
+  if (!betaCache.count(setKza))
     {
-      betaCache[kza] = D[nGroups] * E[1];
-      return D[nGroups] * E[1];
+      kza = setKza;
+      readData();
+      
+      if (nPaths>0 && D[nGroups]>0)
+	betaCache[kza] = D[nGroups] * E[1];
+      else
+	betaCache[kza] = 0;
     }
-  else
-    return 0;
+  return betaCache[setKza];
 }
 
 double Node::getGamma(int setKza)
 {
-  if (gammaCache.count(setKza))
-    return gammaCache[setKza];
-
-  kza = setKza;
-  readData();
-
-  if (nPaths>0 && D[nGroups]>0)
+  if (!gammaCache.count(setKza))
     {
-      gammaCache[kza] = D[nGroups] * E[2];
-      return D[nGroups] * E[2];
+      kza = setKza;
+      readData();
+      
+      if (nPaths>0 && D[nGroups]>0)
+	gammaCache[kza] = D[nGroups] * E[2];
+      else
+	gammaCache[kza] = 0;
     }
-  else
-    return 0;
+
+  return gammaCache[setKza];
+
 }
 
 double Node::getWDR(int setKza)
