@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.20 2003-01-13 04:34:50 fateneja Exp $ */
+/* $Id: Chain.C,v 1.21 2003-12-01 20:25:18 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -71,7 +71,7 @@ Chain::Chain(Root *newRoot, topSchedule *top)
 
   verbose(2,"   Maximum relative concentration: %g",root->maxConc());
 
-  if (root->maxConc() < impurityDefn)
+  if (root->maxConc() < impurityDefn && mode == MODE_FORWARD)
     {
       chainTruncLimit = impurityTruncLimit;
       chainIgnoreLimit = impurityTruncLimit*ignoreLimit;
