@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.13 1999-12-21 21:37:29 wilson Exp $ */
+/* $Id: Component.C,v 1.14 2000-01-28 21:30:59 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -307,7 +307,6 @@ Root* Component::expandMat(Mixture* mix)
     {
       /* scale relative density by material density from lib */
       density *= matDens;
-      mix->incrTotalDensity(density*volFraction);
 
       verbose(5,"Found material %s in material library.",testName);
       /* if material found, read list of elements,
