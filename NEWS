@@ -1,4 +1,16 @@
-$Id: NEWS,v 1.12 2005-02-02 19:42:36 wilsonp Exp $
+$Id: NEWS,v 1.13 2005-02-24 09:33:31 wilsonp Exp $
+
+Version 2.7.5
+	
+BUGS FIXED
+
+NEW FEATURES
+
+CODE UPDATES
+	* rewrote dant2alara in C++ eliminating any FORTRAN code from
+	  entire code tree [PW] (02/24/2005)
+	
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
 Version 2.7.4
 	
