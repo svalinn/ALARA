@@ -1,0 +1,89 @@
+********** VERSION 1.X *******************
+
+ _ INPUT
+|_
+
+ _ MakeRootList
+|_
+
+
+ @ solve each root
+|   - Set reference flux
+|   _ build Chain (recurse addDaughter)
+|  |   - get Data              ^
+|  |   - test for truncation   |
+|  |   _ if no truncation      |
+|  |  |   @ add each daughter _|
+|  |  |_ else
+|  |  |   @ solve each mixture with this root
+|  |  |  |   - get L and l vectors
+|  |  |  |   @ set Decay matrices for each schedule
+|  |  |  |  |   @ set decay matrix for each pulsing level of each schedule 
+|  |  |  |  |  |                     (schedule N+1 is cooling time vector)
+|  |  |  |  |  |   - resize stored matrix
+|  |  |  |  |  |_  - set decay matrix based on L, l, t_d
+|  |  |  |   @ solve each interval with this mixture
+|  |  |  |  |   - get P and d vectors
+|  |  |  |  |   @ for each schedule
+|  |  |  |  |  |   - get stored matrix from interval
+|  |  |  |  |  |   - set transfer matrix based on P, d, t_irr
+|  |  |  |  |  |_  - store matrix with interval
+|  |  |  |  |   - calculate pulsing and cooling
+|_ |_ |_ |_ |_  - tally result
+
+ @ tally results for each zone
+
+ @ tally results for each mixture
+
+ - Output
+|_
+
+
+********** VERSION 2.X *******************
+
+ _ INPUT
+|_
+
+ _ MakeRootList
+|_
+
+
+ @ solve each root
+|   - Set reference flux
+|   _ build Chain (recurse addDaughter)
+|  |   - get Data              ^
+|  |   - test for truncation   |
+|  |   _ if no truncation      |
+|  |  |   @ add each daughter _|
+|  |  |_ else
+|  |  |   - get L and l vectors
+|  |  |   @ set Decay matrices for each schedule
+|  |  |  |   @ set decay matrix for each pulsing level of each schedule 
+|  |  |  |  |                     (schedule N+1 is cooling time vector)
+|  |  |  |  |   - resize stored matrix
+|  |  |  |_ |_  - set decay matrix based on L, l, t_d
+|  |  |   @ solve each interval with each mixture with this root
+|  |  |  |   - get P and d vectors
+|  |  |  |   @ for each schedule
+|  |  |  |  |   - get stored matrix from interval
+|  |  |  |  |   - set transfer matrix based on P, d, t_irr
+|  |  |  |  |_  - store matrix with interval
+|  |  |  |   - calculate pulsing and cooling
+|_ |_ |_ |_  - tally result
+
+ @ tally results for each zone
+
+ @ tally results for each mixture
+
+ - Output
+|_
+
+
+---- ROOT LISTS
+ - need pointers to intervals
+
+
+---- Interval Lists
+ - need to generate it if using zone dimensions!!
+ - need pointers to mixtures
+

@@ -1,0 +1,486 @@
+/* (potential) File sections:
+ * Service: constructors, destructors
+ * Input: functions directly related to input of data 
+ * xCheck: functions directly related to cross-checking the input
+ *         against itself for consistency and completeness
+ * Preproc: functions directly related to preprocessing of input
+ *          prior to solution 
+ * Solution: functions directly related to the solution of a (sub)problem
+ * Utility: advanced member access such as searching and counting 
+ */
+
+#include "Mixture.h"
+#include "Component.h"
+#include "Loading.h"
+#include "Volume.h"
+#include "CoolingTime.h"
+
+#include "Chains/Root.h"
+
+#include "Calc/topScheduleT.h"
+
+#include "Output/Result.h"
+
+/***************************
+ ********* Service *********
+ **************************/
+
+Mixture::Mixture(char *name)
+{
+  volume = 0;
+  mixName = NULL;
+  if (name != NULL)
+    {
+      mixName = new char[strlen(name)+1];
+      memCheck(mixName,"Mixture::Mixture(...) constructor: mixName");
+      strcpy(mixName,name);
+    }
+
+  compListHead = new Component(COMP_HEAD);
+  memCheck(compListHead,"Mixture::Mixture(...) constructor: compListHead");
+
+  volList = new Volume(VOL_HEAD);
+
+  rootList = NULL;
+  nComps = 0;
+  outputList = NULL;
+  total = NULL;
+
+  next = NULL;
+}
+
+Mixture::Mixture(const Mixture &m)
+{
+  volume = m.volume;
+  mixName = NULL;
+  if (m.mixName != NULL)
+    {
+      mixName = new char[strlen(m.mixName)+1];
+      memCheck(mixName,"Mixture::Mixture(...) copy constructor: mixName");
+      strcpy(mixName,m.mixName);
+    }
+
+  compListHead = new Component(COMP_HEAD);
+  memCheck(compListHead,"Mixture::Mixture(...) copy constructor: compListHead");
+
+  volList = new Volume(VOL_HEAD);
+
+  rootList = NULL;
+  nComps = 0;
+  outputList = NULL;
+  total = NULL;
+
+  next = NULL;
+}
+
+Mixture::~Mixture()
+{ 
+  delete mixName; 
+  delete compListHead; 
+  delete rootList;
+  delete [] outputList;
+  delete next;
+}
+
+Mixture& Mixture::operator=(const Mixture &m)
+{
+
+  if (this == &m)
+    return *this;
+
+  volume = m.volume;
+  delete mixName;
+  mixName = NULL;
+  if (m.mixName != NULL)
+    {
+      mixName = new char[strlen(m.mixName)+1];
+      memCheck(mixName,"Mixture::operator=(...): mixName");
+      strcpy(mixName,m.mixName);
+    }
+
+  delete compListHead;
+  compListHead = new Component(COMP_HEAD);
+  memCheck(compListHead,"Mixture::operator=(...): compListHead");
+
+  delete volList;
+  volList = new Volume(VOL_HEAD);
+
+  delete rootList;
+  rootList = NULL;
+
+  delete [] outputList;
+  nComps = 0;
+  outputList = NULL;
+  
+  delete total;
+  total = NULL;
+
+  return *this;
+
+
+}
+
+/***************************
+ *********** Input *********
+ ***************************/
+
+/* get each mixture and add components */
+/* called by Input::read(...) */
+Mixture* Mixture::getMixture(istream &input)
+{
+  char name[256], token[64];
+  int type;
+
+  input >> name;
+  next = new Mixture(name);
+  memCheck(next,"Mixture::getMixture(...): next");
+
+  Mixture *mixPtr = next;
+
+  /* read a list of componenets until keyword "end" */
+  Component* compList = mixPtr->compListHead;
+  mixPtr->nComps = 0;
+
+  verbose(2,"Reading component list for Mixture %s with components:",name);
+  clearComment(input);
+  input >> token;
+  while (strcmp(token,"end"))
+    {
+      mixPtr->nComps++;
+
+      switch(tolower(token[0]))
+	{
+	case 'm':
+	  debug(2,"Creating new Component object of material type");
+	  type = COMP_MAT;
+	  break;
+	case 'e':
+	  debug(2,"Creating new Component object of element type");
+	  type = COMP_ELE;
+	  break;
+	case 'i':
+	  debug(2,"Creating new Component object of isotope type");
+	  type = COMP_ISO;
+	  break;
+	case 'l':
+	  debug(2,"Creating new Component object of similar type");
+	  type = COMP_SIM;
+	  break;
+	default:
+	  error(101,"Invalid material constituent: %s", token);
+	}
+      /* add each component to the list */
+      compList = compList->getComponent(type,input);
+
+      clearComment(input);
+      input >> token;
+    }
+  
+  if (compList->head())
+    warning(102,"Mixture %s has no components",name);
+  
+  /* treat a single component as if there is no component:
+   * total only */
+  if (mixPtr->nComps == 1)
+    mixPtr->nComps = 0;
+  mixPtr->outputList = new Result[nComps+1];
+  
+  debug(1,"Finished reading Mixture %s.", name);
+  return mixPtr;         
+}
+
+/***************************
+ ********* xCheck **********
+ **************************/
+
+/* cross-check mixtures internally: 
+ *  ensure that all referenced mixtures exist */
+/* called by Input::xCheck(...) */
+void Mixture::xCheck()
+{
+  Mixture *head = this;
+  Mixture *ptr = this;
+  Component *current;
+
+  verbose(2,"Checking for all internally referenced mixtures.");
+
+  /* for each mixture */
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+      /* search the component list for type 'l' = similar */
+      current = ptr->compListHead->exists(COMP_SIM);
+      /* for each type 'l' */
+      while(current != NULL)
+	{
+	  /* search for the referenced name */
+	  if (head->find(current->getName()) == NULL)
+	      error(123, "Component type 'l' of mixture %s references a non-existent mixture: %s",
+		      ptr->mixName,current->getName());
+
+	  current = current->exists(COMP_SIM);
+	}
+    }
+
+  verbose(3,"All internally referenced mixtures were found.");
+}
+
+
+/****************************
+ ********* Preproc **********
+ ***************************/
+
+/* search material loading and similarity components for mixture definition */
+/* called by Input::preproc(...) */
+void Mixture::removeUnused(Loading *loadList)
+{
+  Mixture *head = this;
+  Mixture *prev, *ptr = this;
+
+  verbose(2,"Replacing all 'similar' components and removing unused mixtures.");
+
+  while (ptr->next != NULL)
+    {
+      prev = ptr;
+      ptr = ptr->next;
+      /* expand "similar" entries with current mixture definition */
+      head->copySim(ptr);
+
+      /* if this mixture is not used in the material loading, remove it */
+      if (loadList->findMix(ptr->mixName) == NULL)
+	{
+	  /* remove current mixture def from list */
+	  prev->next = ptr->next;
+	  warning(140,"Removing mixture %s not used in any zones.",
+		  ptr->mixName);
+
+	  /* this ensures that the entire list is not deleted */
+	  ptr->next = NULL;
+	  delete ptr;
+
+	  /* go back to last item for testing while loop */
+	  ptr = prev;
+	}
+    }
+
+  verbose(3,"Mixture list has been cleaned up and 'similar' components expanded.");
+}
+
+
+/* copy mixture definition to similar components */
+/* called by Mixture::removeUnused(...) */
+void Mixture::copySim(Mixture *cpyPtr)
+{
+  Mixture *ptr = this;
+  Component *current;
+  
+  verbose(3,"Replacing all components similar to %s with their expanded definition.", cpyPtr->mixName);
+
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+      
+      current = ptr->compListHead->exists(COMP_SIM);
+      while (current != NULL)
+	{
+	  /* if this component is similar to mixture of interest */
+	  if (!strcmp(cpyPtr->mixName,current->getName()))
+	    {
+	      /* replace the similar component */
+	      current = current->replaceSim(cpyPtr->compListHead);
+	      verbose(4,"Replaced component of mixture %s with definition of mixture %s",
+		      ptr->mixName,cpyPtr->mixName);
+	    }
+	  current = current->exists(COMP_SIM);
+	}
+    }
+
+  verbose(4,"All components similar to %s have been replaced.", cpyPtr->mixName);
+}
+
+
+/* cross-referencing mixtures and intervals:
+ * add an interval to the list of intervals */
+/* called by Volume::xRef(Mixture*) */
+void Mixture::xRef(Volume *volPtr)
+{
+  volList->addMixList(volPtr);
+}
+
+
+/* make a list of root isotopes for this mixture */
+/* called by Input::preproc(...) */
+void Mixture::makeRootList(Root *&masterRootList)
+{
+  Mixture *ptr = this;
+  
+  verbose(2,"Making list of root isotopes.");
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+      /* expand the components into a root list */
+      verbose(3,"Expanding mixture %s",ptr->mixName);
+      ptr->rootList = ptr->compListHead->expand(ptr);
+      /* merge this root list into the master */
+      masterRootList = masterRootList->merge(ptr->rootList);
+      verbose(4,"Merged rootlist for mixture %s to master root list.",
+	      ptr->mixName);
+    }
+
+  verbose(3,"Expanded all mixtures to master root list.");
+
+}
+
+/****************************
+ ********* Solution *********
+ ***************************/
+
+void Mixture::refFlux(VolFlux *fluxHead)
+{
+  volList->refFlux(fluxHead);
+}
+
+void Mixture::solve(Chain* chain, topSchedule* schedule)
+{
+  volList->solve(chain,schedule);
+}
+
+void Mixture::writeDump()
+{
+  volList->writeDump();
+}
+
+/*****************************
+ ********* PostProc **********
+ ****************************/
+
+void Mixture::readDump(int kza)
+{
+  volList->readDump(kza);
+}
+
+void Mixture::tally(Result *volOutputList, double vol)
+{
+  int compNum;
+  volume += vol;
+
+  for (compNum=0;compNum<nComps;compNum++)
+    volOutputList[compNum].postProc(outputList[compNum],vol);
+
+  volOutputList[compNum].postProc(outputList[compNum],vol);
+}
+
+void Mixture::write(int response, int writeComp, CoolingTime* coolList)
+{
+  Mixture *head = this;
+  Mixture *ptr = head;
+  int mixCntr = 0;
+
+  /* for each mixture */
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+
+      /* write header information */
+      cout << "Mixture #" << ++mixCntr << ": " << ptr->mixName << endl;
+      cout << "\tVolume: " << ptr->volume << endl;
+
+      /* write the component breakdown if requested */
+      if (writeComp)
+	{
+	  /* get the list of components for this mixture */
+	  Component *compPtr = ptr->compListHead;
+	  int compNum=0;
+	  compPtr = compPtr->advance();
+
+	  /* for each component */
+	  while (compPtr != NULL)
+	    {
+	      /* write component header */
+	      cout << "Component: " << compPtr->getName() << endl;
+	      ptr->outputList[compNum].write(response,coolList,ptr->total,
+					     ptr->volume);
+	      compPtr = compPtr->advance();
+	      compNum++;
+	    }
+	}
+      
+      /* if components were written and there is only one */
+      if (writeComp && ptr->nComps == 0)
+	/* write comment refering total to component total */
+	cout << "** Interval totals are the same as those of the single component."
+	     << endl << endl;
+      else
+	{
+	  /* otherwise write the total response for the zone */
+	  cout << "Total" << endl;
+	  ptr->outputList[nComps].write(response,coolList,ptr->total,
+					ptr->volume);
+	}
+    }
+	  
+
+  /** WRITE TOTAL TABLE **/
+  /* reset mixture pointer and counter */
+  ptr = head;
+  mixCntr = 0;
+
+  int resNum,nResults = topScheduleT::getNumCoolingTimes()+1;
+  char isoSym[15];
+
+  cout << "Totals for all mixtures." << endl;
+
+  /* write header for totals */
+  coolList->writeTotalHeader("mixture");
+
+  /* for each mixture */
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+      cout << ++mixCntr << "\t";
+      for (resNum=0;resNum<nResults;resNum++)
+	{
+	  sprintf(isoSym,"%-11.4e ",ptr->total[resNum]);
+	  cout << isoSym;
+	}
+      cout << "\t" << ptr->mixName << endl;
+    }
+  coolList->writeSeparator();
+
+  cout << endl << endl;
+}
+
+/****************************
+ ********* Utility **********
+ ***************************/
+
+Component* Mixture::getComp(int kza,double &density, Component *lastComp)
+{
+  Root *root = rootList->find(kza);
+
+  return root->getComp(density,this,lastComp);
+}
+
+int Mixture::getCompNum(Component* compPtr)
+{
+  return compListHead->getCompNum(compPtr);
+
+}
+
+/* find a named mixture in the list */
+Mixture* Mixture::find(char* srchName)
+{
+
+  Mixture *ptr = this;
+
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+      if (!strcmp(ptr->mixName,srchName))
+	return ptr;
+    }
+
+  return NULL;
+}
+
+

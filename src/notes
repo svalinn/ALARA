@@ -1,0 +1,30 @@
+INPUT
+-----
+* handling of component density: number vs. mass, etc....
+
+CHAIN
+-----
+
+* 'parent' of each root isotope must be set to NULL
+
+* DONE * When tallying a chain, it will be necessary to figure out how many
+	 nodes up the chain must be tallied.  While doing this, change the
+	 state to FINISHED.
+
+
+TODO:
+------
+
+* DONE * allow included input file segments: implemented as a FILO 
+         stack of input file stream references
+
+* separate out the ALARA v1 binary format dependent stuff from the
+  ASCIILib class
+
+* DONE * make sure that loopRank[n] is not lower than loopRank[m<n] : if so,
+	 there is a loop in the middle.
+
+
+* add the possibility to set the width of the output
+
+* handling of void zones ????
