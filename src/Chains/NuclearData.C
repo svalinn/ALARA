@@ -1,4 +1,4 @@
-/* $Id: NuclearData.C,v 1.13 2000-02-11 20:55:19 wilson Exp $ */
+/* $Id: NuclearData.C,v 1.14 2002-01-07 22:00:47 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -301,8 +301,8 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
 			  char** emissions, float** xSection, 
 			  float thalf, float *totalXSection)
 {
-  int gNum, rxnNum;
-
+  int gNum, rxnNum, totalRxnNum=-1;
+  
   verbose(4,"Setting NuclearData members.");
 
   cleanUp();
@@ -364,7 +364,9 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
     {
       debug(4,"Copying reaction %d with %d groups.",rxnNum,nGroups+1);
       relations[rxnNum] = daugKza[rxnNum];
-
+      /* log location of total reaction */
+      if (daugKza[rxnNum] == 0)
+	totalRxnNum = rxnNum;
       emitted[rxnNum] = new char[strlen(emissions[rxnNum])+1];
       memCheck(emitted[rxnNum],"NuclearData::setData(...) : emitted[n]");
       strcpy(emitted[rxnNum],emissions[rxnNum]);
@@ -380,6 +382,43 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
 	}
       paths[rxnNum][nGroups] = xSection[rxnNum][nGroups];
     }
+
+  if (totalRxnNum>-1)
+    {
+      /* make sure that the decay constant is copied */
+      paths[totalRxnNum][nGroups] = paths[nPaths][nGroups];
+
+      /* check where D is pointing */
+      if (D == paths[nPaths])
+	D = paths[totalRxnNum];
+
+      /* delete summation based total reaction rate */
+      delete paths[nPaths];
+
+      /* point nPaths to the totalRxnNum */
+      paths[nPaths] = paths[totalRxnNum];
+
+      /* delete the emitted entry for the total reaction rate */
+      delete emitted[totalRxnNum];
+
+      /* shift all channel reactions down by one */
+      for (rxnNum=totalRxnNum;rxnNum<nPaths-1;rxnNum++)
+	{
+	  paths[rxnNum] = paths[rxnNum+1];
+	  relations[rxnNum] = relations[rxnNum+1];
+	  emitted[rxnNum] = emitted[rxnNum+1];
+	}
+      /* unpoint the last emitted */
+      emitted[nPaths-1] = NULL;
+      
+      /* shift the total destruction rate down */
+      nPaths--;
+      paths[nPaths]=paths[nPaths+1];
+      paths[nPaths+1] = NULL;
+      
+    }
+
+  origNPaths = nPaths;
 
 }
 

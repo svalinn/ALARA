@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.25 2001-12-06 23:19:58 wilsonp Exp $ */
+/* $Id: OutputFormat.C,v 1.26 2002-01-07 22:00:48 wilsonp Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -131,11 +131,13 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
       switch (1<<type)
 	{
 	case OUTFMT_UNITS:
+	  delete next->actUnits;
 	  input >> token;
 	  next->actUnits = new char[strlen(token)+1];
 	  strcpy(next->actUnits,token);
 	  next->actMult = (tolower(token[0]) == 'c'?BQ_CI:1);
 
+	  delete next->normUnits;
 	  input >> token;
 	  next->normUnits = new char[strlen(token)+2];
 	  strcpy((next->normUnits)+1,token);

@@ -1,4 +1,4 @@
-/* $Id: math.C,v 1.15 2000-03-21 22:57:35 wilson Exp $ */
+/* $Id: math.C,v 1.16 2002-01-07 22:00:48 wilsonp Exp $ */
 #include "alara.h"
 #include "Matrix.h"
 
@@ -21,6 +21,7 @@ double fact(int i)
   /* create a look-up table for factorials */
   const int maxFactorial = 50;
   static double *factorials = NULL;
+
   if (factorials == NULL)
     {
       factorials = new double[maxFactorial];

@@ -1,4 +1,4 @@
-/* $Id: IEAFLib.C,v 1.4 2001-09-10 23:02:03 wilsonp Exp $ */
+/* $Id: IEAFLib.C,v 1.5 2002-01-07 22:00:47 wilsonp Exp $ */
 #include "IEAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
@@ -315,7 +315,10 @@ int IEAFLib::getTransData()
       xSection[rxnNum][thisGNum] = tmpFlt;
       
       /* set emitted particles */
-      strcpy(emitted[rxnNum],"x");
+      if (transKza[rxnNum]!=0)
+	strcpy(emitted[rxnNum],"x");
+      else
+	strcpy(emitted[rxnNum],"total");
 
       /* check for next x-section: ie. are we still in MT=5 */
       inTrans.getline(buffer,MAXLINELENGTH);

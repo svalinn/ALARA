@@ -1,4 +1,4 @@
-/* $Id: RateCache.h,v 1.2 2000-02-11 20:55:19 wilson Exp $ */
+/* $Id: RateCache.h,v 1.3 2002-01-07 22:00:47 wilsonp Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -179,7 +179,7 @@ class RateCache
       CacheData() : kzaIdx(-1), cache(NULL), next(NULL), prev(NULL) {};
       CacheData(int);
 
-      ~CacheData() { delete next; };
+      ~CacheData() { delete next; delete cache;};
 
     } *oldestData, *lastUsedData;
   

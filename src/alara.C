@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.12 2001-07-10 20:48:33 wilsonp Exp $ */
+/* $Id: alara.C,v 1.13 2002-01-07 22:00:46 wilsonp Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -144,5 +144,6 @@ int main(int argc, char *argv[])
   Result::closeBinDump();
 
   delete rootList;
+  delete inFname;
 
 }
