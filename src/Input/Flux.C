@@ -1,4 +1,4 @@
-/* $Id: Flux.C,v 1.13 2004-08-04 19:44:52 wilsonp Exp $ */
+/* $Id: Flux.C,v 1.14 2005-02-08 13:39:49 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -24,9 +24,6 @@
 /***************************
  ********* Service *********
  **************************/
-
-extern "C" float rt2al_(double *freg, int *nInts, int *nGrps, int *skip,
-			char *fname,int *fnamelen, int *err);
 
 /** This constructor creates a blank list head when no arguments
     are given.  Otherwise, it sets the format, flux identifier, flux
@@ -256,12 +253,13 @@ void Flux::readRTFLUX(double *MatrixStorage,int numVols, int numGrps)
 
   /// read file header
   fread((char*)&f77_reclen,SINT,1,binFile);
-  cerr << "|" << f77_reclen << endl;
+  debug(2,"readRTFLUX: f77_reclen: %d",f77_reclen);
+
   fread(buffer,1,24,binFile);
   fread((char*)&readInt,SINT,1,binFile);
   fread((char*)&f77_reclen,SINT,1,binFile);
 
-  cerr << "|" << f77_reclen << "|" << buffer <<  endl;
+  debug(2,"readRTFLUX: f77_reclen: %d",f77_reclen);
 
   /// read dimensions in file
   int ndim, ngrp, ninti, nintj, nintk, iter, nblok;
@@ -278,8 +276,9 @@ void Flux::readRTFLUX(double *MatrixStorage,int numVols, int numGrps)
   fread((char*)&nblok, SINT,1,binFile);
   fread((char*)&f77_reclen,SINT,1,binFile);
 
-  cerr << ndim << "\t" << ngrp << "\t" << ninti << "\t" << nintj << "\t" << nintk << "\t" << nblok << endl;
-  
+  debug(2,"readRTFLUX: (ndim,ngrp,ninti,nintj,nintk,nblok) = (%d,%d,%d,%d,%d,%d)",
+	ndim,ngrp,ninti,nintj,nintk,nblok);
+
   /// error checking
   if (ndim > 1)
     error(624,"RFLUX file: %s is 2- or 3-dimensional.  This feature currently only supports 1-D.",fileName);
@@ -302,20 +301,18 @@ void Flux::readRTFLUX(double *MatrixStorage,int numVols, int numGrps)
       fread((char*)&f77_reclen,SINT,1,binFile);
     }
   
-  cerr << "read file " << numGrps << "\t" << numVols << "\t" << skip << endl;
+  debug(2,"readRTFLUX: reading %d groups in %d volumes, skipping %d entries", numGrps,numVols,skip);
   /// transpose data
   for (int gNum=0;gNum<numGrps;gNum++)
     for (int volNum=0;volNum<numVols;volNum++)
       {
-	cerr << gNum << "\t" << volNum << ": " << fluxIn[gNum*ninti+(volNum+skip)] << endl;
+	debug(3,"readRTFLUX: reading group #%d in volume #%d: %g", 
+	      gNum, volNum, fluxIn[gNum*ninti+(volNum+skip)]);
 	MatrixStorage[volNum*numGrps+gNum] = fluxIn[gNum*ninti+(volNum+skip)];
       }
 
-  cerr << "transposed flux" << endl;
-
   delete fluxIn;
 
-  cerr << "bye\n";
   return;
 
 }
