@@ -1,4 +1,4 @@
-/* $Id: math.C,v 1.13 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: math.C,v 1.14 2000-01-20 05:08:27 wilson Exp $ */
 #include "alara.h"
 #include "Matrix.h"
 
@@ -184,6 +184,31 @@ double laplaceInverse(int row, int col, double *d, double t,
 }
 
 
+/* function to return a rough estimate of whether or not the expansion technique
+   will converge quickly enough */
+int smallExpansion(int row, int col, double *d, double t)
+{
+  int poleNum, n=MAXNUMEXPTERMS;
+  int rank=row-col+1;
+  double max=0;
+
+  /* for each pole in the problem */
+  for (poleNum=col;poleNum<=row;poleNum++)
+    /* determine the largest pole */
+    max = d[poleNum]>max?d[poleNum]:max;
+
+  /* using a defined maximum number of terms, if the last term results
+   * in a correction which is too large */
+  if (rank*pow(max*t,n)*fact(rank-1)/(n*fact(n+rank-1)) > MAXEXPTOL)
+    /* if too large, return false */
+    return FALSE;
+
+  return TRUE;
+}
+
+
+
+
 double laplaceExpansion(int row, int col, double *d, double t, int &converged)
 {
 
@@ -282,9 +307,16 @@ double fillTElement(int row, int col, double *P, double *d, double t,
    *        it ensures that we are not checking loopRank[-1])*/
   if (col<=row-loopIdx && (d[row] > 0 || parLoopIdx >-1))
     {
-      result = laplaceExpansion(row,col,d,t,defSuccess);
+      /* get rough estimate of success of expansion method */
+      defSuccess = smallExpansion(row,col,d,t);
+      
+      /* if we think the expansion method is good, use it */
+      if (defSuccess)
+	result = laplaceExpansion(row,col,d,t,defSuccess);
+      
+      /* if either we think the expansion method is bad,
+         or we prove that it is bad, use the inversion method */
       if (!defSuccess)
-	/* implement other method adaptively */
 	result = laplaceInverse(row,col,d,t,altSuccess);
     }
   else
