@@ -101,6 +101,7 @@ void DataLib::convertLib(istream& input)
       char adjointLibName[256];
       input >> alaraFname >> adjointLibName;
       dl = new ADJLib(alaraFname,adjointLibName);
+      delete dl;
       break;
     default:
       error(160,"Conversion from %s (%d) to %s (%d) is not yet supported.",

@@ -1,12 +1,23 @@
 #include "ADJLib.h"
 
-ADJLib::DaugItem::DaugItem(int addKza, DaugItem *nxtPtr)
+ADJLib::DaugItem::DaugItem(int addKza, int parKza, long rxnOffset)
 {
 
   kza = addKza;
-  parList = NULL;
+  parList = new ParItem(parKza,rxnOffset);
+  next = NULL;
 
-  next = nxtPtr;
+  current = NULL;
+
+}
+
+ADJLib::DaugItem::DaugItem(DaugItem *cpyPtr)
+{
+
+  kza = cpyPtr->kza;
+  parList = cpyPtr->parList;
+  next = cpyPtr->next;
+
   current = NULL;
 
 }
@@ -23,13 +34,22 @@ void ADJLib::DaugItem::add(int addKza, int parKza, long rxnOffset)
       ptr = ptr->next;
     }
 
-  if (ptr == NULL || ptr->kza > addKza)
+  if (ptr == NULL)
     {
-      prev->next = new DaugItem(addKza,ptr);
+      /* at end of list */
+      prev->next = new DaugItem(addKza,parKza,rxnOffset);
       ptr = prev->next;
     }
-  
-  ptr->parList->add(parKza,rxnOffset);
+  else if (ptr->kza > addKza)
+    {
+      /* in middle of list */
+      ptr->next = new DaugItem(ptr);
+      ptr->kza = addKza;
+      ptr->parList = new ParItem(parKza,rxnOffset);
+      ptr->current = NULL;
+    }
+  else
+    ptr->parList->add(parKza,rxnOffset);
 }
 
 int ADJLib::DaugItem::count()
@@ -47,7 +67,7 @@ int ADJLib::DaugItem::count()
   return cntr;
 }
 
-long ADJLib::DaugItem::getNextReaction()
+long ADJLib::DaugItem::getNextReaction(int &parKza)
 {
   long rxnOffset = 0;
 
@@ -57,7 +77,10 @@ long ADJLib::DaugItem::getNextReaction()
     current = current->advance();
 
   if (current != NULL)
-    rxnOffset = current->getOffset();
+    {
+      rxnOffset = current->getOffset();
+      parKza = current->getKza();
+    }
 
   return rxnOffset;
 }

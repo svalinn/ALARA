@@ -47,8 +47,11 @@ protected:
 	  long offset;
 	  
 	  ParItem* next;
+
+	  ParItem(ParItem*);
+
 	public:
-	  ParItem(int,long,ParItem*);
+	  ParItem(int,long);
 	  void add(int,long);
 	  int count();
 	  ParItem* advance() { return next;};
@@ -60,15 +63,16 @@ protected:
       int kza;
 
       DaugItem *next;
+      DaugItem(DaugItem*);
 
     public:
-      DaugItem(int,DaugItem*);
+      DaugItem(int,int,long);
       void add(int,int,long);
       int count();
       DaugItem* advance() { return next; };
       int getKza() { return kza; };
       int countRxns() { return parList->count(); };
-      long getNextReaction();
+      long getNextReaction(int&);
     }
   *daugList;
   
@@ -76,7 +80,7 @@ protected:
 
   float *totalXSection, E[3], thalf;
   float *xSection;
-  char *emitted;
+  char emitted[32];
 
   void copyHead();
   void getForwardData(int);

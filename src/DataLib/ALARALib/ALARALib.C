@@ -70,7 +70,6 @@ ALARALib& ALARALib::operator=(const ALARALib& a)
 /* read data for one isotope and set the NuclearData object */
 void ALARALib::readData(int findKza, NuclearData* data)
 {
-  long offset;
   int checkKza, nRxns;
   float thalf, E[3];
 
@@ -241,7 +240,7 @@ void ALARALib::close(int readNParents, int libType, char *idxName)
 /* append the index to end of the binary file */
 void ALARALib::appendIdx(char* idxName,int libType)
 {
-  long offset = 0, ioffset;
+  long ioffset;
   int parNum, nRxn, rxnNum;
   char emission[64];
   int emittedLen, kza;

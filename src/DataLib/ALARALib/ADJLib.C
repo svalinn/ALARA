@@ -29,9 +29,9 @@ ADJLib::ADJLib(char* fname, char* adjLibName) :
   E[2] = 0;
   thalf = 0;
   xSection = new float[nGroups+1];
-  emitted = NULL;
 
-  build();
+  if (normBinLib != NULL)
+    build();
 
   close(nParents,DATALIB_ADJOINT,adjointIdxName);
   fclose(normBinLib);
@@ -94,7 +94,6 @@ void ADJLib::copyHead()
 void ADJLib::getForwardData(int kza)
 {
   int nRxns, checkKza, rxnNum, gNum, emittedLen;
-  char emitted[16];
   long normOffset = idx->search(kza);
   
   /* initialize data */
@@ -128,6 +127,7 @@ void ADJLib::getForwardData(int kza)
 	    for (gNum=0;gNum<nGroups;gNum++)
 	      totalXSection[gNum] += xSection[gNum];
 	}
+
       
     }
 
@@ -136,15 +136,15 @@ void ADJLib::getForwardData(int kza)
 
 void ADJLib::writeData(DaugItem *daug)
 {
-  int kza, nRxns;
+  int kza, parKza, nRxns;
   long normOffset;
 
   int checkKza,emittedLen;
 
-  verbose(2,"Writing entry for %d (%d)",kza,offset);
-
   kza = daug->getKza();
   nRxns = daug->countRxns();
+
+  verbose(2,"Writing entry for %d (%d)",kza,offset);
 
   /* member offset is used in ALARALib::readData(...) */
   getForwardData(kza);
@@ -156,100 +156,95 @@ void ADJLib::writeData(DaugItem *daug)
   offset += fwrite(&thalf,SFLOAT,1,binLib)*SFLOAT;
   offset += fwrite(E,SFLOAT,3,binLib)*SFLOAT;
   offset += fwrite(totalXSection,SFLOAT,nGroups,binLib)*SFLOAT;
-  
-  while ( (normOffset = daugList->getNextReaction()) )
+
+  while ( (normOffset = daug->getNextReaction(parKza)) )
     {
       fseek(normBinLib,normOffset,SEEK_SET);
       
       fread(&checkKza,SINT,1,normBinLib);
       fread(&emittedLen,SINT,1,normBinLib);
-      emitted= new char[emittedLen+1];
-      memCheck(emitted,"ALARALib::readData(...): emitted");
       fread(emitted,1,emittedLen,normBinLib);
       emitted[emittedLen] = '\0';
-      memCheck(xSection,"ALARALib::readData(...): xSection");
       fread(xSection,SFLOAT,nGroups+1,normBinLib);
 
-      tmpIdx << "\t" << kza << "\t" << emitted 
+      tmpIdx << "\t" << parKza << "\t" << emitted 
 	     << "\t" << offset << endl;
       
-      offset+=fwrite(&kza,SINT,1,binLib)*SINT;
+      offset+=fwrite(&parKza,SINT,1,binLib)*SINT;
       offset+=fwrite(&emittedLen,SINT,1,binLib)*SINT;
       offset+=fwrite(emitted,1,emittedLen,binLib);
       offset+=fwrite(xSection,SFLOAT,nGroups+1,binLib)*SFLOAT;
 
-      delete emitted;
     }
 }
   
 
 void ADJLib::build()
 {
-  if (normBinLib != NULL)
+  int libType;
+  int parNum, parKza, daugKza,emittedLen;
+  int junkInt, nRxns, rxnNum;
+  long junkLong, idxOffset, rxnOffset;
+  
+  /* make sure we are at the top of the library */
+  fseek(normBinLib,0L,SEEK_SET);
+  
+  /* find index */
+  fread(&idxOffset,SLONG,1,normBinLib);
+  fseek(normBinLib,idxOffset,SEEK_SET);
+  
+  debug(0,"Skipped to index offset: %d",idxOffset);
+  /* read number of parents and number of groups */
+  fread(&libType,SINT,1,normBinLib);
+  debug(0,"Library type: %c",libType);
+  fread(&nParents,SINT,1,normBinLib);
+  debug(0,"Number of parents: %d",nParents);
+  fread(&nGroups,SINT,1,normBinLib);
+  
+  fread(&junkInt,SINT,1,normBinLib);
+  fread(&junkLong,SLONG,1,normBinLib);
+  fread(&junkInt,SINT,1,normBinLib);
+  fread(&junkLong,SLONG,1,normBinLib);
+  
+  if (nParents>0)
     {
-      char libType;
-      int parNum, parKza, daugKza,emittedLen;
-      int junkInt, nRxns, rxnNum;
-      long junkLong, idxOffset;
-      
-      /* make sure we are at the top of the library */
-      fseek(normBinLib,0L,SEEK_SET);
-      
-      /* find index */
-      fread(&idxOffset,SLONG,1,normBinLib);
-      fseek(normBinLib,idxOffset,SEEK_SET);
-      
-      debug(0,"Skipped to index offset: %d",idxOffset);
-      /* read number of parents and number of groups */
-      fread(&libType,1,1,normBinLib);
-      debug(0,"Library type: %c",libType);
-      fread(&nParents,SINT,1,normBinLib);
-      debug(0,"Number of parents: %d",nParents);
-      fread(&nGroups,SINT,1,normBinLib);
-      
-      fread(&junkInt,SINT,1,normBinLib);
-      fread(&junkLong,SLONG,1,normBinLib);
-      fread(&junkInt,SINT,1,normBinLib);
-      fread(&junkLong,SLONG,1,normBinLib);
-      
-      if (nParents>0)
+      /* parse entire index */
+      for (parNum=0;parNum<nParents;parNum++)
 	{
-	  /* parse entire index */
-	  for (parNum=0;parNum<nParents;parNum++)
+	  /* get required parent info */
+	  fread(&parKza,SINT,1,normBinLib);
+	  fread(&nRxns,SINT,1,normBinLib);
+	  fread(&junkLong,SLONG,1,normBinLib);
+	  for (rxnNum=0;rxnNum<nRxns;rxnNum++)
 	    {
-	      /* get required parent info */
-	      fread(&parKza,SINT,1,normBinLib);
-	      fread(&nRxns,SINT,1,normBinLib);
-	      fread(&junkLong,SLONG,1,normBinLib);
-	      for (rxnNum=0;rxnNum<nRxns;rxnNum++)
-		{
-		  /* get daughter info for each reaction */
-		  fread(&daugKza,SINT,1,normBinLib);
-		  fread(&emittedLen,SINT,1,normBinLib);
-		  fread(emitted,1,emittedLen,normBinLib);
-		  fread(&offset,SLONG,1,normBinLib);
-		  
-		  /* save parent/daughter info */
-		  daugList->add(daugKza,parKza,offset);
-		}
+	      /* get daughter info for each reaction */
+	      fread(&daugKza,SINT,1,normBinLib);
+	      fread(&emittedLen,SINT,1,normBinLib);
+	      fread(emitted,1,emittedLen,normBinLib);
+	      fread(&rxnOffset,SLONG,1,normBinLib);
+
+	      /* save parent/daughter info */
+	      if (daugList == NULL)
+		daugList = new DaugItem(daugKza,parKza,rxnOffset);
+	      else
+		daugList->add(daugKza,parKza,rxnOffset);
 	    }
 	}
-
-      /* copy binary file header: group boundaries and weights */
-      copyHead();
-
-      /* scroll through list of possible daughters */
-      DaugItem *ptr = daugList;
-      while (ptr != NULL)
-	{
-	  /* write the reaction list for each daughter */
-	  writeData(ptr);
-	  /* get next daughter */
-	  ptr = ptr->advance();
-	}
-
     }
-
-
+  
+  /* copy binary file header: group boundaries and weights */
+  copyHead();
+  
+  /* scroll through list of possible daughters */
+  DaugItem *ptr = daugList;
+  while (ptr != NULL)
+    {
+      /* write the reaction list for each daughter */
+      writeData(ptr);
+      /* get next daughter */
+      ptr = ptr->advance();
+    }
+  
 }
+
     
