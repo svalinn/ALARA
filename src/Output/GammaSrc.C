@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.7 2001-12-06 23:19:58 wilsonp Exp $ */
+/* $Id: GammaSrc.C,v 1.8 2002-01-07 21:53:07 wilsonp Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -244,14 +244,17 @@ void GammaSrc::setData(int kza, int numSpec,
 		  break;
 		case GAMMASRC_CONTACT:
 		  /* increment total contact dose */
-		  /* if this is the "last group" we are extrapolating */
-		  if (gNum == nGroups-1)
-		    gNum = nGroups-2;
+		  /* if this is the first group, we are extrapolating */
+		  if (gNum == 0)
+		    gNum++;
+		  /* if this is the "last group" we may be extrapolating */
 		  interpFrac = (discGammaE[specNum][gammaNum] - grpBnds[gNum])/
 		    (grpBnds[gNum+1] - grpBnds[gNum]);
-		  contactDose += discGammaI[specNum][gammaNum] * discGammaE[specNum][gammaNum] *
-		    (gammaAttenCoef[gNum]*(1.0 - interpFrac) + 
-		     gammaAttenCoef[gNum+1] * interpFrac);
+		  /* Note: FISPACT Contact dose formula calls for gamma source in units of MeV/kg.s */
+		  /* Note: gammaAttenCoef is really point data for the upper bound of a given group */
+		  contactDose += discGammaI[specNum][gammaNum] * discGammaE[specNum][gammaNum]*1e-6 *
+		    (gammaAttenCoef[gNum-1]*(1.0 - interpFrac) + 
+		     gammaAttenCoef[gNum] * interpFrac);
 		  break;
 		}
 	    }
