@@ -1,22 +1,28 @@
-$Id: README,v 1.4 2004-09-21 20:12:00 wilsonp Exp $
+$Id: README,v 1.5 2005-01-17 22:11:04 wilsonp Exp $
 
 Thank you for your interest in ALARA.
 
 Please see the INSTALL file for generic details on building and
-installing packages using 'configure' and 'make'.  When building
-ALARA, you should run 'configure' and 'make' from the main 'alara-2.x.y'
-directory and NOT from the 'src' directory.
+installing packages using 'configure' and 'make'.  However, note the following:
 
-Some test/sample files are included in directory './sample'.  Once the
-alara executable is in your path, they can all be run in succession,
-with output stored in a directory "sample_out" by executing the
-script:
-%> cd sample
-%> ./run_samples.sh sample_out
-A reference set of output is available in directory ./sample/ref_out.
-You can expect difference between your test output and the reference
-output with respect to the timing results and the directory locations
-of output files.
+A. When building ALARA, you should run 'configure' and 'make' from the
+   main 'alara-2.x.y' directory and NOT from the 'src' directory.
+
+B. There is currently no set of tests to be conducted with 'make
+   check'.  Instead, some test/sample files are included in directory
+   './sample'.  
+
+   They can all be run in succession, with output stored in a
+   directory "sample_out" by changing to the sample directory and
+   executing the run_samples.sh script: 
+	%> cd sample 
+	%> ./run_samples.sh sample_out 
+   A reference set of output is available in directory
+   './sample/ref_out'.  You can expect difference between your test
+   output and the reference output with respect to the timing results
+   and the directory locations of output files.
+
+----
 
 In addition to building and installing the ALARA program, this package
 includes an accessory program, dant2alara, and a pair of Perl scripts
