@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.9 1999-11-09 17:02:54 wilson Exp $ */
+/* $Id: Component.C,v 1.10 1999-11-10 18:25:18 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -226,7 +226,7 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
   /* Extract the standard element name from the potentially
    * fabricated name.  e.g. enriched Li might be li:90 */
   eleNameLen = strchr(compName,':')-compName;
-  if (eleNameLen == 0) eleNameLen = strlen(compName);
+  if (eleNameLen <= 0) eleNameLen = strlen(compName);
 
   /* search for this element */
   eleLib >> testName >> A >> Z >> eleDens >> numIsos;
@@ -248,12 +248,16 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
       double Ndensity = volFraction * density * AVAGADRO/A;
 
       /* if element is found, add a new root for each isotope */
-      verbose(5,"Found element %s in element library",testName);
+      verbose(5,"Found element %s with %d isotopes in element library",
+	      testName, numIsos);
+      verbose(2,"Using density %g and number density %g", density,Ndensity);
+
       while (numIsos-->0)
 	{
 	  eleLib >> isoName >> isoDens;
 	  isoDens *= Ndensity/100.0;
 	  strncpy(testName,compName,eleNameLen);
+	  testName[eleNameLen] = '\0';
 	  strcat(testName,"-");
 	  strcat(testName,isoName);
 	  Root* newRoot = new Root(testName,isoDens,mix,comp);
@@ -310,7 +314,7 @@ Root* Component::expandMat(Mixture* mix)
       while (numEles-->0)
 	{
 	  matLib >> eleName >> eleDens  >> eleZ;
-	  eleDens *= -density/100.0;
+	  eleDens *= -density*volFraction/100.0;
 	  element = new Component(COMP_ELE,eleName,eleDens);
 	  memCheck(element,"Component::expandMat(...) : element");
 	  Root *elementRootList = element->expandEle(mix,this);
