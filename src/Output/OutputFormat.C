@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.20 1999-11-19 23:02:53 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.21 1999-12-21 22:06:22 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -15,7 +15,7 @@ const int firstResponse = 2;
 const int lastSingularResponse = 8;
 const char *Out_Types_Str[nOutTypes] = {
   "Response Units",
-  "Break-down by Component",
+  "Break-down by Constituent",
   "Number Density [atoms/%s]",
   "Specific Activity [%s/%s]",
   "Total Decay Heat [W/%s]",

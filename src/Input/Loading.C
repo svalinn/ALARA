@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.13 1999-12-21 21:41:03 wilson Exp $ */
+/* $Id: Loading.C,v 1.14 1999-12-21 22:06:21 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -262,7 +262,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		  volume_mass = ptr->volume*volFrac;
 
 		  /* write component header */
-		  cout << "Component: " << compPtr->getName() << endl;
+		  cout << "Constituent: " << compPtr->getName() << endl;
 		  cout
 		       << "\tVolume Fraction: " << volFrac
 		       << "\tVolume: " << volume_mass;
@@ -291,7 +291,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	  /* if components were written and there is only one */
 	  if (writeComp && ptr->nComps == 0 && volFrac == 1.0)
 	    /* write comment refering total to component total */
-	    cout << "** Zone totals are the same as those of the single component."
+	    cout << "** Zone totals are the same as those of the single constituent."
 		 << endl << endl;
 	  else
 	    {
@@ -301,7 +301,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 
 	      volume_mass = ptr->volume * volFrac;
 
-	      cout << "Total (All components) " << endl;
+	      cout << "Total (All constituents) " << endl;
 	      cout 
 		<< "\tVolume Fraction: " << volFrac
 		<< "\tVolume: " << volume_mass;

@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.16 1999-12-21 21:41:03 wilson Exp $ */
+/* $Id: Volume.C,v 1.17 1999-12-21 22:06:22 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -540,7 +540,7 @@ void Volume::postProc()
   Volume *ptr = this;
   int compNum, intvlCntr=0;
 
-  verbose(2,"Tallying component results into total result lists.");
+  verbose(2,"Tallying constituent results into total result lists.");
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
@@ -612,7 +612,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		  volume_mass = volFrac;
 
 		  /* write component header */
-		  cout << "Component: " << compPtr->getName() << endl;
+		  cout << "Constituent: " << compPtr->getName() << endl;
 		  cout 
 		    << "\tVolume Fraction: " << volFrac
 		    << "\tVolume: " << volume_mass*ptr->volume;
@@ -641,7 +641,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	  /* if components were written and there is only one */
 	  if (writeComp && ptr->nComps == 0 && volFrac == 1.0)
 	    /* write comment refering total to component total */
-	    cout << "** Interval totals are the same as those of the single component."
+	    cout << "** Interval totals are the same as those of the single constituent."
 		 << endl << endl;
 	  else
 	    {
@@ -652,7 +652,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	      volume_mass = volFrac;
 	      
 	      /* write component header */
-	      cout << "Total (All components) " << endl;
+	      cout << "Total (All constituents) " << endl;
 	      cout 
 		<< "\tVolume Fraction: " << volFrac
 		<< "\tVolume: " << volume_mass*ptr->volume;

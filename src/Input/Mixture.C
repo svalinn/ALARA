@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.14 1999-12-21 21:40:09 wilson Exp $ */
+/* $Id: Mixture.C,v 1.15 1999-12-21 22:06:22 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -161,7 +161,7 @@ Mixture* Mixture::getMixture(istream &input)
   Component* targetCompList = mixPtr->targetCompListHead;
   mixPtr->nComps = 0;
 
-  verbose(2,"Reading component list for Mixture %s with components:",name);
+  verbose(2,"Reading constituent list for Mixture %s with constituents:",name);
   clearComment(input);
   input >> token;
   while (strcmp(token,"end"))
@@ -171,19 +171,19 @@ Mixture* Mixture::getMixture(istream &input)
       switch(tolower(token[0]))
 	{
 	case 'm':
-	  debug(2,"Creating new Component object of material type");
+	  debug(2,"Creating new Constituent object of material type");
 	  type = COMP_MAT;
 	  break;
 	case 'e':
-	  debug(2,"Creating new Component object of element type");
+	  debug(2,"Creating new Constituent object of element type");
 	  type = COMP_ELE;
 	  break;
 /*	case 'i':
-	  debug(2,"Creating new Component object of isotope type");
+	  debug(2,"Creating new Constituent object of isotope type");
 	  type = COMP_ISO;
 	  break; */
 	case 'l':
-	  debug(2,"Creating new Component object of similar type");
+	  debug(2,"Creating new Constituent object of similar type");
 	  type = COMP_SIM;
 	  break;
 	case 't':
@@ -218,7 +218,7 @@ Mixture* Mixture::getMixture(istream &input)
     }
   
   if (compList->head())
-    warning(182,"Mixture %s has no components",name);
+    warning(182,"Mixture %s has no constituents",name);
   
   /* treat a single component as if there is no component:
    * total only */
@@ -256,7 +256,7 @@ void Mixture::xCheck()
 	{
 	  /* search for the referenced name */
 	  if (head->find(current->getName()) == NULL)
-	      error(380, "Component type 'l' of mixture %s references a non-existent mixture: %s",
+	      error(380, "Constituent type 'l' of mixture %s references a non-existent mixture: %s",
 		      ptr->mixName,current->getName());
 
 	  current = current->exists(COMP_SIM);
@@ -278,7 +278,7 @@ void Mixture::removeUnused(Loading *loadList)
   Mixture *head = this;
   Mixture *prev, *ptr = this;
 
-  verbose(2,"Replacing all 'similar' components and removing unused mixtures.");
+  verbose(2,"Replacing all 'similar' constituents and removing unused mixtures.");
 
   while (ptr->next != NULL)
     {
@@ -304,7 +304,7 @@ void Mixture::removeUnused(Loading *loadList)
 	}
     }
 
-  verbose(3,"Mixture list has been cleaned up and 'similar' components expanded.");
+  verbose(3,"Mixture list has been cleaned up and 'similar' constituents expanded.");
 }
 
 
@@ -315,7 +315,7 @@ void Mixture::copySim(Mixture *cpyPtr)
   Mixture *ptr = this;
   Component *current;
   
-  verbose(3,"Replacing all components similar to %s with their expanded definition.", cpyPtr->mixName);
+  verbose(3,"Replacing all constituents similar to %s with their expanded definition.", cpyPtr->mixName);
 
   while (ptr->next != NULL)
     {
@@ -329,14 +329,14 @@ void Mixture::copySim(Mixture *cpyPtr)
 	    {
 	      /* replace the similar component */
 	      current = current->replaceSim(cpyPtr->compListHead);
-	      verbose(4,"Replaced component of mixture %s with definition of mixture %s",
+	      verbose(4,"Replaced constituent of mixture %s with definition of mixture %s",
 		      ptr->mixName,cpyPtr->mixName);
 	    }
 	  current = current->exists(COMP_SIM);
 	}
     }
 
-  verbose(4,"All components similar to %s have been replaced.", cpyPtr->mixName);
+  verbose(4,"All constituents similar to %s have been replaced.", cpyPtr->mixName);
 }
 
 
@@ -460,7 +460,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	      volume_mass = ptr->volume * volFrac;
 
 	      /* write component header */
-	      cout << "Component: " << compPtr->getName() << endl;
+	      cout << "Constituent: " << compPtr->getName() << endl;
 	      cout 
 		<< "\tVolume Fraction: " << volFrac
 		<< "\tVolume: " << volume_mass;
@@ -489,7 +489,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
       /* if components were written and there is only one */
       if (writeComp && ptr->nComps == 0 && volFrac == 1.0)
 	/* write comment refering total to component total */
-	cout << "** Interval totals are the same as those of the single component."
+	cout << "** Interval totals are the same as those of the single constituent."
 	     << endl << endl;
       else
 	{
@@ -500,7 +500,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	  volume_mass = volFrac*ptr->volume;
 	  
 	  /* write component header */
-	  cout << "Total (All components) " << endl;
+	  cout << "Total (All constituents) " << endl;
 	  cout 
 	    << "\tVolume Fraction: " << volFrac
 	    << "\tVolume: " << volume_mass;
