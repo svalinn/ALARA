@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.25 2002-12-02 20:36:14 varuttam Exp $ */
+/* $Id: Result.C,v 1.26 2003-01-13 04:35:01 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -31,6 +31,9 @@ double Result::actMult = 1;
 double Result::metricMult = 1;
 GammaSrc* Result::gammaSrc = NULL;
 
+/** When called with no arguments, the default constructor sets 'kza'
+    and 'next' to 0 and NULL, respectively.  Otherwise, they are set,
+    respectively, by the arguments. */
 Result::Result(int setKza, Result* nxtPtr)
 {
   int resNum;
@@ -46,6 +49,8 @@ Result::Result(int setKza, Result* nxtPtr)
   next = nxtPtr;
 }
 
+/** The copy constructor copies 'kza', makes an element-by-element
+    copy of 'N' and sets next to NULL. */
 Result::Result(const Result& r)
 {
   int resNum;
@@ -77,8 +82,11 @@ Result::Result(int setKza,float* floatN)
   next = NULL;
 }
 
-
-
+/** The correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object. Note that
+    'next' is NOT copied, the object will continue to be part of the
+    same list unless explicitly changed. */
 Result& Result::operator=(const Result& r)
 {
   if (this == &r)
@@ -104,6 +112,8 @@ Result& Result::operator=(const Result& r)
  ******************************/
 
 
+/** If none is found, a new one is created in the right list location,
+    and this pointer is returned. */
 Result* Result::find(int srchKza)
 {
   Result *oldPtr, *ptr = this;
@@ -132,6 +142,9 @@ Result* Result::find(int srchKza)
  ********** Tally ***********
  ***************************/
 
+/** The 'appropriate nodes' are determined by polling some
+    parameters of the chain.  This is used during the solution phase
+    of ALARA. */
 void Result::tallySoln(Chain *chain, topScheduleT* schedT)
 {
   Result *ptr, *head = this;
@@ -159,6 +172,10 @@ void Result::tallySoln(Chain *chain, topScheduleT* schedT)
     }
 }
 
+/** Since Result objects are initialized with N=[0], and 'find(...)'
+    creates the new object, this function only needs to do the
+    summation.  The second argument defaults to 1, and is the weight
+    used to tally this particular result i.e. a density or a volume. */
 void Result::tally(double* Nlist, double scale)
 {
   int resNum;
@@ -181,6 +198,10 @@ void Result::tally(double* Nlist, double scale)
  ********* PostProc **********
  ****************************/
 
+/** This function is used during postprocessing to form the final
+    solutions of reverse calculations, but only if the kza refered to
+    in the current item of 'this' list is contained in the list of
+    root isotopes in the mixture referred to in the second argument. */
 void Result::postProcTarget(Result* outputList, Mixture *mixPtr)
 {
 
@@ -214,6 +235,10 @@ void Result::postProcTarget(Result* outputList, Mixture *mixPtr)
   clear();
 }
 
+/** This function is used during postprocessing to form the final
+    solutions of forward calculations, , but only if `the kza referred
+    to in the third argument is contained in the list of root isotopes
+    in the mixture referred to in the second argument. */
 void Result::postProcList(Result* outputList, Mixture *mixPtr, int rootKza)
 {
   Component *compPtr=NULL;
@@ -240,6 +265,8 @@ void Result::postProcList(Result* outputList, Mixture *mixPtr, int rootKza)
   clear();
 }
 
+/** It then tallies the results to that object with a weighting
+    defined by the second argument, which defaults to 1. */
 void Result::postProc(Result& outputList, double density)
 {
   Result *ptr = this;
@@ -265,6 +292,13 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 
 }
 
+/** Based on the first argument, it queries the data library for the
+    scalar multiplier of this response.  It normalizes this multiplier
+    by the last argument (e.g. the volume of a zone) and then prints
+    out the formatted output for each isotope and each cooling time,
+    pointed to by the second argument.  It simultaneously sets the
+    total for this point at each cooling time, at the pointer passed by
+    reference in the third argument. */
 void Result::write(int response, int targetKza, Mixture *mixPtr, 
 		   Volume *volPtr, CoolingTime *coolList, double*& total, double volume_mass)
 {
@@ -460,6 +494,7 @@ void Result::dumpHeader()
   fwrite(&nResults,SINT,1,binDump);
 }
 
+/** If not found, opens one with the default name 'alara.dmp'. */
 void Result::xCheck()
 {
   if (binDump == NULL)

@@ -1,4 +1,4 @@
-/* $Id: DataLib.C,v 1.7 2001-07-10 20:52:48 wilsonp Exp $ */
+/* $Id: DataLib.C,v 1.8 2003-01-13 04:34:53 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -49,6 +49,11 @@ const char *libTypeSuffix[] = {
  ********* Service **********
  ***************************/
 
+/** It takes the text string argument and converts it to an integer
+    type, and then based on that type creates a new object of the
+    correct derived type reading further information, as required,
+    from the inpout file attached to the passed stream reference.  A
+    pointer to the newly created object. */
 DataLib* DataLib::newLib(char* libType, istream& input)
 {
   DataLib *dl;
@@ -193,6 +198,10 @@ int DataLib::convertLibType(char* libType)
  ********* Virtual **********
  ***************************/
 
+/** This must be redefined in the derived classes.  The arguments are
+    intended to be the KZA number of an isotope in question and a
+    pointer to the NuclearData object which will store the data being
+    read. */
 void DataLib::readData(int kza, NuclearData* data)
 {
   error(9000, "Programming error: DataLib::readData() must be called from a derived object.");

@@ -1,4 +1,4 @@
-/* $Id: MixCompRef.C,v 1.7 2002-06-04 18:05:28 wilsonp Exp $ */
+/* $Id: MixCompRef.C,v 1.8 2003-01-13 04:34:51 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -8,13 +8,16 @@
  */
 
 #include "Root.h"
-
 #include "Input/Mixture.h"
 
 /****************************
  ********* Service **********
  ***************************/
 
+/** The default constructor sets the pointers to NULL and the 'density'
+    to 0. Otherwise, the mixture pointer, component pointer and
+    'density' are set with arguments in that order - 'next' is always
+    NULL. */
 Root::MixCompRef::MixCompRef(Mixture* addMix, Component* addComp, 
 			     double isoDens) :
   mixPtr(addMix), compPtr(addComp), density(isoDens)
@@ -22,6 +25,8 @@ Root::MixCompRef::MixCompRef(Mixture* addMix, Component* addComp,
   next = NULL;
 }
 
+/** Copy constructor copies is identical to default constructor.
+    Therefore, all the members are set except 'next' = NULL. */
 Root::MixCompRef::MixCompRef(const Root::MixCompRef& m) :
   mixPtr(m.mixPtr), compPtr(m.compPtr), density(m.density)
 {
@@ -30,6 +35,9 @@ Root::MixCompRef::MixCompRef(const Root::MixCompRef& m) :
     next = new MixCompRef(*(m.next));
 }
 
+/** The new object copies the values of the object pointed to by the
+    first argument, and sets its 'next' pointer as the second
+    argument. */
 Root::MixCompRef::MixCompRef(MixCompRef* cpyRef, MixCompRef* nxtPtr)
 {
   mixPtr = cpyRef->mixPtr;
@@ -38,6 +46,11 @@ Root::MixCompRef::MixCompRef(MixCompRef* cpyRef, MixCompRef* nxtPtr)
   next = nxtPtr;
 }
 
+/** The correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object.  The 'next'
+    pointer is not changed, so that this object remains a member of
+    the same list as it originally was in. */
 Root::MixCompRef& Root::MixCompRef::operator=(const Root::MixCompRef& m)
 {
   if (this == &m)
@@ -60,8 +73,9 @@ Root::MixCompRef& Root::MixCompRef::operator=(const Root::MixCompRef& m)
  ********** List ************
  ***************************/
 
-/* add (at end) or insert (next to same mixture)
- * a new reference to a mixture and component */
+/** If none is found, a new reference is added at the end. Note that
+    this always adds a new reference - another function determines
+    whether or not a new reference is needed. */
 void Root::MixCompRef::add(MixCompRef* addRef)
 {
   MixCompRef* head = this;
@@ -82,6 +96,11 @@ void Root::MixCompRef::add(MixCompRef* addRef)
 }
 
 /* tally a list of references to mixtures and components to this root */
+/** The list pointed to by the argument is merged into the list
+    through which the function is accessed.  Each of the items in
+    the new list is searched for in the existing list.  All matches
+    are ignored and all non-matches generate a new entry in the
+    existing list. */
 void Root::MixCompRef::tally(MixCompRef* tallyList)
 {
   MixCompRef *head = this;
@@ -107,7 +126,10 @@ void Root::MixCompRef::tally(MixCompRef* tallyList)
  ******** Solution **********
  ***************************/
 
-/* setup the reference flux for a particular root isotope */
+/** Each root isotope has a different reference flux, based on the set of
+    intervals which contain that root.  This list of intervals in which the
+    solution for a given root should be performed is determined by accessing
+    mixture reference through this list. */
 void Root::MixCompRef::refFlux(Volume *refVolume)
 {
   MixCompRef *ptr = this;
@@ -128,9 +150,11 @@ void Root::MixCompRef::refFlux(Volume *refVolume)
   
 }
 
-
-
 /* solve the chain for each mixture (but not for each component) */
+/** The list of intervals in which the solution for a given root isotope should
+    be performed is determined by accessing mixture references through this
+    list. The Chain and topSchedule are passed through this function to each of
+    the mixtures referenced in this list. */
 void Root::MixCompRef::solve(Chain *chain, topSchedule* schedule)
 {
   MixCompRef *ptr = this;
@@ -150,7 +174,6 @@ void Root::MixCompRef::solve(Chain *chain, topSchedule* schedule)
     }
   
 }
-
 
 void Root::MixCompRef::writeDump()
 {
@@ -177,7 +200,7 @@ void Root::MixCompRef::writeDump()
  ******** Utility ***********
  ***************************/
 
-/* find an identical reference, or return NULL */
+/** Returns a pointer to the match, or NULL if none is found. */
 Root::MixCompRef* Root::MixCompRef::find(MixCompRef* srchRef)
 {
   MixCompRef *ptr = this;
@@ -194,7 +217,8 @@ Root::MixCompRef* Root::MixCompRef::find(MixCompRef* srchRef)
   return ptr;
 }
 
-/* find an identical reference, or return NULL */
+/** If the second argument is NULL, it returns the first match of the
+    Mixture alone, if there is one. */
 Root::MixCompRef* Root::MixCompRef::find(Mixture* mix, Component* comp)
 {
   MixCompRef *ptr = this;
@@ -211,7 +235,6 @@ Root::MixCompRef* Root::MixCompRef::find(Mixture* mix, Component* comp)
   return ptr;
 }
 
-/* search list of mixtures and find maximum relative concentration */
 double Root::MixCompRef::maxConc()
 {
   double relConc,maxRelConc = -1;
@@ -227,7 +250,6 @@ double Root::MixCompRef::maxConc()
   return maxRelConc;
 }
 
-/* search list of mixtures and find total density across all components */
 double Root::MixCompRef::mixConc(Mixture* currMixPtr)
 {
   double totalDens = 0;
@@ -247,7 +269,6 @@ double Root::MixCompRef::mixConc(Mixture* currMixPtr)
 /*****************************
  ********* PostProc **********
  ****************************/
-
 void Root::MixCompRef::readDump(int kza)
 {
 
@@ -269,6 +290,9 @@ void Root::MixCompRef::readDump(int kza)
   
 }
 
+/** If the third argument is NULL, it will return the first match of the 
+    mixture. Once the entry is found, the first reference argument is set equal
+    to the density. */
 Component* Root::MixCompRef::getComp(double& dens, Mixture *mix, Component *lastComp)
 {
  

@@ -1,4 +1,4 @@
-/* $Id: Zone.h,v 1.4 2002-08-05 20:23:18 fateneja Exp $ */
+/* $Id: Zone.h,v 1.5 2003-01-13 04:35:00 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _ZONE_H
@@ -19,29 +19,19 @@
 class Zone
 {
 protected:
-  double 
-    /// The spatial location of the zone boundary.
-    boundary;
+  /// The spatial location of the zone boundary.
+  double boundary;
 
-  int 
-    /// The number of intervals between the previous zone boundary and
-    /// this one.
-    nInts;
-
-  Zone 
-    /// The pointer to the next Zone object in the linked list.
-    *next;
+  /// The number of intervals between the previous zone boundary and
+  /// this one.
+  int nInts;
+ 
+  /// The pointer to the next Zone object in the linked list.
+  Zone *next;
 
 public:
   /// This function loops through all the intervals in a zone and 
   /// calls Volume::convert(...).
-  /** It does this following setup for calculation of interval volumes 
-      in Dimension::convert(...). Volume::convert(...) actually
-      calculates the volume and generates the Volume object.  The
-      arguments are, respsectively, the coordinates of the starting
-      point, the ordering of the coordinates, the pointers to the
-      appropriate zoneLists, the problem geometry, the list of problem
-      material loadings and the problem's list of intervals. */
   static void convert(double*, int*, Zone**, Geometry*, 
 			   Loading*, Volume*);
 
@@ -64,15 +54,10 @@ public:
     { delete next; };
 
   /// Overloaded assignment operator
-  /** The correct implementation of this operator must ensure that
-      previously allocated space is returned to the free store before
-      allocating new space into which to copy the object.  It does NOT
-      copy 'next'. */
   Zone& operator=(const Zone&);
   
   /// This function simply adds a new zone to the list by calling the
   /// constructor with the passed argument nInts and boundary.  
-  /** It returns a pointer to the newly created zone. */
   Zone* addZone(int,double);
   
   /// Inline function to determine whether this object is the head of

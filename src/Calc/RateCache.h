@@ -1,4 +1,4 @@
-/* $Id: RateCache.h,v 1.4 2002-08-05 20:23:12 fateneja Exp $ */
+/* $Id: RateCache.h,v 1.5 2003-01-13 04:34:28 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _RATECACHE_H
@@ -41,28 +41,22 @@ class RateCache
    */
   class CacheData 
     {
-
-    protected:
-
     public:
-      int
-        /// This is an index into the array RateCache::kzaList,
-        /// indicating which CacheListPtr object points to this 
-        /// CacheData object.
-        kzaIdx;
+      /// This is an index into the array RateCache::kzaList,
+      /// indicating which CacheListPtr object points to this 
+      /// CacheData object.
+      int kzaIdx;
 
-      double
-        /// This dynamically allocated array of doubles has scalar nuclear
-        /// reaction rates for each reaction for this base isotope
-        /// (including the total destruction rate).
-        *cache;
+      /// This dynamically allocated array of doubles has scalar nuclear
+      /// reaction rates for each reaction for this base isotope
+      /// (including the total destruction rate).
+      double *cache;
 
-      CacheData 
-        /// Pointer to implement the doubly linked list
-        *next,
+      /// Pointer to implement the doubly linked list
+      CacheData *next;
         
-        /// Pointer to implement the doubly linked list
-        *prev;
+      /// Pointer to implement the doubly linked list
+      CacheData *prev;
       
       /// Default constructor
       /** This constructor sets kzaIdx to -1, and all the pointers to 
@@ -78,59 +72,44 @@ class RateCache
       ~CacheData() { delete next; delete cache;};
 
     }
-  
-    /// This points to the least recently used data.  
-    /** It therefore serves as a pointer to the whole list from one 
-        side. */
-    *oldestData, 
+  /// This points to the least recently used data.  
+  /** It therefore serves as a pointer to the whole list from one 
+      side. */
+  *oldestData, 
     
-    /// This points to the most recently used data.
-    /** It also serves as a pointer to the whole list form the other 
-        side. */
-    *lastUsedData;
+  /// This points to the most recently used data.
+  /** It also serves as a pointer to the whole list form the other 
+      side. */
+  *lastUsedData;
   
   class CacheListPtr 
     {
-
-    protected:
-
     public:
-      int
-        /// Hash integer defining the isotope.  This is the search/sort 
-        /// key for the array of these objects.
-        kza;
+      /// Hash integer defining the isotope.  This is the search/sort 
+      /// key for the array of these objects.
+      int kza;
 
-      CacheData
-        /// This is a pointer to the CacheData object which corresponds to
-        /// this isotope.
-        *dataPtr;
+      /// This is a pointer to the CacheData object which corresponds to
+      /// this isotope.
+      CacheData *dataPtr;
       
       /// Default Constructor
       /** This constructor uses an initialization list sets kza
           to the value of the single argument (with BASE_KZA being the
           default) and sets dataPtr to NULL. */
-      CacheListPtr(int baseKza=BLANK_KZA) : kza(baseKza), dataPtr(NULL) {};
-      
+      CacheListPtr(int baseKza=BLANK_KZA) : kza(baseKza), dataPtr(NULL) {};   
     } 
+  /// This static array is a sorted list of CacheListPtrs, initially
+  /// filled with kza=BLANK_KZA in all locations.
+  kzaList[CACHE_SIZE];
   
-    /// This static array is a sorted list of CacheListPtrs, initially
-    /// filled with kza=BLANK_KZA in all locations.
-    kzaList[CACHE_SIZE];
-  
-
   /// This function performs a simple binary search for the single
   /// argument on the kzaList array.
-  /** It returns a pointer to the CacheData object which correpsonds to 
-      this isotope.  If the isotope is not found, it returns NULL. It
-      is a protected function since it should only be called from
-      RateCache::read and RateCache::set. */
   RateCache::CacheData* search(int);
 
   /// This function adds a new CacheData object, preforms all the
   /// management of the linked list related to this, inserts the kza
   /// reference into kzaList, and performs a bubble sort on kzaList.
-  /** It is only called from RateCache::set when search returns a
-      NULL. */
   RateCache::CacheData* add(int,int);
 
  public:
@@ -146,21 +125,12 @@ class RateCache
 
   /// This function searches for the isotope indicated by the first
   /// argument and the reaction indexed by the second argument.
-  /** If this isotope does not currently exist in the cache, a value
-      of -1 is returned.  Otherwise, the scalar reaction rate 
-      corresponding to this reaction of this isotope is returned. */
   double read(int,int);
 
   /// This function sets the entry in the cache for the isotope indcated
   /// by the first argument and the reaction indexed by the second
   /// argument.
-  /** The value of the scalar reaction rate is given in the
-      fourth argument.  If there is currently no cache entry for this
-      isotope, the third argument is used to set the size of the new
-      CacheData object which is created for this isotope. */
   void set(int,int,int,double);
-
-  
 };
 #endif
 

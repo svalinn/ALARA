@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.19 2002-06-04 18:05:28 wilsonp Exp $ */
+/* $Id: Chain.C,v 1.20 2003-01-13 04:34:50 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -28,6 +28,12 @@ double Chain::impurityDefn = 0;
 double Chain::impurityTruncLimit = 1;
 int Chain::mode = MODE_FORWARD;
 
+
+/** Establishes a chain with 'maxChainLength' equal to the
+    default, INITMAXCHAINLENGTH, and the corresponding storage
+    for 'loopRank' and 'rates'.  When called with no arguments,
+    all other members are set to 0 or NULL.  Otherwise, the
+    'root' and 'node' pointers are set to the first argument. */
 Chain::Chain(Root *newRoot, topSchedule *top)
 {
   int rank;
@@ -82,6 +88,10 @@ Chain::Chain(Root *newRoot, topSchedule *top)
   debug(3,"Created new chain.");
 }
 
+/** Copies all the scalar members directly and copies the vectors
+    on an element-by-element basis.  The sizes of the vectors are
+    (obviously?) based on the copied 'maxChainLength' member. */
+
 Chain::Chain(const Chain& c)
 {
   int rank,sliceSize;
@@ -134,6 +144,9 @@ Chain::~Chain()
   root->cleanUp();
 };
 
+/** The correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store
+    before allocating new space into which to copy the object. */
 Chain& Chain::operator=(const Chain& c)
 {
 
@@ -231,6 +244,8 @@ void Chain::getImpTruncInfo(istream& input)
 /* If the main truncation state is DECAY this function
  * should remove all pure transmutation reactions */
 /* called by Chain::build(...) */
+/** It has the primary responsibility for setting the initial
+    truncation state. */
 void Chain::setState(topSchedule* top)
 {
   double *relProd = NULL;
@@ -284,6 +299,11 @@ void Chain::setState(topSchedule* top)
 
 /* function to recursively build chains */
 /* called by Root::solve(...) */
+/** For each newly added node, it does some initialization and
+    sets up the rate pointers.  It then queries the truncation
+    state, and acts accordingly.  For example, when continuing
+    the chain, it calls on the 'node' to add a daughter, and calls
+    itself recursively. */
 int Chain::build(topSchedule *top)
 {
   /* initialize node */
@@ -449,6 +469,13 @@ void Chain::collapseRates(VolFlux* flux)
 }
 
 /* set the decay matrices, based on chain parameters */
+/** It always calls a Bateman method since pure decay cannot have
+    loops. This is a member of class Chain to take advantage of the
+    chain parameters such as 'chainLength', 'newRank', and 'colRates'.
+    This minimizes extra computation by knowing which parts of the
+    resultant matrix have already been calcualted and which must be
+    newly(re?)-calculated.  Be sure that the matrix referenced in the
+    first argument is consistent with this. */
 void Chain::setDecay(Matrix& D, double time)
 {
   int idx,idx2,row,col, oldSize;
@@ -500,6 +527,17 @@ void Chain::setDecay(Matrix& D, double time)
 /* function to fill a basic transfer matrix */
 /* the method used for each element is determined adaptively, 
  * on a element by element basis */
+/** It fills the necessary elements of a transfer matrix by adaptively
+    choosing the appropriate method: Bateman, Laplace inversion or
+    Laplace expansion.  The matrix referenced in the first argument is
+    filled using the irradiation time specified in the second argument
+    and the flux number specified in the third argument.  *** This is a
+    member of class Chain to take advantage of the chain parameters
+    such as 'chainLength', 'newRank', and 'colRates'.  This minimizes
+    extra computation by knowing which parts of the resultant matrix
+    have already been calcualted and which must be
+    newly(re?)-calculated.  Be sure that the matrix referenced in the
+    first argument is consistent with this. */
 void Chain::fillTMat(Matrix& T,double time, int fluxNum)
 {
   int idx,row,col,rank,oldSize;
@@ -562,6 +600,12 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
 }
 
 /* multiply two matrices carrying saved data */
+/** This is a member of class Chain to take advantage of the chain
+    parameters such as 'chainLength' and 'newRank'. This minimizes
+    extra computation by knowing which parts of the resultant matrix
+    have already been calcualted and which must be
+    newly(re?)-calculated.  Be sure that the matrix referenced
+    in the first argument is consistent with this. */
 void Chain::mult(Matrix &result, Matrix& A, Matrix& B)
 {
   int idx, idxA, row,col,term, oldSize;
@@ -601,9 +645,7 @@ void Chain::mult(Matrix &result, Matrix& A, Matrix& B)
   delete result.data;
   result.data = data;
   result.size = chainLength;
-
 }
-  
 
 /****************************
  ********** List ************
@@ -678,6 +720,8 @@ void Chain::resizeRates()
  ********* Utility **********
  ***************************/
 
+/** If the specified rank is greater than the 'chainLength', it will
+    return 0. */
 int Chain::getKza(int rank)
 {
 

@@ -1,4 +1,4 @@
-/* $Id: Root.h,v 1.10 2002-12-07 17:46:55 fateneja Exp $ */
+/* $Id: Root.h,v 1.11 2003-01-13 04:34:53 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _ROOT_H
@@ -29,106 +29,68 @@ protected:
   class MixCompRef
     {
     protected:
-      Mixture*
-        /// Pointer to the mixture of this reference
-        mixPtr;
+      /// Pointer to the mixture of this reference
+      Mixture* mixPtr;
 
-      Component*
-        /// Pointer to the component of this reference
-        compPtr;
+      /// Pointer to the component of this reference
+      Component* compPtr;
 
-      double 
-        /// Density of this isotope in compPtr of mixPtr
-        density;
+      /// Density of this isotope in compPtr of mixPtr
+      double density;
       
-      MixCompRef*
-        /// Next in list  
-        next;
+      /// Next object in list  
+      MixCompRef* next;
 
       /// This function searches the list for a reference with the same
       /// mixture and inserts a new reference after it.
-      /** If none is found, a new reference is added at the end. Note that 
-          this always adds a new reference - another function determines
-          whether or not a new reference is needed. */
       void add(MixCompRef *);
 
       /// Given a mixture/component pair, find a reference in this root
       /// isotope's list that has the same combination.
-	  /** Returns a pointer to the match, or NULL if none is found. */
       MixCompRef* find(MixCompRef *);
 
       /// Given a mixture/component pair, find a reference in this root
       /// isotope's list that has the same combination.
-	  /** If the second argument is NULL, it returns the first match of the
-          Mixture alone, if there is one. */
       MixCompRef* find(Mixture*,Component*);
 
     public:
 
       /// Default constructor when called with no arguments
-      /** The default constructor sets the pointers to NULL and the 'density'
-          to 0. Otherwise, the mixture pointer, component pointer and 
-          'density' are set with arguments in that order - 'next' is always 
-          NULL. */
       MixCompRef(Mixture* addMix=NULL, Component* addComp=NULL, 
 		 double isoDens=0);
 
       /// Copy constructor
-	  /** Copy constructor copies is identical to default constructor.
-          Therefore, all the members are set except 'next' = NULL. */
       MixCompRef(const MixCompRef&);
 
       /// This constructor acts as a list insertion function.
-      /** The new object copies the values of the object pointed to by the
-	      first argument, and sets its 'next' pointer as the second 
-          argument. */
       MixCompRef(MixCompRef*, MixCompRef*);
 
       /// Inline destructor destroys whole list by deleting 'next'.
       ~MixCompRef() { delete next; };
 
-	  /// Overloaded assignment operator
-	  /** The correct implementation of this operator must ensure that
-          previously allocated space is returned to the free store before
-          allocating new space into which to copy the object.  The 'next'
-          pointer is not changed, so that this object remains a member of
-          the same list as it originally was in. */
+      /// Overloaded assignment operator
       MixCompRef& operator=(const MixCompRef&);
 
       /// This function merges two lists of MixCompRefs.
-	  /** The list pointed to by the argument is merged into the list 
-          through which the function is accessed.  Each of the items in
-          the new list is searched for in the existing list.  All matches 
-          are ignored and all non-matches generate a new entry in the
-          existing list. */
       void tally(MixCompRef *);
       
       /// The reference flux for truncation is a group-wise maximum
       /// across the various intervals.
-      /** Each root isotope has a different reference flux, based on the 
-          set of intervals which contain that root.  This list of intervals in 
-          which the solution for a given root should be performed is determined 
-          by accessing mixture reference through this list. */
       void refFlux(Volume*);
 
-      // NEED COMMENT Wasn't sure how to break this into brief/detailed comment 
-	  /* The list of intervals in which the solution for a given root
-      isotope should be performed is determined by accessing mixture
-      references through this list.  The Chain and topSchedule are
-      passed through this function to each of the mixtures referenced
-      in this list. */
+      /// solve the chain for each mixture (but not for each component)
       void solve(Chain*, topSchedule*);
 
       /// This function simply calls Mixture::writeDump() on every
       /// mixture containing the root to which this MixCompRef belongs.
       void writeDump();
 
-	  /// This function polls each mixture containing the root to which
+      /// This function polls each mixture containing the root to which
       /// this MixCompRef belongs and finds the maximum relative
       /// concentration of this root in any mixture.
       double maxConc();
 
-	  // NEED COMMENT
+      /// search list of mixtures and find total density across all components
       double mixConc(Mixture*);
 
       /// This function passes its 'kza' argument on to the readDump
@@ -139,9 +101,6 @@ protected:
 
       /// This function searches for a given Mixture/Component pair and
       /// finds the entry which follows it if it has the same mixture.
-      /** If the third argument is NULL, it will return the first match
-          of the mixture.  Once the entry is found, the first reference
-          argument is set equal to the density. */
       Component* getComp(double&, Mixture*, Component*);
       
     } 
@@ -151,34 +110,19 @@ protected:
 
   // This points to the next root isotope in the list of root isotopes.
   // This list is sorted by KZA number
-
   Root* nextRoot;
-  
-  
+   
   /// This function adds a root isotope to the list of root isotopes.
-  /** It has already been established that this isotope does not occur
-      in the list, therefore, it always results in a new object.  The
-      new object may be inserted at the front of the list, in the middle
-      of the list or at the end of the list. */ 
   void add(Root*);
   
 public:
   /// Default constructor 
-  /** Invokes default constructor of base class Node, and sets 'mixList' 
-      and 'next' to NULL. */
   Root();
 
   /// Copy constructor 
-  /** Invokes copy constructor for base class Node and copies pointer 
-      'mixList', ie. new mixList points to old mixList, and NOT a copy of the
-	  mixList. 'next' = NULL. */
   Root(const Root&);
 
   /// Constructor acts as insertion function 
-  /** Invoks a copy constructor of base class Node with the dereferenced
-      first argument and then copying the 'mixList' pointer (see note for 
-	  copy constructor above).  The 'next' pointer is set to the second
-      argument. */
   Root(Root*,Root*);
 
   /// Constructor invokes Node(char*) constructor with first argument,
@@ -198,9 +142,6 @@ public:
     { mixList->refFlux(refVolume); };
 
   /// This function is the top level of the solution phase.
-  /** For each root isotope, is creates a chain object and then loops over
-      all the chains that are rooted in that isotope, solving each one with
-      the created chain and the passed schedule. */
   void solve(topSchedule*);
   
   /// This function calls MixCompRef::readDump() for each root isotope
@@ -209,8 +150,6 @@ public:
 
   /// This function calls MixCompRef::readDump() for the next target
   /// isotope only.
-  /** It returns a pointer to that target isotope and the 'kza' value for 
-      that target in the first argument. */
   Root* readSingleDump(int&);
 
   // NEED COMMENT
@@ -218,14 +157,14 @@ public:
 
   /// Search through the list of root isotopes for a particular kza,
   /// passed as the argument.
-  /** It returns the pointer to the matched object, or NULL if no match. */
   Root* find(int);
 
   /// Simple pas through to MixCompRef::maxConc(), returning its return
   /// value.
   double maxConc();
 
-  // NEED COMMENT
+  /// Search list of mixtures to find all components for this mixture and sum
+  /// their densities
   double mixConc(Mixture*);
 
   // NEED COMMENT
@@ -233,10 +172,6 @@ public:
   
   /// This function merges the list pointed to by the first argument
   /// with the list of Root isotopes which it was called with.
-  /** For each root in the new list, it if does not exist in the list,
-      it is added with add(...).  If it does already exist, its
-      mixture/component reference are added with 
-	  MixCompRef::tally(...). */
   Root* merge(Root*);
 };
 

@@ -1,4 +1,4 @@
-/* $Id: ScheduleItem.C,v 1.5 1999-08-24 22:06:22 wilson Exp $ */
+/* $Id: ScheduleItem.C,v 1.6 2003-01-13 04:34:59 fateneja Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -21,6 +21,11 @@
  ********* Service *********
  **************************/
 
+/** When called with no arguments, this default constructor creates a
+    blank list head with no data.  Otherwise, is creates and fills
+    storage for 'itemName' (acting as 'fluxName' where necessary) and
+    'pulseName', and initializes the other variables (perhaps with
+    default values), with 'next' set to NULL. */
 ScheduleItem::ScheduleItem(int inType, char *name, char *pname, 
 			   double inDelay, char inDUnits,
 			   double inOpTime, char inOpUnits) :
@@ -51,8 +56,9 @@ ScheduleItem::ScheduleItem(int inType, char *name, char *pname,
  *********** Input **********
  ***************************/
 
-/* get a schedule item of type sub-schedule */
-/* called by Schedule::getSchedule(...) */
+/** The 'itemName' has already been read by the calling routine, and is
+    passed as the first argument.  A pointer to the newly created
+    ScheduleItem object is returned. */
 ScheduleItem* ScheduleItem::getSubSched(char *name,istream& input)
 {
 
@@ -76,8 +82,9 @@ ScheduleItem* ScheduleItem::getSubSched(char *name,istream& input)
 
 }
 
-/* get a schedule item of type simple pulse */
-/* called by Schedule::getSchedule(...) */
+/** The 'opTime' has already been read by the calling routine, and is
+    passed as the first argument.  A pointer to the newly created
+    ScheduleItem object is returned. */
 ScheduleItem* ScheduleItem::getPulse(double inOpTime,istream& input)
 {
 
@@ -110,11 +117,15 @@ ScheduleItem* ScheduleItem::getPulse(double inOpTime,istream& input)
  ********* xCheck **********
  **************************/
 
-/* cross-check schedule items:
- * - do referenced sub-schedules exist
- * - do referenced fluxes exist
- * - do referenced pulse histories exist */
-/* called by Schedule::xCheck(...) */
+/** Once they are found, named references are usually converted to
+    object pointers.  For single pulses, the flux is checked first,
+    replacing the 'fluxName' with the 'fluxNum' in the union.  For
+    sub-schedules, the referenced schedule is checked, replacing the
+    'itemName' with the 'subSched' pointer in the union. For both cases,
+    the history is checked, replacing the 'pulseName'with the 'hist'
+    pointer in the union.  The arguments are the head items of the lists
+    of Schedule, Flux and History, respectively, followed by the name of
+    the current schedule, for use in error reporting. */
 void ScheduleItem::xCheck(Schedule* schedHead, Flux *fluxHead, History *histHead, char *schedName)
 {
   ScheduleItem *ptr=this;
@@ -185,8 +196,10 @@ void ScheduleItem::xCheck(Schedule* schedHead, Flux *fluxHead, History *histHead
     }
 }
 
-/* write the details of single schedule item */
-/* called by Schedule::write(...) */
+/** It uses the argument to indicate the tabbing for hierarchical
+    representation.  Single pulse items have their time, delay and
+    pulsing name written, while sub-schedules recursively call back to
+    the Schedule::write(int) function. */
 void ScheduleItem::write(int level)
 {
   ScheduleItem *ptr = this;
@@ -215,9 +228,14 @@ void ScheduleItem::write(int level)
  ********* Preproc **********
  ***************************/
 
-/* build a calc schedule by adding calc schedule items
- * corresponding to those in the schedule list */
-/* called by Schedule::makeSchedules(...) */
+/** In all cases, a new calcSchedule object is created and passed to
+    function Schedule::add(int,*calcSchedule) for inclusion in the list
+    of sub-schedules.  NOTE: For each sub-schedule type item, this
+    results in an extra calcSchedule object with a single
+    sub-schedule.  While it is tempting to collapse this extra object
+    with its sub-schedule immediately, the calcSchedule object
+    corresponding to the sub-schedule may not be set yet.  This is
+    done later (see calcSchedule::collapse()). */
 void ScheduleItem::buildSched(calcSchedule *sched)
 {
   ScheduleItem *ptr = this;
@@ -250,9 +268,9 @@ void ScheduleItem::buildSched(calcSchedule *sched)
     }
 }
 
-
-/* initialize a calc schedule with the number of schedule items */
-/* called by Schedule::makeSchedules(...) */
+/** It does this by counting the number of ScheduleItems in a list, and
+    creating the calcSchedule with that number of sub-schedules.  A
+    pointer to the newly created calcSchedule object is returned. */
 calcSchedule* ScheduleItem::makeSchedule()
 {
   ScheduleItem *head = this;

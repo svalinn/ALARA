@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.15 2000-04-28 15:31:56 wilson Exp $ */
+/* $Id: Component.C,v 1.16 2003-01-13 04:34:54 fateneja Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -22,6 +22,9 @@ ifstream Component::eleLib;
 /***************************
  ********* Service *********
  **************************/
+/** This constructor creates a blank list head, when no arguments
+    are given.  Otherwise, it sets the type, the name and the density.
+    The 'next' element is initialized to NULL. */
 Component::Component(int compType, char *name, double dens, double volFrac) :
   type(compType),density(dens), volFraction(volFrac)
 {
@@ -36,6 +39,8 @@ Component::Component(int compType, char *name, double dens, double volFrac) :
   next = NULL;
 }
 
+/** This constructor initializes 'type', 'density', and 'volFraction'
+    and then creates and fills space for 'compName'. 'next' is NULL */
 Component::Component(const Component& comp) :
   type(comp.type), density(comp.density), volFraction(comp.volFraction)
 { 
@@ -51,6 +56,13 @@ Component::Component(const Component& comp) :
 
 }
 
+/** The assignment operator is similar to the copy constructor, but it
+    uses an already allocated object on the left hand side.  The
+    correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object. Note that
+    'next' is NOT copied, the left hand side object will continue to
+    be part of the same list unless explicitly changed. */
 Component& Component::operator=(const Component& comp)
 { 
   if (this == &comp)
@@ -79,8 +91,10 @@ Component& Component::operator=(const Component& comp)
  *********** Input **********
  ***************************/
 
-/* get individual components and add them to list */
-/* called by Mixture::getMixture() */
+/** It expects an integer type, detemined by the calling function,
+    and a reference to the input file's stream.  It returns
+    pointer to the new object of class Component which has just been
+    read. */
 Component* Component::getComponent(int setType,istream &input, Mixture *mixPtr)
 {
 
@@ -133,8 +147,11 @@ void Component::getEleLib(istream& input)
  ********* Preproc **********
  ***************************/
 
-/* replace a component of type 'l' with its expanded reference */
-/* called by Mixture::copySim() */
+/** It expects a list of components, through a pointer to the head
+    of the list.  Rather than deleting the current component, it is
+    changed to a copy of the first object, and the others in the list
+    are inserted as new objects.  This is used to replace all 'similar'
+    components before a mixture is expanded. */
 Component* Component::replaceSim(Component *newCompList)
 {
   Component *ptr = this;
@@ -162,8 +179,9 @@ Component* Component::replaceSim(Component *newCompList)
   
 }
 
-/* expand all the components of a mixture into a root list */
-/* called by Mixture::makeRootList(...) */
+/** It is always called through the head of the Component list for a
+    given mixture.  For cross-referencing, a pointer to that mixture
+    is expected as an argument. */
 Root* Component::expand(Mixture *mix)
 {
   Component* ptr = this;
@@ -207,8 +225,12 @@ Root* Component::expand(Mixture *mix)
 
 }
 
-/* expand a mixture component of type element */
-/* called by Component::expand(...) */
+/** For cross-referencing, it expects a pointer to the mixture and
+    component which contain this particular element - it does not
+    automatically use the 'this' component pointer, since it can be
+    called through a temporary object (such as might be created in
+    expandMat() while expanding a material).  It returns a pointer to
+    an object of class Root, which serves as the head of a list. */
 Root* Component::expandEle(Mixture* mix, Component* comp)
 {
   Root *rootList = new Root;
@@ -282,8 +304,11 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
 
 }
 
-/* expand a mixture component of type material */
-/* called by Component::expand(...) */
+/** For cross-referencing, it expects a pointer to the mixture and
+    component which contain this particular element - it uses the
+    'this' component pointer since it will never be ambiguous.  It
+    returns a pointer to an object of class Root, which serves as the
+    head of a list. */
 Root* Component::expandMat(Mixture* mix)
 {
   Root *rootList = new Root;
@@ -362,7 +387,9 @@ int Component::getCompNum(Component *compPtr)
   return compNum;
 }
 
-/* search sequentially for a particular type of coponent */
+/** It is used to primarily to search for Components of type 'similar'.
+    It expects an integer argument giving the component type of
+    interest. */
 Component* Component::exists(int srchType)
 {
  

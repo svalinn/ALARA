@@ -1,4 +1,4 @@
-/* $Id: NuclearData.C,v 1.14 2002-01-07 22:00:47 wilsonp Exp $ */
+/* $Id: NuclearData.C,v 1.15 2003-01-13 04:34:52 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -22,7 +22,9 @@ int NuclearData::nGroups = 0;
 DataLib* NuclearData::dataLib = NULL;
 int NuclearData::mode = MODE_FORWARD;
 
-/* basic constructor for NuclearData base class */
+/** The default constructor initializes NuclearData::nPaths to -1,
+    for use later, sets all the pointers to NULL, and zeroes the
+    NuclearData::E[] array. */
 NuclearData::NuclearData()
 {
   nPaths=-1;
@@ -37,6 +39,9 @@ NuclearData::NuclearData()
     E[dHeat] = 0;
 }
 
+/** The copy constructor copies all the data on an
+    element-by-element basis, allocating new storage where necessary.
+    It does \b NOT simply copy pointers. */
 NuclearData::NuclearData(const NuclearData& n)
 {
 
@@ -133,8 +138,6 @@ NuclearData::NuclearData(const NuclearData& n)
 
 }  
 
-
-/* basic destructor for NuclearData */
 NuclearData::~NuclearData()
 {
   cleanUp();
@@ -143,6 +146,9 @@ NuclearData::~NuclearData()
   P = NULL;
 }
 
+/** The assignment operator copies all the data on an
+    element-by-element basis, freeing old storage and allocating new
+    storage where necessary.  It does \b NOT simply copy pointers. */
 NuclearData& NuclearData::operator=(const NuclearData& n)
 {
 
@@ -237,6 +243,8 @@ NuclearData& NuclearData::operator=(const NuclearData& n)
 }  
 
 
+/** This task might be required in a variety of places so the
+    functionality was encapsulated into a single function. */
 void NuclearData::cleanUp()
 { 
   int rxnNum;
@@ -273,6 +281,12 @@ void NuclearData::cleanUp()
  *********** Input *********
  ***************************/
 
+/** This function reads the library type from the input file attached
+    to the stream reference argument and calls for the creation of a
+    new DataLib object through the DataLib::newLib(...) function.  It
+    also requests the number of groups from the dataLib to set its own
+    static member 'nGroups' and share the info with other classes
+    (e.g. VolFlux). */
 void NuclearData::getDataLib(istream& input)
 {
   char type[64];
@@ -297,6 +311,13 @@ void NuclearData::closeDataLib()
  ***************************/
 
 /* set the nuclear data with arguments passed from dataLib routine */
+/** This function implements a callback from the nuclear data
+    library modules.  The arguments for this function are the data as
+    read from the library (Note that single precision is sufficient
+    for library data).  These data are copied into
+    NuclearData::nPaths, NuclearData::E, NuclearData::relations,
+    NuclearData::emitted, NuclearData::paths, NuclearData::D[ngroups],
+    and NuclearData::single respectively. */
 void NuclearData::setData(int numRxns, float* radE, int* daugKza, 
 			  char** emissions, float** xSection, 
 			  float thalf, float *totalXSection)
@@ -422,8 +443,11 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
 
 }
 
-/* sort the rate vectors the various paths to put the vectors with
-   decay rates at the top of the list */
+/** This change was necessary to enable the RateCache concept to
+    work since it is necessary to have the reactions indexed the
+    same way, even if non-decay reactions have been stripped from
+    the list.  After sorting, decay reaction 1...d will always be
+    1...d whether or not the non-decay reactions are present. */
 void NuclearData::sortData()
 {
   int rxnNum=0,switchNum=nPaths;
@@ -456,7 +480,13 @@ void NuclearData::sortData()
 }
 				   
 
-/* strip pure transmutation reactions out of data */
+/** Both the NuclearData::nPaths member and the related arrays
+    (NuclearData::paths, NuclearData::emitted, and NuclearData::relation)
+    are reduced to reflect the new number of reaction paths.  This is
+    used when the truncation state has determined that at most
+    radioactive branches should be considered in the chain creation
+    process.  After counting the radioactive decay branches, it
+    returns an adjusted truncation state. */
 int NuclearData::stripNonDecay()
 {
   int rxnNum = 0;

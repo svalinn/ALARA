@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.27 2002-12-02 20:36:13 varuttam Exp $ */
+/* $Id: OutputFormat.C,v 1.28 2003-01-13 04:35:00 fateneja Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -33,6 +33,10 @@ const char *Out_Types_Str[nOutTypes] = {
  ********* Service *********
  **************************/
 
+/** When called without arguments, the default constructor creates a
+    blank list head with no problem data.  Otherwise, it sets the
+    'resolution' to the first argument and initializes the 'next'
+    pointer to NULL. */
 OutputFormat::OutputFormat(int type)
 {
   resolution = type;
@@ -74,6 +78,11 @@ OutputFormat::~OutputFormat()
   
 }
 
+/** The correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object. Note that
+    'next' is NOT copied, the object will continue to be part of the
+    same list unless explicitly changed. */
 OutputFormat& OutputFormat::operator=(const OutputFormat& o)
 {
   if (this == &o)
@@ -195,6 +204,10 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
 }
 
+/** It does this by calling the write() function on the list of intervals,
+    zones or mixtures, as determined by the 'resolution' member. The last
+    argument is the kza number for the target isotope for which the
+    current invocation is being called. */
 void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 			 CoolingTime *coolList, int targetKza)
 {

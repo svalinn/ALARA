@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.19 2003-01-08 07:17:21 fateneja Exp $ */
+/* $Id: Input.C,v 1.20 2003-01-13 04:34:56 fateneja Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -43,6 +43,12 @@
  **************************/
 
 
+/** This constructor creates a new Input object to contain the
+      problem input and connects it to an input stream.  If called with
+      no arguments, the input is read from stdin, otherwise it is read
+      from the filename specified in the argument.  The constructor
+      initializes all the different members, with the list tails
+      pointing to the list heads. */
 Input::Input(char* inputFname)
 {
   if (inputFname != NULL)
@@ -106,6 +112,8 @@ Input::Input(char* inputFname)
 
 }
 
+/** Deletes all the members, assuming that all the lists will be destroyed
+    by their own destructors. */
 Input::~Input()
 {
   delete inGeom;
@@ -129,6 +137,9 @@ Input::~Input()
  **************************/
 
 /* read a token and start processing that token type block */
+/** This function reads a token, calls tokenType(...) to parse it to an
+      integer, and then acts appropriately, calling the individual class
+      methods to read a certain object. */
 void Input::read()
 {
 
@@ -288,6 +299,8 @@ void Input::read()
  **************************/
 
 /* cross-check all input before pre-processing */
+/** Error and warning messages will notify the user of problems.  Some
+    early preprocessing is also done here. */
 void Input::xCheck()
 {
 
@@ -363,6 +376,13 @@ Those extra zones are being ignored.",loadList->numZones(),dimListHead->totZones
  ********* Preproc *********
  **************************/
 
+/** In particular, dimensional definitions are converted to interval
+       lists, Mixture definitions are converted to lists of root isotopes
+       and the schedule and pulsing history information is converted to
+       the calculation phase objects used to represent these elements of
+       the problem.  The two pointers passed by reference are set to
+       point to the root isotope list and the schedule hierarchy,
+       respectively. */
 void Input::preProc(Root*& rootList, topSchedule*& top)
 {
 
@@ -411,6 +431,9 @@ void Input::preProc(Root*& rootList, topSchedule*& top)
  ********* Postproc ********
  **************************/
 
+/** It first tallies all the results across the intervals, zones and
+      mixtures, through the list of mixtures.  It then calls on the output
+      format objects to create the appropriate output. */
 void Input::postProc(Root *masterRootList)
 {
 
@@ -455,6 +478,9 @@ void Input::postProc(Root *masterRootList)
 
 /* function to clear all blank lines and comment lines 
  * from the input FILE stream */
+/** However, this instance allows for files to be
+       included with a C preprocessor type directive: #include
+       "included.file.name". */
 void Input::clearIncludeComment()
 {
   /* look at the next character in the stream */

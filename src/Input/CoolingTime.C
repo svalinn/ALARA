@@ -1,4 +1,4 @@
-/* $Id: CoolingTime.C,v 1.3 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: CoolingTime.C,v 1.4 2003-01-13 04:34:54 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -17,12 +17,16 @@
  ********* Service *********
  **************************/
 
+/** Default constructor creates a blank list head with no arguments.
+      Otherwise, it sets both the time and units and initializes the
+      'next' pointer to NULL. */
 CoolingTime::CoolingTime(double coolTime, char unts)
   : units(unts), coolingTime(coolTime)
 {
   next = NULL;
 }
 
+/** Copy constructor copies scalar members and sets 'next' to NULL. */
 CoolingTime::CoolingTime(const CoolingTime& c)
   : units(c.units), coolingTime(c.coolingTime)
 {
@@ -35,6 +39,8 @@ CoolingTime::CoolingTime(const CoolingTime& c)
 
 /**** get a list of cooling times *******/
 /* called by Input::read(...) */
+/** It reads a list of times and units until it finds the keyword "end".
+    It is called through the head of the cooling times list. */
 void CoolingTime::getCoolingTimes(istream& input)
 {
   char token[32], inUnits;
@@ -73,9 +79,9 @@ void CoolingTime::getCoolingTimes(istream& input)
 /****************************
  ********* Preproc **********
  ***************************/
-
-
-/* count the cooling times and assign them to an array */
+/** Called through the head of the cooling times list, it
+    allocates the correct number of doubles, assigning them to the pointer
+    reference argument.  It returns the number of cooling times. */
 int CoolingTime::makeCoolingTimes(double *& coolingTimes)
 {
   
@@ -123,6 +129,8 @@ int CoolingTime::makeCoolingTimes(double *& coolingTimes)
  ******** Postproc **********
  ***************************/
 
+/** There is a column for the isotope, a column for the @shutdown
+    result, and then a column for each after-shutdown cooling time. */
 void CoolingTime::writeHeader()
 {
   CoolingTime *ptr = this;
@@ -140,6 +148,9 @@ void CoolingTime::writeHeader()
   writeSeparator();
 }
 
+/** There is a  column indicating the counter for the total in question,
+    one column for @ shutdown results, and then one column for each of the
+    after-shutdown cooling times. */
 void CoolingTime::writeTotalHeader(char* type)
 {
   CoolingTime *ptr = this;

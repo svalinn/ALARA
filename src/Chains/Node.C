@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.22 2003-01-08 07:14:51 fateneja Exp $ */
+/* $Id: Node.C,v 1.23 2003-01-13 04:34:51 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -28,6 +28,10 @@ DataCache Node::betaCache;
 DataCache Node::gammaCache;
 DataCache Node::wdrCache;
 
+/** When called with no arguments this sets the KZA value to 0.
+      Otherwise, it processes the isotope name passed as the
+          argument and converts it to a KZA number.  Default
+          constructors are used for the base class. */
 Node::Node(char *isoName)
 {
   debug(4,"Making new Node: %s.",isoName);
@@ -52,6 +56,9 @@ Node::Node(char *isoName)
       kza = (Z*1000+A)*10;
     }
 }
+
+/** It passes arguments 2,4, and 5 to TreeInfo, argument 3
+    to NuclearData and initializing 'kza' with argument 1. */
 
 Node::Node(int nextKza, Node* passedPrev, double* passedSingle, 
 	   int passedRank, int passedState) 
@@ -85,6 +92,11 @@ Node::Node(int nextKza, Node* passedPrev, double* passedSingle,
 
 /* function to read nuclear data from arbitrary data source */
 /* called by Chain::build() */
+/** NOTE: DataLib::readData() is a virtual function,
+      implemented for each specific type of data library.  The 'this'
+      pointer is passed to give a callback object for setting the data
+      once it has been read from the file
+      (see NuclearData::setData(...)). */
 void Node::readData()
 {
   dataLib->readData(kza,this);
@@ -249,6 +261,9 @@ void Node::loadWDR(char *fname)
 
 /* function to copy pointers to the chain data */
 /* called by Chain::build() */
+/** It also sets the appropriate entry of
+      'Chain::loopRank[]' passed in the last argument.  The second
+      argument indicates the size of the arrays. */
 void Node::copyRates(double **rates, const int step, int *loopRank)
 {
 
@@ -332,6 +347,8 @@ void Node::copyRates(double **rates, const int step, int *loopRank)
 }
 
 /* re-initialize elements when the chain retracts */
+/** It does this before retracting the chain so that they are at the
+    correct default before advancing the chain again. */
 void Node::delRates(double **rates, const int step, int *loopRank)
 {
   int idx;
@@ -358,17 +375,14 @@ void Node::delRates(double **rates, const int step, int *loopRank)
 }
 
 
-/* function to determine state of tree building process.
-
- * This function is called twice from Chain::build(...).  The first
- * time is only for new isotopes which, by logic, must be in state
- * CONTINUE or TRUNCATE_STABLE.  This is when the argument is used.
- * The subsequent call is used to determine the action of the
- * Chain::build(...) function.  The arguments defaults to 0 and the
- * state upon entering the function could be one of many.
- */
-
-/* called by Chain::build() */
+/** function to determine state of tree building process.
+    This function is called twice from Chain::build(...).  The first
+    time is only for new isotopes which, by logic, must be in state
+    CONTINUE or TRUNCATE_STABLE.  This is when the argument is used.
+    The subsequent call is used to determine the action of the
+    Chain::build(...) function.  The arguments defaults to 0 and the
+    state upon entering the function could be one of many.
+    called by Chain::build() */
 int Node::stateEngine(int stateBits)
 {
 
@@ -443,6 +457,11 @@ int Node::stateEngine(int stateBits)
 
 /* function to add correct next product to chain */
 /* called by Chain::build() */
+/** It uses the information stored in the Node object through
+      which it is called to initialize a newly created Node object.
+          The argument is assigned a value to indicate which rank should
+          be tallied if/when this chain is sovled. A pointer to this new
+          object is returned. */
 Node* Node::addNext(int &setRank)
 {
 
@@ -483,21 +502,20 @@ Node* Node::addNext(int &setRank)
   return next;
 }
 
-/* delete everything below the current node */
 void Node::prune()
 { 
   delete next; 
   next = NULL; 
 };
 
-/* Retract the chain by returning the prev
- * - usually followed by a call to prune() */
+/** Retract the chain by returning the prev - usually followed by a 
+    call to prune() */
 Node* Node::retract()
 {
   return prev;
 }
 
-/* function to search up a chain for a loop */
+/** The rank of this isotope is returned for use in Chain::loopRank[].*/
 int Node::findLoop()
 {
   Node* nodePtr = prev;
@@ -512,7 +530,7 @@ int Node::findLoop()
   return -1;
 }
   
-/* search down a chain for a certain rank */
+/** If the rank is greater than the chainlength, '-1' is returned. */
 int Node::getRankKza(int findRank)
 {
   Node* ptr = this;
@@ -526,7 +544,16 @@ int Node::getRankKza(int findRank)
     return -1;
 }
 
-/* get the information for the reaction given in the first argument */
+/** The reaction rate vector pointed to by the
+      first argument is used to determine whether the current reaction
+      is a destruction rate or a production rate.  In the former case,
+      the current node's kza value is used for the base isotope, while
+      in the latter, the parent's kza value is used for the base
+      isotope.  Based on this choice, the last three arguments are
+      assigned values for the base kza, the reaction number index (0
+      for a destruction rate), and the original number of reaction paths
+      for this base isotope.  This function is called by VolFlux::fold()
+      for use in cache processing. */
 void Node::getRxnInfo(double *rateVec, int &baseKza, int &rxnNum, int &numRxns)
 {
 
@@ -564,6 +591,8 @@ void Node::getRxnInfo(double *rateVec, int &baseKza, int &rxnNum, int &numRxns)
       
 }
 
+/** This function retrieves the nx cross sections, and returns the
+    values in a matrix that has dimensions numCP x nGroups */
 double** Node::getCPXS(int findKZA)
 {
   // Get data from VolFlux Class

@@ -1,4 +1,4 @@
-/* $Id: topSchedule.C,v 1.3 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: topSchedule.C,v 1.4 2003-01-13 04:34:30 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -19,6 +19,13 @@
 /****************************
  ********* Service **********
  ***************************/
+/** This is used to convert a calcSchedule object, pointed to by
+    the first argument, to a topSchedule object.  At the same time,
+    this function is initializes the number of after-shutdown
+    cooling times of interest.  The second argument is the head of
+    the list of input coolingTimes which is parsed to set the local
+    member.  After establishing the number of cooling times, space
+    is allocated and initialized for 'coolD'. */
 topSchedule::topSchedule(calcSchedule *sched, CoolingTime *coolList) :
   calcSchedule(*sched)
 {
@@ -40,6 +47,10 @@ topSchedule::topSchedule(calcSchedule *sched, CoolingTime *coolList) :
 
 }  
 
+/** This constructor first invokes its base class copy constructor.
+    It then copies the number of cooling times, copying 'coolD' and
+    'coolingTime' on an element-by-element basis if it is greater
+    than 0. */
 topSchedule::topSchedule(const topSchedule& t) :
   calcSchedule(t)
 {
@@ -70,6 +81,9 @@ topSchedule::~topSchedule()
   delete coolingTime;
 }
 
+/** The correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object. */
 topSchedule& topSchedule::operator=(const topSchedule& t)
 {
 
@@ -133,7 +147,11 @@ topSchedule& topSchedule::operator=(const topSchedule& t)
 /****************************
  ******** Solution **********
  ***************************/
-
+/** It does not set a decay matrix for the delay since no delay is
+    applied to a topSchedule.  It checks for the existence of a
+    history before calling setDecay on it, since a topSchedule may
+    not have a pulsing history.  It calls Chain::setDecay for each of
+    the 'coolD' matrices. */
 void topSchedule::setDecay(Chain* chain)
 {
   int itemNum, coolNum;
@@ -152,6 +170,11 @@ void topSchedule::setDecay(Chain* chain)
   
 }
 
+/** It does not apply any final decay operation.  It checks for the
+    existence of the pulsing history before applying it.  It applies
+    decays for each of the after-shutdown cooling times, storing them
+    in the special matrices of the topScheduleT object passed in the
+    second argument. */
 void topSchedule::setT(Chain* chain, topScheduleT *schedT)
 {
   int coolNum;

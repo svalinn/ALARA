@@ -1,4 +1,4 @@
-/* $Id: Node.h,v 1.14 2002-12-07 17:46:54 fateneja Exp $ */
+/* $Id: Node.h,v 1.15 2003-01-13 04:34:51 fateneja Exp $ */
 
 /*
   lambdaCache, heatCache, alphaCache, 
@@ -58,52 +58,30 @@ protected:
 
 public:
   /// The default constructor when called with no arguments
-  /** When called with no arguments this sets the KZA value to 0.
-      Otherwise, it processes the isotope name passed as the 
-	  argument and converts it to a KZA number.  Default 
-	  constructors are used for the base class. */
   Node(char* isoName=NULL);
   
   /// This constructor invokes an initialization list.
-  /** It passes arguments 2,4, and 5 to TreeInfo, argument 3
-      to NuclearData and initializing 'kza' with argument 1. */
   Node(int,Node*,double*,int,int);
   
   /// This function passes the 'kza' value and 'this' pointer to the
   /// readData() function of the 'dataLib' member object of base class
   /// NuclearData.  
-  /** NOTE: DataLib::readData() is a virtual function,
-      implemented for each specific type of data library.  The 'this'
-      pointer is passed to give a callback object for setting the data
-      once it has been read from the file 
-      (see NuclearData::setData(...)). */
   void readData();
 
   /// This function points the appropriate elements of the
   /// 'Chain::rates' array, passed in argument 1, at the rate vectors
   /// and data for this isotope.
-  /** It also sets the appropriate entry of
-      'Chain::loopRank[]' passed in the last argument.  The second
-      argument indicates the size of the arrays. */
   void copyRates(double**,const int, int*);
 
   /// This function re-initializes the elements of the 'rates' array.
-  /** It does this before retracting the chain so that they are at the 
-      correct default before advancing the chain again. */
   void delRates(double**,const int, int*);
 
   /// This function combines the current state with the information
-  /// passed in the argument to determine a new state, 
-  /** It returns this new state. */
+  /// passed in the argument to determine a new state.
   int stateEngine(int stateBits=-1);
   
   /// This function adds the next Node (either daughter or parent
   /// depending on direction of solution) for the isotope in question.
-  /** It uses the information stored in the Node object through 
-      which it is called to initialize a newly created Node object.
-	  The argument is assigned a value to indicate which rank should
-	  be tallied if/when this chain is sovled. A pointer to this new 
-	  object is returned. */  
   Node* addNext(int&);
 
   /// This function deletes the "next" node (and thus the entire
@@ -123,30 +101,16 @@ public:
 
   /// Function searches through a chain for a given rank and returns 
   /// the kza of that rank.
-  /** If the rank is greater than the chainlength, '-1' is returned. */
   int getRankKza(int);
 
   /// This function is used to determine the indexing information for
   /// the RateCache concept.
-  /** The reaction rate vector pointed to by the
-      first argument is used to determine whether the current reaction
-      is a destruction rate or a production rate.  In the former case,
-      the current node's kza value is used for the base isotope, while
-      in the latter, the parent's kza value is used for the base
-      isotope.  Based on this choice, the last three arguments are
-      assigned values for the base kza, the reaction number index (0
-      for a destruction rate), and the original number of reaction paths
-      for this base isotope.  This function is called by VolFlux::fold()
-      for use in cache processing. */
   void getRxnInfo(double*,int&,int&,int&);
 
   /// Inline function that sends information about the current node to the
   /// statistics routines for diagnostic and tree output.
-int count(double* relProd)
-
+  int count(double* relProd)
    {  
-    
-      
      if (prev)
        {
 	 nodenum= Statistics::accountNode(kza,prev->emitted[prev->pathNum-1],
@@ -159,7 +123,6 @@ int count(double* relProd)
 				       rank,state,relProd,0);
 	  return nodenum;
 	}
-
     };
 
   /// This function accesses the data library to get the decay constant
@@ -189,6 +152,7 @@ int count(double* relProd)
 
   double getWDR(int);
 
+  /// Get charged particle cross sections
   double** getCPXS(int findKZA);
 
   /// This function opens the file whose name is given in the argument

@@ -1,4 +1,4 @@
-/* $Id: VolFlux.h,v 1.14 2003-01-08 07:14:22 fateneja Exp $ */
+/* $Id: VolFlux.h,v 1.15 2003-01-13 04:34:28 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _VOLFLUX_H
@@ -19,44 +19,38 @@
 
 class VolFlux
 {
-protected:
-  static int 
-    /// The number of user-defined Flux specifications.
-    nFluxes, 
+protected: 
+  /// The number of user-defined Flux specifications.
+  static int nFluxes;
 
-    /// The number of neutron groups being used in this problem.
-    nGroups, 
+  /// The number of neutron groups being used in this problem.
+  static int nGroups; 
     
-    /// An indicator of which type of reference flux should be used for
-    /// truncation calculations.
-    refflux_type,
+  /// An indicator of which type of reference flux should be used for
+  /// truncation calculations.
+  static int refflux_type;
     
-    /// Number of charged particles in problem
-    nCP,
+  /// Number of charged particles in problem
+  static int nCP;
     
-    /// Number of charged particle energy groups
-    nCPEG;
+  /// Number of charged particle energy groups
+  static int nCPEG;
 
-  double 
-    /// Neutron flux storage
-    *nflux,
+  /// Neutron flux storage
+  double *nflux;
     
-    /// Charged particle flux storage
-    /** Alpha, Deuteron, Helium-3, Proton, Triton */
-    **CPflux;
+  /// Charged particle flux storage
+  double **CPflux;
 
-  double
-    /// Storage for Charged particle flux
-    *CPfluxStorage;
+  /// Storage for Charged particle flux
+  double *CPfluxStorage;
 
-  RateCache 
-    /// A data cache to prevent refolding the cross-sections with the
-    /// fluxes too often.  (see RateCache)
-    cache;
+  /// A data cache to prevent refolding the cross-sections with the
+  /// fluxes too often.  (see RateCache)
+  RateCache cache;
 
-  VolFlux 
-    /// A pointer to the next VolFlux object in this list.
-    *next;
+  /// A pointer to the next VolFlux object in this list.
+  VolFlux *next;
 
 public:
   /// Inline function to set number of Charged Particles
@@ -106,17 +100,12 @@ public:
     { return refflux_type; } ;
 
   /// Default Constructor
-  /** This constructor creates storage for 'flux' if 'nGroups'>0,
-    otherwise sets 'flux' to NULL.  Always sets 'next' to NULL. */
   VolFlux();
 
   /// Copy constructor 
-  /** This constructor copies 'flux' on element-by-element basis.  Sets
-      next to NULL. */
   VolFlux(const VolFlux&);
 
   /// This constructor reads the flux data from an array.
-  /** It takes the values in the array and stores them in VolFlux::Flux */  
   VolFlux(double*, double);
   
   /// This constructor reads the flux values from a file attached to the
@@ -124,35 +113,26 @@ public:
   /// argument.
   VolFlux(ifstream &, double );
    
-  
-  /** Inline destructor deletes storage for 'flux' and destroys list of
-       VolFlux objects by deleting 'next'. */
+
+  /// Inline destructor
+  /** Deletes storage for 'flux' and destroys list of VolFlux objects by
+      deleting 'next'. Also deletes CPflux*/
   ~VolFlux()
-    { delete nflux; delete next; };
+    { delete nflux; delete next; delete CPflux;};
 
   /// Overloaded assignment operator
-  /** The correct implementation of this operator must ensure that
-      previously allocated space is returned to the free store before
-      allocating new space into which to copy the object. Note that
-      'next' is NOT copied, the object will continue to be part of the
-      same list unless explicitly changed. */
   VolFlux& operator=(const VolFlux&);
 
   /// This function extends the list of flux info by passing the
   /// arguments to the VolFlux(ifstream&,double) constructor.  
-  /** The newly created object is pointed to by the 'next' of the 
-      object through which the function is called and a pointer to the
-      newly created object is returned. */
   VolFlux* read(ifstream &, double );
 
+  /// NEED COMMENT
   VolFlux* copyData(double *, double);
 
   /// This function compares the flux of the object through which it is
   /// called with the object pointed to by the argument, and sets the
   /// the reference flux. 
-  /** There are currently two options:
-        1) group-wise maximum flux, or
-        2) group-wise volume weighted average flux */
   void updateReference(VolFlux*,double);
 
   /// This function scales the fluxes but multiplying by the first 
@@ -161,20 +141,20 @@ public:
   
   /// This function takes a rate vector pointed to by the first argument
   /// and folds it with this flux, returning the scalar reaction rate.
-  /** The second argument points to the Node object associated with this
-      rate vector and will be used to determine the indexing
-      information for the RateCache (see RateCache). */
   double fold(double*,Node*);
 
   /// Inline function provides access to the 'next' object in the list.
   VolFlux* advance() {return next;};
 
+  /// Access function for the neutron flux
   double *getnflux() {return nflux;};
+
+  /// Access function for the Charged Particle flux
   double **getCPflux() {return CPflux;};
 
+  /// Function to see the Charged Particle flux
   void setCPflux(int CP, int CPEG, double value)
     {CPflux[CP][CPEG] = value;}
-
 };
 
 

@@ -1,4 +1,4 @@
-/* $Id: Flux.C,v 1.11 2002-09-25 07:22:00 wilsonp Exp $ */
+/* $Id: Flux.C,v 1.12 2003-01-13 04:34:55 fateneja Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -22,6 +22,10 @@
 extern "C" float rt2al_(double *freg, int *nInts, int *nGrps, int *skip,
 			char *fname,int *fnamelen, int *err);
 
+/** This constructor creates a blank list head when no arguments
+    are given.  Otherwise, it sets the format, flux identifier, flux
+    file name, scaling factor, and skip value, with arguments given in
+    that order. */
 Flux::Flux(int inFormat, char *flxName, char *fName, 
 	   double inScale, int inSkip) :
   format(inFormat),  skip(inSkip), scale(inScale)
@@ -46,6 +50,8 @@ Flux::Flux(int inFormat, char *flxName, char *fName,
   next = NULL;
 }
 
+/** This constructor initializes 'scale', 'skip' and 'format' and then
+    creates and fills storage for 'fluxName' and 'fileName'. */
 Flux::Flux(const Flux& f) :
   format(f.format),  skip(f.skip), scale(f.scale)
 {
@@ -69,6 +75,8 @@ Flux::Flux(const Flux& f) :
   next = NULL;
 }
 
+/** This assignmnet operator behaves similarly to the copy                        constructor. The correct implementation of this operator must ensure
+    that previously allocated space is returned to the free store before          allocating new space into which to copy the object.  It does NOT              copy 'next'. */
 Flux& Flux::operator=(const Flux& f) 
 {
   if (this == &f)
@@ -108,6 +116,8 @@ Flux& Flux::operator=(const Flux& f)
 
 /***** get flux descriptions ******/
 /* called by Input::read(...) */
+/** It returns a pointer to the new object of class Flux which has just
+    been created.  It does NOT read the actual flux information from              the file. */
 Flux* Flux::getFlux(istream& input)
 {
   char flxName[256], fName[256], type[16];
@@ -147,6 +157,8 @@ Flux* Flux::getFlux(istream& input)
 /* cross-reference the fluxes with the intervals
  * read fluxes into interval member objects */
 /* called by Input::preproc(...) */
+/** The function expects a pointer to an object of class Volume which
+    should be the head of the global interval list. */
 void Flux::xRef(Volume *volList)
 {
   Flux *ptr = this;
@@ -249,7 +261,9 @@ void Flux::xRef(Volume *volList)
  ********* Utility **********
  ***************************/
 
-/* find a requested flux definition */
+/** Returns the 0-based ordinal number of the flux in the list.
+    Special values (< 0) are returned for special cases, such as bad
+    file names or unfound flux descriptions. */
 int Flux::find(char *srchFlux)
 {
   Flux *ptr=this;
@@ -269,9 +283,6 @@ int Flux::find(char *srchFlux)
   return FLUX_NOT_FOUND;
 }
 
-
-
-/* check the flux file */
 int Flux::checkFname()
 {
   FILE* textFile = fopen(fileName,"r");
@@ -290,7 +301,6 @@ int Flux::checkFname()
  
 }
 
-/* count the number of fluxes which are defined */
 int Flux::count()
 {
   Flux *ptr=this;
@@ -304,7 +314,3 @@ int Flux::count()
 
   return fluxNum;
 }
-  
-
-
-	  

@@ -1,4 +1,4 @@
-/* $Id: Norm.h,v 1.4 2002-08-05 20:23:17 fateneja Exp $ */
+/* $Id: Norm.h,v 1.5 2003-01-13 04:34:58 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _NORM_H
@@ -22,13 +22,11 @@
 class Norm
 {
 protected:
-  double
-    /// The scalar normalization of the flux at this interval.
-    scale;
+  /// The scalar normalization of the flux at this interval.
+  double scale;
 
-  Norm*
-    /// A pointer to the next Volume object in the problem-wide list.
-    next;
+  /// A pointer to the next Volume object in the problem-wide list.
+  Norm* next;
   
 public:
   /// Default constructor

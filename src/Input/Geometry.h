@@ -1,4 +1,4 @@
-/* $Id: Geometry.h,v 1.3 2002-08-05 20:23:16 fateneja Exp $ */
+/* $Id: Geometry.h,v 1.4 2003-01-13 04:34:56 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _GEOMETRY_H
@@ -21,17 +21,15 @@
 class Geometry
 {
 protected:
-  int 
-    /// This indicates the geometry type of this problem and is based on
-    /// the definitions given below.
-    type;
+  /// This indicates the geometry type of this problem and is based on
+  /// the definitions given below.
+  int type;
 
-  double 
-    /// The minor radius of a torroidal configuraiton.
-    rMin,
+  /// The minor radius of a torroidal configuraiton.
+  double rMin;
     
-    /// The major radius of a torroidal configuraiton.
-    rMaj;
+  /// The major radius of a torroidal configuraiton.
+  double rMaj;
 
 public:
   /// Default constructor defaults to a point geometry if no argument 
@@ -58,7 +56,5 @@ public:
   /// Inline access function to geometry type.
   int getType() {return type;};
 };
-
-
 
 #endif

@@ -1,4 +1,4 @@
-/* $Id: Statistics.C,v 1.9 2001-07-23 20:02:22 wilsonp Exp $ */
+/* $Id: Statistics.C,v 1.10 2003-01-13 04:35:01 fateneja Exp $ */
 #include "Statistics.h"
 
 #include <unistd.h>
@@ -58,10 +58,7 @@ void Statistics::closeTree()
     
 }
 
-
-
-
-
+/** The current value of nodeCtr (after the incrementing) is returned. */
 int Statistics::accountNode(int kza, char* emitted, int rank, int state, 
 			     double* relProd, int parentnum)
 {
@@ -135,9 +132,7 @@ int Statistics::accountNode(int kza, char* emitted, int rank, int state,
  
 }
 
-
-
-/* routine to set cpu time */
+/** The current value of nodeCtr (after the incrementing) is returned. */
 void Statistics::cputime(float &increment, float &total)
 {
   static struct tms time0;

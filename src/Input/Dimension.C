@@ -1,4 +1,4 @@
-/* $Id: Dimension.C,v 1.3 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: Dimension.C,v 1.4 2003-01-13 04:34:55 fateneja Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -19,6 +19,8 @@
  ********* Service *********
  **************************/
 
+/** This constructor creates a blank list head with no arguments.
+    Otherwise, it sets only the type of dimension. */
 Dimension::Dimension(int dimType) :
   type(dimType),  nInts(0), nZones(0), start(0)
 {
@@ -28,6 +30,8 @@ Dimension::Dimension(int dimType) :
   next = NULL;
 }
 
+/** Copy constructor sets all scalars, but does not copy the zone
+    list or the successive dimension list. */
 Dimension::Dimension(const Dimension& d) :
   type(d.type),  nInts(d.nInts), nZones(d.nZones), start(d.start)
 {
@@ -43,6 +47,13 @@ Dimension::~Dimension()
   delete zoneListHead; 
 }  
 
+/** This assignment operator functions similarly to the copy
+    constructor.  The correct implementation of this operator must
+    ensure that previously allocated space is returned to the free
+    store before allocating new space into which to copy the object.
+    It doesn't copy the pointer or the object for zoneListHead or
+    next, but it does delete any previously existing zoneList
+    information. */
 Dimension& Dimension::operator=(const Dimension& d)
 {
   if (this == &d)
@@ -66,8 +77,11 @@ Dimension& Dimension::operator=(const Dimension& d)
  *********** Input **********
  ***************************/
 
-/* read a single dimension */
 /* called by Input::read(...) */
+/** It returns the pointer to the new object that is created.  After
+    reading which type of dimension this is, it reads the initial zone
+    boundary, followed by a list of pairs: number of intervals in the
+    zone and the zone boundary. */
 Dimension* Dimension::getDimension(istream& input)
 {
   char token[64];
@@ -137,9 +151,10 @@ Dimension* Dimension::getDimension(istream& input)
  ********* xCheck **********
  **************************/
 
-/* cross-check dimensions: 
- *  ensure that there are no duplicates and 
- * that all dimenions are in context */
+/** For all dimensions which are not explicitly defined, it pads the
+    dimension list with entries that each have one zone of unit size
+    and a single interval.  The function expects an integer describing
+    the type of geometry which has been defined for the problem. */
 void Dimension::checkTypes(int geom_type)
 {
   Dimension *ptr = this;
@@ -209,12 +224,18 @@ void Dimension::checkTypes(int geom_type)
  ********* Preproc **********
  ***************************/
 
-/* convert to a basic data type:
- *   list of zone boundaries and numbers of intervals in each zone
- *      +  zone loading pattern
- *   = list of intervals with zone membership
- * this function sets up conversion and passes it to Zone::convert(...) */
-/* called by Input::preproc(...) */
+
+/** Based on the type of geometry, the dimensions are indexed with the
+    pointers to the zoneLists, to be passed to a static member function
+    of class Zone to do the final conversion.  As arguments, this function
+    expects the pointer to the interval list, the pointer to the list
+    of material loadings, and the pointer to the geometry description.
+   
+    convert to a basic data type:
+     list of zone boundaries and numbers of intervals in each zone
+        +  zone loading pattern
+     = list of intervals with zone membership
+   this function sets up conversion and passes it to Zone::convert(...) */
 void Dimension::convert(Volume* volList, Loading *loadList, Geometry *geom)
 {
   int numDims = 0;
@@ -268,7 +289,7 @@ void Dimension::convert(Volume* volList, Loading *loadList, Geometry *geom)
  ********* Utility **********
  ***************************/
 
-/* search for a dimension of given type */
+/** The argument specifies the type of dimension being searched for. */
 Dimension* Dimension::find(int srchType)
 {
 
@@ -306,7 +327,3 @@ int Dimension::totZones()
 
   return numZones;
 }
-  
-
-
-

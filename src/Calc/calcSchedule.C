@@ -1,4 +1,4 @@
-/* $Id: calcSchedule.C,v 1.7 2002-12-27 03:37:29 wilsonp Exp $ */
+/* $Id: calcSchedule.C,v 1.8 2003-01-13 04:34:29 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Preproc: functions directly related to preprocessing of input
@@ -175,7 +175,9 @@ calcSchedule& calcSchedule::operator=(const calcSchedule& c)
  * The new schedule has the same properties as the sub-item
  * EXCEPT, the delay of the original schedule and a history
  * made by merging the original schedule's history with the 
- * sub-item's history. */
+ * sub-item's history.
+   See point (4.) above for more details on the collapsing
+   algorithm. */
 void calcSchedule::collapse()
 {
   int itemNum;
@@ -207,7 +209,10 @@ void calcSchedule::collapse()
 /***************************
  ******** Solution *********
  **************************/
-
+/** After confirming that this schedule has not already been
+    processed, the decay matrix 'D' for this schedule is set,
+    PulseHistory::setDecay(...) is called on this calcSchedule's
+    'history' member, and the recursion takes place. */
 void calcSchedule::setDecay(Chain* chain)
 {
   int itemNum;
@@ -226,7 +231,9 @@ void calcSchedule::setDecay(Chain* chain)
   
 }
 
-
+/** This small code segment is separated out of setT(...) to allow
+    it to be called through a topSchedule derived class object
+    and still access the appropriate members. */
 void calcSchedule::setSubTs(Chain* chain, calcScheduleT *schedT)
 {
   int itemNum=0;
@@ -240,6 +247,12 @@ void calcSchedule::setSubTs(Chain* chain, calcScheduleT *schedT)
     }
 }
 
+/** If compound schedule, setSubTs(...) is called to recurse and build
+    master transfer matrix. If single pulse (end state of recursion),
+    'Chain::fillTMat(...)' is called to fill the 'opBlockT' transfer
+    matrix.  Following this, the pulsing history is applied to fill
+    'calcScheduleT::histT' and then the final delay on the schedule is
+    applied to fill 'calcScheduleT::totalT'. */
 void calcSchedule::setT(Chain* chain, calcScheduleT *schedT)
 {
   if (nItems>0)

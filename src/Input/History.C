@@ -1,4 +1,4 @@
-/* $Id: History.C,v 1.3 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: History.C,v 1.4 2003-01-13 04:34:56 fateneja Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -19,6 +19,10 @@
 /***************************
  ********* Service *********
  **************************/
+/** This constructor creates a blank list head with no arguments.
+    Otherwise, it sets the name of the history and initializes the
+    pulse level list with a head item.  Other pointers are set to
+    NULL. */
 History::History(char* name)
 {
   histName = NULL;
@@ -37,6 +41,10 @@ History::History(char* name)
   next = NULL;
 }
 
+/** This constructor is identical to the default constructor.  While
+    the name is copied, the pulse level list is initialized with a new
+    list head, but neither the pulsing information nor the 'calcHist'
+    pointer are copied! */
 History::History(const History& h)
 {
   histName = NULL;
@@ -55,6 +63,9 @@ History::History(const History& h)
   next = NULL;
 }
 
+/** Destructor deletes the storage for 'histName' and deletes the
+    pulsing information list.  It then destroys the rest of the list
+    by deleting 'next'. */
 History::~History()
 { 
   delete histName; 
@@ -62,6 +73,14 @@ History::~History()
   delete next;
 }  
 
+/** This assignment operator behaves the similarly to the copy
+    constructor.  Even though new puleList and calcHist information is
+    not copied from the righ hand side, the old values are deleted.
+    The correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object. Note that
+    'next' is NOT copied, the left hand side object will continue to
+    be part of the same list unless explicitly changed. */
 History& History::operator=(const History& h)
 {
   if (this == &h)
@@ -93,6 +112,9 @@ History& History::operator=(const History& h)
 
 /* get a single pulsing history */
 /* called by Input::read(...) */
+/** After reading the descriptive name of the history, it read the
+    pulsing level information into the pulsing level list.  Returns a
+    pointer to the newly created History object. */
 History* History::getHistory(istream& input)
 {
   char name[256], token[64];
@@ -130,6 +152,11 @@ History* History::getHistory(istream& input)
 
 /* convert the histories as input into useful objects */
 /* called by Input::preproc(...) */
+/** This function is called through the object at the head of the history
+    list. It acts on the entire history list, one at a time, and should
+    be called through the head of the history list. It calls
+    PulseLevel::makeHistory() through the head of the pulse level
+    list. */
 void History::makeHistories()
 {
 
@@ -153,8 +180,9 @@ void History::makeHistories()
  ********* Utility **********
  ***************************/
 
-/* find a requested pulse history definition */
-History* History::find(char *srchHist)
+/** If found, a pointer to that history is returned, and if not,
+    NULL. */
+ History* History::find(char *srchHist)
 {
   History *ptr=this;
 
@@ -167,6 +195,3 @@ History* History::find(char *srchHist)
 
   return NULL;
 }
-
-
-

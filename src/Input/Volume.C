@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.32 2003-01-08 07:17:22 fateneja Exp $ */
+/* $Id: Volume.C,v 1.33 2003-01-13 04:34:59 fateneja Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -60,6 +60,10 @@ void Volume::deinit()
   delete [] outputList;
 }  
 
+/** This constructor always call init.  When called without arguments,
+    the default constructor creates a blank list with no problem data.
+    Otherwise, it sets the volume of the interval, and creates and
+    fills the storage for 'zoneName'. */
 Volume::Volume(double vol, char *name)
 {
   init();
@@ -76,6 +80,10 @@ Volume::Volume(double vol, char *name)
 
 }
 
+/** This is identical to default constructor, the first argument used
+    as the volume and accessing the name of the zone from the second
+    argument, a pointer to the zone where this interval is located.
+    The 'zonePtr' is then initialized with this second argument. */
 Volume::Volume(double vol, Loading *loadPtr)
 {
   init();
@@ -93,6 +101,9 @@ Volume::Volume(double vol, Loading *loadPtr)
 
 }
 
+/** This constructor starts by calling init(), and then copies the
+    'volume', 'norm', 'zonePtr', 'mixPtr', and 'zoneName' from the
+    passed argument. */
 Volume::Volume(const Volume& v)
 {
   init();
@@ -141,6 +152,11 @@ Volume::~Volume()
   delete next; 
 }
 
+/** This assignment operator first calls deinit() and init() to
+    reinitialize its storage.  It then behaves similarly to the copy
+    constructor.  Note that 'next' and 'mixNext' are NOT copied, the
+    left hand side object will continue to be part of the same list
+    unless explicitly changed. */
 Volume& Volume::operator=(const Volume& v)
 {
   if (this == &v)
@@ -170,8 +186,7 @@ Volume& Volume::operator=(const Volume& v)
  *********** Input **********
  ***************************/
 
-/****** get a list of interval volumes ********/
-/* called by Input::read(...) */
+/** It extends the linked list until reaching the keyword "end". */
 void Volume::getVolumes(istream& input)
 {
   char token[64],name[64];
@@ -202,9 +217,9 @@ void Volume::getVolumes(istream& input)
  ********* xCheck **********
  **************************/
 
-/* cross-check interval volumes for defined zones in material loading
- * when found, set the zonePtr to the zone Definition */
-/* called by Input::xCheck(...) */
+/** When intervals are specified in the input file (as opposed to
+    being calculated by the code), zones are given in the input. When
+    the referenced zone is found, the 'zonePtr' member is set. */
 void Volume::xCheck(Loading *loadList)
 {
   Volume *ptr=this;
@@ -229,10 +244,12 @@ void Volume::xCheck(Loading *loadList)
  ********* Preproc **********
  ***************************/
 
-/* given the size and order of an interval's dimensions,
- * create an interval object (Volume) based on the geometry type
- * and the material loading of this zone */
-/* called by Zone::convert(...) */
+/** The coordinates of the inside corner of the interval are specified
+    in the first argument with the dimensions of the interval in the
+    second.  The third argument specifies the order in which the first
+    two arguments should be interpreted.  The fourth argument is used
+    to determine the type of geometry and the fifth for
+    cross-referencing the newly generated interval with a zone. */
 Volume* Volume::calculate(double *da, double *dx, int *coord, 
 			      Geometry* geom, Loading *loadPtr)
 {
@@ -280,8 +297,12 @@ Volume* Volume::calculate(double *da, double *dx, int *coord,
      
 }
 
-/* cross-reference intervals with mixture definitions */
-/* called by Input::preproc(...) */
+/** This is technically redundant once the zone's have been
+    cross-referenced, but is prevents too many look-ups later in the
+    code.  The 'mixPtr' pointer is set following a lookup on the list
+    pointed to by the first argument.  The 'this' pointer is then
+    passed to the object pointed to by 'mixPtr' to reference it the
+    other way. */
 void Volume::xRef(Mixture *mixListHead)
 {
 
@@ -308,7 +329,6 @@ void Volume::xRef(Mixture *mixListHead)
     }
 }
 
-/* cross-reference intervals with normalizations */
 void Volume::xRef(Norm *normList)
 {
   Volume *ptr=this;
@@ -334,8 +354,9 @@ void Volume::xRef(Norm *normList)
 
 }
 
-/* extend list of intervals in a mixture list */
-/* called by Mixture:xRef(...) */
+/** Volume::xRef(Mixture*) passes its 'this' pointer to a Mixture
+    object which immediately passes it back to a different Volume
+    object, that mixture's volList pointer, as the base of this call. */
 void Volume::addMixList(Volume* ptr)
 {
   Volume *volList = this;
@@ -380,6 +401,8 @@ void Volume::addMixList(Volume* ptr)
 
 // }
 
+/** It scales the values by the third argument, and skips some values
+    according to the second argument. */
 void Volume::storeMatrix(double** fluxMatrix, double scale)
 {
   Volume *ptr = this;
@@ -395,8 +418,9 @@ void Volume::storeMatrix(double** fluxMatrix, double scale)
 
 
 
-/* setup the hierarchy of storage for transfer matrices */
-/* called by Input::preProc(...) */
+/** The first argument points to the problem schedule
+    hierarchy so that the correct storage space hierarchy can be
+    initialized. */
 void Volume::makeSchedTs(topSchedule *top)
 {
   Volume* ptr = this;
@@ -423,7 +447,9 @@ void Volume::makeSchedTs(topSchedule *top)
  ********* Solution **********
  ****************************/
 
-/* set reference flux */
+/** For each interval in the mixture list, the reference flux (part of
+    the Volume pointed to by the first argument) is compared with the
+    interval's flux and updated if necessary. */
 void Volume::refFlux(Volume *refVolume)
 {
   Volume* ptr= this;
@@ -442,7 +468,10 @@ void Volume::refFlux(Volume *refVolume)
 
 }
 
-/* solve the chain at a single interval */
+/** Argument 1 is the chain, and agument 2 is the master schedule.
+    The chain is folded with the fluxes to get scalar rates, the
+    transfer matrices are set (which generates the solution), and the
+    results are tallied. */
 void Volume::solve(Chain* chain, topSchedule* schedule)
 {
   Volume* ptr= this;
@@ -460,6 +489,8 @@ void Volume::solve(Chain* chain, topSchedule* schedule)
     }  
 }
 
+/** It calls writeDump() for each interval in the mixture's list of
+    intervals. */
 void Volume::writeDump()
 {
   Volume* ptr= this;
@@ -473,7 +504,9 @@ void Volume::writeDump()
     }
 }
 
-/* solve the chain at a single interval */
+/** Instead, the topSchedule storage pointer 'schedT' is returned in
+    order to extract an array of relative productions at the various
+    cooling times. */
 topScheduleT* Volume::solveRef(Chain* chain, topSchedule* schedule)
 {
   /* collapse the rates with the flux */
@@ -489,6 +522,9 @@ topScheduleT* Volume::solveRef(Chain* chain, topSchedule* schedule)
  ********* PostProc **********
  ****************************/
 
+/** It calls readDump() for each interval in this mixture's list of
+    intervals, and then tallies those results to the various lists of
+    results. */
 void Volume::readDump(int kza)
 {
   Volume* ptr= this;
@@ -558,6 +594,14 @@ void Volume::postProc()
 }
 
 
+/** The first argument indicates which kind of response is being
+    written, the second indicates whether a mixture component breakdown
+    was requested, and the third points to the list of after-shutdown
+    cooling times.  The fourth argument indicates the kza of the target
+    isotope for a reverse calculation and is simply passed on the the
+    Result::write().  The final argument indicates what type of
+    normalization is being used, so that the correct output information
+    can be given. */
 void Volume::write(int response, int writeComp, CoolingTime* coolList, 
 		   int targetKza, int normType)
 {
@@ -729,6 +773,8 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 }
 
 
+/** It does this because the results are not cummulative across subsequent
+    targets. */
 void Volume::resetOutList()
 {
   int compNum;

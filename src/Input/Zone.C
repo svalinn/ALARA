@@ -1,4 +1,4 @@
-/* $Id: Zone.C,v 1.3 2000-01-17 16:57:38 wilson Exp $ */
+/* $Id: Zone.C,v 1.4 2003-01-13 04:35:00 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -19,6 +19,10 @@
  **************************/
 
 
+/** The correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object.  It does NOT
+    copy 'next'. */
 Zone& Zone::operator=(const Zone& z)
 {
   if (this == &z)
@@ -35,9 +39,7 @@ Zone& Zone::operator=(const Zone& z)
  *********** Input **********
  ***************************/
 
-/* Add a zone boundary */
-/* called by Dimension::getDimension(...) AND
- *        by Dimension::checkTypes(...) */
+/** It returns a pointer to the newly created zone. */
 Zone* Zone::addZone(int ints, double bound)
 {
   next = new Zone(bound,ints);
@@ -53,12 +55,13 @@ Zone* Zone::addZone(int ints, double bound)
  ********* Preproc **********
  ***************************/
 
-/* with setup arguments from Dimension::convert(...)
- * convert:
- *   list of zone boundaries and numbers of intervals in each zone
- *      +  zone loading pattern
- *   = list of intervals with zone membership */
-/* called by Dimension::convert(...) */
+/** It does this following setup for calculation of interval volumes
+    in Dimension::convert(...). Volume::convert(...) actually
+    calculates the volume and generates the Volume object.  The
+    arguments are, respsectively, the coordinates of the starting
+    point, the ordering of the coordinates, the pointers to the
+    appropriate zoneLists, the problem geometry, the list of problem
+    material loadings and the problem's list of intervals. */
 void Zone::convert(double *start, int *coord, Zone **zoneStart, 
 		   Geometry *geom, Loading *loadList, Volume *volList)
 {
@@ -172,7 +175,6 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
  ********* Utility **********
  ***************************/
 
-/* count number of zones in a single dimension */
 int Zone::numZones()
 {
   int numZones = 0;
@@ -187,7 +189,6 @@ int Zone::numZones()
   return numZones;
 }
 
-/* count the number of intervals in a single dimension */
 int Zone::numInts()
 {
   int nmInts = 0;

@@ -1,4 +1,4 @@
-/* $Id: Root.C,v 1.14 2001-12-06 19:25:22 wilsonp Exp $ */
+/* $Id: Root.C,v 1.15 2003-01-13 04:34:52 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -18,6 +18,8 @@
 /****************************
  ********* Service **********
  ***************************/
+/** Invokes default constructor of base class Node, and sets 'mixList'
+    and 'next' to NULL. */
 Root::Root() : 
   Node() 
 { 
@@ -25,6 +27,9 @@ Root::Root() :
   mixList = NULL;
 }
 
+/** Invokes copy constructor for base class Node and copies pointer
+    'mixList', ie. new mixList points to old mixList, and NOT a copy of the
+    mixList. 'next' = NULL. */
 Root::Root(const Root& r) : 
   Node(r) 
 { 
@@ -32,6 +37,10 @@ Root::Root(const Root& r) :
   mixList=r.mixList; 
 };
 
+/** Invoks a copy constructor of base class Node with the dereferenced
+    first argument and then copying the 'mixList' pointer (see note for
+    copy constructor above).  The 'next' pointer is set to the second
+    argument. */
 Root::Root(Root* cpyRoot, Root* nxtPtr) :
   Node(*cpyRoot)
 {
@@ -58,6 +67,7 @@ Root::Root(char* isoName, double isoDens, Mixture* mix,Component* comp) :
 /* The guts of the solution start here */
 /* solve the entire tree for all the roots */
 /* called by alara::main(...) */
+
 void Root::solve(topSchedule *schedule)
 {
   Root* ptr=this;
@@ -114,8 +124,6 @@ void Root::solve(topSchedule *schedule)
 
       ptr = ptr->nextRoot;
     }
-
-
 }
 
 
@@ -123,6 +131,8 @@ void Root::solve(topSchedule *schedule)
  ********* PostProc **********
  ****************************/
 
+/** It returns a pointer to that target isotope and the 'kza' value for
+    that target in the first argument. */
 Root* Root::readSingleDump(int& getKza)
 {
   Root *ptr=this;
@@ -172,7 +182,7 @@ Component* Root::getComp(double &density, Mixture *mix, Component *lastComp)
  ********* Utility **********
  ***************************/
 
-/* search for a particular kza in a root list */
+/** It returns the pointer to the matched object, or NULL if no match. */
 Root* Root::find(int srchKza)
 {
   Root* ptr = this;
@@ -192,14 +202,11 @@ Root* Root::find(int srchKza)
 }
 
 
-/* search list of mixtures and find maximum relative concentration */
 double Root::maxConc()
 {
   return mixList->maxConc();
 }
 
-/* search lost of mixtures to find all components for this
-   mixture and sum their densities */
 double Root::mixConc(Mixture *mixPtr)
 {
   return mixList->mixConc(mixPtr);
@@ -210,9 +217,11 @@ double Root::mixConc(Mixture *mixPtr)
  *********** List ************
  ****************************/
 
-/* add a root to the list:
- *  - the root may be added at the head, in which case
- *    a new head is returned */
+/** It has already been established that this isotope does not occur
+    in the list, therefore, it always results in a new object.  The
+    new object may be inserted at the front of the list, in the middle
+    of the list or at the end of the list. If the root is added to the head,
+    a new head is returned. */
 void Root::add(Root* addRoot)
 {
   Root* prevRoot = NULL;
@@ -241,7 +250,10 @@ void Root::add(Root* addRoot)
 
 }
 
-/* merge two lists */
+/** For each root in the new list, it if does not exist in the list,
+    it is added with add(...).  If it does already exist, its
+    mixture/component reference are added with
+    MixCompRef::tally(...). */
 Root* Root::merge(Root* rootList)
 {
   Root* head = this;

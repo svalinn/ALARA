@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.h,v 1.17 2002-12-02 20:36:13 varuttam Exp $ */
+/* $Id: OutputFormat.h,v 1.18 2003-01-13 04:35:01 fateneja Exp $ */
 #include "alara.h"
 #include <set>
 
@@ -28,54 +28,48 @@ class OutputFormat
 {
 protected:
 
-  int 
-    /// This indicates the geometrical resolution of this output
-    /// definition.
-    /** I.e. whether it should print the interval, zone or
-        mixture results. */
-    resolution, 
+  /// This indicates the geometrical resolution of this output
+  /// definition.
+  /** I.e. whether it should print the interval, zone or
+      mixture results. */
+  int resolution;
+  
+  /// This is used as a bit-field
+  /** It combins a number of predefined (Output_def.h) bits which 
+      indicate particular kinds of output responses or other 
+      information. */
+  int outTypes;
+
+  /// This is used to store which kind of normalization (mass vs volume,
+  /// including metric prefix) is being used for this output block.
+  int normType;
+
+  /// This STL set is used to store a unique list of filenames.    
+  filenameList wdrFilenames;
+
+  /// This string is used in output to display which activity units the
+  /// results are being shown in (Ci vs. Bq).
+  char *actUnits;
     
-    /// This is used as a bit-field
-    /** It combins a number of predefined (Output_def.h) bits which 
-        indicate particular kinds of output responses or other 
-        information. */
-    outTypes, 
-    
-    /// This is used to store which kind of normalization (mass vs volume,
-    /// including metric prefix) is being used for this output block.
-    normType;
+  /// This string is used in output to display which normalization units
+  /// the results are being shown in (cm3 v. m3 v. g v. kg).
+  char *normUnits;
 
-  filenameList 
-    /// This STL set is used to store a unique list of filenames.    
-    wdrFilenames;
+  /// This stores the multiplication factor for the activity units.  
+  /** If necessary (based on actUnits), it will store the conversion
+      between Ci and Bq. */
+  double actMult;
 
-  char 
-    /// This string is used in output to display which activity units the
-    /// results are being shown in (Ci vs. Bq).
-    *actUnits, 
-    
-    /// This string is used in output to display which normalization units
-    /// the results are being shown in (cm3 v. m3 v. g v. kg).
-    *normUnits;
-
-  double 
-    /// This stores the multiplication factor for the activity units.  
-    /** If necessary (based on actUnits), it will store the conversion
-        between Ci and Bq. */
-    actMult;
-
-  GammaSrc 
-    /// NEED COMMENT
-    *gammaSrc, 
+  /// NEED COMMENT
+  GammaSrc *gammaSrc;
     
     // NEED COMMENT
-    *contactDose,
+  GammaSrc *contactDose;
 
-    *adjointDose;
+  GammaSrc *adjointDose;
  
-  OutputFormat 
-    /// The next object in the linked-list.
-    *next;
+  /// The next object in the linked-list.
+  OutputFormat *next;
 
 public:
   /// Default constructor

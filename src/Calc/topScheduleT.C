@@ -1,4 +1,4 @@
-/* $Id: topScheduleT.C,v 1.4 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: topScheduleT.C,v 1.5 2003-01-13 04:34:30 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -18,6 +18,11 @@
 
 int topScheduleT::nCoolingTimes = 0;
 
+/** This constructor invokes the equivalent base class constructor
+    calcScheduleT(calcSchedule*).  In addition, if no argument is
+    given, it sets 'coolT' to NULL, otherwise, it creates and
+    initializes storage for 'nCoolingTimes' Matrix objects.  See
+    calcSchedule(calcSchedule*) for more information. */
 topScheduleT::topScheduleT(topSchedule *top) :
   calcScheduleT(top)
 {
@@ -30,7 +35,12 @@ topScheduleT::topScheduleT(topSchedule *top) :
     }
 
 };
-  
+
+/** This constructor invokes the equivalent base class constructor
+    calcScheduleT(const calcScheduleT&).  If the number of
+    cooling times is defined, it then copies each of the individual
+    transfer matrices.  As such, it recursively copies the transfer
+    matrices of an entire schedule. */
 topScheduleT::topScheduleT(const topScheduleT &t) :
   calcScheduleT(t)
 {
@@ -46,6 +56,11 @@ topScheduleT::topScheduleT(const topScheduleT &t) :
     }
 }
 
+/** This assignment operator behaves similarly to the copy
+    constructor, but instead of calling the base class constructor, it
+    as code copied from that class' assignment operator.  As with all
+    assignment operators in ALARA, care must be taken to free dynamic
+    memory before creating new memory for copying into. */
 topScheduleT& topScheduleT::operator=(const topScheduleT &t)
 {
 

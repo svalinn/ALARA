@@ -1,4 +1,4 @@
-/* $Id: VolFlux.C,v 1.14 2003-01-08 07:14:22 fateneja Exp $ */
+/* $Id: VolFlux.C,v 1.15 2003-01-13 04:34:28 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -20,6 +20,8 @@ int VolFlux::refflux_type = REFFLUX_MAX;
 int VolFlux::nCP = 0;
 int VolFlux::nCPEG = 0;
 
+/** This constructor creates storage for 'flux' if 'nGroups'>0,
+    otherwise sets 'flux' to NULL.  Always sets 'next' to NULL. */
 VolFlux::VolFlux()
 {
   nflux = NULL;
@@ -57,6 +59,8 @@ VolFlux::VolFlux()
   next = NULL;
 }
 
+/** This constructor copies 'flux' on element-by-element basis.  Sets
+    next to NULL. */
 VolFlux::VolFlux(const VolFlux& v)
 {
   nflux = NULL;
@@ -132,6 +136,7 @@ VolFlux::VolFlux(ifstream &fluxFile, double scale)
   
 }
 
+/** It takes the values in the array and stores them in VolFlux::Flux */
 VolFlux::VolFlux(double* fluxData, double scale)
 {
   int grpNum;
@@ -172,6 +177,11 @@ VolFlux::VolFlux(double* fluxData, double scale)
   next = NULL;
 }
 
+/** The correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object. Note that
+    'next' is NOT copied, the object will continue to be part of the
+    same list unless explicitly changed. */
 VolFlux& VolFlux::operator=(const VolFlux& v)
 {
   if (this == &v)
@@ -216,7 +226,9 @@ VolFlux& VolFlux::operator=(const VolFlux& v)
 /****************************
  ********* Input ************
  ***************************/
-
+/** The newly created object is pointed to by the 'next' of the
+    object through which the function is called and a pointer to the
+    newly created object is returned. */
 VolFlux* VolFlux::read(ifstream &fluxFile, double scale)
 {
   next = new VolFlux(fluxFile,scale);
@@ -234,7 +246,9 @@ VolFlux* VolFlux::copyData(double *fluxData, double scale)
 /****************************
  ******** Solution **********
  ***************************/
-
+/** There are currently two options:
+        1) group-wise maximum flux, or
+        2) group-wise volume weighted average flux */
 void VolFlux::updateReference(VolFlux *compFlux, double volWeight)
 {
   int gNum;
@@ -293,7 +307,9 @@ void VolFlux::scale(double scaleVal)
   }
 }
 
-
+/** The second argument points to the Node object associated with this
+    rate vector and will be used to determine the indexing information
+    for the RateCache (see RateCache). */
 double VolFlux::fold(double* rateVec, Node* nodePtr)
 {
   int grpNum;

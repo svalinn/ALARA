@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.29 2003-01-08 07:17:21 fateneja Exp $ */
+/* $Id: Mixture.C,v 1.30 2003-01-13 04:34:57 fateneja Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -29,6 +29,11 @@
  ********* Service *********
  **************************/
 
+/** When called without arguments, the default constructor creates a
+    blank list head with no problem data.  Otherwise, it creates and
+    fills the storage for 'mixName', initializes a new component list
+    and volume list, and sets the 'rootList' and 'next' pointer to
+    NULL. */
 Mixture::Mixture(char *name)
 {
   volume = 0;
@@ -58,6 +63,9 @@ Mixture::Mixture(char *name)
   next = NULL;
 }
 
+/** This constructor copies 'volume' and 'mixName', and initializes
+    'compListHead', 'targetCompListHead', and 'volList', setting other
+    variables to NULL. */
 Mixture::Mixture(const Mixture &m)
 {
   volume = m.volume;
@@ -87,6 +95,9 @@ Mixture::Mixture(const Mixture &m)
   next = NULL;
 }
 
+/** Destructor deletes storage for 'mixName', component list
+    and rootList, but not the interval list.  It then destroys the
+    rest of the mixture list by deleting 'next'. */
 Mixture::~Mixture()
 { 
   delete mixName; 
@@ -102,6 +113,13 @@ Mixture::~Mixture()
   delete problemRangesStorage;
 }
 
+/** This assignment operator behaves similarly to the copy
+    constructor.  The correct implementation of this operator must
+    ensure that previously allocated space is returned to the free
+    store before allocating new space into which to copy the
+    object. Note that 'next' is NOT copied, the left-hand-side object
+    will continue to be part of the same list unless explicitly
+    changed. */
 Mixture& Mixture::operator=(const Mixture &m)
 {
 
@@ -151,8 +169,8 @@ Mixture& Mixture::operator=(const Mixture &m)
  *********** Input *********
  ***************************/
 
-/* get each mixture and add components */
-/* called by Input::read(...) */
+/** It reads each Component in the list up to keyword 'end', and returns
+    a pointer to the newly created Mixture object. */
 Mixture* Mixture::getMixture(istream &input)
 {
   char name[256], token[64];
@@ -242,9 +260,11 @@ Mixture* Mixture::getMixture(istream &input)
  ********* xCheck **********
  **************************/
 
-/* cross-check mixtures internally: 
- *  ensure that all referenced mixtures exist */
-/* called by Input::xCheck(...) */
+/** It does this by ensuring that each named Mixture referenced in a
+    component of type COMP_SIM exists in the list of mixtures.  If an
+    inconsitency is found, an error results.  This should be called through
+    the head of the mixture list as it internally loops through each of the
+    Mixture list elements. */
 void Mixture::xCheck()
 {
   Mixture *head = this;
@@ -279,8 +299,11 @@ void Mixture::xCheck()
  ********* Preproc **********
  ***************************/
 
-/* search material loading and similarity components for mixture definition */
-/* called by Input::preproc(...) */
+/** Once copySim() is complete, if a Mixture is not referenced in a
+    material Loading, a warning is generated and the Mixture is
+    deleted.  This loops internally through all the Mixture elements,
+    and should be called through the head to the Mixture list with
+    the head of the Loading list as its argument. */
 void Mixture::removeUnused(Loading *loadList)
 {
   Mixture *head = this;
@@ -315,9 +338,7 @@ void Mixture::removeUnused(Loading *loadList)
   verbose(3,"Mixture list has been cleaned up and 'similar' constituents expanded.");
 }
 
-
-/* copy mixture definition to similar components */
-/* called by Mixture::removeUnused(...) */
+/** This is called by removeUnused() (above) once for each Mixture. */
 void Mixture::copySim(Mixture *cpyPtr)
 {
   Mixture *ptr = this;
@@ -347,18 +368,20 @@ void Mixture::copySim(Mixture *cpyPtr)
   verbose(4,"All constituents similar to %s have been replaced.", cpyPtr->mixName);
 }
 
-
-/* cross-referencing mixtures and intervals:
- * add an interval to the list of intervals */
-/* called by Volume::xRef(Mixture*) */
+/** It does this by adding the Volume referenced in the only argument to
+    the list of intervals. This is done by simply passing this reference
+    back to a function of the Volume list head object, if the list has begun\
+,
+otherwise, setting the Volume list head to point to this same object. */
 void Mixture::xRef(Volume *volPtr)
 {
   volList->addMixList(volPtr);
 }
 
-
-/* make a list of root isotopes for this mixture */
-/* called by Input::preproc(...) */
+/** This function should be called through the head of the Mixture
+    list. As each rootList is created, it is merged with the
+    top-level/master root list, massed by reference to point as the only
+    argument. */
 void Mixture::makeRootList(Root *&masterRootList)
 {
   Mixture *ptr = this;
@@ -397,16 +420,21 @@ void Mixture::makeRootList(Root *&masterRootList)
  ********* Solution *********
  ***************************/
 
+/** The reference flux contained in this volume is checked and updated
+    against each interval. */
 void Mixture::refFlux(Volume *refVolume)
 {
   volList->refFlux(refVolume);
 }
 
+/** The chain is solved on the schedule for each interval. */
 void Mixture::solve(Chain* chain, topSchedule* schedule)
 {
   volList->solve(chain,schedule);
 }
 
+/** This starts the process of writing the dump file using the list of
+    intervals which contain this mixture. */
 void Mixture::writeDump()
 {
   volList->writeDump();
@@ -421,6 +449,9 @@ void Mixture::readDump(int kza)
   volList->readDump(kza);
 }
 
+/** The tallying is weighted by the second argument.  This is used to
+    tally the results of each interval in to the total mixture results,
+    weighted by the interval volume. */
 void Mixture::tally(Result *volOutputList, double vol)
 {
   int compNum;
@@ -432,6 +463,14 @@ void Mixture::tally(Result *volOutputList, double vol)
   volOutputList[compNum].postProc(outputList[compNum],vol);
 }
 
+/** The first argument indicates which kind of response is
+    being written, the second indicates whether a mixture component
+    breakdown was requested, and the third points to the list of
+    after-shutdown cooling times. The fourth argument indicates the
+    kza of the target isotope for a reverse calculation and is simply
+    passed on the the Result::write().  The final argument indicates
+    what type of normalization is being used, so that the correct
+    output information can be given. */
 void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 		    int targetKza, int normType)
 {
@@ -698,6 +737,12 @@ void Mixture::setGammaAttenCoef(int nGroups, ifstream& gAttenData)
  ********* Utility **********
  ***************************/
 
+/** It does this with 'kza' by matching the first argument, and then by
+    searching that object's MixCompRef references for the next component of
+    this mixture that contains this root. The last match is indicated by the
+    third argument (and the 'this' pointer).  The reference argument
+    (double&) is updated with the density of the root isotope in the
+    appropriate component, when the match is found. */
 Component* Mixture::getComp(int kza,double &density, Component *lastComp)
 {
   Root *root = rootList->find(kza);
@@ -717,7 +762,8 @@ int Mixture::getCompNum(Component* compPtr)
 
 }
 
-/* find a named mixture in the list */
+/** The name is passed as the only argument.  If found, a pointer to the
+    appropriate Mixture object is returned, otherwise, NULL. */
 Mixture* Mixture::find(char* srchName)
 {
 
@@ -733,7 +779,6 @@ Mixture* Mixture::find(char* srchName)
   return NULL;
 }
 
-/* reset the output list in this mixture */
 void Mixture::resetOutList()
 {
   int compNum;
@@ -748,6 +793,8 @@ void Mixture::resetOutList()
     }
 }
 
+/** This function will store the ranges in the probleRanges member
+    variable */
 void Mixture::calcMixRange()
 {
   // Get data from VolFlux class
@@ -843,6 +890,7 @@ void Mixture::calcMixRange()
   return;
 }
 
+/** Store values in Gvalues member variable */
 void Mixture::calcGvalues()
 {
   // Calculate mixture range

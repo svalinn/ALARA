@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.24 2002-09-23 16:50:16 varuttam Exp $ */
+/* $Id: Loading.C,v 1.25 2003-01-13 04:34:57 fateneja Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -24,6 +24,10 @@
  ********* Service *********
  **************************/
 
+/**  When called with no arguments, it creates an blank list head with
+     no problem data.  Otherwise, it creates and fills the storage for
+     'zoneName' ,'mixName', 'uservol', 'buservol' and initializes next to
+     NULL */
 Loading::Loading(char *name, char *mxName, bool Buservol, double Uservol)
 {
   volume = 0;
@@ -56,6 +60,10 @@ Loading::Loading(char *name, char *mxName, bool Buservol, double Uservol)
 
 }
 
+/** This constructor is identical to default constructor.  Therefore,
+    'zoneName' and 'mixName' are copied, but the 'outputList' and
+    'total' are initialized to NULL successive list item 'next' is
+    not. */
 Loading::Loading(const Loading &l)
 {
   volume = l.volume;
@@ -95,6 +103,13 @@ Loading::~Loading()
   delete next; 
 }
 
+/** This assignment operator behaves similarly to the copy
+    constructor.  The correct implementation of this operator must
+    ensure that previously allocated space is returned to the free
+    store before allocating new space into which to copy the
+    object. Note that 'next' is NOT copied, the left hand side object
+    will continue to be part of the same list unless explicitly
+    changed. */
 Loading& Loading::operator=(const Loading &l)
 {
   if (this == &l)
@@ -143,6 +158,9 @@ Loading& Loading::operator=(const Loading &l)
 
 /******* get a list of material loadings *******/
 /* called by Input::read(...) */
+/** The material loadings are expected to appear as a single group
+    in the correct order.  This function reads from the first loading
+    until keyword 'end'. */
 void Loading::getMatLoading(istream& input)
 {
   char name[64],token[64],usv[64];
@@ -193,6 +211,8 @@ bool isusv(char* Usv)
 }
 /******* get a list of material loadings *******/
 /* called by Input::read(...) */
+/** These lists are cross-referenced with the  master list in
+    xCheck(). */
 void Loading::getSolveList(istream& input)
 {
   char token[64];
@@ -219,8 +239,10 @@ void Loading::getSolveList(istream& input)
  ********* xCheck **********
  **************************/
 
-/* cross-check loading: ensure that all referenced mixtures exist */
 /* called by Input::xCheck(...) */
+/** If a mixture does not exist, it will generate an error and the
+    program will halt.  The argument is a pointer to a Mixture object,
+    and should be the head of the mixture list. */
 void Loading::xCheck(Mixture *mixListHead, Loading *solveList, Loading *skipList)
 {
   Loading *ptr = this;
@@ -264,6 +286,9 @@ void Loading::xCheck(Mixture *mixListHead, Loading *solveList, Loading *skipList
  ********* PostProc **********
  ****************************/
 
+/** The tallying is weighted by the second argument.  This is used to
+    tally the results of each interval in to the total zone results,
+    weighted by the interval volume. */
 void Loading::tally(Result *volOutputList, double vol)
 {
   int compNum;
@@ -278,6 +303,14 @@ void Loading::tally(Result *volOutputList, double vol)
 }
 
 
+/** The first argument indicates which kind of response is being
+    written and the second indicates whether a mixture component
+    breakdown was requested.  The third argument points to the list of
+    after-shutdown cooling times.  The fourth argument indicates the
+    kza of the target isotope for a reverse calculation and is simply
+    passed on the the Result::write().  The final argument indicates
+    what type of normalization is being used, so that the correct
+    output information can be given. */
 void Loading::write(int response, int writeComp, CoolingTime* coolList, 
 		    int targetKza, int normType)
 {
@@ -444,7 +477,8 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
  *********** Utility **********
  *****************************/
 
-/* find a given zone in the material loading */
+/** If found, returns a pointer to that zone loading description,
+    otherwise, NULL. */
 Loading* Loading::findZone(char *srchZone)
 {
 
@@ -460,7 +494,11 @@ Loading* Loading::findZone(char *srchZone)
   return NULL;
 }
 
-/* find a given mixture reference in the material loading */
+/** If found, returns a pointer to that zone loading description,
+    otherwise, NULL.  Note: this returns the first occurence after a the
+    object through which it is called - if called through the list head,
+    this is the absolute occurence. By successive calls through the object
+    returned by the previous call, this will find all the occurences. */
 Loading* Loading::findMix(char *srchMix)
 {
 

@@ -1,4 +1,4 @@
-/* $Id: PulseHistory.C,v 1.2 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: PulseHistory.C,v 1.3 2003-01-13 04:34:27 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -14,7 +14,11 @@
  ********* Service **********
  ***************************/
 
-
+/** When called with no arguments, the default constructor sets the
+    'nLevels' to and 'nPulse' and 'td' to NULL.  Otherwise, they
+    are set with the arguments.  Note that the pointers are copied,
+    and not the arrays themselves.  In both cases, 'setCode' is
+    initialized to -1. */
 PulseHistory::PulseHistory(int nlvls, int *pulse, double *decay) :
   setCode(-1), nLevels(nlvls),  nPulse(pulse),  td(decay)
 {
@@ -29,6 +33,8 @@ PulseHistory::PulseHistory(int nlvls, int *pulse, double *decay) :
 
 }
 
+/** Copies all members including an element-by-element copies of
+    the two arrays. */
 PulseHistory::PulseHistory(const PulseHistory &p) : 
   setCode(p.setCode),nLevels(p.nLevels)
 {
@@ -59,6 +65,13 @@ PulseHistory::PulseHistory(const PulseHistory &p) :
 
 }
 
+/** This action is valid (and invoked) whenever a schedule has a
+    single sub-schedule.  Basically, a pulsing history with N levels,
+    followed by a delay of time D, all pulsed with a history of M
+    levels is the same as a pulsing history with N+M+1 levels where
+    level N+1 has one pulse and delay time D.  It is possible for N,M
+    and/or D to be zero (N+M+D is always > 0), and these cases are
+    taken care of. */
 PulseHistory::PulseHistory(PulseHistory* hist1, double delay, 
 			   PulseHistory* hist2)
 {
@@ -111,6 +124,10 @@ PulseHistory::PulseHistory(PulseHistory* hist1, double delay,
     
 }
 
+/** The correct implementation of this operator must ensure
+    that previously allocated space is returned to the free
+    store before allocating new space into which to copy the
+    object. */
 PulseHistory& PulseHistory::operator=(const PulseHistory &p)
 {
   if (this == &p)
@@ -153,7 +170,8 @@ PulseHistory& PulseHistory::operator=(const PulseHistory &p)
 /****************************
  ********* Solution *********
  ***************************/
-
+/** If not, loops through the matrices and solves them for this
+    chain. */
 void PulseHistory::setDecay(Chain* chain)
 {
   int levelNum;
@@ -167,6 +185,10 @@ void PulseHistory::setDecay(Chain* chain)
     }
 }
 
+/** It consists of successively multiplying the current transfer
+    matrix by the current decay matrix, raising the product to the
+    appropriate power, and multiplying once more by the current
+    transfer matrix to get the new transfer matrix. */
 Matrix PulseHistory::doHistory(Matrix opT)
 {
   int levelNum;

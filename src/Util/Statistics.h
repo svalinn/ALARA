@@ -1,12 +1,9 @@
-/* $Id: Statistics.h,v 1.12 2002-08-05 20:23:20 fateneja Exp $ */
+/* $Id: Statistics.h,v 1.13 2003-01-13 04:35:02 fateneja Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
 
-
-
  *** Static Members ***
-
  treeFile : ofstream
     This file is used to record the tree information created during
     the chain building process.
@@ -106,57 +103,50 @@ class Statistics
 {
 protected:
 
-  static ofstream 
-    /// This file is used to record the tree information created during
-    /// the chain building process.
-    treeFile;
+  /// This file is used to record the tree information created during
+  /// the chain building process.
+  static ofstream treeFile;
 
-  static FILE*
-    /// This is a pointer to the file that will used to record the tree 
-    /// information created during the chain building process in a binary 
-    /// form.
-    binFile;
+  /// This is a pointer to the file that will used to record the tree 
+  /// information created during the chain building process in a binary 
+  /// form.
+  static FILE* binFile;
 
-  static int
-    /// This flag indicates whether or not a tree file has been requested
-    /// for this run.
-    tree,
+  /// This flag indicates whether or not a tree file has been requested
+  /// for this run.
+  static int tree;
     
-    /// This flag indicates whether or not a binary tree file has been opened.
-    treebin,
+  /// This flag indicates whether or not a binary tree file has been opened.
+  static int treebin;
     
-    /// This is a counter for the number of nodes encountered during the
-    /// solution of this problem.
-    nodeCtr,
+  /// This is a counter for the number of nodes encountered during the
+  /// solution of this problem.
+  static int nodeCtr;
     
-    /// This is a counter for the number of chains encountered during the
-    /// solution of this problem.
-    chainCtr,
+  /// This is a counter for the number of chains encountered during the
+  /// solution of this problem.
+  static int chainCtr;
     
-    /// This keeps track of the maximum rank attained in any chain during
-    /// the solution of the current root.  
-    /** It is reset for each root. */
-    maxRootRank,
+  /// This keeps track of the maximum rank attained in any chain during
+  /// the solution of the current root.  
+  /** It is reset for each root. */
+  static int maxRootRank;
     
-    /// This keeps track of the maximum rank attained in any chain during
-    /// the solution of the entire problem.
-    maxProblemRank;
+  /// This keeps track of the maximum rank attained in any chain during
+  /// the solution of the entire problem.
+  static int maxProblemRank;
 
-  static float
-    /// This is a machine-dependent normalization used to convert the
-    /// cputime measures to seconds.
-    ticks;
+  /// This is a machine-dependent normalization used to convert the
+  /// cputime measures to seconds.
+  static float ticks;
 
-  static float
-    /// This variable stores a pair or times, used to find delta times for
-    /// different parts of the solution.
-    runtime[2];
+  /// This variable stores a pair or times, used to find delta times for
+  /// different parts of the solution.
+  static float runtime[2];
 
 public:
   /// This function increments nodeCtr, and then writes the information
   /// about this node to the tree file(s), if requested. 
-  /** The current value of nodeCtr (after the incrementing) is returned.
-      */
   static int accountNode(int,char*,int,int,double*, int);
 
   /// This inline function increments chainCtr 
@@ -194,8 +184,6 @@ public:
   static FILE* openBinFile(char *);
 
   /// This function finds the current runtime from a system call
-  /** It then returns the time since the last call to cpuTime in the 
-      first arguement, and the total cputime in the second argument. */
   static void cputime(float&,float&);
 
   /// This inline function provides access to the current value of

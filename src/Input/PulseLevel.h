@@ -1,4 +1,4 @@
-/* $Id: PulseLevel.h,v 1.4 2002-08-05 20:23:17 fateneja Exp $ */
+/* $Id: PulseLevel.h,v 1.5 2003-01-13 04:34:58 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _PULSELEVEL_H
@@ -18,21 +18,17 @@
 class PulseLevel
 {
 protected:
-  int
-    /// The number of pulses at this level of pulsing.
-    nPulses;
+  /// The number of pulses at this level of pulsing.
+  int nPulses;
 
-  char 
-    /// The units for the delay time between pulses.
-    units;
+  /// The units for the delay time between pulses.
+  char units;
 
-  double 
-    /// Time between pulses at this level, in the units defined by 'units'.
-    delay;
+  /// Time between pulses at this level, in the units defined by 'units'.
+  double delay;
 
-  PulseLevel* 
-    /// The pointer to the next PulseLevel object.
-    next;
+  /// The pointer to the next PulseLevel object.
+  PulseLevel* next;
 
 public:
   /// Default constructor
@@ -57,27 +53,15 @@ public:
     { delete next; };
 
   /// Overload assignment operator 
-  /** This assignmnent operator behaves similarly to the copy
-      constructor.  The correct implementation of this operator must
-      ensure that previously allocated space is returned to the free
-      store before allocating new space into which to copy the
-      object. Note that 'next' is NOT copied, the object will continue to
-      be part of the same list unless explicitly changed. */
   PulseLevel& operator=(const PulseLevel&);
 
   /// Reads a single set of pulse level information from the input file
   /// attached to passed stream reference. 
-  /** It returning a pointer to the newly created PulseLevel object. The 
-      first argument is the number of pulses, which must be read by the 
-      calling function before calling this function. */
   PulseLevel* getPulseLevel(int, istream&);
 
   /// It loops through all the levels, converting the time to seconds and
   /// accumulating the data in standard arrays to create a new PulseHistory
   /// object.
-  /** This function should be called through the head of the PulseLevel
-      list within a particular History object. A pointer to the new object
-      is returned. */
   PulseHistory* makeHistory();
 
   /// Inline function to determine whether this object is the head of

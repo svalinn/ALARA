@@ -1,4 +1,4 @@
-/* $Id: calcSchedule.h,v 1.6 2002-12-27 03:37:29 wilsonp Exp $ */
+/* $Id: calcSchedule.h,v 1.7 2003-01-13 04:34:29 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _CALCSCHEDULE_H
@@ -108,10 +108,9 @@ protected:
   double  opTime;
 
   /// This is an array of pointers to the calcSchedules which represent
-  /// the schedule items making up this schedule.  There are calcSchedule::nItems
-  /// pointers.
+  /// the schedule items making up this schedule.  There are 
+  /// calcSchedule::nItems pointers.
   calcSchedule** subSched;
-
 
 public:
   /// Default Constructor, when called with no arguments
@@ -135,8 +134,6 @@ public:
   /// This function is responsible for recursing through the hierarchy
   /// in a depth first search, removing superfluous layers in the
   /// hierarchy.
-  /** See point (4.) above for more details on the collapsing
-      algorithm. */
   void collapse();
 
   /// Inline function simply allows 'subSched' element indexed by the
@@ -146,29 +143,16 @@ public:
 
   /// This function recurses through the calcSchedule hierarchy, setting
   /// the storage matrices 'D'.
-  /** After confirming that this schedule has not already been 
-      processed, the decay matrix 'D' for this schedule is set,
-      PulseHistory::setDecay(...) is called on this calcSchedule's 
-      'history' member, and the recursion takes place. */
   void setDecay(Chain*);
 
   /// This function manages the solution of the chain passed in argument
   /// 1 on the schedule hierarchy using the storage transfer matrix
   /// hierarchy passed in second argument.
-  /** If compound schedule, setSubTs(...) is called to recurse and build
-      master transfer matrix. If single pulse (end state of recursion),
-      'Chain::fillTMat(...)' is called to fill the 'opBlockT' transfer
-      matrix.  Following this, the pulsing history is applied to fill
-      'calcScheduleT::histT' and then the final delay on the schedule is
-      applied to fill 'calcScheduleT::totalT'. */
   void setT(Chain*, calcScheduleT*);
 
   /// In this fucntion each subschedule is solved recursively with
   /// master transfer matrix, 'calcScheduleT::opBlockT' being built by
   /// multiplication.
-  /** This small code segment is separated out of setT(...) to allow
-      it to be called through a topSchedule derived class object
-      and still access the appropriate members. */
   void setSubTs(Chain*, calcScheduleT*);
 
   /// Inline function provides access to number of items in this schedule.
