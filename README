@@ -1,9 +1,16 @@
-$Id: README,v 1.2 2003-12-05 22:21:13 wilsonp Exp $
+$Id: README,v 1.3 2004-08-19 04:24:58 wilsonp Exp $
 
 Thank you for your interest in ALARA.
 
 Please see the INSTALL file for generic details on building and
 installing packages using 'configure' and 'make'.
+
+Some test/sample files are included in directory './sample'.  They can
+all be run in succession, with output stored in a directory
+"sample_out" by executing the script:
+%> cd sample
+%> ./run_samples.sh sample_out
+A reference set of output is available in directory ./sample/ref_out.
 
 In addition to building and installing the ALARA program, this package
 includes an accessory program, dant2alara, and a pair of Perl scripts
