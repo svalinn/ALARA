@@ -80,6 +80,14 @@ Loading::Loading(const Loading &l)
   
 }
 
+Loading::~Loading()
+{ 
+  delete mixName; 
+  delete zoneName; 
+  delete [] outputList; 
+  delete next; 
+}
+
 Loading& Loading::operator=(const Loading &l)
 {
   if (this == &l)

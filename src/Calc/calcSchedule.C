@@ -100,6 +100,8 @@ calcSchedule::calcSchedule(double td, History* hist, calcSchedule* schedItem)
 
 calcSchedule::~calcSchedule()
 {
+  int itemNum;
+
   if (nItems>0)
     for (itemNum=0;itemNum<nItems;itemNum++)
       delete subSched[itemNum];
