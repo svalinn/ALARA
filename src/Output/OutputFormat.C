@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.12 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.13 1999-08-25 19:40:47 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -8,6 +8,24 @@
 
 #include "Chains/Node.h"
 
+#define Bq2Ci 3.7e10
+
+const char *Out_Types = "ucnstabgw";
+
+const int nOutTypes = 9;
+const int firstResponse = 2;
+const int lastSingularResponse = 8;
+const char *Out_Types_Str[nOutTypes] = {
+  "Response Units",
+  "Break-down by Component",
+  "Number Density [atoms/cm3]",
+  "Specific Activity [%s/cm3]",
+  "Total Decay Heat [W/cm3]",
+  "Alpha Decay Heat [W/cm3]",
+  "Beta Decay Heat [W/cm3]",
+  "Gamma Decay Heat [W/cm3]",
+  "WDR/Clearance index"};
+
 /***************************
  ********* Service *********
  **************************/
@@ -16,19 +34,32 @@ OutputFormat::OutputFormat(int type)
 {
   resolution = type;
   outTypes = 0;
+  actUnits = new char[3];
+  strcpy(actUnits,"Bq");
+  actMult = 1;
+
+  normUnits = new char[4];
+  strcpy(normUnits,"cm3");
 
   next = NULL;
 }
 
 OutputFormat::OutputFormat(const OutputFormat& o) :
-  resolution(o.resolution), outTypes(o.outTypes)
+  resolution(o.resolution), outTypes(o.outTypes), actMult(o.actMult)
 {
+  actUnits = new char[strlen(o.actUnits)+1];
+  strcpy(actUnits,o.actUnits);
+
+  normUnits = new char[strlen(o.normUnits)+1];
+  strcpy(normUnits,o.normUnits);
 
   next = NULL;
 }
   
 OutputFormat::~OutputFormat()
 {
+  delete actUnits;
+  delete normUnits;
   delete next;
 }
 
@@ -39,6 +70,15 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
 
   resolution = o.resolution;
   outTypes = o.outTypes;
+  delete actUnits;
+  actUnits = new char[strlen(o.actUnits)+1];
+  strcpy(actUnits,o.actUnits);
+  actMult = o.actMult;
+
+  delete normUnits;
+  normUnits = new char[strlen(o.normUnits)+1];
+  strcpy(normUnits,o.normUnits);
+  
 
   return *this;
 }
@@ -50,7 +90,6 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
 OutputFormat* OutputFormat::getOutFmts(istream& input)
 {
   const char *Out_Res = " izm";
-  const char *Out_Types = "censtabgw";
 
   int type;
   char token[64];
@@ -78,8 +117,20 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
       verbose(3,"Added output type %d (%s)",1<<type,token);
 
-      if (1<<type & OUTFMT_WDR)
+      switch (1<<type)
 	{
+	case OUTFMT_UNITS:
+	  input >> token;
+	  next->actUnits = new char[strlen(token)+1];
+	  strcpy(next->actUnits,token);
+	  next->actMult = (tolower(token[0]) == 'c'?Bq2Ci:1);
+
+	  input >> token;
+	  next->normUnits = new char[strlen(token)+1];
+	  strcpy(next->normUnits,token);
+
+	  break;
+	case OUTFMT_WDR:
 	  input >> token;
 	  next->wdrFilenames.insert(token);
 	  verbose(4,"Added WDR/Clearance file %s", token);
@@ -99,21 +150,9 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 			 CoolingTime *coolList, int targetKza)
 {
   
-  const int nOutTypes = 9;
-  const int firstResponse=2;
-  const int lastSingularResponse=8;
-  const char *Out_Types_Str[nOutTypes] = {
-  "Break-down by Component",
-  "Binary Data export",
-  "Number Density [atoms/cm3]",
-  "Specific Activity [Bq/cm3]",
-  "Total Decay Heat [W/cm3]",
-  "Alpha Decay Heat [W/cm3]",
-  "Beta Decay Heat [W/cm3]",
-  "Gamma Decay Heat [W/cm3]",
-  "WDR/Clearance index"};
 
   OutputFormat *ptr = this;
+  char buffer[64];
 
   int outTypeNum;
 
@@ -138,18 +177,39 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	}
       
       /* list the reponses and features to come */
-      for (outTypeNum=0;outTypeNum<nOutTypes;outTypeNum++)
+      /* units */
+      outTypeNum = 0;
+      cout << "\t" << Out_Types_Str[outTypeNum] << ": "
+	   << ptr->actUnits << " " << ptr->normUnits << endl;
+      /* regular singular responses */
+      for (++outTypeNum;outTypeNum<lastSingularResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
-	  cout << "\t" << Out_Types_Str[outTypeNum] << endl;
+	  {
+	    sprintf(buffer,Out_Types_Str[outTypeNum],
+		    ptr->actUnits,ptr->normUnits);
+	    cout << "\t" << buffer << endl;
+	  }
+      /* WDR header */
+      if (ptr->outTypes & OUTFMT_WDR)
+	for(filenameList::iterator fileName = wdrFilenames.begin();
+	    fileName != wdrFilenames.end(); ++fileName)
+	  cout << "*** " << Out_Types_Str[outTypeNum] << ": " 
+	       << *fileName << " ***" << endl;
+	      
+	
 
       cout << endl << endl;
       
+      /* set units for activity */
+      Result::setActMult(ptr->actMult);
+
       /* for each indicated response */
       for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
 	  {
 	    /* write a response title */
-	    cout << "*** " << Out_Types_Str[outTypeNum] << " ***" << endl;
+	    sprintf(buffer,Out_Types_Str[outTypeNum],ptr->actUnits);
+	    cout << "*** " << buffer << " ***" << endl;
 
 	    /* call write() on the appropriate object determined by
                the resulotition */

@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.13 1999-08-25 15:42:54 wilson Exp $ */
+/* $Id: Result.C,v 1.14 1999-08-25 19:40:47 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -25,6 +25,7 @@
 int Result::nResults = 0;
 FILE* Result::binDump = NULL;
 const int Result::delimiter = -1;
+double Result::actMult = 1;
 
 Result::Result(int setKza, Result* nxtPtr)
 {
@@ -277,7 +278,7 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
       switch(response)
 	{
 	case OUTFMT_ACT:
-	  multiplier = dataAccess.getLambda(targetKza)/volume;
+	  multiplier = dataAccess.getLambda(targetKza)*actMult/volume;
 	  break;
 	case OUTFMT_HEAT:
 	  multiplier = dataAccess.getHeat(targetKza)/volume * EV2J;
@@ -292,7 +293,7 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	  multiplier = dataAccess.getGamma(targetKza)/volume * EV2J;
 	  break;
 	case OUTFMT_WDR:
-	  multiplier = dataAccess.getWDR(targetKza)/volume;
+	  multiplier = dataAccess.getWDR(targetKza)*actMult/volume;
 	  break;
 	}
     }
@@ -310,7 +311,7 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	  switch(response)
 	    {
 	    case OUTFMT_ACT:
-	      multiplier = dataAccess.getLambda(ptr->kza)/volume;
+	      multiplier = dataAccess.getLambda(ptr->kza)*actMult/volume;
 	      break;
 	    case OUTFMT_HEAT:
 	      multiplier = dataAccess.getHeat(ptr->kza)/volume * EV2J;
@@ -325,7 +326,7 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	      multiplier = dataAccess.getGamma(ptr->kza)/volume * EV2J;
 	      break;
 	    case OUTFMT_WDR:
-	      multiplier = dataAccess.getWDR(ptr->kza)/volume;
+	      multiplier = dataAccess.getWDR(ptr->kza)*actMult/volume;
 	      break;
 	    }
 	}

@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.6 1999-08-25 15:42:54 wilson Exp $ */
+/* $Id: Result.h,v 1.7 1999-08-25 19:40:47 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -114,6 +114,7 @@ protected:
   static int nResults;
   static FILE* binDump;
   static const int delimiter;
+  static double actMult;
 
   int kza;
   double *N;
@@ -148,6 +149,7 @@ public:
   void postProcList(Result*, Mixture*, int);
   void postProc(Result&, double density=1.0);
   void write(int, int, CoolingTime*, double*&, double volume=1);
+  static void setActMult(double passedActMult) { actMult = passedActMult; }
 
   /* Dump */
   static void initBinDump(char*);
