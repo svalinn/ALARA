@@ -268,6 +268,34 @@ NuclearData& NuclearData::operator=(const NuclearData& n)
 
 }  
 
+
+void NuclearData::cleanUp()
+{ 
+  int rxnNum;
+
+  if (nPaths>0)
+    {
+      for (rxnNum=0;rxnNum<nPaths;rxnNum++)
+	{
+	  delete paths[rxnNum];
+	  delete emitted[rxnNum];
+	}
+      delete paths[rxnNum];
+    }
+  delete paths;
+  delete emitted;
+  delete relations;
+  D = NULL;
+  paths = NULL;
+  emitted = NULL;
+  relations = NULL;
+
+  nPaths = 0;
+
+}
+
+
+
 /***************************
  *********** Input *********
  ***************************/
@@ -378,7 +406,9 @@ int NuclearData::stripNonDecay()
 
   /* if there are fewer decay reactions than the total number, 
    * copy them to a new array */
-  if (numDecay < nPaths)
+  if (numDecay == 0)
+    cleanUp();
+  else if (numDecay < nPaths)
     {
       int decayRxnNum = 0;
 
@@ -416,10 +446,9 @@ int NuclearData::stripNonDecay()
       relations = newDaug;
       paths = newPaths;
       emitted = newEmitted;
+      
+      nPaths = numDecay;
     }
-
-
-  nPaths = numDecay;
   
   if (nPaths == 0)
     return TRUNCATE;

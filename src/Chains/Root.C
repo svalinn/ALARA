@@ -95,6 +95,7 @@ void Root::solve(topSchedule *schedule)
 	      lastNode-firstNode, incrTime,(lastNode-firstNode)/incrTime);
       verbose(2,"   Total Nodes: %d in %0.2f s (%0.3f nodes/s)",
 	      lastNode,totalTime,lastNode/totalTime);
+
       ptr->mixList->writeDump();
 
       ptr = ptr->nextRoot;
@@ -154,31 +155,6 @@ Root* Root::find(int srchKza)
 
   debug(7,"Returning %x",ptr);
   return ptr;
-
-}
-
-void Root::cleanUp()
-{ 
-  int rxnNum;
-
-  if (nPaths>0)
-    {
-      for (rxnNum=0;rxnNum<nPaths;rxnNum++)
-	{
-	  delete paths[rxnNum];
-	  delete emitted[rxnNum];
-	}
-      delete paths[rxnNum];
-    }
-  delete paths;
-  delete emitted;
-  delete relations;
-  D = NULL;
-  paths = NULL;
-  emitted = NULL;
-  relations = NULL;
-
-  nPaths = 0;
 
 }
 

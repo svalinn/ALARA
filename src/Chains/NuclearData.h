@@ -153,6 +153,8 @@ protected:
 
   NuclearData& operator=(const NuclearData&);
   
+  void cleanUp();
+
   /* Chain */
   void setData(int, float *, int *, char **, float **, float);
   void setNoData()

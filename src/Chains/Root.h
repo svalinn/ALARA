@@ -298,7 +298,6 @@ public:
 
   /* Utility */
   Root* find(int);
-  void cleanUp();
   
   /* List */
   Root* merge(Root*);
