@@ -15,7 +15,6 @@ using std::cerr;
 using std::endl;
 using std::ios;
 
-
 int main(int argc, char* argv[]) {
 
   char rtfluxFname[256];
@@ -26,9 +25,11 @@ int main(int argc, char* argv[]) {
   char buffer[256];
 
   int grpLo, grpUp, grpHi;
+  
+  int firstGroup, lastGroup;
 
   /* get rtflux filename */
-  cout << "Enter the rtflux/atflux filename: ";
+  cerr << "Enter the rtflux/atflux filename: ";
   cin >> rtfluxFname;
 
   /* read rtflux file into memory */
@@ -56,6 +57,8 @@ int main(int argc, char* argv[]) {
   fread((char*)&nblok, SINT,1,binFile);
   fread((char*)&f77_reclen,SINT,1,binFile);
 
+  int nint = ninti * nintj * nintk;
+
   // limit to 1-D
   if (ndim > 1)
     {
@@ -63,6 +66,38 @@ int main(int argc, char* argv[]) {
       exit(-1);
     }
 
+  firstGroup = -1;
+  lastGroup = -1;
+
+  while (firstGroup <1 || firstGroup > ngrp) {
+    /// get info from user
+    cerr << "This file has " << ngrp << " groups in ("
+	 << ninti << "x" << nintj << "x" << nintk << ")=" << nint
+	 << "intervals and " << ndim << " dimension." << endl;
+    cerr << "Enter the first group number to export: ";
+    cin >> firstGroup;
+    
+    if (firstGroup <1 || firstGroup > ngrp)
+      cerr << "That group is not in the correct range." << endl;
+  }
+
+  while (lastGroup < firstGroup || lastGroup > ngrp) {
+    cerr << "Enter the number of groups to export, OR" << endl;
+    cerr << "\tenter the last group as a negative number: ";
+    cin >> lastGroup;
+
+    if (lastGroup < 0) 
+      lastGroup = -lastGroup;
+    else
+      lastGroup = firstGroup + lastGroup - 1;
+
+    if (lastGroup < firstGroup || lastGroup > ngrp)
+      cerr << "That group is not in the correct range." << endl;
+  }
+
+  cerr << "Exporting groups " << firstGroup << " through " 
+       << lastGroup << " to stdout." << endl;
+    
   /// read blocks (1-D)
   double* fluxIn = new double[ninti*ngrp];
   for (int blkNum=0;blkNum<nblok;blkNum++)
@@ -75,18 +110,23 @@ int main(int argc, char* argv[]) {
       fread((char*)&f77_reclen,SINT,1,binFile);
     }
 
+
+  cout.ios::precision(5);
+  cout.ios::setf(ios::scientific);
+  cout.ios::width(13);
+
   /* write flux info to file */
   for (int volNum=0;volNum<ninti;volNum++)
     {
-      for (int gNum=0;gNum<ngrp;gNum++)
+      for (int gNum=firstGroup-1;gNum<lastGroup;gNum++)
 	{
-	  cout << fluxIn[gNum*ninti+(volNum)];
-	  if ( gNum%6 )
+          cout << fluxIn[gNum*ninti+(volNum)];
+	  if ( (gNum+1)%6 )
 	    cout << "  ";
 	  else
-	    cout << endl;
+	    cout << endl << "  ";
 	}
-      cout << endl << endl;
+      cout << endl << endl << "  ";
     }
 
   delete fluxIn;
