@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.24 2001-12-06 23:21:07 wilsonp Exp $ */
+/* $Id: Mixture.C,v 1.25 2002-01-07 21:52:23 wilsonp Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -651,14 +651,17 @@ void Mixture::setGammaAttenCoef(int nGroups, ifstream& gAttenData)
 	      ptr->gammaAttenCoef[gNum] += density*gammaAttenData[idx*nGroups+gNum];
 	  else
 	    /* if no data, interpolate */
-	    if (idx+1 < numEle)
+	    if (idx > 0)
 	      {
-		interp = float(Z - gammaAttenZ[idx])/
-		  float(gammaAttenZ[idx+1]-gammaAttenZ[idx]);
+		/* if we are above last data point, extrapolate */
+		if (idx == numEle)
+		  idx--;
+		interp = float(Z - gammaAttenZ[idx-1])/
+		  float(gammaAttenZ[idx]-gammaAttenZ[idx-1]);
 		for (gNum=0;gNum<nGroups;gNum++)
 		  ptr->gammaAttenCoef[gNum] += density*
-		    ( gammaAttenData[(idx+1)*nGroups+gNum] * interp      
-		     +gammaAttenData[  idx  *nGroups+gNum] * (1 - interp) );
+		    ( gammaAttenData[  idx  *nGroups+gNum] * interp      
+		     +gammaAttenData[(idx-1)*nGroups+gNum] * (1 - interp) );
 	      }
 
 	  root = root->getNext();
