@@ -1,4 +1,4 @@
-/* $Id: MixCompRef.C,v 1.3 1999-08-25 15:42:50 wilson Exp $ */
+/* $Id: MixCompRef.C,v 1.4 1999-12-21 21:37:29 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -220,7 +220,7 @@ double Root::MixCompRef::maxConc()
   
   while (ptr != NULL)
     {
-      maxRelConc = max(maxRelConc,ptr->density/ptr->mixPtr->getTotalDensity());
+      maxRelConc = max(maxRelConc,ptr->density/ptr->mixPtr->getTotalNDensity());
       ptr = ptr->next;
     }
 

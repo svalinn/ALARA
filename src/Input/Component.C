@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.12 1999-11-19 23:00:46 wilson Exp $ */
+/* $Id: Component.C,v 1.13 1999-12-21 21:37:29 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -246,6 +246,7 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
 	density = -density;
 
       double Ndensity = volFraction * density * AVAGADRO/A;
+      mix->incrTotalDensity(density*volFraction);
 
       /* if element is found, add a new root for each isotope */
       verbose(5,"Found element %s with %d isotopes in element library",
@@ -306,6 +307,7 @@ Root* Component::expandMat(Mixture* mix)
     {
       /* scale relative density by material density from lib */
       density *= matDens;
+      mix->incrTotalDensity(density*volFraction);
 
       verbose(5,"Found material %s in material library.",testName);
       /* if material found, read list of elements,
