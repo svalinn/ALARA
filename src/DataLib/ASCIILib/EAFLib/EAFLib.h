@@ -23,6 +23,8 @@ DATALIB_ASCII    2     ascii    A basic ASCII DataLib object
 DATALIB_EAF      3     eaf      A data library following the formatting
                                 definition of the EAF library (roughly
                                 ENDF/B-6) 
+DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
+                                for reverse calculations.
 -------------------------------------------------------------------
 
  *** Class Members ***
@@ -104,7 +106,7 @@ protected:
 
 public:
   /* Service */
-  EAFLib(char *transFname=NULL, char *decayFname=NULL);
+  EAFLib(char*, char*, char*);
   ~EAFLib();
 
 };

@@ -22,6 +22,8 @@ DATALIB_ASCII    2     ascii    A basic ASCII DataLib object
 DATALIB_EAF      3     eaf      A data library following the formatting
                                 definition of the EAF library (roughly
                                 ENDF/B-6) 
+DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
+                                for reverse calculations.
 -------------------------------------------------------------------
 
  *** Locally Defined Classes ***
@@ -170,17 +172,30 @@ protected:
     } *idx;
 
   FILE* binLib;
+  fstream tmpIdx;
+  long offset;
+
 
 public:
   /* Service */
-  ALARALib(char* fname=BINFNAME);
+  ALARALib(char*);
+  ALARALib(char*, char*);
   ALARALib(const ALARALib&);
   ~ALARALib();
 
   ALARALib& operator=(const ALARALib&);
+
+  void close(int,int,char*);
       
   /* Chain */
   void readData(int, NuclearData*);
+
+  /* Write Binary Data */
+  void writeHead(int,float*,float*);
+  void writeData(int, int, float, float*, int*, char**, float**);
+  void appendIdx(char*,int);
+  
+
 
 };
 

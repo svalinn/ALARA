@@ -34,6 +34,8 @@
 #include "Output/OutputFormat.h"
 #include "Output/Result.h"
 
+#include "DataLib/DataLib.h"
+
 /***************************
  ********* Service *********
  **************************/
@@ -197,7 +199,7 @@ void Input::read()
 		  break;
 		case INTOK_LIBCONV:
 		  debug(1,"Converting data library");
-		  NuclearData::getDataLib(*input);
+		  DataLib::convertLib(*input);
 		  verbose(1,"Exiting after library conversion.");
 		  exit(0);
 		case INTOK_TRUNC:

@@ -1,20 +1,21 @@
 #include "EAFLib.h"
+#include "DataLib/ALARALib/ALARALib_def.h"
 
-EAFLib::EAFLib(char* transFname, char* decayFname) : ASCIILib(DATALIB_EAF)
+EAFLib::EAFLib(char *transFname, char *decayFname, char *alaraFname) 
+  : ASCIILib(DATALIB_EAF)
 {
   if (transFname != NULL && decayFname != NULL)
     {
       inTrans.open(transFname, ios::in);
       inDecay.open(decayFname, ios::in);
 
-      makeBinLib();
+      makeBinLib(alaraFname);
     }
 
 }
 
 EAFLib::~EAFLib()
 {
-
   /* delete arrays here that were dimensioned with
    * EAF relevant constants */
   int rxnNum;
@@ -277,8 +278,6 @@ int EAFLib::getTransData()
 	  memCheck(gas[gasNum],"EAFLib::getTransData(...): gas[n]");
 	}
 
-  
-
   /* first time into this routine */
   if (zak == 0)
     /* read modified kza number */
@@ -367,7 +366,7 @@ int EAFLib::getTransData()
   
   debug(5,"Found %d reaction paths for %d.",nTRxns,zak);
   
-  return zak;
+  return oldZak;
 }
 
 /************************************

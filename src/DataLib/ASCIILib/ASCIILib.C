@@ -7,12 +7,20 @@
 
 #include "ASCIILib.h"
 
+#include "DataLib/ALARALib/ALARALib.h"
+
 /****************************
  ********* Service **********
  ***************************/
 
 ASCIILib::ASCIILib(int setType) : DataLib(setType)
 {
+  for (int idx=0;idx<81;idx++)
+    {
+      transTitle[idx] = '\0';
+      decayTitle[idx] = '\0';
+      groupDesc[idx] = '\0';
+    }
 
   grpBnds = NULL;
   grpWeights = NULL;
@@ -49,15 +57,7 @@ ASCIILib::~ASCIILib()
   delete grpBnds;
   delete grpWeights;
 
-  delete transKza;
-  delete [] xSection;
-  delete [] emitted;
-
-  delete decayKza;
-  delete bRatio;
-
-  fclose(binLib);
-  tmpIdx.close();
+  delete binLib;
 }
 
 /****************************
@@ -330,103 +330,21 @@ void ASCIILib::merge()
  ********** Write binary data *********
  *************************************/
 
-/* write the data for a single isotope */
-void ASCIILib::writeData(long& offset)
-{
-  int unique, emittedLen;
-
-  /* write parent isotope info */
-  tmpIdx << kza << "\t" << nRxns << "\t" << offset << endl;
-  offset += fwrite(&kza,SINT,1,binLib)*SINT;
-  offset += fwrite(&nRxns,SINT,1,binLib)*SINT;
-  offset += fwrite(&mThalf,SFLOAT,1,binLib)*SFLOAT;
-  offset += fwrite(mE,SFLOAT,3,binLib)*SFLOAT;
-
-  /* write info for each daughter */
-  for (unique=0;unique<nRxns;unique++)
-    {
-      tmpIdx << "\t" << daugKza[unique] << "\t" << mEmitted[unique] 
-	     << "\t" << offset << endl;
-      offset+=fwrite(daugKza+unique,SINT,1,binLib)*SINT;
-      emittedLen = strlen(mEmitted[unique]);
-      offset+=fwrite(&emittedLen,SINT,1,binLib)*SINT;
-      offset+=fwrite(*(mEmitted+unique),1,emittedLen,binLib);
-      offset+=fwrite(*(mXsection+unique),SFLOAT,nGroups+1,binLib)*SFLOAT;
-
-      /* delete used info */
-      delete mEmitted[unique];
-      delete mXsection[unique];
-    }
-
-  /* delete used info */
-  delete mEmitted;
-  delete mXsection;
-  delete daugKza;
-      
-}
-
-/* append the index to end of the binary file */
-void ASCIILib::appendIdx()
-{
-  long offset = 0, ioffset;
-  int parNum, nRxn, rxnNum;
-  char libType = '1', emission[64];
-  int emittedLen;
-
-  /* open text index */
-  tmpIdx.open(TMPIDXFNAME, ios::in);
-  /* go to end of binary library */
-  fseek(binLib,0L,SEEK_END);
-
-  debug(2,"Appending index at %d",ftell(binLib));
-  /* write the library type, # of Parents and # of Groups */
-  offset += fwrite(&libType,1,1,binLib);
-  offset += fwrite(&nParents,SINT,1,binLib);
-  debug(3,"Wrote number of parents: %d",nParents);
-  offset += fwrite(&nGroups,SINT,1,binLib);
-
-  /* group boundary and integral flux cards */
-  tmpIdx >> kza >> ioffset;
-  offset += fwrite(&kza,SINT,1,binLib)*SINT;
-  offset += fwrite(&ioffset,SLONG,1,binLib)*SLONG;
-  tmpIdx >> kza >> ioffset;
-  offset += fwrite(&kza,SINT,1,binLib)*SINT;
-  offset += fwrite(&ioffset,SLONG,1,binLib)*SLONG;
-
-  /* for each parent */
-  for (parNum=0;parNum<nParents;parNum++)
-    {
-      /* read and write parent info */
-      tmpIdx >> kza >> nRxn >> ioffset;
-      offset += fwrite(&kza,SINT,1,binLib)*SINT;
-      offset += fwrite(&nRxn,SINT,1,binLib)*SINT;
-      offset += fwrite(&ioffset,SLONG,1,binLib)*SLONG;
-      
-      /* read and write daughter info */
-      for (rxnNum=0;rxnNum<nRxn;rxnNum++)
-	{
-	  tmpIdx >> kza >> emission >> ioffset;
-	  emittedLen = strlen(emission);
-	  offset += fwrite(&kza,SINT,1,binLib)*SINT;
-	  offset += fwrite(&emittedLen,SINT,1,binLib)*SINT;
-	  offset += fwrite(emission,1,emittedLen,binLib);
-	  offset += fwrite(&ioffset,SLONG,1,binLib)*SLONG;
-	}
-    } 
-}
-
 /*****************************************
  ********** Binary Library Mgmt **********
  ****************************************/
 
-void ASCIILib::makeBinLib()
+void ASCIILib::makeBinLib(char *alaraFname)
 {
 
-  long offset = 0;
   int tKza, dKza;
+  char alaraIdxName[256], alaraLibName[256];
 
-  tmpIdx.open(TMPIDXFNAME, ios::out);
-  binLib = fopen(BINFNAME, "wb");
+  strcpy(alaraIdxName,alaraFname);
+  strcat(alaraIdxName,".idx");
+  strcpy(alaraLibName,alaraFname);
+  strcat(alaraLibName,".lib");  
+  binLib = new ALARALib(alaraLibName, alaraIdxName);
 
   /* get initial info from text files */
   getTransInfo();
@@ -434,29 +352,7 @@ void ASCIILib::makeBinLib()
   getDecayInfo();
   debug(4,"Got decay header info.");
 
-  /************
-   * write head info to binary library 
-   ************/
-  /* save place for offset of index */
-  offset += fwrite(&offset,SLONG,1,binLib)*SLONG;
-
-  /* save place for number of parents */
-  offset += fwrite(&nParents,SLONG,1,binLib)*SLONG;
-
-  /* write number of neutron groups */
-  offset += fwrite(&nGroups,SINT,1,binLib)*SINT;
-
-  /* write group structure info */
-  tmpIdx << -1 << "\t" << offset << endl;
-  offset += fwrite(&grpBnds,SINT,1,binLib)*SINT;
-  if (grpBnds != NULL)
-    offset += fwrite(grpBnds,SFLOAT,nGroups+1,binLib)*SFLOAT;
-  tmpIdx << 0 << "\t" << offset << endl;
-  offset += fwrite(&grpWeights,SINT,1,binLib)*SINT;
-  if (grpWeights != NULL)
-    offset += fwrite(grpWeights,SFLOAT,nGroups,binLib)*SFLOAT;
-  
-  debug(4,"Wrote header info.");
+  binLib->writeHead(nGroups,grpBnds,grpWeights);
 
   /* get first entries from each library */
   tKza = getTransData();
@@ -475,7 +371,6 @@ void ASCIILib::makeBinLib()
 	  trans2merge();
 	  tKza = getTransData();
 	  debug(4,"Got next transmutation entry.");
-	  verbose(2,"Wrote transmutation entry for %d (%d)",kza,offset);
 	}
       else if (dKza < tKza)
 	{
@@ -485,7 +380,6 @@ void ASCIILib::makeBinLib()
 	  decay2merge();
 	  dKza = getDecayData();
 	  debug(4,"Got next decay entry.");
-	  verbose(2,"Wrote decay entry for %d (%d)",kza,offset);
 	}
       else
 	{
@@ -497,35 +391,16 @@ void ASCIILib::makeBinLib()
 	  debug(4,"Got next transmutation entry.");
 	  dKza = getDecayData();
 	  debug(4,"Got next decay entry.");
-	  verbose(2,"Wrote merged entry for %d (%d)",kza,offset);
 	}
 
       /* write the entry to the output files */
-      writeData(offset);
+      binLib->writeData(kza,nRxns,mThalf,mE,daugKza,mEmitted,mXsection);
 
       /* increment the number of parents */
       nParents++;
     }
 
-  /* close the index */
-  tmpIdx.close();
-
-
-  debug(1,"Current binary location %d vs offset %d",ftell(binLib),offset);
-  /* fill the placeholders for the index offset 
-   * and number of parents */
-  fseek(binLib,0L,SEEK_SET);
-  fwrite(&offset,SLONG,1,binLib);
-  fwrite(&nParents,SINT,1,binLib);
-
-  verbose(2,"Finished converting to binary with %d parents.",nParents);
-
-  /* append index to file */
-  appendIdx();
-  verbose(2,"Appended index to file.");
-
-  /* close library */
-  fclose(binLib);
+  binLib->close(nParents,DATALIB_ALARA,alaraIdxName);
 
 }
 

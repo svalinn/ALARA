@@ -25,6 +25,8 @@ DATALIB_ASCII    2     ascii    A basic ASCII DataLib object
 DATALIB_EAF      3     eaf      A data library following the formatting
                                 definition of the EAF library (roughly
                                 ENDF/B-6) 
+DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
+                                for reverse calculations.
 -------------------------------------------------------------------
 
  *** Class Members ***
@@ -94,6 +96,10 @@ DATALIB_EAF      3     eaf      A data library following the formatting
 
 #define DATALIB_NULL 0
 
+/* library conversion codes */
+#define EAF2ALARA 301
+#define ALARA2ADJ 104
+
 #include "Chains/NuclearData.h"
 
 /* This is a base class and should never be instantiated */
@@ -110,6 +116,8 @@ protected:
 public:
   /* Service */
   static DataLib* newLib(char*,istream&);
+  static void convertLib(char*, int,istream&);
+  static void convertLib(istream&);
 
   DataLib(int setType=DATALIB_NULL) 
     { type = setType; nGroups = 0; nParents = 0;};

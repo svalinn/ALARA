@@ -20,7 +20,7 @@ ALARALib::LibIdx::LibIdx(int& nPar, int& nGroups, FILE*& binLib)
 
   if (binLib != NULL)
     {
-      char libType;
+      int libType;
       int parNum;
       int junkInt, nRxns, rxnNum;
       long junkLong, idxOffset;
@@ -35,7 +35,7 @@ ALARALib::LibIdx::LibIdx(int& nPar, int& nGroups, FILE*& binLib)
       
       debug(0,"Skipped to index offset: %d",idxOffset);
       /* read number of parents and number of groups */
-      fread(&libType,1,1,binLib);
+      fread(&libType,SINT,1,binLib);
       debug(0,"Library type: %c",libType);
       fread(&nParents,SINT,1,binLib);
       debug(0,"Number of parents: %d",nParents);

@@ -25,6 +25,8 @@ DATALIB_ASCII    2     ascii    A basic ASCII DataLib object
 DATALIB_EAF      3     eaf      A data library following the formatting
                                 definition of the EAF library (roughly
                                 ENDF/B-6) 
+DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
+                                for reverse calculations.
 -------------------------------------------------------------------
 
  *** Class Members ***
@@ -120,7 +122,7 @@ DATALIB_EAF      3     eaf      A data library following the formatting
     writing of a binary library.  This is then copied onto the end of
     the binary library in binary format.
 
- binLib : FILE*
+ binLib : ALARALib*
     This is the pointer to the binary file created from the ASCII
     library.
 
@@ -230,14 +232,13 @@ DATALIB_EAF      3     eaf      A data library following the formatting
 #define _ASCIILIB_H
 
 #include "DataLib/DataLib.h"
-#include "DataLib/ALARALib/ALARALib_def.h"
 
 #define DATALIB_ASCII 2
 
 class ASCIILib : public DataLib
 {
 protected:
-  char transTitle[81], decayTitle[81], groupDesc[81];
+  char transTitle[81],decayTitle[81],groupDesc[81];
   float *grpBnds,*grpWeights;
 
   /* for each isotope */
@@ -253,18 +254,13 @@ protected:
   float mThalf, mE[3], **mXsection;
   char **mEmitted;
 
-  fstream tmpIdx;
-  FILE *binLib;
+  ALARALib *binLib;
 
   /* Merge Data */
   void trans2merge();
   void decay2merge();
   void merge();
 
-  /* Write Binary Data */
-  void writeData(long&);
-  void appendIdx();
-  
   /* Virtual */
   /* Read Non-Binary Data */
   virtual void getTransInfo();
@@ -278,7 +274,7 @@ public:
   ~ASCIILib();
   
   /* Binary Libaray Management */
-  void makeBinLib();
+  void makeBinLib(char*);
 
   /* Utility */
   float sum(float*);
