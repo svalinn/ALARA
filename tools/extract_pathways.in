@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-# $Id: extract_pathways.in,v 1.2 2000-03-01 21:01:07 wilson Exp $
+#!@PERLPATH@
+# $Id: extract_pathways.in,v 1.3 2003-08-21 15:49:46 wilsonp Exp $
 
 $usage = "usage: $^X <iso_symbol> [chains]
 Extract chain information from tree files.

@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-#$Id: summary.in,v 1.3 2000-08-10 16:41:58 wilson Exp $
+#!@PERLPATH@
+#$Id: summary.in,v 1.4 2003-08-21 15:49:47 wilsonp Exp $
 $keep = 0;
 
 if ($ARGV[0] eq "-iso") {
