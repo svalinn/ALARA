@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.39 2004-06-03 21:56:24 wilsonp Exp $ */
+/* $Id: Volume.C,v 1.40 2004-07-29 19:23:51 wilsonp Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -782,63 +782,63 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
   cout << endl << endl;
 
 /* ***********************  BEGIN OF DOSE SUMMARY FOR SPECIFIED VOLUME RESOLUTION INTERVALS ***********
-ptr = head;  // set ptr to head of fine mesh list
-int* intHEAD = intervalptr; //HEAD of interval list
-int listsize = *intervalptr; //first element of intervalptr is number of element
-int sizectr; //variable used in loop to track advancement of intervalptr pointer 
-int lower,upper; //upper and lower boundary of one set of requested interval
-int volumeCtr=0; //counter to keep track of fine mesh number; needed to build intervalptr
-float* value[nResults];  //Dose for all shutdown times for one fine mesh
-float sum=0;  // Total for dose in mesh range
+// ptr = head;  // set ptr to head of fine mesh list
+// int* intHEAD = intervalptr; //HEAD of interval list
+// int listsize = *intervalptr; //first element of intervalptr is number of element
+// int sizectr; //variable used in loop to track advancement of intervalptr pointer 
+// int lower,upper; //upper and lower boundary of one set of requested interval
+// int volumeCtr=0; //counter to keep track of fine mesh number; needed to build intervalptr
+// float* value[nResults];  //Dose for all shutdown times for one fine mesh
+// float sum=0;  // Total for dose in mesh range
 
-//stores zone information in intervalptr
-*intHEAD=0; //list has zero length so far
+// //stores zone information in intervalptr
+// *intHEAD=0; //list has zero length so far
 
-//loop to count number of interval
-while (ptr->next != NULL)
-{
-	ptr=ptr->next; // First ptr is head
-	volumeCtr++;	
-	Loading* ldrptr=ptr->zonePtr;
- 	if ((ptr->next != NULL) & (ptr->next>zonePtr<>ldrptr))
-		(*intHEAD)++;		
-}
+// //loop to count number of interval
+// while (ptr->next != NULL)
+// {
+// 	ptr=ptr->next; // First ptr is head
+// 	volumeCtr++;	
+// 	Loading* ldrptr=ptr->zonePtr;
+//  	if ((ptr->next != NULL) & (ptr->next>zonePtr<>ldrptr))
+// 		(*intHEAD)++;		
+// }
 
-//performs summation and prints result
-while (ptr->next != NULL)
-{
+// //performs summation and prints result
+// while (ptr->next != NULL)
+// {
  
-        //  Loops through each shutdown time 
-	for (resNum=0;resNum<nResults;resNum++)
-	{
-	        sum = 0; 
-	        sizectr=listsize-1; //we've read 1 element already	
+//         //  Loops through each shutdown time 
+// 	for (resNum=0;resNum<nResults;resNum++)
+// 	{
+// 	        sum = 0; 
+// 	        sizectr=listsize-1; //we've read 1 element already	
 		
-		// Loops through all requested set of intervals to be summed
-		while(sizectr>0) 
-		{
-			lower=*(++intervalptr);
-			upper=*(++intervalptr);
+// 		// Loops through all requested set of intervals to be summed
+// 		while(sizectr>0) 
+// 		{
+// 			lower=*(++intervalptr);
+// 			upper=*(++intervalptr);
 
-			for(int i=0;i<lower;i++) // advances ptr to start of interval to be summed
-				ptr = ptr -> next;
+// 			for(int i=0;i<lower;i++) // advances ptr to start of interval to be summed
+// 				ptr = ptr -> next;
 		
-			//  Loops through mesh interval at a given shutdown time	
-			for(int mesh=lower;mesh<=upper;mesh++)
-			{
-				sum+=ptr->total[resNum];
-				ptr = ptr->next;
-			}
-			sizectr-=2; //we'vre read 2 additional numbers
-		}
-		ptr = head; // reset ptr to mesh head
-		intervalptr=intHEAD; // reset interval list	
-	        listsize = *intervalptr; // reads size of new interval set	
-		cout<<endl<<" "<<"sum;  // write total dose for all requested interval for one cooling time	
-	}		
+// 			//  Loops through mesh interval at a given shutdown time	
+// 			for(int mesh=lower;mesh<=upper;mesh++)
+// 			{
+// 				sum+=ptr->total[resNum];
+// 				ptr = ptr->next;
+// 			}
+// 			sizectr-=2; //we'vre read 2 additional numbers
+// 		}
+// 		ptr = head; // reset ptr to mesh head
+// 		intervalptr=intHEAD; // reset interval list	
+// 	        listsize = *intervalptr; // reads size of new interval set	
+// 		cout<<endl<<" "<<"sum;  // write total dose for all requested interval for one cooling time	
+// 	}		
 
-}
-*********************** END OF DOSE SUMMARY CODE ************************************************ */
+// }
+// *********************** END OF DOSE SUMMARY CODE ************************************************ */
 }
 
 
@@ -873,194 +873,201 @@ int Volume::count()
   return numInt;
 }
 
-void Volume::makeXFlux(Mixture *mixListHead)
-{
-  // Get data from VolFlux
-  int nNEG  = VolFlux::getNumGroups();
-  int nCP   = VolFlux::getNumCP();
-  int nCPEG = VolFlux::getNumCPEG();
+// THE FOLLOWING REGION CONTAINS PROVISONAL CODE FOR
+// CHARGED PARTICLE REACTIONS.  IT IS LIKELY TO BE SUPERSEDED BY
+// THE IMPLEMENTATION OF THE FEIND DATA HANDLING LIBRARY
+// 
+// IT SHOULD BE POSSIBLE TO REACTIVATE IT BY USING
+// emacs' "uncomment-region" command
+//
+// void Volume::makeXFlux(Mixture *mixListHead)
+// {
+//   // Get data from VolFlux
+//   int nNEG  = VolFlux::getNumGroups();
+//   int nCP   = VolFlux::getNumCP();
+//   int nCPEG = VolFlux::getNumCPEG();
   
-  Volume *ptr=this;
-  VolFlux *volFluxPtr=NULL;
-  Mixture* mixPtr = mixListHead;
+//   Volume *ptr=this;
+//   VolFlux *volFluxPtr=NULL;
+//   Mixture* mixPtr = mixListHead;
 
-  // Calculate Mixture ranges and Gvalues
-  while(mixPtr->getNext())
-    {
-      mixPtr = mixPtr->getNext();
-      mixPtr->calcGvalues();
-    }
+//   // Calculate Mixture ranges and Gvalues
+//   while(mixPtr->getNext())
+//     {
+//       mixPtr = mixPtr->getNext();
+//       mixPtr->calcGvalues();
+//     }
 
-  // Calculate Charged Partical Spectrum
-  double sumNEG = 0;
-  while(ptr->next)
-    {
-      ptr = ptr->next;
-      volFluxPtr = ptr->fluxHead;
-      while(volFluxPtr->advance())
-	{
-	  volFluxPtr = volFluxPtr->advance();
+//   // Calculate Charged Partical Spectrum
+//   double sumNEG = 0;
+//   while(ptr->next)
+//     {
+//       ptr = ptr->next;
+//       volFluxPtr = ptr->fluxHead;
+//       while(volFluxPtr->advance())
+// 	{
+// 	  volFluxPtr = volFluxPtr->advance();
 	  
-	  for(int CP = 0; CP < nCP; CP++)
-	    {
-	      for(int CPEG = 0; CPEG < nCPEG; CPEG++)
-		{
-		  sumNEG = 0;
-		  for(int NEG = 0; NEG < nNEG; NEG++)
-		    {
-		      sumNEG += volFluxPtr->getnflux()[NEG]*ptr->mixPtr->getGvalues()[CP][CPEG][NEG];
-		    }
-		  volFluxPtr->setCPflux(CP,CPEG,sumNEG);
-		  //cout << volFluxPtr->getCPflux()[CP][CPEG] << ' ';
-		}
-	      //cout << endl << endl;
-	    }
-	  //cout << endl << endl << "Next CP" << endl << endl;
-	}
-    }
+// 	  for(int CP = 0; CP < nCP; CP++)
+// 	    {
+// 	      for(int CPEG = 0; CPEG < nCPEG; CPEG++)
+// 		{
+// 		  sumNEG = 0;
+// 		  for(int NEG = 0; NEG < nNEG; NEG++)
+// 		    {
+// 		      sumNEG += volFluxPtr->getnflux()[NEG]*ptr->mixPtr->getGvalues()[CP][CPEG][NEG];
+// 		    }
+// 		  volFluxPtr->setCPflux(CP,CPEG,sumNEG);
+// 		  //cout << volFluxPtr->getCPflux()[CP][CPEG] << ' ';
+// 		}
+// 	      //cout << endl << endl;
+// 	    }
+// 	  //cout << endl << endl << "Next CP" << endl << endl;
+// 	}
+//     }
 	
-}
+// }
 
-void Volume::loadSpecLib(istream *probInput)
-{
-  // Get data from VolFlux class
-  int nNEG  = VolFlux::getNumGroups();
-  int nCP   = VolFlux::getNumCP();
-  int nCPEG = VolFlux::getNumCPEG();
+// void Volume::loadSpecLib(istream *probInput)
+// {
+//   // Get data from VolFlux class
+//   int nNEG  = VolFlux::getNumGroups();
+//   int nCP   = VolFlux::getNumCP();
+//   int nCPEG = VolFlux::getNumCPEG();
 
-  energyRel = new int[nNEG];
+//   energyRel = new int[nNEG];
 
-  char fileName[100];
-  *probInput >> fileName;
+//   char fileName[100];
+//   *probInput >> fileName;
 
-  int KZA;
-  int count = 0;
-  char String[100];
-  int Start,Finish;
-  ifstream input(fileName);
-  double *specLibStorage = 0;
+//   int KZA;
+//   int count = 0;
+//   char String[100];
+//   int Start,Finish;
+//   ifstream input(fileName);
+//   double *specLibStorage = 0;
 
-  if(!input.is_open())
-    cout << "\nFailed to open spec lib\n";
+//   if(!input.is_open())
+//     cout << "\nFailed to open spec lib\n";
 
-  // Find Energy Group Conversions
-  if(energyRel)
-    {
-      input.getline(String,100,'\n');
-      input.getline(String,100,'\n');
+//   // Find Energy Group Conversions
+//   if(energyRel)
+//     {
+//       input.getline(String,100,'\n');
+//       input.getline(String,100,'\n');
 
-      for(int i = 0; i < 20; i++)
-	{
-	  input >> Start >> Start >> Start;
+//       for(int i = 0; i < 20; i++)
+// 	{
+// 	  input >> Start >> Start >> Start;
 	  
-	  if(Start/1000)
-	    {
-	      Finish = Start % 1000;
-	      Start = Start/1000;
-	    }
-	  else
-	    {
-	      input >> Finish;
-	    }
+// 	  if(Start/1000)
+// 	    {
+// 	      Finish = Start % 1000;
+// 	      Start = Start/1000;
+// 	    }
+// 	  else
+// 	    {
+// 	      input >> Finish;
+// 	    }
 
-	  for(int j = Start; j <= Finish; j++)
-	    energyRel[j-1] = i;	    
+// 	  for(int j = Start; j <= Finish; j++)
+// 	    energyRel[j-1] = i;	    
 
-	  for(int j = 0; j < 21; j++)
-	    input.getline(String, 100, '\n');
-	}
+// 	  for(int j = 0; j < 21; j++)
+// 	    input.getline(String, 100, '\n');
+// 	}
 
-      input.seekg(0,ios::beg);
-    }
+//       input.seekg(0,ios::beg);
+//     }
 
-  // Get Spec Data
-  while(!input.eof())
-    {
-      input >> KZA;
-      input.getline(String,100,'\n');
-      specLibStorage = new double[2400];
+//   // Get Spec Data
+//   while(!input.eof())
+//     {
+//       input >> KZA;
+//       input.getline(String,100,'\n');
+//       specLibStorage = new double[2400];
 
-      for(int i = 0; i < 20; i++)
-        {
-          input.getline(String,100,'\n');
+//       for(int i = 0; i < 20; i++)
+//         {
+//           input.getline(String,100,'\n');
 
-          for(int j=0; j < nCP; j++)
-            {
-              input.getline(String,100,'\n');
+//           for(int j=0; j < nCP; j++)
+//             {
+//               input.getline(String,100,'\n');
 
-              for(int k = 0; k < nCPEG; k++)
-                {
-                  input >> specLibStorage[count];
-                  count++;
-                }
+//               for(int k = 0; k < nCPEG; k++)
+//                 {
+//                   input >> specLibStorage[count];
+//                   count++;
+//                 }
 	      
-              input.getline(String,100,'\n');
-            }
-	  specLib[KZA] = specLibStorage;
-        }
-      input.get();
-      count = 0;
-    }  
-}
+//               input.getline(String,100,'\n');
+//             }
+// 	  specLib[KZA] = specLibStorage;
+//         }
+//       input.get();
+//       count = 0;
+//     }  
+// }
 
-void Volume::loadRangeLib(istream *probInput)
-{
-  // Get data from VolFlux Class
-  int nCP   = VolFlux::getNumCP();
-  int nCPEG = VolFlux::getNumCPEG();
+// void Volume::loadRangeLib(istream *probInput)
+// {
+//   // Get data from VolFlux Class
+//   int nCP   = VolFlux::getNumCP();
+//   int nCPEG = VolFlux::getNumCPEG();
 
-  char fileName[30],tmpStr[10],tmpStr2[10];
-  tmpStr[0] = '.';
-  *probInput >> fileName;
+//   char fileName[30],tmpStr[10],tmpStr2[10];
+//   tmpStr[0] = '.';
+//   *probInput >> fileName;
 
-  ifstream *input = new ifstream[nCP];
+//   ifstream *input = new ifstream[nCP];
 
-  for(int i = 0; i < nCP; i++)
-    {
-      strcpy(tmpStr2,fileName);
-      sprintf(&tmpStr[1],"%d",i);
-      input[i].open(strcat(tmpStr2,tmpStr));
+//   for(int i = 0; i < nCP; i++)
+//     {
+//       strcpy(tmpStr2,fileName);
+//       sprintf(&tmpStr[1],"%d",i);
+//       input[i].open(strcat(tmpStr2,tmpStr));
       
-      if(!input[i].is_open())
-	{
-	  cout << "\nFailed To Open Range Libraries\n";
-	}
-    }
+//       if(!input[i].is_open())
+// 	{
+// 	  cout << "\nFailed To Open Range Libraries\n";
+// 	}
+//     }
 
-  // 0: alpha
-  // 1: deuteron
-  // 2: helium 3
-  // 3: proton
-  // 4: triton
+//   // 0: alpha
+//   // 1: deuteron
+//   // 2: helium 3
+//   // 3: proton
+//   // 4: triton
   
-  char String[100];
-  int KZA;
-  double *rangeStorage;
+//   char String[100];
+//   int KZA;
+//   double *rangeStorage;
   
-  for(int i = 0; i < nCP; i++)
-    {
-      while(!input[i].eof())
-        {
-          input[i] >> KZA;
-	  KZA = KZA/10000;
+//   for(int i = 0; i < nCP; i++)
+//     {
+//       while(!input[i].eof())
+//         {
+//           input[i] >> KZA;
+// 	  KZA = KZA/10000;
 
-          if(!i)
-            {
-              rangeStorage = new double[nCP*nCPEG];
-              Volume::rangeLib[KZA] = rangeStorage;
-            }
+//           if(!i)
+//             {
+//               rangeStorage = new double[nCP*nCPEG];
+//               Volume::rangeLib[KZA] = rangeStorage;
+//             }
           
-          input[i].getline(String,100,'\n');
-          for(int j = 0; j < nCPEG; j++)
-            {
-              input[i] >> Volume::rangeLib[KZA][i*24+j];
-            }
+//           input[i].getline(String,100,'\n');
+//           for(int j = 0; j < nCPEG; j++)
+//             {
+//               input[i] >> Volume::rangeLib[KZA][i*24+j];
+//             }
 
-          input[i].get();
-        }
-    }
+//           input[i].get();
+//         }
+//     }
 
-}
+// }
 
 void Volume::readAdjDoseData(int nGroups, ifstream& AdjDoseData)
 {
@@ -1082,3 +1089,5 @@ double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
   	error(9000, "Error in Volume::getAdjDoseConv()" ); 
   return adjDose->calcAdjDose(kza,adjConv,volume);
 }
+
+
