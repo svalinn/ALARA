@@ -49,12 +49,14 @@ Node::Node(int nextKza, Node* passedPrev, double* passedSingle,
     kza(nextKza)
 { 
 
+  int gNum;
+
   switch(mode)
     {
     case MODE_FORWARD:
       single = new double[nGroups+1];
       memCheck(single,"Node::Node(...) constructor: single");
-      for (int gNum=0;gNum<=nGroups;gNum++)
+      for (gNum=0;gNum<=nGroups;gNum++)
 	single[gNum] = passedSingle[gNum];
       P = single;
       break;

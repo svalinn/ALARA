@@ -196,13 +196,13 @@ Root* Root::find(int srchKza)
  *    a new head is returned */
 void Root::add(Root* addRoot)
 {
-  Root* prev = NULL;
+  Root* prevRoot = NULL;
   Root* ptr = this;
 
   //debug(7,"Comparing to %d (%x) with next %x",ptr->kza,ptr,ptr->nextRoot);
   while (ptr->kza < addRoot->kza && ptr->nextRoot != NULL)
     {
-      prev = ptr;
+      prevRoot = ptr;
       ptr = ptr->nextRoot;
       //debug(7,"Comparing to %d (%x) with next %x",ptr->kza,ptr,ptr->nextRoot);
     }
@@ -211,8 +211,8 @@ void Root::add(Root* addRoot)
   if (ptr->kza > addRoot->kza)
     {
       debug(8,"Inserting new entry between %d and %d",
-	    prev->kza, ptr->kza);
-      prev->nextRoot = new Root(addRoot,ptr);
+	    prevRoot->kza, ptr->kza);
+      prevRoot->nextRoot = new Root(addRoot,ptr);
     }
   else
     {
