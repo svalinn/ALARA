@@ -158,7 +158,12 @@ void Result::tally(double* Nlist, double scale)
   int resNum;
 
   for (resNum=0;resNum<nResults;resNum++)
-    N[resNum] += Nlist[resNum]*scale;
+    if (Nlist[resNum]<0)
+      error(2000,"A negative solution has been encountered, suggesting a possible round off error.  Please notify the code author.");
+    else
+      N[resNum] += Nlist[resNum]*scale;
+
+	
 
 }
 
