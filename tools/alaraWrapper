@@ -1,0 +1,8 @@
+#!/bin/sh
+
+INFILE=$1
+shift
+
+(echo "#include \"$ALARADATADIR/stdData.incl\""; cat $INFILE) | cpp | alara $*
+
+
