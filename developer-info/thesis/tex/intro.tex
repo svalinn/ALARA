@@ -11,16 +11,16 @@
   \end{floatingfigure}
   
   Activation is one of the many responses induced in materials when
-  irradiated with neutrons.  When an isotope is subjected to neutron
-  irradiation, it is possible that the neutrons will interact with the
-  nuclei of that isotope, converting them to different isotopes.  Many
-  such reactions are possible with each isotope, so that after only
-  one round of neutron reactions, a material made of only one isotope
-  can be partially converted into over 20 others.  These isotopes, in
-  turn, can undergo similar interactions, leading to yet more
-  isotopes, and so on.  Many of these isotopes can and will be
-  radioactive, and through their decay, even more isotopes can enter
-  the physical system.  If represented graphically (Figure
+  irradiated by neutrons.  When subjected to neutron irradiation, it
+  is possible that the neutrons will interact with the nuclei of an
+  isotope, converting them to different isotopes.  Many such reactions
+  are possible with each isotope, so that after only one round of
+  neutron reactions, a material made of only one isotope can be
+  partially converted into over 20 others.  These isotopes, in turn,
+  can undergo similar interactions, leading to yet more isotopes, and
+  so on.  Many of these isotopes can and will be radioactive, and
+  through their decay, even more isotopes can enter the physical
+  system.  If represented graphically (Figure
   \ref{fig:intro.basic_tree}), this process forms a tree of isotopes,
   where each of the branch in the tree represents either a nuclear
   reaction or a nuclear decay.
@@ -49,7 +49,7 @@
   system or for the personnel which must work on the system, addition
   shielding must be added to the design to mitigate this.  Amongst
   many other factors, the cost of a system is affected by whether the
-  maintenance can be done ``hands-on'' or remoted handling is
+  maintenance can be done ``hands-on'' or remote handling is
   required.  When the lifetime of the system has been reached, the
   cost of decommissioning is influenced by the levels of radioactivity
   in the various materials.
@@ -99,7 +99,7 @@
   different spatial points, and complicated irradiation histories, an
   activation code is required to calculate the levels of induced
   radioactivity.  The tasks for an activation calculation can be
-  divided into two distinct areas: physical modelling and mathematical
+  divided into two distinct areas: physical modeling and mathematical
   solution.  First the code must build an activation tree, deciding
   how large it should be in order to include all the important
   contributions.  The tree is converted into its mathematical
@@ -113,29 +113,30 @@
 
 \begin{section}{Historical Overview}
   
-  The computational solutions to this problem have been well studied.
-  Many different approaches for modeling the physical problem have
-  been combined with at least as many mathematical solution
-  methodologies.  Each combination has its advantages and
-  disadvantages, but none have arrived at an optimum mixture of
-  accuracy, efficiency and usability.  Even ignoring the issue of
-  usability (where this author feels most codes all fail), there are
-  few codes which are keeping up with the demands of greater accuracy
-  in modeling and solutions without becoming inconveniently slow.
+  The computational solutions to this problem have been well
+  studied\cite{adjoint}.  Many different approaches for modeling the
+  physical problem have been combined with at least as many
+  mathematical solution methodologies.  Each combination has its
+  advantages and disadvantages, but none have arrived at an optimum
+  mixture of accuracy, efficiency and usability.  Even ignoring the
+  issue of usability (where this author feels most codes all fail),
+  there are few codes which are keeping up with the demands of greater
+  accuracy in modeling and solutions without becoming inconveniently
+  slow.
 
   The predecessors to many modern activation codes were inventory
-  codes designed for modelling the burn-up of nuclear fuel and
+  codes designed for modeling the burn-up of nuclear fuel and
   build-up of fission products in nuclear reactors.  These codes used
-  a variety of methods for modelling the physical system and solving
+  a variety of methods for modeling the physical system and solving
   the mathematical problem, but have historically been divided into
   three classes based on the mathematical method: time-step based ODE
   solvers, matrix exponential methods, and linear chain methods.
   
-  The time-step based ODE solvers, such as used in FISPIN, use some
-  algebraic approximation of the derivative on the left hand side of
-  equation \ref{eqn:intro.basic_ode}.  One simple form of this
-  approximation uses is based on the first principles definition of
-  the derivative:
+  The time-step based ODE solvers, such as used in
+  FISPIN\cite{FISPIN}, use some algebraic approximation of the
+  derivative on the left hand side of equation
+  \ref{eqn:intro.basic_ode}.  One simple form of this approximation
+  uses is based on the first principles definition of the derivative:
   \begin{equation*}
     \begin{split}
       \dot{N}(t) = \lim_{t_i - t_{i-1} \rightarrow 0} \frac{N(t_i)
@@ -159,12 +160,12 @@
   time steps small enough that the number density of any single
   isotope does not change too much during the time step.  For a
   problem with very short-lived isotopes, this time step must be very
-  short, requiring many steps to solve the entire irradiation
-  history, and thus these methods can be very slow.
+  short, requiring many steps to solve the entire irradiation history,
+  and thus these methods can be very slow.
   
   The original matrix methods employed in inventory codes such as
-  ORIGEN calculate the series expansion of the $e^{\mat{A}t}$
-  exponential:
+  ORIGEN\cite{ORIGEN} calculate the series expansion of the
+  $e^{\mat{A}t}$ exponential:
   \begin{equation*}
     e^{\mat{A}t} = \mat{I} + \mat{A}t + \frac{\mat{A}^2t^2}{2!} +
     \frac{\mat{A}^3t^3}{3!} + \ldots
@@ -172,18 +173,20 @@
   In addition to being prone to round-off error, this expansion may
   need many terms to converge (if it does converge), which is
   computationally expensive, due to the large number of matrix
-  multiplications,
+  multiplications.  Within this class of methods, there is also the
+  option of using matrix decomposition methods to solve the matrix
+  exponential.
   
   The final class of solution methods is linear chains, of which
-  CINDER was one of the first.  While both the time-step methods and
-  the matrix exponential methods have traditionally attempted to solve
-  the entire problem at one time, using a single large system of
-  ODE's, the linear chain method breaks the activation tree into a
-  number of chains so that each isotope has a single production term
-  and a single destruciton term.  This creates a smaller system of
-  ODE's in which the transfer matrix, \mat{A}, is exactly bidiagonal
-  allowing an analytical solution commonly known as the Bateman
-  equations to be used:
+  CINDER\cite{CINDER} was one of the first.  While both the time-step
+  methods and the matrix exponential methods have traditionally
+  attempted to solve the entire problem at one time, using a single
+  large system of ODE's, the linear chain method breaks the activation
+  tree into a number of chains so that each isotope has a single
+  production term and a single destruction term.  This creates a
+  smaller system of ODE's in which the transfer matrix, \mat{A}, is
+  exactly bidiagonal allowing an analytical solution commonly known as
+  the Bateman equations\cite{Bateman} to be used:
   \begin{equation}
     \label{intro.bateman}
     N_i(t) = N_{i_o}e^{-d_i t} + \sum_{j=1}^{i-1}N_{j_o}\left [
@@ -218,18 +221,41 @@
   may be very different from that of a fission reaction system, with,
   for example, many frequent pulses.
   
-  In the time-step based ODE solver class of codes, there are many
-  codes which have seen widespread use for fusion activation,
-  including FISPACT, a direct descendent of FISPIN, and RACC.  Used as
-  the main European fusion activation code, FISPACT, is based on the
-  standard Euler method for solving ODE's.  
+  The most widely used fusion activation codes include
+  FISPACT\cite{FISPACT}, a direct descendant of the FISPIN inventory
+  code, RACC\cite{RACC} (and variations\cite{RACCP,RACCUW}),
+  REAC\cite{REAC}, and DKR\cite{DKR} (and
+  variations\cite{adjoint,DKRICF,DKRP}).  Each uses a different
+  physical and mathematical methods, enabling each to implement unique
+  features.  For example, while FISPACT is limited to solutions at a
+  single spatial point and cannot model pulsed histories exactly, the
+  newest versions support sensitivity analyses and secondary
+  activation caused by the light ions emitted by neutron reactions.
+  Newer versions of RACC switched from the time-step based GEAR ODE
+  solver to matrix decomposition methods, enabling the efficient
+  solution of pulsing histories with loops in the activation tree.
+  RACC's method for truncating the activation trees, however, is not
+  ideal and may lead to an inaccurate final solution.  Not only was
+  DKR the first to implement exact pulsing solutions, it is able to
+  efficiently solve the activation problem across many points of a
+  complicated geometry.  Due to its reliance on linear chains and the
+  Bateman solution, however, DKR has long been criticized for its
+  inability to handle loops in the activation tree.
   
+  As can be seen, despite the wide variety of available activation
+  codes, there is no single code which provides a complete range of
+  features.  Furthermore, because of their original choice of physical
+  methods, mathematical techniques and/or computational design, few if
+  any are extensible to include the additional features.
   
-  
+
 \end{section}
 
 \begin{section}{Goals}
   
+  The goal of this work is to design a new activation code to provides
+  a maximized set of features. 
+
 \end{section}
 
 

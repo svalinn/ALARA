@@ -5,7 +5,7 @@ process is the validation of the program against other computational
 tools.  In the field of fusion activation calculations, there are many
 such tools.  Both FISPACT-97 and DKR have been shown in the past to
 agree well with analytical solutions to multi-step activation
-pathways\cite{bib:IAEA.bench2.rep}.  \ALARA\ offers improvement over
+pathways\cite{IAEA.bench2.rep}.  \ALARA\ offers improvement over
 DKR because it is able to accurately model loops in the activation
 trees and calculate the gas production.  In comparison to FISPACT-97,
 \ALARA\ has many advantages, including the ability to exactly model
@@ -17,7 +17,7 @@ flexibility of operation and reduce memory requirements.
 \section{Benchmark Specifications}
 
 The IAEA FENDL Calculational Activation
-Benchmark\cite{bib:IAEA.bench1.spec} problem is based on the reference
+Benchmark\cite{IAEA.bench1.spec} problem is based on the reference
 steel/water shielding blanket design in the ITER outline design shown
 in figure \ref{fig:valid.radial_build}.  This design includes:
 \begin{itemize}
@@ -34,7 +34,7 @@ test of the activation code's capabilities.
 The neutron fluxes have been provided by the benchmark in the
 VITAMIN-J 175 group energy structure for each of the 468 fine mesh
 intervals.  These fluxes were calculated using the
-ONEDANT\cite{bib:ONEDANT} deterministic neutron transport code with a
+ONEDANT\cite{ONEDANT} deterministic neutron transport code with a
 14.1 MeV isotropic neutron source normalized to inboard and outboard
 neutron wall loadings of 1 and 1.5 MW/m$^2$, respectively.
 
@@ -217,7 +217,7 @@ with half-lives which are of the same order of magnitude as the dwell
 time between pulses: very long-lived isotopes will decay little
 between pulses and slowly reach their saturation level while very
 short-lived isotopes will decay completely between pulses, but can
-reach their saturation level in a single pulse\cite{bib:sisolak}.  The
+reach their saturation level in a single pulse\cite{sisolak}.  The
 dominant isotopes in the glass at 1 hour are $^{64}$Cu and $^{24}$Na,
 both with half-lives slightly longer than half a day.  Their
 inventories in the pulsed problem are 50\% less than in the steady
@@ -226,7 +226,7 @@ state problem, while the tritium inventory is reduced by less than
 
 One method of modeling a pulsed problem as a steady state problem is
 to preserve both the total fluence and the total operating
-time\cite{bib:sisolak,bib:hosny,bib:qingming}.  Using ALARA, the
+time\cite{sisolak,hosny,qingming}.  Using ALARA, the
 results of such an approximate calculation with a flux scaling factor
 of 1/2.2 and total operation time of 2.079 $\times$ 10$^8$ are
 compared to the exact solution in Figure \ref{fig:rel.diff.approx},
@@ -271,7 +271,7 @@ The \ALARA\ activation code has been validated for use in calculating
 the activation of fusion power systems.  The results for a steady
 state activation problem have been compared to the results from two
 standard codes whose accuracy has been well
-documented\cite{bib:IAEA.bench2.rep}: FISPACT-97 and DKR.
+documented\cite{IAEA.bench2.rep}: FISPACT-97 and DKR.
 Discrepancies between the total activities calculated by \ALARA\ and the
 other codes are always less than 2.5\%, except where DKR is
 unable to calculate the tritium production from emitted light ions.

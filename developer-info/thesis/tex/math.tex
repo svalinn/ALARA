@@ -4,12 +4,14 @@ The mathematical problem which results from the physical system
 described in Chapter \ref{chap:physical} is, at first glance, a very
 simple one.  However, the calculation of matrix exponentials, such as
 the solution to the activation equation:
-$$\vec{N}(t) = e^{\mat{A} t} \vec{N}_o,$$
+\begin{equation}
+  \vec{N}(t) = e^{\mat{A} t} \vec{N}_o,\tag{\ref{eqn:intro.basic_soln}}
+\end{equation}
 are known to be difficult in
 general.  An extensive study of nineteen different methods found them
 all to be ``dubious'', saying that ``some of the methods are
 preferable to others, but that none are [sic] completely
-satisfactory.''
+satisfactory.''\cite{DUBIOUS}
 
 If the original activation tree (without removing cross-links and
 straightening loops -- Figure \ref{fig:physical.tree.basic}) is
@@ -153,8 +155,9 @@ formulation.  The matrix exponential can be decomposed as, $\mat{A} =
 \mat{S}e^{\mat{D} t}\mat{S}^{-1},$.  The goal of this class of methods
 is to find a decomposition such that the exponential $e^{\mat{D} t}$
 is easily calculated. Some matrix decomposition methods which have
-been explored for this application include eigenvector decomposition,
-generalized eigenvector decomposition or Schur decomposition.  For
+been explored for this application include eigenvector
+decomposition\cite{eigenvectors}, generalized eigenvector
+decomposition\cite{GERAPH} or Schur decomposition\cite{RACCP}.  For
 some special forms of the transfer matrix, \mat{A}, these
 decomposition methods are accurate.  However, when formulated for the
 general case, the decompositions can be prone to round-off error.
@@ -162,16 +165,16 @@ general case, the decompositions can be prone to round-off error.
 Within the class of matrix methods, however, implementations designed
 to take advantage of the special nature of the linear chain matrix
 \mat{C}, can be promising.  The individual ODE's are solved with the
-assitance of Laplace transforms, filling the resultant matrix
+assistance of Laplace transforms, filling the resultant matrix
 exponential one element at a time.  These methods are, in fact,
 versions of matrix decomposition methods which have been reformulated
 to minimize round-off errors and handle defective matrices, so much so
 that they are hardly recognizable as matrix decomposition methods.
-Previous applications have used a formulation the analytic Bateman
-solution for linear chains, but this is only applicable when there are
-no loops.  A new method, developed in this work, is able to replace
-the Bateman solution, in the event that a loop occurs in the linear
-chain.
+Previous applications have used a formulation the analytic
+Bateman\cite{DKR,DKRICF,DKRP} solution for linear chains, but this is
+only applicable when there are no loops.  A new method, developed in
+this work, is able to replace the Bateman solution, in the event that
+a loop occurs in the linear chain.
 
 One of the primary advantages of matrix methods is their ability to
 quickly solve problems with irradiation histories based on repetition,
@@ -184,10 +187,10 @@ generate a transfer matrix, but work directly with the isotopic number
 density vector.  Since it is not possible to determine a unique
 transfer matrix given the initial and final vector, time-step methods
 are forced to simply step through the entire history, applying the
-whole array of calculations at each time step and modelling each pulse
+whole array of calculations at each time step and modeling each pulse
 individually.
 
-By transfering this system to the Laplace domain and considering each
+By transferring this system to the Laplace domain and considering each
 equation individually, it is possible to write the solution in a more
 compact form (N.B. $P_{i}$ implies $P_{i-1 \rightarrow i}$):
 \begin{align}
@@ -227,7 +230,6 @@ transmutation which are dependent on the flux spectrum and therefore
 it is only during this period in which loops can occur in the isotope
 tree.  In the dwell period, the destruction and production rates are
 only those of decay, and therefore, many of the values will be zero.
-
 
 \begin{section}{The Analytical Bateman Solution}\label{sec:math.bateman}
   
@@ -336,7 +338,7 @@ only those of decay, and therefore, many of the values will be zero.
   are very small.  Each term in the sum will be very large due to
   division by small numbers, and successive terms will differ only in
   the least significant digits.  For these cases, an expansion in
-  $1/s$ may be prefered.
+  $1/s$ may be preferred.
     
   It is apparent from equation \ref{eqn:math.bateman.final}, however,
   that such divisions can be eliminated by writing the solution as a
@@ -395,6 +397,9 @@ only those of decay, and therefore, many of the values will be zero.
   a method for each matrix element which will optimize the speed and
   accuracy of the solution.
   
+  \textbf{DOUG: This section still needs to be finalized based on
+    testing.}
+  
   The nature of the neutron fluxes and nuclear cross-sections result
   in very small destruction rates for most branches, except those of
   relatively short-lived decay reactions.  This means that in most
@@ -413,8 +418,8 @@ only those of decay, and therefore, many of the values will be zero.
   the presence of degenerate eigenvalues.  The eigenvalues of these
   matrices are simply the diagonal elements, which in turn are the
   destruction rates of each isotope in the linear chain being
-  modelled.  True degeneracies in these values will occur only when
-  the chain being modelled by this matrix has straightened loops and a
+  modeled.  True degeneracies in these values will occur only when
+  the chain being modeled by this matrix has straightened loops and a
   simple test can determine whether this is the case.  Each matrix
   element, $T_{i,j}$ represents the transfer within a segment of the
   chain between nodes $j$ and $i$.  Even if there are loops elsewhere
@@ -423,7 +428,7 @@ only those of decay, and therefore, many of the values will be zero.
   loops are found in this chain segment, the recursive Laplace
   Inversion method can be selected.
   
- For the dwell periods between pulses, the Bateman solution can
+  For the dwell periods between pulses, the Bateman solution can
   always be used because the absence of transmutation destruction
   rates results in shorter chain segments, which tend to have larger
   decay destruction rates, and thus be less prone to round-off error.
@@ -509,13 +514,14 @@ only those of decay, and therefore, many of the values will be zero.
   less than the number of pulses in that level, $n_1$.  Multiplying by
   the operation block matrix one more time becomes the transfer matrix
   for the next level of pulsing, $\mat{T}_1 =
-  \mat{T}_0(\mat{D}_1\mat{T}_0)^{n_1}$.  This is repeated with teh
+  \mat{T}_0(\mat{D}_1\mat{T}_0)^{n_1}$.  This is repeated with the
   single dwell matrix for the dwell time of the second level,
-  $\mat{D}_2$, and so on, using the general formula\cite{ref:spangler}
+  $\mat{D}_2$, and so on, using the general formula\cite{Spangler}
   \begin{equation}
-    \mat{T}_i = \mat{T}_{i-1}(\mat{D}_{i}\mat{T}_{i-1})^{n_i}.\label{eqn:pulsing.recurse}
+    \mat{T}_i = \mat{T}_{i-1}(\mat{D}_{i}\mat{T}_{i-1})^{n_i}.
+    \label{eqn:pulsing.recurse}
   \end{equation}
-  It is important to use an efficient algorithm\cite{ref:UofT_csc280}
+  It is important to use an efficient algorithm\cite{UofT_csc280}
   for this matrix exponentiation process since it will be performed so
   often during the operation of the code.  For $N$ levels of pulsing,
   the matrix, $\mat{T}_{N}$, will be the transfer matrix for the
