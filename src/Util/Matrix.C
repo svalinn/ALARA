@@ -1,24 +1,124 @@
 #include "Matrix.h"
 
 
+Matrix::Matrix(int siz)
+{
+  size = siz;
+  data = NULL;
+
+  if (size>0)
+    {
+      data = new double[size*(size+1)/2];
+
+      for (siz=0;siz<size*(size+1)/2;siz++)
+	data[siz] = 0;
+    }
+
+  /* all matrices are made as identiy matrices by default */
+  siz = size;
+  while (siz-->0)
+    data[siz*(siz+3)/2] = 1;
+
+}
+
+
+Matrix::Matrix(const Matrix& m)
+{
+  size = m.size;
+  data = NULL;
+
+  if (size>0)
+    {
+      data = new double[size*(size+1)/2];
+      
+      for (int idx=0;idx<size*(size+1)/2;idx++)
+	data[idx] = m.data[idx];
+    }
+
+}
+
+/* make a triangular matrix from the array d,
+ * where all elements are d[col] (regardless of row) */
+Matrix::Matrix(double *d, int sz)
+{
+  size = sz;
+  data = NULL;
+
+  int row,col,idx;
+
+  if (size>0)
+    {
+      
+      data = new double[size*(size+1)/2];
+      row = 0;
+      col = 0;
+      for (idx=0;idx<sz*(sz+1)/2;idx++)
+	{
+	  data[idx] = d[col++];
+	  if (col > row)
+	    {
+	      row++;
+	      col=0;
+	    }
+	}
+    }
+
+}
+
+Matrix::~Matrix()
+{
+  delete data;
+  data = NULL;
+}
+
+
 Matrix& Matrix::operator*=(const Matrix& B)
 {
-  Matrix result = *this*B;
-  
-  *this = result;
-  
+  /* if the to matrices are equal, go straight
+   * to square() */
+  if (this == &B)
+    square();
+
+  /* if this matrix is empty, 
+   * simply assign */
+  else if (size == 0)
+    *this = B;
+
+  /* otherwise, do math */
+  else
+    {
+      double *A_data = data;
+      data = new double[size*(size+1)];
+      
+      int row=0,col=0,idx,term, idxA=0;
+      
+      for (idx=0;idx<size*(size+1)/2;idx++)
+	{
+	  if (col > row)
+	    {
+	      row++;
+	      col=0;
+	      idxA = idx;
+	    }
+	  data[idx] = 0;
+	  for (term=col;term<=row;term++)
+	    data[idx] += A_data[idxA+term]*B.data[term*(term+1)/2+col];
+	  col++;
+	}
+      
+      delete A_data;
+    }
+
   return *this;
 }
 
 Matrix Matrix::operator*(const Matrix& B)
 {
-
   if (size == 0)
     return B;
   
   Matrix result(size);
   int row=0,col=0,idx,term, idxA=0;
-
 
   for (idx=0;idx<size*(size+1)/2;idx++)
     {
@@ -37,23 +137,53 @@ Matrix Matrix::operator*(const Matrix& B)
  return result;
 }
 
+void Matrix::square()
+{
+  if (size==0)
+    return;
+
+  /* save old data */
+  double *old_data = data;
+
+  /* allocate new data */
+  data = new double[size*(size+1)];
+
+  /* do multiplication */
+  int row=0,col=0,idx,term, idxA=0;
+  for (idx=0;idx<size*(size+1)/2;idx++)
+    {
+      if (col > row)
+	{
+	  row++;
+	  col=0;
+	  idxA = idx;
+	}
+      data[idx] = 0;
+      for (term=col;term<=row;term++)
+	data[idx] += old_data[idxA+term]*old_data[term*(term+1)/2+col];
+      col++;
+    }
+
+  delete old_data;
+}
+
 /* raise a matrix to a power */
 Matrix Matrix::operator^(int power)
 {
   /* initialize matrices */
-  Matrix answer = Matrix::Identity(size);
-  Matrix accumulator = *this;
+  Matrix answer(size);
+  Matrix accumulator(*this);
 
   /* while the exponent counter is still > 0 */
   while (power != 0)
     {
       /* if exponent is odd */
       if (power%2 == 1)
-	answer = answer*accumulator;
+	answer *= accumulator;
 
       /* time saver */
       if (power > 1)
-	accumulator = accumulator*accumulator;
+	accumulator.square();
 
       power = power/2;
     }
@@ -74,7 +204,6 @@ Matrix& Matrix::operator=(const Matrix& m)
   if (size>0)
     {
       data = new double[size*(size+1)/2];
-      memCheck(data,"Matrix::operator=(...): data");
       
       for (int idx=0;idx<size*(size+1)/2;idx++)
 	data[idx] = m.data[idx];
@@ -84,36 +213,6 @@ Matrix& Matrix::operator=(const Matrix& m)
 
 }
 
-
-Matrix Matrix::Identity(int sz)
-{
-  Matrix result(sz);
-
-  while (sz-->0)
-    result.data[sz*(sz+3)/2] = 1;
-
-  return result;
-}
-      
-Matrix Matrix::Triangle(double *d, int sz)
-{
-  Matrix result(sz);
-  int row,col,idx;
-  
-  row = 0;
-  col = 0;
-  for (idx=0;idx<sz*(sz+1)/2;idx++)
-    {
-      result.data[idx] = d[col++];
-      if (col > row)
-	{
-	  row++;
-	  col=0;
-	}
-    }
-
-  return result;
-}
 
 double Matrix::rowSum(int row)
 {
@@ -127,40 +226,3 @@ double Matrix::rowSum(int row)
   return result;
 }
 
-Matrix::Matrix(const Matrix& m)
-{
-  size = m.size;
-  data = NULL;
-  if (size>0)
-    {
-      data = new double[size*(size+1)/2];
-      memCheck(data,"Matrix::Matrix(...) copy constructor: data");
-      
-      for (int idx=0;idx<size*(size+1)/2;idx++)
-	data[idx] = m.data[idx];
-    }
-
-}
-
-Matrix::Matrix(int siz)
-{
-  size = siz;
-  data = NULL;
-
-  if (size>0)
-    {
-      data = new double[size*(size+1)/2];
-      memCheck(data,"Matrix::Matrix(...) constructor: data");
-
-      for (siz=0;siz<size*(size+1)/2;siz++)
-	data[siz] = 0;
-    }
-
-}
-
-
-Matrix::~Matrix()
-{
-  delete data;
-  data = NULL;
-}

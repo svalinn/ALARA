@@ -15,16 +15,14 @@ protected:
   int size;
   double *data;
 
+  void square();
+
 public:
   Matrix() { size = 0; data = NULL; };
-  Matrix(const Matrix&);
   Matrix(int);
+  Matrix(const Matrix&);
+  Matrix(double*,int);
   ~Matrix();
-
-
-
-  static Matrix Identity(int);
-  static Matrix Triangle(double*,int);
 
   Matrix operator*(const Matrix&);
   Matrix& operator*=(const Matrix&);
