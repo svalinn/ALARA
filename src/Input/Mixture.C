@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.13 1999-11-19 23:00:46 wilson Exp $ */
+/* $Id: Mixture.C,v 1.14 1999-12-21 21:40:09 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -31,6 +31,7 @@ Mixture::Mixture(char *name)
 {
   volume = 0;
   totalDensity = 0;
+  totalNDensity = 0;
   volFraction = 0;
   mixName = NULL;
   if (name != NULL)
@@ -58,6 +59,7 @@ Mixture::Mixture(const Mixture &m)
 {
   volume = m.volume;
   totalDensity = m.totalDensity;
+  totalNDensity = m.totalNDensity;
   volFraction = m.volFraction;
   mixName = NULL;
   if (m.mixName != NULL)
@@ -101,6 +103,7 @@ Mixture& Mixture::operator=(const Mixture &m)
 
   volume = m.volume;
   totalDensity = m.totalDensity;
+  totalNDensity = m.totalNDensity;
   volFraction = m.volFraction;
   delete mixName;
   mixName = NULL;
@@ -440,7 +443,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
       if (normType > 0)
 	cout << "\tVolume: " << ptr->volume << endl;
       else
-	cout << "\tMass: " << ptr->volume*totalDensity << endl;
+	cout << "\tMass: " << ptr->volume*ptr->totalDensity << endl;
 
       /* write the component breakdown if requested */
       if (writeComp)
@@ -504,9 +507,9 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	  
 	  if (normType < 0)
 	    {
-	      volume_mass *= totalDensity;
+	      volume_mass *= ptr->totalDensity;
 	      cout
-		<< "\tDensity: " << totalDensity
+		<< "\tDensity: " << ptr->totalDensity
 		<< "\tMass: " << volume_mass
 		<< endl;
 		}
