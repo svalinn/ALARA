@@ -1,6 +1,6 @@
 <HTML>
 <head>
-<!-- $Id: main.html,v 1.1 2000-02-29 13:10:08 wilson Exp $ -->
+<!-- $Id: main.html,v 1.2 2000-03-01 02:03:43 wilson Exp $ -->
 </head>
 
 <body bgcolor=white>
@@ -10,8 +10,11 @@
 <hr>
 </center>
 
+<blockquote>
 <tt>alara [-h] [-r] [-v <i>&lt;n&gt;</i>] [-t <i>&lt;tree_filename&gt;</i>]
-[<i>&lt;input_filename&gt;</i>]</tt>
+[<i>&lt;input_filename&gt;</i>]<p>
+alara -V</tt>
+</blockquote>
 <p>
 
 <dl>
@@ -37,6 +40,17 @@
      <a href=../input/index.html target=_top>input file</a> (or add a
      new output block) to include the newly desired results and then
      rerun <b>ALARA</b> using this restart option.
+     <p>
+<dt> <tt><b>-t <i>&lt;tree_filename&gt;</i></b></tt>: set the filename
+     for the tree file
+<dd> This option defines the name of the optional tree file to be
+     generated during the <b>ALARA</b> run.  If it already exists,
+     this file will be overwritten.  For more information on tree
+     files, see the Users' Guide section devoted to tree files.
+     <p>
+
+<dt> <tt><b>-V</b></tt>: show version string
+<dd> This option will show the current version string and stop!
      <p>
 
 <dt> <tt><b>-v <i>&lt;n&gt;</i></b></tt>: set the verbosity level of
@@ -66,13 +80,6 @@
 	    added to the trees, their library status and truncation
 	    status.</td></tr>
      </table>
-     <p>
-<dt> <tt><b>-t <i>&lt;tree_filename&gt;</i></b></tt>: set the filename
-     for the tree file
-<dd> This option defines the name of the optional tree file to be
-     generated during the <b>ALARA</b> run.  If it already exists,
-     this file will be overwritten.  For more information on tree
-     files, see the Users' Guide section devoted to tree files.
      <p>
 
 <dt> <tt><b><i>&lt;input_filename&gt;</i></b></tt>: define the

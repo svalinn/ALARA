@@ -1,0 +1,159 @@
+<HTML>
+<head>
+<!-- $Id: main.html,v 1.1 2000-03-01 02:03:43 wilson Exp $ -->
+</head>
+
+<body bgcolor=white>
+<center>
+<h3>ALARA Users' Guide</h3>
+<h1>Support File Descriptions</h3>
+<hr>
+</center>
+
+
+This section discusses all the files which <b>ALARA</b> expects to
+find when running a problem:
+<ul>
+<li> <a href=#elelib>Element Library</a>
+<li> <a href=#matlib>Material Library</a>
+<li> <a href=#wdr>Waste Disposal/Clearance Index Limits</a>
+<li> <a href=#binlib>Binary Reaction Library</a>
+</ul>
+
+
+<a name="elelib"><hr></a>
+
+<center><h3>Element Library</h3></center>
+
+The element library allows the user to define the isotopic abundances
+to be used for each element.  While this library should normally
+include a definition of the natural abundances for each element, an
+extension is available for defining enriched or isotopically tailored
+elements.
+<p>
+
+An element library can contain an arbitrary number of elemental
+definitions, each represented by a block with the following format.
+Every block must start with the following five entries:
+<ul>
+  <li> a string indicating the name/identifier,
+  <li> a floating point value for the molar mass,
+  <li> an integer value for the atomic number,
+  <li> a floating point value for the theoretical density, and
+  <li> an integer value defining the number of isotopes.
+</ul>
+This is followed by two entries for each of these isotopes:
+<ul>
+  <li> an integer value for the mass number, and
+  <li> a floating point value for the atomic abundance, in %. 
+</ul>
+<p>
+
+<b>Naming Elemental Definitions</b>
+<p>
+
+The names/identifiers for all elemental definitions must be derived
+from the chemical symbol for that element, using the format
+<tt>ZZ[:AAA...]</tt>, where <tt>ZZ</tt> represents the chemcial
+symbol, and <tt>[:AAA...]</tt> represents an optional modifier,
+separated by a colon, '<tt>:</tt>', from the chemical symbol.  By
+convention, entries without modifiers are used to define the natural
+abundances of isotopes.  The modifier must be a character string
+containing no whitespace.  [example: a definition for lithium enriched
+to 90% in the isotope <sup>6</sup>Li, might have the name 'Li:90'.]
+These names/identifiers can be used both in a <tt>mixture</tt> block
+of the input file (when defining a constituent of type
+<tt>element</tt>) and in the material library.
+
+<p>
+
+<a name=matlib><hr></a>
+
+<center><h3>Material Library</h3></center>
+
+The material library is a mechanism for allowing users to save and
+re-use the definitons of a set of materials.  Users are encouraged to
+develop their own material libraries, by adding material definitions
+to them as needed.  Material libraries are all defined as lists of
+elemental definitions, each of which must occur in the <a
+href=#elelib>element library</a>.
+<p>
+
+A material library can contain an arbitrary number of material
+definitions, each represented by a block with the following format.
+Every block must start with the following three entries:
+<ul>
+  <li> a string indicating the name/identifier,
+  <li> a floating point value for the theoretical density, and
+  <li> an integer defining the number of elemental definitions.
+</ul>
+This is followed by three entries for each elemental definition:
+<ul>
+  <li> a string indicating the name/identifier,
+  <li> a floating point value for the weight fraction in %, and
+  <li> an integer for the atomic number.
+</ul>
+<p>
+
+<b>Naming Material Definitions</b>
+<p>
+
+The name of a material definition must be a character string with no
+whitespace.  The recommended practice is that material definitions
+never be deleted from a material library, ensuring the repeatability
+of results.  It is expected, however, that many materials will undergo
+variations in their definition over time.  It is therefore recommended
+that each material be named with a very specific identifier, perhaps
+containing dates, references, or project names.  This will allow a
+single material library to be a growing and complete record of the
+material definitions used over time.
+
+<p>
+<a name=wdr><hr></a>
+
+<center><h3>Waste Disposal Rating/Clearance Index</h3></center>
+
+Waste disposal ratings and clearance indices are used to provide a
+single metric for classifying the level of control required when
+disposing of used material.  Each metric is based on a (possibly)
+unique list of isotopes and the allowable specific activities for
+those isotopes.
+<p>
+
+The WDR/CI files contain the disposal limit expressed as either a
+volumetric or specific activity.  These files are simple text files
+containing one pair for each isotope for which a limit exists.  The
+first entry of each pair identifies the isotope using either the
+standard chemical symbol notation <tt>CC-AAAM</tt> (<tt>CC</tt> is the
+chemical symbol, <tt>AAA</tt> is the mass number, and <tt>M</tt> is
+the isomeric state: 'm' for the first isomeric state, 'n' for the
+second, and so on), or <b>ALARA</b>'s kza notation <tt>ZZAAAM</tt>
+(<tt>ZZ</tt> is the atomic number, <tt>AAA</tt> is the mass number,
+and <tt>M</tt> is the numerical isomeric state: '1' for the first
+state, '2' for the second, etc).  The second entry is a specific
+activity in any combination of units supported by <b>ALARA</b>.  The
+user is responsible for ensuring that the units chose in the
+<tt>output</tt> block match the units in the waste disposal limit
+file(s) used in that same block.
+<p>
+
+<a name=binlib><hr></a>
+<p>
+
+<center><h3>Binary Reaction Library</h3></center>
+
+Because the reaction schemes/chains are created by a depth first
+search using the data from the transmutation and decay libraries,
+these libraries need to be accessed extensively and randomly.  In the
+past, such random access was not possible due to limits on mass
+storage devices.  Currently, in a text format, such random access
+would still be very tedious.  To ensure that this random access does
+not create a drag on <b>ALARA</b>, it is necessary to either store the
+entire library in memory or use a binary file format.  Because the
+libraries are often quite large (many MB) a simple binary format was
+designed.  The binary
+<p>
+
+
+</body>
+</HTML>
