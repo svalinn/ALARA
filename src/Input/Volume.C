@@ -601,9 +601,6 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		  cout << "Component: " << compPtr->getName() << endl;
 		  ptr->outputList[compNum].write(response,targetKza,coolList,ptr->total);
 
-		  /* clear outputList when done with it */
-		  ptr->outputList[compNum].clear();
-
 		  compPtr = compPtr->advance();
 		  compNum++;
 		}
@@ -620,9 +617,6 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	      cout << "Total" << endl;
 	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total);
 	      
-	      /* clear outputList when done with it */
-	      ptr->outputList[ptr->nComps].clear();
-
 	    }
 	}
       else
@@ -665,3 +659,18 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
   cout << endl << endl;
 }
 
+
+void Volume::resetOutList()
+{
+  int compNum;
+
+  Volume *ptr = this;
+
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+      if (ptr->outputList != NULL)
+	for (compNum=0;compNum<=ptr->nComps;compNum++)
+	  ptr->outputList[compNum].clear();
+    }
+}

@@ -394,8 +394,10 @@ void Input::postProc(Root *masterRootList)
 		 << isoName(targetKza,isoSym) << " ****** TARGET ****** " 
 		 << isoSym << " ****** TARGET ****** " << endl << endl;
 	    outListHead->write(volList,mixListHead,loadList,coolList,targetKza);
-	    loadList->resetVolume();
-	    mixListHead->resetVolume();
+	    volList->resetOutList();
+	    mixListHead->resetOutList();
+	    loadList->resetOutList();
+
 	  }
 	break;
       }

@@ -181,7 +181,7 @@ public:
   Loading* findZone(char *);
   Loading* findMix(char *);
   int numZones();
-  void resetVolume();
+  void resetOutList();
 };
 
 

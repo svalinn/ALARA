@@ -277,6 +277,7 @@ public:
 
   /* Utility */
   int head() {return (volume == VOL_HEAD && next == NULL);};
+  void resetOutList();
 
 };
 

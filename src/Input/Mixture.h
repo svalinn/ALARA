@@ -257,7 +257,7 @@ public:
   Mixture* find(char*);
   int getNComps() { return nComps; };
   Component* getCompList() { return compListHead; };
-  void resetVolume();
+  void resetOutList();
 
 };
 
