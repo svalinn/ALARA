@@ -144,6 +144,7 @@ double laplaceInverse(int row, int col, double *d, double t)
       result += poleResult * exp(-pole[idx]*t);
     }
 
+  delete mult;
   delete pole;
 
   /* absolute value here takes care of negative results */
