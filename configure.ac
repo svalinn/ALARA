@@ -3,6 +3,7 @@
 
 AC_PREREQ(2.57)
 AC_INIT(ALARA,2.7.1,wilsonp@engr.wisc.edu)
+AC_LANG(C++)
 AC_CONFIG_SRCDIR([src/alara.C])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADER([config.h])
@@ -24,7 +25,7 @@ AC_F77_LIBRARY_LDFLAGS   ### Check autoconf manual
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lg2c':
 # FIXED: PPHW
-AC_CHECK_LIB([g2c], [d_sin])
+AC_CHECK_LIB([g2c], [d_sin],[],[],[-lm])
 ### IS THIS REDUNDANT?
 # FIXME: Replace `main' with a function in `-lm':
 # FIXED: PPHW
