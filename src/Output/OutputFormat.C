@@ -159,4 +159,5 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	    cout << endl << endl << endl;
 	  }
     }
+
 }

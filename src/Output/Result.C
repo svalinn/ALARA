@@ -160,7 +160,7 @@ void Result::tally(double* Nlist, double scale)
   for (resNum=0;resNum<nResults;resNum++)
     {
       N[resNum] += Nlist[resNum]*scale;
-      /* used during debuggin
+      /* used during debugging 
       if ( isnan(N[resNum]) || isinf(N[resNum]))
 	error(2000,"A negative solution has been encountered, suggesting a possible round off error.  Please notify the code author."); */
     }
@@ -394,7 +394,6 @@ void Result::resetBinDump()
 void Result::writeDump()
 {
   Result *ptr = this;
-  Result *list = next;
   static float *floatN = new float[nResults];
   int resNum;
 
@@ -411,9 +410,7 @@ void Result::writeDump()
 
   fwrite(&delimiter,SINT,1,binDump);
       
-  delete list;
-  next = NULL;
-
+  clear();
 }
 
 void Result::readDump()
