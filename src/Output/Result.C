@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.16 1999-11-19 23:02:53 wilson Exp $ */
+/* $Id: Result.C,v 1.17 1999-12-21 21:42:47 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -296,6 +296,8 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	case OUTFMT_WDR:
 	  multiplier = dataAccess.getWDR(targetKza)*actMult;
 	  break;
+	default:
+	  multiplier = 1.0;
 	}
       multiplier *= metricMult/volume_mass;
     }
@@ -330,6 +332,8 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	    case OUTFMT_WDR:
 	      multiplier = dataAccess.getWDR(ptr->kza)*actMult;
 	      break;
+	    default:
+	      multiplier = 1.0;
 	    }
 	  multiplier *= metricMult/volume_mass;
 	}
@@ -448,10 +452,10 @@ void Result::setNorm(double passedActMult, int normType)
 
   switch (normType) {
   case OUTNORM_M3:
-    metricMult = CM3_M3;
+    metricMult = 1.0/CM3_M3;
     break;
   case OUTNORM_KG:
-    metricMult = G_KG;
+    metricMult = 1.0/G_KG;
     break;
   default:
     metricMult = 1;
