@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.10 2002-12-02 20:36:11 varuttam Exp $
+$Id: ChangeLog,v 1.11 2003-01-06 20:58:59 wilsonp Exp $
 	
 Version 2.6.???
 	
@@ -22,6 +22,7 @@ NEW FEATURES
 CODE UPDATES
 	* Update for addition of software for producing collaboration 
 	  graphs in doxygen called 'dot'  [PW] (08/11/2002)
+	* Changed code to use GNU autoconf/make, etc... [EK,PW] (01/06/2003)
 	
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
