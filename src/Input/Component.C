@@ -82,9 +82,12 @@ Component* Component::getComponent(int setType,istream &input)
 {
 
   char name[64];
-  double dens;
+  double dens=0;
 
-  input >> name >> dens;
+  input >> name;
+  if (setType <= COMP_SIM)
+    input >> dens;
+
   next = new Component(setType,name,dens);
   memCheck(next,"Component::getComponent(...) : next");
 

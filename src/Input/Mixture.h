@@ -207,8 +207,9 @@ class Mixture
 protected:
   char *mixName;
   Component *compListHead;
+  Component *targetCompListHead;
   Volume *volList;
-  Root* rootList;
+  Root* rootList, *targetList;
   double volume;
   int nComps;
   Result *outputList;

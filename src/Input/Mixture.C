@@ -37,11 +37,12 @@ Mixture::Mixture(char *name)
     }
 
   compListHead = new Component(COMP_HEAD);
-  memCheck(compListHead,"Mixture::Mixture(...) constructor: compListHead");
+  targetCompListHead = new Component(COMP_HEAD);
 
   volList = new Volume(VOL_HEAD);
 
   rootList = NULL;
+  targetList = NULL;
   nComps = 0;
   outputList = NULL;
   total = NULL;
@@ -61,11 +62,12 @@ Mixture::Mixture(const Mixture &m)
     }
 
   compListHead = new Component(COMP_HEAD);
-  memCheck(compListHead,"Mixture::Mixture(...) copy constructor: compListHead");
+  targetCompListHead = new Component(COMP_HEAD);
 
   volList = new Volume(VOL_HEAD);
 
   rootList = NULL;
+  targetList = NULL;
   nComps = 0;
   outputList = NULL;
   total = NULL;
@@ -77,7 +79,9 @@ Mixture::~Mixture()
 { 
   delete mixName; 
   delete compListHead; 
+  delete targetCompListHead;
   delete rootList;
+  delete targetList;
   delete volList;
   delete [] outputList;
   delete next;
@@ -101,13 +105,16 @@ Mixture& Mixture::operator=(const Mixture &m)
 
   delete compListHead;
   compListHead = new Component(COMP_HEAD);
-  memCheck(compListHead,"Mixture::operator=(...): compListHead");
+  delete targetCompListHead;
+  targetCompListHead = new Component(COMP_HEAD);
 
   delete volList;
   volList = new Volume(VOL_HEAD);
 
   delete rootList;
   rootList = NULL;
+  delete targetList;
+  targetList = NULL;
 
   delete [] outputList;
   nComps = 0;
@@ -140,6 +147,7 @@ Mixture* Mixture::getMixture(istream &input)
 
   /* read a list of componenets until keyword "end" */
   Component* compList = mixPtr->compListHead;
+  Component* targetCompList = mixPtr->targetCompListHead;
   mixPtr->nComps = 0;
 
   verbose(2,"Reading component list for Mixture %s with components:",name);
@@ -167,11 +175,30 @@ Mixture* Mixture::getMixture(istream &input)
 	  debug(2,"Creating new Component object of similar type");
 	  type = COMP_SIM;
 	  break;
+	case 't':
+	  NuclearData::modeReverse();
+	  clearComment(input);
+	  input >> token;
+	  switch(tolower(token[0]))
+	    {
+	    case 'e':
+	      type = TARGET_ELE;
+	      break;
+	    case 'i':
+	      type = TARGET_ISO;
+	      break;
+	    default:
+	      error(101,"Target materials for reverse calculations can only be elements or isotopes and not '%s'",token);
+	    }
+	  break;
 	default:
 	  error(101,"Invalid material constituent: %s", token);
 	}
-      /* add each component to the list */
-      compList = compList->getComponent(type,input);
+      if (type <= COMP_SIM)
+	/* add each component to the list */
+	compList = compList->getComponent(type,input);
+      else
+	targetCompList = targetCompList->getComponent(type,input);
 
       clearComment(input);
       input >> token;
@@ -314,7 +341,7 @@ void Mixture::xRef(Volume *volPtr)
 void Mixture::makeRootList(Root *&masterRootList)
 {
   Mixture *ptr = this;
-  
+
   verbose(2,"Making list of root isotopes.");
   while (ptr->next != NULL)
     {
@@ -322,10 +349,23 @@ void Mixture::makeRootList(Root *&masterRootList)
       /* expand the components into a root list */
       verbose(3,"Expanding mixture %s",ptr->mixName);
       ptr->rootList = ptr->compListHead->expand(ptr);
-      /* merge this root list into the master */
-      masterRootList = masterRootList->merge(ptr->rootList);
-      verbose(4,"Merged rootlist for mixture %s to master root list.",
-	      ptr->mixName);
+      switch(NuclearData::getMode())
+	{
+	case MODE_FORWARD:
+	  /* merge this root list into the master */
+	  masterRootList = masterRootList->merge(ptr->rootList);
+	  verbose(4,"Merged rootlist for mixture %s to master root list.",
+		  ptr->mixName);
+	  break;
+	case MODE_REVERSE:
+	  /* expand the target components into a target list */
+	  ptr->targetList = ptr->targetCompListHead->expand(ptr);
+	  /* merge this root list into the master */
+	  masterRootList = masterRootList->merge(ptr->targetList);
+	  verbose(4,"Merged targetList for mixture %s to master root list.",
+		  ptr->mixName);
+	  break;
+	}
     }
 
   verbose(3,"Expanded all mixtures to master root list.");

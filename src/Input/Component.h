@@ -151,11 +151,14 @@ COMP_HEAD, and contains no problem data.
 #define _COMPONENT_H
 
 /* component types */
-#define COMP_HEAD 0
-#define COMP_MAT 1
-#define COMP_ELE 2
-#define COMP_ISO 3
-#define COMP_SIM 4
+#define COMP_HEAD   0
+#define COMP_MAT    1
+#define COMP_ELE    2
+#define COMP_ISO    3
+#define COMP_SIM    4
+
+#define TARGET_ELE 12
+#define TARGET_ISO 13
 
 #define AVAGADRO 6.02e24
 
