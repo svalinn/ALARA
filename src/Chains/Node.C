@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.15 1999-08-27 15:26:20 wilson Exp $ */
+/* $Id: Node.C,v 1.16 2000-01-07 03:17:30 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -221,7 +221,7 @@ void Node::loadWDR(char *fname)
     {
       if (mode == WDR_SYMMODE)
 	{
-	  for (strPtr=isoName;strPtr;strPtr++)
+	  for (strPtr=isoName;*strPtr;strPtr++)
 	    *strPtr = tolower(*strPtr);
 	  strPtr = strchr(isoName,'-');
 	  *strPtr = '\0';
@@ -229,6 +229,7 @@ void Node::loadWDR(char *fname)
 	  sprintf(sym," %s ",isoName);
 	  
 	  Z = (strstr(SYMBOLS,sym)-SYMBOLS)/3 + 1;
+	  isoFlag = '\0';
 	  sscanf(strPtr+1,"%d%c",&A,&isoFlag);
 	  tmpKza = (Z*1000+A)*10;
 	  if (isalpha(isoFlag))
