@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.h,v 1.5 2000-11-29 21:29:47 wilson Exp $ */
+/* $Id: GammaSrc.h,v 1.6 2001-12-06 23:18:31 wilsonp Exp $ */
 #include "alara.h"
 #include <set>
 
@@ -10,16 +10,22 @@
 #define _GAMMASRC_H
 
 
+#define GAMMASRC_RAW_SRC  1
+#define GAMMASRC_CONTACT  2
+#define GAMMASRC_ADJOINT  3
+
 class GammaSrc
 {
 protected:
   
   DataLib *dataLib;
 
-  int nGroups;
+  int gammaType, nGroups;
   double *grpBnds;
   char *fileName;
   ofstream gSrcFile;
+  ifstream gAttenData;
+  double contactDose, *gammaAttenCoef;
 
   VectorCache gammaMultCache;
 
@@ -28,8 +34,11 @@ protected:
 
 public:
 
-  GammaSrc(istream&);
+  GammaSrc(istream&, int);
   ~GammaSrc();
+
+  void initRawSrc(istream&);
+  void initContactDose(istream&);
 
   double* getGammaMult(int);
   char* getFileName()
@@ -40,8 +49,14 @@ public:
   void writeIsotope(double*,double);
   void writeTotal(double*,int);
 
+  double calcDoseConv(int,double*);
+  void setGammaAttenCoef(Mixture*);
+
   int getNumGrps()
     { return nGroups; };
+  int getType()
+    { return gammaType; } ;
+
 
 };
 
