@@ -1,10 +1,11 @@
       program dant2alara
 
-c      implicit none
 
-      parameter (maxInts = 10000, maxGrps=1000)
+      implicit none
 
       integer maxInts, maxGrps
+
+      parameter (maxInts = 10000, maxGrps=1000)
 
       character(6) junkString
       integer junkInt
