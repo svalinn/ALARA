@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.11 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: Result.C,v 1.12 1999-08-24 22:35:53 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -291,6 +291,9 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	case OUTFMT_GAMMA:
 	  multiplier = dataAccess.getGamma(targetKza)/volume;
 	  break;
+	case OUTFMT_WDR:
+	  multiplier = dataAccess.getWDR(targetKza)/volume;
+	  break;
 	}
     }
   
@@ -320,6 +323,9 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	      break;
 	    case OUTFMT_GAMMA:
 	      multiplier = dataAccess.getGamma(ptr->kza)/volume;
+	      break;
+	    case OUTFMT_WDR:
+	      multiplier = dataAccess.getWDR(ptr->kza)/volume;
 	      break;
 	    }
 	}

@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.12 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: Node.C,v 1.13 1999-08-24 22:35:51 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -202,8 +202,9 @@ double Node::getWDR(int setKza)
 void Node::loadWDR(char *fname)
 {
   int tmpKza, A, Z;
-  char isoName[16], sym[5], *strPtr;
+  char isoName[16], sym[5], *strPtr, isoFlag;
   double wdr;
+  Node dataAccess;
   ifstream wdrFile(fname,ios::in);
 
   wdrCache.erase(wdrCache.begin(),wdrCache.end());
@@ -212,17 +213,20 @@ void Node::loadWDR(char *fname)
 
   while (!wdrFile.eof())
     {
+      for (strPtr=isoName;strPtr;strPtr++)
+	*strPtr = tolower(*strPtr);
       strPtr = strchr(isoName,'-');
       *strPtr = '\0';
 
       sprintf(sym," %s ",isoName);
-      
-      Z = (strstr(SYMBOLS,sym)-SYMBOLS)/3 + 1;
-      A = atoi(strPtr+1);
-      
-      tmpKza = (Z*1000+A)*10;
 
-      wdrCache[tmpKza] = wdr;
+      Z = (strstr(SYMBOLS,sym)-SYMBOLS)/3 + 1;
+      sscanf(strPtr+1,"%d%c",&A,&isoFlag);
+      tmpKza = (Z*1000+A)*10;
+      if (isalpha(isoFlag))
+	tmpKza += isoFlag - 'l';
+
+      wdrCache[tmpKza] = dataAccess.getLambda(tmpKza)/wdr;
       wdrFile >> tmpKza >> wdr;
     }
 
