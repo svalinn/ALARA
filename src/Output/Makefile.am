@@ -1,4 +1,4 @@
-$Id: Makefile.am,v 1.1 2003-01-03 02:02:16 wilsonp Exp $
+#$Id: Makefile.am,v 1.2 2003-01-03 03:03:21 wilsonp Exp $
 noinst_LIBRARIES = libOutput.a
 
 libOutput_a_SOURCES = GammaSrc.C  OutputFormat.C  Result.C

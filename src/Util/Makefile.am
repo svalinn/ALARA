@@ -1,4 +1,4 @@
-$Id: Makefile.am,v 1.1 2003-01-03 02:02:16 wilsonp Exp $
+#$Id: Makefile.am,v 1.2 2003-01-03 03:03:21 wilsonp Exp $
 noinst_LIBRARIES = libUtil.a
 
 libUtil_a_SOURCES = Matrix.C  Statistics.C  debug.C  input.C  math.C  output.C  stub.C

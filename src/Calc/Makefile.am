@@ -1,4 +1,4 @@
-$Id: Makefile.am,v 1.1 2003-01-03 02:02:14 wilsonp Exp $
+#$Id: Makefile.am,v 1.2 2003-01-03 03:03:20 wilsonp Exp $
 noinst_LIBRARIES = libCalc.a
 
 libCalc_a_SOURCES = PulseHistory.C RateCache.C VolFlux.C	\

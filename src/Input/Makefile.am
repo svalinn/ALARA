@@ -1,4 +1,4 @@
-$Id: Makefile.am,v 1.1 2003-01-03 02:02:15 wilsonp Exp $
+#$Id: Makefile.am,v 1.2 2003-01-03 03:03:21 wilsonp Exp $
 noinst_LIBRARIES = libInput.a
 
 libInput_a_SOURCES = Component.C Dimension.C Geometry.C Input.C		\

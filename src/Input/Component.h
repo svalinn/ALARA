@@ -1,4 +1,4 @@
-/* $Id: Component.h,v 1.12 2002-12-27 03:40:00 wilsonp Exp $ */
+/* $Id: Component.h,v 1.13 2003-01-03 03:03:21 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _COMPONENT_H
@@ -28,7 +28,7 @@ class Component
   
   /// This is a stream connected to the material description library as
   /// given in the input file.
-  static ifstream matlib;
+  static ifstream matLib;
   
   /// This a stream connected to the element library as given in the
   /// input file.
