@@ -261,7 +261,7 @@ public:
   void xRef(Mixture *);
   void xRef(Norm *);
   void addMixList(Volume *);
-  void readFlux(char *, int, double);
+  void readFlux(int,char *, int, double);
   void makeSchedTs(topSchedule*);
 
   /* Solution */

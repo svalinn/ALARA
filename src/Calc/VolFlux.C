@@ -12,9 +12,8 @@
  ***************************/
 
 int VolFlux::nFluxes = 0;
-int VolFlux::nGroups = 0;
 
-VolFlux::VolFlux()
+VolFlux::VolFlux(int nGrps) : nGroups(nGrps)
 {
   flux = NULL;
 
@@ -30,10 +29,11 @@ VolFlux::VolFlux()
   next = NULL;
 }
 
-VolFlux::VolFlux(const VolFlux& v)
+VolFlux::VolFlux(const VolFlux& v) :
+  nGroups(v.nGroups)
 {
   flux = NULL;
-  
+
   if (nGroups>0)
     {
       flux = new double[nGroups];
@@ -47,13 +47,14 @@ VolFlux::VolFlux(const VolFlux& v)
   next = NULL;
 }
 
-VolFlux::VolFlux(ifstream &fluxFile, double scale)
+VolFlux::VolFlux(ifstream &fluxFile, double scale, int nGrps) :
+  nGroups(nGrps)
 {
 
   int grpNum;
 
   flux = NULL;
-
+  
   if (nGroups>0)
     {
       flux = new double[nGroups];
@@ -77,7 +78,8 @@ VolFlux& VolFlux::operator=(const VolFlux& v)
 
   delete flux;
   flux = NULL;
-  
+  nGroups = v.nGroups;
+
   if (nGroups>0)
     {
       flux = new double[nGroups];
@@ -94,9 +96,9 @@ VolFlux& VolFlux::operator=(const VolFlux& v)
  ********* Input ************
  ***************************/
 
-VolFlux* VolFlux::read(ifstream &fluxFile, double scale)
+VolFlux* VolFlux::read(int nGrps, ifstream &fluxFile, double scale)
 {
-  next = new VolFlux(fluxFile,scale);
+  next = new VolFlux(fluxFile,scale,nGrps);
   memCheck(next,"VolFlux::read(...): next");
 
   return next;
@@ -123,7 +125,7 @@ void VolFlux::updateReference(VolFlux *compFlux)
       else
 	{
 	  reference = reference->next;
-	  for (gNum=0;gNum<nGroups;gNum++)
+	  for (gNum=0;gNum<compFlux->nGroups;gNum++)
 	    if (compFlux->flux[gNum]>reference->flux[gNum])
 	      reference->flux[gNum] = compFlux->flux[gNum];
 	}
@@ -132,14 +134,14 @@ void VolFlux::updateReference(VolFlux *compFlux)
 
 }
 
-double VolFlux::fold(double* rateVec)
+double VolFlux::fold(int rateGrps, double* rateVec)
 {
 
   int grpNum;
   double rate=0;
 
 
-  if (rateVec != NULL)
+  if (rateVec != NULL && rateGrps == nGroups)
     for (grpNum=0;grpNum<nGroups;grpNum++)
       rate += rateVec[grpNum]*flux[grpNum];
 

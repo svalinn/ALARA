@@ -11,5 +11,4 @@
 #define OUTFMT_BETA    64
 #define OUTFMT_GAMMA  128
 
-
 #endif

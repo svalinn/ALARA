@@ -101,7 +101,8 @@ list of Fluxes.  The first element in each list has type FLUX_HEAD
 
 /* flux formats */
 #define FLUX_HEAD 0
-#define FLUX_D 1
+#define FLUX_D    1
+#define FLUX_AG   2
 
 /* results of searching for flux */
 #define FLUX_NOT_FOUND -1

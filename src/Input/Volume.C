@@ -383,12 +383,11 @@ void Volume::addMixList(Volume* ptr)
 
 /* read the appropriate flux into each interval's flux member object */
 /* called by Flux::xRef(...) */
-void Volume::readFlux(char* fname, int skip, double scale)
+void Volume::readFlux(int nGroups,char* fname, int skip, double scale)
 {
   Volume* ptr = this;
   ifstream fluxFile(fname);
   int skipNum;
-  int nGroups = VolFlux::getNumGroups();
   double skipDble;
   
   debug(3,"Reading flux in %d groups from %s for all intervals",nGroups,fname);
@@ -408,7 +407,7 @@ void Volume::readFlux(char* fname, int skip, double scale)
 	error(622,"Flux file %s does not contain enough data.",fname);
 
       ptr = ptr->next;
-      ptr->flux = ptr->flux->read(fluxFile,scale*ptr->norm);
+      ptr->flux = ptr->flux->read(nGroups,fluxFile,scale*ptr->norm);
     }
 
 }

@@ -12,6 +12,9 @@
 #include "Flux.h"
 
 #include "Volume.h"
+
+#include "Chains/NuclearData.h"
+
 #include "Calc/VolFlux.h"
 
 /***************************
@@ -116,6 +119,9 @@ Flux* Flux::getFlux(istream& input)
     case 'd':
       inFormat = FLUX_D;
       break;
+    case 'a':
+      inFormat = FLUX_AG;
+      break;
     default:
       error(140,"Invalid flux type: %s", type);
     }
@@ -153,7 +159,12 @@ void Flux::xRef(Volume *volList)
 	{
 	case FLUX_D:
 	  /* read entire file into intervals */
-	  volList->readFlux(ptr->fileName,ptr->skip,ptr->scale);
+	  volList->readFlux(NuclearData::getNumGroups(),
+			    ptr->fileName,ptr->skip,ptr->scale);
+	  break;
+	case FLUX_AG:
+	  /* adjoint gamma flux */
+	  volList->readFlux(0,ptr->fileName,ptr->skip,ptr->scale);
 	  break;
 	}
     }

@@ -379,6 +379,7 @@ void Chain::collapseRates(VolFlux* flux)
 {
   int idx,idx2,rank;
   int fluxNum = 0;
+  int nGroups = NuclearData::getNumGroups();
 
   int step = maxChainLength;
   
@@ -392,8 +393,8 @@ void Chain::collapseRates(VolFlux* flux)
 	  if (mode == MODE_REVERSE)
 	    idx = (chainLength-1)-rank;
 	  idx2 = fluxNum*chainLength + idx;
-	  P[idx2] = flux->fold(rates[rank])      + L[idx];
-	  d[idx2] = flux->fold(rates[rank+step]) + l[idx];
+	  P[idx2] = flux->fold(nGroups,rates[rank])      + L[idx];
+	  d[idx2] = flux->fold(nGroups,rates[rank+step]) + l[idx];
 	}
       
       /* in forward mode, don't destroy bottom isotope */

@@ -279,8 +279,6 @@ void NuclearData::getDataLib(istream& input)
 
   nGroups = dataLib->getNumGroups();
 
-  VolFlux::setNumGroups(nGroups);
-	  
 }
 
 void NuclearData::closeDataLib()

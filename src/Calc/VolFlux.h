@@ -102,7 +102,9 @@ specification.
 class VolFlux
 {
 protected:
-  static int nFluxes, nGroups;
+  static int nFluxes;
+
+  int nGroups;
 
   double *flux;
 
@@ -114,26 +116,22 @@ public:
     { nFluxes = numFlx; };
   static int getNumFluxes() 
     { return nFluxes; };
-  static void setNumGroups(int numGrps)
-    { nGroups = numGrps; };
-  static int getNumGroups() 
-    { return nGroups; };
 
   /* Service */
-  VolFlux();
+  VolFlux(int nGrps=0);
   VolFlux(const VolFlux&);
-  VolFlux(ifstream &, double );
+  VolFlux(ifstream &, double, int nGrps=0);
   ~VolFlux()
     { delete flux; delete next; };
 
   VolFlux& operator=(const VolFlux&);
 
   /* Input */
-  VolFlux* read(ifstream &, double );
+  VolFlux* read(int, ifstream &, double );
   
   /* Solution */
   void updateReference(VolFlux*);
-  double fold(double*);
+  double fold(int,double*);
 
   /* Utility */
   VolFlux* advance() {return next;};
