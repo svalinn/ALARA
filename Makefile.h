@@ -5,6 +5,7 @@
 docdir = $(pkgdatadir)/doc
 nonxsdir = $(pkgdatadir)/data
 xsdir = $(pkglibdir)/$(OSTYPE)
-sampledir = $(pkgdatadir)/samples
+sampledir = $(pkgdatadir)/sample
+sampledatadir = $(pkgdatadir)/sample/data
 
 AM_CPPFLAGS = -I$(top_srcdir)/src

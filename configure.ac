@@ -6,7 +6,7 @@ AC_INIT(ALARA,2.7.1,wilsonp@engr.wisc.edu)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([src/alara.C])
 AM_INIT_AUTOMAKE
-AC_CONFIG_HEADER([config.h])
+AM_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -66,6 +66,7 @@ AC_CONFIG_FILES([Makefile
 		 doc/Makefile
 		 data/Makefile
 		 sample/Makefile
+		 sample/data/Makefile
 		 developer-info/Makefile
 		 developer-info/doxyalara
 		 ])
