@@ -1,4 +1,4 @@
-/* $Id: IEAFLib.C,v 1.2 2001-08-17 05:30:55 wilsonp Exp $ */
+/* $Id: IEAFLib.C,v 1.3 2001-09-08 20:35:37 wilsonp Exp $ */
 #include "IEAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
@@ -264,7 +264,7 @@ int IEAFLib::getTransData()
   debug(6,"Reading through reaction paths for %d",zak);
 
   /* while this is still the same isotope */
-  while (zak==oldZak)
+  while (mt==5)
     {
       rxnNum++;
       debug(7,"processing reaction # %d", rxnNum);
@@ -307,10 +307,9 @@ int IEAFLib::getTransData()
       /* set emitted particles */
       strcpy(emitted[rxnNum],"x");
 
-      /* check for next x-section */
+      /* check for next x-section: ie. are we still in MT=5 */
       inTrans.getline(buffer,MAXLINELENGTH);
-      extract(buffer,&tmpFlt);
-      zak = int(tmpFlt);
+      mt = atoi(buffer+72);
 
       /* get next modified kza number */
       if (inTrans.eof())
