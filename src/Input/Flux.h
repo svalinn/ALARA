@@ -137,8 +137,8 @@ public:
   void xRef(Volume*);
   
   /* Utility */
-  int find(char*);
-  int find(char*,DoseResponse*);
+  int find(char*,int);
+  int find(char*,int,DoseResponse*);
   int checkFname();
   int count();
 };

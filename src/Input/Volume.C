@@ -41,6 +41,9 @@ Volume::Volume(double vol, char *name) :
   fluxHead = new VolFlux;
   flux = fluxHead;
 
+  adjFluxHead = new VolFlux;
+  adjFlux = adjFluxHead;
+
   //results = new ResultList;
   //resultHead = results;
 
@@ -74,6 +77,9 @@ Volume::Volume(double vol, Loading *loadPtr) :
   fluxHead = new VolFlux;
   flux = fluxHead;
 
+  adjFluxHead = new VolFlux;
+  adjFlux = adjFluxHead;
+
   //results = new ResultList;
   //resultHead = results;
 
@@ -106,6 +112,9 @@ Volume::Volume(const Volume& v) :
   fluxHead = new VolFlux;
   flux = fluxHead;
 
+  adjFluxHead = new VolFlux;
+  adjFlux = adjFluxHead;
+
   //results = new ResultList;
   //resultHead = results;
 
@@ -131,6 +140,9 @@ Volume::Volume(Root *rootPtr,topSchedule* top) :
 
   fluxHead = new VolFlux;
   flux = fluxHead;
+
+  adjFluxHead = new VolFlux;
+  adjFlux = adjFluxHead;
 
   rootPtr->refFlux(fluxHead);
 
@@ -179,6 +191,10 @@ Volume& Volume::operator=(const Volume& v)
   delete fluxHead;
   fluxHead = new VolFlux;
   flux = fluxHead;
+
+  delete adjFluxHead;
+  adjFluxHead = new VolFlux;
+  adjFlux = adjFluxHead;
 
   //delete resultHead;
   //results = new ResultList;
@@ -408,6 +424,35 @@ void Volume::readFlux(int nGroups,char* fname, int skip, double scale)
 
       ptr = ptr->next;
       ptr->flux = ptr->flux->read(nGroups,fluxFile,scale*ptr->norm);
+    }
+
+}
+
+void Volume::readAdjFlux(int nGroups,char* fname, int skip, double scale)
+{
+  Volume* ptr = this;
+  ifstream fluxFile(fname);
+  int skipNum;
+  double skipDble;
+  
+  debug(3,"Reading adjoint flux in %d groups from %s for all intervals",nGroups,fname);
+
+  /* skip entries at beginning of file */
+  if (skip>0)
+    for (skipNum=0;skipNum<skip*nGroups;skipNum++)
+      fluxFile >> skipDble;
+
+  if (fluxFile.eof())
+    error(622,"Flux file %s does not contain enough data.",fname);
+
+  /* read the flux for each interval */
+  while (ptr->next != NULL)
+    {
+      if (fluxFile.eof())
+	error(622,"Flux file %s does not contain enough data.",fname);
+
+      ptr = ptr->next;
+      ptr->adjFlux = ptr->adjFlux->read(nGroups,fluxFile,scale*ptr->norm);
     }
 
 }

@@ -168,8 +168,8 @@ void Flux::xRef(Volume *volList)
 	  break;
 	case FLUX_AG:
 	  /* adjoint gamma flux */
-	  volList->readFlux(doseResp->getNumGroups(),ptr->fileName,
-			    ptr->skip,ptr->scale);
+	  volList->readAdjFlux(doseResp->getNumGroups(),ptr->fileName,
+			       ptr->skip,ptr->scale);
 	  break;
 	}
     }
@@ -183,7 +183,7 @@ void Flux::xRef(Volume *volList)
  ***************************/
 
 /* find a requested flux definition */
-int Flux::find(char *srchFlux)
+int Flux::find(char *srchFlux, int fluxType)
 {
   Flux *ptr=this;
   int fluxNum = 0;
@@ -191,7 +191,8 @@ int Flux::find(char *srchFlux)
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      fluxNum++;
+      if (ptr->format == fluxType)
+	fluxNum++;
       if (!strcmp(ptr->fluxName,srchFlux))
 	if (ptr->checkFname())
 	  return fluxNum-1;
@@ -203,7 +204,7 @@ int Flux::find(char *srchFlux)
 }
 
 /* find and cross-reference a requested adjoint flux definition */
-int Flux::find(char *srchFlux, DoseResponse *dose)
+int Flux::find(char *srchFlux, int fluxType, DoseResponse *dose)
 {
   Flux *ptr=this;
   int fluxNum = 0;
@@ -211,7 +212,8 @@ int Flux::find(char *srchFlux, DoseResponse *dose)
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      fluxNum++;
+      if (ptr->format == fluxType)
+	fluxNum++;
       if (!strcmp(ptr->fluxName,srchFlux))
 	{
 	  doseResp = dose;

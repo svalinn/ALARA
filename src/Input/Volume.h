@@ -229,6 +229,7 @@ protected:
   Loading* zonePtr;
   Mixture* mixPtr;
   VolFlux *fluxHead, *flux;
+  VolFlux *adjFluxHead, *adjFlux;
   topScheduleT* schedT;
   Result results;
   int nComps;
@@ -262,6 +263,7 @@ public:
   void xRef(Norm *);
   void addMixList(Volume *);
   void readFlux(int,char *, int, double);
+  void readAdjFlux(int,char *, int, double);
   void makeSchedTs(topSchedule*);
 
   /* Solution */

@@ -113,7 +113,7 @@ void DoseResponse::xCheck(GammaSrc *gSrcList,Flux *fluxList)
 	      ptr->fluxName, ptr->gSrcName, ptr->respName);
 
       /* set ordinal flux number */
-      int tmpFlux = fluxList->find(ptr->fluxName,ptr);
+      int tmpFlux = fluxList->find(ptr->fluxName,FLUX_AG,ptr);
       /* check that flux is valid */
       switch (tmpFlux)
 	{

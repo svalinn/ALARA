@@ -208,17 +208,19 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 			 CoolingTime *coolList, int targetKza)
 {
   
-  const int nOutTypes = 8;
-  const int firstResponse=2;
+  const int nOutTypes = 9;
+  const int firstResponse=1;
+  const int lastStdResponse=7;
   const char *Out_Types_Str[nOutTypes] = {
   "Break-down by Component",
-  "Binary Data export",
   "Number Density",
   "Specific Activity",
   "Total Decay Heat",
   "Alpha Decay Heat",
   "Beta Decay Heat",
-  "Gamma Decay Heat"};
+  "Gamma Decay Heat",
+  "Dose Response",
+  "Photon Source"};
 
   OutputFormat *ptr = this;
 
@@ -252,7 +254,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       cout << endl << endl;
       
       /* for each indicated response */
-      for (outTypeNum=firstResponse;outTypeNum<nOutTypes;outTypeNum++)
+      for (outTypeNum=firstResponse;outTypeNum<lastStdResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
 	  {
 	    /* write a response title */
@@ -278,6 +280,12 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 
 	    cout << endl << endl << endl;
 	  }
+
+      for (;outTypeNum<nOutTypes;outTypeNum++)
+	if (ptr->outTypes & 1<<outTypeNum)
+	  {
+	  }
+
     }
 
 }

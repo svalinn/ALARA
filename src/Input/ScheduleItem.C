@@ -130,7 +130,7 @@ void ScheduleItem::xCheck(Schedule* schedHead, Flux *fluxHead, History *histHead
 	    verbose(4,"Checking for flux %s and pulsing history %s in single pulse item.",
 		    ptr->fluxName, ptr->pulseName);
 	    /* set ordinal flux number */
-	    int tmpFlux = fluxHead->find(ptr->fluxName);
+	    int tmpFlux = fluxHead->find(ptr->fluxName,FLUX_D);
 	    /* check that flux is valid */
 	    switch (tmpFlux)
 	      {
