@@ -1,9 +1,9 @@
-/* $Id: ADJLib.C,v 1.6 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: ADJLib.C,v 1.7 2000-07-07 02:15:51 wilson Exp $ */
 #include "ADJLib.h"
 
 /* open an existing library */
-ADJLib::ADJLib(char* fname)
-  : ALARALib(fname,DATALIB_ADJOINT)
+ADJLib::ADJLib(char* fname,int setType)
+  : ALARALib(fname,setType)
 { 
   totalXSection = NULL;
   E[0] = 0;

@@ -1,4 +1,4 @@
-/* $Id: ALARALib.C,v 1.9 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: ALARALib.C,v 1.10 2000-07-07 02:15:51 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -30,29 +30,15 @@ ALARALib::ALARALib(char* fname,int setType)
 
   char fnameStr[256];
   strcpy(fnameStr,fname);
-  strcat(fnameStr,".lib");
+  strcat(fnameStr,libTypeSuffix[type]);
 
   binLib = fopen(fnameStr,"rb");
 
   idx = new LibIdx(nParents,nGroups,binLib,setType);
 
   if (setType != type)
-    switch(type)
-      {
-      case DATALIB_ALARA:
-	if (setType == DATALIB_ADJOINT)
-	  error(1100,"You have specified library type 'alaralib' but given the filename of an 'adjlib' library.");
-	else
-	  error(1101,"You have specified library type 'alaralib' but given the filename of an unidentified library.");
-	break;
-      case DATALIB_ADJOINT:
-	if (setType == DATALIB_ALARA)
-	  error(1102,"You have specified library type 'adjlib' but given the filename of an 'alaralib' library.");
-	else
-	  error(1103,"You have specified library type 'adjlib' but given the filename of an unidentified library.");
-	break;
-      }
-
+    error(1100,"You have specified library type %s but given the filename of a%s library.",
+	  libTypeStr[type],libTypeStr[setType]);
 }
 
 ALARALib::ALARALib(const ALARALib& a) : DataLib(a)
@@ -166,6 +152,85 @@ void ALARALib::readData(int findKza, NuclearData* data)
   
 }
 
+/* read gamma data for one isotope */
+void ALARALib::readGammaData(int findKza, GammaSrc *gammaSrc)
+{
+
+  long offset;
+  int checkKza, specNum, numSpec=0;
+  int *numDisc=NULL, *numIntReg=NULL, *nPnts=NULL;
+  int **intRegB=NULL, **intRegT=NULL;
+  float **discGammaE=NULL, **discGammaI=NULL, **contX=NULL, **contY=NULL;
+
+  /* search index and go to that location */
+  offset = idx->search(findKza);
+
+
+  if (offset > 0)
+    {
+      fseek(binLib,offset,SEEK_SET);
+      
+      fread(&checkKza,SINT,1,binLib);
+      fread(&numSpec,SINT,1,binLib);
+
+      numDisc = new int[numSpec];
+      discGammaE = new float*[numSpec];
+      discGammaI = new float*[numSpec];
+
+      numIntReg = new int[numSpec];
+      nPnts = new int[numSpec];
+      intRegB = new int*[numSpec];
+      intRegT = new int*[numSpec];
+      contX = new float*[numSpec];
+      contY = new float*[numSpec];
+
+      fread(numDisc,SINT,numSpec,binLib);
+      fread(numIntReg,SINT,numSpec,binLib);
+      fread(nPnts,SINT,numSpec,binLib);
+      
+      for (specNum=0;specNum<numSpec;specNum++)
+	{
+	  discGammaE[specNum] = new float[numDisc[specNum]];
+	  discGammaI[specNum] = new float[numDisc[specNum]];
+	  fread(discGammaE[specNum],SFLOAT,numDisc[specNum],binLib);
+	  fread(discGammaI[specNum],SFLOAT,numDisc[specNum],binLib);
+
+	  intRegB[specNum] = new int[numIntReg[specNum]];
+	  intRegT[specNum] = new int[numIntReg[specNum]];
+	  contX[specNum] = new float[nPnts[specNum]];
+	  contY[specNum] = new float[nPnts[specNum]];
+	  fread(intRegB[specNum],SINT,numIntReg[specNum],binLib);
+	  fread(intRegT[specNum],SINT,numIntReg[specNum],binLib);
+	  fread(contX[specNum],SFLOAT,nPnts[specNum],binLib);
+	  fread(contY[specNum],SFLOAT,nPnts[specNum],binLib);
+	}
+    }
+
+  gammaSrc->setData(findKza,numSpec,numDisc,numIntReg,nPnts,intRegB,intRegT,
+		    discGammaE,discGammaI,contX,contY);
+
+  for (specNum=0;specNum<numSpec;specNum++)
+    {
+      delete intRegB[specNum];
+      delete intRegT[specNum];
+      delete discGammaE[specNum];
+      delete discGammaI[specNum];
+      delete contX[specNum];
+      delete contY[specNum];
+    }
+
+  delete numDisc;
+  delete numIntReg;
+  delete nPnts;
+  delete intRegB;
+  delete intRegT;
+  delete discGammaE;
+  delete discGammaI;
+  delete contX;
+  delete contY;
+
+}
+
 /*****************************************
  ********** Binary Library Mgmt **********
  ****************************************/
@@ -212,7 +277,7 @@ void ALARALib::writeData(int kza, int nRxns, float thalf, float *E,
   verbose(2,"Writing entry for %d (%d)",kza,offset);
 
   /* write parent isotope info */
-  tmpIdx << kza << "\t" << nRxns << "\t" << offset << endl;
+  tmpIdx << kza << "\t" << nRxns << "\t" << thalf << "\t" << offset << endl;
   offset += fwrite(&kza,SINT,1,binLib)*SINT;
   offset += fwrite(&nRxns,SINT,1,binLib)*SINT;
   offset += fwrite(&thalf,SFLOAT,1,binLib)*SFLOAT;
@@ -251,7 +316,7 @@ void ALARALib::writeGammaData(int kza, int numSpec, int *numDisc, int *nIntReg,
   verbose(2,"Writing GAMMA entry for %d (%d)",kza,offset);
   
   /* write data to files */
-  tmpIdx << kza << "\t" << numSpec << "\t" << offset << endl;
+  tmpIdx << kza << "\t" << numSpec << "\t" << 0 << "\t" << offset << endl;
   
   /* write basic info to binLib */
   offset += fwrite(&kza,SINT,1,binLib)*SINT;
@@ -333,6 +398,7 @@ void ALARALib::appendIdx(char* idxName,int libType)
 {
   long ioffset;
   int parNum, nRxn, rxnNum;
+  float thalf;
   char emission[64];
   int emittedLen, kza;
   int nDisc, nRegs, nPnts;
@@ -361,7 +427,7 @@ void ALARALib::appendIdx(char* idxName,int libType)
   for (parNum=0;parNum<nParents;parNum++)
     {
       /* read and write parent info */
-      tmpIdx >> kza >> nRxn >> ioffset;
+      tmpIdx >> kza >> nRxn >> thalf >> ioffset;
       offset += fwrite(&kza,SINT,1,binLib)*SINT;
       offset += fwrite(&nRxn,SINT,1,binLib)*SINT;
       offset += fwrite(&ioffset,SLONG,1,binLib)*SLONG;

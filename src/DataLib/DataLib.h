@@ -1,4 +1,4 @@
-/* $Id: DataLib.h,v 1.4 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: DataLib.h,v 1.5 2000-07-07 02:15:51 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -104,6 +104,12 @@ DATALIB_GAMMA    5     gamma    An alara binary library containing gamma
 #define ALARA2ADJ 104
 
 #include "Chains/NuclearData.h"
+#include "Output/GammaSrc.h"
+
+extern const char *libTypes;
+extern const int libTypeLength;
+extern const char *libTypeStr[];
+extern const char *libTypeSuffix[];
 
 /* This is a base class and should never be instantiated */
 
@@ -132,6 +138,7 @@ public:
 
   /* Virtual */
   virtual void readData(int,NuclearData*);
+  virtual void readGammaData(int, GammaSrc*);
 
 };
 

@@ -1,4 +1,4 @@
-/* $Id: LibIdx.C,v 1.4 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: LibIdx.C,v 1.5 2000-07-07 02:15:51 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -63,12 +63,26 @@ ALARALib::LibIdx::LibIdx(int& nPar, int& nGroups, FILE*& binLib, int &libType)
 	      fread(&nRxns,SINT,1,binLib);
 	      fread(offset+parNum,SLONG,1,binLib);
 	      for (rxnNum=0;rxnNum<nRxns;rxnNum++)
-		{
-		  fread(&junkInt,SINT,1,binLib);
-		  fread(&junkInt,SINT,1,binLib);
-		  fread(buffer,1,junkInt,binLib);
-		  fread(&junkLong,SLONG,1,binLib);
-		}
+		switch(libType)
+		  {
+		  case DATALIB_ALARA:
+		  case DATALIB_ADJOINT:
+		    {
+		      fread(&junkInt,SINT,1,binLib);
+		      fread(&junkInt,SINT,1,binLib);
+		      fread(buffer,1,junkInt,binLib);
+		      fread(&junkLong,SLONG,1,binLib);
+		      break;
+		    }
+		  case DATALIB_GAMMA:
+		    {
+		      fread(&junkInt,SINT,1,binLib);
+		      fread(&junkInt,SINT,1,binLib);
+		      fread(&junkInt,SINT,1,binLib);
+		      fread(&junkLong,SLONG,1,binLib);
+		      break;
+		    }
+		  }
 	    }
 	}
     }

@@ -1,4 +1,4 @@
-/* $Id: ALARALib.h,v 1.5 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: ALARALib.h,v 1.6 2000-07-07 02:15:51 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -193,6 +193,7 @@ public:
       
   /* Chain */
   void readData(int, NuclearData*);
+  void readGammaData(int, GammaSrc*);
 
   /* Write Binary Data */
   void writeHead(int,float*,float*);

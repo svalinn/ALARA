@@ -1,4 +1,4 @@
-/* $Id: DataLib.C,v 1.5 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: DataLib.C,v 1.6 2000-07-07 02:15:51 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -12,6 +12,34 @@
 #include "ASCIILib/EAFLib/EAFLib.h"
 #include "ALARALib/ALARALib.h"
 #include "ALARALib/ADJLib.h"
+
+
+const char *libTypes =  "\
+null  \
+alara \
+ascii \
+eaf   \
+adj   \
+gamma ";
+
+const int libTypeLength = 6;
+
+const char *libTypeStr[] = {
+  "an unspecified",
+  "an 'alaralib' ALARA",
+  "an unspecified ASCII",
+  "an EAF library",
+  "an 'adjlib' ALARA",
+  "a 'gammalib' ALARA"};
+
+const char *libTypeSuffix[] = {
+  ".null",
+  ".lib",
+  ".null",
+  ".eaf",
+  ".lib",
+  ".gam"};
+
 
 /****************************
  ********* Service **********
@@ -32,16 +60,22 @@ DataLib* DataLib::newLib(char* libType, istream& input)
     case DATALIB_ALARA:
       char alaraLibName[256];
       input >> alaraLibName;
-      dl = new ALARALib(alaraLibName);
+      dl = new ALARALib(alaraLibName,type);
       verbose(3,"Openned binary library with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
       break;
     case DATALIB_ADJOINT:
       char adjointLibName[256];
       input >> adjointLibName;
-      dl = new ADJLib(adjointLibName);
+      dl = new ADJLib(adjointLibName,type);
       verbose(3,"Openned adjoint library with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
+      break;
+    case DATALIB_GAMMA:
+      char gammaLibName[256];
+      input >> gammaLibName;
+      dl = new ALARALib(gammaLibName,type);
+      verbose(3,"Openned binary gamma library.");
       break;
     default:
       error(1000,"Data library type %s (%d) is not yet supported.",
@@ -128,15 +162,7 @@ int DataLib::convertLibType(char* libType)
   strPtr = strstr(libType,"lib");
   *strPtr = '\0';
 
-  char *libTypes =  "\
-null  \
-alara \
-ascii \
-eaf   \
-adj   ";
-
-  int libLength = 6;
-  int type = (strstr(libTypes,libType)-libTypes)/libLength;
+  int type = (strstr(libTypes,libType)-libTypes)/libTypeLength;
 
   return type;
 
@@ -152,3 +178,7 @@ void DataLib::readData(int kza, NuclearData* data)
 }
 
 
+void DataLib::readGammaData(int kza, GammaSrc* gammaSrc)
+{
+  error(9000, "Programming error: DataLib::readGammaData() must be called from a derived object.");
+}

@@ -1,4 +1,4 @@
-/* $Id: ADJLib.h,v 1.6 2000-01-17 18:45:21 wilson Exp $ */
+/* $Id: ADJLib.h,v 1.7 2000-07-07 02:15:51 wilson Exp $ */
 #include "alara.h"
 /* ******* Class Description ************
 
@@ -95,7 +95,7 @@ protected:
   void build();
   
 public:
-  ADJLib(char*);
+  ADJLib(char*,int setType=DATALIB_ADJOINT);
   ADJLib(char*,char*);
 
   
