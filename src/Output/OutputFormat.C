@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.15 1999-08-27 18:47:35 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.16 1999-08-27 19:43:33 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -93,6 +93,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
   int type;
   char token[64];
+  char *fileNamePtr;
 
   input >> token;
   type = strchr(Out_Res,tolower(token[0]))-Out_Res;
@@ -132,7 +133,9 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  break;
 	case OUTFMT_WDR:
 	  input >> token;
-	  next->wdrFilenames.insert(token);
+	  fileNamePtr = new char[strlen(token)+1];
+	  strcpy(fileNamePtr,token);
+	  next->wdrFilenames.insert(fileNamePtr);
 	  verbose(4,"Added WDR/Clearance file %s", token);
 	}
 
@@ -263,6 +266,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		  break;
 		}
 	      
+	      delete [] *fileName;
 	      cout << endl << endl << endl;
 	    }
 	  
