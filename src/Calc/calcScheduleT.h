@@ -1,4 +1,4 @@
-/* $Id: calcScheduleT.h,v 1.2 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: calcScheduleT.h,v 1.3 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -73,6 +73,8 @@ for additional understanding.
  Matrix& total() { return totalT;};
 
  calcScheduleT*& operator[] (int idx) { return subSchedT[idx]; } ; 
+    Inline operator function provides C style indexing of subschedule
+    matrices.
 
 */
 
@@ -102,7 +104,9 @@ public:
   Matrix& total() { return totalT;};
 
   calcScheduleT*& operator[] (int idx) { return subSchedT[idx]; } ;
-
 };
 
 #endif
+
+
+

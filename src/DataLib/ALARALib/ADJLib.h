@@ -1,4 +1,4 @@
-/* $Id: ADJLib.h,v 1.5 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: ADJLib.h,v 1.6 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 /* ******* Class Description ************
 
@@ -27,6 +27,8 @@ DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
 DATALIB_GAMMA    5     gamma    An alara binary library containing gamma
                                 source information.
 -------------------------------------------------------------------
+
+
 */
 
 #ifndef _ADJLIB_H

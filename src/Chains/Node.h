@@ -1,4 +1,4 @@
-/* $Id: Node.h,v 1.5 1999-08-27 15:21:59 wilson Exp $ */
+/* $Id: Node.h,v 1.6 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -9,6 +9,19 @@ chain is created, objects of class Node are added to the bottom of the
 chain to represent the isotopes in the chain.  Following truncation,
 the objects are removed from the bottom of a chain.  Through its base
 classes, it contains all the information about the isotope itself.
+
+ *** STL typedef ***
+
+ DataCache : map<int,double,less<int> >
+   This STL map provides a cache for scalar data mapped with the kza
+   number to which that data corresponds.  
+   
+ *** Static Class Members ***
+
+ lambdaCache, heatCache, alphaCache, 
+ betaCache, gammaCache, wdrCache : DataCache
+   Using this cache system, the decay data used in post-processing
+   only needs to be read from the library once.
 
  *** Class Members ***
 
@@ -25,6 +38,11 @@ classes, it contains all the information about the isotope itself.
    occurrence of an isotope with the same KZA as the current one.  The
    rank of this isotope is returned for use in Chain::loopRank[].
 
+ *** Static Member Functions ***
+
+ void loadWDR(char*)
+   This function opens the file whose name is given in the argument
+   and reads the WDR thresholds into the wdrCache.
 
  *** Public Member Functions ***
 
@@ -104,27 +122,36 @@ classes, it contains all the information about the isotope itself.
     kza of that rank.  If the rank is greater than the chainlength,
     '-1' is returned.
 
+ int count(double*)
+    Inline function sends information about the current node to the
+    statistics routines for diagnostic and tree output.
+
  * - Library Utility - *
 
  double getLambda(int)
     This function accesses the data library to get the decay constant
-    for the isotope indicated by the argument.
+    for the isotope indicated by the argument, first checking in the
+    cache.
 
  double getHeat(int)
     This function accesses the data library to get the total decay
-    heat for the isotope indicated by the argument.
+    heat for the isotope indicated by the argument, first checking in
+    the cache.
 
  double getAlpha(int)
     This function accesses the data library to get the alpha decay
-    heat for the isotope indicated by the argument.
+    heat for the isotope indicated by the argument, first checking in
+    the cache.
 
  double getBeta(int)
-    This function accesses the data library to get the beta decay
-    heat for the isotope indicated by the argument.
+    This function accesses the data library to get the beta decay heat
+    for the isotope indicated by the argument, first checking in the
+    cache.
 
  double getGamma(int)
     This function accesses the data library to get the gamma decay
-    heat for the isotope indicated by the argument.
+    heat for the isotope indicated by the argument, first checking in
+    the cache.
 
 
  */

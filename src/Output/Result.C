@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.17 1999-12-21 21:42:47 wilson Exp $ */
+/* $Id: Result.C,v 1.18 2000-01-17 18:45:21 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -392,9 +392,7 @@ void Result::xCheck()
   if (binDump == NULL)
     {
       warning(440,"ALARA now requires a binary dump file.  Openning the default file 'alara.dmp'");
-      binDump = fopen("alara.dmp","wb+");
-      if (!binDump)
-	error(441,"Unable to open dump file alara.dmp");
+      initBinDump("alara.dmp");
     }
 }
 

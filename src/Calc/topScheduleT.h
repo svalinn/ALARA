@@ -1,4 +1,4 @@
-/* $Id: topScheduleT.h,v 1.2 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: topScheduleT.h,v 1.3 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -36,12 +36,26 @@ inherited members and methods.
  
  * - Constructors & Destructors - *
 
- topScheduleT(topSchedule*) 
+ topScheduleT(topSchedule*)
     This constructor invokes the equivalent base class constructor
     calcScheduleT(calcSchedule*).  In addition, if no argument is
     given, it sets 'coolT' to NULL, otherwise, it creates and
     initializes storage for 'nCoolingTimes' Matrix objects.  See
     calcSchedule(calcSchedule*) for more information.
+
+ topScheduleT(const topScheduleT&)
+    This copy constructor invokes the equivalent base class
+    constructor calcScheduleT(const calcScheduleT&).  If the number of
+    coolig times is defined, it then copies each of the individual
+    transfer matrices.  As such, it recursively copies the transfer
+    matrices of an entire schedule.
+
+ topScheduleT& operator=(const topScheduleT&);
+    This assignment operator behaves similarly to the copy
+    constructor, but instead of calling the base class constructor, it
+    as code copied from that class' assignment operator.  As with all
+    assignment operators in ALARA, care must be taken to free dynamic
+    memory before creating new memory for copying into.
 
  * - Tally - *
 

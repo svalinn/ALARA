@@ -1,4 +1,4 @@
-/* $Id: Root.h,v 1.5 1999-08-25 15:42:50 wilson Exp $ */
+/* $Id: Root.h,v 1.6 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -115,7 +115,23 @@ where this root isotope is found.
        passed through this function to each of the mixtures referenced
        in this list.
 
+    void writeDump()
+       This function simply calls Mixture::writeDump() on every
+       mixture containing the root to which this MixCompRef belongs.
+
+    * - Utility - *
+
+    double maxConc()
+       This function polls each mixture containing the root to which
+       this MixCompRef belongs and finds the maximum relative
+       concentration of this root in any mixture.
+
     * - Postproc - *
+
+    void readDump(int)
+       This function passes its 'kza' argument on to the readDump
+       function of each Mixture containing the root to which with
+       MixCompRef belongs.
 
     Component *getComp(double&, Mixture*, Component*)
        This function searches for a given Mixture/Component pair and
@@ -181,9 +197,9 @@ where this root isotope is found.
  * - Solution - *
 
  void refFlux(VolFlux*)
-    This function helps establish the group-wise maximum reference
-    flux by passing this flux through 'mixList' to the list of
-    intervals which contain a particular root isotope.
+    This inline function helps establish the group-wise maximum
+    reference flux by passing this flux through 'mixList' to the list
+    of intervals which contain a particular root isotope.
 
  void solve(topSchedule*)
     This function is the top level of the solution phase.  For each
@@ -192,6 +208,15 @@ where this root isotope is found.
     the created chain and the passed schedule.
  
  * - Postproc - *
+
+ void readDump()
+    This function calls MixCompRef::readDump() for each root isotope
+    in the problem.
+
+ Root* readSingleDump(int&)
+    This function calls MixCompRef::readDump() for the next target
+    isotope only.  It returns a pointer to that target isotope and the
+    'kza' value for that target in the first argument.
 
  Component* getComp(double&, Mixture*,Component*)
     This function is just a gateway to the MixCompRef function of the
@@ -203,6 +228,10 @@ where this root isotope is found.
     Search through the list of root isotopes for a particular kza,
     passed as the argument.  It returns the pointer to the matched
     object, or NULL if no match.
+
+ double maxConc()
+    Simple pas through to MixCompRef::maxConc(), returning its return
+    value.
 
  * - List - *
 

@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.9 1999-11-19 23:02:53 wilson Exp $ */
+/* $Id: Result.h,v 1.10 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -19,6 +19,26 @@ that interval.
     each output isotope.  This is equal to the number of cooling times
     plus one (for the shutdown result).
 
+ binDump : FILE*
+    This standard C file descriptor is used for a binary dump of the
+    results during the course of the calculation.  It is written to
+    after the solution of each root (target) isotope, and then read,
+    one root isotope at a time, during post-processing.
+
+ delimiter : const int
+    This value (-1) is written to the dump file following each root
+    isotope's record, and is used as a delimiter when reading the file
+    during post-processing.
+
+ actMult : double
+    This value is set by OutputFormat::actMult and holds the activity
+    unit multiplier appropriate for the activity units of this output
+    block.
+
+ metricMult : double
+    This value is a multiplier for the results to account for varying
+    metric prefixes in the normalization of the results.
+
  *** Class Members ***
 
  kza : int
@@ -29,13 +49,39 @@ that interval.
     This is an array of results, one for each cooling time and at
     shutdown.
 
+ next : Result*
+    This is the result of the next isotope in this list of results.
+
  *** Static Member Functions ***
 
  * - Preproc - *
 
- static void setNResults(int)
+ void setNResults(int)
     Inline function initializes the number of results to be stored in
     each Result object.
+
+ * - Postproc - *
+
+ void setNorm(double,int)
+    This function is used to set actMult from the first argument and
+    metricMult by interpretation of the second argument.
+
+ * - Dump - *
+
+ void initBinDump(char*)
+   This function opens and initializes the binary dump file used
+   throughout the solution and postprocessing.
+
+ void dumpHeader()
+   This function dumps the value of nResults to the binary dump file.
+
+ void xCheck()
+   This function checks for the existence of a binary dump file, and
+   if not found, opens one with the default name 'alara.dmp'.
+
+ void resetBinDump()
+   This function flushes the buffer and resets the file pointer to the
+   beginning of the file, to be read in the post-processing step.
 
  *** Member Functions ***
 
@@ -70,6 +116,9 @@ that interval.
     none is found, a new one is created in the right list location,
     and this pointer is returned.
 
+ void clear()
+    Inline function deletes a list of results.
+
  * - Tally - *
 
  void tally(double*, double) 
@@ -80,25 +129,54 @@ that interval.
     second argument defaults to 1, and is the weight used to tally
     this particular result i.e. a density or a volume.
 
+ void tallySoln(Chain*,topScheduleT*)
+    This function parses a whole chain and adds the solution from
+    the appropriate nodes to the current solution vector.  The
+    'appropriate nodes' are determined by polling some parameters of
+    the chain.  This is used during the solution phase of ALARA.
+
  * - Postproc - *
 
+ void postProcTarget(Result*, Mixture*)
+    Used during postprocessing to form the final solutions of reverse
+    calculations, this function adds the results in 'this' list to the
+    list passed in the first argument, but only if the kza refered to
+    in the current item of 'this' list is contained in the list of
+    root isotopes in the mixture referred to in the second argument.
+     
+ void postProcList(Result*, Mixture*, int)
+    Used during postprocessing to form the final solutions of forward
+    calculations, this function adds the results in 'this' list to the
+    list passed in the first argument, but only if the kza referred to
+    in the third argument is contained in the list of root isotopes in
+    the mixture referred to in the second argument.
+
  void postProc(Result&, double)
-     This function steps through the list from which it was called,
-     searching for a matching entry the list passed in the first
-     argument, and tallying the results to that object with a
-     weighting defined by the second argument, which defaults to 1.
+    This function steps through the list from which it was called,
+    searching for a matching entry the list passed in the first
+    argument, and tallying the results to that object with a weighting
+    defined by the second argument, which defaults to 1.
 
  void write(int,CoolingTime*,double*&, double)
-     This does all the work of writing out a table of results,
-     stepping through the list of results.  Based on the first
-     argument, it queries the data library for the scalar multiplier
-     of this response.  It normalizes this multiplier by the last
-     argument (e.g. the volume of a zone) and then prints out the
-     formatted output for each isotope and each cooling time, pointed
-     to by the second argument.  It simultaneously sets the total for
-     this point at each cooling time, at the pointer passed by
-     reference in the third argument.
+    This does all the work of writing out a table of results, stepping
+    through the list of results.  Based on the first argument, it
+    queries the data library for the scalar multiplier of this
+    response.  It normalizes this multiplier by the last argument
+    (e.g. the volume of a zone) and then prints out the formatted
+    output for each isotope and each cooling time, pointed to by the
+    second argument.  It simultaneously sets the total for this point
+    at each cooling time, at the pointer passed by reference in the
+    third argument.
 
+ * - Dump - *
+
+ void writeDump()
+    This function writes the results stored in 'this' entire list to the
+    binary dump file.
+
+ void readDump()
+    This function reads the results from the binary dump file into a
+    new list of results.
 
  */
 

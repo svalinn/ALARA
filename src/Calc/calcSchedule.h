@@ -1,4 +1,4 @@
-/* $Id: calcSchedule.h,v 1.3 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: calcSchedule.h,v 1.4 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -182,7 +182,15 @@ schedule system.
     multiplication.  This small code segment is separated out of
     setT(...) to allow it to be called through a topSchedule derived
     class object and still access the appropriate members.
- 
+
+ * - Utility - * 
+
+ int numItems()
+    Inline function provides access to number of items in this schedule.
+
+ calcSchedule*& operator[](int)
+    Inline operator function allows C style indexing of sub-schedules.
+
  */
 
 #ifndef _CALCSCHEDULE_H

@@ -1,4 +1,4 @@
-/* $Id: Chain.h,v 1.5 1999-08-25 15:42:49 wilson Exp $ */
+/* $Id: Chain.h,v 1.6 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -11,10 +11,28 @@ being solved.
  *** Static Class Members ***
 
  truncLimit : double
-    The tolerance limited to choose when to truncate chains.
+    The tolerance limited to choose when to truncate chains based on
+    main isotopes.
 
  ignoreLimit : double
-    The tolerance limited to choose when to ignore sub-trees.
+    The tolerance limited to choose when to ignore sub-trees based on
+    main isotopes.
+
+ impurityDefn : double
+    The threshold relative concentration within a mixture that defines
+    whether or not a root isotope will be treated as an impurity or
+    main isotope.
+
+ impurityTruncLimit : double
+    The tolerance limited to choose when to truncate chains based on
+    impurity isotopes.
+
+ impurityIgnoreLimit : double
+    The tolerance limited to choose when to ignore sub-trees based on
+    impurity isotopes.
+
+ mode : int
+    Flag indicating whether this is a forward or reverse calculation.
 
  *** Class Members *** 
 
@@ -76,6 +94,11 @@ being solved.
     beginning of the blocks defined above to give 4 apparent rate
     arrays.  This is a simple convenience measure.
 
+ chainTruncLimit, chainIgnoreLimit : double*
+    These pointers simply point to truncLimit (ignoreLimit) or
+    impurityTruncLimit (impurityIgnoreLimit) as appropriate for the
+    current chain being solved.
+
  root : Root*
     This points to the root isotope of this chain.  It is used
     primarily for knowing where to tally the results of the
@@ -130,6 +153,15 @@ being solved.
     This function reads the truncation tolerance information from the
     input file attached to the stream reference passed in the first
     argument.
+
+ void getImpTruncInfo(istream&)
+    This function reads the impurtiy threshold and the truncation
+    tolerance information for impurities from the input file attached
+    to the stream reference passed in the first argument.
+
+ void modeReverse()
+    This function sets 'mode' to the constant defining the reverse
+    calculation mode and calls NuclearData::modeReverse().
 
  *** Public Member Functions ***
 
@@ -227,8 +259,12 @@ being solved.
     'chainLength', it will return 0.
 
  int getSetRank()
-    Inline function provides access to the 'setRank' variable.  */
+    Inline function provides access to the 'setRank' variable.
 
+ int getChainLength()
+    Inline function provides access to the 'chainLength' variable.
+
+*/
 
 #ifndef _CHAIN_H 
 #define _CHAIN_H

@@ -1,4 +1,4 @@
-/* $Id: NuclearData.h,v 1.10 1999-08-24 22:06:17 wilson Exp $ */
+/* $Id: NuclearData.h,v 1.11 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -17,6 +17,11 @@ Node.
     This is a pointer to the data library being used in this problem.
     The DataLib class is a base class for an extensible hierarchy of
     derived classes which represent various formats of data library,
+
+ mode : int
+    This flag defines whether this is a forward or reverse
+    calculation, and therefore whether to use the forward or reverse
+    data library.
 
  *** Class Members ***
 
@@ -61,6 +66,12 @@ Node.
 
  *** Protected Member Functions ***
 
+ * - Service - *
+
+ void cleanUp() 
+    This function performs all the memory allocation required when
+    deleting or resetting the values of a NuclearData object.
+
  * - Chain - *
 
  int stripNonDecay() 
@@ -84,6 +95,18 @@ Node.
     also requests the number of groups from the dataLib to set its own
     static member 'nGroups' and share the info with other classes
     (e.g. VolFlux).
+
+ void closeDataLib()
+    This function simply deletes the static member 'dataLib'.
+
+ void modeReverse()
+    This inline function just sets the 'mode' variable into the reverse
+    mode.
+
+ int getMode()
+    This inline function provides access to the 'mode'.
+
+ *** Public Member Functions ***
 
  * - Constructors & Destructors - *
 
@@ -114,12 +137,6 @@ Node.
     data).  These data are copied into 'nPaths', 'E',
     'daughters','emitted', and 'd', respectively.
 
- void setNoData()
-    This inline function sets the number of reaction paths to 0.  The
-    initial/default value is -1, which is a flag to search for the
-    data.  If no data is found, this must be set to 0 to indicate that
-    data was searched for an there are no reaction paths.
-
  */
 
 #ifndef _NUCLEARDATA_H
@@ -139,6 +156,9 @@ protected:
   double **paths, E[3];
   double *P, *D;
 
+  /* Service */
+  void cleanUp();
+
   /* Chain */
   int stripNonDecay();
 
@@ -157,8 +177,6 @@ protected:
 
   NuclearData& operator=(const NuclearData&);
   
-  void cleanUp();
-
   /* Chain */
   void setData(int, float *, int *, char **, float **, float, float*);
 };

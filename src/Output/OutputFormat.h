@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.h,v 1.10 1999-11-19 23:02:53 wilson Exp $ */
+/* $Id: OutputFormat.h,v 1.11 2000-01-17 18:45:21 wilson Exp $ */
 #include "alara.h"
 #include <set>
 
@@ -9,7 +9,10 @@ definitions of the desired output resolutions, types and formatting.
 The first element of each list has type OUTRES_HEAD (defined through
 the resolution member), and contains no problem data.
 
+ *** STL Typedef Definitions ***
 
+ filenameList : set<char*,compare>
+    This STL set is used to store a unique list of filenames.
 
  *** Static Class Members ***
 
@@ -22,6 +25,27 @@ the resolution member), and contains no problem data.
     This is used as a bit-field by combining a number of predefined
     (Output_def.h) bits which indicate particular kinds of output
     responses or other information.
+
+ normType : int
+    This is used to store which kind of normalization (mass vs volume,
+    including metric prefix) is being used for this output block.
+
+ wdrFilenames : filenameList
+    This list of filenames indicates how many WDR calculations are
+    needed and which files to use for the WDR thresholds.
+
+ actUnits : char*
+    This string is used in output to display which activity units the
+    results are being shown in (Ci vs. Bq).
+
+ normUnits : char*
+    This string is used in output to display which normalization units
+    the results are being shown in (cm3 v. m3 v. g v. kg).
+
+ actMult : double
+    This stores the multiplication factor for the activity units.  If
+    necessary (based on actUnits), it will store the conversion
+    between Ci and Bq.
 
  next: OutputFormat*
     The next object in the linked-list.
@@ -58,11 +82,12 @@ the resolution member), and contains no problem data.
 
  * - Postproc - *
 
- void write(Volume*,Mixture*,Loading*,CoolingTime*)
+ void write(Volume*,Mixture*,Loading*,CoolingTime*,int)
     This function steps through the linked list of output descriptions
     and writes each one in sequence by calling the write() function on
     the list of intervals, zones or mixtures, as determined by the
-    'resolution' member.
+    'resolution' member. The last argument is the kza number for the
+    target isotope for which the current invocation is being called.
 
  */
 
