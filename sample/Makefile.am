@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.7 2004-08-19 04:24:44 wilsonp Exp $
+#$Id: Makefile.am,v 1.8 2004-09-21 19:56:27 wilsonp Exp $
 
 include $(top_srcdir)/Makefile.h
 
@@ -36,6 +36,9 @@ dist_check_DATA =        ref_out/sample1.bin \
                     ref_out/sample6.tree \
                     ref_out/sample7.bin  \
                     ref_out/sample7.out  \
-                    ref_out/sample7.tree 
+                    ref_out/sample7.tree \
+                    ref_out/sample8.bin  \
+                    ref_out/sample8.out  \
+                    ref_out/sample8.tree 
 
 SUBDIRS = data
