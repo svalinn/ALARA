@@ -1,4 +1,4 @@
-/* $Id: alara.h,v 1.11 2002-04-16 20:21:41 wilsonp Exp $ */
+/* $Id: alara.h,v 1.12 2002-05-06 18:03:54 wilsonp Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
@@ -11,7 +11,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-#include <algorithm>
+#include <algorithm.h>
 
 /* *** STL typedef ***
 
@@ -20,7 +20,7 @@
    number to which that data corresponds.  
  */ 
 
-#include <map>
+#include <map.h>
 
 /* TO DO: Come see me next week  Why won't it compile?!?!?*/
 
