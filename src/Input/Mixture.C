@@ -78,6 +78,7 @@ Mixture::~Mixture()
   delete mixName; 
   delete compListHead; 
   delete rootList;
+  delete volList;
   delete [] outputList;
   delete next;
 }

@@ -176,7 +176,8 @@ public:
 	       char* pname=NULL, double inDelay=0, 
 	       char inDUnits=' ', double inOpTime=0, 
 	       char inOpUnits=' ');
-  ~ScheduleItem(){};
+  ~ScheduleItem()
+    { delete next; };
 
   /* Input */
   ScheduleItem* getSubSched(char*,istream&);

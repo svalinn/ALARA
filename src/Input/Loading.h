@@ -160,7 +160,7 @@ public:
   Loading(char* name=IN_HEAD, char *mxName=NULL);
   Loading(const Loading&);
   ~Loading()
-    { delete mixName; delete zoneName; delete next; };
+    { delete mixName; delete zoneName; delete [] outputList; delete next; };
   
   Loading& operator=(const Loading&);
 

@@ -95,6 +95,7 @@ Input::Input(char* inputFname)
 
 Input::~Input()
 {
+  delete inGeom;
   delete mixListHead;
   delete fluxListHead;
   delete historyListHead;

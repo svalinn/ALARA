@@ -98,6 +98,15 @@ calcSchedule::calcSchedule(double td, History* hist, calcSchedule* schedItem)
 
 }
 
+calcSchedule::~calcSchedule()
+{
+  if (nItems>0)
+    for (itemNum=0;itemNum<nItems;itemNum++)
+      delete subSched[itemNum];
+
+  delete subSched;
+}
+
 calcSchedule& calcSchedule::operator=(const calcSchedule& c)
 {
   if (this == &c)

@@ -215,8 +215,8 @@ public:
   calcSchedule(const calcSchedule&);
   calcSchedule(double, double, History*, int);
   calcSchedule(double, History*, calcSchedule* );
-  ~calcSchedule()
-    { delete subSched; };
+  ~calcSchedule();
+
 
   calcSchedule& operator=(const calcSchedule&);
 

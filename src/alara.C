@@ -95,4 +95,6 @@ int main(int argc, char *argv[])
 
   verbose(0,"Output.");
 
+  delete rootList;
+
 }
