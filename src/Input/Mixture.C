@@ -444,6 +444,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	      cout << "Component: " << compPtr->getName() << endl;
 	      ptr->outputList[compNum].write(response,targetKza,coolList,ptr->total,
 					     ptr->volume);
+
 	      compPtr = compPtr->advance();
 	      compNum++;
 	    }
@@ -460,6 +461,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	  cout << "Total" << endl;
 	  ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total,
 					     ptr->volume);
+
 	}
     }
 	  
@@ -505,7 +507,10 @@ Component* Mixture::getComp(int kza,double &density, Component *lastComp)
   if (root)
     return root->getComp(density,this,lastComp);
   else
-    return NULL;
+    {
+      density = 0;
+      return NULL;
+    }
 }
 
 int Mixture::getCompNum(Component* compPtr)
@@ -531,16 +536,21 @@ Mixture* Mixture::find(char* srchName)
 }
 
 /* find a named mixture in the list */
-void Mixture::resetVolume()
+void Mixture::resetOutList()
 {
-
+  int compNum;
   Mixture *ptr = this;
 
-  while (ptr != NULL)
+  while (ptr->next != NULL)
     {
-      ptr->volume = 0;
       ptr = ptr->next;
+      ptr->volume = 0;
+      for (compNum=0;compNum<=ptr->nComps;compNum++)
+	ptr->outputList[compNum].clear();
     }
 }
+
+
+
 
 
