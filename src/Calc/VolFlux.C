@@ -1,4 +1,4 @@
-/* $Id: VolFlux.C,v 1.9 2000-06-20 02:37:50 wilson Exp $ */
+/* $Id: VolFlux.C,v 1.10 2000-07-07 02:04:52 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -123,6 +123,15 @@ void VolFlux::updateReference(VolFlux *compFlux, double volWeight)
 	  reference->next = new VolFlux(*compFlux);
 	  memCheck(reference->next,
 		   "VolFlux::updateReference(...): reference->next");
+	  switch (refflux_type) 
+	    {
+	    case REFFLUX_VOL_AVG:
+	      next->scale(volWeight);
+	      break;
+	    case REFFLUX_MAX:
+	    default:
+	      break;
+	    }
 	}
       else
 	{
