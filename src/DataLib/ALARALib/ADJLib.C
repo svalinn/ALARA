@@ -1,4 +1,4 @@
-/* $Id: ADJLib.C,v 1.8 2002-12-27 03:39:35 wilsonp Exp $ */
+/* $Id: ADJLib.C,v 1.9 2003-10-22 06:04:32 wilsonp Exp $ */
 #include "ADJLib.h"
 
 /* open an existing library */
@@ -101,7 +101,9 @@ void ADJLib::copyHead()
 void ADJLib::getForwardData(int kza)
 {
   int nRxns, checkKza, rxnNum, gNum, emittedLen;
+  int numNZGroups;
   long normOffset = idx->search(kza);
+  float extraGroup;
   
   /* initialize data */
   for (gNum=0;gNum<=nGroups;gNum++)
@@ -132,10 +134,12 @@ void ADJLib::getForwardData(int kza)
 	  fread(&emittedLen,SINT,1,normBinLib);
 	  fread(emitted,1,emittedLen,normBinLib);
 	  emitted[emittedLen] = '\0';
-	  fread(xSection,SFLOAT,nGroups+1,normBinLib);
+	  fread(&numNZGroups,1,SINT,normBinLib);
+	  fread(xSection,SFLOAT,numNZGroups,normBinLib);
 	  if (strcmp(emitted,"x"))
-	    for (gNum=0;gNum<nGroups;gNum++)
+	    for (gNum=0;gNum<numNZGroups;gNum++)
 	      totalXSection[gNum] += xSection[gNum];
+	  fread(&extraGroup,SFLOAT,1,normBinLib);
 	}
     }
 
@@ -148,6 +152,9 @@ void ADJLib::writeData(DaugItem *daug)
   long normOffset;
 
   int checkKza,emittedLen;
+  int numNZGroups;
+
+  float extraGroup;
 
   kza = daug->getKza();
   nRxns = daug->countRxns();
@@ -173,7 +180,9 @@ void ADJLib::writeData(DaugItem *daug)
       fread(&emittedLen,SINT,1,normBinLib);
       fread(emitted,1,emittedLen,normBinLib);
       emitted[emittedLen] = '\0';
-      fread(xSection,SFLOAT,nGroups+1,normBinLib);
+      fread(&numNZGroups,SINT,1,normBinLib);
+      fread(xSection,SFLOAT,numNZGroups,normBinLib);
+      fread(&extraGroup,SFLOAT,1,normBinLib);
 
       tmpIdx << "\t" << parKza << "\t" << emitted 
 	     << "\t" << offset << endl;
@@ -181,7 +190,9 @@ void ADJLib::writeData(DaugItem *daug)
       offset+=fwrite(&parKza,SINT,1,binLib)*SINT;
       offset+=fwrite(&emittedLen,SINT,1,binLib)*SINT;
       offset+=fwrite(emitted,1,emittedLen,binLib);
-      offset+=fwrite(xSection,SFLOAT,nGroups+1,binLib)*SFLOAT;
+      offset+=fwrite(&numNZGroups,SINT,1,binLib)*SINT;
+      offset+=fwrite(xSection,SFLOAT,numNZGroups,binLib)*SFLOAT;
+      offset+=fwrite(&extraGroup,SFLOAT,1,binLib)*SFLOAT;
 
     }
 }
