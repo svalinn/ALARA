@@ -1,4 +1,4 @@
-/* $Id: ADJLib.C,v 1.9 2003-10-22 06:04:32 wilsonp Exp $ */
+/* $Id: ADJLib.C,v 1.10 2003-12-01 20:25:52 wilsonp Exp $ */
 #include "ADJLib.h"
 
 /* open an existing library */
@@ -165,7 +165,7 @@ void ADJLib::writeData(DaugItem *daug)
   getForwardData(kza);
 
   /* write parent isotope info */
-  tmpIdx << kza << "\t" << nRxns << "\t" << offset << endl;
+  tmpIdx << kza << "\t" << nRxns << "\t" << thalf <<"\t" << offset << endl;
   offset += fwrite(&kza,SINT,1,binLib)*SINT;
   offset += fwrite(&nRxns,SINT,1,binLib)*SINT;
   offset += fwrite(&thalf,SFLOAT,1,binLib)*SFLOAT;
