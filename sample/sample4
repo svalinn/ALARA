@@ -1,4 +1,4 @@
-## $Id: sample4,v 1.2 2004-07-23 19:26:04 wilsonp Exp $
+## $Id: sample4,v 1.3 2004-09-21 19:44:29 wilsonp Exp $
 ## Sample 3: Intermediate
 ## Highlights: spherical geometry, complex pulsing scheme, WDR output,
 ## tolerence change
@@ -63,8 +63,8 @@ end
 ## The wdr output determines the waste disposal rating based on the requested standard (NRCA and NRCC in this case)
 output zone
         units Ci m3
-	wdr NRCA
-        wdr NRCC
+	wdr data/NRCA
+        wdr data/NRCC
 end
 
 ## The tolerance level determines the level of precision when building the parent/daughter tree
