@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.29 2003-01-14 05:01:19 wilsonp Exp $ */
+/* $Id: OutputFormat.C,v 1.30 2004-05-12 03:12:02 wilsonp Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -46,7 +46,7 @@ OutputFormat::OutputFormat(int type)
   actMult = 1;
 
   normUnits = new char[4];
-  strcpy(normUnits,"cm3");
+  strcpy(normUnits,"/cm3");
   normType = 1;
 
   gammaSrc = NULL;
