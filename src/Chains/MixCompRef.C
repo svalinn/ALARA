@@ -1,4 +1,4 @@
-/* $Id: MixCompRef.C,v 1.5 2000-06-20 01:48:04 wilson Exp $ */
+/* $Id: MixCompRef.C,v 1.6 2001-12-06 19:25:21 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -225,6 +225,23 @@ double Root::MixCompRef::maxConc()
     }
 
   return maxRelConc;
+}
+
+/* search list of mixtures and find total density across all components */
+double Root::MixCompRef::mixConc(Mixture* currMixPtr)
+{
+  double totalDens = 0;
+
+  MixCompRef *ptr = this;
+
+  while (ptr != NULL)
+    {
+      if (ptr->mixPtr == currMixPtr)
+	totalDens += ptr->density;
+      ptr = ptr->next;
+    }
+
+  return totalDens;
 }
 
 /*****************************

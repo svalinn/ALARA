@@ -1,4 +1,4 @@
-/* $Id: Root.h,v 1.7 2000-06-20 01:48:10 wilson Exp $ */
+/* $Id: Root.h,v 1.8 2001-12-06 19:25:22 wilsonp Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -295,6 +295,7 @@ protected:
 
       /* Utility */
       double maxConc();
+      double mixConc(Mixture*);
 
       /* Postproc */
       void readDump(int);
@@ -333,6 +334,8 @@ public:
   /* Utility */
   Root* find(int);
   double maxConc();
+  double mixConc(Mixture*);
+  Root* getNext() { return nextRoot; } ;
   
   /* List */
   Root* merge(Root*);

@@ -1,4 +1,4 @@
-/* $Id: Root.C,v 1.13 2000-01-17 19:19:05 wilson Exp $ */
+/* $Id: Root.C,v 1.14 2001-12-06 19:25:22 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -196,6 +196,13 @@ Root* Root::find(int srchKza)
 double Root::maxConc()
 {
   return mixList->maxConc();
+}
+
+/* search lost of mixtures to find all components for this
+   mixture and sum their densities */
+double Root::mixConc(Mixture *mixPtr)
+{
+  return mixList->mixConc(mixPtr);
 }
 
 
