@@ -175,6 +175,39 @@ void Result::tally(double* Nlist, double scale)
  ********* PostProc **********
  ****************************/
 
+void Result::postProcTarget(Result* outputList, Mixture *mixPtr)
+{
+
+  Component *compPtr=NULL;
+  double density;
+  int compNum;
+  Result *root = this;
+
+  /* for each initial isotope that generates this target */
+  while (root->next != NULL)
+    {
+      root = root->next;
+      
+      /* get the first component number and density for this root */
+      compPtr = mixPtr->getComp(root->kza,density,NULL);
+      
+      /* if we found the component */
+      while (compPtr)
+	{
+	  compNum = mixPtr->getCompNum(compPtr);
+	  
+	  /* update this component */
+	  outputList[compNum].find(root->kza)->tally(root->N,density);
+	  
+	  /* get the next component */
+	  compPtr = mixPtr->getComp(root->kza,density,compPtr);
+	}
+    }
+
+  /* we are done with this data */
+  clear();
+}
+
 void Result::postProcList(Result* outputList, Mixture *mixPtr, int rootKza)
 {
   Component *compPtr=NULL;
@@ -198,8 +231,7 @@ void Result::postProcList(Result* outputList, Mixture *mixPtr, int rootKza)
     }
   
   /* we are done with this data now */
-  delete next;
-  next = NULL;
+  clear();
 }
 
 void Result::postProc(Result& outputList, double density)
@@ -218,14 +250,15 @@ void Result::postProc(Result& outputList, double density)
 
 }      
 
-void Result::write(int response, CoolingTime *coolList, double*& total, 
-		   double volume)
+void Result::write(int response, int targetKza, CoolingTime *coolList, 
+		   double*& total, double volume)
 {
   int resNum;
   Result* ptr = this;
-  double multiplier=1;
+  double multiplier=1.0;
   Node dataAccess;
   char isoSym[15];
+  int mode = NuclearData::getMode();
 
   /* initialize the total array */
   delete total;
@@ -236,40 +269,65 @@ void Result::write(int response, CoolingTime *coolList, double*& total,
   /* write a standard header for this table */
   coolList->writeHeader();
 
-  /* for each isotope in the table */
-  while (ptr->next != NULL)
+  if (mode == MODE_REVERSE)
     {
-      ptr = ptr->next;
-
       /* query the data library through a dummy Node object
        * to get the nuclear data for the multiplier */
       switch(response)
 	{
 	case OUTFMT_ACT:
-	  multiplier = dataAccess.getLambda(ptr->kza);
+	  multiplier = dataAccess.getLambda(targetKza)/volume;
 	  break;
 	case OUTFMT_HEAT:
-	  multiplier = dataAccess.getHeat(ptr->kza);
+	  multiplier = dataAccess.getHeat(targetKza)/volume;
 	  break;
 	case OUTFMT_ALPHA:
-	  multiplier = dataAccess.getAlpha(ptr->kza);
+	  multiplier = dataAccess.getAlpha(targetKza)/volume;
 	  break;
 	case OUTFMT_BETA:
-	  multiplier = dataAccess.getBeta(ptr->kza);
+	  multiplier = dataAccess.getBeta(targetKza)/volume;
 	  break;
 	case OUTFMT_GAMMA:
-	  multiplier = dataAccess.getGamma(ptr->kza);
+	  multiplier = dataAccess.getGamma(targetKza)/volume;
 	  break;
 	}
+    }
+  
 
+  /* for each isotope in the table */
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+
+      if (mode == MODE_FORWARD)
+	{
+	  /* query the data library through a dummy Node object
+	   * to get the nuclear data for the multiplier */
+	  switch(response)
+	    {
+	    case OUTFMT_ACT:
+	      multiplier = dataAccess.getLambda(ptr->kza)/volume;
+	      break;
+	    case OUTFMT_HEAT:
+	      multiplier = dataAccess.getHeat(ptr->kza)/volume;
+	      break;
+	    case OUTFMT_ALPHA:
+	      multiplier = dataAccess.getAlpha(ptr->kza)/volume;
+	      break;
+	    case OUTFMT_BETA:
+	      multiplier = dataAccess.getBeta(ptr->kza)/volume;
+	      break;
+	    case OUTFMT_GAMMA:
+	      multiplier = dataAccess.getGamma(ptr->kza)/volume;
+	      break;
+	    }
+	}
+      
       /* if the multipier is 0 (e.g. stable isotope for activity based
 	 responses) skip this isotope */
       if (multiplier == 0)
 	continue;
 
-      /* renormalize the multiplier by the volume */
-      multiplier /= volume;
-      
       /* write the formatted output for this isotope */
       cout << isoName(ptr->kza,isoSym) << "\t";
 

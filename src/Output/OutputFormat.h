@@ -97,7 +97,7 @@ public:
   OutputFormat* getOutFmts(istream&);
 
   /* Postproc */
-  void write(Volume*,Mixture*,Loading*,CoolingTime*);
+  void write(Volume*,Mixture*,Loading*,CoolingTime*,int targetKza=0);
 
 };
 

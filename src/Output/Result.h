@@ -132,15 +132,18 @@ public:
 
   /* Utility */
   Result* find(int);
+  void clear()
+    { delete next; next = NULL; };
 
   /* Tally */
   void tally(double*,double scale=1.0);
   void tallySoln(Chain*,topScheduleT*);
 
   /* Postproc */
+  void postProcTarget(Result*, Mixture*);
   void postProcList(Result*, Mixture*, int);
   void postProc(Result&, double density=1.0);
-  void write(int,CoolingTime*,double*&, double volume=1);
+  void write(int, int, CoolingTime*, double*&, double volume=1);
 
   /* Dump */
   static void initBinDump(char*);

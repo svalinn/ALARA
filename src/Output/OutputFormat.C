@@ -85,7 +85,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
 
 void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
-			 CoolingTime *coolList)
+			 CoolingTime *coolList, int targetKza)
 {
   
   const int nOutTypes = 8;
@@ -144,15 +144,15 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case OUTRES_INT:
 		volList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-			       coolList);
+			       coolList,targetKza);
 		break;
 	      case OUTRES_ZONE:
 		loadList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-				coolList);
+				coolList,targetKza);
 		break;
 	      case OUTRES_MIX:
 		mixList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-			       coolList);
+			       coolList,targetKza);
 		break;
 	      }
 
