@@ -1,4 +1,15 @@
-$Id: NEWS,v 1.9 2004-08-19 05:51:15 wilsonp Exp $
+$Id: NEWS,v 1.10 2004-09-21 20:12:00 wilsonp Exp $
+
+Version 2.7.3
+	
+BUGS FIXED
+
+NEW FEATURES
+
+CODE UPDATES
+	* improved running of sample/test input problems [PW] (09/21/2004)
+	
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
 Version 2.7.2
 	
