@@ -1,17 +1,21 @@
 #!/usr/bin/perl
-# $Id: summary.in,v 1.1 2000-02-29 01:28:18 wilson Exp $
+#$Id: summary.in,v 1.2 2000-02-29 13:10:08 wilson Exp $
 
 $keep = 0;
 
 while (<STDIN>) {
     if (/^Zone output requested/) {
 	$keep = 1;
+	print "\n";
     }
     if (/^Zone #/) {
 	$keep = 1;
 	print "\n";
     }
     if  (/^Constituent/) {
+	$keep = 1;
+    }
+    if (/^total\s/i) {
 	$keep = 1;
     }
 
