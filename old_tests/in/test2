@@ -1,0 +1,78 @@
+# $Id: test2,v 1.1 2000-02-29 01:28:12 wilson Exp $
+# ALARA V2.0 Test Suite Problem #1
+#
+# Testing objectives:
+#	* input handling, cross-referencing, and pre-processing
+
+geometry rectangular
+
+dimension 	x
+		  0.0
+	1	  1.0
+	1	  2.0
+	1	  3.0
+end
+
+mat_loading
+	zone_1		mix_1
+	zone_2		mix_2	
+	zone_3		mix_3
+end
+
+material_lib in/matlib
+element_lib in/elelib
+
+mixture mix_1
+	material test_mat_1	1.0	1.0
+end
+
+mixture mix_2
+	material test_mat_1	1.0	1.0
+end
+
+mixture mix_3
+	material test_mat_1	1.0	1.0
+end
+
+flux flux_1 in/fluxin	1.0	0	default
+
+schedule 10_year
+	10 y flux_1 steady_state 0 s
+end
+
+pulsehistory steady_state
+	1	0 s
+end
+
+cooling
+	1 h
+	6 h
+	12 h
+	1 d
+	4 d
+	1 w
+	2 w
+	4 w
+	0.5 y
+	1 y
+	10 y
+end
+
+data_library alaralib fendl2bin
+
+dump_file test1.dump
+
+output zone
+	units Bq cm3
+	component
+	number_density
+	specific_activity
+end
+
+output zone
+	units Bq kg
+	wdr IAEA
+end
+
+truncation 1e-6 1e-8
+impurity 1e-5 1e-2 1e-4
