@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.6 2003-10-22 06:07:06 wilsonp Exp $
+#$Id: Makefile.am,v 1.7 2003-10-28 22:11:39 wilsonp Exp $
 
 include $(top_srcdir)/Makefile.h
 
@@ -12,5 +12,6 @@ noinst_HEADERS = Matrix.h  Statistics.h  classes.h  debug.h  functions.h  input_
 DISTCLEANFILES = dflt_datadir.h
 dflt_datadir.h: Makefile
 	rm -f $@
-	echo '#define DFLT_DATADIR "$(xsdir)"' > $@
+	echo '#define DFLT_DATADIR "$(nonxsdir)"' > $@
+	echo '#define DFLT_XSDIR   "$(xsdir)"' >> $@
 

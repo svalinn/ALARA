@@ -1,4 +1,4 @@
-/* $Id: input.C,v 1.12 2003-06-12 17:00:30 wilsonp Exp $ */
+/* $Id: input.C,v 1.13 2003-10-28 22:11:39 wilsonp Exp $ */
 #include "alara.h"
 #include "input_tokens.h"
 #include "dflt_datadir.h"
@@ -115,12 +115,33 @@ double convertTime(double inTime, char units)
 
 
 
-const char* searchPath(const char* filename)
+const char* searchNonXSPath(const char* filename)
+{
+
+  char *pathVar = getenv("ALARA_DATADIR");
+  char *dfltPath = DFLT_DATADIR;
+
+  return searchPath(filename,pathVar,dfltPath);
+
+
+}
+
+
+const char* searchXSPath(const char* filename)
+{
+
+  char *pathVar = getenv("ALARA_XSDIR");
+  char *dfltPath = DFLT_XSDIR;
+
+  return searchPath(filename,pathVar,dfltPath);
+
+}
+
+const char* searchPath(const char* filename, const char* envPathVar, const char* builtinPathVar)
 {
   struct stat stat_info;
   int stat_result = -1;
   std::string searchFilename = "./";
-  char *pathVar;
 
   searchFilename += filename;
 
@@ -128,9 +149,9 @@ const char* searchPath(const char* filename)
 
   if ( (stat_result = stat(searchFilename.c_str(),&stat_info)) != 0)
     {
-      if (pathVar = getenv("ALARA_DATADIR"))
+      if (envPathVar)
 	{
-	  std::string envPath = pathVar;
+	  std::string envPath = envPathVar;
 	  
 	  std::string::size_type begin = 0;
 	  std::string::size_type end = 0;
@@ -155,7 +176,7 @@ const char* searchPath(const char* filename)
 
       if (stat_result != 0)
 	{
-	  searchFilename = DFLT_DATADIR;
+	  searchFilename = builtinPathVar;
 	  searchFilename += "/";
 	  searchFilename += filename;
 	  verbose(100,"Looking for %s",searchFilename.c_str());

@@ -1,4 +1,4 @@
-/* $Id: ALARALib.C,v 1.13 2003-06-12 17:00:28 wilsonp Exp $ */
+/* $Id: ALARALib.C,v 1.14 2003-10-28 22:11:36 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -37,7 +37,7 @@ ALARALib::ALARALib(char* fname,int setType)
   strcpy(fnameStr,fname);
   strcat(fnameStr,libTypeSuffix[type]);
 
-  binLib = fopen(searchPath(fnameStr),"rb");
+  binLib = fopen(searchXSPath(fnameStr),"rb");
   if (binLib == NULL)
     error(1104,
 	  "The specified library with filename %s could not be accessed. Please check the path/filename.",

@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.21 2003-06-12 17:00:29 wilsonp Exp $ */
+/* $Id: Input.C,v 1.22 2003-10-28 22:11:37 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -527,7 +527,7 @@ void Input::clearIncludeComment()
 	     * Examples: 
 	     *  - "steady_state"  pulse history
 	     *  - library selection */
-	    input = openFile(searchPath(inFileName));
+	    input = openFile(searchNonXSPath(inFileName));
 
 	    if (*input == 0)
 	      error(101,"Unable to open included file: '%s'.",inFileName);

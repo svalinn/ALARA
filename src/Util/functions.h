@@ -1,11 +1,13 @@
-/* $Id: functions.h,v 1.7 2003-06-12 17:00:29 wilsonp Exp $ */
+/* $Id: functions.h,v 1.8 2003-10-28 22:11:39 wilsonp Exp $ */
 /* input.C */
 istream* openFile(const char*);
 void clearComment(istream& input);
 int tokenType(char*);
 double convertTime(double,char);
 
-const char* searchPath(const char* filename);
+const char* searchNonXSPath(const char* filename);
+const char* searchXSPath(const char* filename);
+const char* searchPath(const char* filename, const char* envPathVar, const char* builtinPathVar);
 
 
 /* math.C */
