@@ -1,6 +1,6 @@
 <HTML>
 <head>
-<!-- $Id: main.html,v 1.1 2000-02-29 13:10:08 wilson Exp $ -->
+<!-- $Id: main.html,v 1.2 2000-11-28 01:07:46 wilson Exp $ -->
 </head>
 
 <body bgcolor=white>
@@ -194,6 +194,28 @@ in such an entry is as follows:
        '-'.
 </dl>
       
+<a name="gamma"><hr></a>
+<center><h3>Gamma Source File</h3></center>
+
+The gamma source files created by <b>ALARA</b> currently has a very
+simple (if not unweildy) format.  This file is only created if the
+<tt>photon_src</tt> option is used in one of the <tt>output</tt>
+blocks of the input file where the filename is also given.  The
+spatial resolution of this file is that specified by the
+<tt>output</tt> block.
+<p>
+
+For each spatial region, there is a section for each isotope
+responsible for gamma emissions and a section for the total gamma
+emissions.  Each of these sections has a header line consisting of the
+isotope's identifier (chemical symbol and mass number) or the keyword
+"TOTAL", respectively.  Within each section, there is one block of
+gamma source values for each output time, that is, one for shutdown
+and one for each cooling time.  Finally, each of these blocks contains
+the group-wise gamma source values in photons per second, arranged in
+lines of 6 values per line.
+
+
 
 
 </body>

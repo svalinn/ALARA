@@ -1,6 +1,6 @@
 <HTML>
 <head>
-<!-- $Id: main.html,v 1.4 2000-06-20 17:30:30 wilson Exp $ -->
+<!-- $Id: main.html,v 1.5 2000-11-28 01:07:46 wilson Exp $ -->
 </head>
 
 <body bgcolor=white>
@@ -771,6 +771,11 @@ unit is implied.
 	   <td>total gamma heating</td>
 	 </tr>
 	 <tr>
+	   <td>photon_source</td>
+	   <td align=center>[see below] </td>
+	   <td>gamma source distribution with user-defined group structure</td>
+	 </tr>
+	 <tr>
 	   <td>wdr </td>
 	   <td align=center>[filename] </td>
 	   <td>waste disposal rating/clearance</td>
@@ -779,8 +784,8 @@ unit is implied.
        </center>
        <p>
        
-       The <tt>units</tt> output modifier is used to perform unit
-       conversion on the output and requires two additional text
+       The <b><tt>units</tt></b> output modifier is used to perform
+       unit conversion on the output and requires two additional text
        parameters.  The first parameter is defines the units for
        specific activity and related output types and has two
        possibilities:
@@ -807,7 +812,24 @@ unit is implied.
        than volume/mass normalized results.
        <p>
 
-       The <tt>wdr</tt> output modifier requires an additional text
+       The <b><tt>photon_src</tt></b> output modifier is used to
+       generate a separate file with the gamma source distribution.
+       For more information on gamma source files, see the Users'
+       Guide section devoted to <a href=../output/index.html
+       target=_top>output files</a>.  The first additional parameter
+       is a string representing the name of the ALARA v2.x binary
+       gamma library.  The extension ".gam" will be added to the
+       path/filename given here.  The next parameter is a string
+       representing the the filename where the gamma source
+       information should be stored.  This is followed by an integer
+       parameter representing the number of gamma groups to be used
+       for this photon source.  Finally, one floating point value
+       should be given for the upper bound of each gamma group (the
+       lower bound of the lowest energy group is always 0) in units of
+       eV.
+       <p>
+
+       The <b><tt>wdr</tt></b> output modifier requires an additional text
        string parameter representing the filename to use for
        calculating the waste disposal rating or clearance limits.  A
        detailed description of the WDR file is available here.  To
