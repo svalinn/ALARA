@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.26 2003-01-13 04:35:01 fateneja Exp $ */
+/* $Id: Result.C,v 1.27 2003-01-14 05:01:19 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -283,15 +283,6 @@ void Result::postProc(Result& outputList, double density)
 
 }      
 
-void Result::write(int response, int targetKza, Mixture *mixPtr,
-                   CoolingTime *coolList, double*& total, double volume_mass)
-{
-  Volume* volPtr = NULL;  //This pointer is set to NULL if called from Loading::write or Mixture::write
- 
-  write(response, targetKza, mixPtr, volPtr, coolList, total, volume_mass);
-
-}
-
 /** Based on the first argument, it queries the data library for the
     scalar multiplier of this response.  It normalizes this multiplier
     by the last argument (e.g. the volume of a zone) and then prints
@@ -300,7 +291,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
     total for this point at each cooling time, at the pointer passed by
     reference in the third argument. */
 void Result::write(int response, int targetKza, Mixture *mixPtr, 
-		   Volume *volPtr, CoolingTime *coolList, double*& total, double volume_mass)
+		   CoolingTime *coolList, double*& total, double volume_mass, Volume *volPtr)
 {
   int resNum;
   int gGrpNum,nGammaGrps;

@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.18 2003-01-13 04:34:59 fateneja Exp $ */
+/* $Id: Volume.h,v 1.19 2003-01-14 05:01:19 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _VOLUME_H
@@ -31,7 +31,7 @@ protected:
   double norm;
 
   /// The actual volume of the interval.
-  double uservol;
+  double userVol;
 
   /// The descriptive name of the zone in which this interval is
   /// located.
@@ -222,13 +222,13 @@ public:
   /// Loads the charged particle ranges into rangeLib
   static void loadRangeLib(istream *probInput);
 
-  void setAdjDoseData(int, ifstream&);
+  void readAdjDoseData(int, ifstream&);
   /// This function reads adjoint field data from input file.
 
   double getAdjDoseConv(int, GammaSrc*);
   
-  inline double getUservol() { return uservol; }
-  /// Access function for uservol
+  inline double getUserVol() { return userVol; }
+  /// Access function for userVol
 
   /// Access function for specLib
   static TempLibType getSpecLib() { return specLib; };

@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.11 2002-12-02 20:36:12 varuttam Exp $ */
+/* $Id: GammaSrc.C,v 1.12 2003-01-14 05:01:19 wilsonp Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -149,7 +149,7 @@ GammaSrc::~GammaSrc()
   /* delete vector pointed to by entry */
 
   delete dataLib;
-  delete [] grpBnds;
+  delete grpBnds;
 
 }
 
@@ -163,7 +163,7 @@ void GammaSrc::setGammaAttenCoef(Mixture* mixList)
 void GammaSrc::setAdjDoseData(Volume* volList)
 {
 
- volList->setAdjDoseData(nGroups,gDoseData);
+ volList->readAdjDoseData(nGroups,gDoseData);
 
 }
 

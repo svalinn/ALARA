@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.h,v 1.8 2002-12-02 20:36:12 varuttam Exp $ */
+/* $Id: GammaSrc.h,v 1.9 2003-01-14 05:01:19 wilsonp Exp $ */
 #include "alara.h"
 #include <set>
 // NEED COMMENT there are no comments for this class
@@ -33,14 +33,14 @@ protected:
   int findGroup(float);
   double subIntegral(int,int,float*,float*,double,double);
 
+  void initRawSrc(istream&);
+  void initContactDose(istream&);
+  void initAdjointDose(istream&);
+
 public:
 
   GammaSrc(istream&, int);
   ~GammaSrc();
-
-  void initRawSrc(istream&);
-  void initContactDose(istream&);
-  void initAdjointDose(istream&);
 
   double* getGammaMult(int);
   char* getFileName()

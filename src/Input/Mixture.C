@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.30 2003-01-13 04:34:57 fateneja Exp $ */
+/* $Id: Mixture.C,v 1.31 2003-01-14 05:01:18 wilsonp Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -37,7 +37,7 @@
 Mixture::Mixture(char *name)
 {
   volume = 0;
-  uservol = 0.0;
+  userVol = 0.0;
   mixName = NULL;
   if (name != NULL)
     {
@@ -69,7 +69,7 @@ Mixture::Mixture(char *name)
 Mixture::Mixture(const Mixture &m)
 {
   volume = m.volume;
-  uservol = m.uservol; 
+  userVol = m.userVol; 
   mixName = NULL;
   if (m.mixName != NULL)
     {
@@ -127,7 +127,7 @@ Mixture& Mixture::operator=(const Mixture &m)
     return *this;
 
   volume = m.volume;
-  uservol = m.uservol; 
+  userVol = m.userVol; 
   totalDensity = m.totalDensity;
   totalNDensity = m.totalNDensity;
   volFraction = m.volFraction;
@@ -487,7 +487,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
       /* write header information */
       cout << endl;
       cout << "Mixture #" << ++mixCntr << ": " << ptr->mixName << endl;
-      debug(5,"Mixture::uservol=%f",ptr->uservol);
+      debug(5,"Mixture::userVol=%f",ptr->userVol);
       if (normType > 0)
 	cout << "\tRelative Volume: " << ptr->volume << endl;
       else
@@ -527,8 +527,8 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 		     For volume integrated results, don't renormalize */
 	          cout 
 		    << "\tVolume Fraction: " << volFrac
-		    << "\tAbsolute Volume: " << ptr->uservol;
-		  volume_mass /= ptr->uservol;
+		    << "\tAbsolute Volume: " << ptr->userVol;
+		  volume_mass /= ptr->userVol;
 		  cout << "\tVolume Integrated ";
 		}
 
@@ -578,8 +578,8 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 		 For volume integrated results, don't renormalize */
 	      cout 
 	        << "\tVolume Fraction: " << volFrac
-	        << "\tAbsolute Volume: " << ptr->uservol;
-	      volume_mass /=ptr->uservol;
+	        << "\tAbsolute Volume: " << ptr->userVol;
+	      volume_mass /=ptr->userVol;
 	      cout << "\tVolume Integrated ";
 	    }
 	  

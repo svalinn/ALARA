@@ -1,4 +1,4 @@
-/* $Id: Loading.h,v 1.13 2003-01-13 04:34:57 fateneja Exp $ */
+/* $Id: Loading.h,v 1.14 2003-01-14 05:01:18 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _LOADING_H
@@ -33,10 +33,10 @@ protected:
   double volume;
 
   /// User-defined (actual) volume of zone for dose calculation.
-  double uservol;
+  double userVol;
 
   /// Flag indicating whether user defines uservol.
-  bool buservol;
+  bool userVolFlag;
  
   /// The number of components in this zone.
   int nComps;
@@ -54,7 +54,7 @@ protected:
 
 public:
   ///  Default constructor 
-  Loading(char* name=IN_HEAD, char *mxName=NULL, bool Buservol=FALSE, double Uservol=0.0);
+  Loading(char* name=IN_HEAD, char *mxName=NULL, bool inUserVolFlag=FALSE, double inUserVol=0.0);
   
   /// Copy constructor 
   Loading(const Loading&);
@@ -123,9 +123,9 @@ public:
   /// subsequent targets.
   void resetOutList();
 
-  /// Access function for uservol. Returns uservol if buservol is set
+  /// Access function for userVol. Returns userVol if userVolFlag is set
   /// else returns zero.
-  double getuservol() {return buservol?uservol:0.0;};
+  double getUserVol() {return userVolFlag?userVol:0.0;};
 };
 
 #endif

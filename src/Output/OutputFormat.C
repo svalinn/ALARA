@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.28 2003-01-13 04:35:00 fateneja Exp $ */
+/* $Id: OutputFormat.C,v 1.29 2003-01-14 05:01:19 wilsonp Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -10,11 +10,11 @@
 
 #include "Chains/Node.h"
 
-const char *Out_Types = "ucnstabgpdwf";
+const char *Out_Types = "ucnstabgpdfw";
 
 const int nOutTypes = 12;
 const int firstResponse = 2;
-const int lastSingularResponse = 10;
+const int lastSingularResponse = 11;
 const char *Out_Types_Str[nOutTypes] = {
   "Response Units",
   "Break-down by Constituent",
@@ -25,9 +25,9 @@ const char *Out_Types_Str[nOutTypes] = {
   "Beta Decay Heat [W%s]",
   "Gamma Decay Heat [W%s]",
   "Photon Source Distribution [gammas/s%s] : %s\n\t    with Specific Activity [%s%s]",
-  "Contact Dose [ Sv/hr/%s] : %s",
-  "WDR/Clearance index",
-  "Folded (Adjoint) Dose [Sv/hr/%s]"};
+  "Contact Dose [ Sv/hr] : %s",
+  "Folded (Adjoint/Biological) Dose [Sv/hr] : %s",
+  "WDR/Clearance index"};
 
 /***************************
  ********* Service *********
@@ -260,7 +260,11 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		break;
 	      case (OUTFMT_CDOSE) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->normUnits, ptr->contactDose->getFileName());
+			ptr->contactDose->getFileName());
+		break;
+	      case (OUTFMT_ADJ) :
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+			ptr->adjointDose->getFileName());
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],
@@ -302,11 +306,19 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		break;
 	      case (OUTFMT_CDOSE) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->normUnits, ptr->contactDose->getFileName());
+			ptr->contactDose->getFileName());
 		/* setup gamma attenuation coefficients */
 		ptr->contactDose->setGammaAttenCoef(mixList);
 		/* set gamma source to use for this */
 		Result::setGammaSrc(ptr->contactDose);
+		break;
+	      case (OUTFMT_ADJ) :
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+			ptr->adjointDose->getFileName());
+		/* read/set flux-dose conversion factors */
+		ptr->adjointDose->setAdjDoseData(volList);
+		/* set gamma source to use for this */
+		Result::setGammaSrc(ptr->adjointDose);
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],ptr->normUnits);

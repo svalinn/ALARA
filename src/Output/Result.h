@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.16 2003-01-13 04:35:01 fateneja Exp $ */
+/* $Id: Result.h,v 1.17 2003-01-14 05:01:20 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _RESULT_H
@@ -122,10 +122,7 @@ public:
   
   /// This does all the work of writing out a table of results, stepping
   /// through the list of results.  
-  void write(int, int, Mixture*,Volume*,CoolingTime*, double*&,
-	     double volume_mass=1);
-
-  void write(int, int, Mixture*, CoolingTime*, double*&, double volume_mass=1);
+  void write(int, int, Mixture*, CoolingTime*, double*&, double volume_mass=1,Volume* volPtr=NULL);
   
   /// This function is used to set actMult from the first argument and
   /// metricMult by interpretation of the second argument.

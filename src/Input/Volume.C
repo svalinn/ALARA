@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.33 2003-01-13 04:34:59 fateneja Exp $ */
+/* $Id: Volume.C,v 1.34 2003-01-14 05:01:19 wilsonp Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -30,7 +30,7 @@ int* Volume::energyRel = NULL;
 void Volume::init()
 {
   volume = 1;
-  uservol=0;
+  userVol=0;
   norm = 1;
  
   zoneName = NULL;
@@ -56,7 +56,7 @@ void Volume::deinit()
   delete zoneName; 
   delete fluxHead; 
   delete schedT; 
-  delete [] adjConv;
+  delete adjConv;
   delete [] outputList;
 }  
 
@@ -112,7 +112,8 @@ Volume::Volume(const Volume& v)
   norm = v.norm;
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
-  uservol=v.uservol;
+  userVol=v.userVol;
+  // Need to confirm desired behavior of copy constructor for this variable
   adjConv=v.adjConv;
 
   if (v.zoneName != NULL)
@@ -169,7 +170,8 @@ Volume& Volume::operator=(const Volume& v)
   norm = v.norm;
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
-  uservol = v.uservol;
+  userVol = v.userVol;
+  // Need to confirm desired behavior of assignment operator for this variable
   adjConv = v.adjConv;
   
   if (v.zoneName != NULL)
@@ -587,8 +589,8 @@ void Volume::postProc()
   {
 	ptr=ptr->next;
 	if (ptr->mixPtr != NULL)
-        {	ptr->uservol=(ptr->zonePtr->getuservol())*(ptr->volume)/(ptr->zonePtr->getVol());
- 		ptr->mixPtr->incruservol(ptr->uservol);
+        {	ptr->userVol=(ptr->zonePtr->getUserVol())*(ptr->volume)/(ptr->zonePtr->getVol());
+ 		ptr->mixPtr->incrUserVol(ptr->userVol);
 	} 
   }    
 }
@@ -620,7 +622,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
       cout << "Interval #" << ++intvlCntr << " (Zone: " 
 	   << ptr->zoneName <<") :" << endl;
 
-      debug(5,"Volume::uservol= %f",ptr->uservol);
+      debug(5,"Volume::userVol= %f",ptr->userVol);
       if (ptr->mixPtr != NULL)
 	{
 	  if (normType > 0)
@@ -668,15 +670,15 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 			 a volume integrated result */
 		      cout 
 		        << "\tVolume Fraction: " << volFrac
-		        << "\tAbsolute Volume: " << volume_mass*ptr->uservol;
-		      volume_mass /= ptr->uservol;
+		        << "\tAbsolute Volume: " << volume_mass*ptr->userVol;
+		      volume_mass /= ptr->userVol;
 		      cout << "\tVolume Integrated";
 		    }
 
 		  cout << endl;
 
 		  ptr->outputList[compNum].write(response,targetKza,ptr->mixPtr,
-						 this,coolList,ptr->total,volume_mass);
+						 coolList,ptr->total,volume_mass,this);
 
 		  compPtr = compPtr->advance();
 		  compNum++;
@@ -720,14 +722,14 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		     a volume integrated result */
 	          cout 
 		    << "\tVolume Fraction: " << volFrac
-		    << "\tAbsolute Volume: " << volume_mass*ptr->uservol;
+		    << "\tAbsolute Volume: " << volume_mass*ptr->userVol;
 		  cout << "\tVolume Integrated";
-		  volume_mass /= ptr->uservol;
+		  volume_mass /= ptr->userVol;
 		}
 	      cout << endl;
 
 	      ptr->outputList[ptr->nComps].write(response,targetKza,ptr->mixPtr,
-						 coolList,ptr->total, volume_mass);
+						 coolList,ptr->total, volume_mass,this);
 	      
 	    }
 	}
@@ -993,7 +995,7 @@ void Volume::loadRangeLib(istream *probInput)
 
 }
 
-void Volume::setAdjDoseData(int nGroups, ifstream& AdjDoseData)
+void Volume::readAdjDoseData(int nGroups, ifstream& AdjDoseData)
 {
   Volume *ptr = this;
   while (ptr->next !=NULL)
@@ -1008,5 +1010,5 @@ void Volume::setAdjDoseData(int nGroups, ifstream& AdjDoseData)
 double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
 {
  
-  return adjDose->calcAdjDose(kza,adjConv,uservol);
+  return adjDose->calcAdjDose(kza,adjConv,userVol);
 }

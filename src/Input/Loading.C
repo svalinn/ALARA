@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.25 2003-01-13 04:34:57 fateneja Exp $ */
+/* $Id: Loading.C,v 1.26 2003-01-14 05:01:18 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -24,11 +24,11 @@
  ********* Service *********
  **************************/
 
-/**  When called with no arguments, it creates an blank list head with
-     no problem data.  Otherwise, it creates and fills the storage for
-     'zoneName' ,'mixName', 'uservol', 'buservol' and initializes next to
-     NULL */
-Loading::Loading(char *name, char *mxName, bool Buservol, double Uservol)
+/** When called with no arguments, it creates an blank list head with
+    no problem data.  Otherwise, it creates and fills the storage for
+    'zoneName' ,'mixName', 'userVol', 'userVolFlag' and initializes
+    next to NULL. */
+Loading::Loading(char *name, char *mxName, bool inUserVolFlag, double inUserVol)
 {
   volume = 0;
   
@@ -50,8 +50,8 @@ Loading::Loading(char *name, char *mxName, bool Buservol, double Uservol)
       strcpy(mixName,mxName);
     }
 
-  buservol=Buservol;
-  uservol=Uservol; 
+  userVolFlag=inUserVolFlag;
+  userVol=inUserVol; 
   nComps = 0;
   outputList = NULL;
   total = NULL;
@@ -68,8 +68,8 @@ Loading::Loading(const Loading &l)
 {
   volume = l.volume;
   mixPtr = l.mixPtr;
-  uservol = l.uservol; 
-  buservol = l.buservol; 
+  userVol = l.userVol; 
+  userVolFlag = l.userVolFlag; 
   zoneName = NULL;
   mixName = NULL;
 
@@ -117,8 +117,8 @@ Loading& Loading::operator=(const Loading &l)
   
   volume = l.volume;
   mixPtr = l.mixPtr;
-  uservol = l.uservol;
-  buservol = l.buservol; 
+  userVol = l.userVol;
+  userVolFlag = l.userVolFlag; 
   delete zoneName;
   delete mixName;
 
@@ -198,7 +198,7 @@ void Loading::getMatLoading(istream& input)
 bool isusv(char* Usv)	
 {
 	//Checks wheter argument points to real number. If this were the case
-	//then this is assume to be uservol and the function returns TRUE.
+	//then this is assume to be userVol and the function returns TRUE.
   
    	char* strptr=new char[64];
 	char* *pcharptr=&strptr;
@@ -327,7 +327,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
       /* write header info */
       cout << endl;
       cout << "Zone #" << ++zoneCntr << ": " << ptr->zoneName << endl;
-      debug(5,"Loading::uservol=%f",ptr->uservol);
+      debug(5,"Loading::userVol=%f",ptr->userVol);
       if (ptr->mixPtr != NULL)
 	{
 	  if (normType > 0)
@@ -373,8 +373,8 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 			 For volume integrated results, don't renormalize */
 		      cout
 		           << "\tVolume Fraction: " << volFrac
-		           << "\tAbsolute Volume: " << ptr->uservol;
-		      volume_mass /= ptr->uservol;
+		           << "\tAbsolute Volume: " << ptr->userVol;
+		      volume_mass /= ptr->userVol;
 		      cout << "\tVolume Integrated ";
 		    }
 
@@ -424,8 +424,8 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		     For volume integrated results, don't renormalize */
 	          cout 
 		    << "\tVolume Fraction: " << volFrac
-		    << "\tAbsolute Volume: " << ptr->uservol;
-		  volume_mass /= ptr->uservol;
+		    << "\tAbsolute Volume: " << ptr->userVol;
+		  volume_mass /= ptr->userVol;
 		  cout << "\tVolume Integrated ";
 		}
 	      
