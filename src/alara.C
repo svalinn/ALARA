@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.15 2002-05-06 18:03:24 wilsonp Exp $ */
+/* $Id: alara.C,v 1.16 2002-05-06 19:10:38 wilsonp Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -32,7 +32,8 @@ static char *id="$Name: not supported by cvs2svn $";
 static char *helpmsg="\
 usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
 \t -h                 Show this message\n\
-\t -r                 Restart option for calculating new respones\n\
+\t -c                 Option to only calculate chains and skip post-processing\n\
+\t -r                 \"Restart\" option to skip chain calculation and only post-process\n\
 \t -t <tree_filename> Create tree file with given name\n\
 \t -V                 Show version\n\
 \t -v <n>             Set verbosity level\n\
@@ -44,6 +45,7 @@ int main(int argc, char *argv[])
 {
   int argNum = 1;
   int solved = FALSE;
+  int doOutput = TRUE;
   char *inFname = NULL;
   Root* rootList = new Root;
   topSchedule* schedule;
@@ -95,6 +97,11 @@ int main(int argc, char *argv[])
 	      argNum++;
 	    }
 	  verbose(0,"Set verbose level to %d.",verb_level);
+	  break;
+	case 'c':
+	  verbose(0,"Calculating chains ONLY.");
+	  doOutput=FALSE;
+	  argNum+=1;
 	  break;
 	case 'r':
           verbose(0,"Reusing binary dump data.");
@@ -149,10 +156,13 @@ int main(int argc, char *argv[])
       verbose(1,"Solved problem.");
     }
 
-  Result::resetBinDump();
-  problemInput.postProc(rootList);
+  if (doOutput)
+    {
+      Result::resetBinDump();
+      problemInput.postProc(rootList);
 
-  verbose(0,"Output.");
+      verbose(0,"Output.");
+    }
 
   Result::closeBinDump();
 
