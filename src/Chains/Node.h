@@ -151,8 +151,8 @@ public:
   
   /* Chain */
   void readData();
-  void copyRates(double**,int, int*);
-  void delRates(double**,int, int*);
+  void copyRates(double**,const int, int*);
+  void delRates(double**,const int, int*);
   int stateEngine(int stateBits=-1);
   Node* addNext(int&);
   void prune();

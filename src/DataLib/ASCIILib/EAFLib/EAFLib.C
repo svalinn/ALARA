@@ -176,7 +176,7 @@ void EAFLib::getTransInfo()
 }
 
 
-void EAFLib::readReaction(ifstream& inTrans, int& rxnNum, int zak )
+void EAFLib::readReaction(int& rxnNum, int zak )
 {
   
   /* for forming kza of daughter isotope */
@@ -256,7 +256,7 @@ int EAFLib::getTransData()
 
   /* parent isotope specifics parameters */
   int rxnNum;
-  int oldZak, kza;
+  int oldZak;
 
   /* counters */
   int gNum;
@@ -298,9 +298,6 @@ int EAFLib::getTransData()
 
   /* initialize reaction counter */
   rxnNum=-1;
-  
-  /* convert to kza number */
-  kza = zak;
   
   for (gasNum=0;gasNum<numGases;gasNum++)
     {
@@ -368,9 +365,9 @@ int EAFLib::getTransData()
 	nTRxns++;
       }
   
-  debug(5,"Found %d reaction paths for %d.",nTRxns,kza);
+  debug(5,"Found %d reaction paths for %d.",nTRxns,zak);
   
-  return kza;
+  return zak;
 }
 
 /************************************
@@ -414,7 +411,7 @@ void EAFLib::getDecayInfo()
 int EAFLib::getDecayData()
 {
   char buffer[MAXLINELENGTH];
-  int MT, isoFlag, kza;
+  int MT, isoFlag, zak;
   float inFlt, rxnType;
   int pFlag, aFlag, decyNum;
   float pBranch, aBranch, dIsoFlag;
@@ -440,9 +437,9 @@ int EAFLib::getDecayData()
   buffer[44] = '\0';
   isoFlag = atoi(buffer+33);
   extract(buffer,&inFlt);
-  kza = int(inFlt+0.1)*10 + isoFlag;
+  zak = int(inFlt+0.1)*10 + isoFlag;
 
-  debug(5,"Found decay data for %d.",kza);
+  debug(5,"Found decay data for %d.",zak);
   /* read line */
   /* thalf */
   inDecay.getline(buffer,MAXLINELENGTH);
@@ -464,7 +461,7 @@ int EAFLib::getDecayData()
   buffer[66] = '\0';
   nDRxns = atoi(buffer+55);
   
-  debug(6,"Found %d decay branches for %d.",nDRxns,kza);
+  debug(6,"Found %d decay branches for %d.",nDRxns,zak);
 
   pFlag=0;
   aFlag=0;
@@ -482,7 +479,7 @@ int EAFLib::getDecayData()
       extract(buffer+44,bRatio+decyNum);
       
       /* set daughter kza based on reaction type*/
-      decayKza[decyNum] = (kza/10 - delKza(rxnType))*10
+      decayKza[decyNum] = (zak/10 - delKza(rxnType))*10
 	+ int(dIsoFlag);
       /* if this is a proton producing reaction */
       if (int(rxnType) == 7)
@@ -535,8 +532,8 @@ int EAFLib::getDecayData()
     } while (MT == 457 && !inDecay.eof());
 
 
-  debug(6,"Returning %d decay branches for %d.",nDRxns,kza);
+  debug(6,"Returning %d decay branches for %d.",nDRxns,zak);
 
 
-  return kza;
+  return zak;
 }

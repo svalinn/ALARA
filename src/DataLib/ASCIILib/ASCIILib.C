@@ -580,7 +580,7 @@ int ASCIILib::getDecayData()
   return -1;
 }
 
-void ASCIILib::readData(int kza, NuclearData* data)
+void ASCIILib::readData(int getKza, NuclearData* data)
 {
   error(205,
 	"Programming error: ASCIILib::readData() must be called from a derived object.");

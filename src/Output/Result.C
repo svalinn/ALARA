@@ -173,7 +173,7 @@ void Result::tally(double* Nlist, double scale)
  ********* PostProc **********
  ****************************/
 
-void Result::postProcList(Result* outputList, Mixture *mixPtr, int kza)
+void Result::postProcList(Result* outputList, Mixture *mixPtr, int rootKza)
 {
   Component *compPtr=NULL;
   double density;
@@ -181,7 +181,7 @@ void Result::postProcList(Result* outputList, Mixture *mixPtr, int kza)
   
   /* get the first component number and density for this root
    * isotope */
-  compPtr = mixPtr->getComp(kza,density,NULL);
+  compPtr = mixPtr->getComp(rootKza,density,NULL);
   
   /* if we found the component */
   while (compPtr)
@@ -192,7 +192,7 @@ void Result::postProcList(Result* outputList, Mixture *mixPtr, int kza)
       postProc(outputList[compNum],density);
       
       /* get the next component */
-      compPtr = mixPtr->getComp(kza,density,compPtr);
+      compPtr = mixPtr->getComp(rootKza,density,compPtr);
     }
   
   /* we are done with this data now */

@@ -78,17 +78,17 @@ Component& Component::operator=(const Component& comp)
 
 /* get individual components and add them to list */
 /* called by Mixture::getMixture() */
-Component* Component::getComponent(int type,istream &input)
+Component* Component::getComponent(int setType,istream &input)
 {
 
   char name[64];
   double dens;
 
   input >> name >> dens;
-  next = new Component(type,name,dens);
+  next = new Component(setType,name,dens);
   memCheck(next,"Component::getComponent(...) : next");
 
-  verbose(3,"type code: %d name: %s   density %g",type,name,dens);
+  verbose(3,"type code: %d name: %s   density %g",setType,name,dens);
 
   return next;
 
