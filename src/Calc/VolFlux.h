@@ -1,4 +1,4 @@
-/* $Id: VolFlux.h,v 1.7 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: VolFlux.h,v 1.8 2000-02-11 20:55:19 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -20,6 +20,10 @@ specification.
  
  flux : double*
     An array of scalar flux values.
+
+ cache : RateCache*
+    A data cache to prevent refolding the cross-sections with the
+    fluxes too often.  (see RateCache)
 
  next : VolFlux*
     A pointer to the next VolFlux object in this list.
@@ -86,8 +90,11 @@ specification.
     group-wise maximum flux.
 
  double fold(double*,Node*)
-    This function takes a rate vector pointed to by the argument and
-    folds it with this flux, returning the scalar reaction rate.
+    This function takes a rate vector pointed to by the first argument
+    and folds it with this flux, returning the scalar reaction rate.
+    The second argument points to the Node object associated with this
+    rate vector and will be used to determine the indexing
+    information for the RateCache (see RateCache).
 
  * - Utility - *
 

@@ -1,4 +1,4 @@
-/* $Id: Node.h,v 1.9 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: Node.h,v 1.10 2000-02-11 20:55:19 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -119,6 +119,19 @@ classes, it contains all the information about the isotope itself.
  int count(double*)
     Inline function sends information about the current node to the
     statistics routines for diagnostic and tree output.
+
+ void getRxnInfo(double*,int&,int&,int&)
+    This function is used to determine the indexing information for
+    the RateCache concept.  The reaction rate vector pointed to by the
+    first argument is used to determine whether the current reaction
+    is a destruction rate or a production rate.  In the former case,
+    the current node's kza value is used for the base isotope, while
+    in the latter, the parent's kza value is used for the base
+    isotope.  Based on this choice, the last three arguments are
+    assigned values for the base kza, the reaction number index (0
+    for a destruction rate), and the original number of reaction paths
+    for this base isotope.  This function is called by VolFlux::fold()
+    for use in cache processing.
 
  * - Library Utility - *
 

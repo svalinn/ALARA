@@ -1,4 +1,4 @@
-/* $Id: NuclearData.h,v 1.13 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: NuclearData.h,v 1.14 2000-02-11 20:55:19 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -30,6 +30,11 @@ Node.
     can be interpreted physically in a number of ways depending on the
     library structure, but computationally it represents the number of
     different daughters (or parents) that can be added to a give node.
+
+ origNPaths : int
+    The number of reactions contained in the library for this isotope.
+    This is always less than or equal to nPaths, which is modified by
+    stripNonDecay() below.
 
  relations : int*
     This is an array of KZA values for the daughter products (or
@@ -84,6 +89,15 @@ Node.
     radioactive decay branches, it returns an adjusted truncation
     state.
 
+ void sortData()
+    This function sorts all the reaction path data, moving the
+    decay reaction paths to the beginning of the list.  This change
+    was necessary to enable the RateCache concept to work since it is
+    necessary to have the reactions indexed the same way, even if
+    non-decay reactions have been stripped from the list.  After
+    sorting, decay reaction 1...d will always be 1...d whether or not
+    the non-decay reactions are present.
+
  *** Public Static Member Funtions ***
 
  * - Input - *
@@ -131,11 +145,12 @@ Node.
 
  * - Chain - *
 
- void setData(int, float *, int *, char **, float **)
+ void setData(int, float *, int *, char **, float **, float, float*)
     The arguments for this function are the data as read from the
     library (Note that single precision is sufficient for library
     data).  These data are copied into 'nPaths', 'E',
-    'daughters','emitted', and 'd', respectively.
+    'daughters','emitted', 'paths', 'D[ngroups]', and 'single'
+    respectively.
 
  */
 

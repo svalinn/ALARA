@@ -1,4 +1,4 @@
-/* $Id: NuclearData.C,v 1.12 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: NuclearData.C,v 1.13 2000-02-11 20:55:19 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -298,7 +298,8 @@ void NuclearData::closeDataLib()
 
 /* set the nuclear data with arguments passed from dataLib routine */
 void NuclearData::setData(int numRxns, float* radE, int* daugKza, 
-			  char** emissions, float** xSection, float thalf, float *totalXSection)
+			  char** emissions, float** xSection, 
+			  float thalf, float *totalXSection)
 {
   int gNum, rxnNum;
 

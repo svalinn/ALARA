@@ -1,4 +1,4 @@
-/* $Id: TreeInfo.h,v 1.3 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: TreeInfo.h,v 1.4 2000-02-11 20:55:19 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -66,6 +66,10 @@ TreeInfo, but just that is serves as a base class for class Node.
     therefore delete the previous sub-tree (delete 'daughter') before
     copying the new pointer.
 
+ * - Access - *
+
+ Node* getNext()
+    Inline function returns pointer to next isotope in chain.
 
  */
 
