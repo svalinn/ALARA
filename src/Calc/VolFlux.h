@@ -1,4 +1,4 @@
-/* $Id: VolFlux.h,v 1.9 2000-06-20 01:47:12 wilson Exp $ */
+/* $Id: VolFlux.h,v 1.10 2000-06-20 02:37:50 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -43,7 +43,13 @@ specification.
 
  static int getNumGroups() 
     Inline function queries the number of neutron groups.
- 
+
+ static void setRefFluxType(char)
+    Inline function sets the type of reference flux to use.
+
+ static int getRefFluxType()
+    Inline function quesries the reference flux type.
+
  *** Member Functions ***
 
  * - Constructors & Destructors - *
@@ -90,6 +96,9 @@ specification.
     the reference flux. There are currently two options:
     1) group-wise maximum flux, or
     2) group-wise volume weighted average flux
+
+ void scale(double)
+    This function scales the fluxes but multiplying by the first argument.
 
  double fold(double*,Node*)
     This function takes a rate vector pointed to by the first argument
@@ -145,6 +154,8 @@ public:
 	break;
       }
     };
+  static int getRefFluxType()
+    { return refflux_type; } ;
 
   /* Service */
   VolFlux();
@@ -160,7 +171,7 @@ public:
   
   /* Solution */
   void updateReference(VolFlux*,double);
-  void scaleReference(double);
+  void scale(double);
   double fold(double*,Node*);
 
   /* Utility */

@@ -1,4 +1,4 @@
-/* $Id: VolFlux.C,v 1.8 2000-06-20 01:47:12 wilson Exp $ */
+/* $Id: VolFlux.C,v 1.9 2000-06-20 02:37:50 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -144,22 +144,15 @@ void VolFlux::updateReference(VolFlux *compFlux, double volWeight)
 
 }
 
-void VolFlux::scaleReference(double scale)
+void VolFlux::scale(double scaleVal)
 {
   int gNum;
 
   VolFlux *ptr = this;
   
   while (ptr != NULL) {
-    switch (refflux_type) {
-    case REFFLUX_VOL_AVG:
-      for (gNum=0;gNum<nGroups;gNum++)
-	ptr->flux[gNum] *= scale;
-      break;
-    case REFFLUX_MAX:
-    default:
-      break;
-    }
+    for (gNum=0;gNum<nGroups;gNum++)
+      ptr->flux[gNum] *= scaleVal;
     ptr = ptr->next;
   }
 }
