@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.19 2000-02-17 00:13:18 wilson Exp $ */
+/* $Id: Volume.C,v 1.20 2000-04-28 15:33:31 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -585,18 +585,12 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	  else
 	    {
 	      /* otherwise write the total response for the zone */
-	      if (response != OUTFMT_WDR)
-		volFrac = 1.0;
-
 	      volume_mass = volFrac;
 	      
 	      /* write component header */
 	      cout << "Total (All constituents) " << endl;
 
-	      if (response != OUTFMT_WDR)
-		cout << "\tNON-Compacted" << endl;
-	      else
-		cout << "\tCOMPACTED" << endl;
+	      cout << "\tCOMPACTED" << endl;
 
 	      cout 
 		<< "\tVolume Fraction: " << volFrac

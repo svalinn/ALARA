@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.18 2000-02-17 16:21:38 wilson Exp $ */
+/* $Id: Loading.C,v 1.19 2000-04-28 15:33:31 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -324,16 +324,11 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	  else
 	    {
 	      /* otherwise write the total response for the zone */
-	      if (response != OUTFMT_WDR)
-		volFrac = 1.0;
-
 	      volume_mass = ptr->volume * volFrac;
 
 	      cout << "Total (All constituents) " << endl;
-	      if (response != OUTFMT_WDR)
-		cout << "\tNON-Compacted" << endl;
-	      else
-		cout << "\tCOMPACTED" << endl;
+
+	      cout << "\tCOMPACTED" << endl;
 
 	      cout 
 		<< "\tVolume Fraction: " << volFrac

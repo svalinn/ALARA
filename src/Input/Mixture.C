@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.19 2000-02-17 16:21:38 wilson Exp $ */
+/* $Id: Mixture.C,v 1.20 2000-04-28 15:33:31 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -494,17 +494,13 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
       else
 	{
 	  /* otherwise write the total response for the zone */
-	  if (response != OUTFMT_WDR)
-	    volFrac = 1.0;
-	  
 	  volume_mass = volFrac*ptr->volume;
 	  
 	  /* write component header */
 	  cout << "Total (All constituents) " << endl;
-	  if (response != OUTFMT_WDR)
-	    cout << "\tNON-Compacted" << endl;
-	  else
-	    cout << "\tCOMPACTED" << endl;
+
+	  cout << "\tCOMPACTED" << endl;
+
 	  cout 
 	    << "\tVolume Fraction: " << volFrac
 	    << "\tVolume: " << volume_mass;
