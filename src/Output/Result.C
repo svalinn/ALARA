@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.14 1999-08-25 19:40:47 wilson Exp $ */
+/* $Id: Result.C,v 1.15 1999-11-09 17:16:35 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -26,6 +26,7 @@ int Result::nResults = 0;
 FILE* Result::binDump = NULL;
 const int Result::delimiter = -1;
 double Result::actMult = 1;
+double Result::normMult = 1;
 
 Result::Result(int setKza, Result* nxtPtr)
 {
@@ -253,7 +254,7 @@ void Result::postProc(Result& outputList, double density)
 }      
 
 void Result::write(int response, int targetKza, CoolingTime *coolList, 
-		   double*& total, double volume)
+		   double*& total, double volFrac, double volume)
 {
   int resNum;
   Result* ptr = this;
@@ -270,6 +271,8 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 
   /* write a standard header for this table */
   coolList->writeHeader();
+
+  volume *= volFrac*normMult;
 
   if (mode == MODE_REVERSE)
     {
