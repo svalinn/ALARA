@@ -1,4 +1,4 @@
-/* $Id: alara.h,v 1.6 1999-08-24 23:19:43 wilson Exp $ */
+/* $Id: alara.h,v 1.7 2000-01-20 05:06:50 wilson Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
@@ -12,6 +12,25 @@
 #include <ctype.h>
 #include <math.h>
 #include <algorithm>
+
+/* *** STL typedef ***
+
+ DataCache : map<int,double,less<int> >
+   This STL map provides a cache for scalar data mapped with the kza
+   number to which that data corresponds.  
+ */ 
+
+#include <map>
+
+typedef map<int,double,less<int> > DataCache;
+
+class compare {
+public:
+  bool operator()(const char *s,const char *t)const
+    { return strcmp(s,t) < 0;
+    }
+};
+
 
 #ifndef PI
 #define PI M_PI

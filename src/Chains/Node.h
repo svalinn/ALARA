@@ -1,4 +1,4 @@
-/* $Id: Node.h,v 1.6 2000-01-17 18:45:21 wilson Exp $ */
+/* $Id: Node.h,v 1.7 2000-01-20 05:06:50 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -10,12 +10,6 @@ chain to represent the isotopes in the chain.  Following truncation,
 the objects are removed from the bottom of a chain.  Through its base
 classes, it contains all the information about the isotope itself.
 
- *** STL typedef ***
-
- DataCache : map<int,double,less<int> >
-   This STL map provides a cache for scalar data mapped with the kza
-   number to which that data corresponds.  
-   
  *** Static Class Members ***
 
  lambdaCache, heatCache, alphaCache, 
@@ -161,12 +155,9 @@ classes, it contains all the information about the isotope itself.
 
 #include "NuclearData.h"
 #include "TreeInfo.h"
-#include <map>
 
 #define WDR_KZAMODE 0
 #define WDR_SYMMODE 1
-
-typedef map<int,double,less<int> > DataCache;
 
 class Node : public NuclearData, public TreeInfo
 {
@@ -192,8 +183,8 @@ public:
   
   /* Chain */
   void readData();
-  void copyRates(double**,const int, int*);
-  void delRates(double**,const int, int*);
+  void copyRates(double**,const int, int*, int*);
+  void delRates(double**,const int, int*, int*);
   int stateEngine(int stateBits=-1);
   Node* addNext(int&);
   void prune();

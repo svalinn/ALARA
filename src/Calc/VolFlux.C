@@ -1,4 +1,4 @@
-/* $Id: VolFlux.C,v 1.4 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: VolFlux.C,v 1.5 2000-01-20 05:07:26 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -133,16 +133,17 @@ void VolFlux::updateReference(VolFlux *compFlux)
 
 }
 
-double VolFlux::fold(double* rateVec)
+double VolFlux::fold(int parKza, int daugKza, double* rateVec)
 {
 
   int grpNum;
   double rate=0;
 
-
   if (rateVec != NULL)
-    for (grpNum=0;grpNum<nGroups;grpNum++)
-      rate += rateVec[grpNum]*flux[grpNum];
+    {
+      for (grpNum=0;grpNum<nGroups;grpNum++)
+	rate += rateVec[grpNum]*flux[grpNum];
+    }
 
   return rate;
 }

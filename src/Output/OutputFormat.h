@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.h,v 1.11 2000-01-17 18:45:21 wilson Exp $ */
+/* $Id: OutputFormat.h,v 1.12 2000-01-20 05:06:50 wilson Exp $ */
 #include "alara.h"
 #include <set>
 
@@ -103,13 +103,6 @@ the resolution member), and contains no problem data.
 
 extern const char *OUTPUT_RES;
 extern const char *OUTPUT_TYPES;
-
-class compare {
-public:
-  bool operator()(const char *s,const char *t)const
-    { return strcmp(s,t) < 0;
-    }
-};
 
 typedef set<char*,compare> filenameList;
 

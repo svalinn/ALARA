@@ -1,4 +1,4 @@
-/* $Id: VolFlux.h,v 1.4 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: VolFlux.h,v 1.5 2000-01-20 05:07:26 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -99,7 +99,6 @@ specification.
 #ifndef _VOLFLUX_H
 #define _VOLFLUX_H
 
-
 class VolFlux
 {
 protected:
@@ -134,7 +133,7 @@ public:
   
   /* Solution */
   void updateReference(VolFlux*);
-  double fold(double*);
+  double fold(int,int,double*);
 
   /* Utility */
   VolFlux* advance() {return next;};
