@@ -1,4 +1,4 @@
-$Id: DEVEL_NOTES,v 1.1 2003-10-29 06:11:54 wilsonp Exp $
+$Id: DEVEL_NOTES,v 1.2 2003-10-29 06:15:55 wilsonp Exp $
 
 This file contains some information on how to use automake/autoconf
 and reminders about which files are necessary for the user-level
@@ -9,7 +9,7 @@ maintainers/developers.
 
 This means that users don't need copies of configure.in or Makefile.am.
 
-
+------------------------------------------
 2. installation directory locations
 
 datadir = ${prefix}/share
@@ -28,4 +28,18 @@ libdir = ${exec_prefix}/lib
 		XXXXXXX xsdir = $(pkglibdir)/$OSTYPE
 libexecdir = ${exec_prefix}/libexec
 sbindir = ${exec_prefix}/sbin
+
+---------------------------------------------
+3. Upon a fresh CVS check out...
+
+... run the following:
+%> aclocal
+%> autoheader
+%> autoconf
+%> automake
+
+and every time you cahnge a Makefile.am, you need to 
+run automake again.
+
+
 
