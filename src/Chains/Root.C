@@ -1,4 +1,4 @@
-/* $Id: Root.C,v 1.10 1999-08-25 15:42:50 wilson Exp $ */
+/* $Id: Root.C,v 1.11 1999-11-09 17:02:36 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -43,7 +43,7 @@ Root::Root(char* isoName, double isoDens, Mixture* mix,Component* comp) :
   Node(isoName)
 {
   mixList = new MixCompRef(mix,comp,isoDens);
-  mix->incTotalDensity(isoDens);
+  mix->incrTotalDensity(isoDens);
 
   memCheck(mixList,"Root::Root(...) constructor: mixList");
 
