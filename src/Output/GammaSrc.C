@@ -75,7 +75,7 @@ GammaSrc* GammaSrc::getGammaSrc(istream &input)
 
 }
 
-/* find a named mixture in the list */
+/* find a named gamma source definition in the list */
 GammaSrc* GammaSrc::find(char* srchName)
 {
 
