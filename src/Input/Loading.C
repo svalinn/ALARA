@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.9 1999-08-25 15:42:51 wilson Exp $ */
+/* $Id: Loading.C,v 1.10 1999-11-09 17:06:54 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -224,6 +224,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
   Loading *head = this;
   Loading *ptr = head;
   int zoneCntr = 0;
+  double volFrac;
 
   /* for each zone */
   while (ptr->next != NULL)
@@ -249,16 +250,20 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	      /* for each component */
 	      while (compPtr != NULL)
 		{
+		  volFrac = compPtr->getVolFrac();
 		  /* write component header */
-		  cout << "Component: " << compPtr->getName() << endl;
-		  ptr->outputList[compNum].write(response, targetKza,coolList,
-						 ptr->total, ptr->volume);
+		  cout << "Component: " << compPtr->getName()
+		    << " (volume fraction: " << volFrac << ") " << endl;
+		  ptr->outputList[compNum].write(response,targetKza,coolList,
+						 ptr->total,volFrac,
+						 ptr->volume);
 
 		  compPtr = compPtr->advance();
 		  compNum++;
 		}
 	    }
 	  
+	  volFrac = ptr->mixPtr->getVolFrac();
 	  /* if components were written and there is only one */
 	  if (writeComp && ptr->nComps == 0)
 	    /* write comment refering total to component total */
@@ -269,7 +274,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	      /* otherwise write the total response for the zone */
 	      cout << "Total (All components)" << endl;
 	      ptr->outputList[ptr->nComps].write(response, targetKza,coolList,
-					    ptr->total, ptr->volume);
+					    ptr->total, volFrac, ptr->volume);
 
 	    }
 	}
