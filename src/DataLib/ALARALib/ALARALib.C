@@ -1,4 +1,4 @@
-/* $Id: ALARALib.C,v 1.10 2000-07-07 02:15:51 wilson Exp $ */
+/* $Id: ALARALib.C,v 1.11 2001-03-21 22:26:16 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -17,6 +17,11 @@ ALARALib::ALARALib(char* fname, char* idxName)
   : DataLib(DATALIB_ALARA)
 {
   binLib = fopen(fname,"wb");
+  if (binLib == NULL)
+    error(1105,
+	  "The specified library with filename %s could not be created. Please check the path/filename.",
+	  fname);
+    
   tmpIdx.open(idxName, ios::out);
   offset = 0;
   
@@ -33,6 +38,11 @@ ALARALib::ALARALib(char* fname,int setType)
   strcat(fnameStr,libTypeSuffix[type]);
 
   binLib = fopen(fnameStr,"rb");
+  if (binLib == NULL)
+    error(1104,
+	  "The specified library with filename %s could not be accessed. Please check the path/filename.",
+	  fnameStr);
+    
 
   idx = new LibIdx(nParents,nGroups,binLib,setType);
 
