@@ -341,6 +341,8 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
       P = NULL;
 
       single = new double[nGroups+1];
+      for (gNum=0;gNum<nGroups;gNum++)
+	single[gNum] = totalXSection[gNum]*1e-24;
       D = single;
     }
   else
