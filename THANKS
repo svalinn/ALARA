@@ -1,0 +1,30 @@
+#$Id: THANKS,v 1.1 2003-01-06 20:50:53 wilsonp Exp $
+
+ALARA was initially written as part of Paul Wilson's PhD project at
+the University of Wisconsin-Madison, with the support of the Nuclear
+Engineering and Engineering Physics Department, the Fusion Technology
+Institute and the U.S. Department of Energy.  In particular,
+Professors Doug Henderson, Jake Blanchard and Gerald Kulcinski played
+important roles in the completion of this work.
+
+Many others were responsible for offering regular feedback and impetus
+for improvements in both the capabities and the quality of the
+software:
+
+Charles Maynard
+Laila El-Guebaly
+Hesham Khater
+Mohammed Sawan
+Ulrich Fischer
+Cheng-Wei Wu
+Qing-Ming Wang
+James Sisolak
+Tim Tautges
+Igor Golovkin
+Greg Moses
+Greg Rochau
+Phiphat Phruksarojanakun
+Haile Tsige-Tamirat
+
+Please see the AUTHORS file for those who have actually make direct
+contributions to the code and infrastructure of ALARA.
