@@ -1,4 +1,4 @@
-$Id: TODO,v 1.17 2003-07-01 13:19:28 wilsonp Exp $
+$Id: TODO,v 1.18 2003-07-01 13:28:01 wilsonp Exp $
 
 When claiming a task from this list, please immediately place your
 name beside it, change the date from the date that it was added to
@@ -54,3 +54,10 @@ RESEARCH
 * investigate round-off error issues in bateman and inversion methods
 
 
+NOTES
+--------
+*********************** ROUND-OFF ERROR ********************
+Note that bateman(...) and laplaceInverse(...) currently take the
+absolute value of negative results, which is only valid when assuming
+that they are inconsequential.  This is a source of numerical error!!!
+but a positive wrong answer is better than a negative wrong answer.
