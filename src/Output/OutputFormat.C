@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.14 1999-08-26 18:11:13 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.15 1999-08-27 18:47:35 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -191,10 +191,10 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	  }
       /* WDR header */
       if (ptr->outTypes & OUTFMT_WDR)
-	for(filenameList::iterator fileName = wdrFilenames.begin();
-	    fileName != wdrFilenames.end(); ++fileName)
-	  cout << "*** " << Out_Types_Str[outTypeNum] << ": " 
-	       << *fileName << " ***" << endl;
+	for(filenameList::iterator fileName = ptr->wdrFilenames.begin();
+	    fileName != ptr->wdrFilenames.end(); ++fileName)
+	  cout << "\t" << Out_Types_Str[outTypeNum] << ": " 
+	       << *fileName << endl;
 	      
 	
 
@@ -234,8 +234,9 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 
       if (ptr->outTypes & OUTFMT_WDR)
 	{
-	  for(filenameList::iterator fileName = wdrFilenames.begin();
-	      fileName != wdrFilenames.end(); ++fileName)
+	  cout << "*** WDR ***" << endl;
+	  for(filenameList::iterator fileName = ptr->wdrFilenames.begin();
+	      fileName != ptr->wdrFilenames.end(); ++fileName)
 	    {
 	      
 	      /* write a response title */
