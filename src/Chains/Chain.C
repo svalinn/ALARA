@@ -237,6 +237,8 @@ void Chain::setState(topSchedule* top)
 
   verbose(4,"Set truncation state: %d (%g)",state,relProd[0]);
 
+  delete relProd;
+
 }
 
 /* function to recursively build chains */

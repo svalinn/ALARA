@@ -303,11 +303,19 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
 
   verbose(4,"Setting NuclearData members.");
 
-  nPaths = numRxns;
+  for (rxnNum=0;rxnNum<nPaths;rxnNum++)
+    {
+      delete emitted[rxnNum];
+      delete paths[rxnNum];
+    }
+  if (nPaths>0)
+    delete paths[nPaths];
 
+  delete emitted;
+  delete paths;
   delete relations;
-  delete [] emitted;
-  delete [] paths;
+
+  nPaths = numRxns;
 
   relations = new int[nPaths];
   memCheck(relations,"NuclearData::setData(...) : relations");
