@@ -14,7 +14,7 @@ ADJLib::ADJLib(char* fname)
   
 /* create a new library */
 ADJLib::ADJLib(char* fname, char* adjLibName) :
-  ALARALib(fname,DATALIB_ADJOINT)
+  ALARALib(fname,DATALIB_ALARA)
 {
   normBinLib = binLib;
 
@@ -120,7 +120,10 @@ void ADJLib::getForwardData(int kza)
       fread(&nRxns,SINT,1,normBinLib);
       fread(&thalf,SFLOAT,1,normBinLib);
       fread(E,SFLOAT,3,normBinLib);
-      
+
+      if (thalf>0)
+	totalXSection[nGroups] = log(2)/thalf;
+
       /* Read info for each daughter */
       for (rxnNum=0;rxnNum<nRxns;rxnNum++)
 	{
@@ -133,8 +136,6 @@ void ADJLib::getForwardData(int kza)
 	    for (gNum=0;gNum<nGroups;gNum++)
 	      totalXSection[gNum] += xSection[gNum];
 	}
-
-      
     }
 
 }      
@@ -161,7 +162,7 @@ void ADJLib::writeData(DaugItem *daug)
   offset += fwrite(&nRxns,SINT,1,binLib)*SINT;
   offset += fwrite(&thalf,SFLOAT,1,binLib)*SFLOAT;
   offset += fwrite(E,SFLOAT,3,binLib)*SFLOAT;
-  offset += fwrite(totalXSection,SFLOAT,nGroups,binLib)*SFLOAT;
+  offset += fwrite(totalXSection,SFLOAT,nGroups+1,binLib)*SFLOAT;
 
   while ( (normOffset = daug->getNextReaction(parKza)) )
     {
