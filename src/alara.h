@@ -25,6 +25,9 @@
 
 #define max(x,y) (x>y?x:y)
 
+#define MODE_FORWARD 1
+#define MODE_REVERSE 0
+
 #include "Util/classes.h"
 
 #include "Util/debug.h"
