@@ -12,7 +12,9 @@ alara -v 3 -t $outdir/sample3.tree sample3 > $outdir/sample3.out
 echo sample4
 alara -v 3 -t $outdir/sample4.tree sample4 > $outdir/sample4.out
 echo sample5
-alara -v 3 -t $outdir/sample5.tree sample5 > $outdir/sample5.out
+sed -e "s/\.\/sample5.photonSrc/$outdir\/sample5.photonSrc/" sample5 > sample5.tmp
+alara -v 3 -t $outdir/sample5.tree sample5.tmp > $outdir/sample5.out
+rm sample5.tmp
 echo sample6
 alara -v 3 -t $outdir/sample6.tree sample6 > $outdir/sample6.out
 echo sample7
