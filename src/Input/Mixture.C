@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.23 2000-07-07 02:32:12 wilson Exp $ */
+/* $Id: Mixture.C,v 1.24 2001-12-06 23:21:07 wilsonp Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -22,6 +22,7 @@
 
 #include "Output/Result.h"
 #include "Output/Output_def.h"
+#include "Output/GammaSrc.h" 
 
 /***************************
  ********* Service *********
@@ -483,8 +484,8 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 
 	      cout << endl;
 
-	      ptr->outputList[compNum].write(response,targetKza,coolList,
-					     ptr->total,volume_mass);
+	      ptr->outputList[compNum].write(response,targetKza,this,
+					     coolList,ptr->total,volume_mass);
 
 	      compPtr = compPtr->advance();
 	      compNum++;
@@ -531,8 +532,8 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	  
 	  cout << endl;
 	      
-	  ptr->outputList[ptr->nComps].write(response,targetKza,coolList,
-					     ptr->total,volume_mass);
+	  ptr->outputList[ptr->nComps].write(response,targetKza,this,
+					     coolList,ptr->total,volume_mass);
 
 	}
     }
@@ -568,6 +569,113 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 
   cout << endl << endl;
 }
+
+double Mixture::getDoseConv(int kza, GammaSrc* contactDose)
+{
+  if (!doseConvCache.count(kza))
+    doseConvCache[kza] = contactDose->calcDoseConv(kza,gammaAttenCoef);
+  
+  return doseConvCache[kza];
+
+}
+
+
+void Mixture::setGammaAttenCoef(int nGroups, ifstream& gAttenData)
+{
+
+  const int MaxEle = 106;
+  Mixture *ptr = this;
+  Root *root = NULL;
+  double *gammaAttenData = NULL, *gammaAbsAir = NULL;
+  double density, totalDens, interp;
+  const double doseConvConst = 5.76e-10;
+  int gammaAttenZ[MaxEle], kza, Z, A;
+  int gNum, idx, numEle;
+
+
+  gammaAttenData = new double[nGroups*MaxEle];
+  gammaAbsAir = new double[nGroups];
+
+  /* read gamma energy absorption coefficient for air */
+  clearComment(gAttenData);
+  for (gNum=0;gNum<nGroups;gNum++)
+    gAttenData >> gammaAbsAir[gNum];
+
+  numEle = 0;
+  /* read all attenuation coeffcient data */
+  clearComment(gAttenData);
+  gAttenData >> gammaAttenZ[numEle];
+  while (!gAttenData.eof())
+    {
+      clearComment(gAttenData);
+      for (gNum=0;gNum<nGroups;gNum++)
+	gAttenData >> gammaAttenData[numEle*nGroups + gNum];
+
+      numEle++;
+
+      clearComment(gAttenData);
+      gAttenData >> gammaAttenZ[numEle];
+      
+    }
+
+  gammaAttenZ[numEle] = 999999;
+      
+  /* for each mixture in problem */
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+
+      /* create & initialize array */
+      ptr->gammaAttenCoef = new double[nGroups];
+      for (gNum=0;gNum<nGroups;ptr->gammaAttenCoef[gNum++]=0);
+
+      totalDens = 0;
+
+      /* for each root in mixture */
+      root = ptr->rootList->getNext();
+      while (root != NULL)
+	{
+	  kza = root->getKza();
+	  Z = kza/10000;
+	  A = (kza - 10000*Z)/10;
+
+	  /* get total density of this root */
+	  density = root->mixConc(ptr)*A;
+	  totalDens += density;
+
+	  /* find data for this Z */
+	  idx=-1;
+	  while (gammaAttenZ[++idx] < Z);
+	  if (gammaAttenZ[idx] == Z)
+	    for (gNum=0;gNum<nGroups;gNum++)
+	      ptr->gammaAttenCoef[gNum] += density*gammaAttenData[idx*nGroups+gNum];
+	  else
+	    /* if no data, interpolate */
+	    if (idx+1 < numEle)
+	      {
+		interp = float(Z - gammaAttenZ[idx])/
+		  float(gammaAttenZ[idx+1]-gammaAttenZ[idx]);
+		for (gNum=0;gNum<nGroups;gNum++)
+		  ptr->gammaAttenCoef[gNum] += density*
+		    ( gammaAttenData[(idx+1)*nGroups+gNum] * interp      
+		     +gammaAttenData[  idx  *nGroups+gNum] * (1 - interp) );
+	      }
+
+	  root = root->getNext();
+
+	}
+
+      for (gNum=0;gNum<nGroups;gNum++)
+	ptr->gammaAttenCoef[gNum] = doseConvConst * gammaAbsAir[gNum] * totalDens/ptr->gammaAttenCoef[gNum];
+
+    }
+      
+  delete gammaAttenData;
+  delete gammaAbsAir;
+  
+
+}
+
 
 /****************************
  ********* Utility **********

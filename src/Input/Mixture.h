@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.12 2000-06-20 01:49:45 wilson Exp $ */
+/* $Id: Mixture.h,v 1.13 2001-12-06 23:21:07 wilsonp Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -291,6 +291,10 @@ protected:
   Result *outputList;
   double *total;
 
+  /* variables for contact dose */
+  double *gammaAttenCoef;
+  DataCache doseConvCache;
+
   Mixture *next;
 
   /* Preproc */
@@ -324,6 +328,8 @@ public:
   void readDump(int);
   void tally(Result*,double);
   void write(int,int,CoolingTime*,int,int);
+  double getDoseConv(int, GammaSrc*);
+  void setGammaAttenCoef(int, ifstream&);
 
   /* Utility */
   Component* getComp(int, double&, Component*);
