@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.8 2000-02-19 05:33:52 wilson Exp $ */
+/* $Id: alara.C,v 1.9 2000-02-19 05:44:48 wilson Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 	    }
 	  break;
 	case 'V':
-	  verbose(0,"ALARA %s",id);
+	  verbose(-1,"ALARA %s",id);
 	  exit(0);
 	  break;
 	default:
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 	}
     }
 
-  verbose(0,"ALARA %s",id);
+  verbose(-1,"ALARA %s",id);
 
   Input problemInput(inFname);
 
