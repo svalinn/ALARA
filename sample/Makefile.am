@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.6 2004-07-23 19:27:10 wilsonp Exp $
+#$Id: Makefile.am,v 1.7 2004-08-19 04:24:44 wilsonp Exp $
 
 include $(top_srcdir)/Makefile.h
 
@@ -12,9 +12,10 @@ dist_sample_DATA =  sample1              \
                     sample5              \
                     sample6              \
                     sample7              \
-                    sample8
+                    sample8              \
+                    run_samples.sh
 
-check_DATA =        ref_out/sample1.bin \
+dist_check_DATA =        ref_out/sample1.bin \
                     ref_out/sample1.out  \
                     ref_out/sample1.tree \
                     ref_out/sample2.bin  \
