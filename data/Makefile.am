@@ -1,10 +1,10 @@
-#$Id: Makefile.am,v 1.6 2003-10-28 22:08:30 wilsonp Exp $
+#$Id: Makefile.am,v 1.7 2003-10-29 09:05:32 wilsonp Exp $
 
 include $(top_srcdir)/Makefile.h
 
 
 # fill in final data files here
-nonxs_DATA = ANS6_4_3.txt Data_list.txt elelib.std FetterC_hi.Ci_m3.wdr	\
+dist_nonxs_DATA = ANS6_4_3.txt Data_list.txt elelib.std FetterC_hi.Ci_m3.wdr	\
           FetterC_lo.Ci_m3.wdr IAEA.clearance.Bq_kg matlib.sample	\
           NRCA.Ci_m3.wdr NRCC.Ci_m3.wdr
 
