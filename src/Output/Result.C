@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.18 2000-01-17 18:45:21 wilson Exp $ */
+/* $Id: Result.C,v 1.19 2000-01-17 19:19:05 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -377,7 +377,7 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 
 void Result::initBinDump(char* fname)
 { 
-  binDump = fopen(fname,"wb+"); 
+  binDump = fopen(fname,"rb+"); 
   if (!binDump)
     error(240,"Unable to open dump file %s",fname);
 };

@@ -1,4 +1,4 @@
-/* $Id: Root.C,v 1.12 1999-12-21 21:37:29 wilson Exp $ */
+/* $Id: Root.C,v 1.13 2000-01-17 19:19:05 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -115,7 +115,6 @@ void Root::solve(topSchedule *schedule)
       ptr = ptr->nextRoot;
     }
 
-  Result::resetBinDump();
 
 }
 

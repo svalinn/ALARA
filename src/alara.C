@@ -1,9 +1,10 @@
-/* $Id: alara.C,v 1.5 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: alara.C,v 1.6 2000-01-17 19:19:05 wilson Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
 #include "Chains/Root.h"
 #include "Util/Statistics.h"
+#include "Output/Result.h"
 
 int chainCode = 0;
 
@@ -17,6 +18,7 @@ pu am cm bk cf es fm md no lr ";
 int main(int argc, char *argv[])
 {
   int argNum = 1;
+  int solved = FALSE;
   char *inFname = NULL;
   Root* rootList = new Root;
   topSchedule* schedule;
@@ -67,6 +69,11 @@ int main(int argc, char *argv[])
 	    }
 	  verbose(0,"Set verbose level to %d.",verb_level);
 	  break;
+	case 'r':
+          verbose(0,"Reusing binary dump data.");
+	  solved=TRUE;
+	  argNum+=1;
+	  break;
 	case 't':
 	  if (argv[argNum][1] == '\0')
 	    {
@@ -100,15 +107,21 @@ int main(int argc, char *argv[])
   verbose(1,"Preprocessing input.");
   problemInput.preProc(rootList,schedule);
 
-  verbose(0,"Starting problem solution.");
-  
-  rootList->solve(schedule);
+  if (!solved)
+    {
+      verbose(0,"Starting problem solution.");
+      
+      rootList->solve(schedule);
+      
+      verbose(1,"Solved problem.");
+    }
 
-  verbose(1,"Solved problem.");
-
+  Result::resetBinDump();
   problemInput.postProc(rootList);
 
   verbose(0,"Output.");
+
+  Result::closeBinDump();
 
   delete rootList;
 

@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.10 2000-01-17 18:45:21 wilson Exp $ */
+/* $Id: Result.h,v 1.11 2000-01-17 19:19:05 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -235,6 +235,7 @@ public:
   static void dumpHeader();
   static void xCheck();
   static void resetBinDump();
+  static void closeBinDump() { fclose(binDump); };
   void writeDump();
   void readDump();
 
