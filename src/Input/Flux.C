@@ -1,4 +1,4 @@
-/* $Id: Flux.C,v 1.10 2002-08-23 20:46:17 fateneja Exp $ */
+/* $Id: Flux.C,v 1.11 2002-09-25 07:22:00 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -118,9 +118,9 @@ Flux* Flux::getFlux(istream& input)
   switch(tolower(type[0]))
     {
     
-    case 'b':
+    case 'r':
       // binary format (read from binary file)
-      inFormat = FLUX_B;
+      inFormat = FLUX_R;
       break;
     
     case 'd':
@@ -206,7 +206,7 @@ void Flux::xRef(Volume *volList)
 	    break;
 	  }
 
-	case FLUX_B:
+	case FLUX_R:
 	  {
 	    /* Binary: reads data from binary file */
 	    char *fname = new char[strlen(ptr->fileName)];

@@ -1,4 +1,4 @@
-/* $Id: Flux.h,v 1.10 2002-08-23 20:46:17 fateneja Exp $ */
+/* $Id: Flux.h,v 1.11 2002-09-25 07:22:00 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _FLUX_H
@@ -7,7 +7,7 @@
 /* flux formats */
 #define FLUX_HEAD 0
 #define FLUX_D 1
-#define FLUX_B 2
+#define FLUX_R 2
 
 /* results of searching for flux */
 #define FLUX_NOT_FOUND -1

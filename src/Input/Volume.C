@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.28 2002-09-23 16:50:17 varuttam Exp $ */
+/* $Id: Volume.C,v 1.29 2002-09-25 07:22:00 wilsonp Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -336,37 +336,38 @@ void Volume::addMixList(Volume* ptr)
 }
 
 
+// THIS FUNCTION IS DEPRECATED SINCE ADDING SUPPORT FOR RTFLUX FILES (09/2002)
 /* read the appropriate flux into each interval's flux member object */
 /* called by Flux::xRef(...) */
-void Volume::readFlux(char* fname, int skip, double scale)
-{
-  Volume* ptr = this;
-  ifstream fluxFile(fname);
-  int skipNum;
-  int nGroups = VolFlux::getNumGroups();
-  double skipDble;
+// void Volume::readFlux(char* fname, int skip, double scale)
+// {
+//   Volume* ptr = this;
+//   ifstream fluxFile(fname);
+//   int skipNum;
+//   int nGroups = VolFlux::getNumGroups();
+//   double skipDble;
   
-  debug(3,"Reading flux in %d groups from %s for all intervals",nGroups,fname);
+//   debug(3,"Reading flux in %d groups from %s for all intervals",nGroups,fname);
 
-  /* skip entries at beginning of file */
-  if (skip>0)
-    for (skipNum=0;skipNum<skip*nGroups;skipNum++)
-      fluxFile >> skipDble;
+//   /* skip entries at beginning of file */
+//   if (skip>0)
+//     for (skipNum=0;skipNum<skip*nGroups;skipNum++)
+//       fluxFile >> skipDble;
 
-  if (fluxFile.eof())
-    error(622,"Flux file %s does not contain enough data.",fname);
+//   if (fluxFile.eof())
+//     error(622,"Flux file %s does not contain enough data.",fname);
 
-  /* read the flux for each interval */
-  while (ptr->next != NULL)
-    {
-      if (fluxFile.eof())
-	error(622,"Flux file %s does not contain enough data.",fname);
+//   /* read the flux for each interval */
+//   while (ptr->next != NULL)
+//     {
+//       if (fluxFile.eof())
+// 	error(622,"Flux file %s does not contain enough data.",fname);
 
-      ptr = ptr->next;
-      ptr->flux = ptr->flux->read(fluxFile,scale*ptr->norm);
-    }
+//       ptr = ptr->next;
+//       ptr->flux = ptr->flux->read(fluxFile,scale*ptr->norm);
+//     }
 
-}
+// }
 
 void Volume::storeMatrix(double** fluxMatrix, double scale)
 {
