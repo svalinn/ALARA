@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.27 2002-09-09 19:57:53 varuttam Exp $ */
+/* $Id: Volume.C,v 1.28 2002-09-23 16:50:17 varuttam Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -563,10 +563,11 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
       cout << "Interval #" << ++intvlCntr << " (Zone: " 
 	   << ptr->zoneName <<") :" << endl;
 
+      debug(5,"Volume::uservol= %f",ptr->uservol);
       if (ptr->mixPtr != NULL)
 	{
 	  if (normType > 0)
-	    cout << "\tVolume: " << ptr->volume << endl;
+	    cout << "\tRelative Volume: " << ptr->volume << endl;
 	  else
 	    cout << "\tMass: " << ptr->volume*ptr->mixPtr->getTotalDensity() 
 		 << endl;
@@ -592,13 +593,13 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 
 		  /* write component header */
 		  cout << "Constituent: " << compPtr->getName() << endl;
-		  cout 
-		    << "\tVolume Fraction: " << volFrac
-		    << "\tVolume: " << volume_mass*ptr->volume;
 
 		  if (normType < 0)
 		    {
 		      density = compPtr->getDensity();
+		      cout 
+		        << "\tVolume Fraction: " << volFrac
+		        << "\tRelative Volume: " << volume_mass*ptr->volume;
 		      volume_mass *= density;
 		      cout
 			<< "\tDensity: " << density 
@@ -608,7 +609,10 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		    {
 		      /* this effectively multiplies by the interval volume to give
 			 a volume integrated result */
-		      volume_mass = 1.0/ptr->uservol;
+		      cout 
+		        << "\tVolume Fraction: " << volFrac
+		        << "\tAbsolute Volume: " << volume_mass*ptr->uservol;
+		      volume_mass /= ptr->uservol;
 		      cout << "\tVolume Integrated";
 		    }
 
@@ -639,12 +643,12 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 
 	      cout << "\tCOMPACTED" << endl;
 
-	      cout 
-		<< "\tVolume Fraction: " << volFrac
-		<< "\tVolume: " << volume_mass*ptr->volume;
 	      
 	      if (normType < 0)
 		{
+	          cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tRelative Volume: " << volume_mass*ptr->volume;
 		  density = ptr->mixPtr->getTotalDensity();
 		  /* different from constituent: mixture densities 
 		     already take volume fraction into account */
@@ -657,8 +661,11 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		{
 		  /* this effectively multiplies by the interval volume to give
 		     a volume integrated result */
-		  volume_mass = 1.0/ptr->volume;
+	          cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tAbsolute Volume: " << volume_mass*ptr->uservol;
 		  cout << "\tVolume Integrated";
+		  volume_mass /= ptr->uservol;
 		}
 	      cout << endl;
 

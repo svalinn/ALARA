@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.23 2002-09-09 19:57:52 varuttam Exp $ */
+/* $Id: Loading.C,v 1.24 2002-09-23 16:50:16 varuttam Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -54,16 +54,6 @@ Loading::Loading(char *name, char *mxName, bool Buservol, double Uservol)
 
   next = NULL;
 
-// STARTING DEBUG
-  if (strcmp(zoneName,"_HEAD"))
-  { 
-       verbose(5,"zoneName: %s",zoneName);
-       verbose(5,"mixName: %s",mixName);
-       verbose(5,"buservol: %i",buservol);
-       verbose(5,"uservol: %f",uservol);
-
-  }
-// END DEBUG
 }
 
 Loading::Loading(const Loading &l)
@@ -304,11 +294,11 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
       /* write header info */
       cout << endl;
       cout << "Zone #" << ++zoneCntr << ": " << ptr->zoneName << endl;
-
+      debug(5,"Loading::uservol=%f",ptr->uservol);
       if (ptr->mixPtr != NULL)
 	{
 	  if (normType > 0)
-	    cout << "\tVolume: " << ptr->volume << endl;
+	    cout << "\tRelative Volume: " << ptr->volume << endl;
 	  else
 	    cout << "\tMass: " << ptr->volume*ptr->mixPtr->getTotalDensity()
 		 << endl;
@@ -332,14 +322,14 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 
 		  /* write component header */
 		  cout << "Constituent: " << compPtr->getName() << endl;
-		  cout
-		       << "\tVolume Fraction: " << volFrac
-		       << "\tVolume: " << volume_mass;
 		  
 		  if (normType < 0)
 		    {
 		      density = compPtr->getDensity();
 		      volume_mass *= density;
+		      cout
+		           << "\tVolume Fraction: " << volFrac
+		           << "\tRelative Volume: " << volume_mass;
 		      cout
 			<< "\tDensity: " << density 
 			<< "\tMass: " << volume_mass;
@@ -348,7 +338,10 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		    {
 		      /* The loading responses are volume weighted sums already.
 			 For volume integrated results, don't renormalize */
-		      volume_mass = 1.0/ptr->uservol;
+		      cout
+		           << "\tVolume Fraction: " << volFrac
+		           << "\tAbsolute Volume: " << ptr->uservol;
+		      volume_mass /= ptr->uservol;
 		      cout << "\tVolume Integrated ";
 		    }
 
@@ -378,15 +371,15 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 
 	      cout << "\tCOMPACTED" << endl;
 
-	      cout 
-		<< "\tVolume Fraction: " << volFrac
-		<< "\tVolume: " << volume_mass;
 	      
 	      if (normType < 0)
 		{
 		  density = ptr->mixPtr->getTotalDensity();
 		  /* different from constituent: mixture densities 
 		     already take volume fraction into account */
+	          cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tRelative Volume: " << volume_mass;
 		  volume_mass = ptr->volume * density;
 		  cout
 		    << "\tDensity: " << density 
@@ -396,7 +389,10 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		{
 		  /* The loading responses are volume weighted sums already.
 		     For volume integrated results, don't renormalize */
-		  volume_mass = 1.0;
+	          cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tAbsolute Volume: " << ptr->uservol;
+		  volume_mass /= ptr->uservol;
 		  cout << "\tVolume Integrated ";
 		}
 	      

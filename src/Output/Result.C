@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.23 2001-12-06 23:16:41 wilsonp Exp $ */
+/* $Id: Result.C,v 1.24 2002-09-23 16:50:17 varuttam Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -285,6 +285,8 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   
   /* invert volume_mass */
   volume_mass = metricMult/volume_mass;
+
+  debug(2,"Total volume for normalization: %g",volume_mass);
   
   /* write a standard header for this table */
   coolList->writeHeader();

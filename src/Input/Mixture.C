@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.26 2002-09-09 19:57:53 varuttam Exp $ */
+/* $Id: Mixture.C,v 1.27 2002-09-23 16:50:17 varuttam Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -444,8 +444,9 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
       /* write header information */
       cout << endl;
       cout << "Mixture #" << ++mixCntr << ": " << ptr->mixName << endl;
+      debug(5,"Mixture::uservol=%f",ptr->uservol);
       if (normType > 0)
-	cout << "\tVolume: " << ptr->volume << endl;
+	cout << "\tRelative Volume: " << ptr->volume << endl;
       else
 	cout << "\tMass: " << ptr->volume*ptr->totalDensity << endl;
 
@@ -465,12 +466,12 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 
 	      /* write component header */
 	      cout << "Constituent: " << compPtr->getName() << endl;
-	      cout 
-		<< "\tVolume Fraction: " << volFrac
-		<< "\tVolume: " << volume_mass;
 
 	      if (normType < 0)
 		{
+	          cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tRelative Volume: " << volume_mass;
 		  density = compPtr->getDensity();
 		  volume_mass *= density;
 		  cout
@@ -481,7 +482,10 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 		{
 		  /* The mixture responses are volume weighted sums already.
 		     For volume integrated results, don't renormalize */
-		  volume_mass = 1.0/ptr->uservol;
+	          cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tAbsolute Volume: " << ptr->uservol;
+		  volume_mass /= ptr->uservol;
 		  cout << "\tVolume Integrated ";
 		}
 
@@ -512,14 +516,14 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 
 	  cout << "\tCOMPACTED" << endl;
 
-	  cout 
-	    << "\tVolume Fraction: " << volFrac
-	    << "\tVolume: " << volume_mass;
 	  
 	  if (normType < 0)
 	    {
 	      /* different from constituent: mixture densities 
 		 already take volume fraction into account */
+	      cout 
+	        << "\tVolume Fraction: " << volFrac
+	        << "\tRelative Volume: " << volume_mass;
 	      volume_mass = ptr->totalDensity * ptr->volume;
 	      cout
 		<< "\tDensity: " << ptr->totalDensity
@@ -529,7 +533,10 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	    {
 	      /* The mixture responses are volume weighted sums already.
 		 For volume integrated results, don't renormalize */
-	      volume_mass = 1.0;
+	      cout 
+	        << "\tVolume Fraction: " << volFrac
+	        << "\tAbsolute Volume: " << ptr->uservol;
+	      volume_mass /=ptr->uservol;
 	      cout << "\tVolume Integrated ";
 	    }
 	  

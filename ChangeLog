@@ -1,8 +1,10 @@
-$Id: ChangeLog,v 1.8 2002-09-09 19:58:38 varuttam Exp $
+$Id: ChangeLog,v 1.9 2002-09-23 16:50:16 varuttam Exp $
 	
 Version 2.6.???
 	
 BUGS FIXED
+	* Change parameter passed to Result::write so that uservol is 
+	  correctly processed [AV] (09/18/2002)	
 	* Util/input.C:tokentype() - token conversion to lower case only
 	  changed first character [AV] (08/13/2002)
         * Command-line argument handling: when extra argument expected (-v, -t)
