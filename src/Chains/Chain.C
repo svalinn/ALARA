@@ -390,7 +390,7 @@ void Chain::collapseRates(VolFlux* flux)
 /* set the decay matrices, based on chain parameters */
 void Chain::setDecay(Matrix& D, double time)
 {
-  int idx,row,col, oldSize;
+  int idx,idx2,row,col, oldSize;
   int localNewRank = newRank;
   int size = chainLength*(chainLength+1)/2;
   double *data = new double[size];
@@ -411,19 +411,23 @@ void Chain::setDecay(Matrix& D, double time)
   col = 0;
   for (;idx<size;idx++)
     {
-      if (col>row)
+      if (col == row)
 	{
-	  row++;
+	  data[idx] = exp(-l[row]*time);
 	  col = 0;
+	  row++;
 	}
-	data[idx] = bateman(row,col,L,l,time);
-      col++;
+      else
+	{
+	  data[idx] = 1;
+	  for (idx2=col;idx2<row;idx2++)
+	    data[idx] *= L[idx2+1];
+	  if (data[idx] > 0)
+	    data[idx] *= bateman(row,col,l,time);
+	  col++;
+	}
     }
 
-  /* for reference calculations, don't destroy the last isotope */
-  /* if (solvingRef)
-    data[size-1] = 1; */
-  
   delete D.data;
   D.data = data;
   D.size = chainLength;
@@ -460,35 +464,18 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
   col = 0;
   for (;idx<size;idx++)
     {
-      if (col>row)
+      if (col == row)
 	{
-	  row++;
+	  data[idx] = exp(-d[row]*time);
 	  col = 0;
+	  row++;
 	}
-      /* This seemingly complicated condition saves using the loop
-       * solution during a reference calculation when only the last
-       * isotope introduces the loop.  In this case, there is no real
-       * degeneracy, since the destruction rate of the last isotope is
-       * zero'ed for a reference calculation.  The condition can be
-       * understood as follows: 
-       *  - when checking for loop solution, if we are calculating the
-       *    production from an isotope inside the loop, generally use
-       *    the loop sol'n, but only iff
-       *  - only the last isotope can ever have a destruction rate of
-       *    zero
-       *      - if d[row] > 0, use loop sol'n
-       *  - even if last isotope does have a 0 destruction rate, if
-       *    the previous isotope was already in a loop, we need to use
-       *    the loop sol'n
-       *      - if loopRank[row-1] > -1, check for loop sol'n \
-       *        (This check must be done after the first one because
-       *        it ensures that we are not checking loopRank[-1])
-       */
-      if (col<=loopRank[row] && (d[row] > 0 || loopRank[row-1] >-1))
-	data[idx] = loopSoln(row,col,P+fluxOffset,d+fluxOffset,time);
       else
-	data[idx] = bateman(row,col,P+fluxOffset,d+fluxOffset,time);
-      col++;
+	{
+	  data[idx] = fillTElement(row,col,P+fluxOffset,d+fluxOffset,time,
+				   loopRank);
+	  col++;
+	}
     }
 
   /* for reference calculations, don't destroy the last isotope */
