@@ -1,4 +1,4 @@
-/* $Id: Flux.C,v 1.12 2003-01-13 04:34:55 fateneja Exp $ */
+/* $Id: Flux.C,v 1.13 2004-08-04 19:44:52 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -11,6 +11,12 @@
  */
 
 #include "Flux.h"
+#define SWAP_2(x) ( (((x) & 0xff) << 8) | ((unsigned short)(x) >> 8) )
+#define SWAP_4(x) ( ((x) << 24) | (((x) << 8) & 0x00ff0000) | \
+         (((x) >> 8) & 0x0000ff00) | ((x) >> 24) )
+#define FIX_SHORT(x) (*(unsigned short *)&(x) = SWAP_2(*(unsigned short *)&(x)))
+#define FIX_LONG(x) (*(unsigned *)&(x) = SWAP_4(*(unsigned *)&(x)))
+#define FIX_FLOAT(x) FIX_LONG(x)
 
 #include "Volume.h"
 #include "Calc/VolFlux.h"
@@ -220,30 +226,8 @@ void Flux::xRef(Volume *volList)
 
 	case FLUX_R:
 	  {
-	    /* Binary: reads data from binary file */
-	    char *fname = new char[strlen(ptr->fileName)];
-	    strcpy(fname,ptr->fileName);
+	    ptr->readRTFLUX(MatrixStorage,numVols,numGrps);
 	    
-	    int length = strlen(fname) + 1, err;
-
-	    rt2al_(MatrixStorage, &numVols, &numGrps, &ptr->skip,
-		   fname,&length,&err);
-	    
-	    switch(err)
-	      {
-	      case 0:
-		// Normal
-		break;
-
-	      case 1:
-		// Data not 1 dimensional
-		break;
-		
-	      case 2:
-		// Not enough data in binary file
-		break;
-	      }
-		
 	    break;
 	  }
 	};
@@ -254,6 +238,85 @@ void Flux::xRef(Volume *volList)
   delete FluxMatrix;
 
   verbose(3,"Assigned %d fluxes to each interval",count());
+
+}
+
+
+void Flux::readRTFLUX(double *MatrixStorage,int numVols, int numGrps)
+{
+ 
+  FILE* binFile = fopen(fileName,"rb");
+
+  int f77_reclen; /// needed to accommodate strange F77 binary strucutre
+  int readInt;
+  float readFlt;
+  char buffer[256];
+
+  int grpLo, grpUp, grpHi;
+
+  /// read file header
+  fread((char*)&f77_reclen,SINT,1,binFile);
+  cerr << "|" << f77_reclen << endl;
+  fread(buffer,1,24,binFile);
+  fread((char*)&readInt,SINT,1,binFile);
+  fread((char*)&f77_reclen,SINT,1,binFile);
+
+  cerr << "|" << f77_reclen << "|" << buffer <<  endl;
+
+  /// read dimensions in file
+  int ndim, ngrp, ninti, nintj, nintk, iter, nblok;
+  float effk, power;
+  fread((char*)&f77_reclen,SINT,1,binFile);
+  fread((char*)&ndim, SINT,1,binFile);
+  fread((char*)&ngrp, SINT,1,binFile);
+  fread((char*)&ninti,SINT,1,binFile);
+  fread((char*)&nintj,SINT,1,binFile);
+  fread((char*)&nintk,SINT,1,binFile);
+  fread((char*)&readInt, SINT,1,binFile);
+  fread((char*)&readFlt, SFLOAT,1,binFile);
+  fread((char*)&readFlt,SFLOAT,1,binFile);
+  fread((char*)&nblok, SINT,1,binFile);
+  fread((char*)&f77_reclen,SINT,1,binFile);
+
+  cerr << ndim << "\t" << ngrp << "\t" << ninti << "\t" << nintj << "\t" << nintk << "\t" << nblok << endl;
+  
+  /// error checking
+  if (ndim > 1)
+    error(624,"RFLUX file: %s is 2- or 3-dimensional.  This feature currently only supports 1-D.",fileName);
+
+  if (ngrp<numGrps)
+    error(623,"RTFLUX file: %s does not contain enough data - not enough groups", fileName);
+
+  if (ninti<(skip+numVols))
+    error(623,"RTFLUX file: %s does not contain enough data - not enough intervals", fileName);
+
+  /// read blocks (1-D)
+  double* fluxIn = new double[ninti*ngrp];
+  for (int blkNum=0;blkNum<nblok;blkNum++)
+    {
+      grpLo =   blkNum   * ((ngrp-1)/nblok + 1);
+      grpUp = (blkNum+1) * ((ngrp-1)/nblok + 1)-1;
+      grpHi = std::min(ngrp,grpUp);
+      fread((char*)&f77_reclen,SINT,1,binFile);
+      fread((char*)(fluxIn+grpLo*ninti),SDOUBLE,(grpHi-grpLo+1)*ninti,binFile);
+      fread((char*)&f77_reclen,SINT,1,binFile);
+    }
+  
+  cerr << "read file " << numGrps << "\t" << numVols << "\t" << skip << endl;
+  /// transpose data
+  for (int gNum=0;gNum<numGrps;gNum++)
+    for (int volNum=0;volNum<numVols;volNum++)
+      {
+	cerr << gNum << "\t" << volNum << ": " << fluxIn[gNum*ninti+(volNum+skip)] << endl;
+	MatrixStorage[volNum*numGrps+gNum] = fluxIn[gNum*ninti+(volNum+skip)];
+      }
+
+  cerr << "transposed flux" << endl;
+
+  delete fluxIn;
+
+  cerr << "bye\n";
+  return;
 
 }
 

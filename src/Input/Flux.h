@@ -1,4 +1,4 @@
-/* $Id: Flux.h,v 1.12 2003-01-13 04:34:55 fateneja Exp $ */
+/* $Id: Flux.h,v 1.13 2004-08-04 19:44:52 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _FLUX_H
@@ -74,6 +74,9 @@ public:
   /// Function to read the flux description from the input file
   /// connected to the stream given in the first argument.
   Flux* getFlux(istream&);
+
+  /// Function to read RTFLUX binary FORTRAN output from DANTSYS, etc.
+  void readRTFLUX(double*, int, int);
 
   /// Setup the problem to read the actual flux data into containers in each
   /// interval.
