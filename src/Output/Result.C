@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.29 2003-03-25 18:17:55 varuttam Exp $ */
+/* $Id: Result.C,v 1.30 2003-06-12 19:14:01 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -19,6 +19,9 @@
 
 #include "Calc/topScheduleT.h"
 
+
+
+extern const char *Out_Types_Str[];
 
 /****************************
  ********* Service **********
@@ -323,6 +326,10 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 
   debug(2,"Total volume for normalization: %g",volume_mass);
   
+  /* write reminder of response type */
+  std::string responseReminder = Out_Types_Str[response];
+  cout << responseReminder.substr(0,responseReminder.find('[')) << endl;;
+
   /* write a standard header for this table */
   coolList->writeHeader();
 

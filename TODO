@@ -1,4 +1,4 @@
-$Id: TODO,v 1.15 2003-06-12 17:04:46 wilsonp Exp $
+$Id: TODO,v 1.16 2003-06-12 19:16:12 wilsonp Exp $
 
 When claiming a task from this list, please immediately place your
 name beside it, change the date from the date that it was added to
@@ -18,7 +18,6 @@ BUG FIXES
 NEW FEATURES
 ------------------
 [AV] Adjoint dose in zones
-[PW] (08/08/2002) Add response type reminders above each output table
 **** (08/08/2002) Direct writing of SRCDX (?) gamma source file for DANTSYS
 **** (08/08/2002) Direct reading of MCTAL files from MCNP
 **** (08/08/2002) Alternative approximations for dose (e.g. line source)
@@ -31,7 +30,7 @@ NEW FEATURES
 CODE FEATURES
 ------------------
 [MF] (08/08/2002) Improve comments under doxygen
-
+[MF] (06/12/2003) HDF5 support for nuclear data & dump files
 
 USER DOCUMENTATION
 ------------------

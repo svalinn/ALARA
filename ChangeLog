@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.16 2003-06-12 17:04:46 wilsonp Exp $
+$Id: ChangeLog,v 1.17 2003-06-12 19:16:12 wilsonp Exp $
 	
 Version 2.6.???
 	
@@ -21,10 +21,11 @@ BUGS FIXED
 	
 
 NEW FEATURES
+	* Response type reminders now appear above each and every table [PW] (6/12/2003)
 	* Many input files (data, WDR, etc) are searched for in a path
 	  defined by ALARA_DATADIR environment variable and ${prefix}/share
 	  defined by configure [PW] (6/12/2003)
-	* Implemented Biological/Adjoint/Folded dose [AV] (3/??/03)
+	* Implemented Biological/Adjoint/Folded dose in Volumes [AV] (3/??/03)
 	* Direct reading of RTFLUX by ALARA [MF] (08/23/02)
 	* Read user-defined total volume in 'loading' input block. [AV] (09/09/2002)
 	* Use user-defined total volume with special 'units' entry of
