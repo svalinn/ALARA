@@ -113,8 +113,8 @@ Flux* Flux::getFlux(istream& input)
   input >>flxName >> fName >> inScale >> inSkip >> type;
   switch(tolower(type[0]))
     {
-    case 't':
-      inFormat = FLUX_T;
+    case 'd':
+      inFormat = FLUX_D;
       break;
     default:
       error(103,"Invalid flux type: %s", type);
