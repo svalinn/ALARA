@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.21 2000-06-20 01:50:01 wilson Exp $ */
+/* $Id: Volume.C,v 1.22 2000-06-20 02:35:46 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -107,11 +107,19 @@ Volume::Volume(Root *rootPtr,topSchedule* top)
   init();
 
   volume = 0;
-
+  
   rootPtr->refFlux(this);
-
-  fluxHead->scaleReference(1.0/volume);
-
+  
+  switch(VolFlux::getRefFluxType()) {
+  case REFFLUX_VOL_AVG:
+    fluxHead->scale(1.0/volume);
+    break;
+  case REFFLUX_MAX:
+  default:
+    volume = 1.0;
+    break;
+  }
+  
   schedT = new topScheduleT(top);
 
 }
@@ -394,9 +402,11 @@ void Volume::refFlux(Volume *refVolume)
   while (ptr->mixNext != NULL)
     {
       ptr = ptr->mixNext;
-      /* collapse the rates with the flux */
 
+      /* tally volume weights */
       refVolume->volume += ptr->volume;
+
+      /* collapse the rates with the flux */
       refVolume->fluxHead->updateReference(ptr->fluxHead,ptr->volume);
     }
 
