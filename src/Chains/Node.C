@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.14 1999-08-27 15:21:59 wilson Exp $ */
+/* $Id: Node.C,v 1.15 1999-08-27 15:26:20 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -235,7 +235,7 @@ void Node::loadWDR(char *fname)
 	    tmpKza += isoFlag - 'l';
 	}
       else
-	tmpKza = atio(isoName);
+	tmpKza = atoi(isoName);
 
       wdrCache[tmpKza] = dataAccess.getLambda(tmpKza)/wdr;
       wdrFile >> isoName >> wdr;
