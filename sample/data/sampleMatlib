@@ -69,7 +69,6 @@ Liquid_Flibe                 2             13
 #  density: ~7.86  g/cm3
 # Original has mo and cu
 SS-304                   7.86     11
-                              fe  70.578    26
                               c    0.046     6
                               n    0.038     7
                               si   0.47     14
@@ -78,6 +77,7 @@ SS-304                   7.86     11
                               ti   0.03     22
                               cr  17.7      24
                               mn   1.17     25
+                              fe  70.578    26
                               co   0.1      27
                               ni   9.3      28
 
