@@ -1,4 +1,4 @@
-/* $Id: alara.h,v 1.7 2000-01-20 05:06:50 wilson Exp $ */
+/* $Id: alara.h,v 1.8 2000-07-07 02:03:28 wilson Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
@@ -23,6 +23,7 @@
 #include <map>
 
 typedef map<int,double,less<int> > DataCache;
+typedef map<int,double*,less<int> > VectorCache;
 
 class compare {
 public:
