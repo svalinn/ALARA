@@ -1,4 +1,4 @@
-/* $Id: DataLib.C,v 1.6 2000-07-07 02:15:51 wilson Exp $ */
+/* $Id: DataLib.C,v 1.7 2001-07-10 20:52:48 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -10,6 +10,7 @@
 
 /* possible library sub-types */
 #include "ASCIILib/EAFLib/EAFLib.h"
+#include "ASCIILib/IEAFLib/IEAFLib.h"
 #include "ALARALib/ALARALib.h"
 #include "ALARALib/ADJLib.h"
 
@@ -20,7 +21,8 @@ alara \
 ascii \
 eaf   \
 adj   \
-gamma ";
+gamma \
+ieaf  ";
 
 const int libTypeLength = 6;
 
@@ -30,7 +32,8 @@ const char *libTypeStr[] = {
   "an unspecified ASCII",
   "an EAF library",
   "an 'adjlib' ALARA",
-  "a 'gammalib' ALARA"};
+  "a 'gammalib' ALARA",
+  "an IEAF library"};
 
 const char *libTypeSuffix[] = {
   ".null",
@@ -38,7 +41,8 @@ const char *libTypeSuffix[] = {
   ".null",
   ".eaf",
   ".lib",
-  ".gam"};
+  ".gam",
+  ".ieaf"};
 
 
 /****************************
@@ -54,6 +58,7 @@ DataLib* DataLib::newLib(char* libType, istream& input)
   switch (type)
     {
     case DATALIB_EAF:
+    case DATALIB_IEAF:
       convertLib(libType,DATALIB_ALARA,input);
       dl = new ALARALib(ALARAFNAME);
       break;
@@ -90,15 +95,22 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
   DataLib *dl;
 
   int fromType = convertLibType(fromTypeStr);
+  char transFname[256], decayFname[256];
 
   switch (fromType*100+toType)
     {
     case EAF2ALARA:
-      char transFname[256], decayFname[256];
       input >> transFname >> decayFname;
       verbose(3,"Openning EAF formatted libraries %s, %s for conversion",
 	      transFname,decayFname);
       dl = new EAFLib(transFname,decayFname,ALARAFNAME);
+      delete dl;
+      break;
+    case IEAF2ALARA:
+      input >> transFname >> decayFname;
+      verbose(3,"Openning IEAF formatted libraries %s, %s for conversion",
+	      transFname,decayFname);
+      dl = new IEAFLib(transFname,decayFname,ALARAFNAME);
       delete dl;
       break;
     default:
@@ -114,6 +126,7 @@ void DataLib::convertLib(istream& input)
   char fromTypeStr[16], toTypeStr[16];
   int fromType, toType;
   char alaraFname[256];
+  char transFname[256], decayFname[256];
 
   input >> fromTypeStr >> toTypeStr;
   fromType = convertLibType(fromTypeStr);
@@ -123,11 +136,19 @@ void DataLib::convertLib(istream& input)
   switch (fromType*100+toType)
     {
     case EAF2ALARA:
-      char transFname[256], decayFname[256];
       input >> transFname >> decayFname >> alaraFname;
       verbose(3,"Openning EAF formatted libraries %s, %s for conversion into ALARA library %s",
 	      transFname,decayFname,alaraFname);
       dl = new EAFLib(transFname,decayFname,alaraFname);
+      delete dl;
+      verbose(3,"Converted libraries with %d parents and %d groups.",
+	      dl->nParents,dl->nGroups);
+      break;
+    case IEAF2ALARA:
+      input >> transFname >> decayFname >> alaraFname;
+      verbose(3,"Openning IEAF formatted libraries %s, %s for conversion into ALARA library %s",
+	      transFname,decayFname,alaraFname);
+      dl = new IEAFLib(transFname,decayFname,alaraFname);
       delete dl;
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
