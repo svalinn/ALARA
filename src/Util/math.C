@@ -1,4 +1,4 @@
-/* $Id: math.C,v 1.14 2000-01-20 05:08:27 wilson Exp $ */
+/* $Id: math.C,v 1.15 2000-03-21 22:57:35 wilson Exp $ */
 #include "alara.h"
 #include "Matrix.h"
 
@@ -135,7 +135,7 @@ double laplaceInverse(int row, int col, double *d, double t,
   int numPoles = 0;
   int *mult = new int[row-col+1];
   double *pole = new double[row-col+1];
-  double poleResult, result;
+  double poleResult, result  = 0;
 
   finitePositive = TRUE;
 
