@@ -1,4 +1,7 @@
-#$Id: Makefile.am,v 1.5 2003-08-19 21:56:54 wilsonp Exp $
+#$Id: Makefile.am,v 1.6 2003-10-22 06:07:01 wilsonp Exp $
+
+include $(top_srcdir)/Makefile.h
+
 bin_PROGRAMS = alara
 
 alara_SOURCES = alara.C alara.h
@@ -9,3 +12,4 @@ LDADD = Chains/libChains.a \
 	Input/libInput.a Output/libOutput.a Util/libUtil.a Calc/libCalc.a 
 
 SUBDIRS = Calc Chains DataLib Input Output Util
+

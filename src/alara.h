@@ -1,7 +1,8 @@
-/* $Id: alara.h,v 1.17 2003-06-12 17:00:27 wilsonp Exp $ */
+/* $Id: alara.h,v 1.18 2003-10-22 06:07:02 wilsonp Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
+#include "config.h"
 
 #include <stdio.h>
 #include <stdarg.h>

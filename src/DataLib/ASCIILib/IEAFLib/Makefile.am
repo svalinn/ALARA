@@ -1,7 +1,8 @@
-#$Id: Makefile.am,v 1.3 2003-01-08 05:21:54 wilsonp Exp $
+#$Id: Makefile.am,v 1.4 2003-10-22 06:07:05 wilsonp Exp $
+
+AM_CPPFLAGS = -I$(top_srcdir)/src
+
 noinst_LIBRARIES = libIEAFLib.a
 
 libIEAFLib_a_SOURCES = IEAFLib.C
 noinst_HEADERS = IEAFLib.h
-
-INCLUDE = -I@top_srcdir@/

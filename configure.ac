@@ -10,7 +10,9 @@ AC_CONFIG_HEADER([config.h])
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
-AC_PROG_F77
+AC_PROG_F77([g77 f77])
+# Fix this when F90 support is figured out
+# AC_PROG_F90
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
@@ -22,7 +24,7 @@ AC_F77_LIBRARY_LDFLAGS   ### Check autoconf manual
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lg2c':
 # FIXED: PPHW
-AC_CHECK_LIB([g2c], [getenv])
+AC_CHECK_LIB([g2c], [d_sin])
 ### IS THIS REDUNDANT?
 # FIXME: Replace `main' with a function in `-lm':
 # FIXED: PPHW

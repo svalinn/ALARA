@@ -5,3 +5,4 @@ include $(top_srcdir)/Makefile.h
 
 EXTRA_DIST =
 SUBDIRS = src tools doc data sample   # tests
+

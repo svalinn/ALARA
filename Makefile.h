@@ -5,3 +5,5 @@
 docdir = $(pkgdatadir)/doc
 xsdir = $(pkgdatadir)/data
 sampledir = $(pkgdatadir)/samples
+
+AM_CPPFLAGS = -I$(top_srcdir)/src
