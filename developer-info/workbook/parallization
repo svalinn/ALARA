@@ -1,0 +1,30 @@
+There are a number of different parallelization strategies to be considered.
+
+1) Root/Tree parallelization
+
+   The various trees/roots are distributed to different processors and
+   solved in parallel.  Since the computational cost of each tree is
+   not known a priori, it may be beneficial to use a master-slave
+   paradigm where trees are allocated one at a time to free processors.
+
+   I/O: Each processor could maintain its own separate files for both
+   the tree and data.  Upon reading them with the post-processor (see
+   postProc), all the nodeNums in each file would be appropriately
+   incremented to ensure that nodes each had unique numbers across the
+   whole problem.  The filenames would have a common portion and a PID
+   specific portion allowing them to be treated both collectively and
+   uniquely.
+
+2) Interval parallelization
+
+   The various intervals are distributed to different processors and
+   solved in parallel with the tree being defined on a single master
+   processor.  This might operate asynchronously with the master
+   defining a list of nodes during the tree search and broadcasting
+   them to the slaves.  The master never needs to hear back from the
+   slaves on this, so it simply continue its tree traversal.
+
+   I/O: Each processor could maintain its own separate files for data
+   with the master keeping the tree file.
+
+

@@ -1,0 +1,15 @@
+POST-PROCESSOR
+----------------
+(see newFileFormat for partial context)
+
+A post-processing tool would have to be substantial in scope,
+including the following capabilities:
+	* read original input file
+	* data-structures to provide database like navigation of data
+	  with various keys
+	* decay chain calculations for results at various cooling
+	  times
+In fact, other than the decay chain calculations, this will really be
+more like a database than anything else!
+
+

@@ -1,0 +1,52 @@
+This document records thoughts on new file formats for ALARA.
+
+TREE FILES
+-------------
+The basic key information for ALARA is essentially the tree
+information.  In order to minimize the size of a tree file, the only
+data that needs to be stored for each node in a tree is its parent
+node number.  Therefore, a tree file might look like:
+
+For each node in all trees:
+* nodeNum (integer) - this number is generated sequentially without
+                      resetting across all the trees in the problem
+* nodeKZA (integer) - this is the standard format KZA for this node
+* nodeParent (integer) - this is the reference to the parent of this 
+                         node (0 for root isotope)
+
+For 32-bit integers, this is 12 bytes per node.  A typical problem may
+have over 30,000 nodes that are not ignored.  This results in a tree
+file of size 360kB or so.
+
+NOTES:
+* This format would not show ignored nodes which may or not be of
+  value. One representative run had 3 times as many ignored nodes as
+  not.
+* To fully reconstruct pathways, this information would have to be
+  processed and complemented with information from the x-section
+  library's index (for reaction type info).
+
+DATA FILES
+------------
+The raw data of new files might be as follows:
+
+For each node in all trees:
+* For each interval in the problem that contains that node
+  * nodeNum (integer) - see above
+  * intvlNum (integer) - this number references the interval
+  * relativeN@shutdown (double) - this is the relative number density
+				  at shutdown
+
+For 32-bit integers and 64-bit doubles, this is 16 bytes per
+interaval*node.  A typical problem may have over 30,000 nodes and up
+to 400 intervals.  This results in a data file of upper bound size
+180MB.
+
+NOTES:
+* Realistic file size: This upper bound assumes that all trees (and
+  therefore all nodes) exist in all intervals.  While there may be
+  some root isotopes that occur in all intervals, there may be some
+  that don't occur in many intervals.  Therefore, the actual size
+  may vary substantially from this estimate in either direction.
+
+
