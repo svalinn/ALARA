@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.21 2002-12-07 17:46:54 fateneja Exp $ */
+/* $Id: Node.C,v 1.22 2003-01-08 07:14:51 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -14,6 +14,8 @@
 #include "truncate.h"
 
 #include "Util/Statistics.h"
+
+#include "Calc/VolFlux.h"
 
 /****************************
  ********* Service **********
@@ -564,6 +566,9 @@ void Node::getRxnInfo(double *rateVec, int &baseKza, int &rxnNum, int &numRxns)
 
 double** Node::getCPXS(int findKZA)
 {
+  // Get data from VolFlux Class
+  int nCP = VolFlux::getNumCP();
+
   kza = findKZA;
   readData();
   
@@ -572,12 +577,13 @@ double** Node::getCPXS(int findKZA)
 		   20030,
 		   10010,
 		   10030 };
+
   // Alpha, Deuteron, Helium3, Proton, Triton
 
-  double **CPXS = new double*[5];
-  double *CPXSStorage = new double[nGroups*5];
+  double **CPXS = new double*[nCP];
+  double *CPXSStorage = new double[nGroups*nCP];
   
-  for(int i = 0; i < 5; i++)
+  for(int i = 0; i < nCP; i++)
     {
       CPXS[i] = &CPXSStorage[i*nGroups];
       for(int j = 0; j < nGroups; j++)
@@ -590,7 +596,7 @@ double** Node::getCPXS(int findKZA)
   for(int i = 0; i < nPaths; i++)
     {
       if(!strcmp(emitted[i],"x"))
-	for(int j = 0; j < 5; j++)
+	for(int j = 0; j < nCP; j++)
 	  {
 	    if(relations[i] == cpKZA[j])
 	      for(int k = 0; k < nGroups; k++)
