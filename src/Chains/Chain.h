@@ -1,4 +1,4 @@
-/* $Id: Chain.h,v 1.7 2000-01-20 05:01:30 wilson Exp $ */
+/* $Id: Chain.h,v 1.8 2000-01-23 01:07:33 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -282,7 +282,7 @@ protected:
   static int mode;
 
   int chainLength, newRank, setRank, solvingRef;
-  int *loopRank, *kza;
+  int *loopRank;
   double **rates;
   double *colRates, *P, *d, *L, *l;
   double *chainTruncLimit, *chainIgnoreLimit;

@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.17 2000-01-20 05:06:50 wilson Exp $ */
+/* $Id: Node.C,v 1.18 2000-01-23 01:07:33 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -248,8 +248,7 @@ void Node::loadWDR(char *fname)
 
 /* function to copy pointers to the chain data */
 /* called by Chain::build() */
-void Node::copyRates(double **rates, const int step, int *loopRank, 
-		     int *kzaList)
+void Node::copyRates(double **rates, const int step, int *loopRank)
 {
 
 
@@ -288,7 +287,6 @@ void Node::copyRates(double **rates, const int step, int *loopRank,
   /* find loop rank and assume that this node has no loop */
   int foundLoop = findLoop();
   loopRank[rank] = -1;
-  kzaList[rank] = kza;
 
   /* find natural loop with current isotope */
   switch(mode)
@@ -333,8 +331,7 @@ void Node::copyRates(double **rates, const int step, int *loopRank,
 }
 
 /* re-initialize elements when the chain retracts */
-void Node::delRates(double **rates, const int step, int *loopRank, 
-		    int *kzaList)
+void Node::delRates(double **rates, const int step, int *loopRank)
 {
   int idx;
 
@@ -342,7 +339,6 @@ void Node::delRates(double **rates, const int step, int *loopRank,
   rates[rank+step] = NULL;
   rates[rank+2*step] = NULL;
   rates[rank+3*step] = NULL;
-  kzaList[rank] = -1;
   switch(mode)
     {
     case MODE_FORWARD:

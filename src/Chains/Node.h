@@ -1,4 +1,4 @@
-/* $Id: Node.h,v 1.7 2000-01-20 05:06:50 wilson Exp $ */
+/* $Id: Node.h,v 1.8 2000-01-23 01:07:33 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -183,8 +183,8 @@ public:
   
   /* Chain */
   void readData();
-  void copyRates(double**,const int, int*, int*);
-  void delRates(double**,const int, int*, int*);
+  void copyRates(double**,const int, int*);
+  void delRates(double**,const int, int*);
   int stateEngine(int stateBits=-1);
   Node* addNext(int&);
   void prune();

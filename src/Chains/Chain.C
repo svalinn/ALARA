@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.14 2000-01-20 05:01:30 wilson Exp $ */
+/* $Id: Chain.C,v 1.15 2000-01-23 01:07:33 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -41,14 +41,10 @@ Chain::Chain(Root *newRoot, topSchedule *top)
   solvingRef = FALSE;
 
   loopRank = NULL;
-  kza = NULL;
   rates = NULL;
   
   loopRank = new int[maxChainLength];
   memCheck(loopRank,"Chain::Chain(...) constructor: loopRank");
-
-  kza = new int[maxChainLength];
-  memCheck(kza,"Chain::Chain(...) constructor: kza");
 
   rates = new double*[6*maxChainLength];
   memCheck(rates,"Chain::Chain(...) constructor: rates");
@@ -58,7 +54,6 @@ Chain::Chain(Root *newRoot, topSchedule *top)
       for (int set=0;set<6;set++)
 	rates[set*maxChainLength + rank] = NULL;
       loopRank[rank] = -1;
-      kza[rank] = -1;
     }
 
   colRates = NULL;
@@ -100,20 +95,12 @@ Chain::Chain(const Chain& c)
   solvingRef = c.solvingRef;
   
   loopRank = NULL;
-  kza = NULL;
   rates = NULL;
 
   loopRank = new int[maxChainLength];
   memCheck(loopRank,"Chain::Chain(...) copy constructor: loopRank");
-
-  kza = new int[maxChainLength];
-  memCheck(kza,"Chain::Chain(...) copy constructor: kza");
-
   for (rank=0;rank<maxChainLength;rank++)
-    {
-      loopRank[rank] = c.loopRank[rank];
-      kza[rank] = c.kza[rank];
-    }
+    loopRank[rank] = c.loopRank[rank];
 
   rates = new double*[6*maxChainLength];
   memCheck(rates,"Chain::Chain(...) copy constructor: rates");
@@ -142,7 +129,6 @@ Chain::Chain(const Chain& c)
 Chain::~Chain()
 { 
   delete loopRank;
-  delete kza;
   delete rates; 
   delete colRates; 
   delete reference;
@@ -165,23 +151,14 @@ Chain& Chain::operator=(const Chain& c)
   solvingRef = c.solvingRef;
 
   delete loopRank;
-  delete kza;
   delete rates;
   loopRank = NULL;
-  kza = NULL;
   rates = NULL;
 
   loopRank = new int[maxChainLength];
   memCheck(loopRank,"Chain::Chain(...) copy constructor: loopRank");
-
-  kza = new int[maxChainLength];
-  memCheck(kza,"Chain::Chain(...) copy constructor: kza");
-
   for (rank=0;rank<maxChainLength;rank++)
-    {
-      loopRank[rank] = c.loopRank[rank];
-      kza[rank] = c.kza[rank];
-    }
+    loopRank[rank] = c.loopRank[rank];
 
   rates = new double*[6*maxChainLength];
   memCheck(rates,"Chain::Chain(...) copy constructor: rates");
@@ -309,7 +286,7 @@ int Chain::build(topSchedule *top)
       /* if our chain is too large, expand the rate vectors */
       resizeRates();
       /* point to new rate vectors and find loopRank*/
-      node->copyRates(rates,maxChainLength,loopRank,kza);
+      node->copyRates(rates,maxChainLength,loopRank);
       /* set initial truncation state */
       setState(top);
     }
@@ -348,7 +325,7 @@ int Chain::build(topSchedule *top)
        * no solution has been calculated since the last newRank was
        * set.  
        */
-      node->delRates(rates,maxChainLength,loopRank,kza);
+      node->delRates(rates,maxChainLength,loopRank);
       node = node->retract();
       node->prune();
       chainLength--;
@@ -432,7 +409,6 @@ void Chain::collapseRates(VolFlux* flux)
 {
   int idx,idx2,rank;
   int fluxNum = 0;
-  int parKza, daugKza;
 
   int step = maxChainLength;
   
@@ -440,17 +416,14 @@ void Chain::collapseRates(VolFlux* flux)
   flux = flux->advance();
   while (flux != NULL)
     {
-      parKza = -1;
       for (rank=0;rank<chainLength;rank++)
 	{
-	  daugKza = kza[rank];
 	  idx = rank;
 	  if (mode == MODE_REVERSE)
 	    idx = (chainLength-1)-rank;
 	  idx2 = fluxNum*chainLength + idx;
-	  P[idx2] = flux->fold(parKza,daugKza,rates[rank])      + L[idx];
-	  d[idx2] = flux->fold(daugKza,-1,rates[rank+step]) + l[idx];
-	  parKza = daugKza;
+	  P[idx2] = flux->fold(rates[rank])      + L[idx];
+	  d[idx2] = flux->fold(rates[rank+step]) + l[idx];
 	}
       
       /* in forward mode, don't destroy bottom isotope */
@@ -634,31 +607,24 @@ void Chain::expandRates()
   int *newloopRank = new int[maxChainLength*2];
   memCheck(newloopRank,"Chain::expandRates(): newloopRank");
 
-  int *newKza = new int[maxChainLength*2];
-  memCheck(newKza,"Chain::expandRates(): newKza");
-
   for (rank=0;rank<maxChainLength;rank++)
     {
       for (int set=0;set<6;set++)
 	newRates[set*maxChainLength*2 + rank] = 
 	  rates[set*maxChainLength + rank];
       newloopRank[rank] = loopRank[rank];
-      newKza[rank] = kza[rank];
     }
   for (;rank<maxChainLength*2;rank++)
     {
       for (int set=0;set<6;set++)
 	newRates[set*maxChainLength*2 + rank] = NULL;
       newloopRank[rank] = -1;
-      newKza[rank] = -1;
     }
       
   delete rates;
   delete loopRank;
-  delete kza;
   rates = newRates;
   loopRank = newloopRank;
-  kza = newKza;
   maxChainLength *= 2;
 }
 
@@ -671,24 +637,18 @@ void Chain::compressRates()
   int *newloopRank = new int[maxChainLength/2];
   memCheck(newloopRank,"Chain::expandRates(): newloopRank");
 
-  int *newKza = new int[maxChainLength/2];
-  memCheck(newKza,"Chain::expandRates(): newKza");
-
   for (int idx=0;idx<maxChainLength/2;idx++)
     {
       for (int set=0;set<6;set++)
 	newRates[set*maxChainLength/2 + idx] = 
 	  rates[set*maxChainLength + idx];
       newloopRank[idx] = loopRank[idx];
-      newKza[idx] = kza[idx];
     }
 
   delete rates;
   delete loopRank;
-  delete kza;
   rates = newRates;
   loopRank = newloopRank;
-  kza = newKza;
   maxChainLength /= 2;
 }
 
