@@ -1,4 +1,4 @@
-/* $Id: IEAFLib.h,v 1.1 2001-07-10 20:52:49 wilsonp Exp $ */
+/* $Id: IEAFLib.h,v 1.2 2001-09-10 23:02:44 wilsonp Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -86,7 +86,7 @@ DATALIB_IEAF     6     ieaf     A data library with cross-section
 #define DATALIB_IEAF 6
 
 #define MAXLINELENGTH 85
-#define MAXIEAFRXNS 250
+#define MAXIEAFRXNS 350
 #define MAXIEAFDCYMODES 15
 
 #include "../ASCIILib.h"
