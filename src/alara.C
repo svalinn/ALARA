@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.10 2000-03-01 02:22:44 wilson Exp $ */
+/* $Id: alara.C,v 1.11 2000-04-28 17:13:40 wilson Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -18,12 +18,12 @@ static char *id="$Name: not supported by cvs2svn $";
 
 static char *helpmsg="\
 usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
-\t                -h  Show this message\n\
-\t                -r  Restart option for calculating new respones\n\
+\t -h                 Show this message\n\
+\t -r                 Restart option for calculating new respones\n\
 \t -t <tree_filename> Create tree file with given name\n\
-\t                -V  Show version\n\
-\t            -v <n>  Set verbosity level\n\
-\t  <input_filename>  Name of input file\n\
+\t -V                 Show version\n\
+\t -v <n>             Set verbosity level\n\
+\t <input_filename>   Name of input file\n\
 See Users' Guide (http://fti.neep.wisc.edu/ALARA) for more info.\n";
 
 int main(int argc, char *argv[])
