@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.30 2003-06-12 19:14:01 wilsonp Exp $ */
+/* $Id: Result.C,v 1.31 2003-12-01 20:26:53 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -305,6 +305,16 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   Node dataAccess;
   char isoSym[15];
   int mode = NuclearData::getMode();
+  
+  /* determine ordinal response type */
+  int responseIdx = 0;
+  int tmpResponse = response>>1;
+  while (tmpResponse)
+    {
+      tmpResponse = tmpResponse>>1;
+      responseIdx++;
+	cout << responseIdx <<endl;
+    }
 
   /* initialize the total array */
   delete total;
@@ -327,7 +337,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   debug(2,"Total volume for normalization: %g",volume_mass);
   
   /* write reminder of response type */
-  std::string responseReminder = Out_Types_Str[response];
+  std::string responseReminder = Out_Types_Str[responseIdx];
   cout << responseReminder.substr(0,responseReminder.find('[')) << endl;;
 
   /* write a standard header for this table */
