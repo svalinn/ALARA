@@ -49,7 +49,7 @@ Chain::Chain(Root *newRoot, topSchedule *top)
     {
       for (int set=0;set<6;set++)
 	rates[set*maxChainLength + rank] = NULL;
-      loopRank[rank] = rank;
+      loopRank[rank] = -1;
     }
 
   colRates = NULL;
@@ -109,7 +109,7 @@ Chain::Chain(const Chain& c)
 
 Chain::~Chain()
 { 
-  delete loopRank; 
+  delete loopRank;
   delete rates; 
   delete colRates; 
   delete reference;
@@ -356,10 +356,12 @@ void Chain::setupColRates()
       idx = rank;
       if (mode == MODE_REVERSE)
 	idx = (chainLength-1)-rank;
+
       if (rates[rank+2*step] == NULL)
 	L[idx] = 0;
       else
 	L[idx] = *(rates[rank+2*step]);
+
       if (rates[rank+3*step] == NULL)
 	l[idx] = 0;
       else
@@ -483,20 +485,20 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
   col = 0;
   for (;idx<size;idx++)
     {
-      switch(mode)
-	{
-	case MODE_FORWARD:
-	  rank = row;
-	  break;
-	case MODE_REVERSE:
-	  rank = (chainLength-1)-row;
-	  break;
-	}
       if (col == row)
 	{
 	  data[idx] = exp(-d[row]*time);
 	  col = 0;
 	  row++;
+	  switch(mode)
+	    {
+	    case MODE_FORWARD:
+	      rank = row;
+	      break;
+	    case MODE_REVERSE:
+	      rank = (chainLength-1)-row;
+	      break;
+	    }
 	}
       else
 	{
@@ -586,7 +588,7 @@ void Chain::expandRates()
     {
       for (int set=0;set<6;set++)
 	newRates[set*maxChainLength*2 + rank] = NULL;
-      newloopRank[rank] = rank;
+      newloopRank[rank] = -1;
     }
       
   delete rates;

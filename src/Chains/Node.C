@@ -87,7 +87,10 @@ void Node::readData()
 	state = stripNonDecay();
       break;
     case MODE_REVERSE:
-      D = single;
+      if (single != NULL)
+	D = single;
+      else
+	D = prev->P;
       break;
     }
 }
@@ -186,33 +189,43 @@ void Node::copyRates(double **rates, const int step, int *loopRank)
       rates[idx+2*step] = rates[idx]+nGroups;
     }
 
+  /* find loop rank and assume that this node has no loop */
+  int foundLoop = findLoop();
+  loopRank[rank] = -1;
+
   /* find natural loop with current isotope */
   switch(mode)
     {
     case MODE_FORWARD:
       {
-	loopRank[rank] = findLoop();
-	
-	/* make sure that there is no loop within this natural loop
-	 * i.e. loopRank must monotonically increase */
-	if (rank > 0 && loopRank[rank]<loopRank[rank-1] && loopRank[rank-1]>-1)
-	  loopRank[rank] = loopRank[rank-1];
+	/* if there is a natural loop */
+	if (foundLoop>-1)
+	  loopRank[rank] = rank - foundLoop;
+
+	/* check for internal loop */
+	if (rank > 0 && loopRank[rank-1] > -1)
+	  loopRank[rank] = loopRank[rank-1] + 1;
 	
 	break;
       }
     case MODE_REVERSE:
       {
-	int foundLoop = findLoop();
-	
-	if (foundLoop>0)
+
+	/* if there is a natural loop */
+	if (foundLoop>-1)
 	  {
-	    loopRank[rank] = -1;
-	    loopRank[foundLoop] = rank;
-	    /* make sure that there is no loop within this natural loop
-	     * i.e. loopRank must monotonically decrease*/
-	    if (loopRank[foundLoop] > loopRank[foundLoop+1])
-	      loopRank[foundLoop] = loopRank[foundLoop+1];
+	    loopRank[foundLoop] = rank - foundLoop;
+	    
+	    /* check for internal loop */
+	    if (loopRank[foundLoop] > loopRank[foundLoop+1]+1)
+	      loopRank[foundLoop] = loopRank[foundLoop+1]+1;
 	  }
+
+	/* propagate that loop to other chain members */
+	while (--foundLoop >= 0)
+	  if (loopRank[foundLoop] == -1)
+	    loopRank[foundLoop] = loopRank[foundLoop+1]+1;
+
 	break;
       }
     }
@@ -224,11 +237,27 @@ void Node::copyRates(double **rates, const int step, int *loopRank)
 /* re-initialize elements when the chain retracts */
 void Node::delRates(double **rates, const int step, int *loopRank)
 {
+  int idx;
+
   rates[rank] = NULL;
   rates[rank+step] = NULL;
   rates[rank+2*step] = NULL;
   rates[rank+3*step] = NULL;
-  loopRank[rank] = rank;
+  switch(mode)
+    {
+    case MODE_FORWARD:
+      /* simply reset this value */
+      loopRank[rank] = -1;
+      break;
+    case MODE_REVERSE:
+      /* reset this value */
+      loopRank[rank] = -1;
+      idx = rank;
+      while (--idx >= 0)
+	if (loopRank[idx]+idx >= rank)
+	  loopRank[idx] = -1;
+      break;
+    }
 }
 
 
