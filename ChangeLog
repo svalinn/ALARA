@@ -1,0 +1,106 @@
+Version X.Y.Z
+	
+* Start of ChangeLog (08/08/2002)
+
+BUGS FIXED
+
+
+NEW FEATURES
+
+
+CODE UPDATES
+	* All class comments converted to Doxygen compliance
+	* Added target to Makefile to make documentation with Doxygen
+	* Improved C++ ISO standards compliance
+	  - use correct headers
+	  - completely specify entities from std namespace
+	  - import various stream entities from std namespace
+	* Added ChangeLog and TODO files
+	
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
+
+Version 2.5.3
+
+BUGS FIXED
+	* ASCII IEAF library was not being read properly - missing extra
+	  line at end of each isotope's data
+
+NEW FEATURES
+	* NONE
+
+CODE UPDATES
+	* NONE
+	
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+
+Version 2.5.2
+
+BUGS FIXED
+	* Atomic X-ray data was not being included in gamma library when
+	  translating from IEAF libarary
+
+NEW FEATURES
+	* NONE
+
+CODE UPDATES
+	* Added target to compile condor binary (at CAE)
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
+
+Version 2.5.1
+
+BUGS FIXED
+	* Atomic X-ray data was not being included in gamma library
+	* Incorrect results for schedules with varying fluxes.  Previous
+	  bug fix (v2.?.?) was incomplete.  Diagonal matrix element was
+	  not based on correct flux.
+	* Simplified/corrected interpolation/extrapolation for contact
+	  dose calculation.
+
+NEW FEATURES
+	* Added mode to only build chains and solve without output.  This
+	  is designed to facilitate Condor operation that might have
+	  problems closing the binary file and immediately reopening it.
+	
+CODE UPDATES
+	* Began introducing namespace specifiers for included elements of
+	  std namespace.
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+
+Version 2.5.0
+
+* Minor version changed due to new features
+
+BUGS FIXED
+	* Core dump when invalid included input file. Check for NULL
+	  istream pointer.
+
+
+NEW FEATURES
+	* Added contact dose output.
+	* Added binary tree file output
+
+
+CODE UPDATES
+	* Added target to use makedepend for automatic dependency
+	  generation
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+
+Version 2.4.6 Patches
+
+BUGS FIXED
+	* Total cross-section of IEAF library is incorrectly calculated by
+	  summing partial cross-sections.  This over counts the total
+	  transmutation cross-section.  Now correctly read and locate
+	  total cross section from library.
+
+	* Various memory leaks found and plugged.
+	
+NEW FEATURES
+
+CODE UPDATES
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+

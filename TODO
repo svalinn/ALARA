@@ -1,0 +1,36 @@
+When claiming a task from this list, please immediately place your
+name beside it, send an email to alaradev@cae.wisc.edu and checkin
+this file to the repository.
+
+alaradev Members
+PW - Paul Wilson
+AV - Athi Varuttamaseni
+PP - Phiphat "Nor" Phruksarojanakun
+MF - Milad Fatenejad
+
+
+BUG FIXES
+
+
+NEW FEATURES
+[AV] Adjoint dose 
+[MF] Direct reading of RTFLUX files from DANTSYS
+**** Direct writing of SRCDX (?) gamma source file for DANTSYS
+**** Alternative approximations for dose (e.g. line source)
+**** Add response type reminders above each output table
+**** Improve volume calculation and output
+	* automatically change units to reduce significant figures (e.g. cm3->m3)
+	* rigorously report volume units in 1-/2-D problems (e.g. cm3 per cm)
+	* allow user input for effective height of zone to calculate true volume
+
+CODE FEATURES
+**** Improve comments under doxygen
+
+RESEARCH
+* data infrastructure
+
+
+USER DOCUMENTATION
+* add sample problems
+* add tutorials
+* bring up to date with current features
