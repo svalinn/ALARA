@@ -53,7 +53,7 @@ void CoolingTime::getCoolingTimes(istream& input)
 
       /* check for valid units */
       if (strchr(UNITS,inUnits) == NULL)
-	error(144,"Invalid units in cooling time: %10g %c",
+	error(120,"Invalid units in cooling time: %10g %c",
 	      ptr->coolingTime, ptr->units);
 
       verbose(3,"Added cooling time at: %g %c.",
@@ -64,7 +64,7 @@ void CoolingTime::getCoolingTimes(istream& input)
     }
 
   if (ptr->head())
-    warning(112,"No after-shutdown/cooling times were defined.");
+    warning(121,"No after-shutdown/cooling times were defined.");
 
 
 }

@@ -313,7 +313,7 @@ int Chain::build(topSchedule *top)
       break;
     }
 
-  error(1000,"Programming Error: Invalid truncation state in Chain::build(...)");
+  error(9000,"Programming Error: Invalid truncation state in Chain::build(...)");
   return -1;
 }
 
@@ -338,8 +338,8 @@ void Chain::setupColRates()
       memCheck(colRates,"Chain::setupColRates(): colRates");
     }
   else
-    error(1000,"Possible Programming Error: Chain::setupColRates(...) \n\
-    sliceSize = %d [chainLength = %d, VolFlux::getNumFluxes() = %d].",
+    error(9000,"Programming Error: Chain::setupColRates(...) \n\
+sliceSize = %d [chainLength = %d, VolFlux::getNumFluxes() = %d].",
 	  sliceSize, chainLength,VolFlux::getNumFluxes());
 
   for (rank=0;rank<2*sliceSize+2*chainLength;rank++)

@@ -158,7 +158,7 @@ void Loading::getMatLoading(istream& input)
     }
   
   if (ptr->head())
-    warning(111,"Material Loading is empty.");
+    warning(170,"Material Loading is empty.");
 
 }
 
@@ -184,7 +184,7 @@ void Loading::xCheck(Mixture *mixListHead)
 	  /* search for the mixture referenced in this zone */
 	  ptr->mixPtr = mixListHead->find(ptr->mixName);
 	  if ( ptr->mixPtr == NULL)
-	    error(129, "Zone %s is loaded with a non-existent mixture: %s",
+	    error(370, "Zone %s is loaded with a non-existent mixture: %s",
 		  ptr->zoneName,ptr->mixName);
 	  else
 	    {

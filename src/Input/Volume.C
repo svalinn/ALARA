@@ -252,7 +252,7 @@ void Volume::xCheck(Loading *loadList)
       ptr->zonePtr = loadList->findZone(ptr->zoneName);
       if (ptr->zonePtr == NULL)
 	{
-	  error(128,"Zone %s specified in interval volumes was not found in the material loading.", ptr->zoneName);
+	  error(420,"Zone %s specified in interval volumes was not found in the material loading.", ptr->zoneName);
 	}
     }
 
@@ -355,14 +355,14 @@ void Volume::xRef(Norm *normList)
       ptr=ptr->next;
       normList = normList->advance();
       if (normList == NULL)
-	error(160,"You have specified too few normalizations.  If you specifiy any normalizations, you must specify one for each interval.");
+	error(620,"You have specified too few normalizations.  If you specifiy any normalizations, you must specify one for each interval.");
 
       ptr->norm = normList->getScale();
       cntNorms++;
     }
 
   if (normList->advance() != NULL)
-    warning(161,"You have specified too many normalizations.  Extra normalizations will be ignored.");
+    warning(621,"You have specified too many normalizations.  Extra normalizations will be ignored.");
     
   verbose(3,"Added %d spatial normalizations to intervals.",cntNorms);
 
@@ -399,13 +399,13 @@ void Volume::readFlux(char* fname, int skip, double scale)
       fluxFile >> skipDble;
 
   if (fluxFile.eof())
-    error(201,"Flux file %s does not contain enough data.",fname);
+    error(622,"Flux file %s does not contain enough data.",fname);
 
   /* read the flux for each interval */
   while (ptr->next != NULL)
     {
       if (fluxFile.eof())
-	error(201,"Flux file %s does not contain enough data.",fname);
+	error(622,"Flux file %s does not contain enough data.",fname);
 
       ptr = ptr->next;
       ptr->flux = ptr->flux->read(fluxFile,scale*ptr->norm);

@@ -60,7 +60,7 @@ void error(int error_num, char *msgFmt, ...)
 void memCheck(void* ptr, const char *msg)
 {
   if (ptr == NULL)
-    error(1,"Memory allocation error: %s",msg);
+    error(-1,"Memory allocation error: %s",msg);
 }
 
 void warning(int error_num, char *msgFmt, ...)

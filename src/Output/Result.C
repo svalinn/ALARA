@@ -364,7 +364,7 @@ void Result::initBinDump(char* fname)
 { 
   binDump = fopen(fname,"wb+"); 
   if (!binDump)
-    error(300,"Unable to open dump file %s",fname);
+    error(240,"Unable to open dump file %s",fname);
 };
 
 void Result::dumpHeader()
@@ -376,10 +376,10 @@ void Result::xCheck()
 {
   if (binDump == NULL)
     {
-      warning(301,"ALARA now requires a binary dump file.  Openning the default file 'alara.dmp'");
+      warning(440,"ALARA now requires a binary dump file.  Openning the default file 'alara.dmp'");
       binDump = fopen("alara.dmp","wb+");
       if (!binDump)
-	error(300,"Unable to open dump file alara.dmp");
+	error(441,"Unable to open dump file alara.dmp");
     }
 }
 

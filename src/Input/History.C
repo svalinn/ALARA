@@ -118,7 +118,7 @@ History* History::getHistory(istream& input)
     }
   
   if (pulseLevel->head())
-    warning(105,"History %s is empty",name);
+    warning(160,"History %s is empty",name);
 
   return histPtr;         
 }

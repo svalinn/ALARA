@@ -117,7 +117,7 @@ Flux* Flux::getFlux(istream& input)
       inFormat = FLUX_D;
       break;
     default:
-      error(103,"Invalid flux type: %s", type);
+      error(140,"Invalid flux type: %s", type);
     }
   next = new Flux(inFormat,flxName,fName,inScale,inSkip);
   memCheck(next,"Flux::getFlux(...): next");
@@ -201,7 +201,7 @@ int Flux::checkFname()
     }
   else
     {
-      warning(134,"Unable to open flux file %s for flux %s.",fileName,fluxName);
+      warning(340,"Unable to open flux file %s for flux %s.",fileName,fluxName);
       return FALSE;
     }
  

@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	    continue;
 	  }
 	else
-	  error(200,"Only one input filename can be specified: %s.",inFname);
+	  error(1,"Only one input filename can be specified: %s.",inFname);
 
       while (argv[argNum][0] == '-')
 	argv[argNum]++;

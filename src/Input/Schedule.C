@@ -124,7 +124,7 @@ Schedule* Schedule::getSchedule(istream& input)
     }
   
   if (itemList->head())
-    warning(104,"Schedule %s is empty",name);
+    warning(200,"Schedule %s is empty",name);
 
 
   return schedPtr;         
@@ -173,7 +173,7 @@ void Schedule::write(int level, char *histName, double delay, char dUnits)
 	}
       
       if (ptr->usedAsSub)
-	error(142,"Unable to find top level schedule.\nA top level schedule must not used as a sub-schedule.");
+	error(400,"Unable to find top level schedule.\nA top level schedule must not used as a sub-schedule.");
 
       cout << "Schedule '" << ptr->schedName << "':" << endl;
     }

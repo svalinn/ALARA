@@ -95,7 +95,7 @@ Dimension* Dimension::getDimension(istream& input)
       dimType = DIM_PHI;
       break;
     default:
-      error(106,"Invalid dimension type: %s",token);
+      error(130,"Invalid dimension type: %s",token);
     }
 
   next = new Dimension(dimType);
@@ -124,7 +124,7 @@ Dimension* Dimension::getDimension(istream& input)
     }
 
   if (zoneList->head())
-    warning(102,"Dimension has no boundaries");
+    warning(131,"Dimension has no boundaries");
 
   return dimPtr;         
   
@@ -180,14 +180,14 @@ void Dimension::checkTypes(int geom_type)
       
       /* check for duplicates */
       if (xCheck[ptr->type])
-	error(124,"Duplicate dimensions of type %s.",dimTypeText[ptr->type]);
+	error(330,"Duplicate dimensions of type %s.",dimTypeText[ptr->type]);
       xCheck[ptr->type] = 1;
 
       /* check context */
       fail = (ptr->type < dim_min || ptr->type > dim_max);
       if (fail)
 	{
-	  error(125,"%s geometries don't have dimensions of type %s.",
+	  error(331,"%s geometries don't have dimensions of type %s.",
 		  geomTypeText[geom_type],dimTypeText[ptr->type]);
 	}
     }

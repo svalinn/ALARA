@@ -43,7 +43,7 @@ DataLib* DataLib::newLib(char* libType, istream& input)
 	      dl->nParents,dl->nGroups);
       break;
     default:
-      error(160,"Data library type %s (%d) is not yet supported.",
+      error(1000,"Data library type %s (%d) is not yet supported.",
 	    libType, type);
     }
 
@@ -67,7 +67,7 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
       delete dl;
       break;
     default:
-      error(160,"Conversion from %s (%d) to (%d) is not yet supported.",
+      error(1001,"Conversion from %s (%d) to (%d) is not yet supported.",
 	    fromTypeStr, fromType, toType);
     }
 
@@ -104,7 +104,7 @@ void DataLib::convertLib(istream& input)
       delete dl;
       break;
     default:
-      error(160,"Conversion from %s (%d) to %s (%d) is not yet supported.",
+      error(1001,"Conversion from %s (%d) to %s (%d) is not yet supported.",
 	    fromTypeStr, fromType, toTypeStr, toType);
     }
 
@@ -147,7 +147,7 @@ adj   ";
 
 void DataLib::readData(int kza, NuclearData* data)
 {
-  error(200, "Programming error: DataLib::readData() must be called from a derived object.");
+  error(9000, "Programming error: DataLib::readData() must be called from a derived object.");
 }
 
 

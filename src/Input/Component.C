@@ -104,7 +104,7 @@ void Component::getMatLib(istream& input)
   matLib.open(fname,ios::in);
 
   if (matLib == 0)
-    error(150,"Unable to open material library: %s",fname);
+    error(110,"Unable to open material library: %s",fname);
 
   verbose(2,"Openned material library %s",fname);
 }
@@ -116,7 +116,7 @@ void Component::getEleLib(istream& input)
   eleLib.open(fname,ios::in);
 
   if (eleLib == 0)
-    error(151,"Unable to open element library: %s",fname);
+    error(111,"Unable to open element library: %s",fname);
 
   verbose(2,"Openned element library %s",fname);
 }
@@ -248,7 +248,7 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
 	}
     }
   else
-    error(150,"Could not find element %s in element library.",compName);
+    error(310,"Could not find element %s in element library.",compName);
 
   return rootList;
 
@@ -304,7 +304,7 @@ Root* Component::expandMat(Mixture* mix)
 	}
     }
   else
-    error(151,"Could not find material %s in material library.",
+    error(311,"Could not find material %s in material library.",
 	  compName);
   
   return rootList;

@@ -62,7 +62,7 @@ ScheduleItem* ScheduleItem::getSubSched(char *name,istream& input)
   input >> pname >> inDelay >> inDUnits;
   /* check for valid units */
   if (strchr(UNITS,inDUnits) == NULL)
-    error(145,"Invalid units in schedule item delay time: %10g %c",
+    error(210,"Invalid units in schedule item delay time: %10g %c",
 	  inDelay, inDUnits);
   
   next = new ScheduleItem(SCHED_SCHED,name,pname,inDelay,inDUnits);
@@ -88,10 +88,10 @@ ScheduleItem* ScheduleItem::getPulse(double inOpTime,istream& input)
 
   /* check for valid units */
   if (strchr(UNITS,inDUnits) == NULL)
-    error(145,"Invalid units in schedule item delay time: %10g %c",
+    error(210,"Invalid units in schedule item delay time: %10g %c",
 	  inDelay, inDUnits);
   if (strchr(UNITS,inOpUnits) == NULL)
-    error(146,"Invalid units in single pulse time: %10g %c",
+    error(211,"Invalid units in single pulse time: %10g %c",
 	  inOpTime, inOpUnits);
 
   next = new ScheduleItem(SCHED_PULSE,flxName,pname,inDelay,inDUnits,
@@ -135,10 +135,10 @@ void ScheduleItem::xCheck(Schedule* schedHead, Flux *fluxHead, History *histHead
 	    switch (tmpFlux)
 	      {
 	      case FLUX_NOT_FOUND:
-		error(130,"Flux %s for simple pulse item of schedule %s does not exist.",ptr->fluxName,schedName);
+		error(410,"Flux %s for simple pulse item of schedule %s does not exist.",ptr->fluxName,schedName);
 		break;
 	      case FLUX_BAD_FNAME:
-		error(132,"Bad flux file for flux %s for simple pulse item of schedule %s.",
+		error(411,"Bad flux file for flux %s for simple pulse item of schedule %s.",
 			ptr->fluxName,schedName);
 		break;
 	      default:
@@ -151,13 +151,13 @@ void ScheduleItem::xCheck(Schedule* schedHead, Flux *fluxHead, History *histHead
 	case SCHED_SCHED: /* sub-schedule */
 	  {
 	    if (!strcmp(ptr->itemName,schedName))
-	      error(135,"Schedule recursion: %s.",schedName);
+	      error(412,"Schedule recursion: %s.",schedName);
 
 	    verbose(4,"Checking for sub-schedule %s and pulsing history %s.",ptr->itemName,ptr->pulseName);
 	    /* set pointer to sub-schedule */
 	    Schedule* tmpSched = schedHead->find(ptr->itemName);
 	    if (tmpSched == NULL)
-	      error(133,"Schedule %s for subschedule item of schedule %s does not exist.",ptr->itemName,schedName);
+	      error(413,"Schedule %s for subschedule item of schedule %s does not exist.",ptr->itemName,schedName);
 	    else 
 	      {
 		verbose(5,"Sub-schedule %s was found.",ptr->itemName);
@@ -173,7 +173,7 @@ void ScheduleItem::xCheck(Schedule* schedHead, Flux *fluxHead, History *histHead
       /* set pointer to pulse history */
       History *tmpHist = histHead->find(ptr->pulseName);
       if (tmpHist == NULL)
-	error(131,"Pulse history %s for item of schedule %s does not exist.",
+	error(414,"Pulse history %s for item of schedule %s does not exist.",
 	      ptr->pulseName, schedName);
       else
 	{

@@ -40,15 +40,15 @@ ALARALib::ALARALib(char* fname,int setType)
       {
       case DATALIB_ALARA:
 	if (setType == DATALIB_ADJOINT)
-	  error(3000,"You have specified library type 'alaralib' but given the filename of an 'adjlib' library.");
+	  error(1100,"You have specified library type 'alaralib' but given the filename of an 'adjlib' library.");
 	else
-	  error(3001,"You have specified library type 'alaralib' but given the filename of an unidentified library.");
+	  error(1101,"You have specified library type 'alaralib' but given the filename of an unidentified library.");
 	break;
       case DATALIB_ADJOINT:
 	if (setType == DATALIB_ALARA)
-	  error(3002,"You have specified library type 'adjlib' but given the filename of an 'alaralib' library.");
+	  error(1102,"You have specified library type 'adjlib' but given the filename of an 'alaralib' library.");
 	else
-	  error(3003,"You have specified library type 'adjlib' but given the filename of an unidentified library.");
+	  error(1103,"You have specified library type 'adjlib' but given the filename of an unidentified library.");
 	break;
       }
 

@@ -430,34 +430,34 @@ float ASCIILib::sum(float* vector)
 
 void ASCIILib::getTransInfo()
 {
-  error(201, 
+  error(9000, 
 	"Programming error: ASCIILib::getTransInfo() must be called from a derived object.");
 }
 
 void ASCIILib::getDecayInfo()
 {
-  error(202,
+  error(9000,
 	"Programming error: ASCIILib::getDecayInfo() must be called from a derived object.");
 }
 
 
 int ASCIILib::getTransData()
 {
-  error(203,
+  error(9000,
 	"Programming error: ASCIILib::getTransData() must be called from a derived object.");
   return -1;
 }
 
 int ASCIILib::getDecayData()
 {
-  error(204,
+  error(9000,
 	"Programming error: ASCIILib::getDecayData() must be called from a derived object.");
   return -1;
 }
 
 void ASCIILib::readData(int getKza, NuclearData* data)
 {
-  error(205,
+  error(9000,
 	"Programming error: ASCIILib::readData() must be called from a derived object.");
 
 }

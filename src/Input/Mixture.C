@@ -190,11 +190,11 @@ Mixture* Mixture::getMixture(istream &input)
 	      type = TARGET_ISO;
 	      break;
 	    default:
-	      error(101,"Target materials for reverse calculations can only be elements or isotopes and not '%s'",token);
+	      error(180,"Target materials for reverse calculations can only be elements or isotopes and not '%s'",token);
 	    }
 	  break;
 	default:
-	  error(101,"Invalid material constituent: %s", token);
+	  error(181,"Invalid material constituent: %s", token);
 	}
       if (type <= COMP_SIM)
 	/* add each component to the list */
@@ -207,7 +207,7 @@ Mixture* Mixture::getMixture(istream &input)
     }
   
   if (compList->head())
-    warning(102,"Mixture %s has no components",name);
+    warning(182,"Mixture %s has no components",name);
   
   /* treat a single component as if there is no component:
    * total only */
@@ -245,7 +245,7 @@ void Mixture::xCheck()
 	{
 	  /* search for the referenced name */
 	  if (head->find(current->getName()) == NULL)
-	      error(123, "Component type 'l' of mixture %s references a non-existent mixture: %s",
+	      error(380, "Component type 'l' of mixture %s references a non-existent mixture: %s",
 		      ptr->mixName,current->getName());
 
 	  current = current->exists(COMP_SIM);
@@ -281,7 +281,7 @@ void Mixture::removeUnused(Loading *loadList)
 	{
 	  /* remove current mixture def from list */
 	  prev->next = ptr->next;
-	  warning(140,"Removing mixture %s not used in any zones.",
+	  warning(580,"Removing mixture %s not used in any zones.",
 		  ptr->mixName);
 
 	  /* this ensures that the entire list is not deleted */

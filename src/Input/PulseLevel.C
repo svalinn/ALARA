@@ -60,7 +60,7 @@ PulseLevel* PulseLevel::getPulseLevel(int inNumPulse,istream& input)
 
   /* check for valid units */
   if (strchr(UNITS,inUnits) == NULL)
-    error(147,"Invalid units in pulse level: %10g %c",
+    error(190,"Invalid units in pulse level: %10g %c",
 	  inDelay, inUnits);
   
   next = new PulseLevel(inNumPulse,inDelay,inUnits);

@@ -276,7 +276,7 @@ void Input::xCheck()
 	{
 	  /* interval volumes not allowed */
 	  if (!volList->head())
-	    error(120,"Cannot define both zone dimensions and interval volumes.");
+	    error(300,"Cannot define both zone dimensions and interval volumes.");
 
 	  /* check that we have the correct dimension types for this geometry */
 	  dimListHead->checkTypes(inGeom->getType());
@@ -288,10 +288,10 @@ void Input::xCheck()
 	  /* check that the number of zones defined here 
 	   * matches the number in the material loading */
 	  if (dimListHead->totZones() < loadList->numZones())
-	    warning(121,"A material loading is given for more zones (%d) than are defined by the zone dimensions (%d).\n\
+	    warning(301,"A material loading is given for more zones (%d) than are defined by the zone dimensions (%d).\n\
 Those extra zones are being ignored.",loadList->numZones(),dimListHead->totZones());
 	  else if (dimListHead->totZones() > loadList->numZones())
-	    error(122,"Material loadings were not defined for as many zones (%d) as were defined by the zone dimensions (%d).",
+	    error(302,"Material loadings were not defined for as many zones (%d) as were defined by the zone dimensions (%d).",
 		  loadList->numZones(),dimListHead->totZones());
 	  else
 	    verbose(2,"Number of zones defined by zone dimensions (%d) matches number of material loadings defined.(%d)",
@@ -304,7 +304,7 @@ Those extra zones are being ignored.",loadList->numZones(),dimListHead->totZones
 	}
       /* reqiure either zone dimensions or interval volumes */
       else 
-	error(121,"Must define either zone dimensions or interval volumes for multi-point problems.");
+	error(303,"Must define either zone dimensions or interval volumes for multi-point problems.");
     }
 
   /* cross-check schedule list
@@ -455,7 +455,7 @@ void Input::clearIncludeComment()
 	    input = openFile(inFileName);
 
 	    if (*input == 0)
-	      error(152,"Unable to open included file: '%s'.",inFileName);
+	      error(101,"Unable to open included file: '%s'.",inFileName);
 
 	    verbose(2,"Reading included file: %s.",inFileName);
 

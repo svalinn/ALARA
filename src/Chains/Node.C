@@ -363,7 +363,7 @@ Node* Node::addNext(int &setRank)
   else
     /* NOTE: this function should never be called in a state where
      * above is not true.  */
-    error(1000,"Programming error: trying to add too many relations in chain.");
+    error(9000,"Programming error: trying to add too many relations in chain.");
 
   /* If this was the last next */
   if (++pathNum == nPaths)

@@ -67,7 +67,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
       /* match the first character of the type in the constant string */
       type = strchr(Out_Types,tolower(token[0]))-Out_Types;
       if (type<0)
-	error(175,"Output type '%s' is not currently supported.",
+	error(230,"Output type '%s' is not currently supported.",
 	      token);
 
       /* use logical and to set the correct bit in the outTypes field */

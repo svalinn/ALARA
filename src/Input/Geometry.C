@@ -41,7 +41,7 @@ Geometry::Geometry(char *token)
       type = GEOM_T;
       break;
     default:
-      error(107,"Invalid geometry type: %s",token);
+      error(150,"Invalid geometry type: %s",token);
     }      
 
   verbose(2,"Set geometry type: %s.", token);
@@ -59,12 +59,12 @@ void Geometry::checkTorus(Dimension *dimListHead)
 {
 
   if (rMaj < 0)
-    error(126,"Toroidal problems with zone dimensions require a major radius.");
+    error(350,"Toroidal problems with zone dimensions require a major radius.");
   else
     verbose(2,"Found major radius for torroidal geometry.");
   
   if(!dimListHead->find(DIM_R) && rMin < 0)
-    error(127,"Toroidal problems with zone dimensions require either a minor radius or a radius dimension.");
+    error(351,"Toroidal problems with zone dimensions require either a minor radius or a radius dimension.");
   else
     verbose(2,"Found minor radius for torroidal geometry.");
 }
