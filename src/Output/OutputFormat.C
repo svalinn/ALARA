@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.17 1999-11-09 17:11:37 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.18 1999-11-09 17:17:52 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -9,7 +9,7 @@
 #include "Chains/Node.h"
 
 #define Bq2Ci 2.7027e-11
-#define m32cm3 1e6
+#define cm32m3 1e-6
 
 const char *Out_Types = "ucnstabgw";
 
@@ -132,7 +132,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  input >> token;
 	  next->normUnits = new char[strlen(token)+1];
 	  strcpy(next->normUnits,token);
-	  next->normMult = (tolower(token[0]) == 'm'?m32cm3:1);
+	  next->normMult = (tolower(token[0]) == 'm'?cm32m3:1);
 	  break;
 	case OUTFMT_WDR:
 	  input >> token;
