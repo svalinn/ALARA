@@ -11,7 +11,7 @@
  ********* Service **********
  ***************************/
 
-ALARALib::LibIdx::LibIdx(int& nPar, int& nGroups, FILE*& binLib)
+ALARALib::LibIdx::LibIdx(int& nPar, int& nGroups, FILE*& binLib, int &libType)
 {
   nParents = 0;
   nGroups = 0;
@@ -20,7 +20,6 @@ ALARALib::LibIdx::LibIdx(int& nPar, int& nGroups, FILE*& binLib)
 
   if (binLib != NULL)
     {
-      int libType;
       int parNum;
       int junkInt, nRxns, rxnNum;
       long junkLong, idxOffset;

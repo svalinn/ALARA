@@ -23,8 +23,8 @@ ALARALib::ALARALib(char* fname, char* idxName)
 }
 
 /* open an existing library */
-ALARALib::ALARALib(char* fname) 
-  : DataLib(DATALIB_ALARA)
+ALARALib::ALARALib(char* fname,int setType) 
+  : DataLib(setType)
 {
 
   char fnameStr[256];
@@ -33,7 +33,25 @@ ALARALib::ALARALib(char* fname)
 
   binLib = fopen(fnameStr,"rb");
 
-  idx = new LibIdx(nParents,nGroups,binLib);
+  idx = new LibIdx(nParents,nGroups,binLib,setType);
+
+  if (setType != type)
+    switch(type)
+      {
+      case DATALIB_ALARA:
+	if (setType == DATALIB_ADJOINT)
+	  error(3000,"You have specified library type 'alaralib' but given the filename of an 'adjlib' library.");
+	else
+	  error(3001,"You have specified library type 'alaralib' but given the filename of an unidentified library.");
+	break;
+      case DATALIB_ADJOINT:
+	if (setType == DATALIB_ALARA)
+	  error(3002,"You have specified library type 'adjlib' but given the filename of an 'alaralib' library.");
+	else
+	  error(3003,"You have specified library type 'adjlib' but given the filename of an unidentified library.");
+	break;
+      }
+
 }
 
 ALARALib::ALARALib(const ALARALib& a) : DataLib(a)

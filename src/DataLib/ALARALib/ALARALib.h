@@ -159,7 +159,7 @@ protected:
       
     public:
       /* Service */
-      LibIdx(int& nPar,int& nGroups, FILE*&);
+      LibIdx(int& nPar,int& nGroups, FILE*&,int&);
       LibIdx(const LibIdx&);
       ~LibIdx()
 	{ delete kza; delete offset; };
@@ -178,7 +178,7 @@ protected:
 
 public:
   /* Service */
-  ALARALib(char*);
+  ALARALib(char*,int setType=DATALIB_ALARA);
   ALARALib(char*, char*);
   ALARALib(const ALARALib&);
   ~ALARALib();

@@ -2,12 +2,12 @@
 
 /* open an existing library */
 ADJLib::ADJLib(char* fname)
-  : ALARALib(fname)
+  : ALARALib(fname,DATALIB_ADJOINT)
 { }
   
 /* create a new library */
 ADJLib::ADJLib(char* fname, char* adjLibName) :
-  ALARALib(fname)
+  ALARALib(fname,DATALIB_ADJOINT)
 {
   normBinLib = binLib;
 

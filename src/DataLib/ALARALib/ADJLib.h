@@ -26,9 +26,11 @@ DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
 -------------------------------------------------------------------
 */
 
+#ifndef _ADJLIB_H
+#define _ADJLIB_H
+
 #include "ALARALib.h"
 
-#define DATALIB_ADJOINT 4
 
 class ADJLib : public ALARALib
 {
@@ -94,3 +96,4 @@ public:
   
 };
   
+#endif
