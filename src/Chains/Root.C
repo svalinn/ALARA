@@ -118,6 +118,25 @@ void Root::solve(topSchedule *schedule)
  ********* PostProc **********
  ****************************/
 
+Root* Root::readSingleDump(int& getKza)
+{
+  Root *ptr=this;
+
+  /* skip over head at first call */
+  while (ptr != NULL && ptr->kza < 1)
+    ptr = ptr->nextRoot;
+
+  if (ptr != NULL)
+    {
+      verbose(3,"Reading dump for Target: %d",ptr->kza);
+      ptr->mixList->readDump(ptr->kza);
+      getKza = ptr->kza;
+    }
+  
+  return ptr->nextRoot;
+}
+      
+
 void Root::readDump()
 {
   Root *ptr=this;

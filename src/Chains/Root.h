@@ -294,6 +294,7 @@ public:
   
   /* Postproc */
   void readDump();
+  Root* readSingleDump(int&);
   Component* getComp(double&,Mixture*,Component*);
 
   /* Utility */
