@@ -16,7 +16,7 @@ double laplaceInverse(int, int, double*, double, int&);
 double laplaceExpansion(int, int, double*, double, int&);
 
 
-double fillTElement(int, int, double*, double*, double, int*);
+double fillTElement(int, int, double*, double*, double, int*,int);
 
 
 /* output.C */
