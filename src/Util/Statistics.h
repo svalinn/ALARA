@@ -1,4 +1,4 @@
-/* $Id: Statistics.h,v 1.10 2001-07-23 20:02:22 wilsonp Exp $ */
+/* $Id: Statistics.h,v 1.11 2002-06-04 18:05:28 wilsonp Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -113,11 +113,11 @@ public:
   
   static int accountNode(int,char*,int,int,double*, int);
   static int accountChain(int rank)
-    { chainCtr++; maxRootRank=max(maxRootRank,rank); return chainCtr;};
+    { chainCtr++; maxRootRank=std::max(maxRootRank,rank); return chainCtr;};
   static int accountMaxRank()
   {
     int tmp = maxRootRank;
-    maxProblemRank = max(maxRootRank,maxProblemRank);
+    maxProblemRank = std::max(maxRootRank,maxProblemRank);
     maxRootRank = 0;
     return tmp;
   };

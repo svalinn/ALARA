@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.18 2002-02-25 14:21:16 wilsonp Exp $ */
+/* $Id: Chain.C,v 1.19 2002-06-04 18:05:28 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -461,7 +461,7 @@ void Chain::setDecay(Matrix& D, double time)
   /* when solving reference calculations, only the most
    * recent isotope can be a new addition */
   if (mode == MODE_FORWARD && solvingRef)
-    localNewRank = max(0,chainLength-2);
+    localNewRank = std::max(0,chainLength-2);
 
   oldSize = (localNewRank*(localNewRank+1)/2);
 
@@ -515,7 +515,7 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
    * the previous isotope needs to have its destruction rates updated
    */
   if (mode == MODE_FORWARD && solvingRef)
-    localNewRank = max(0,chainLength-2);
+    localNewRank = std::max(0,chainLength-2);
   oldSize = (localNewRank*(localNewRank+1)/2);
 
   /* copy previously calculated rows */
@@ -573,7 +573,7 @@ void Chain::mult(Matrix &result, Matrix& A, Matrix& B)
   /* when solving reference calculations, only the most
    * recent isotope can be a new addition */
   if (mode == MODE_FORWARD && solvingRef)
-    localNewRank = max(0,chainLength-2);
+    localNewRank = std::max(0,chainLength-2);
   oldSize = (localNewRank*(localNewRank+1)/2);
 
   /* copy previously calculated rows */

@@ -1,4 +1,4 @@
-/* $Id: alara.h,v 1.12 2002-05-06 18:03:54 wilsonp Exp $ */
+/* $Id: alara.h,v 1.13 2002-06-04 18:05:28 wilsonp Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
@@ -11,7 +11,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-#include <algorithm.h>
+#include <algorithm>
 
 /* *** STL typedef ***
 
@@ -20,12 +20,12 @@
    number to which that data corresponds.  
  */ 
 
-#include <map.h>
+#include <map>
 
 /* TO DO: Come see me next week  Why won't it compile?!?!?*/
 
-typedef map<int,double,less<int> > DataCache;
-typedef map<int,double*,less<int> > VectorCache;
+typedef std::map<int,double,std::less<int> > DataCache;
+typedef std::map<int,double*,std::less<int> > VectorCache;
 
 class compare {
 public:
