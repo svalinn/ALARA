@@ -314,7 +314,7 @@ int EAFLib::getTransData()
   while (zak==oldZak)
     {
       /* read everything we need to know from the input file */
-      readReaction(inTrans,rxnNum, zak);
+      readReaction(rxnNum, zak);
 
       
       /* parse emitted particles */

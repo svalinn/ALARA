@@ -94,7 +94,7 @@ protected:
 
   /* Read Non-Binary Data */
   /* Internal */
-  void readReaction(ifstream&, int&, int);
+  void readReaction(int&, int);
 
   /* Interface from ASCIILib */
   void getTransInfo();
