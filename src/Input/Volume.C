@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.34 2003-01-14 05:01:19 wilsonp Exp $ */
+/* $Id: Volume.C,v 1.35 2003-01-14 22:09:23 wilsonp Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -678,7 +678,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		  cout << endl;
 
 		  ptr->outputList[compNum].write(response,targetKza,ptr->mixPtr,
-						 coolList,ptr->total,volume_mass,this);
+						 coolList,ptr->total,volume_mass,ptr);
 
 		  compPtr = compPtr->advance();
 		  compNum++;
@@ -729,7 +729,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	      cout << endl;
 
 	      ptr->outputList[ptr->nComps].write(response,targetKza,ptr->mixPtr,
-						 coolList,ptr->total, volume_mass,this);
+						 coolList,ptr->total, volume_mass,ptr);
 	      
 	    }
 	}
