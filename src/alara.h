@@ -1,17 +1,20 @@
-/* $Id: alara.h,v 1.13 2002-06-04 18:05:28 wilsonp Exp $ */
+/* $Id: alara.h,v 1.14 2002-08-02 14:42:09 wilsonp Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
 
-#include <iostream.h>
-#include <fstream.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+
+
+#include <iostream>
+#include <fstream>
 #include <algorithm>
+
 
 /* *** STL typedef ***
 
@@ -26,6 +29,19 @@
 
 typedef std::map<int,double,std::less<int> > DataCache;
 typedef std::map<int,double*,std::less<int> > VectorCache;
+
+/* import std::istream, std::ofstream since alternative implmentations
+ * are unlikely */
+using std::istream;
+using std::cout;
+using std::cin;
+using std::cerr;
+using std::endl;
+using std::ios;
+
+using std::fstream;
+using std::ifstream;
+using std::ofstream;
 
 class compare {
 public:
