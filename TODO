@@ -1,4 +1,4 @@
-$Id: TODO,v 1.8 2002-09-09 19:51:51 varuttam Exp $
+$Id: TODO,v 1.9 2002-09-09 19:58:38 varuttam Exp $
 
 When claiming a task from this list, please immediately place your
 name beside it, change the date from the date that it was added to
@@ -14,8 +14,6 @@ MF - Milad Fatenejad
 
 BUG FIXES
 ------------------
-**** (08/29/2002) Command-line argument handling: when extra argument expected (-v, -t)
-	for last option but not given, casuses SEGFAULT (core dump).
 
 NEW FEATURES
 ------------------

@@ -1,14 +1,20 @@
-$Id: ChangeLog,v 1.7 2002-08-23 20:49:08 fateneja Exp $
+$Id: ChangeLog,v 1.8 2002-09-09 19:58:38 varuttam Exp $
 	
 Version 2.6.???
 	
 BUGS FIXED
 	* Util/input.C:tokentype() - token conversion to lower case only
 	  changed first character [AV] (08/13/2002)
-
+        * Command-line argument handling: when extra argument expected (-v, -t)
+	  for last option but not given, casuses SEGFAULT (core dump).  Check
+	  for last command-line option and error. [AV] (09/09/2002)
+	
 
 NEW FEATURES
 	* Direct reading of RTFLUX by ALARA [MF] (08/23/02)
+	* Read user-defined total volume in 'loading' input block. [AV] (09/09/2002)
+	* Use user-defined total volume with special 'units' entry of
+	  output block to give volume integrated results. [AV] (09/09/2002)
 
 
 CODE UPDATES
