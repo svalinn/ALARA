@@ -24,40 +24,16 @@ double fact(int i)
 }
 
 
-double bateman(int row, int col, double* P, double* d, double t)
+double bateman(int row, int col, double* d, double t)
 {
-  if (row == col)
-    /* if this is on the diagonal, 
-     * simple exponential decay */
-    return exp(-d[col]*t);
-  
-  if (d[col] == 0) 
-    /* if the isotope at this rank=col has no destruction, 
-     * the whole column is empty ! (except the diagonal) 
-     * Note: this is only possible when calling from a decay matrix sol'n
-     */
-      return 0;
-
-  double result, sum, sumInc, den;
+  double sum, sumInc, den;
   int term, denTerm;
 
-  result = 1;
   sum = 0;
   sumInc = 0;
 
   for (term=col;term<row;term++)
     {
-      /* multiplicative increment of normalization */
-      result *= P[term+1];
-      
-      if (result == 0)
-	/* if there is no production path between the isotopes at
-	 * row and col, this element is empty
-	 * Note: this is only possible when calling from a decay matrix sol'n
-	 */
-	return 0;
-
-      
       /* set denominator element based on Laplace root: d[term]
        * (traditional analytic inverse Laplace transform) */
       den = 1;
@@ -78,9 +54,7 @@ double bateman(int row, int col, double* P, double* d, double t)
   /* multiply normalization by sum of Laplace inverse terms */
   /* absolute value here takes care of negative results */
   /******* THIS IS AN INCORRECT STOP-GAP **********/
-  result *= fabs(sum);
-
-  return result;
+  return fabs(sum);
 
 };
 
@@ -178,92 +152,76 @@ double laplaceInverse(int row, int col, double *d, double t)
 
 }
 
-double laplaceExpansion(int row, int col, double *d, double t, int numTerms)
+double fillTElement(int row, int col, double *P, double *d, double t, 
+		    int* loopRank)
 {
 
+  int idx, termNum;
   int sz = row-col;
-  double result;
+  double result, correction;
 
-  if (row == col)
-    /* if this is on the diagonal, 
-     * simple exponential decay */
-    return exp(-d[col]*t);
-  
+  /* do this product up front to eliminate costly
+   * computation which may end in 0 anyway */
+  double productionProduct = 1;
+  for (idx=col;idx<row;idx++)
+    productionProduct *= P[idx+1];
 
+  if (productionProduct == 0)
+    return productionProduct;
+
+  /******* DEFAULT TO LAPLACE EXPANSION TO AVOID ROUND-OFF *********/
   /* initialize matrix with destruction rates */
-  Matrix poleMat = Matrix::Triangle(d,sz+1);
-  Matrix powPoleMat = Matrix::Identity(sz+1);
+  Matrix poleMat(d,sz+1);
+  Matrix powPoleMat(sz+1);
 
   /* zeroth term is simply the correct power of t/n!  */
   result = pow(t,sz)/fact(sz);
 
   /* for each successive term */
-  for (int termNum=1;termNum<numTerms;termNum++)
+  for (termNum=1;termNum<MAXNUMEXPTERMS;termNum++)
     {
       /* multiply the power matrix by the non-power matrix */
       powPoleMat *= poleMat;
 
       /* power of t/n! times coefficient, with alternating sign!! */
-      result += powPoleMat.rowSum(sz) * ( 1-2*(termNum%2) )
-              * pow(t,termNum+sz)/fact(termNum+sz);
+      correction = powPoleMat.rowSum(sz) * ( 1-2*(termNum%2) )
+	* pow(t,termNum+sz)/fact(termNum+sz);
+      
+      if (fabs(correction/result) > MAXEXPTOL)
+	/* use this term if significant */
+	result += correction;
+      else
+	/* otherwise break */
+	break;
     }
 
-  return result;
+  /******* IF WE NEED TOO MANY TERMS *****
+   ******* GO TO ALTERNATIVE METHOD  *****
+   ******* BASED ON LOOP CONDITION   *****/
+  if (termNum == MAXNUMEXPTERMS)
+    /* This seemingly complicated condition saves using the loop
+     * solution during a reference calculation when only the last
+     * isotope introduces the loop.  In this case, there is no real
+     * degeneracy, since the destruction rate of the last isotope is
+     * zero'ed for a reference calculation.  The condition can be
+     * understood as follows: 
+     *  - when checking for loop solution, if we are calculating the
+     *    production from an isotope inside the loop, generally use
+     *    the loop sol'n, but only iff
+     *  - only the last isotope can ever have a destruction rate of
+     *    zero
+     *      - if d[row] > 0, use loop sol'n
+     *  - even if last isotope does have a 0 destruction rate, if
+     *    the previous isotope was already in a loop, we need to use
+     *    the loop sol'n
+     *      - if loopRank[row-1] > -1, check for loop sol'n \
+     *        (This check must be done after the first one because
+     *        it ensures that we are not checking loopRank[-1])*/
+    if (col<=loopRank[row] && (d[row] > 0 || loopRank[row-1] >-1))
+      result = laplaceInverse(row,col,d,t);
+    else
+      result = bateman(row,col,d,t);
+    
+  return result*productionProduct;
 }
 
-int small(double *d, double t, int col, int row)
-{
-
-  int rank = row-col+1;
-  double max=0;
-
-  /* for each pole in the problem */
-  for (int poleNum=col;poleNum<=row;poleNum++)
-    /* determine the larges pole */
-    max = d[poleNum]>max?d[poleNum]:max;
-
-  int n=MAXNUMEXPTERMS;
-  /* using a defined maximum number of terms, if the last term results
-   * in a correction which is too large */
-  if (pow(rank*max*t,n)*fact(rank-1)/(n*fact(n+rank-1)) > MAXEXPTOL)
-    /* return the maximum number of terms + 1 
-     * to be used to indicate that a series expansion will not work */
-    return MAXNUMEXPTERMS+1;
-
-  /* arrive at a VERY rough approximation for number of terms by splitting
-   * guess in half */
-  /* for each guess at the number of terms */
-  for (;n>0;n/=2)
-    {
-      /* if the correction is too large */
-      if (pow(rank*max*t,n)*fact(rank-1)/(n*fact(n+rank-1))>MAXEXPTOL)
-	/* return the previous guess */
-	return 2*n;
-    }
-
-  /* return the last guess (must be 1 ... VERY unlikely ) */
-  return n;
-}
-  
-
-double loopSoln(int row, int col, double *P, double *d, double t)
-{
-
-  double result = 1;
-  int idx;
-
-  for (idx=col;idx<row;idx++)
-    result *= P[idx+1];
-
-  int numExpansionTerms = small(d,t,col,row);
-
-  if (numExpansionTerms>MAXNUMEXPTERMS)
-    result *= laplaceInverse(row, col, d, t);
-  else
-    result *= laplaceExpansion(row, col, d, t, numExpansionTerms);
-
-  return result;
-
-
-
-}

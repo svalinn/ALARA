@@ -8,15 +8,12 @@ double convertTime(double,char);
 /* math.C */
 double fact(int);
 
-double bateman(int,int,double*,double*,double);
-
-double loopSoln(int,int,double*,double*,double);
+double bateman(int,int,double*,double);
 
 double dGn(int, double*, int*, int, int);
 double laplaceInverse(int, int, double*, double);
 
-int small(double*,double,int);
-double laplaceExpansion(int, int, double*, double);
+double fillTElement(int, int, double*, double*, double, int*);
 
 
 /* output.C */
