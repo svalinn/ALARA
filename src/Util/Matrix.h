@@ -21,7 +21,7 @@ public:
   Matrix() { size = 0; data = NULL; };
   Matrix(int);
   Matrix(const Matrix&);
-  Matrix(double*,int);
+  Matrix(double*,int,int);
   ~Matrix();
 
   Matrix operator*(const Matrix&);

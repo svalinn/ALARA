@@ -191,7 +191,7 @@ double laplaceExpansion(int row, int col, double *d, double t, int &converged)
   double result, correction;
 
   /* initialize matrix with destruction rates */
-  Matrix poleMat(d,sz+1);
+  Matrix poleMat(d,sz+1,col);
   Matrix powPoleMat(sz+1);
 
   /* innocent until proven guilty */

@@ -39,7 +39,7 @@ Matrix::Matrix(const Matrix& m)
 
 /* make a triangular matrix from the array d,
  * where all elements are d[col] (regardless of row) */
-Matrix::Matrix(double *d, int sz)
+Matrix::Matrix(double *d, int sz, int ecol)
 {
   size = sz;
   data = NULL;
@@ -54,7 +54,7 @@ Matrix::Matrix(double *d, int sz)
       col = 0;
       for (idx=0;idx<sz*(sz+1)/2;idx++)
 	{
-	  data[idx] = d[col++];
+	  data[idx] = d[ecol+(col++)];
 	  if (col > row)
 	    {
 	      row++;
