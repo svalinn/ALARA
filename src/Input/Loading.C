@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.21 2000-07-07 02:32:12 wilson Exp $ */
+/* $Id: Loading.C,v 1.22 2001-12-06 19:20:02 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -315,8 +315,8 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		  
 		  cout << endl;
 
-		  ptr->outputList[compNum].write(response,targetKza,coolList,
-						 ptr->total,volume_mass);
+		  ptr->outputList[compNum].write(response,targetKza,ptr->mixPtr,
+						 coolList,ptr->total,volume_mass);
 
 		  compPtr = compPtr->advance();
 		  compNum++;
@@ -362,8 +362,8 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	      
 	      cout << endl;
 
-	      ptr->outputList[ptr->nComps].write(response, targetKza,coolList,
-					    ptr->total, volume_mass);
+	      ptr->outputList[ptr->nComps].write(response, targetKza, ptr->mixPtr,
+						 coolList, ptr->total, volume_mass);
 
 	    }
 	}
