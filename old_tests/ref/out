@@ -1,6 +1,7 @@
+ALARA $Name: not supported by cvs2svn $
 Set verbose level to 3.
-Openned tree file new_tree.
-	Openned in/test1_new for input.
+Openned tree file tree.
+	Openned in/test1 for input.
 Starting problem input processing.
 	Reading input.
 		Set geometry type: rectangular.
@@ -53,141 +54,141 @@ Starting problem solution.
 		Solving Root #1: fe-54 
 		   Maximum relative concentration: 0.0387958
 		      last Root: 1390 nodes in 421 chains with maximum length 9.
-		                 in 1.290 s (1077.519 nodes/s)
+		                 in 1.420 s (978.873 nodes/s)
 		   Total so far: 1390 nodes in 421 chains with maximum length 9.
-		                 in 1.41 s (985.816 nodes/s)
+		                 in 1.60 s (868.750 nodes/s)
 		Solving Root #2: fe-56 
 		   Maximum relative concentration: 0.60311
 		      last Root: 837 nodes in 253 chains with maximum length 8.
 		                 in 0.800 s (1046.250 nodes/s)
 		   Total so far: 2227 nodes in 674 chains with maximum length 9.
-		                 in 2.21 s (1007.692 nodes/s)
+		                 in 2.40 s (927.917 nodes/s)
 		Solving Root #3: fe-57 
 		   Maximum relative concentration: 0.0138087
 		      last Root: 790 nodes in 235 chains with maximum length 9.
-		                 in 0.790 s (1000.000 nodes/s)
+		                 in 0.780 s (1012.821 nodes/s)
 		   Total so far: 3017 nodes in 909 chains with maximum length 9.
-		                 in 3.00 s (1005.667 nodes/s)
+		                 in 3.18 s (948.742 nodes/s)
 		Solving Root #4: fe-58 
 		   Maximum relative concentration: 0.00184116
 		      last Root: 1446 nodes in 388 chains with maximum length 10.
 		                 in 1.730 s (835.838 nodes/s)
 		   Total so far: 4463 nodes in 1297 chains with maximum length 10.
-		                 in 4.73 s (943.552 nodes/s)
+		                 in 4.91 s (908.961 nodes/s)
 		Solving Root #5: ag-107 
 		   Maximum relative concentration: 0.0588279
 		      last Root: 9643 nodes in 2041 chains with maximum length 16.
-		                 in 16.160 s (596.720 nodes/s)
+		                 in 16.470 s (585.489 nodes/s)
 		   Total so far: 14106 nodes in 3338 chains with maximum length 16.
-		                 in 20.89 s (675.251 nodes/s)
+		                 in 21.38 s (659.776 nodes/s)
 		Solving Root #6: ag-109 
 		   Maximum relative concentration: 0.0546519
 		      last Root: 13849 nodes in 2756 chains with maximum length 16.
-		                 in 22.740 s (609.015 nodes/s)
+		                 in 22.980 s (602.654 nodes/s)
 		   Total so far: 27955 nodes in 6094 chains with maximum length 16.
-		                 in 43.63 s (640.729 nodes/s)
+		                 in 44.36 s (630.185 nodes/s)
 		Solving Root #7: cd-106 
 		   Maximum relative concentration: 0.00181491
 		      last Root: 4085 nodes in 920 chains with maximum length 14.
-		                 in 6.290 s (649.444 nodes/s)
+		                 in 6.450 s (633.333 nodes/s)
 		   Total so far: 32040 nodes in 7014 chains with maximum length 16.
-		                 in 49.92 s (641.827 nodes/s)
+		                 in 50.81 s (630.585 nodes/s)
 		Solving Root #8: cd-108 
 		   Maximum relative concentration: 0.00129222
 		      last Root: 5700 nodes in 1222 chains with maximum length 14.
-		                 in 9.370 s (608.324 nodes/s)
+		                 in 9.470 s (601.901 nodes/s)
 		   Total so far: 37740 nodes in 8236 chains with maximum length 16.
-		                 in 59.29 s (636.532 nodes/s)
+		                 in 60.28 s (626.078 nodes/s)
 		Solving Root #9: cd-110 
 		   Maximum relative concentration: 0.0181346
 		      last Root: 5712 nodes in 1133 chains with maximum length 14.
-		                 in 8.310 s (687.365 nodes/s)
+		                 in 8.610 s (663.415 nodes/s)
 		   Total so far: 43452 nodes in 9369 chains with maximum length 16.
-		                 in 67.60 s (642.781 nodes/s)
+		                 in 68.89 s (630.745 nodes/s)
 		Solving Root #10: cd-111 
 		   Maximum relative concentration: 0.0185847
 		      last Root: 5399 nodes in 1007 chains with maximum length 11.
 		                 in 7.450 s (724.698 nodes/s)
 		   Total so far: 48851 nodes in 10376 chains with maximum length 16.
-		                 in 75.05 s (650.913 nodes/s)
+		                 in 76.34 s (639.914 nodes/s)
 		Solving Root #11: cd-112 
 		   Maximum relative concentration: 0.035035
 		      last Root: 4295 nodes in 831 chains with maximum length 12.
-		                 in 6.180 s (694.984 nodes/s)
+		                 in 6.110 s (702.946 nodes/s)
 		   Total so far: 53146 nodes in 11207 chains with maximum length 16.
-		                 in 81.23 s (654.266 nodes/s)
+		                 in 82.45 s (644.585 nodes/s)
 		Solving Root #12: cd-113 
 		   Maximum relative concentration: 0.0177426
 		      last Root: 5465 nodes in 1007 chains with maximum length 13.
-		                 in 9.090 s (601.210 nodes/s)
+		                 in 9.400 s (581.383 nodes/s)
 		   Total so far: 58611 nodes in 12214 chains with maximum length 16.
-		                 in 90.32 s (648.926 nodes/s)
+		                 in 91.85 s (638.117 nodes/s)
 		Solving Root #13: cd-114 
 		   Maximum relative concentration: 0.0417139
 		      last Root: 5182 nodes in 949 chains with maximum length 12.
-		                 in 7.830 s (661.813 nodes/s)
+		                 in 7.900 s (655.949 nodes/s)
 		   Total so far: 63793 nodes in 13163 chains with maximum length 16.
-		                 in 98.15 s (649.954 nodes/s)
+		                 in 99.75 s (639.529 nodes/s)
 		Solving Root #14: cd-116 
 		   Maximum relative concentration: 0.0108749
 		      last Root: 4258 nodes in 837 chains with maximum length 13.
-		                 in 6.550 s (650.077 nodes/s)
+		                 in 6.730 s (632.689 nodes/s)
 		   Total so far: 68051 nodes in 14000 chains with maximum length 16.
-		                 in 104.70 s (649.962 nodes/s)
+		                 in 106.48 s (639.097 nodes/s)
 		Solving Root #15: w-180 
 		   Maximum relative concentration: 5.32644e-05
 		      last Root: 20229 nodes in 3288 chains with maximum length 17.
-		                 in 39.540 s (511.608 nodes/s)
+		                 in 40.030 s (505.346 nodes/s)
 		   Total so far: 88280 nodes in 17288 chains with maximum length 17.
-		                 in 144.24 s (612.035 nodes/s)
+		                 in 146.51 s (602.553 nodes/s)
 		Solving Root #16: w-182 
 		   Maximum relative concentration: 0.0116738
 		      last Root: 10930 nodes in 1814 chains with maximum length 15.
-		                 in 20.070 s (544.594 nodes/s)
+		                 in 19.900 s (549.246 nodes/s)
 		   Total so far: 99210 nodes in 19102 chains with maximum length 17.
-		                 in 164.31 s (603.798 nodes/s)
+		                 in 166.41 s (596.178 nodes/s)
 		Solving Root #17: w-183 
 		   Maximum relative concentration: 0.00633847
 		      last Root: 7127 nodes in 1244 chains with maximum length 14.
-		                 in 12.480 s (571.074 nodes/s)
+		                 in 12.360 s (576.618 nodes/s)
 		   Total so far: 106337 nodes in 20346 chains with maximum length 17.
-		                 in 176.79 s (601.488 nodes/s)
+		                 in 178.77 s (594.826 nodes/s)
 		Solving Root #18: w-184 
 		   Maximum relative concentration: 0.0136268
 		      last Root: 8068 nodes in 1401 chains with maximum length 17.
-		                 in 15.260 s (528.702 nodes/s)
+		                 in 15.230 s (529.744 nodes/s)
 		   Total so far: 114405 nodes in 21747 chains with maximum length 17.
-		                 in 192.05 s (595.704 nodes/s)
+		                 in 194.00 s (589.716 nodes/s)
 		Solving Root #19: w-186 
 		   Maximum relative concentration: 0.0126947
 		      last Root: 18153 nodes in 3238 chains with maximum length 20.
-		                 in 42.350 s (428.642 nodes/s)
+		                 in 42.480 s (427.331 nodes/s)
 		   Total so far: 132558 nodes in 24985 chains with maximum length 20.
-		                 in 234.40 s (565.520 nodes/s)
+		                 in 236.48 s (560.546 nodes/s)
 		Solving Root #20: pb-204 
 		   Maximum relative concentration: 0.000551389
 		      last Root: 2238 nodes in 445 chains with maximum length 11.
-		                 in 3.340 s (670.058 nodes/s)
+		                 in 3.400 s (658.234 nodes/s)
 		   Total so far: 134796 nodes in 25430 chains with maximum length 20.
-		                 in 237.74 s (566.989 nodes/s)
+		                 in 239.88 s (561.931 nodes/s)
 		Solving Root #21: pb-206 
 		   Maximum relative concentration: 0.00949177
 		      last Root: 814 nodes in 169 chains with maximum length 9.
-		                 in 0.920 s (884.784 nodes/s)
+		                 in 1.020 s (798.048 nodes/s)
 		   Total so far: 135610 nodes in 25599 chains with maximum length 20.
-		                 in 238.66 s (568.214 nodes/s)
+		                 in 240.90 s (562.931 nodes/s)
 		Solving Root #22: pb-207 
 		   Maximum relative concentration: 0.00870407
 		      last Root: 592 nodes in 134 chains with maximum length 8.
-		                 in 0.640 s (925.001 nodes/s)
+		                 in 0.690 s (857.968 nodes/s)
 		   Total so far: 136202 nodes in 25733 chains with maximum length 20.
-		                 in 239.30 s (569.168 nodes/s)
+		                 in 241.59 s (563.773 nodes/s)
 		Solving Root #23: pb-208 
 		   Maximum relative concentration: 0.0206377
 		      last Root: 550 nodes in 121 chains with maximum length 8.
-		                 in 0.540 s (1018.531 nodes/s)
+		                 in 0.600 s (916.657 nodes/s)
 		   Total so far: 136752 nodes in 25854 chains with maximum length 20.
-		                 in 239.84 s (570.180 nodes/s)
+		                 in 242.19 s (564.648 nodes/s)
 	Solved problem.
 	Reset binary dump with 12 results per isotope.
 		Read dump file.
