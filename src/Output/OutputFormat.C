@@ -92,11 +92,13 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
   int type;
   char token[64];
+  char tmpGSrcName[64], tmpAdjFluxName[64];
 
   input >> token;
   type = strchr(Out_Res,tolower(token[0]))-Out_Res;
 
   next = new OutputFormat(type);
+  DoseResponse *dosePtr = next->dose;
 
   verbose(2,"Added output at resolution %d (%s)",type,token);
   
@@ -118,21 +120,12 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
       if (1<<type == OUTFMT_DOSE)
 	{
-	  char tmpGSrcName[64], tmpAdjFluxName[64];
-	  DoseResponse *dosePtr = next->dose;
 	  clearComment(input);
-	  input >> token;
-	  while (strcmp(token,"end"))
-	    {
-	      input >> tmpAdjFluxName >> tmpGSrcName;
-	      dosePtr = dosePtr->add(token,tmpAdjFluxName,tmpGSrcName);
-	      verbose(4,"Added dose response %s using flux %s and gamma source structure %s",
-		      token,tmpAdjFluxName,tmpGSrcName);
-
-	      clearComment(input);
-	      input >> token;
-	    }
-
+	  input >> token >> tmpAdjFluxName >> tmpGSrcName;
+	  dosePtr = dosePtr->add(token,tmpAdjFluxName,tmpGSrcName);
+	  verbose(4," -- dose response %s using flux %s and gamma source structure %s",
+		  token,tmpAdjFluxName,tmpGSrcName);
+	  
 	}
       else if (1<<type == OUTFMT_PHOTON)
 	{
@@ -146,7 +139,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  next->gSrcFName = new char[strlen(token)+1];
 	  strcpy(next->gSrcFName,token);
 
-	  verbose(4,"Added gamma source output to file %s using gamma source structure %s",
+	  verbose(4," -- gamma source output to file %s using gamma source structure %s",
 		  next->gSrcFName,next->gSrcName);
 	  
 	}
