@@ -1,4 +1,4 @@
-/* $Id: alara.h,v 1.15 2002-12-07 17:41:02 fateneja Exp $ */
+/* $Id: alara.h,v 1.16 2003-01-08 07:13:15 fateneja Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
@@ -86,11 +86,5 @@ extern int debug_level;
 
 // Avagadros number
 #define AVAGADRO 6.02e23
-
-// Number of charged particle energy groups
-#define numCPEG  24
-
-// Number of charged particles
-#define numCP    5
 
 #endif
