@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.12 1999-08-24 22:35:53 wilson Exp $ */
+/* $Id: Result.C,v 1.13 1999-08-25 15:42:54 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -280,16 +280,16 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	  multiplier = dataAccess.getLambda(targetKza)/volume;
 	  break;
 	case OUTFMT_HEAT:
-	  multiplier = dataAccess.getHeat(targetKza)/volume;
+	  multiplier = dataAccess.getHeat(targetKza)/volume * EV2J;
 	  break;
 	case OUTFMT_ALPHA:
-	  multiplier = dataAccess.getAlpha(targetKza)/volume;
+	  multiplier = dataAccess.getAlpha(targetKza)/volume * EV2J;
 	  break;
 	case OUTFMT_BETA:
-	  multiplier = dataAccess.getBeta(targetKza)/volume;
+	  multiplier = dataAccess.getBeta(targetKza)/volume * EV2J;
 	  break;
 	case OUTFMT_GAMMA:
-	  multiplier = dataAccess.getGamma(targetKza)/volume;
+	  multiplier = dataAccess.getGamma(targetKza)/volume * EV2J;
 	  break;
 	case OUTFMT_WDR:
 	  multiplier = dataAccess.getWDR(targetKza)/volume;
@@ -313,16 +313,16 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	      multiplier = dataAccess.getLambda(ptr->kza)/volume;
 	      break;
 	    case OUTFMT_HEAT:
-	      multiplier = dataAccess.getHeat(ptr->kza)/volume;
+	      multiplier = dataAccess.getHeat(ptr->kza)/volume * EV2J;
 	      break;
 	    case OUTFMT_ALPHA:
-	      multiplier = dataAccess.getAlpha(ptr->kza)/volume;
+	      multiplier = dataAccess.getAlpha(ptr->kza)/volume * EV2J;
 	      break;
 	    case OUTFMT_BETA:
-	      multiplier = dataAccess.getBeta(ptr->kza)/volume;
+	      multiplier = dataAccess.getBeta(ptr->kza)/volume * EV2J;
 	      break;
 	    case OUTFMT_GAMMA:
-	      multiplier = dataAccess.getGamma(ptr->kza)/volume;
+	      multiplier = dataAccess.getGamma(ptr->kza)/volume * EV2J;
 	      break;
 	    case OUTFMT_WDR:
 	      multiplier = dataAccess.getWDR(ptr->kza)/volume;

@@ -1,4 +1,4 @@
-/* $Id: Root.h,v 1.4 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: Root.h,v 1.5 1999-08-25 15:42:50 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -264,6 +264,9 @@ protected:
       void solve(Chain*, topSchedule*);
       void writeDump();
 
+      /* Utility */
+      double maxConc();
+
       /* Postproc */
       void readDump(int);
       Component* getComp(double&, Mixture*, Component*);
@@ -300,6 +303,7 @@ public:
 
   /* Utility */
   Root* find(int);
+  double maxConc();
   
   /* List */
   Root* merge(Root*);

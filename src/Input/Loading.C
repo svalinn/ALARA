@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.8 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: Loading.C,v 1.9 1999-08-25 15:42:51 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -231,6 +231,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
       ptr = ptr->next;
 
       /* write header info */
+      cout << endl;
       cout << "Zone #" << ++zoneCntr << ": " << ptr->zoneName << endl;
       cout << "\tVolume: " << ptr->volume << endl;
       cout << "\tMixture: " << ptr->mixName << endl << endl;
@@ -266,7 +267,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	  else
 	    {
 	      /* otherwise write the total response for the zone */
-	      cout << "Total" << endl;
+	      cout << "Total (All components)" << endl;
 	      ptr->outputList[ptr->nComps].write(response, targetKza,coolList,
 					    ptr->total, ptr->volume);
 
@@ -282,6 +283,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
   int resNum,nResults = topScheduleT::getNumCoolingTimes()+1;
   char isoSym[15];
 
+  cout << endl;
   cout << "Totals for all zones." << endl;
 
   /* write header for totals */

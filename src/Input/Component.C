@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.6 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: Component.C,v 1.7 1999-08-25 15:42:51 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -235,7 +235,7 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
       while (numIsos-->0)
 	{
 	  eleLib >> isoName >> isoDens;
-	  isoDens *= density;
+	  isoDens *= density/100.0;
 	  strcpy(testName,compName);
 	  strcat(testName,"-");
 	  strcat(testName,isoName);

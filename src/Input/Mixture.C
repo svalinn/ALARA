@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.9 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: Mixture.C,v 1.10 1999-08-25 15:42:51 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -29,6 +29,7 @@
 Mixture::Mixture(char *name)
 {
   volume = 0;
+  totalDensity = 0;
   mixName = NULL;
   if (name != NULL)
     {
@@ -54,6 +55,7 @@ Mixture::Mixture(char *name)
 Mixture::Mixture(const Mixture &m)
 {
   volume = m.volume;
+  totalDensity = m.totalDensity;
   mixName = NULL;
   if (m.mixName != NULL)
     {
@@ -95,6 +97,7 @@ Mixture& Mixture::operator=(const Mixture &m)
     return *this;
 
   volume = m.volume;
+  totalDensity = m.totalDensity;
   delete mixName;
   mixName = NULL;
   if (m.mixName != NULL)
@@ -427,6 +430,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
       ptr = ptr->next;
 
       /* write header information */
+      cout << endl;
       cout << "Mixture #" << ++mixCntr << ": " << ptr->mixName << endl;
       cout << "\tVolume: " << ptr->volume << endl;
 
@@ -459,7 +463,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
       else
 	{
 	  /* otherwise write the total response for the zone */
-	  cout << "Total" << endl;
+	  cout << "Total (All components)" << endl;
 	  ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total,
 					     ptr->volume);
 
@@ -475,6 +479,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
   int resNum,nResults = topScheduleT::getNumCoolingTimes()+1;
   char isoSym[15];
 
+  cout << endl;
   cout << "Totals for all mixtures." << endl;
 
   /* write header for totals */

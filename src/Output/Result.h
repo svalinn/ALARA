@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.5 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: Result.h,v 1.6 1999-08-25 15:42:54 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -104,6 +104,9 @@ that interval.
 
 #ifndef _RESULT_H
 #define _RESULT_H
+
+/* conversion from eV to Joules */
+#define EV2J 1.6e-19
 
 class Result
 {

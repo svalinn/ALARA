@@ -1,4 +1,4 @@
-/* $Id: Root.C,v 1.9 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: Root.C,v 1.10 1999-08-25 15:42:50 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -9,7 +9,10 @@
 #include "Root.h"
 #include "Chain.h"
 
+#include "Input/Mixture.h"
+
 #include "Calc/topSchedule.h"
+
 #include "Output/Result.h"
 
 /****************************
@@ -40,6 +43,8 @@ Root::Root(char* isoName, double isoDens, Mixture* mix,Component* comp) :
   Node(isoName)
 {
   mixList = new MixCompRef(mix,comp,isoDens);
+  mix->incTotalDensity(isoDens);
+
   memCheck(mixList,"Root::Root(...) constructor: mixList");
 
   nextRoot = NULL;
@@ -185,6 +190,13 @@ Root* Root::find(int srchKza)
   debug(7,"Returning %x",ptr);
   return ptr;
 
+}
+
+
+/* search list of mixtures and find maximum relative concentration */
+double Root::maxConc()
+{
+  return mixList->maxConc();
 }
 
 

@@ -1,4 +1,4 @@
-/* $Id: MixCompRef.C,v 1.2 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: MixCompRef.C,v 1.3 1999-08-25 15:42:50 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -55,8 +55,6 @@ Root::MixCompRef& Root::MixCompRef::operator=(const Root::MixCompRef& m)
   return *this;
 
 }
-
-
 
 /****************************
  ********** List ************
@@ -211,6 +209,22 @@ Root::MixCompRef* Root::MixCompRef::find(Mixture* mix, Component* comp)
     }
 
   return ptr;
+}
+
+/* search list of mixtures and find maximum relative concentration */
+double Root::MixCompRef::maxConc()
+{
+  double relConc,maxRelConc = -1;
+
+  MixCompRef *ptr = this;
+  
+  while (ptr != NULL)
+    {
+      maxRelConc = max(maxRelConc,ptr->density/ptr->mixPtr->getTotalDensity());
+      ptr = ptr->next;
+    }
+
+  return maxRelConc;
 }
 
 /*****************************

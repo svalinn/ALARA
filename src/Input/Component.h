@@ -1,4 +1,4 @@
-/* $Id: Component.h,v 1.3 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: Component.h,v 1.4 1999-08-25 15:42:51 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -161,7 +161,7 @@ COMP_HEAD, and contains no problem data.
 #define TARGET_ELE 12
 #define TARGET_ISO 13
 
-#define AVAGADRO 6.02e24
+#define AVAGADRO 6.02e23
 
 class Component
 {

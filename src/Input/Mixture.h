@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.5 1999-08-24 22:06:22 wilson Exp $ */
+/* $Id: Mixture.h,v 1.6 1999-08-25 15:42:51 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -211,7 +211,7 @@ protected:
   Component *targetCompListHead;
   Volume *volList;
   Root* rootList, *targetList;
-  double volume;
+  double volume, totalDensity;
   int nComps;
   Result *outputList;
   double *total;
@@ -259,6 +259,8 @@ public:
   int getNComps() { return nComps; };
   Component* getCompList() { return compListHead; };
   void resetOutList();
+  void incTotalDensity(double incr) { totalDensity += incr; };
+  double getTotalDensity() { return totalDensity; };
 
 };
 

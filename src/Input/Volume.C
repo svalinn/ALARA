@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.11 1999-08-24 22:06:22 wilson Exp $ */
+/* $Id: Volume.C,v 1.12 1999-08-25 15:42:51 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -579,6 +579,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
       intvlCntr++;
 
       /* write header information */
+      cout << endl;
       cout << "Interval #" << intvlCntr << ":" << endl;
       cout << "\tVolume: " << ptr->volume << endl;
       cout << "\tZone: " << ptr->zoneName << endl;
@@ -615,7 +616,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	  else
 	    {
 	      /* otherwise write the total response for the zone */
-	      cout << "Total" << endl;
+	      cout << "Total (All components)" << endl;
 	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total);
 	      
 	    }
@@ -634,6 +635,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
   int resNum,nResults = topScheduleT::getNumCoolingTimes()+1;
   char isoSym[15];
 
+  cout << endl;
   cout << "Totals for all intervals." << endl;
 
   /* write header for totals */

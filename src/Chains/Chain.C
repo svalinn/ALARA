@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.12 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: Chain.C,v 1.13 1999-08-25 15:42:49 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -24,6 +24,9 @@
  ***************************/
 double Chain::truncLimit = 1;
 double Chain::ignoreLimit = 1;
+double Chain::impurityDefn = 0;
+double Chain::impurityTruncLimit = 1;
+double Chain::impurityIgnoreLimit = 1;
 int Chain::mode = MODE_FORWARD;
 
 Chain::Chain(Root *newRoot, topSchedule *top)
@@ -57,6 +60,18 @@ Chain::Chain(Root *newRoot, topSchedule *top)
 
   root = newRoot;
   node = root;
+
+  chainTruncLimit = &truncLimit;
+  chainIgnoreLimit = &ignoreLimit;
+
+  verbose(2,"   Maximum relative concentration: %g",root->maxConc());
+
+  if (root->maxConc() < impurityDefn)
+    {
+      chainTruncLimit = &impurityTruncLimit;
+      chainIgnoreLimit = &impurityIgnoreLimit;
+      verbose(2,"   treating as impurity");
+    }
 
   reference = NULL;
   if (newRoot != NULL && top != NULL)
@@ -104,6 +119,9 @@ Chain::Chain(const Chain& c)
 
   root = c.root;
   node = c.node;
+
+  chainTruncLimit = c.chainTruncLimit;
+  chainIgnoreLimit = c.chainIgnoreLimit;
 
   reference = c.reference;
 }
@@ -161,6 +179,9 @@ Chain& Chain::operator=(const Chain& c)
   root = c.root;
   node = c.node;
 
+  chainTruncLimit = c.chainTruncLimit;
+  chainIgnoreLimit = c.chainIgnoreLimit;
+
   reference = c.reference;
 
   return *this;
@@ -177,6 +198,14 @@ void Chain::getTruncInfo(istream& input)
 
   verbose(2,"Truncation parameters set at %g for truncation and %g for ignore.",
 	  truncLimit, ignoreLimit);
+}
+
+void Chain::getImpTruncInfo(istream& input)
+{
+  input >> impurityDefn >> impurityTruncLimit >> impurityIgnoreLimit;
+
+  verbose(2,"Impurity defined as %g with truncation parameters set at %g for truncation and %g for ignore.",
+	  impurityDefn, impurityTruncLimit, impurityIgnoreLimit);
 }
 
 /****************************
@@ -223,13 +252,13 @@ void Chain::setState(topSchedule* top)
   solvingRef = FALSE;
   
   /* establish bit field */
-  truncBits |= TRUNCEOS*(relProd[0]<truncLimit);
-  truncBits |= IGNOREOS*(relProd[0]<ignoreLimit);
+  truncBits |= TRUNCEOS*(relProd[0]<*chainTruncLimit);
+  truncBits |= IGNOREOS*(relProd[0]<*chainIgnoreLimit);
   
   for (coolNum=0;coolNum<nCoolingTimes;coolNum++)
     {
-      truncBits |= TRUNCC*(relProd[coolNum+1]<truncLimit);
-      truncBits |= IGNORC*(relProd[coolNum+1]<ignoreLimit);
+      truncBits |= TRUNCC*(relProd[coolNum+1]<*chainTruncLimit);
+      truncBits |= IGNORC*(relProd[coolNum+1]<*chainIgnoreLimit);
     }
   
   /* run state engine */

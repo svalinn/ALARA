@@ -1,4 +1,4 @@
-/* $Id: Chain.h,v 1.4 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: Chain.h,v 1.5 1999-08-25 15:42:49 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -240,12 +240,16 @@ class Chain
 protected:
   static double truncLimit;
   static double ignoreLimit;
+  static double impurityDefn;
+  static double impurityTruncLimit;
+  static double impurityIgnoreLimit;
   static int mode;
 
   int chainLength, newRank, setRank, solvingRef;
   int *loopRank;
   double **rates;
   double *colRates, *P, *d, *L, *l;
+  double *chainTruncLimit, *chainIgnoreLimit;
   Root *root;
   Node *node;
   Volume *reference;
@@ -263,6 +267,7 @@ protected:
 public:
   /* Input */
   static void getTruncInfo(istream&);
+  static void getImpTruncInfo(istream&);
   static void modeReverse();
 
   /* Service */
