@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.10 1999-08-25 15:42:51 wilson Exp $ */
+/* $Id: Mixture.C,v 1.11 1999-11-09 17:09:06 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -30,6 +30,7 @@ Mixture::Mixture(char *name)
 {
   volume = 0;
   totalDensity = 0;
+  volFraction = 0;
   mixName = NULL;
   if (name != NULL)
     {
@@ -56,6 +57,7 @@ Mixture::Mixture(const Mixture &m)
 {
   volume = m.volume;
   totalDensity = m.totalDensity;
+  volFraction = m.volFraction;
   mixName = NULL;
   if (m.mixName != NULL)
     {
@@ -98,6 +100,7 @@ Mixture& Mixture::operator=(const Mixture &m)
 
   volume = m.volume;
   totalDensity = m.totalDensity;
+  volFraction = m.volFraction;
   delete mixName;
   mixName = NULL;
   if (m.mixName != NULL)
@@ -171,10 +174,10 @@ Mixture* Mixture::getMixture(istream &input)
 	  debug(2,"Creating new Component object of element type");
 	  type = COMP_ELE;
 	  break;
-	case 'i':
+/*	case 'i':
 	  debug(2,"Creating new Component object of isotope type");
 	  type = COMP_ISO;
-	  break;
+	  break; */
 	case 'l':
 	  debug(2,"Creating new Component object of similar type");
 	  type = COMP_SIM;
@@ -202,9 +205,9 @@ Mixture* Mixture::getMixture(istream &input)
 	}
       if (type <= COMP_SIM)
 	/* add each component to the list */
-	compList = compList->getComponent(type,input);
+	compList = compList->getComponent(type,input,mixPtr);
       else
-	targetCompList = targetCompList->getComponent(type,input);
+	targetCompList = targetCompList->getComponent(type,input,mixPtr);
 
       clearComment(input);
       input >> token;
@@ -423,6 +426,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
   Mixture *head = this;
   Mixture *ptr = head;
   int mixCntr = 0;
+  double volFrac;
 
   /* for each mixture */
   while (ptr->next != NULL)
@@ -445,9 +449,12 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	  /* for each component */
 	  while (compPtr != NULL)
 	    {
+	      volFrac = compPtr->getVolFrac();
 	      /* write component header */
-	      cout << "Component: " << compPtr->getName() << endl;
-	      ptr->outputList[compNum].write(response,targetKza,coolList,ptr->total,
+	      cout << "Component: " << compPtr->getName()
+		   << " (volume fraction: " << volFrac << ") " << endl;
+	      ptr->outputList[compNum].write(response,targetKza,coolList,
+					     ptr->total,volFrac,
 					     ptr->volume);
 
 	      compPtr = compPtr->advance();
@@ -464,7 +471,8 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	{
 	  /* otherwise write the total response for the zone */
 	  cout << "Total (All components)" << endl;
-	  ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total,
+	  ptr->outputList[ptr->nComps].write(response,targetKza,coolList,
+					     ptr->total,ptr->volFraction,
 					     ptr->volume);
 
 	}
