@@ -1,4 +1,4 @@
-/* $Id: Statistics.h,v 1.8 2000-01-17 18:45:21 wilson Exp $ */
+/* $Id: Statistics.h,v 1.9 2001-07-23 15:34:40 demonter Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -11,9 +11,16 @@ This class is used to measure some statistics of each run.
     This file is used to record the tree information created during
     the chain building process.
 
+ binFile : FILE*
+    This is a pointer to the file that will used to record the tree 
+    information created during the chain building process in a binary form.
+
  tree : int 
     This flag indicates whether or not a tree file has been requested
     for this run.
+
+ treebin : int
+    This flag indicates whether or not a binary tree file has been opened.
 
  nodeCtr : int
     This is a counter for the number of nodes encountered during the
@@ -41,7 +48,8 @@ This class is used to measure some statistics of each run.
 
  *** Static Member Functions ***
 
- int accountNode(int,char*,int,int,double*)
+
+int accountNode(int,char*,int,int,double*, int)
     This function increments nodeCtr, and then writes the information
     about this node to the tree file, if requested. The current value
     of nodeCtr (after the incrementing) is returned.
@@ -65,6 +73,12 @@ This class is used to measure some statistics of each run.
  void closeTree()
     This function simply closes the 'treeFile' ofstream.
 
+
+ FILE* openBinFile(fname*)
+    This function opens the binaray file specified by fname using the file
+    pinter binFile
+
+
  void cpuTime(float&,float&)
     This function finds the current runtime from a system call, and
     then returns the time since the last call to cpuTime in the first
@@ -78,6 +92,9 @@ This class is used to measure some statistics of each run.
     This inline function provides access to the current value of
     maxProblemRank.
 
+ int getNodeCtr()
+    This function simply returns the value of NodeCtr
+
 */
 
 #ifndef _STATISTICS_H
@@ -87,13 +104,14 @@ class Statistics
 {
 protected:
   static ofstream treeFile;
-  static int tree, nodeCtr, chainCtr, maxRootRank, maxProblemRank;
+  static FILE* binFile;
+  static int tree, treebin, nodeCtr, chainCtr, maxRootRank, maxProblemRank;
   static float ticks;
   static float runtime[2];
 
 public:
   
-  static int accountNode(int,char*,int,int,double*);
+  static int accountNode(int,char*,int,int,double*, int);
   static int accountChain(int rank)
     { chainCtr++; maxRootRank=max(maxRootRank,rank); return chainCtr;};
   static int accountMaxRank()
@@ -104,12 +122,16 @@ public:
     return tmp;
   };
 
+  static int getNodeCtr() {return nodeCtr;};
   static void initTree(char*);
   static void closeTree();
+  static FILE* openBinFile(char *);
   static void cputime(float&,float&);
 
+  
+
   static int numNodes()
-    { return nodeCtr; };
+    {return nodeCtr;};
   static int maxRank()
     { return maxProblemRank; };
 

@@ -1,4 +1,8 @@
-/* $Id: Node.h,v 1.10 2000-02-11 20:55:19 wilson Exp $ */
+
+
+
+
+/* $Id: Node.h,v 1.11 2001-07-23 15:34:39 demonter Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -22,6 +26,10 @@ classes, it contains all the information about the isotope itself.
  kza : int 
    This is the integer representation of the atomic number, the atomic
    mass number and the isomeric number.  KZA = (Z*1000+A)*10+M
+
+nodenum : int
+   This is a member function that stores the number returned when accountNode 
+   is called.  This will be used later for manipulating values.
 
  *** Protected Member Functions ***
 
@@ -117,7 +125,7 @@ classes, it contains all the information about the isotope itself.
     '-1' is returned.
 
  int count(double*)
-    Inline function sends information about the current node to the
+    Inline function that sends information about the current node to the
     statistics routines for diagnostic and tree output.
 
  void getRxnInfo(double*,int&,int&,int&)
@@ -132,6 +140,7 @@ classes, it contains all the information about the isotope itself.
     for a destruction rate), and the original number of reaction paths
     for this base isotope.  This function is called by VolFlux::fold()
     for use in cache processing.
+
 
  * - Library Utility - *
 
@@ -168,6 +177,7 @@ classes, it contains all the information about the isotope itself.
 
 #include "NuclearData.h"
 #include "TreeInfo.h"
+#include "Util/Statistics.h"
 
 #define WDR_KZAMODE 0
 #define WDR_SYMMODE 1
@@ -176,6 +186,7 @@ class Node : public NuclearData, public TreeInfo
 {
 protected:
   int kza;
+  int nodenum;
   
   static DataCache lambdaCache;
   static DataCache heatCache;
@@ -210,16 +221,28 @@ public:
   void getRxnInfo(double*,int&,int&,int&);
 
   /* Statistics */
-  int count(double* relProd)
-    {  
-      if (prev)
-	return Statistics::accountNode(kza,prev->emitted[prev->pathNum-1],
-				       rank,state,relProd);
+  
+
+int count(double* relProd)
+
+   {  
+    
+      
+     if (prev)
+       {
+	 nodenum= Statistics::accountNode(kza,prev->emitted[prev->pathNum-1],
+				       rank,state,relProd, prev->nodenum);
+	 return nodenum;
+       }   
       else
-	return Statistics::accountNode(kza,NULL,
-				       rank,state,relProd);
-	
+	{
+	  nodenum=Statistics::accountNode(kza,NULL,
+				       rank,state,relProd,0);
+	  return nodenum;
+	}
+
     };
+
 
   /* Library Utility */
   double getLambda(int);
@@ -234,3 +257,11 @@ public:
 
 
 #endif
+
+
+
+
+
+
+
+

@@ -1,13 +1,16 @@
-/* $Id: Statistics.C,v 1.7 2000-03-01 14:33:02 wilson Exp $ */
+/* $Id: Statistics.C,v 1.8 2001-07-23 15:34:39 demonter Exp $ */
 #include "Statistics.h"
 
 #include <unistd.h>
 #include <sys/times.h>
+#include<stdio.h>
 
 #include "Chains/truncate.h"
 
 ofstream Statistics::treeFile;
+FILE * Statistics::binFile;
 int Statistics::tree = FALSE;
+int Statistics::treebin = FALSE;
 int Statistics::nodeCtr = 0;
 int Statistics::chainCtr = 0;
 int Statistics::maxRootRank = 0;
@@ -15,24 +18,58 @@ int Statistics::maxProblemRank = 0;
 float Statistics::ticks = (float)sysconf(_SC_CLK_TCK);
 float Statistics::runtime[2] = { 0, 0 };
 
+
 void Statistics::initTree(char* fname)
 {
+  
   treeFile.open(fname);
   if (treeFile)
     tree = TRUE;
+
+  char ext[]=".bin";
+  char binName[256];
+  strcpy(binName, fname);
+  fname=strtok(binName, ".");
+  strncat(fname, ext, 4);
+  
+ if( openBinFile(fname))
+   treebin=TRUE;
 }
+
+
+
+FILE * Statistics::openBinFile(char* fname)
+{
+  binFile=fopen(fname, "wb");
+  if (binFile==NULL)
+    {
+      printf("Error opening %s\n", fname);
+      exit(1);
+    }
+
+  return binFile;
+}
+
 
 void Statistics::closeTree()
 {
   if (tree)
     treeFile.close();
+
+  if (treebin)
+    fclose(binFile);
+    
 }
 
-int Statistics::accountNode(int kza, char* emitted, int rank, int state, 
-			     double* relProd)
-{
-  char isoSym[10];
 
+
+
+
+int Statistics::accountNode(int kza, char* emitted, int rank, int state, 
+			     double* relProd, int parentnum)
+{
+  float newRelProd; 
+  char isoSym[10];
   nodeCtr++;
 
   if (tree)
@@ -67,8 +104,54 @@ int Statistics::accountNode(int kza, char* emitted, int rank, int state,
 	}
     }
 
+
+  if(treebin)
+    {
+      
+      int itemsWritten=fwrite(&parentnum, sizeof(int), 1, binFile);
+      if( itemsWritten!=1)
+	{
+
+
+	  printf("There was an error in writng to the file\n");
+	}
+      //check to see if anything was actually written
+
+      
+      itemsWritten=fwrite(&nodeCtr, sizeof(int), 1, binFile);
+       if( itemsWritten!=1)
+	{
+	  printf("There was an error in writng to the file\n");
+	}
+
+       
+       itemsWritten=fwrite(&kza, sizeof(int), 1, binFile);
+       if( itemsWritten!=1)
+	{
+	  printf("There was an error in writng to the file\n");
+	}
+       
+       if (relProd != NULL)
+	 {
+	   newRelProd = relProd[0];
+	 }
+       else
+	 {
+	   newRelProd = -1;
+	 }
+       itemsWritten=fwrite(&newRelProd, sizeof(float), 1, binFile);
+
+       if( itemsWritten!=1)
+	{
+	  printf("There was an error in writng to the file\n");
+	}
+    }
+
   return nodeCtr;
+ 
 }
+
+
 
 /* routine to set cpu time */
 void Statistics::cputime(float &increment, float &total)
@@ -84,3 +167,19 @@ void Statistics::cputime(float &increment, float &total)
   increment = total-runtime[1];
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
