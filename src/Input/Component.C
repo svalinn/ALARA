@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.8 1999-08-31 22:41:29 wilson Exp $ */
+/* $Id: Component.C,v 1.9 1999-11-09 17:02:54 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -12,6 +12,7 @@
 
 
 #include "Component.h"
+#include "Mixture.h"
 
 #include "Chains/Root.h"
 
@@ -21,8 +22,8 @@ ifstream Component::eleLib;
 /***************************
  ********* Service *********
  **************************/
-Component::Component(int compType, char *name, double dens) :
-  type(compType),density(dens), volFraction(0)
+Component::Component(int compType, char *name, double dens, double volFrac) :
+  type(compType),density(dens), volFraction(volFrac)
 {
   compName = NULL;
   if (name != NULL)
@@ -80,20 +81,25 @@ Component& Component::operator=(const Component& comp)
 
 /* get individual components and add them to list */
 /* called by Mixture::getMixture() */
-Component* Component::getComponent(int setType,istream &input)
+Component* Component::getComponent(int setType,istream &input, Mixture *mixPtr)
 {
 
   char name[64];
-  double dens=0;
+  double dens=0, volFrac=0;
 
   input >> name;
-  if (setType <= COMP_SIM)
-    input >> dens;
+  if (setType < COMP_SIM)
+    input >> dens >> volFrac;
+  if (setType == COMP_SIM)
+    input >> volFrac;
 
-  next = new Component(setType,name,dens);
+  next = new Component(setType,name,dens,volFrac);
   memCheck(next,"Component::getComponent(...) : next");
 
-  verbose(3,"type code: %d name: %s   density %g",setType,name,dens);
+  verbose(3,"type code: %d name: %s, density %g, volume fraction: %g",
+	  setType,name,dens,volFrac);
+
+  mixPtr->incrVolFrac(volFrac);
 
   return next;
 
@@ -134,11 +140,11 @@ Component* Component::replaceSim(Component *newCompList)
   Component *ptr = this;
   Component *saveNext = ptr->next;
   Component *newComp = newCompList->next;
-  double scale = density;
+  double scale = volFraction;
 
   /* change this component */
   *ptr = *newComp;
-  ptr->density *= scale;
+  ptr->volFraction *= scale;
 
   /* insert all subsequent components from this mixture */
   while (newComp->next != NULL)
@@ -147,7 +153,7 @@ Component* Component::replaceSim(Component *newCompList)
       ptr->next = new Component(*newComp);
       memCheck(ptr->next,"Component::replaceSim(...) : ptr->next");
       ptr = ptr->next;
-      ptr->density *= scale;
+      ptr->volFraction *= scale;
     }
 
   ptr->next = saveNext;
@@ -186,7 +192,7 @@ Root* Component::expand(Mixture *mix)
 		  ptr->compName);
 	  delete compRootList;
 	  break;
-	case COMP_ISO:
+//	case COMP_ISO:
 	case TARGET_ISO:
 	  Root* newRoot = new Root(ptr->compName,ptr->density,mix,ptr);
 	  memCheck(newRoot,"Component::expand(...) : newRoot");
@@ -207,7 +213,7 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
 {
   Root *rootList = new Root;
   memCheck(rootList,"Component::expandEle(...) : rootList");
-  int numIsos, Z;
+  int numIsos, Z, eleNameLen;
   ifstream elelib;
   char testName[64],isoName[64];
   double isoDens, eleDens, A;
@@ -216,6 +222,11 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
   eleLib.seekg(0L,ios::beg);
 
   verbose(4,"Expanding element %s",compName);
+
+  /* Extract the standard element name from the potentially
+   * fabricated name.  e.g. enriched Li might be li:90 */
+  eleNameLen = strchr(compName,':')-compName;
+  if (eleNameLen == 0) eleNameLen = strlen(compName);
 
   /* search for this element */
   eleLib >> testName >> A >> Z >> eleDens >> numIsos;
@@ -229,8 +240,12 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
       
   if (!eleLib.eof())
     {
-      volFraction = density/eleDens;
-      double Ndensity = density * AVAGADRO/A;
+      if (density >= 0)
+	density *= eleDens;
+      else
+	density = -density;
+
+      double Ndensity = volFraction * density * AVAGADRO/A;
 
       /* if element is found, add a new root for each isotope */
       verbose(5,"Found element %s in element library",testName);
@@ -238,7 +253,7 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
 	{
 	  eleLib >> isoName >> isoDens;
 	  isoDens *= Ndensity/100.0;
-	  strcpy(testName,compName);
+	  strncpy(testName,compName,eleNameLen);
 	  strcat(testName,"-");
 	  strcat(testName,isoName);
 	  Root* newRoot = new Root(testName,isoDens,mix,comp);
@@ -287,7 +302,6 @@ Root* Component::expandMat(Mixture* mix)
   if (!matLib.eof())
     {
       /* scale relative density by material density from lib */
-      volFraction = density;
       density *= matDens;
 
       verbose(5,"Found material %s in material library.",testName);
@@ -296,7 +310,7 @@ Root* Component::expandMat(Mixture* mix)
       while (numEles-->0)
 	{
 	  matLib >> eleName >> eleDens  >> eleZ;
-	  eleDens *= density/100.0;
+	  eleDens *= -density/100.0;
 	  element = new Component(COMP_ELE,eleName,eleDens);
 	  memCheck(element,"Component::expandMat(...) : element");
 	  Root *elementRootList = element->expandEle(mix,this);
