@@ -204,9 +204,11 @@ void calcSchedule::setDecay(Chain* chain)
 
 void calcSchedule::setSubTs(Chain* chain, calcScheduleT *schedT)
 {
-  int itemNum;
+  int itemNum=0;
 
-  for (itemNum=0;itemNum<nItems;itemNum++)
+  subSched[itemNum]->setT(chain,(*schedT)[itemNum]);
+  schedT->opBlock() = (*schedT)[itemNum]->total();
+  for (itemNum=1;itemNum<nItems;itemNum++)
     {
       subSched[itemNum]->setT(chain,(*schedT)[itemNum]);
       schedT->opBlock() = (*schedT)[itemNum]->total() * schedT->opBlock();
