@@ -1,4 +1,4 @@
-/* $Id: NuclearData.h,v 1.11 2000-01-17 18:45:21 wilson Exp $ */
+/* $Id: NuclearData.h,v 1.12 2000-01-17 19:18:44 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -156,9 +156,6 @@ protected:
   double **paths, E[3];
   double *P, *D;
 
-  /* Service */
-  void cleanUp();
-
   /* Chain */
   int stripNonDecay();
 
@@ -176,6 +173,8 @@ protected:
   ~NuclearData();
 
   NuclearData& operator=(const NuclearData&);
+
+  void cleanUp();
   
   /* Chain */
   void setData(int, float *, int *, char **, float **, float, float*);
