@@ -124,8 +124,6 @@ Node.
 #ifndef _NUCLEARDATA_H
 #define _NUCLEARDATA_H
 
-#define MODE_FORWARD 1
-#define MODE_REVERSE 0
 
 class NuclearData
 {
@@ -149,11 +147,11 @@ protected:
   static void getDataLib(istream&);
   static void closeDataLib();
   static void modeReverse() { mode = MODE_REVERSE; };
+  static int getMode() { return mode; };
 
   /* Service */
   NuclearData();
   NuclearData(const NuclearData&);
-  NuclearData(double*);
   ~NuclearData();
 
   NuclearData& operator=(const NuclearData&);

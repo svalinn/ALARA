@@ -45,9 +45,25 @@ Node::Node(char *isoName)
 
 Node::Node(int nextKza, Node* passedPrev, double* passedSingle, 
 	   int passedRank, int passedState) 
-  : NuclearData(passedSingle), TreeInfo(passedPrev,passedRank,passedState), 
+  : TreeInfo(passedPrev,passedRank,passedState), 
     kza(nextKza)
-  { }
+{ 
+
+  switch(mode)
+    {
+    case MODE_FORWARD:
+      single = new double[nGroups+1];
+      memCheck(single,"Node::Node(...) constructor: single");
+      for (int gNum=0;gNum<=nGroups;gNum++)
+	single[gNum] = passedSingle[gNum];
+      P = single;
+      break;
+    case MODE_REVERSE:
+      prev->P = passedSingle;
+      break;
+    }
+
+}
 
 
 
@@ -65,15 +81,10 @@ void Node::readData()
     {
     case MODE_FORWARD:
       /* this is only true for forward mode */
-      if (nPaths > 0)
-	{
-	  D = paths[nPaths];
-	  
-	  /* if a new node is created with TRUNCATE_STABLE state
-	   * strip its pure transmutation reactions immediately */
-	  if (state == TRUNCATE_STABLE)
-	    state = stripNonDecay();
-	}
+      /* if a new node is created with TRUNCATE_STABLE state
+       * strip its pure transmutation reactions immediately */
+      if (state == TRUNCATE_STABLE)
+	state = stripNonDecay();
       break;
     case MODE_REVERSE:
       D = single;
@@ -205,7 +216,7 @@ int Node::stateEngine(int stateBits)
 	case CONTINUE:
 	  if (stateBits == IGNORE)
 	    state = IGNORE;
-	  else if (stateBits >= TRUNCATE_STABLE)
+	  else if (stateBits >= TRUNCATE_STABLE && mode == MODE_FORWARD)
 	    state = stripNonDecay();
 	  else if (nPaths == 0 || stateBits >= TRUNCATE)
 	    state = TRUNCATE;

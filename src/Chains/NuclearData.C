@@ -130,26 +130,6 @@ NuclearData::NuclearData(const NuclearData& n)
 
 }  
 
-NuclearData::NuclearData(double *sigmaP)
-{
-  nPaths=-1;
-  relations=NULL;
-  emitted=NULL;
-  single=NULL;
-  paths=NULL;
-  P=NULL;
-  D=NULL;
-  for (int dHeat=0;dHeat<3;dHeat++)
-    E[dHeat] = 0;
-
-  /* DELETED in destructor for class NuclearData called by destructor 
-     for class Node */
-  single = new double[nGroups+1];
-  memCheck(single,"NuclearData::NuclearData(...): single");
-  for (int gNum=0;gNum<=nGroups;gNum++)
-    single[gNum] = sigmaP[gNum];
-  P = single;
-}
 
 /* basic destructor for NuclearData */
 NuclearData::~NuclearData()
