@@ -1,4 +1,4 @@
-/* $Id: alara.h,v 1.5 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: alara.h,v 1.6 1999-08-24 23:19:43 wilson Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
@@ -11,7 +11,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-// #include <algorithm>
+#include <algorithm>
 
 #ifndef PI
 #define PI M_PI

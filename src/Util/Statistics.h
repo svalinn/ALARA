@@ -1,7 +1,7 @@
-/* $Id: Statistics.h,v 1.6 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: Statistics.h,v 1.7 1999-08-24 23:19:43 wilson Exp $ */
 #include "alara.h"
 
-#define max1(x,y) (x>y?x:y)
+/* #define max1(x,y) (x>y?x:y) */
 
 
 #ifndef _STATISTICS_H
@@ -19,11 +19,11 @@ public:
   
   static int accountNode(int,char*,int,int,double*);
   static int accountChain(int rank)
-    { chainCtr++; maxRootRank=max1(maxRootRank,rank); return chainCtr;};
+    { chainCtr++; maxRootRank=max(maxRootRank,rank); return chainCtr;};
   static int accountMaxRank()
   {
     int tmp = maxRootRank;
-    maxProblemRank = max1(maxRootRank,maxProblemRank);
+    maxProblemRank = max(maxRootRank,maxProblemRank);
     maxRootRank = 0;
     return tmp;
   };
