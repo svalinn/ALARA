@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.28 2002-12-07 17:48:07 fateneja Exp $ */
+/* $Id: Mixture.C,v 1.29 2003-01-08 07:17:21 fateneja Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -98,6 +98,8 @@ Mixture::~Mixture()
   delete [] outputList;
   delete next;
   delete Gvalues;
+  delete GvaluesStorage;
+  delete problemRangesStorage;
 }
 
 Mixture& Mixture::operator=(const Mixture &m)
@@ -746,10 +748,14 @@ void Mixture::resetOutList()
     }
 }
 
-void Mixture::calcMixRange(TempLibType &libRanges)
+void Mixture::calcMixRange()
 {
-  
-  Root *ptr = rootList;
+  // Get data from VolFlux class
+  int nCP   = VolFlux::getNumCP();
+  int nCPEG = VolFlux::getNumCPEG();
+
+  // Get data from Volume class
+  TempLibType rangeLib = Volume::getRangeLib();
 
   // Alpha
   // Deuteron
@@ -757,26 +763,27 @@ void Mixture::calcMixRange(TempLibType &libRanges)
   // Proton
   // Triton
 
+
+  // Create Storage
+  problemRanges = new double*[nCP];
+  problemRangesStorage = new double[nCPEG*nCP];
+
+  for(int i = 0; i < nCP; i++)
+    {
+      problemRanges[i] = &problemRangesStorage[i*nCPEG];
+    }
+  
+  // Calculate mixture ranges
   double InverseRange = 0, probDensity=0, libDensity=0, molarMass=0;
   bool   notdone = false;
   char   String[100];
   int    libKza=0,probKza=0;
-  
+  Root *ptr = rootList;
   ifstream eleLib("in/elelib");
 
-  // Create Storage
-  problemRanges = new double*[numCP];
-  double *problemRangesStorage = new double[numCPEG*numCP];
-
-  for(int i = 0; i < numCP; i++)
+  for(int i = 0; i < nCP; i++)
     {
-      problemRanges[i] = &problemRangesStorage[i*24];
-    }
-  
-
-  for(int i = 0; i < numCP; i++)
-    {
-      for(int k = 0; k < numCPEG; k++)
+      for(int k = 0; k < nCPEG; k++)
 	{
 	  ptr = rootList;
 	  while(ptr->getNext())
@@ -817,7 +824,7 @@ void Mixture::calcMixRange(TempLibType &libRanges)
 		      eleLib.seekg(-45,ios::cur);
 		      eleLib >> libDensity;
 
-		      InverseRange += 1/(libRanges[probKza][i*24+k]*
+		      InverseRange += 1/(rangeLib[probKza][i*nCPEG+k]*
 			(libDensity*AVAGADRO/molarMass));
 		      
 		      probDensity = ptr->mixConc(this);
@@ -836,30 +843,38 @@ void Mixture::calcMixRange(TempLibType &libRanges)
   return;
 }
 
-void Mixture::calcGvalues(TempLibType &libRanges, TempLibType &specLib, int *energyRel)
+void Mixture::calcGvalues()
 {
-  Node dataAccess;
-  Root *rootPtr = rootList;
-  double sumk = 0, sumNEG=0, sumA=0;
-  int numNEG = VolFlux::getNumGroups();
-  Gvalues = new double**[numCP];
-  double *GvaluesStorage = new double[numCPEG*numNEG*numCP];
-  std::map<int, double**, std::less<int> > CPXS;
-
   // Calculate mixture range
-  calcMixRange(libRanges);
+  calcMixRange();
+
+  // Get data from VolFlux class
+  int nNEG  = VolFlux::getNumGroups();
+  int nCP   = VolFlux::getNumCP();
+  int nCPEG = VolFlux::getNumCPEG();
+
+  // Get data from Volume class
+  TempLibType specLib = Volume::getSpecLib();
+  int *energyRel      = Volume::getEnergyRel();  
 
   // Allocate memory
-  for(int i = 0; i < numCP; i++)
+  Gvalues = new double**[nCP];
+  GvaluesStorage = new double[nCPEG*nNEG*nCP];
+
+  for(int i = 0; i < nCP; i++)
     {
-      Gvalues[i] = new double*[numCPEG];
-      for(int j = 0; j < numCPEG; j++)
+      Gvalues[i] = new double*[nCPEG];
+      for(int j = 0; j < nCPEG; j++)
 	{
-  	  Gvalues[i][j] = &GvaluesStorage[i*(numCPEG*numNEG)+j*numNEG];
+  	  Gvalues[i][j] = &GvaluesStorage[i*(nCPEG*nNEG)+j*nNEG];
 	}
     }
 
   // Get NX cross sections
+  Node dataAccess;
+  std::map<int, double**, std::less<int> > CPXS;
+  Root *rootPtr = rootList;
+
   while(rootPtr->getNext())
     {
       rootPtr = rootPtr->getNext();
@@ -867,24 +882,28 @@ void Mixture::calcGvalues(TempLibType &libRanges, TempLibType &specLib, int *ene
     }
 
   // Calculate G-values
-  for(int CP = 0; CP < numCP; CP++)
+  double sumk = 0, sumNEG=0, sumA=0;
+  int curKza;
+
+  for(int CP = 0; CP < nCP; CP++)
     {
-      for(int CPEG = 0; CPEG < numCPEG; CPEG++)
+      for(int CPEG = 0; CPEG < nCPEG; CPEG++)
 	{
-	  for(int NEG = 0; NEG < numNEG; NEG++)
+	  for(int NEG = 0; NEG < nNEG; NEG++)
 	    {
 	      sumA = 0;
 	      rootPtr = rootList;
 	      while(rootPtr->getNext())
 	      {
 		rootPtr = rootPtr->getNext();
+		curKza = rootPtr->getKza();
 		sumk = 0;
-		for(int k = CPEG; k < numCPEG; k++)
+		for(int k = CPEG; k < nCPEG; k++)
 		  {
-		    sumk += specLib[rootPtr->getKza()][energyRel[NEG]*(numCP*numCPEG)+CP*numCPEG+CPEG]*
+		    sumk += specLib[curKza][energyRel[NEG]*(nCP*nCPEG)+CP*nCPEG+CPEG]*
 		      problemRanges[CP][CPEG];
 		  }
-		sumA += sumk*rootPtr->mixConc(this)*CPXS[rootPtr->getKza()][CP][NEG];
+		sumA += sumk*rootPtr->mixConc(this)*CPXS[curKza][CP][NEG];
 		
 	      }
 	      

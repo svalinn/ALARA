@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.31 2002-12-07 17:48:08 fateneja Exp $ */
+/* $Id: Volume.C,v 1.32 2003-01-08 07:17:22 fateneja Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -17,6 +17,11 @@
 
 #include "Output/Result.h"
 #include "Output/Output_def.h"
+
+// Declare Static Members
+TempLibType Volume::specLib;
+TempLibType Volume::rangeLib;
+int* Volume::energyRel = NULL;
 
 /***************************
  ********* Service *********
@@ -753,36 +758,22 @@ int Volume::count()
   return numInt;
 }
 
-//<<<<<<< Volume.C
 void Volume::makeXFlux(Mixture *mixListHead)
 {
-  TempLibType specLib, rangeLib;
-
-  char* rangeFileNames[numCP] = { "EAF_STOP_99.ALP",
-			          "EAF_STOP_99.DEU",
-			          "EAF_STOP_99.HE3",
-			          "EAF_STOP_99.PRO",
-			          "EAF_STOP_99.TRI" };
+  // Get data from VolFlux
+  int nNEG  = VolFlux::getNumGroups();
+  int nCP   = VolFlux::getNumCP();
+  int nCPEG = VolFlux::getNumCPEG();
   
   Volume *ptr=this;
   VolFlux *volFluxPtr=NULL;
   Mixture* mixPtr = mixListHead;
-  int numNEG = VolFlux::getNumGroups();
-  int energyRel[numNEG];
-
-  // Load Data Libraries
-  loadRangeLib(rangeFileNames,rangeLib);
-  loadSpecLib("EAF_SPEC_99.PT1",specLib,energyRel);
-  loadSpecLib("EAF_SPEC_99.PT2",specLib,NULL);
-  loadSpecLib("EAF_SPEC_99.PT3",specLib,NULL);
-  loadSpecLib("EAF_SPEC_99.PT4",specLib,NULL);
-  loadSpecLib("EAF_SPEC_99.PT5",specLib,NULL);
 
   // Calculate Mixture ranges and Gvalues
   while(mixPtr->getNext())
     {
       mixPtr = mixPtr->getNext();
-      mixPtr->calcGvalues(rangeLib,specLib,energyRel);
+      mixPtr->calcGvalues();
     }
 
   // Calculate Charged Partical Spectrum
@@ -795,12 +786,12 @@ void Volume::makeXFlux(Mixture *mixListHead)
 	{
 	  volFluxPtr = volFluxPtr->advance();
 	  
-	  for(int CP = 0; CP < numCP; CP++)
+	  for(int CP = 0; CP < nCP; CP++)
 	    {
-	      for(int CPEG = 0; CPEG < numCPEG; CPEG++)
+	      for(int CPEG = 0; CPEG < nCPEG; CPEG++)
 		{
 		  sumNEG = 0;
-		  for(int NEG = 0; NEG < numNEG; NEG++)
+		  for(int NEG = 0; NEG < nNEG; NEG++)
 		    {
 		      sumNEG += volFluxPtr->getnflux()[NEG]*ptr->mixPtr->getGvalues()[CP][CPEG][NEG];
 		    }
@@ -815,8 +806,18 @@ void Volume::makeXFlux(Mixture *mixListHead)
 	
 }
 
-void Volume::loadSpecLib(char *fileName, TempLibType &specLib, int energyRel[VolFlux::getNumGroups()])
+void Volume::loadSpecLib(istream *probInput)
 {
+  // Get data from VolFlux class
+  int nNEG  = VolFlux::getNumGroups();
+  int nCP   = VolFlux::getNumCP();
+  int nCPEG = VolFlux::getNumCPEG();
+
+  energyRel = new int[nNEG];
+
+  char fileName[100];
+  *probInput >> fileName;
+
   int KZA;
   int count = 0;
   char String[100];
@@ -868,11 +869,11 @@ void Volume::loadSpecLib(char *fileName, TempLibType &specLib, int energyRel[Vol
         {
           input.getline(String,100,'\n');
 
-          for(int j=0; j < numCP; j++)
+          for(int j=0; j < nCP; j++)
             {
               input.getline(String,100,'\n');
 
-              for(int k = 0; k < numCPEG; k++)
+              for(int k = 0; k < nCPEG; k++)
                 {
                   input >> specLibStorage[count];
                   count++;
@@ -884,17 +885,26 @@ void Volume::loadSpecLib(char *fileName, TempLibType &specLib, int energyRel[Vol
         }
       input.get();
       count = 0;
-    }
-  
+    }  
 }
 
-
-void Volume::loadRangeLib(char **fileName, TempLibType &rangeLib)
+void Volume::loadRangeLib(istream *probInput)
 {
-  ifstream input[5];
-  for(int i = 0; i < numCP; i++)
+  // Get data from VolFlux Class
+  int nCP   = VolFlux::getNumCP();
+  int nCPEG = VolFlux::getNumCPEG();
+
+  char fileName[30],tmpStr[10],tmpStr2[10];
+  tmpStr[0] = '.';
+  *probInput >> fileName;
+
+  ifstream *input = new ifstream[nCP];
+
+  for(int i = 0; i < nCP; i++)
     {
-      input[i].open(fileName[i]);
+      strcpy(tmpStr2,fileName);
+      sprintf(&tmpStr[1],"%d",i);
+      input[i].open(strcat(tmpStr2,tmpStr));
       
       if(!input[i].is_open())
 	{
@@ -912,7 +922,7 @@ void Volume::loadRangeLib(char **fileName, TempLibType &rangeLib)
   int KZA;
   double *rangeStorage;
   
-  for(int i = 0; i < numCP; i++)
+  for(int i = 0; i < nCP; i++)
     {
       while(!input[i].eof())
         {
@@ -921,14 +931,14 @@ void Volume::loadRangeLib(char **fileName, TempLibType &rangeLib)
 
           if(!i)
             {
-              rangeStorage = new double[numCP*numCPEG];
-              rangeLib[KZA] = rangeStorage;
+              rangeStorage = new double[nCP*nCPEG];
+              Volume::rangeLib[KZA] = rangeStorage;
             }
           
           input[i].getline(String,100,'\n');
-          for(int j = 0; j < numCPEG; j++)
+          for(int j = 0; j < nCPEG; j++)
             {
-              input[i] >> rangeLib[KZA][i*24+j];
+              input[i] >> Volume::rangeLib[KZA][i*24+j];
             }
 
           input[i].get();
@@ -936,7 +946,7 @@ void Volume::loadRangeLib(char **fileName, TempLibType &rangeLib)
     }
 
 }
-//=======
+
 void Volume::setAdjDoseData(int nGroups, ifstream& AdjDoseData)
 {
   Volume *ptr = this;
@@ -954,5 +964,3 @@ double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
  
   return adjDose->calcAdjDose(kza,adjConv,uservol);
 }
-
-//>>>>>>> 1.30

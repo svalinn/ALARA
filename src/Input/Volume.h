@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.16 2002-12-07 17:48:08 fateneja Exp $ */
+/* $Id: Volume.h,v 1.17 2003-01-08 07:17:23 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _VOLUME_H
@@ -109,6 +109,10 @@ protected:
 	that contain the same mixture. */
     mixNext;
 
+  static TempLibType rangeLib;
+  static TempLibType specLib;
+  static int *energyRel;
+ 
   /// This function is called by many of the constructors, as it sets up
   /// all the variables, particularly setting pointers to NULL and
   /// initializing the 'flux' list.
@@ -286,16 +290,15 @@ public:
       according to the second argument. */
   void storeMatrix(double** fluxMatrix, double scale);
 
-  //<<<<<<< Volume.h
   /// Calculate charged particle flux 
   void makeXFlux(Mixture *mixListHead);
 
   /// Loads the charged particle spectrum into specLib
-  void loadSpecLib(char *fileName, TempLibType &specLib, int energyRel[175]);
+  static void loadSpecLib(istream *probInput);
 
   /// Loads the charged particle ranges into rangeLib
-  void loadRangeLib(char **fileName, TempLibType &rangeLib);
-  //=======
+  static void loadRangeLib(istream *probInput);
+
   void setAdjDoseData(int, ifstream&);
   /// This function reads adjoint field data from input file.
 
@@ -303,7 +306,10 @@ public:
   
   inline double getUservol() { return uservol; }
   /// Access function for uservol
-  //>>>>>>> 1.15
+
+  static TempLibType getSpecLib() { return specLib; };
+  static TempLibType getRangeLib() { return rangeLib; };
+  static int* getEnergyRel() { return energyRel; };
 };
 
 
