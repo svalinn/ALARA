@@ -1,4 +1,4 @@
-/* $Id: alara.h,v 1.9 2002-04-16 20:10:42 wilsonp Exp $ */
+/* $Id: alara.h,v 1.10 2002-04-16 20:16:17 wilsonp Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
@@ -22,7 +22,7 @@
 
 #include <map>
 
-/* TO DO: Talk to Tim about STL under Solaris!! */
+/* TO DO: Talk to Tim about STL under Solaris!!  Why won't it compile?!?!?*/
 
 typedef map<int,double,less<int> > DataCache;
 typedef map<int,double*,less<int> > VectorCache;
