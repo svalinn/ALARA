@@ -1,0 +1,890 @@
+ALARA 2.7.1
+Set verbose level to 3.
+Openned tree file ref_out/sample2.tree.
+	Openned sample2 for input.
+Starting problem input processing.
+	Reading input.
+		Set geometry type: rectangular.
+		Reading zone boundaries for Dimension x:
+		Reading the material loading for this problem.
+		Openned material library ./data/sampleMatlib
+		Openned element library ./data/myElelib
+		Reading constituent list for Mixture inner_mix with constituents:
+		Reading constituent list for Mixture outer_mix with constituents:
+		Added Flux flux_1 from file data/fluxin1 with normalization 1, format code 1, and skipping 1 entries.
+		Reading items for schedule 1_year.
+		Reading pulsing levels for History steady_state:
+		Openning DataLib with type alaralib
+		Reading after-shutdown cooling times.
+		Added output at resolution 1 (interval)
+		Truncation parameters set at 1e-07 for truncation and 1e-09 for ignore.
+	Cross-checking input for completeness and self-consistency.
+		Checking for all internally referenced mixtures.
+		Checking for all mixtures referenced in material loading.
+		Checking that dimension types match geometry type: Rectangular.
+		Number of zones defined by zone dimensions (2) matches number of material loadings defined.(2)
+		Checking for all sub-schedules, fluxes and pulsing histories referenced in schedules.
+
+
+***Please review this schedule hierarchy.!!!!!!!!!!
+
+Schedule '1_year':
+	pulse: 1 y with 0 s delay pulsed with history steady_state
+
+***End of schedule hierarchy.
+
+
+	Preprocessing input.
+		Replacing all 'similar' constituents and removing unused mixtures.
+		Converting zone boundaries into list of intervals.
+		Cross-referencing intervals with mixtures.
+		Assigning 1 fluxes to each interval
+		Making list of root isotopes.
+		Processing pulsing histories.
+		Processing schedule hierarchy.
+		Processing cooling times.
+		Collapsing schedules from top.
+		Making storage hierarchies in intervals.
+Starting problem solution.
+		Solving Root #1: h-1 
+		   Maximum relative concentration: 0.566769
+		      last Root: 5 nodes in 2 chains with maximum length 3.
+		                 in 0.000 s (11184810916.667 nodes/s)
+		   Total so far: 5 nodes in 2 chains with maximum length 3.
+		                 in 0.02 s (250.000 nodes/s)
+		Solving Root #2: h-2 
+		   Maximum relative concentration: 8.50281e-05
+		      last Root: 8 nodes in 3 chains with maximum length 3.
+		                 in 0.000 s (17895697466.667 nodes/s)
+		   Total so far: 13 nodes in 5 chains with maximum length 3.
+		                 in 0.02 s (650.000 nodes/s)
+		Solving Root #3: li-6 
+		   Maximum relative concentration: 0.0559935
+		      last Root: 79 nodes in 36 chains with maximum length 9.
+		                 in 0.010 s (7899.999 nodes/s)
+		   Total so far: 92 nodes in 41 chains with maximum length 9.
+		                 in 0.03 s (3066.667 nodes/s)
+		Solving Root #4: li-7 
+		   Maximum relative concentration: 0.688601
+		      last Root: 72 nodes in 37 chains with maximum length 7.
+		                 in 0.010 s (7199.999 nodes/s)
+		   Total so far: 164 nodes in 78 chains with maximum length 9.
+		                 in 0.04 s (4100.000 nodes/s)
+		Solving Root #5: be-9 
+		   Maximum relative concentration: 0.0298501
+		      last Root: 61 nodes in 27 chains with maximum length 7.
+		                 in 0.010 s (6100.000 nodes/s)
+		   Total so far: 225 nodes in 105 chains with maximum length 9.
+		                 in 0.05 s (4500.000 nodes/s)
+		Solving Root #6: c-12 
+		   Maximum relative concentration: 0.00134292
+		      last Root: 35 nodes in 12 chains with maximum length 4.
+		                 in -0.000 s (-46976204100.000 nodes/s)
+		   Total so far: 260 nodes in 117 chains with maximum length 9.
+		                 in 0.05 s (5200.000 nodes/s)
+		Solving Root #7: c-13 
+		   Maximum relative concentration: 1.50463e-05
+		      last Root: 110 nodes in 30 chains with maximum length 5.
+		                 in 0.010 s (11000.001 nodes/s)
+		   Total so far: 370 nodes in 147 chains with maximum length 9.
+		                 in 0.06 s (6166.667 nodes/s)
+		Solving Root #8: n-14 
+		   Maximum relative concentration: 1.83998e-05
+		      last Root: 173 nodes in 64 chains with maximum length 5.
+		                 in 0.030 s (5766.666 nodes/s)
+		   Total so far: 543 nodes in 211 chains with maximum length 9.
+		                 in 0.09 s (6033.333 nodes/s)
+		Solving Root #9: n-15 
+		   Maximum relative concentration: 6.75907e-08
+		      last Root: 135 nodes in 48 chains with maximum length 5.
+		                 in 0.010 s (13500.005 nodes/s)
+		   Total so far: 678 nodes in 259 chains with maximum length 9.
+		                 in 0.10 s (6780.000 nodes/s)
+		Solving Root #10: o-16 
+		   Maximum relative concentration: 0.284991
+		      last Root: 110 nodes in 40 chains with maximum length 5.
+		                 in 0.010 s (11000.001 nodes/s)
+		   Total so far: 788 nodes in 299 chains with maximum length 9.
+		                 in 0.11 s (7163.636 nodes/s)
+		Solving Root #11: o-17 
+		   Maximum relative concentration: 0.000105702
+		      last Root: 143 nodes in 54 chains with maximum length 5.
+		                 in 0.020 s (7149.999 nodes/s)
+		   Total so far: 931 nodes in 353 chains with maximum length 9.
+		                 in 0.13 s (7161.539 nodes/s)
+		Solving Root #12: o-18 
+		   Maximum relative concentration: 0.000582787
+		      last Root: 132 nodes in 36 chains with maximum length 5.
+		                 in 0.000 s (27682407018.750 nodes/s)
+		   Total so far: 1063 nodes in 389 chains with maximum length 9.
+		                 in 0.13 s (8176.923 nodes/s)
+		Solving Root #13: f-19 
+		   Maximum relative concentration: 0.085374
+		      last Root: 190 nodes in 77 chains with maximum length 7.
+		                 in 0.030 s (6333.332 nodes/s)
+		   Total so far: 1253 nodes in 466 chains with maximum length 9.
+		                 in 0.16 s (7831.250 nodes/s)
+		Solving Root #14: na-23 
+		   Maximum relative concentration: 6.75084e-05
+		      last Root: 381 nodes in 110 chains with maximum length 7.
+		                 in 0.060 s (6350.000 nodes/s)
+		   Total so far: 1634 nodes in 576 chains with maximum length 9.
+		                 in 0.22 s (7427.273 nodes/s)
+		Solving Root #15: si-28 
+		   Maximum relative concentration: 0.000669528
+		      last Root: 270 nodes in 72 chains with maximum length 6.
+		                 in 0.040 s (6750.000 nodes/s)
+		   Total so far: 1904 nodes in 648 chains with maximum length 9.
+		                 in 0.26 s (7323.077 nodes/s)
+		Solving Root #16: si-29 
+		   Maximum relative concentration: 3.39011e-05
+		      last Root: 296 nodes in 66 chains with maximum length 6.
+		                 in 0.040 s (7399.998 nodes/s)
+		   Total so far: 2200 nodes in 714 chains with maximum length 9.
+		                 in 0.30 s (7333.333 nodes/s)
+		Solving Root #17: si-30 
+		   Maximum relative concentration: 2.25039e-05
+		      last Root: 229 nodes in 63 chains with maximum length 6.
+		                 in 0.040 s (5725.002 nodes/s)
+		   Total so far: 2429 nodes in 777 chains with maximum length 9.
+		                 in 0.34 s (7144.118 nodes/s)
+		Solving Root #18: s-32 
+		   Maximum relative concentration: 3.06657e-07
+		      last Root: 547 nodes in 116 chains with maximum length 6.
+		                 in 0.090 s (6077.778 nodes/s)
+		   Total so far: 2976 nodes in 893 chains with maximum length 9.
+		                 in 0.43 s (6920.930 nodes/s)
+		Solving Root #19: s-33 
+		   Maximum relative concentration: 2.42047e-09
+		      last Root: 613 nodes in 126 chains with maximum length 6.
+		                 in 0.110 s (5572.728 nodes/s)
+		   Total so far: 3589 nodes in 1019 chains with maximum length 9.
+		                 in 0.54 s (6646.296 nodes/s)
+		Solving Root #20: s-34 
+		   Maximum relative concentration: 1.35869e-08
+		      last Root: 379 nodes in 101 chains with maximum length 6.
+		                 in 0.040 s (9475.006 nodes/s)
+		   Total so far: 3968 nodes in 1120 chains with maximum length 9.
+		                 in 0.58 s (6841.380 nodes/s)
+		Solving Root #21: s-36 
+		   Maximum relative concentration: 6.45458e-11
+		      last Root: 346 nodes in 85 chains with maximum length 7.
+		                 in 0.070 s (4942.856 nodes/s)
+		   Total so far: 4314 nodes in 1205 chains with maximum length 9.
+		                 in 0.65 s (6636.923 nodes/s)
+		Solving Root #22: cl-35 
+		   Maximum relative concentration: 4.42258e-06
+		      last Root: 606 nodes in 165 chains with maximum length 6.
+		                 in 0.090 s (6733.331 nodes/s)
+		   Total so far: 4920 nodes in 1370 chains with maximum length 9.
+		                 in 0.74 s (6648.649 nodes/s)
+		Solving Root #23: cl-37 
+		   Maximum relative concentration: 1.41427e-06
+		      last Root: 452 nodes in 119 chains with maximum length 7.
+		                 in 0.080 s (5650.001 nodes/s)
+		   Total so far: 5372 nodes in 1489 chains with maximum length 9.
+		                 in 0.82 s (6551.220 nodes/s)
+		Solving Root #24: k-39 
+		   Maximum relative concentration: 2.46791e-05
+		      last Root: 704 nodes in 150 chains with maximum length 6.
+		                 in 0.110 s (6400.000 nodes/s)
+		   Total so far: 6076 nodes in 1639 chains with maximum length 9.
+		                 in 0.93 s (6533.333 nodes/s)
+		Solving Root #25: k-41 
+		   Maximum relative concentration: 1.78363e-06
+		      last Root: 639 nodes in 143 chains with maximum length 7.
+		                 in 0.120 s (5325.000 nodes/s)
+		   Total so far: 6715 nodes in 1782 chains with maximum length 9.
+		                 in 1.05 s (6395.238 nodes/s)
+		Solving Root #26: ca-40 
+		   Maximum relative concentration: 3.75381e-05
+		      last Root: 682 nodes in 158 chains with maximum length 6.
+		                 in 0.130 s (5246.152 nodes/s)
+		   Total so far: 7397 nodes in 1940 chains with maximum length 9.
+		                 in 1.18 s (6268.644 nodes/s)
+		Solving Root #27: ca-42 
+		   Maximum relative concentration: 2.50536e-07
+		      last Root: 604 nodes in 139 chains with maximum length 6.
+		                 in 0.110 s (5490.907 nodes/s)
+		   Total so far: 8001 nodes in 2079 chains with maximum length 9.
+		                 in 1.29 s (6202.326 nodes/s)
+		Solving Root #28: ca-43 
+		   Maximum relative concentration: 5.22756e-08
+		      last Root: 513 nodes in 117 chains with maximum length 7.
+		                 in 0.100 s (5129.998 nodes/s)
+		   Total so far: 8514 nodes in 2196 chains with maximum length 9.
+		                 in 1.39 s (6125.180 nodes/s)
+		Solving Root #29: ca-44 
+		   Maximum relative concentration: 8.07755e-07
+		      last Root: 476 nodes in 106 chains with maximum length 8.
+		                 in 0.100 s (4759.999 nodes/s)
+		   Total so far: 8990 nodes in 2302 chains with maximum length 9.
+		                 in 1.49 s (6033.557 nodes/s)
+		Solving Root #30: ca-46 
+		   Maximum relative concentration: 1.54891e-09
+		      last Root: 459 nodes in 101 chains with maximum length 8.
+		                 in 0.100 s (4590.000 nodes/s)
+		   Total so far: 9449 nodes in 2403 chains with maximum length 9.
+		                 in 1.59 s (5942.767 nodes/s)
+		Solving Root #31: ca-48 
+		   Maximum relative concentration: 7.24114e-08
+		      last Root: 313 nodes in 61 chains with maximum length 7.
+		                 in 0.050 s (6260.004 nodes/s)
+		   Total so far: 9762 nodes in 2464 chains with maximum length 9.
+		                 in 1.64 s (5952.439 nodes/s)
+		Solving Root #32: v-50 
+		   Maximum relative concentration: 7.6166e-10
+		      last Root: 443 nodes in 111 chains with maximum length 6.
+		                 in 0.090 s (4922.222 nodes/s)
+		   Total so far: 10205 nodes in 2575 chains with maximum length 9.
+		                 in 1.73 s (5898.844 nodes/s)
+		Solving Root #33: v-51 
+		   Maximum relative concentration: 3.03902e-07
+		      last Root: 395 nodes in 92 chains with maximum length 7.
+		                 in 0.060 s (6583.336 nodes/s)
+		   Total so far: 10600 nodes in 2667 chains with maximum length 9.
+		                 in 1.79 s (5921.788 nodes/s)
+		Solving Root #34: cr-50 
+		   Maximum relative concentration: 3.28553e-08
+		      last Root: 593 nodes in 144 chains with maximum length 7.
+		                 in 0.120 s (4941.665 nodes/s)
+		   Total so far: 11193 nodes in 2811 chains with maximum length 9.
+		                 in 1.91 s (5860.210 nodes/s)
+		Solving Root #35: cr-52 
+		   Maximum relative concentration: 6.33589e-07
+		      last Root: 347 nodes in 84 chains with maximum length 6.
+		                 in 0.060 s (5783.330 nodes/s)
+		   Total so far: 11540 nodes in 2895 chains with maximum length 9.
+		                 in 1.97 s (5857.868 nodes/s)
+		Solving Root #36: cr-53 
+		   Maximum relative concentration: 7.18355e-08
+		      last Root: 347 nodes in 92 chains with maximum length 6.
+		                 in 0.060 s (5783.336 nodes/s)
+		   Total so far: 11887 nodes in 2987 chains with maximum length 9.
+		                 in 2.03 s (5855.665 nodes/s)
+		Solving Root #37: cr-54 
+		   Maximum relative concentration: 1.78833e-08
+		      last Root: 248 nodes in 69 chains with maximum length 7.
+		                 in 0.030 s (8266.659 nodes/s)
+		   Total so far: 12135 nodes in 3056 chains with maximum length 9.
+		                 in 2.06 s (5890.777 nodes/s)
+		Solving Root #38: mn-55 
+		   Maximum relative concentration: 0.000668003
+		      last Root: 415 nodes in 116 chains with maximum length 7.
+		                 in 0.070 s (5928.566 nodes/s)
+		   Total so far: 12550 nodes in 3172 chains with maximum length 9.
+		                 in 2.13 s (5892.018 nodes/s)
+		Solving Root #39: fe-54 
+		   Maximum relative concentration: 0.00853816
+		      last Root: 610 nodes in 157 chains with maximum length 7.
+		                 in 0.110 s (5545.460 nodes/s)
+		   Total so far: 13160 nodes in 3329 chains with maximum length 9.
+		                 in 2.24 s (5875.000 nodes/s)
+		Solving Root #40: fe-56 
+		   Maximum relative concentration: 0.132732
+		      last Root: 356 nodes in 94 chains with maximum length 6.
+		                 in 0.070 s (5085.715 nodes/s)
+		   Total so far: 13516 nodes in 3423 chains with maximum length 9.
+		                 in 2.31 s (5851.082 nodes/s)
+		Solving Root #41: fe-57 
+		   Maximum relative concentration: 0.00303901
+		      last Root: 342 nodes in 84 chains with maximum length 7.
+		                 in 0.060 s (5699.994 nodes/s)
+		   Total so far: 13858 nodes in 3507 chains with maximum length 9.
+		                 in 2.37 s (5847.258 nodes/s)
+		Solving Root #42: fe-58 
+		   Maximum relative concentration: 0.000405201
+		      last Root: 544 nodes in 118 chains with maximum length 9.
+		                 in 0.100 s (5439.994 nodes/s)
+		   Total so far: 14402 nodes in 3625 chains with maximum length 9.
+		                 in 2.47 s (5830.769 nodes/s)
+		Solving Root #43: ni-58 
+		   Maximum relative concentration: 6.25744e-07
+		      last Root: 1555 nodes in 381 chains with maximum length 9.
+		                 in 0.280 s (5553.572 nodes/s)
+		   Total so far: 15957 nodes in 4006 chains with maximum length 9.
+		                 in 2.75 s (5802.545 nodes/s)
+		Solving Root #44: ni-60 
+		   Maximum relative concentration: 2.39226e-07
+		      last Root: 745 nodes in 184 chains with maximum length 7.
+		                 in 0.140 s (5321.429 nodes/s)
+		   Total so far: 16702 nodes in 4190 chains with maximum length 9.
+		                 in 2.89 s (5779.239 nodes/s)
+		Solving Root #45: ni-61 
+		   Maximum relative concentration: 1.03573e-08
+		      last Root: 659 nodes in 155 chains with maximum length 7.
+		                 in 0.110 s (5990.915 nodes/s)
+		   Total so far: 17361 nodes in 4345 chains with maximum length 9.
+		                 in 3.00 s (5787.000 nodes/s)
+		Solving Root #46: ni-62 
+		   Maximum relative concentration: 3.2905e-08
+		      last Root: 581 nodes in 141 chains with maximum length 6.
+		                 in 0.110 s (5281.818 nodes/s)
+		   Total so far: 17942 nodes in 4486 chains with maximum length 9.
+		                 in 3.11 s (5769.132 nodes/s)
+		Solving Root #47: ni-64 
+		   Maximum relative concentration: 8.34081e-09
+		      last Root: 341 nodes in 78 chains with maximum length 7.
+		                 in 0.060 s (5683.323 nodes/s)
+		   Total so far: 18283 nodes in 4564 chains with maximum length 9.
+		                 in 3.17 s (5767.508 nodes/s)
+	Solved problem.
+	Reset binary dump with 5 results per isotope.
+		Read dump file.
+		Tallying constituent results into total result lists.
+Interval output requested:
+	Response Units: Bq /cm3
+	Number Density [atoms/cm3]
+	Specific Activity [Bq/cm3]
+
+
+*** Number Density [atoms/cm3] ***
+
+Interval #1 (Zone: inner_zone) :
+	Relative Volume: 5
+	Containing mixture: inner_mix
+
+Total (All constituents) 
+	COMPACTED
+
+Number Density [atoms/cm3]
+isotope	 shutdown         1 d       100 d         1 y       100 y   
+====================================================================
+h-1 	6.7540e+21  6.7540e+21  6.7540e+21  6.7540e+21  6.7540e+21  
+h-2 	1.6197e+19  1.6197e+19  1.6197e+19  1.6197e+19  1.6197e+19  
+h-3 	4.0814e+21  4.0808e+21  4.0191e+21  3.8590e+21  1.5056e+19  
+he-3 	2.4155e+19  2.4783e+19  8.6492e+19  2.4652e+20  4.0905e+21  
+he-4 	4.1400e+21  4.1400e+21  4.1400e+21  4.1400e+21  4.1400e+21  
+he-6 	5.5847e+10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+li-6 	1.0405e+21  1.0405e+21  1.0405e+21  1.0405e+21  1.0405e+21  
+li-7 	6.2063e+22  6.2063e+22  6.2063e+22  6.2063e+22  6.2063e+22  
+li-8 	1.8290e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+be-8 	2.7719e-05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+be-9 	2.6007e+21  2.6007e+21  2.6007e+21  2.6007e+21  2.6007e+21  
+be-10 	4.0359e+16  4.0359e+16  4.0359e+16  4.0359e+16  4.0358e+16  
+be-11 	6.8140e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+b-10 	2.4597e+12  2.4597e+12  2.4597e+12  2.4597e+12  2.4597e+12  
+b-11 	9.8204e+14  9.8204e+14  9.8204e+14  9.8204e+14  9.8204e+14  
+b-12 	3.6935e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+b-13 	4.3406e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+c-12 	3.3757e+18  3.3757e+18  3.3757e+18  3.3757e+18  3.3757e+18  
+c-13 	2.4239e+18  2.4239e+18  2.4239e+18  2.4239e+18  2.4239e+18  
+c-14 	7.3594e+15  7.3594e+15  7.3592e+15  7.3585e+15  7.2712e+15  
+c-15 	5.6874e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-13 	8.6362e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-14 	1.5989e+18  1.5989e+18  1.5989e+18  1.5989e+18  1.5990e+18  
+n-15 	1.6126e+18  1.6126e+18  1.6126e+18  1.6126e+18  1.6126e+18  
+n-16 	7.6127e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-17 	4.1165e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-18 	3.3376e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+o-16 	3.3345e+21  3.3345e+21  3.3345e+21  3.3345e+21  3.3345e+21  
+o-17 	1.5857e+18  1.5857e+18  1.5857e+18  1.5857e+18  1.5857e+18  
+o-18 	9.9343e+18  9.9346e+18  9.9346e+18  9.9346e+18  9.9346e+18  
+o-19 	8.4078e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+f-18 	2.9082e+14  3.2515e+10  0.0000e+00  0.0000e+00  0.0000e+00  
+f-19 	7.4423e+21  7.4423e+21  7.4423e+21  7.4423e+21  7.4423e+21  
+f-20 	8.4768e+10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+f-21 	3.2133e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+f-22 	6.4480e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ne-20 	1.6753e+17  1.6753e+17  1.6753e+17  1.6753e+17  1.6753e+17  
+ne-21 	6.3234e+13  6.3234e+13  6.3234e+13  6.3234e+13  6.3234e+13  
+ne-22 	6.4481e+15  6.4481e+15  6.4486e+15  6.4497e+15  6.4550e+15  
+ne-23 	1.9842e+09  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-22 	6.8531e+12  6.8481e+12  6.3712e+12  5.2558e+12  2.0452e+01  
+na-23 	5.8763e+18  5.8763e+18  5.8763e+18  5.8763e+18  5.8763e+18  
+na-24 	1.3146e+13  4.3300e+12  0.0000e+00  0.0000e+00  0.0000e+00  
+na-24m	3.7270e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-25 	5.6234e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-26 	2.2535e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mg-24 	5.3724e+15  5.3812e+15  5.3855e+15  5.3855e+15  5.3855e+15  
+mg-25 	1.0415e+15  1.0415e+15  1.0415e+15  1.0415e+15  1.0415e+15  
+mg-26 	4.0246e+13  4.0246e+13  4.0246e+13  4.0246e+13  4.0246e+13  
+mg-27 	2.6104e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-26 	6.5041e+09  6.5041e+09  6.5041e+09  6.5041e+09  6.5035e+09  
+al-27 	3.4785e+14  3.4785e+14  3.4785e+14  3.4785e+14  3.4785e+14  
+al-28 	7.6329e+09  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-29 	6.3590e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-30 	2.1698e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+si-28 	1.1844e+18  1.1844e+18  1.1844e+18  1.1844e+18  1.1844e+18  
+si-29 	6.0353e+16  6.0353e+16  6.0353e+16  6.0353e+16  6.0353e+16  
+si-30 	3.9813e+16  3.9813e+16  3.9813e+16  3.9813e+16  3.9813e+16  
+si-31 	5.0456e+09  8.8540e+06  0.0000e+00  0.0000e+00  0.0000e+00  
+si-32 	1.6622e+10  1.6622e+10  1.6603e+10  1.6555e+10  1.1124e+10  
+si-33 	5.2983e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-30 	2.3619e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-31 	8.0736e+13  8.0741e+13  8.0741e+13  8.0741e+13  8.0741e+13  
+p-32 	1.3691e+13  1.3041e+13  1.0600e+11  4.6751e+05  1.2391e+05  
+p-33 	2.2022e+12  2.1429e+12  1.4378e+11  1.0688e+08  0.0000e+00  
+p-34 	9.3317e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-35 	1.8103e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-36 	7.1794e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+s-32 	2.6862e+16  2.6862e+16  2.6875e+16  2.6875e+16  2.6875e+16  
+s-33 	2.4901e+14  2.4907e+14  2.5107e+14  2.5121e+14  2.5121e+14  
+s-34 	3.0812e+15  3.0812e+15  3.0812e+15  3.0812e+15  3.0812e+15  
+s-35 	7.9136e+13  7.8511e+13  3.5837e+13  4.4268e+12  0.0000e+00  
+s-36 	7.3438e+13  7.3438e+13  7.3438e+13  7.3439e+13  7.3562e+13  
+s-37 	1.6820e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-34 	1.1293e+05  2.4146e-09  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-34m	2.0272e+08  6.3496e-06  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-35 	3.5892e+17  3.5892e+17  3.5896e+17  3.5900e+17  3.5900e+17  
+cl-36 	2.8574e+16  2.8574e+16  2.8574e+16  2.8574e+16  2.8568e+16  
+cl-37 	1.2410e+17  1.2410e+17  1.2417e+17  1.2418e+17  1.2418e+17  
+cl-38 	1.1596e+10  2.5796e-02  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-38m	5.5701e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-39 	1.6550e+08  2.6444e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-40 	1.5030e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ar-36 	4.6989e+14  4.6989e+14  4.6991e+14  4.6995e+14  4.7595e+14  
+ar-37 	8.4107e+13  8.2460e+13  1.1634e+13  6.2762e+10  0.0000e+00  
+ar-38 	1.7123e+15  1.7123e+15  1.7123e+15  1.7123e+15  1.7123e+15  
+ar-39 	1.4656e+15  1.4656e+15  1.4646e+15  1.4618e+15  1.1337e+15  
+ar-40 	9.4139e+14  9.4139e+14  9.4139e+14  9.4139e+14  9.4139e+14  
+ar-41 	1.2490e+10  1.3872e+06  0.0000e+00  0.0000e+00  0.0000e+00  
+ar-42 	1.3093e+09  1.3093e+09  1.3018e+09  1.2822e+09  1.6142e+08  
+ar-43 	3.2212e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ar-45 	8.2895e+01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+k-38 	3.2509e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+k-38m	1.0040e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+k-39 	2.1458e+18  2.1458e+18  2.1458e+18  2.1458e+18  2.1461e+18  
+k-40 	1.3104e+16  1.3104e+16  1.3104e+16  1.3104e+16  1.3104e+16  
+k-41 	1.5517e+17  1.5517e+17  1.5517e+17  1.5517e+17  1.5517e+17  
+k-42 	8.7970e+11  2.2924e+11  0.0000e+00  0.0000e+00  0.0000e+00  
+k-43 	8.8849e+09  4.1997e+09  2.5400e-23  0.0000e+00  0.0000e+00  
+k-44 	5.4958e+08  1.4190e-11  0.0000e+00  0.0000e+00  0.0000e+00  
+k-45 	2.4323e+05  2.3844e-20  0.0000e+00  0.0000e+00  0.0000e+00  
+k-46 	1.2763e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+k-48 	1.0948e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ca-40 	3.2598e+18  3.2598e+18  3.2598e+18  3.2598e+18  3.2598e+18  
+ca-41 	2.3092e+15  2.3092e+15  2.3092e+15  2.3092e+15  2.3076e+15  
+ca-42 	2.2202e+16  2.2202e+16  2.2203e+16  2.2203e+16  2.2203e+16  
+ca-43 	4.7129e+15  4.7129e+15  4.7129e+15  4.7129e+15  4.7129e+15  
+ca-44 	7.0246e+16  7.0246e+16  7.0246e+16  7.0246e+16  7.0246e+16  
+ca-45 	5.3120e+13  5.2894e+13  3.4693e+13  1.1266e+13  0.0000e+00  
+ca-46 	1.3555e+14  1.3555e+14  1.3555e+14  1.3555e+14  1.3555e+14  
+ca-47 	2.9860e+11  2.5631e+11  6.9431e+04  2.1330e-13  0.0000e+00  
+ca-48 	6.2916e+15  6.2916e+15  6.2916e+15  6.2916e+15  6.2916e+15  
+ca-49 	2.7822e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-44 	2.5649e+07  8.2387e+06  4.9969e-06  0.0000e+00  0.0000e+00  
+sc-44m	1.5019e+08  1.1307e+08  7.0433e-05  0.0000e+00  0.0000e+00  
+sc-45 	5.0719e+13  5.0945e+13  6.9146e+13  9.2573e+13  1.0384e+14  
+sc-45m	1.5561e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-46 	4.5301e+11  4.4928e+11  1.9814e+11  2.2328e+10  0.0000e+00  
+sc-46m	7.1915e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-47 	2.2055e+11  2.1739e+11  1.9427e+05  3.9394e-22  0.0000e+00  
+sc-48 	1.0112e+10  6.9086e+09  2.8902e-07  0.0000e+00  0.0000e+00  
+sc-49 	1.8255e+09  5.6861e+01  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-50 	7.9133e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-50m	1.0425e+01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ti-46 	4.3272e+11  4.3646e+11  6.8760e+11  8.6341e+11  8.8574e+11  
+ti-47 	1.7124e+13  1.7169e+13  1.7643e+13  1.7643e+13  1.7643e+13  
+ti-48 	1.4594e+12  1.4626e+12  1.4698e+12  1.4698e+12  1.4698e+12  
+ti-49 	2.2172e+13  2.2185e+13  2.3194e+13  2.5051e+13  2.7557e+13  
+ti-50 	3.2081e+13  3.2081e+13  3.2081e+13  3.2081e+13  3.2081e+13  
+ti-51 	5.2492e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-48 	2.3496e+08  2.2498e+08  3.0659e+06  3.2482e+01  0.0000e+00  
+v-49 	5.3837e+12  5.3724e+12  4.3637e+12  2.5063e+12  3.3617e-21  
+v-50 	1.1102e+14  1.1102e+14  1.1102e+14  1.1102e+14  1.1102e+14  
+v-51 	2.6392e+16  2.6392e+16  2.6408e+16  2.6410e+16  2.6410e+16  
+v-52 	2.4935e+09  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-53 	5.6606e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-54 	2.4125e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-49 	9.3070e+06  4.1990e-04  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-50 	3.5136e+15  3.5136e+15  3.5136e+15  3.5136e+15  3.5136e+15  
+cr-51 	1.7986e+13  1.7541e+13  1.4737e+12  1.9953e+09  0.0000e+00  
+cr-52 	6.9927e+16  6.9927e+16  6.9927e+16  6.9927e+16  6.9927e+16  
+cr-53 	7.8210e+15  7.8210e+15  7.8210e+15  7.8210e+15  7.8210e+15  
+cr-54 	2.2260e+15  2.2261e+15  2.2359e+15  2.2535e+15  2.2756e+15  
+cr-55 	1.4819e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-56 	2.5782e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-52 	6.5514e+08  5.7876e+08  2.7075e+03  1.6573e-11  0.0000e+00  
+mn-52m	6.8721e+05  1.9627e-15  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-53 	7.7441e+13  7.7441e+13  7.7441e+13  7.7441e+13  7.7439e+13  
+mn-54 	4.9528e+13  4.9418e+13  3.9670e+13  2.2079e+13  4.0588e-22  
+mn-55 	1.9612e+14  1.9664e+14  2.4590e+14  3.6185e+14  9.3868e+14  
+mn-56 	1.0755e+11  1.6992e+08  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-57 	2.1051e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-58 	2.3932e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-58m	4.9292e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-59 	3.8445e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+fe-53 	9.8107e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+fe-54 	3.6142e+16  3.6142e+16  3.6142e+16  3.6142e+16  3.6142e+16  
+fe-55 	7.4256e+14  7.4204e+14  6.9278e+14  5.7683e+14  7.9849e+03  
+fe-56 	5.6325e+17  5.6325e+17  5.6325e+17  5.6325e+17  5.6325e+17  
+fe-57 	1.5391e+16  1.5392e+16  1.5406e+16  1.5431e+16  1.5457e+16  
+fe-58 	1.8396e+15  1.8397e+15  1.8449e+15  1.8478e+15  1.8480e+15  
+fe-59 	7.0399e+11  6.9311e+11  1.4829e+11  2.4284e+09  0.0000e+00  
+fe-60 	4.8179e+09  4.8179e+09  4.8179e+09  4.8179e+09  4.8178e+09  
+fe-61 	2.6063e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-56 	1.3870e+10  1.3747e+10  5.6579e+09  5.3035e+08  0.0000e+00  
+co-57 	6.5503e+13  6.5345e+13  5.0776e+13  2.5898e+13  3.1376e-27  
+co-58 	8.3583e+12  8.3275e+12  3.1654e+12  2.3927e+11  0.0000e+00  
+co-58m	6.0255e+10  9.3726e+09  0.0000e+00  0.0000e+00  0.0000e+00  
+co-59 	5.4480e+13  5.4491e+13  5.5037e+13  5.5185e+13  5.5552e+13  
+co-60 	1.3953e+13  1.3948e+13  1.3460e+13  1.2240e+13  2.8441e+07  
+co-60m	2.4673e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-61 	1.3312e+08  5.5787e+03  0.0000e+00  0.0000e+00  0.0000e+00  
+co-62 	7.9287e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-62m	4.0544e+06  2.7829e-25  0.0000e+00  0.0000e+00  0.0000e+00  
+co-63 	1.3700e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-64 	1.0635e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ni-57 	2.3401e+10  1.4685e+10  1.3550e-10  0.0000e+00  0.0000e+00  
+ni-58 	5.3951e+16  5.3951e+16  5.3951e+16  5.3951e+16  5.3951e+16  
+ni-59 	4.0478e+14  4.0478e+14  4.0478e+14  4.0478e+14  4.0441e+14  
+ni-60 	2.0759e+16  2.0759e+16  2.0760e+16  2.0761e+16  2.0773e+16  
+ni-61 	1.0067e+15  1.0067e+15  1.0067e+15  1.0067e+15  1.0067e+15  
+ni-62 	2.8002e+15  2.8002e+15  2.8002e+15  2.8002e+15  2.8002e+15  
+ni-63 	6.9160e+13  6.9158e+13  6.9027e+13  6.8679e+13  3.4421e+13  
+ni-64 	7.2513e+14  7.2513e+14  7.2513e+14  7.2513e+14  7.2513e+14  
+ni-65 	7.8281e+08  1.0634e+06  0.0000e+00  0.0000e+00  0.0000e+00  
+cu-62 	9.7080e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cu-63 	2.4347e+11  2.4480e+11  3.7591e+11  7.2434e+11  3.4981e+13  
+cu-64 	1.6160e+07  4.3617e+06  0.0000e+00  0.0000e+00  0.0000e+00  
+cu-65 	1.8765e+12  1.8773e+12  1.8773e+12  1.8773e+12  1.8773e+12  
+cu-66 	1.0155e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+zn-64 	1.3677e+09  1.3723e+09  1.3740e+09  1.3740e+09  1.3740e+09  
+zn-65 	1.8599e+06  1.8546e+06  1.4004e+06  6.6205e+05  0.0000e+00  
+zn-66 	3.6185e+09  3.6186e+09  3.6186e+09  3.6186e+09  3.6186e+09  
+zn-67 	1.8993e+06  1.8993e+06  1.8993e+06  1.8993e+06  1.8993e+06  
+====================================================================
+total	9.1531e+22  9.1531e+22  9.1531e+22  9.1531e+22  9.1531e+22  
+
+Interval #2 (Zone: outer_zone) :
+	Relative Volume: 1
+	Containing mixture: outer_mix
+
+Total (All constituents) 
+	COMPACTED
+
+Number Density [atoms/cm3]
+isotope	 shutdown         1 d       100 d         1 y       100 y   
+====================================================================
+h-1 	5.5280e+22  5.5280e+22  5.5280e+22  5.5280e+22  5.5280e+22  
+h-2 	4.0942e+19  4.0942e+19  4.0942e+19  4.0942e+19  4.0942e+19  
+h-3 	1.0395e+15  1.0393e+15  1.0236e+15  9.8286e+14  3.8347e+12  
+he-3 	6.7371e+12  6.8970e+12  2.2614e+13  6.3372e+13  1.0424e+15  
+he-4 	4.7654e+19  4.7654e+19  4.7654e+19  4.7654e+19  4.7654e+19  
+he-6 	2.4891e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+li-6 	2.1121e+12  2.1121e+12  2.1121e+12  2.1121e+12  2.1121e+12  
+li-7 	1.4018e+12  1.4018e+12  1.4018e+12  1.4018e+12  1.4018e+12  
+li-8 	1.3279e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+be-8 	2.2199e-10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+be-9 	5.1686e+16  5.1686e+16  5.1686e+16  5.1686e+16  5.1686e+16  
+be-10 	3.4593e+15  3.4593e+15  3.4593e+15  3.4593e+15  3.4592e+15  
+be-11 	7.9446e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+b-10 	3.2014e+04  3.2783e+04  1.0891e+05  3.1191e+05  2.8021e+07  
+b-11 	2.2753e+14  2.2753e+14  2.2753e+14  2.2753e+14  2.2753e+14  
+b-12 	3.4990e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+b-13 	3.8730e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+c-12 	1.5590e+20  1.5590e+20  1.5590e+20  1.5590e+20  1.5590e+20  
+c-13 	2.1616e+19  2.1616e+19  2.1616e+19  2.1616e+19  2.1616e+19  
+c-14 	1.3122e+16  1.3122e+16  1.3122e+16  1.3120e+16  1.2965e+16  
+c-15 	2.6313e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-14 	4.1209e+14  4.1210e+14  4.1253e+14  4.1367e+14  5.6885e+14  
+n-15 	1.4822e+18  1.4822e+18  1.4822e+18  1.4822e+18  1.4822e+18  
+n-16 	1.5010e+12  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-17 	2.7052e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-18 	2.7814e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+o-16 	2.7758e+22  2.7758e+22  2.7758e+22  2.7758e+22  2.7758e+22  
+o-17 	1.0411e+19  1.0411e+19  1.0411e+19  1.0411e+19  1.0411e+19  
+o-18 	5.6769e+19  5.6769e+19  5.6769e+19  5.6769e+19  5.6769e+19  
+o-19 	8.6164e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+f-19 	6.9810e+13  6.9811e+13  6.9811e+13  6.9811e+13  6.9811e+13  
+ne-20 	7.2532e+11  7.2532e+11  7.2532e+11  7.2532e+11  7.2532e+11  
+ne-21 	1.7104e+12  1.7104e+12  1.7104e+12  1.7104e+12  1.7104e+12  
+ne-22 	1.7989e+13  1.7989e+13  1.7989e+13  1.7989e+13  1.7989e+13  
+ne-23 	1.1808e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-23 	1.3546e+12  1.3546e+12  1.3546e+12  1.3546e+12  1.3546e+12  
+na-24 	3.9236e+10  1.2924e+10  0.0000e+00  0.0000e+00  0.0000e+00  
+na-24m	4.5671e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-25 	3.0968e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-26 	1.2410e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mg-24 	2.9490e+15  2.9490e+15  2.9490e+15  2.9490e+15  2.9490e+15  
+mg-25 	5.7344e+16  5.7344e+16  5.7344e+16  5.7344e+16  5.7344e+16  
+mg-26 	2.2159e+15  2.2159e+15  2.2159e+15  2.2159e+15  2.2159e+15  
+mg-27 	1.4375e+10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-26 	3.5818e+11  3.5818e+11  3.5818e+11  3.5818e+11  3.5814e+11  
+al-27 	1.9156e+16  1.9156e+16  1.9156e+16  1.9156e+16  1.9156e+16  
+al-28 	4.2033e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-29 	3.4995e+10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-30 	1.1949e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+si-28 	6.5226e+19  6.5226e+19  6.5226e+19  6.5226e+19  6.5226e+19  
+si-29 	3.3223e+18  3.3223e+18  3.3223e+18  3.3223e+18  3.3223e+18  
+si-30 	2.1924e+18  2.1924e+18  2.1924e+18  2.1924e+18  2.1924e+18  
+si-31 	2.2855e+11  4.0105e+08  0.0000e+00  0.0000e+00  0.0000e+00  
+p-30 	1.1139e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-31 	5.2741e+14  5.2763e+14  5.2763e+14  5.2763e+14  5.2763e+14  
+p-32 	8.0182e+09  7.6377e+09  6.2081e+07  1.6581e+02  0.0000e+00  
+s-32 	6.7072e+10  6.7453e+10  7.5028e+10  7.5090e+10  7.5090e+10  
+sc-48 	8.8236e+10  6.0284e+10  2.5220e-06  0.0000e+00  0.0000e+00  
+ti-48 	1.0783e+13  1.0811e+13  1.0871e+13  1.0871e+13  1.0871e+13  
+ti-49 	3.8372e+11  3.8372e+11  3.8372e+11  3.8372e+11  3.8372e+11  
+ti-50 	2.0104e+14  2.0104e+14  2.0104e+14  2.0104e+14  2.0104e+14  
+ti-51 	8.8473e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-50 	4.7344e+14  4.7344e+14  4.7344e+14  4.7344e+14  4.7344e+14  
+v-51 	2.3276e+17  2.3346e+17  2.5910e+17  2.6145e+17  2.6146e+17  
+v-52 	9.1719e+10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-53 	1.2080e+09  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-54 	6.2069e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-50 	7.1497e+14  7.1497e+14  7.1497e+14  7.1497e+14  7.1497e+14  
+cr-51 	2.8701e+16  2.7992e+16  2.3517e+15  3.1841e+12  0.0000e+00  
+cr-52 	3.3210e+16  3.3212e+16  3.3225e+16  3.3225e+16  3.3225e+16  
+cr-53 	1.6693e+18  1.6693e+18  1.6693e+18  1.6693e+18  1.6693e+18  
+cr-54 	6.2588e+17  6.2864e+17  8.7312e+17  1.3143e+18  1.8680e+18  
+cr-55 	1.2285e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-56 	5.8932e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-52 	1.4975e+13  1.3229e+13  6.1889e+07  3.7884e-07  0.0000e+00  
+mn-52m	1.5708e+10  4.4865e-11  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-53 	1.7703e+18  1.7703e+18  1.7703e+18  1.7703e+18  1.7703e+18  
+mn-54 	1.2421e+18  1.2394e+18  9.9490e+17  5.5374e+17  1.0179e-17  
+mn-55 	6.7845e+19  6.7856e+19  6.8950e+19  7.1526e+19  8.4338e+19  
+mn-56 	3.1048e+15  4.9054e+12  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-57 	4.7971e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-58 	5.2924e+09  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-58m	1.0924e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-59 	8.7877e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+fe-53 	2.2425e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+fe-54 	8.2613e+20  8.2613e+20  8.2613e+20  8.2613e+20  8.2613e+20  
+fe-55 	1.6494e+19  1.6482e+19  1.5388e+19  1.2812e+19  1.7736e+08  
+fe-56 	1.2876e+22  1.2876e+22  1.2876e+22  1.2876e+22  1.2876e+22  
+fe-57 	3.5078e+20  3.5078e+20  3.5078e+20  3.5078e+20  3.5078e+20  
+fe-58 	4.0676e+19  4.0676e+19  4.0676e+19  4.0676e+19  4.0676e+19  
+fe-59 	1.4996e+16  1.4765e+16  3.1590e+15  5.1729e+13  0.0000e+00  
+fe-60 	4.8646e+13  4.8646e+13  4.8646e+13  4.8646e+13  4.8646e+13  
+co-58 	9.8210e+12  9.7986e+12  3.7256e+12  2.8162e+11  0.0000e+00  
+co-58m	8.8397e+10  1.3750e+10  0.0000e+00  0.0000e+00  0.0000e+00  
+co-59 	6.7352e+16  6.7584e+16  7.9190e+16  8.2297e+16  8.2349e+16  
+co-60 	2.0238e+15  2.0231e+15  1.9523e+15  1.7753e+15  4.1252e+09  
+co-60m	7.8776e+10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-61 	1.9141e+09  8.0048e+04  0.0000e+00  0.0000e+00  0.0000e+00  
+ni-60 	8.1825e+13  8.2554e+13  1.5339e+14  3.3038e+14  2.1057e+15  
+ni-61 	2.1391e+12  2.1410e+12  2.1410e+12  2.1410e+12  2.1410e+12  
+====================================================================
+total	9.7627e+22  9.7627e+22  9.7627e+22  9.7627e+22  9.7627e+22  
+
+Totals for all intervals.
+Number Density [atoms/cm3]
+interval shutdown         1 d       100 d         1 y       100 y   
+====================================================================
+1	9.1531e+22  9.1531e+22  9.1531e+22  9.1531e+22  9.1531e+22  
+2	9.7627e+22  9.7627e+22  9.7627e+22  9.7627e+22  9.7627e+22  
+====================================================================
+
+
+
+
+
+*** Specific Activity [Bq/cm3] ***
+
+Interval #1 (Zone: inner_zone) :
+	Relative Volume: 5
+	Containing mixture: inner_mix
+
+Total (All constituents) 
+	COMPACTED
+
+Specific Activity [Bq/cm3]
+isotope	 shutdown         1 d       100 d         1 y       100 y   
+====================================================================
+h-3 	7.2705e+12  7.2694e+12  7.1595e+12  6.8744e+12  2.6821e+10  
+he-6 	4.7902e+10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+li-8 	1.5056e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+be-8 	2.7448e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+be-10 	5.5404e+02  5.5404e+02  5.5404e+02  5.5404e+02  5.5402e+02  
+be-11 	3.4201e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+b-12 	1.2674e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+b-13 	1.7291e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+c-14 	2.8210e+04  2.8210e+04  2.8210e+04  2.8207e+04  2.7872e+04  
+c-15 	1.6097e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-13 	1.0012e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-16 	7.4112e+10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-17 	6.8442e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-18 	3.6722e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+o-19 	2.1657e+10  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+f-18 	3.0626e+10  3.4242e+06  0.0000e+00  0.0000e+00  0.0000e+00  
+f-20 	5.3270e+09  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+f-21 	5.1558e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+f-22 	1.0541e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ne-23 	3.6972e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-22 	5.7827e+04  5.7785e+04  5.3762e+04  4.4349e+04  1.7257e-07  
+na-24 	1.6896e+08  5.5655e+07  0.0000e+00  0.0000e+00  0.0000e+00  
+na-24m	1.2789e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-25 	6.5400e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-26 	1.4463e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mg-27 	3.1872e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-26 	1.9842e-04  1.9842e-04  1.9842e-04  1.9842e-04  1.9840e-04  
+al-28 	3.9348e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-29 	1.1187e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-30 	4.1777e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+si-31 	3.7056e+05  6.5026e+02  0.0000e+00  0.0000e+00  0.0000e+00  
+si-32 	2.1226e+00  2.1226e+00  2.1203e+00  2.1141e+00  1.4205e+00  
+si-33 	5.9425e+01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-30 	1.0923e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-32 	7.7027e+06  7.3373e+06  5.9639e+04  2.6303e-01  6.9712e-02  
+p-33 	6.9555e+05  6.7683e+05  4.5412e+04  3.3757e+01  0.0000e+00  
+p-34 	5.2163e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-35 	2.6529e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-36 	8.8864e-01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+s-35 	7.2556e+06  7.1984e+06  3.2858e+06  4.0587e+05  0.0000e+00  
+s-37 	3.8939e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-34 	5.1296e+04  1.0968e-09  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-34m	7.2957e+04  2.2852e-09  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-36 	2.0782e+03  2.0782e+03  2.0782e+03  2.0782e+03  2.0778e+03  
+cl-38 	3.6011e+06  8.0108e-06  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-38m	5.0141e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-39 	3.4387e+04  5.4945e-04  0.0000e+00  0.0000e+00  0.0000e+00  
+cl-40 	1.2862e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ar-37 	1.9257e+07  1.8879e+07  2.6637e+06  1.4370e+04  0.0000e+00  
+ar-39 	1.1967e+05  1.1967e+05  1.1958e+05  1.1936e+05  9.2567e+04  
+ar-41 	1.3163e+06  1.4620e+02  0.0000e+00  0.0000e+00  0.0000e+00  
+ar-42 	8.7148e-01  8.7143e-01  8.6649e-01  8.5343e-01  1.0744e-01  
+ar-43 	6.9340e+01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ar-45 	2.6750e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+k-38 	4.9351e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+k-38m	7.5320e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+k-40 	2.2487e-01  2.2487e-01  2.2487e-01  2.2487e-01  2.2487e-01  
+k-42 	1.3693e+07  3.5681e+06  0.0000e+00  0.0000e+00  0.0000e+00  
+k-43 	7.7059e+04  3.6424e+04  2.2029e-28  0.0000e+00  0.0000e+00  
+k-44 	2.8690e+05  7.4078e-15  0.0000e+00  0.0000e+00  0.0000e+00  
+k-45 	1.6211e+02  1.5891e-23  0.0000e+00  0.0000e+00  0.0000e+00  
+k-46 	9.3122e+01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+k-48 	1.1160e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ca-41 	4.9243e+02  4.9243e+02  4.9243e+02  4.9242e+02  4.9210e+02  
+ca-45 	2.6193e+06  2.6081e+06  1.7106e+06  5.5553e+05  0.0000e+00  
+ca-47 	5.2789e+05  4.5311e+05  1.2274e-01  3.7709e-19  0.0000e+00  
+ca-49 	3.6859e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-44 	1.2576e+03  4.0395e+02  2.4500e-10  0.0000e+00  0.0000e+00  
+sc-44m	4.9349e+02  3.7153e+02  2.3142e-10  0.0000e+00  0.0000e+00  
+sc-45m	3.4134e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-46 	4.3358e+04  4.3001e+04  1.8964e+04  2.1370e+03  0.0000e+00  
+sc-46m	2.6657e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-47 	5.2880e+05  5.2122e+05  4.6580e-01  9.4453e-28  0.0000e+00  
+sc-48 	4.4583e+04  3.0460e+04  1.2743e-12  0.0000e+00  0.0000e+00  
+sc-49 	3.6868e+05  1.1484e-02  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-50 	5.3513e+01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+sc-50m	2.0647e+01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ti-51 	1.0455e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-48 	1.1800e+02  1.1299e+02  1.5397e+00  1.6313e-05  0.0000e+00  
+v-49 	1.3088e+05  1.3061e+05  1.0609e+05  6.0930e+04  8.1726e-29  
+v-50 	1.6374e-11  1.6374e-11  1.6374e-11  1.6374e-11  1.6374e-11  
+v-52 	7.6919e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-53 	4.0366e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-54 	3.3578e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-49 	2.5661e+03  1.1577e-07  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-51 	5.2079e+06  5.0793e+06  4.2673e+05  5.7777e+02  0.0000e+00  
+cr-55 	4.8360e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-56 	5.0198e-01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-52 	9.3998e+02  8.3040e+02  3.8847e-03  2.3779e-17  0.0000e+00  
+mn-52m	3.7625e+02  1.0746e-18  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-53 	4.6004e-01  4.6004e-01  4.6004e-01  4.6004e-01  4.6003e-01  
+mn-54 	1.2723e+06  1.2695e+06  1.0191e+06  5.6718e+05  1.0426e-29  
+mn-56 	8.0294e+06  1.2686e+04  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-57 	1.5105e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-58 	2.5404e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-58m	1.1389e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-59 	5.7930e-01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+fe-53 	1.3318e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+fe-55 	5.9631e+06  5.9590e+06  5.5634e+06  4.6322e+06  6.4123e-05  
+fe-59 	1.2691e+05  1.2495e+05  2.6734e+04  4.3777e+02  0.0000e+00  
+fe-60 	1.4091e-05  1.4091e-05  1.4091e-05  1.4091e-05  1.4091e-05  
+fe-61 	5.0349e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-56 	1.4395e+03  1.4267e+03  5.8720e+02  5.5042e+01  0.0000e+00  
+co-57 	1.9335e+06  1.9288e+06  1.4988e+06  7.6443e+05  9.2614e-35  
+co-58 	9.4630e+05  9.4282e+05  3.5838e+05  2.7090e+04  0.0000e+00  
+co-58m	1.2977e+06  2.0186e+05  0.0000e+00  0.0000e+00  0.0000e+00  
+co-60 	5.8135e+04  5.8115e+04  5.6080e+04  5.0996e+04  1.1850e-01  
+co-60m	2.7224e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-61 	1.5534e+04  6.5099e-01  0.0000e+00  0.0000e+00  0.0000e+00  
+co-62 	6.1064e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-62m	3.3672e+03  2.3112e-28  0.0000e+00  0.0000e+00  0.0000e+00  
+co-63 	3.4658e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-64 	2.4573e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ni-57 	1.2621e+05  7.9199e+04  7.3077e-16  0.0000e+00  0.0000e+00  
+ni-59 	1.1698e+02  1.1698e+02  1.1698e+02  1.1698e+02  1.1688e+02  
+ni-63 	1.5344e+04  1.5344e+04  1.5315e+04  1.5237e+04  7.6368e+03  
+ni-65 	5.9811e+04  8.1251e+01  0.0000e+00  0.0000e+00  0.0000e+00  
+cu-62 	1.1503e+01  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cu-64 	2.4496e+02  6.6116e+01  0.0000e+00  0.0000e+00  0.0000e+00  
+cu-66 	2.3004e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+zn-65 	6.1087e-02  6.0914e-02  4.5994e-02  2.1744e-02  0.0000e+00  
+====================================================================
+total	7.8757e+12  7.2695e+12  7.1595e+12  6.8744e+12  2.6821e+10  
+
+Interval #2 (Zone: outer_zone) :
+	Relative Volume: 1
+	Containing mixture: outer_mix
+
+Total (All constituents) 
+	COMPACTED
+
+Specific Activity [Bq/cm3]
+isotope	 shutdown         1 d       100 d         1 y       100 y   
+====================================================================
+h-3 	1.8517e+06  1.8515e+06  1.8235e+06  1.7508e+06  6.8311e+03  
+he-6 	2.1350e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+li-8 	1.0932e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+be-8 	2.1982e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+be-10 	4.7489e+01  4.7489e+01  4.7489e+01  4.7489e+01  4.7487e+01  
+be-11 	3.9875e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+b-12 	1.2007e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+b-13 	1.5428e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+c-14 	5.0300e+04  5.0300e+04  5.0298e+04  5.0294e+04  4.9697e+04  
+c-15 	7.4474e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-16 	1.4613e+11  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-17 	4.4977e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+n-18 	3.0602e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+o-19 	2.2194e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+ne-23 	2.2002e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-24 	5.0431e+05  1.6611e+05  0.0000e+00  0.0000e+00  0.0000e+00  
+na-24m	1.5672e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-25 	3.6015e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+na-26 	7.9646e+03  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mg-27 	1.7551e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-26 	1.0927e-02  1.0927e-02  1.0927e-02  1.0927e-02  1.0926e-02  
+al-28 	2.1668e+09  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-29 	6.1564e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+al-30 	2.3006e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+si-31 	1.6785e+07  2.9454e+04  0.0000e+00  0.0000e+00  0.0000e+00  
+p-30 	5.1516e+02  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+p-32 	4.5112e+03  4.2971e+03  3.4928e+01  9.3286e-05  0.0000e+00  
+sc-48 	3.8903e+05  2.6579e+05  1.1120e-11  0.0000e+00  0.0000e+00  
+ti-51 	1.7622e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-50 	6.9822e-11  6.9822e-11  6.9822e-11  6.9822e-11  6.9822e-11  
+v-52 	2.8293e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-53 	8.6144e+06  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+v-54 	8.6391e+05  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-51 	8.3106e+09  8.1053e+09  6.8095e+08  9.2197e+05  0.0000e+00  
+cr-55 	4.0091e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+cr-56 	1.1474e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-52 	2.1486e+07  1.8981e+07  8.8797e+01  5.4355e-13  0.0000e+00  
+mn-52m	8.6005e+06  2.4564e-14  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-53 	1.0517e+04  1.0517e+04  1.0517e+04  1.0517e+04  1.0516e+04  
+mn-54 	3.1909e+10  3.1838e+10  2.5557e+10  1.4225e+10  2.6149e-25  
+mn-56 	2.3180e+11  3.6622e+08  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-57 	3.4421e+09  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-58 	5.6177e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-58m	2.5239e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+mn-59 	1.3242e+04  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+fe-53 	3.0443e+08  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+fe-55 	1.3245e+11  1.3236e+11  1.2357e+11  1.0289e+11  1.4243e+00  
+fe-59 	2.7035e+09  2.6617e+09  5.6948e+08  9.3255e+06  0.0000e+00  
+fe-60 	1.4227e-01  1.4227e-01  1.4227e-01  1.4227e-01  1.4227e-01  
+co-58 	1.1119e+06  1.1094e+06  4.2180e+05  3.1884e+04  0.0000e+00  
+co-58m	1.9038e+06  2.9613e+05  0.0000e+00  0.0000e+00  0.0000e+00  
+co-60 	8.4321e+06  8.4294e+06  8.1342e+06  7.3968e+06  1.7188e+01  
+co-60m	8.6920e+07  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+co-61 	2.2336e+05  9.3409e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+====================================================================
+total	5.6040e+11  1.7536e+11  1.5039e+11  1.1714e+11  6.7111e+04  
+
+Totals for all intervals.
+Specific Activity [Bq/cm3]
+interval shutdown         1 d       100 d         1 y       100 y   
+====================================================================
+1	7.8757e+12  7.2695e+12  7.1595e+12  6.8744e+12  2.6821e+10  
+2	5.6040e+11  1.7536e+11  1.5039e+11  1.1714e+11  6.7111e+04  
+====================================================================
+
+
+
+
+
+Output.

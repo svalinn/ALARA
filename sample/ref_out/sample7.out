@@ -1,0 +1,185 @@
+ALARA 2.7.1
+Set verbose level to 3.
+Openned tree file ref_out/sample7.tree.
+	Openned sample7 for input.
+Starting problem input processing.
+	Reading input.
+		Set geometry type: torus.
+		Reading zone boundaries for Dimension r:
+		Reading zone boundaries for Dimension theta:
+		Set torus major radius = 30
+		Reading the material loading for this problem.
+		Openned material library ./data/sampleMatlib
+		Openned element library ./data/myElelib
+		Reading constituent list for Mixture mix_1 with constituents:
+		Added Flux flux_1 from file data/fluxin1 with normalization 1, format code 1, and skipping 0 entries.
+		Added Flux flux_2 from file data/fluxin2 with normalization 1, format code 1, and skipping 0 entries.
+		Added Flux flux_3 from file data/fluxin3 with normalization 1, format code 1, and skipping 0 entries.
+		Reading items for schedule sub_1.
+		Reading items for schedule myschedule.
+		Reading pulsing levels for History single_pulse:
+		Reading pulsing levels for History double_pulse:
+		Reading pulsing levels for History triple_pulse:
+		Reading after-shutdown cooling times.
+		Openning DataLib with type adjlib
+		Added output at resolution 2 (zone)
+		Truncation parameters set at 1e-06 for truncation and 1e-08 for ignore.
+		Impurity defined as 1e-05 with truncation parameters set at 0.01 for truncation and 0.0001 for ignore.
+	Cross-checking input for completeness and self-consistency.
+		Checking for all internally referenced mixtures.
+		Checking for all mixtures referenced in material loading.
+		Checking that dimension types match geometry type: Toroidal.
+		Found major radius for torroidal geometry.
+		Found minor radius for torroidal geometry.
+		Number of zones defined by zone dimensions (1) matches number of material loadings defined.(1)
+		Checking for all sub-schedules, fluxes and pulsing histories referenced in schedules.
+
+
+***Please review this schedule hierarchy.!!!!!!!!!!
+
+Schedule 'myschedule':
+	pulse: 10 s with 12 s delay pulsed with history single_pulse
+	pulse: 10 s with 3 s delay pulsed with history single_pulse
+	pulse: 10 s with 5 s delay pulsed with history single_pulse
+	Schedule 'sub_1' with 5 s delay and pulsed with history 'triple_pulse':
+		pulse: 5 s with 0 s delay pulsed with history double_pulse
+
+***End of schedule hierarchy.
+
+
+	Preprocessing input.
+		Replacing all 'similar' constituents and removing unused mixtures.
+		Converting zone boundaries into list of intervals.
+		Cross-referencing intervals with mixtures.
+		Assigning 3 fluxes to each interval
+		Making list of root isotopes.
+		Processing pulsing histories.
+		Processing schedule hierarchy.
+		Processing cooling times.
+		Collapsing schedules from top.
+		Making storage hierarchies in intervals.
+Starting problem solution.
+		Solving Root #1: he-3 
+		   Maximum relative concentration: 0
+		      last Root: 111 nodes in 19 chains with maximum length 2.
+		                 in 0.020 s (5550.000 nodes/s)
+		   Total so far: 111 nodes in 19 chains with maximum length 2.
+		                 in 0.04 s (2775.000 nodes/s)
+		Solving Root #2: he-4 
+		   Maximum relative concentration: 0
+		      last Root: 1546 nodes in 483 chains with maximum length 5.
+		                 in 0.450 s (3435.556 nodes/s)
+		   Total so far: 1657 nodes in 502 chains with maximum length 5.
+		                 in 0.49 s (3381.633 nodes/s)
+	Solved problem.
+	Reset binary dump with 2 results per isotope.
+		Tallying constituent results into total result lists.
+
+****** TARGET ****** he-3  ****** TARGET ****** he-3  ****** TARGET ****** 
+
+Zone output requested:
+	Response Units: Bq /cm3
+	Number Density [atoms/cm3]
+
+
+*** Number Density [atoms/cm3] ***
+
+Zone #1: zone_1
+	Relative Volume: 7402.2
+	Containing mixture: mix_1
+
+Total (All constituents) 
+	COMPACTED
+
+Number Density [atoms/cm3]
+isotope	 shutdown         1 s   
+================================
+s-32 	2.8636e+13  2.8636e+13  
+s-33 	7.4133e+09  7.4133e+09  
+k-39 	1.9119e+13  1.9119e+13  
+ca-40 	1.4361e+15  1.4361e+15  
+================================
+total	1.4839e+15  1.4839e+15  
+
+Totals for all zones.
+Number Density [atoms/cm3]
+zone	 shutdown         1 s   
+================================
+1	1.4839e+15  1.4839e+15  	zone_1 (mix_1)
+================================
+
+
+
+
+
+		Tallying constituent results into total result lists.
+
+****** TARGET ****** he-4  ****** TARGET ****** he-4  ****** TARGET ****** 
+
+Zone output requested:
+	Response Units: Bq /cm3
+	Number Density [atoms/cm3]
+
+
+*** Number Density [atoms/cm3] ***
+
+Zone #1: zone_1
+	Relative Volume: 7402.2
+	Containing mixture: mix_1
+
+Total (All constituents) 
+	COMPACTED
+
+Number Density [atoms/cm3]
+isotope	 shutdown         1 s   
+================================
+c-12 	1.1796e+18  1.1796e+18  
+c-13 	8.6427e+15  8.6427e+15  
+n-14 	2.9493e+15  2.9493e+15  
+n-15 	2.4393e+12  2.4393e+12  
+o-16 	2.1512e+19  2.1512e+19  
+o-17 	4.1268e+15  4.1268e+15  
+o-18 	2.5062e+15  2.5062e+15  
+na-23 	4.2576e+16  4.2576e+16  
+mg-24 	2.5424e+17  2.5424e+17  
+mg-25 	2.2347e+16  2.2347e+16  
+mg-26 	8.2145e+15  8.2145e+15  
+al-27 	1.5064e+17  1.5064e+17  
+si-28 	2.0426e+18  2.0426e+18  
+si-29 	8.1003e+16  8.1003e+16  
+si-30 	1.5790e+16  1.5790e+16  
+s-32 	3.1424e+16  3.1424e+16  
+s-33 	4.0592e+14  4.0592e+14  
+s-34 	9.8698e+14  9.8698e+14  
+s-36 	2.3951e+11  2.3951e+11  
+k-39 	7.0336e+16  7.0336e+16  
+k-41 	3.4799e+15  3.4799e+15  
+ca-40 	2.6936e+18  2.6936e+18  
+ca-42 	1.7866e+16  1.7866e+16  
+ca-43 	6.1155e+14  6.1155e+14  
+ca-44 	3.5764e+15  3.5764e+15  
+ca-46 	1.6887e+12  1.6887e+12  
+ti-46 	8.8000e+13  8.8000e+13  
+ti-47 	5.6469e+13  5.6469e+13  
+ti-48 	3.0804e+14  3.0804e+14  
+ti-49 	1.0767e+13  1.0767e+13  
+ti-50 	4.9330e+12  4.9330e+12  
+fe-54 	1.0977e+15  1.0977e+15  
+fe-56 	6.3928e+15  6.3928e+15  
+fe-57 	1.4929e+14  1.4929e+14  
+fe-58 	9.1314e+12  9.1314e+12  
+================================
+total	2.8158e+19  2.8158e+19  
+
+Totals for all zones.
+Number Density [atoms/cm3]
+zone	 shutdown         1 s   
+================================
+1	2.8158e+19  2.8158e+19  	zone_1 (mix_1)
+================================
+
+
+
+
+
+Output.
