@@ -542,6 +542,10 @@ int EAFLib::getDecayData()
   return zak;
 }
 
+/************************************
+ ******* Gamma data handling ********
+ ***********************************/
+
 
 void EAFLib::skipDiscreteGammas(char* buffer, int numGammas)
 {
