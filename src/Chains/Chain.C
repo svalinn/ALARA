@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.16 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: Chain.C,v 1.17 2000-02-19 05:34:12 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -23,10 +23,9 @@
  ********* Service **********
  ***************************/
 double Chain::truncLimit = 1;
-double Chain::ignoreLimit = 1;
+double Chain::ignoreLimit = 1e-2;
 double Chain::impurityDefn = 0;
 double Chain::impurityTruncLimit = 1;
-double Chain::impurityIgnoreLimit = 1;
 int Chain::mode = MODE_FORWARD;
 
 Chain::Chain(Root *newRoot, topSchedule *top)
@@ -61,15 +60,15 @@ Chain::Chain(Root *newRoot, topSchedule *top)
   root = newRoot;
   node = root;
 
-  chainTruncLimit = &truncLimit;
-  chainIgnoreLimit = &ignoreLimit;
+  chainTruncLimit = truncLimit;
+  chainIgnoreLimit = truncLimit*ignoreLimit;
 
   verbose(2,"   Maximum relative concentration: %g",root->maxConc());
 
   if (root->maxConc() < impurityDefn)
     {
-      chainTruncLimit = &impurityTruncLimit;
-      chainIgnoreLimit = &impurityIgnoreLimit;
+      chainTruncLimit = impurityTruncLimit;
+      chainIgnoreLimit = impurityTruncLimit*ignoreLimit;
       verbose(2,"   treating as impurity");
     }
 
@@ -194,18 +193,29 @@ Chain& Chain::operator=(const Chain& c)
 
 void Chain::getTruncInfo(istream& input)
 {
-  input >> truncLimit >> ignoreLimit;
+  input >> truncLimit;
 
   verbose(2,"Truncation parameters set at %g for truncation and %g for ignore.",
-	  truncLimit, ignoreLimit);
+	  truncLimit, truncLimit*ignoreLimit);
+}
+
+void Chain::getIgnoreInfo(istream& input)
+{
+  input >> ignoreLimit;
+
+  verbose(2,"Truncation parameters set at %g for truncation and %g for ignore.",
+	  truncLimit, truncLimit*ignoreLimit);
+  if (impurityDefn>0)
+    verbose(2,"Impurity defined as %g with truncation parameters set at %g for truncation and %g for ignore.",
+	    impurityDefn, impurityTruncLimit, impurityTruncLimit*ignoreLimit);
 }
 
 void Chain::getImpTruncInfo(istream& input)
 {
-  input >> impurityDefn >> impurityTruncLimit >> impurityIgnoreLimit;
+  input >> impurityDefn >> impurityTruncLimit;
 
   verbose(2,"Impurity defined as %g with truncation parameters set at %g for truncation and %g for ignore.",
-	  impurityDefn, impurityTruncLimit, impurityIgnoreLimit);
+	  impurityDefn, impurityTruncLimit, impurityTruncLimit*ignoreLimit);
 }
 
 /****************************
@@ -252,13 +262,13 @@ void Chain::setState(topSchedule* top)
   solvingRef = FALSE;
   
   /* establish bit field */
-  truncBits |= TRUNCEOS*(relProd[0]<*chainTruncLimit);
-  truncBits |= IGNOREOS*(relProd[0]<*chainIgnoreLimit);
+  truncBits |= TRUNCEOS*(relProd[0]<chainTruncLimit);
+  truncBits |= IGNOREOS*(relProd[0]<chainIgnoreLimit);
   
   for (coolNum=0;coolNum<nCoolingTimes;coolNum++)
     {
-      truncBits |= TRUNCC*(relProd[coolNum+1]<*chainTruncLimit);
-      truncBits |= IGNORC*(relProd[coolNum+1]<*chainIgnoreLimit);
+      truncBits |= TRUNCC*(relProd[coolNum+1]<chainTruncLimit);
+      truncBits |= IGNORC*(relProd[coolNum+1]<chainIgnoreLimit);
     }
   
   /* run state engine */

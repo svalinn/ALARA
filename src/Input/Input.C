@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.12 2000-01-18 02:37:35 wilson Exp $ */
+/* $Id: Input.C,v 1.13 2000-02-19 05:34:12 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -214,6 +214,10 @@ void Input::read()
 		case INTOK_TRUNC:
 		  debug(1,"Reading Truncation criteria.");
 		  Chain::getTruncInfo(*input);
+		  break;
+		case INTOK_IGNORE:
+		  debug(1,"Reading relative ignore criteria.");
+		  Chain::getIgnoreInfo(*input);
 		  break;
 		case INTOK_IMPURITY:
 		  debug(1,"Reading Impurity definition and truncation criteria.");

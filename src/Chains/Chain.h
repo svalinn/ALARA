@@ -1,4 +1,4 @@
-/* $Id: Chain.h,v 1.8 2000-01-23 01:07:33 wilson Exp $ */
+/* $Id: Chain.h,v 1.9 2000-02-19 05:34:12 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -285,7 +285,7 @@ protected:
   int *loopRank;
   double **rates;
   double *colRates, *P, *d, *L, *l;
-  double *chainTruncLimit, *chainIgnoreLimit;
+  double chainTruncLimit, chainIgnoreLimit;
   Root *root;
   Node *node;
   Volume *reference;
@@ -303,6 +303,7 @@ protected:
 public:
   /* Input */
   static void getTruncInfo(istream&);
+  static void getIgnoreInfo(istream&);
   static void getImpTruncInfo(istream&);
   static void modeReverse();
 
