@@ -1,4 +1,4 @@
-/* $Id: calcSchedule.h,v 1.5 2002-08-05 20:23:12 fateneja Exp $ */
+/* $Id: calcSchedule.h,v 1.6 2002-12-27 03:37:29 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _CALCSCHEDULE_H
@@ -8,7 +8,7 @@
 
 /** \brief This class is used to create a linked hierarchy of schedule
  *         information.  Each calcSchedule object represents a portion 
- *         of the schedule system.  
+ *         of a potentially complex irradiaiton schedule.
  *
  *  Some notes on the creation of calcSchedule objects from the Schedule
  *  and ScheduleItem objects of the Input.
@@ -68,100 +68,68 @@
 class calcSchedule
 {
 protected:
-  int
-    /// Allows us to check whether or not this decay matrix has been
-    /// calculated for the current chain.
-    /** Since a calcSchedule object may be referenced in more than one
-        place in the hierarchy, and there is storage for a decay matrix,
-        this allows us to check whether or not this decay matrix has been
-        calculated for the current chain.  This avoid superfluous
-        calculations. */
-    setCode;
-
-  int
-    /// This indicates the number of items which make up this schedule.
-    nItems;
-
-  PulseHistory 
-    /// This is a pointer to the pulsing history which governs this
-    /// schedule.
-    /** Once all the items in this schedule have been applied,
-        the whole result will be pulsed with this schedule. */
-    *history;
-
-  double
-    /// This is the delay following this schedule.
-    /** After the all the operational items have been applied and the 
-        pulsing has been performed, there may be a delay before the next
-        schedule item. */
-    delay;
-
+  /// Allows us to check whether or not this decay matrix has been
+  /// calculated for the current chain.
+  /** Since a calcSchedule object may be referenced in more than one
+      place in the hierarchy, and there is storage for a decay matrix,
+      this allows us to check whether or not this decay matrix has been
+      calculated for the current chain.  This avoid superfluous
+      calculations. */
+  int setCode;
   
-  Matrix 
-    /// This is the storage for the decay matrix.
-	/** To save time, the matrix generated to reperent the 'delay' is
-	    stored and only the new elements are calculated. */
-	D;
+  /// This indicates the number of items which make up this schedule.
+  int nItems;
+  
+  /// This is a pointer to the pulsing history which governs this
+  /// schedule.
+  /** Once all the items in this schedule have been applied,
+      the whole result will be repeated ("pulsed") with this history. */
+  PulseHistory* history;
+  
+  /// This is the delay following this schedule.
+  /** After the all the operational items have been applied and the 
+      pulsing has been performed, there may be a delay before the next
+      schedule item. */
+  double delay;
+  
+  
+  /// This is the storage for the decay matrix representing the 
+  /// post-schedule delay.
+  /** To save time, the matrix generated to reperent the 'delay' is
+      stored and only the new elements are calculated. */
+  Matrix D;
 
-  int
-	/// In the event that this schedule is a single pulse, this indicates
-    /// which flux value should be used.
-	fluxCode;
+  /// In the event that this schedule is a single pulse, this indicates
+  /// which flux value should be used.
+  int fluxCode;
 
-  double
-    /// In the event that this schedule is a single pulse, this is the
-    /// irradiation time, in seconds, of that pulse.
-    opTime;
+  /// In the event that this schedule is a single pulse, this is the
+  /// irradiation time, in seconds, of that pulse.
+  double  opTime;
 
-  calcSchedule 
-    /// This is an array of pointers to the calcSchedules which represent
-    /// the schedule items making up this schedule.  There are 'nItems'
-    /// pointers.
-    **subSched;
+  /// This is an array of pointers to the calcSchedules which represent
+  /// the schedule items making up this schedule.  There are calcSchedule::nItems
+  /// pointers.
+  calcSchedule** subSched;
 
 
 public:
   /// Default Constructor, when called with no arguments
-  /** When called with no arguments, this constructor makes an empty
-      object with various members set to 0 or NULL except: D is set to
-      an Identity matrix of size 0, and fluxCode is initialized to -1.
-      Otherwise, 'nItems' is initialized with the argument and storage
-      is allocated for the 'nItems' pointers in 'subSched'. (TYPE A in
-      description above.) */
   calcSchedule(int numItems = -1);
 
   /// Copy constructor 
-  /** Copies everything on a member-by-member basis except 'subSched'
-      which is copied on an element-by-element basis.  Note that each 
-      pointer of 'subSched' is copied, and not the objects which each
-      of the pointers points to. */
   calcSchedule(const calcSchedule&);
 
   /// This constructor creates a new single pulse schedule.
-  /** The primary characteristics of a single pulse calcSchedule object
-      are that the 'nItems' is set to 0, and 'fluxCode' and 'opTime'
-      are set.  (TYPE B-0 in description above.) */
   calcSchedule(double, double, History*, int);
 
   /// This constructor creates a new sub-schedule schedule.
-  /** The primary characteristics of this kind of calcSchedule object
-      are that 'nItems' is set to 1, 'subSched' has dimension 1, and
-      its first/only element points to the subsequent calcSchedule
-      object. (TYPE B-1 in description above.) */
   calcSchedule(double, History*, calcSchedule* );
 
   /// Inline destructor
-  /** Deletes the storage for 'subSched' pointers but not the objects
-      that they point to!  This does not destroy the entire 
-      hierarchy. */
   ~calcSchedule();
 
   /// Overloaded assignment operator
-  /** The correct implementation of this operator must ensure that
-      previously allocated space is returned to the free store before
-      allocating new space into which to copy the object.  Note that
-      each pointer of 'subSched' is copied, and not the objects which
-      each of the pointers points to. */
   calcSchedule& operator=(const calcSchedule&);
 
   /// This function is responsible for recursing through the hierarchy

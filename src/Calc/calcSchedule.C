@@ -1,4 +1,4 @@
-/* $Id: calcSchedule.C,v 1.6 1999-08-24 22:06:14 wilson Exp $ */
+/* $Id: calcSchedule.C,v 1.7 2002-12-27 03:37:29 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Preproc: functions directly related to preprocessing of input
@@ -19,6 +19,13 @@
  ********* Service *********
  **************************/
 
+/** When called with no arguments, this constructor makes an empty
+    object with various members set to 0 or NULL except:
+    calcSchedule::D is set to an Identity matrix of size 0, and
+    calcSchedule::fluxCode is initialized to -1.  Otherwise,
+    calcSchedule::nItems is initialized with the argument and
+    storage is allocated for the calcSchedule::nItems pointers in
+    calcSchedule::subSched. (TYPE A in description above.) */
 calcSchedule::calcSchedule(int numItems)
 {
   setCode = 0;
@@ -40,6 +47,10 @@ calcSchedule::calcSchedule(int numItems)
 
 }
 
+/** Copies everything on a member-by-member basis except 'subSched'
+    which is copied on an element-by-element basis.  Note that each
+    pointer of 'subSched' is copied, and not the objects which each
+    of the pointers points to. */
 calcSchedule::calcSchedule(const calcSchedule& c)
 {
   setCode = c.setCode;
@@ -63,7 +74,9 @@ calcSchedule::calcSchedule(const calcSchedule& c)
     }
 }  
 
-/* create a single pulse item */
+/** The primary characteristics of a single pulse calcSchedule object
+    are that the 'nItems' is set to 0, and 'fluxCode' and 'opTime'
+    are set.  (TYPE B-0 in description above.) */
 calcSchedule::calcSchedule(double td, double pulseTime, History* hist,
 			   int fluxNum)
 {
@@ -80,7 +93,10 @@ calcSchedule::calcSchedule(double td, double pulseTime, History* hist,
 
 }
 
-/* create a sub-schedule item */
+/** The primary characteristics of this kind of calcSchedule object
+    are that 'nItems' is set to 1, 'subSched' has dimension 1, and
+    its first/only element points to the subsequent calcSchedule
+    object. (TYPE B-1 in class description.) */
 calcSchedule::calcSchedule(double td, History* hist, calcSchedule* schedItem)
 {
   setCode = 0;
@@ -99,6 +115,9 @@ calcSchedule::calcSchedule(double td, History* hist, calcSchedule* schedItem)
 
 }
 
+/** Deletes the storage for 'subSched' pointers but not the objects
+    that they point to!  This does not destroy the entire 
+    hierarchy. */
 calcSchedule::~calcSchedule()
 {
   int itemNum;
@@ -110,6 +129,11 @@ calcSchedule::~calcSchedule()
   delete subSched;
 }
 
+/** The correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object.  Note that
+    each pointer of 'subSched' is copied, and not the objects which
+    each of the pointers points to. */
 calcSchedule& calcSchedule::operator=(const calcSchedule& c)
 {
   if (this == &c)

@@ -1,4 +1,4 @@
-/* $Id: Component.h,v 1.11 2002-12-07 17:48:06 fateneja Exp $ */
+/* $Id: Component.h,v 1.12 2002-12-27 03:40:00 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _COMPONENT_H
@@ -25,47 +25,42 @@
 class Component
 {
  public:
-  static ifstream 
-    /// This is a stream connected to the material description library as
-    /// given in the input file.
-    matLib;
-
-  static ifstream 
-    /// This a stream connected to the element library as given in the
-    /// input file.
-    eleLib;
-
-  int
-    /// This indicates the type of this component and is based on the
-    /// definitions given below.
-    type;
-
-  double
-    /// This is the density of this component.
-    /** This number is input as a relative density factor,
-        and is then converted to a mass density by multiplying by 
-        the theoretical density (from eleLib of matLib). */
-    density,
-    
-    /// This is the volume fraction of this component in the mixture.
-    volFraction;
   
-  char
-    /// This is the name of this component, as input by the user.
-    /** For materials, this must match an entry in the material library.
-        For elements, this must be a 'modified' chemical symbol matching
-          an entry in the element library.
-        For isotopes (only valid for targets), this must be have the
-          standard notation 'cc-ddd', where 'cc' is the chemical symbol
-          and 'ddd' the mass number.
-        For similar components, this must match an entry in the list
-          of mixtures read from the input file. */
-    *compName;
-
-  Component
-    /// This is the pointer to the next component in this mixture's list.
-    *next;
-
+  /// This is a stream connected to the material description library as
+  /// given in the input file.
+  static ifstream matlib;
+  
+  /// This a stream connected to the element library as given in the
+  /// input file.
+  static ifstream eleLib;
+  
+  /// This indicates the type of this component and is based on the
+  /// definitions given below.
+  int type;
+  
+  /// This is the density of this component.
+  /** This number is input as a relative density factor,
+      and is then converted to a mass density by multiplying by 
+      the theoretical density (from eleLib of matLib). */
+  double density;
+  
+  /// This is the volume fraction of this component in the mixture.
+  double volFraction;
+  
+  /// This is the name of this component, as input by the user.
+  /** For materials, this must match an entry in the material library.
+      For elements, this must be a 'modified' chemical symbol matching
+        an entry in the element library.
+      For isotopes (only valid for targets), this must be have the
+        standard notation 'cc-ddd', where 'cc' is the chemical symbol
+        and 'ddd' the mass number.
+      For similar components, this must match an entry in the list
+        of mixtures read from the input file. */
+  char *compName;
+  
+  /// This is the pointer to the next component in this mixture's list.
+  Component* next;
+  
   /// This function, called with reference to a Component object of type
   /// element, expands the element into a list of Root objects.
   /** For cross-referencing, it expects a pointer to the mixture and
