@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.12 1999-08-25 15:42:51 wilson Exp $ */
+/* $Id: Volume.C,v 1.13 1999-11-09 17:09:56 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -571,6 +571,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
   Volume *head = this;
   Volume *ptr = head;
   int intvlCntr = 0;
+  double volFrac;
 
   /* for each interval */
   while (ptr->next != NULL)
@@ -599,15 +600,19 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	      /* for each component */
 	      while (compPtr != NULL)
 		{
+		  volFrac = compPtr->getVolFrac();
 		  /* write component header */
-		  cout << "Component: " << compPtr->getName() << endl;
-		  ptr->outputList[compNum].write(response,targetKza,coolList,ptr->total);
+		  cout << "Component: " << compPtr->getName()
+		    << " (volume fraction: " << volFrac << ") " << endl;
+		  ptr->outputList[compNum].write(response,targetKza,coolList,
+						 ptr->total,volFrac);
 
 		  compPtr = compPtr->advance();
 		  compNum++;
 		}
 	    }
 	  
+	  volFrac = ptr->mixPtr->getVolFrac();
 	  /* if components were written and there is only one */
 	  if (writeComp && ptr->nComps == 0)
 	    /* write comment refering total to component total */
@@ -617,7 +622,8 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	    {
 	      /* otherwise write the total response for the zone */
 	      cout << "Total (All components)" << endl;
-	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total);
+	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,
+						 ptr->total, volFrac);
 	      
 	    }
 	}
