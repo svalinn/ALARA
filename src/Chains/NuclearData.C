@@ -19,6 +19,7 @@
 
 int NuclearData::nGroups = 0;
 DataLib* NuclearData::dataLib = NULL;
+int NuclearData::mode = MODE_FORWARD;
 
 /* basic constructor for NuclearData base class */
 NuclearData::NuclearData()
@@ -39,8 +40,10 @@ NuclearData::NuclearData(const NuclearData& n)
 
   int rxnNum,gNum;
   
+  /* set dimension */
   nPaths = n.nPaths;
 
+  /* initialize all pointers to NULL */
   relations=NULL;
   emitted=NULL;
   single=NULL;
@@ -50,54 +53,39 @@ NuclearData::NuclearData(const NuclearData& n)
   for (int dHeat=0;dHeat<3;dHeat++)
     E[dHeat] = 0;
 
+  if (nPaths < 0)
+    return;
+
+  /* allocate storage */
+
+  /* if there are any paths other than total */
   if (nPaths>0)
     {
-
       relations = new int[nPaths];
       memCheck(relations,"NuclearData::NuclearData(...) copy constructor: relations");
       
       emitted = new char*[nPaths];
       memCheck(emitted,"NuclearData::NuclearData(...) copy constructor: emitted");
+    }
+  
+  paths = new double*[nPaths+1];
+  memCheck(paths,"NuclearData::NuclearData(...) copy constructor: paths");
+  
+  /* copy data */
+  for (rxnNum=0;rxnNum<nPaths;rxnNum++)
+    {
+      relations[rxnNum] = n.relations[rxnNum];
       
-      paths = new double*[nPaths+1];
-      memCheck(paths,"NuclearData::NuclearData(...) copy constructor: paths");
+      emitted[rxnNum] = new char[strlen(n.emitted[rxnNum])+1];
+      memCheck(emitted[rxnNum],"NuclearData::NuclearData(...) copy constructor: emitted[n]");
+      strcpy(emitted[rxnNum],n.emitted[rxnNum]);
       
-      paths[nPaths] = new double[nGroups+1];
+      paths[rxnNum] = new double[nGroups+1];
       memCheck(paths[rxnNum],"NuclearData::NuclearData(...) copy constructor: paths[n]");
-      single = new double[nGroups+1];
-      memCheck(single,"NuclearData::NuclearData(...) copy constructor: single");
-      
-      for (rxnNum=0;rxnNum<nPaths;rxnNum++)
-	{
-	  relations[rxnNum] = n.relations[rxnNum];
-	  
-	  emitted[rxnNum] = new char[strlen(n.emitted[rxnNum])+1];
-	  memCheck(emitted[rxnNum],"NuclearData::NuclearData(...) copy constructor: emitted[n]");
-	  strcpy(emitted[rxnNum],n.emitted[rxnNum]);
-	  
-	  paths[rxnNum] = new double[nGroups+1];
-	  memCheck(paths[rxnNum],"NuclearData::NuclearData(...) copy constructor: paths[n]");
-	  for (gNum=0;gNum<=nGroups;gNum++)
-	    paths[rxnNum][gNum] = n.paths[rxnNum][gNum];
-
-	  if (n.D == n.paths[rxnNum])
-	    {
-	      D = paths[rxnNum];
-	      P = single;
-	    }
-	  if (n.P == n.paths[rxnNum])
-	    {
-	      P = paths[rxnNum];
-	      D = single;
-	    }
-	}
-      
       for (gNum=0;gNum<=nGroups;gNum++)
-	{
-	  paths[rxnNum][gNum] = n.paths[rxnNum][gNum];
-	  single[gNum] = n.single[gNum];
-	}
+	paths[rxnNum][gNum] = n.paths[rxnNum][gNum];
       
+      /* check for pointing of D and P */
       if (n.D == n.paths[rxnNum])
 	{
 	  D = paths[rxnNum];
@@ -108,12 +96,37 @@ NuclearData::NuclearData(const NuclearData& n)
 	  P = paths[rxnNum];
 	  D = single;
 	}
-
-      E[0] = n.E[0];
-      E[1] = n.E[1];
-      E[3] = n.E[2];
     }
-
+  
+  /* allocate storage for total of paths and single xsection */
+  
+  paths[nPaths] = new double[nGroups+1];
+  memCheck(paths[rxnNum],"NuclearData::NuclearData(...) copy constructor: paths[n]");
+  single = new double[nGroups+1];
+  memCheck(single,"NuclearData::NuclearData(...) copy constructor: single");
+  
+  for (gNum=0;gNum<=nGroups;gNum++)
+    {
+      paths[rxnNum][gNum] = n.paths[rxnNum][gNum];
+      single[gNum] = n.single[gNum];
+    }
+  
+  /* check for pointing of D and P */
+  if (n.D == n.paths[rxnNum])
+    {
+      D = paths[rxnNum];
+      P = single;
+    }
+  if (n.P == n.paths[rxnNum])
+    {
+      P = paths[rxnNum];
+      D = single;
+    }
+  
+  E[0] = n.E[0];
+  E[1] = n.E[1];
+  E[3] = n.E[2];
+  
 
 }  
 
@@ -141,30 +154,10 @@ NuclearData::NuclearData(double *sigmaP)
 /* basic destructor for NuclearData */
 NuclearData::~NuclearData()
 {
-  if (nPaths>0)
-    {
-
-      int rxnNum;
-
-      delete relations;
-      delete single;
-      for (rxnNum=0;rxnNum<nPaths;rxnNum++)
-	{
-	  delete emitted[rxnNum];
-	  delete paths[rxnNum];
-	}
-      delete paths[rxnNum];
-      delete emitted;
-      delete paths;
-      relations = NULL;
-      emitted=NULL;
-      single=NULL;
-      paths=NULL;
-      P = NULL;
-      D = NULL;
-    }
-
-  nPaths = -1;
+  cleanUp();
+  delete single;
+  single = NULL;
+  P = NULL;
 }
 
 NuclearData& NuclearData::operator=(const NuclearData& n)
@@ -174,29 +167,18 @@ NuclearData& NuclearData::operator=(const NuclearData& n)
     return *this;
 
   int rxnNum,gNum;
-  
+ 
+  cleanUp();
+  delete single;
+  single = NULL;
+  P = NULL;
+
   nPaths = n.nPaths;
 
-  delete relations;
-  delete single;
-  for (rxnNum=0;rxnNum<nPaths;rxnNum++)
-    {
-      delete emitted[rxnNum];
-      delete paths[rxnNum];
-    }
-  delete paths[rxnNum];
-  delete emitted;
-  delete paths;
+  if (nPaths < 0)
+    return *this;
 
-  relations=NULL;
-  emitted=NULL;
-  single=NULL;
-  paths=NULL;
-  P=NULL;
-  D=NULL;
-  for (int dHeat=0;dHeat<3;dHeat++)
-    E[dHeat] = 0;
-
+  /* only need relations and emitted if nPaths > 0 */
   if (nPaths>0)
     {
 
@@ -205,46 +187,25 @@ NuclearData& NuclearData::operator=(const NuclearData& n)
       
       emitted = new char*[nPaths];
       memCheck(emitted,"NuclearData::NuclearData(...) copy constructor: emitted");
-      
-      paths = new double*[nPaths+1];
-      memCheck(paths,"NuclearData::NuclearData(...) copy constructor: paths");
-      
-      paths[nPaths] = new double[nGroups+1];
-      memCheck(paths[nPaths],"NuclearData::NuclearData(...) copy constructor: paths[n]");
-      single = new double[nGroups+1];
-      memCheck(single,"NuclearData::NuclearData(...) copy constructor: single");
-      
-      for (rxnNum=0;rxnNum<nPaths;rxnNum++)
-	{
-	  relations[rxnNum] = n.relations[rxnNum];
-	  
-	  emitted[rxnNum] = new char[strlen(n.emitted[rxnNum])+1];
-	  memCheck(emitted[rxnNum],"NuclearData::NuclearData(...) copy constructor: emitted[n]");
-	  strcpy(emitted[rxnNum],n.emitted[rxnNum]);
-	  
-	  paths[rxnNum] = new double[nGroups+1];
-	  memCheck(paths[rxnNum],"NuclearData::NuclearData(...) copy constructor: paths[n]");
-	  for (gNum=0;gNum<=nGroups;gNum++)
-	    paths[rxnNum][gNum] = n.paths[rxnNum][gNum];
+    }
 
-	  if (n.D == n.paths[rxnNum])
-	    {
-	      D = paths[rxnNum];
-	      P = single;
-	    }
-	  if (n.P == n.paths[rxnNum])
-	    {
-	      P = paths[rxnNum];
-	      D = single;
-	    }
-
-	}
+  /* always need paths */
+  paths = new double*[nPaths+1];
+  memCheck(paths,"NuclearData::NuclearData(...) copy constructor: paths");
+  
+  /* copy data */
+  for (rxnNum=0;rxnNum<nPaths;rxnNum++)
+    {
+      relations[rxnNum] = n.relations[rxnNum];
       
+      emitted[rxnNum] = new char[strlen(n.emitted[rxnNum])+1];
+      memCheck(emitted[rxnNum],"NuclearData::NuclearData(...) copy constructor: emitted[n]");
+      strcpy(emitted[rxnNum],n.emitted[rxnNum]);
+      
+      paths[rxnNum] = new double[nGroups+1];
+      memCheck(paths[rxnNum],"NuclearData::NuclearData(...) copy constructor: paths[n]");
       for (gNum=0;gNum<=nGroups;gNum++)
-	{
-	  paths[rxnNum][gNum] = n.paths[rxnNum][gNum];
-	  single[gNum] = n.single[gNum];
-	}
+	paths[rxnNum][gNum] = n.paths[rxnNum][gNum];
       
       if (n.D == n.paths[rxnNum])
 	{
@@ -256,12 +217,35 @@ NuclearData& NuclearData::operator=(const NuclearData& n)
 	  P = paths[rxnNum];
 	  D = single;
 	}
-
-      E[0] = n.E[0];
-      E[1] = n.E[1];
-      E[3] = n.E[2];
+      
     }
 
+  /* allocate and fill total xsections */
+  paths[nPaths] = new double[nGroups+1];
+  memCheck(paths[nPaths],"NuclearData::NuclearData(...) copy constructor: paths[n]");
+  single = new double[nGroups+1];
+  memCheck(single,"NuclearData::NuclearData(...) copy constructor: single");
+  
+  for (gNum=0;gNum<=nGroups;gNum++)
+    {
+      paths[rxnNum][gNum] = n.paths[rxnNum][gNum];
+      single[gNum] = n.single[gNum];
+    }
+  
+  if (n.D == n.paths[rxnNum])
+    {
+      D = paths[rxnNum];
+      P = single;
+    }
+  if (n.P == n.paths[rxnNum])
+    {
+      P = paths[rxnNum];
+      D = single;
+    }
+  
+  E[0] = n.E[0];
+  E[1] = n.E[1];
+  E[3] = n.E[2];
 
   return *this;
 
@@ -273,7 +257,7 @@ void NuclearData::cleanUp()
 { 
   int rxnNum;
 
-  if (nPaths>0)
+  if (nPaths>=0)
     {
       for (rxnNum=0;rxnNum<nPaths;rxnNum++)
 	{
@@ -285,12 +269,17 @@ void NuclearData::cleanUp()
   delete paths;
   delete emitted;
   delete relations;
-  D = NULL;
+
   paths = NULL;
   emitted = NULL;
   relations = NULL;
+  D = NULL;
 
-  nPaths = 0;
+  E[0] = 0;
+  E[1] = 0;
+  E[2] = 0;
+
+  nPaths = -1;
 
 }
 
@@ -325,31 +314,29 @@ void NuclearData::closeDataLib()
 
 /* set the nuclear data with arguments passed from dataLib routine */
 void NuclearData::setData(int numRxns, float* radE, int* daugKza, 
-			  char** emissions, float** xSection, float thalf)
+			  char** emissions, float** xSection, float thalf, float *totalXSection)
 {
   int gNum, rxnNum;
 
   verbose(4,"Setting NuclearData members.");
 
-  for (rxnNum=0;rxnNum<nPaths;rxnNum++)
-    {
-      delete emitted[rxnNum];
-      delete paths[rxnNum];
-    }
-  if (nPaths>0)
-    delete paths[nPaths];
+  cleanUp();
 
-  delete emitted;
-  delete paths;
-  delete relations;
-
+  /* set dimensions */
   nPaths = numRxns;
 
-  relations = new int[nPaths];
-  memCheck(relations,"NuclearData::setData(...) : relations");
+  if (nPaths < 0)
+    return;
 
-  emitted = new char*[nPaths];
-  memCheck(emitted,"NuclearData::setData(...) : emitted");
+  /* only need relations and emitted if nPaths > 0 */
+  if (nPaths > 0)
+    {
+      relations = new int[nPaths];
+      memCheck(relations,"NuclearData::setData(...) : relations");
+      
+      emitted = new char*[nPaths];
+      memCheck(emitted,"NuclearData::setData(...) : emitted");
+    }
 
   paths = new double*[nPaths+1];
   memCheck(paths,"NuclearData::setData(...) : paths");
@@ -358,16 +345,31 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
   E[1] = radE[1];  
   E[2] = radE[2];
 
-  /* initialize total x-section */
+  /* initialize total x-sections */
+
+  /* total of all paths */
   paths[nPaths] = new double[nGroups+1];
   memCheck(paths[nPaths],"NuclearData::setData(...) : paths[n]");
   for (gNum=0;gNum<nGroups;gNum++)
     paths[nPaths][gNum] = 0;
 
-  if (thalf>0)
-    paths[nPaths][nGroups] = log(2.0)/thalf;
+  /* if we are passed a total xsection (we must be in reverse mode) */
+  if (totalXSection != NULL)
+    {  
+      delete single;
+      single = NULL;
+      P = NULL;
+
+      single = new double[nGroups+1];
+      D = single;
+    }
   else
-    paths[nPaths][nGroups] = 0;
+    D = paths[nPaths];
+
+  if (thalf>0)
+    D[nGroups] = log(2.0)/thalf;
+  else
+    D[nGroups] = 0;
 
   /* setup each reaction */
   for (rxnNum=0;rxnNum<nPaths;rxnNum++)
@@ -409,12 +411,6 @@ int NuclearData::stripNonDecay()
    * copy them to a new array */
   if (numDecay < nPaths)
     {
-      int decayRxnNum = 0;
-
-      /* always need at least one path array for the total */
-      double **newPaths = new double*[numDecay+1];
-      memCheck(newPaths,"NuclearData::stripNonDecay(...): newPaths");
-
       /* only need relations and emitted if we have decay reactions */
       if (numDecay > 0)
 	{
@@ -424,6 +420,12 @@ int NuclearData::stripNonDecay()
 	  newEmitted = new char*[numDecay];
 	  memCheck(newEmitted,"NuclearData::stripNonDecay(...): newEmitted");
 	}  
+
+      int decayRxnNum = 0;
+
+      /* always need at least one path array for the total */
+      double **newPaths = new double*[numDecay+1];
+      memCheck(newPaths,"NuclearData::stripNonDecay(...): newPaths");
 
       /* always need to copy the decay paths (could be none) and
        * delete the non decay paths */
@@ -453,8 +455,6 @@ int NuclearData::stripNonDecay()
       nPaths = numDecay;
     }
   
-  /* for forward calculation */
-  D = paths[nPaths];
 
   if (nPaths == 0)
     return TRUNCATE;

@@ -124,11 +124,15 @@ Node.
 #ifndef _NUCLEARDATA_H
 #define _NUCLEARDATA_H
 
+#define MODE_FORWARD 1
+#define MODE_REVERSE 0
+
 class NuclearData
 {
 protected:
   static int nGroups;
   static DataLib *dataLib;
+  static int mode;
 
   int nPaths, *relations;
   char **emitted;
@@ -144,6 +148,7 @@ protected:
   /* Input */
   static void getDataLib(istream&);
   static void closeDataLib();
+  static void modeReverse() { mode = MODE_REVERSE; };
 
   /* Service */
   NuclearData();
@@ -156,9 +161,7 @@ protected:
   void cleanUp();
 
   /* Chain */
-  void setData(int, float *, int *, char **, float **, float);
-  void setNoData()
-    { nPaths = 0; };
+  void setData(int, float *, int *, char **, float **, float, float*);
 };
 
 
