@@ -1,4 +1,4 @@
-/* $Id: IEAFLib.C,v 1.5 2002-01-07 22:00:47 wilsonp Exp $ */
+/* $Id: IEAFLib.C,v 1.6 2002-07-25 14:04:19 wilsonp Exp $ */
 #include "IEAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
@@ -733,8 +733,8 @@ int IEAFLib::getGammaData()
       if ( (discFactor == 0.0 || numGammas == 0) && (specType == 0.0 || contFactor == 0.0) )
 	radType = 1;
       
-      /* if this is not a gamma spectrum entry */
-      if (int(radType) != 0)
+      /* if this is not a gamma spectrum or an x-ray spectrum entry */
+      if ( (int(radType) != 0) && (int(radType) != 9) )
 	{
 	  skipDiscreteGammas(buffer,numGammas);
 	  if (specType>0)
