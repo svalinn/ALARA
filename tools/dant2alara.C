@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     /// get info from user
     cerr << "This file has " << ngrp << " groups in ("
 	 << ninti << "x" << nintj << "x" << nintk << ")=" << nint
-	 << "intervals and " << ndim << " dimension." << endl;
+	 << " intervals and " << ndim << " dimension." << endl;
     cerr << "Enter the first group number to export: ";
     cin >> firstGroup;
     
