@@ -103,8 +103,13 @@ void ALARALib::readData(int findKza, NuclearData* data)
       /* set the NuclearData object */
       data->setData(nRxns,E,daugKza,emitted,xSection,thalf);
       
-      delete [] xSection;
-      delete [] emitted;
+      for (rxnNum=0;rxnNum<nRxns;rxnNum++)
+	{
+	  delete xSection[rxnNum];
+	  delete emitted[rxnNum];
+	}
+      delete xSection;
+      delete emitted;
       delete daugKza;
     }
   else
