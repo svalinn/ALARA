@@ -1,4 +1,4 @@
-/* $Id: IEAFLib.C,v 1.3 2001-09-08 20:35:37 wilsonp Exp $ */
+/* $Id: IEAFLib.C,v 1.4 2001-09-10 23:02:03 wilsonp Exp $ */
 #include "IEAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
@@ -230,6 +230,7 @@ int IEAFLib::getTransData()
   /* read next line */
   inTrans.getline(buffer,MAXLINELENGTH);
   /* extract MT */
+  buffer[75] = '\0';
   mt = atoi(buffer+72);
 
   while (mt != 5 && !inTrans.eof()) 
@@ -237,12 +238,13 @@ int IEAFLib::getTransData()
       /* read next line */
       inTrans.getline(buffer,MAXLINELENGTH);
       /* extract MT */
+      buffer[75] = '\0';
       mt = atoi(buffer+72);
     }
 
   /* at MT=5, extract kza */
   extract(buffer,&tmpFlt);
-  zak = int(tmpFlt);
+  zak = int(tmpFlt + .1);
   
   /* check for end of file */
   if (zak == -1 || inTrans.eof())
@@ -267,11 +269,16 @@ int IEAFLib::getTransData()
   while (mt==5)
     {
       rxnNum++;
+
+      if (rxnNum >= MAXIEAFRXNS)
+	error(1200,"Too many reactions in this library: %d > %d", 
+	      rxnNum+1, MAXIEAFRXNS);
+
       debug(7,"processing reaction # %d", rxnNum);
 
       /* extract daughter KZA */
       extract(buffer+11,&tmpFlt);
-      transKza[rxnNum] = int(tmpFlt);
+      transKza[rxnNum] = int(tmpFlt + .1);
       
       /* read first non-zero group */
       inTrans.getline(buffer,MAXLINELENGTH);
@@ -282,6 +289,9 @@ int IEAFLib::getTransData()
       /* set all lower energy groups to 0 */
       for (gNum=nGroups-1;gNum>thisGNum;gNum--)
 	xSection[rxnNum][gNum] = 0;
+
+      debug(8,"reaction product %d starts in group %d",
+	    transKza[rxnNum], thisGNum);
 
       /* get the rest of the groups */
       while(thisGNum>0)
@@ -309,6 +319,7 @@ int IEAFLib::getTransData()
 
       /* check for next x-section: ie. are we still in MT=5 */
       inTrans.getline(buffer,MAXLINELENGTH);
+      buffer[75] = '\0';
       mt = atoi(buffer+72);
 
       /* get next modified kza number */
