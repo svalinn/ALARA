@@ -1,4 +1,4 @@
-$Id: TODO,v 1.9 2002-09-09 19:58:38 varuttam Exp $
+$Id: TODO,v 1.10 2002-09-25 07:22:26 wilsonp Exp $
 
 When claiming a task from this list, please immediately place your
 name beside it, change the date from the date that it was added to
@@ -25,7 +25,6 @@ NEW FEATURES
 **** (08/08/2002) Improve volume calculation and output
 	* automatically change units to reduce significant figures (e.g. cm3->m3)
 	* rigorously report volume units in 1-/2-D problems (e.g. cm3 per cm)
-	* allow user input for effective height of zone to calculate true volume
 **** (08/08/2002) Add support for user defined output screen/line width
 
 
