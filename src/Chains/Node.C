@@ -203,7 +203,8 @@ void Node::copyRates(double **rates, const int step, int *loopRank)
 	  loopRank[rank] = rank - foundLoop;
 
 	/* check for internal loop */
-	if (rank > 0 && loopRank[rank-1] > -1)
+	if (rank > 0 && loopRank[rank-1] > -1 
+	    && (loopRank[rank] > loopRank[rank-1]+1 || loopRank[rank] == -1))
 	  loopRank[rank] = loopRank[rank-1] + 1;
 	
 	break;
