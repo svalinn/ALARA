@@ -143,8 +143,7 @@ protected:
 
   /* Input */
   static void getDataLib(istream&);
-  static void closeDataLib()
-    { delete dataLib; };
+  static void closeDataLib();
 
   /* Service */
   NuclearData();

@@ -286,6 +286,11 @@ void NuclearData::getDataLib(istream& input)
 	  
 }
 
+void NuclearData::closeDataLib()
+{ 
+  delete dataLib; 
+}
+
 /****************************
  ********** Chain ***********
  ***************************/
