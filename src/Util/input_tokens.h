@@ -1,4 +1,4 @@
-/* $Id: input_tokens.h,v 1.5 1999-08-25 15:42:54 wilson Exp $ */
+/* $Id: input_tokens.h,v 1.6 2000-01-18 02:39:03 wilson Exp $ */
 extern const char *tokenList;
 
 #define INTOK_GEOM        0
@@ -22,4 +22,6 @@ extern const char *tokenList;
 #define INTOK_LIBCONV    18
 #define INTOK_DUMPFILE   19
 #define INTOK_IMPURITY   20
+#define INTOK_SOLVELIST  21
+#define INTOK_SKIPLIST   22
 

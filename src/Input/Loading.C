@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.15 2000-01-17 16:57:38 wilson Exp $ */
+/* $Id: Loading.C,v 1.16 2000-01-18 02:38:12 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -147,14 +147,11 @@ void Loading::getMatLoading(istream& input)
   input >> token;
   while (strcmp(token,"end"))
     {
-      /* if ( token[0] != '_') **** WHY WAS THIS ORIGINALLY HERE??????
-	{ */
-	  input >> name;
-	  ptr->next = new Loading(token,name);
-	  memCheck(next,"Loading::getMatLoading(...): next");
-	  ptr = ptr->next;
-          verbose(3,"Adding zone %s with mixture%s.",token,name);
-      /* } MATCHES CURIOUS PIECE ABOVE */
+      input >> name;
+      ptr->next = new Loading(token,name);
+      memCheck(next,"Loading::getMatLoading(...): next");
+      ptr = ptr->next;
+      verbose(3,"Adding zone %s with mixture%s.",token,name);
       clearComment(input);
       input >> token;
     }
@@ -164,6 +161,29 @@ void Loading::getMatLoading(istream& input)
 
 }
 
+/******* get a list of material loadings *******/
+/* called by Input::read(...) */
+void Loading::getSolveList(istream& input)
+{
+  char token[64];
+  Loading *ptr = this;
+
+  verbose(2,"Reading the zones to solve/skip for this problem.");
+
+  /* read list of zone/mixture x-refs until keyword "end" */
+  input >> token;
+  while (strcmp(token,"end"))
+    {
+      ptr->next = new Loading(token,"on");
+      memCheck(next,"Loading::getSolveList(...): next");
+      ptr = ptr->next;
+      verbose(3,"Adding zone %s to solve/skip list.",token);
+      clearComment(input);
+      input >> token;
+    }
+  
+}
+
 
 /***************************
  ********* xCheck **********
@@ -171,7 +191,7 @@ void Loading::getMatLoading(istream& input)
 
 /* cross-check loading: ensure that all referenced mixtures exist */
 /* called by Input::xCheck(...) */
-void Loading::xCheck(Mixture *mixListHead)
+void Loading::xCheck(Mixture *mixListHead, Loading *solveList, Loading *skipList)
 {
   Loading *ptr = this;
 
@@ -181,7 +201,16 @@ void Loading::xCheck(Mixture *mixListHead)
   while (ptr->next != NULL)
     {
       ptr=ptr->next;
-      if (strcmp(ptr->mixName,"void"))
+
+      /* check for this zone in explicit solve list or skip list */
+      if ( ( solveList->nonEmpty() && solveList->findZone(ptr->zoneName)==NULL ) 
+	   || skipList->findZone(ptr->zoneName)!=NULL )
+	{
+	  delete ptr->mixName;
+	  ptr->mixName = new char[5];
+	  strcpy(ptr->mixName,"void");
+	}
+      else if (strcmp(ptr->mixName,"void"))
 	{
 	  /* search for the mixture referenced in this zone */
 	  ptr->mixPtr = mixListHead->find(ptr->mixName);

@@ -1,4 +1,4 @@
-/* $Id: Input.h,v 1.4 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: Input.h,v 1.5 2000-01-18 02:37:35 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -111,6 +111,12 @@ through this class.
  loadList : Loading*
     The linked list of material laoding definitions for this problem.
 
+ solveList : Loading*
+    A linked list explicitly defining which zones should be sovled.
+
+ skipList : Loading*
+    A linked list defining which zones should be skipped.
+
  outListHead : OutputFormat*
     The head of the linked list of output defintions.
 
@@ -214,7 +220,7 @@ protected:
   CoolingTime *coolList;
   Volume *volList;
   Norm *normList;
-  Loading *loadList;
+  Loading *loadList, *solveList, *skipList;
   OutputFormat *outListHead;
   
 public:

@@ -1,4 +1,4 @@
-/* $Id: Loading.h,v 1.8 2000-01-17 16:57:38 wilson Exp $ */
+/* $Id: Loading.h,v 1.9 2000-01-18 02:38:12 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -75,13 +75,20 @@ IN_HEAD (defined in Input.h), and contains no problem data.
     to appear as a single group in the correct order.  This function
     reads from the first loading until keyword 'end'.
 
+ void getSolveList(istream&)
+    Read the explicit list of zones which will be solved (or skipped)
+    for this problem.  These lists are cross-referenced with the
+    master list in xCheck().
+
  * - xCheck - *
 
- void xCheck(Mixture*)
-    Simple cross-check to ensure that all referenced mixtures exist.
+ void xCheck(Mixture*,Loading*,Loading*)
+    After accounting for the lists of explicitly solved and skipped
+    zones (the second and third arguments), this function does a
+    simple cross-check to ensure that all referenced mixtures exist.
     If a mixture does not exist, it will generate an error and the
-    program will halt.  The argument is a pointer to a Mixture
-    object, and should be the head of the mixture list.
+    program will halt.  The argument is a pointer to a Mixture object,
+    and should be the head of the mixture list.
 
  * - Postproc - *
 
@@ -178,9 +185,10 @@ public:
 
   /* Input */
   void getMatLoading(istream&);
+  void getSolveList(istream&);
 
   /* xCheck */
-  void xCheck(Mixture*);
+  void xCheck(Mixture*,Loading*,Loading*);
 
   /* Postproc */
   void tally(Result* , double);
@@ -191,6 +199,7 @@ public:
   char* getName() { return zoneName;};
   char* getMix() { return mixName;};
   int head() { return (!strcmp(zoneName,IN_HEAD));};
+  int nonEmpty() { return (next != NULL || !head()); };
   Loading* findZone(char *);
   Loading* findMix(char *);
   int numZones();

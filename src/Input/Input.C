@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.11 1999-08-25 15:42:51 wilson Exp $ */
+/* $Id: Input.C,v 1.12 2000-01-18 02:37:35 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -91,6 +91,12 @@ Input::Input(char* inputFname)
   loadList = new Loading(IN_HEAD);
   memCheck(loadList,"Input::Input() constructor: loadList");
   
+  solveList = new Loading(IN_HEAD);
+  memCheck(loadList,"Input::Input() constructor: solveList");
+  
+  skipList = new Loading(IN_HEAD);
+  memCheck(loadList,"Input::Input() constructor: skipList");
+  
   outListHead = new OutputFormat(OUTRES_HEAD);
   memCheck(outListHead,"Input::Input() constructor: outListHead");
 
@@ -108,6 +114,8 @@ Input::~Input()
   delete volList;
   delete normList;
   delete loadList;
+  delete solveList;
+  delete skipList;
   delete outListHead;
 }
   
@@ -224,6 +232,12 @@ void Input::read()
 		  *input >> token;
 		  Result::initBinDump(token);
 		  break;
+		case INTOK_SOLVELIST:
+		  solveList->getSolveList(*input);
+		  break;
+		case INTOK_SKIPLIST:
+		  skipList->getSolveList(*input);
+		  break;
 		default:
 		  error(100,"Invalid token in input file: %s",token);
 		}
@@ -270,7 +284,7 @@ void Input::xCheck()
    * - make sure all referenced mixtures are defined
    * - if using zone dimensions, 
    *   do the number of zones match ** DONE below ** */
-  loadList->xCheck(mixListHead);
+  loadList->xCheck(mixListHead,solveList,skipList);
   
 
   /* if not 0-D problem */
