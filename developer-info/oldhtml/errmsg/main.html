@@ -1,6 +1,6 @@
 <HTML>
 <head>
-<!-- $Id: main.html,v 1.2 2000-03-01 14:32:24 wilson Exp $ -->
+<!-- $Id: main.html,v 1.3 2000-03-07 00:29:01 wilson Exp $ -->
 </head>
 
 <body bgcolor=white>
@@ -67,7 +67,7 @@ itself.
       block cannot be openned.
     <p>
 
-    <dt> <b>120: Invalid units in cooling time: %10g %c</b>
+    <dt> <b>120: Invalid units in cooling time:  <i>&lt;time&gt;</i> <i>&lt;units&gt;</i></b>
     <dd> The specified cooling time does not have one of the supported
       time units.
     <p>
@@ -125,7 +125,7 @@ itself.
       information before the <tt>end</tt> keyword.
     <p>
 
-    <dt> <b>190: Invalid units in pulse level: %10g %c</b>
+    <dt> <b>190: Invalid units in pulse level: <i>&lt;time&gt;</i> <i>&lt;units&gt;</i></b>
     <dd> The specified pulse level decay time does not have one of
       the supported time units.
     <p>
@@ -136,12 +136,12 @@ itself.
     <p>
 
     <dt> <b>210: Invalid units in schedule item delay
-        time:  %10g %c</b>
+        time:   <i>&lt;time&gt;</i> <i>&lt;units&gt;</i></b>
     <dd> The specified inter-schedule delay time does not have one
       of the supported time units.
     <p>
 
-    <dt> <b>211: Invalid units in single pulse time: %10g %c</b>
+    <dt> <b>211: Invalid units in single pulse time:  <i>&lt;time&gt;</i> <i>&lt;units&gt;</i></b>
     <dd> The specified pulse length does not have one of the
       supported time units.
     <p>
@@ -171,9 +171,9 @@ itself.
       inconsistent input.
     <p>
 
-    <dt> <b>301: A material loading is given for more
-        zones (%d) than are defined by the zone dimensions
-        (%d).  Those extra
+    <dt> <b>301: A material loading is given for more zones
+        (<i>&lt;loaded_zones&gt;</i>) than are defined by the zone
+        dimensions (<i>&lt;zone_dimensions&gt;</i>).  Those extra
         zones are being ignored.</b>
     <dd> The number of zones as defined by the
       <tt>mat_loading</tt> input block does is larger than the
@@ -183,7 +183,8 @@ itself.
     <p>
 
     <dt> <b>302: Material loadings were not defined for as many zones
-    (%d) as were defined by the zone dimensions (%d).</b>
+    (<i>&lt;loaded_zones&gt;</i>) as were defined by the zone
+    dimensions (<i>&lt;zone_dimensions&gt;</i>).</b>
     <dd> The number of zones as defined by the
       <tt>mat_loading</tt> input block is smaller than the
       number defined by the <tt>dimension</tt> blocks.  This is
@@ -351,21 +352,22 @@ k
   
 <dd>
   <dl>
-  <dt> <b>1000: Data library type <i>&lt;string&gt;</i> (%d) is
+  <dt> <b>1000: Data library type <i>&lt;string&gt;</i> (<i>&lt;type_code&gt;</i>) is
       not yet supported.</b>
     <dd> The specified library type <i>string</i> is not supported.
     <p>
 
-  <dt> <b>1001: Conversion from <i>&lt;string1&gt;</i> (%d) to
-      <i>&lt;string2&gt;</i> (%d) is not yet supported.</b>
+  <dt> <b>1001: Conversion from <i>&lt;string1&gt;</i> (<i>&lt;type_code&gt;</i>) to
+      <i>&lt;string2&gt;</i> (<i>&lt;type_code&gt;</i>) is not yet supported.</b>
     <dd> Conversion between the specified library types <i>string1</i> and
     <i>string2</i> is not supported.
     <p>
 
-  <dt> <b>1001: Conversion from <i>&lt;string&gt;</i> (%d) to
-      (%d) is not yet supported.</b>
-    <dd> Conversion between the specified library types <i>string1</i> and
-    <i>%d</i> is not supported.
+  <dt> <b>1001: Conversion from <i>&lt;string&gt;</i>
+      (<i>&lt;type_code&gt;</i>) to (<i>&lt;type_code&gt;</i>) is not
+      yet supported.</b>
+    <dd> Conversion between the specified library types <i>string1</i>
+    and <i><i>&lt;type_code&gt;</i></i> is not supported.
     <p>
 
   <dt> <b>1100: You have specified library type 'alaralib' but
