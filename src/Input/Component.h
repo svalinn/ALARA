@@ -1,4 +1,4 @@
-/* $Id: Component.h,v 1.5 1999-08-31 22:41:30 wilson Exp $ */
+/* $Id: Component.h,v 1.6 1999-11-09 17:05:32 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -155,7 +155,7 @@ COMP_HEAD, and contains no problem data.
 #define COMP_HEAD   0
 #define COMP_MAT    1
 #define COMP_ELE    2
-#define COMP_ISO    3
+//#define COMP_ISO    3
 #define COMP_SIM    4
 
 #define TARGET_ELE 12
@@ -170,8 +170,7 @@ protected:
   static ifstream eleLib;
 
   int type;
-  double density;
-  double volFraction;
+  double density, volFraction;
   char *compName;
 
   Component *next;
@@ -186,7 +185,8 @@ public:
   static void getEleLib(istream&);
 
   /* service */
-  Component(int compType=COMP_HEAD, char* name=NULL,double dens=0);
+  Component(int compType=COMP_HEAD, char* name=NULL,double dens=0, 
+	    double volFrac=1);
   Component(const Component&);
   ~Component()
     { delete compName; delete next; };
@@ -194,7 +194,7 @@ public:
   Component& operator=(const Component&);
 
   /* Input */
-  Component* getComponent(int,istream&);
+  Component* getComponent(int,istream&,Mixture*);
 
   /* Preproc */
   Component* replaceSim(Component*);
@@ -203,6 +203,7 @@ public:
   /* Utility */
   int head() {return (type == COMP_HEAD);};
   char *getName() {return compName;};
+  double getVolFrac() {return volFraction;};
   int getCompNum(Component*);
   Component* exists(int);
   Component* advance() { return next; };
