@@ -6,6 +6,14 @@ process and shows a sample activation tree in figure
 the same tree with annotations to define the nomenclature to be used
 in this chapter.
 
+\begin{floatingfigure}{0.55\columnwidth}
+  \begin{center}
+    \epsfig{file=eps/annotated_basic_tree.eps,width=0.5\columnwidth}
+    \caption{Annotated sample activation tree showing loops and
+      cross-links.}\label{fig:physical.basic_tree}
+  \end{center}
+\end{floatingfigure}
+
 A tree is constructed of \textsl{nodes}, each representing an single
 isotope, and \textsl{branches}, each representing a reaction path
 between the \textsl{parent} isotope and \textsl{daughter} isotope for
@@ -145,6 +153,14 @@ computational efficiency and optimum memory usage.
   
   \begin{subsection}{Tree Straightening and Loop Handling}
     
+    \begin{floatingfigure}{0.55\columnwidth}
+      \begin{center}
+        \epsfig{file=eps/straight_tree.eps,width=0.5\columnwidth} 
+        \caption{Fully straightened and unlinked reaction
+          tree.}\label{fig:physical.straight_tree}
+      \end{center}
+    \end{floatingfigure}
+
     One alternative for loop handling is to explicitly model them in
     the mathematical representation of the physical problem.  In the
     rate equation for node $i$, there is a production term from some
@@ -175,7 +191,7 @@ computational efficiency and optimum memory usage.
     the problem, the results at each \pc-node are collapsed into
     unique isotopes, with the contribution from each being accounted
     for appropriately.
-    
+
     After all the loops and cross-links have been removed, each tree
     is traversed in a \textsl{depth-first search}\footnote{A
       depth-first search is an algorithm which moves deeper into a
@@ -189,6 +205,13 @@ computational efficiency and optimum memory usage.
     rank of the chain, rather than a single sub-problem with a matrix
     size equal to the number of nodes in the tree.
     
+    \begin{floatingfigure}{0.55\columnwidth}
+      \begin{center}
+        \epsfig{file=eps/chains.eps,width=0.5\columnwidth} 
+        \caption{Separated linear chain representation of activation tree.}\label{fig:physical.chains}
+      \end{center}
+    \end{floatingfigure}
+
     In the mathematical respresentation of this alternative, the rate
     equation for any node $i$ will only have a production term from
     the preceding node $i-1$.  In the matrix formulation, therefore,
@@ -267,6 +290,15 @@ computational efficiency and optimum memory usage.
       \end{center}
     \end{table}
     
+    \begin{figure}[htbp]
+      \begin{center}
+        \leavevmode
+        \epsfig{file=eps/si-28_error.eps,width=0.7\columnwidth,angle=-90}
+        \caption{Relative error in calculation of $^{28}$Si as part of (n,p) loop.}
+        \label{fig:physical.loop_error}
+      \end{center}
+    \end{figure}
+
     While it is clear from both table \ref{tab:physical.loop_error}
     and figure \ref{fig:physical.loop_error} that ignoring loops
     completely can introduce observable error to the solution, they
@@ -500,6 +532,15 @@ computational efficiency and optimum memory usage.
 
 \begin{section}{Irradiation History Representation}
   
+  \begin{figure}[htbp]
+    \begin{center}
+      \leavevmode
+      \epsfig{file=eps/pulses.eps,width=0.7\columnwidth}
+      \caption{Sample pulsed irradiation history.}
+      \label{fig:physical.pulses}
+    \end{center}
+  \end{figure}
+
   Although continuously varying neutron flux spectra and levels are
   not expected, many of the systems modelled by an activation
   calculation will have intermittent and/or operation.  At the very
@@ -512,21 +553,32 @@ computational efficiency and optimum memory usage.
   and pulsed operation has important implications on the generic
   accuracy of the solution and the type of mathematical method to use.
   
+  \begin{figure}[htbp]
+    \begin{center}
+      \subfigure[Average flux approximation.]
+         {\epsfig{file=eps/equiv_steady_state.eps,width=0.7\columnwidth}}
+      \subfigure[Collapsed pulses approximation.]
+         {\epsfig{file=eps/steady_state.eps,width=0.7\columnwidth}}
+         \caption{Two popular steady state approximations to pulsed irradiation histories.}\label{fig:physical.ss_approx}
+    \end{center}
+  \end{figure}
+
   Physically, the pulsed nature results in build up of transmutation
   products during the operation pulses and decay of those isotopes
-  during the ``dwell'' periods between pulses.  For isotopes of
-  certain half-lives relative to the ratio of dwell time to operation
-  time, the pulsing representation can have a profound impact on the
-  final calculated number density.  The most accurate solutions will
-  result from methods which allow for this transient behaviour during
-  the dwell times to correctly assess the radioactivity.
+  during the ``dwell'' periods between pulses (see figure
+  \ref{fig:physical.pulses}).  For isotopes of certain half-lives
+  relative to the ratio of dwell time to operation time, the pulsing
+  representation can have a profound impact on the final calculated
+  number density.  The most accurate solutions will result from
+  methods which allow for this transient behaviour during the dwell
+  times to correctly assess the radioactivity.
   
   Again, there are a variety of methods historically implemented to
   model this pulsing.  The most simple methods use a steady-state
   approximation, either averaging the flux over the full lifetime
-  (figure \ref{fig:physical.ess_approx}) or squeezing the pulses
+  (figure \ref{fig:physical.ss_approx}(a)) or squeezing the pulses
   together an removing the dwell times (figure
-  \ref{fig:physical.ss_approx}).
+  \ref{fig:physical.ss_approx}(b)).
   
   Although one approximation is more valid than the other in certain
   cases, Sisolak {\em et. al.}\cite{bib:PULSAR} showed that both pure
