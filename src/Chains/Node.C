@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.23 2003-01-13 04:34:51 fateneja Exp $ */
+/* $Id: Node.C,v 1.24 2003-06-10 20:26:38 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -163,7 +163,7 @@ double Node::getAlpha(int setKza)
       readData();
       
       if (nPaths>0 && D[nGroups]>0)
-	alphaCache[kza] = D[nGroups] * E[0];
+	alphaCache[kza] = D[nGroups] * E[2];
       else
 	alphaCache[kza] = 0;
     }
@@ -180,7 +180,7 @@ double Node::getBeta(int setKza)
       readData();
       
       if (nPaths>0 && D[nGroups]>0)
-	betaCache[kza] = D[nGroups] * E[1];
+	betaCache[kza] = D[nGroups] * E[0];
       else
 	betaCache[kza] = 0;
     }
@@ -195,7 +195,7 @@ double Node::getGamma(int setKza)
       readData();
       
       if (nPaths>0 && D[nGroups]>0)
-	gammaCache[kza] = D[nGroups] * E[2];
+	gammaCache[kza] = D[nGroups] * E[1];
       else
 	gammaCache[kza] = 0;
     }

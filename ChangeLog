@@ -1,8 +1,9 @@
-$Id: ChangeLog,v 1.14 2003-06-03 19:00:42 varuttam Exp $
+$Id: ChangeLog,v 1.15 2003-06-10 20:26:38 wilsonp Exp $
 	
 Version 2.6.???
 	
 BUGS FIXED
+	* Fixed indexing of average energy vector for decay types [PW] (06/10/2003)
         * Multiplication of importance and gamma source for bio dose
           calculation is reversed to account for order of gp struc [AV] (6/03/03) 
         * Bio dose results are now divided by detector volume (hence
