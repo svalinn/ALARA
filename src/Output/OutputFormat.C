@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.23 2000-07-07 02:28:22 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.24 2001-07-23 20:02:21 wilsonp Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -10,11 +10,11 @@
 
 #include "Chains/Node.h"
 
-const char *Out_Types = "ucnstabgpw";
+const char *Out_Types = "ucnstabgpdw";
 
-const int nOutTypes = 10;
+const int nOutTypes = 11;
 const int firstResponse = 2;
-const int lastSingularResponse = 9;
+const int lastSingularResponse = 10;
 const char *Out_Types_Str[nOutTypes] = {
   "Response Units",
   "Break-down by Constituent",
@@ -25,6 +25,7 @@ const char *Out_Types_Str[nOutTypes] = {
   "Beta Decay Heat [W%s]",
   "Gamma Decay Heat [W%s]",
   "Photon Source Distribution [gammas/s%s] : %s\n\t    with Specific Activity [%s%s]",
+  "Contact Dose [ units? ]",
   "WDR/Clearance index"};
 
 /***************************
