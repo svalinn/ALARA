@@ -136,7 +136,7 @@
       stop
 
 ! data output
- 7500 format(6(1pe12.5))
+ 7500 format(6(1pe13.5))
 
 ! information output
  8000 format('This file has ',I4,' groups in (',I4,'x',I4,'x',I4,')=',
@@ -146,7 +146,7 @@
 ! prompt output
  8500 format('Enter the rtflux/atflux filename: ')
  8501 format('Enter the first group number to export: ')
- 8502 format('Enter the number of gropus to export, OR')
+ 8502 format('Enter the number of groups to export, OR')
  8503 format('   enter the last group as a negative number: ')
  8504 format('Enter the desired output filename: ')
  
