@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.9 2002-06-04 18:02:21 wilsonp Exp $ */
+/* $Id: GammaSrc.C,v 1.10 2002-08-01 17:45:51 wilsonp Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -270,8 +270,8 @@ void GammaSrc::setData(int kza, int numSpec,
 	  gNum = 0;
 	  while (numIntReg[specNum] > regNum && nPts[specNum] > pntNum)
 	    {
-	      Elo = max(double(contX[specNum][pntNum]),grpBnds[gNum]);
-	      Ehi = min(double(contX[specNum][pntNum+1]),grpBnds[gNum+1]);
+	      Elo = std::max(double(contX[specNum][pntNum]),grpBnds[gNum]);
+	      Ehi = std::min(double(contX[specNum][pntNum+1]),grpBnds[gNum+1]);
 	      switch (gammaType)
 		{
 		case GAMMASRC_RAW_SRC:
