@@ -16,18 +16,40 @@
 /* routine for to calculate factorial */
 double fact(int i)
 {
-  double result=1;
+  int idx,idx2;
+  /* create a look-up table for factorials */
+  const int maxFactorial = 50;
+  static double *factorials = NULL;
+  if (factorials == NULL)
+    {
+      factorials = new double[maxFactorial];
+      for (idx=0;idx<maxFactorial;idx++)
+	{
+	  idx2 = idx;
+	  factorials[idx] = 1;
+	  while (idx2>1) factorials[idx] *= idx2--;
+	}
+    }
 
-  while (i>1) result *= i--;
-
-  return result;
+  if (i < maxFactorial)
+    return factorials[i];
+  else
+    {
+      double result=1;
+      
+      while (i>1) result *= i--;
+      
+      return result;
+    }
 }
 
 
-double bateman(int row, int col, double* d, double t)
+double bateman(int row, int col, double* d, double t, int& finitePositive)
 {
   double sum, sumInc, den;
   int term, denTerm;
+
+  finitePositive = TRUE;
 
   sum = 0;
   sumInc = 0;
@@ -51,10 +73,15 @@ double bateman(int row, int col, double* d, double t)
       sum += sumInc/den;
     }
 
-  /* multiply normalization by sum of Laplace inverse terms */
-  /* absolute value here takes care of negative results */
-  /******* THIS IS AN INCORRECT STOP-GAP **********/
-  return fabs(sum);
+  /* negative results are due to round-off error and 
+   * imply very small results */
+  if (sum < 0 || isnan(sum))
+    {
+      finitePositive = FALSE;
+      return 0;
+    }
+  else
+   return sum;
 
 };
 
@@ -100,7 +127,8 @@ double dGn(int idx, double *pole, int *mult, int numPoles, int termNum)
 
 }
 
-double laplaceInverse(int row, int col, double *d, double t)
+double laplaceInverse(int row, int col, double *d, double t, 
+		      int& finitePositive)
 {
   int idx, checkIdx, multCnt;
   int numPoles = 0;
@@ -108,11 +136,8 @@ double laplaceInverse(int row, int col, double *d, double t)
   double *pole = new double[row-col+1];
   double poleResult, result;
 
-  if (row == col)
-    /* if this is on the diagonal, 
-     * simple exponential decay */
-    return exp(-d[col]*t);
-  
+  finitePositive = TRUE;
+
   /* index all the poles with the multiplicities */
   for (idx = col;idx<=row;idx++)
     {
@@ -147,33 +172,30 @@ double laplaceInverse(int row, int col, double *d, double t)
   delete mult;
   delete pole;
 
-  /* absolute value here takes care of negative results */
-  /******* THIS IS AN INCORRECT STOP-GAP **********/
-  return fabs(result);
+  if (result < 0 || isnan(result))
+    {
+      finitePositive = FALSE;
+      return 0;
+    } 
+  else
+    return result;
 
 }
 
-double fillTElement(int row, int col, double *P, double *d, double t, 
-		    int* loopRank)
+
+double laplaceExpansion(int row, int col, double *d, double t, int &converged)
 {
 
   int idx, termNum;
   int sz = row-col;
   double result, correction;
 
-  /* do this product up front to eliminate costly
-   * computation which may end in 0 anyway */
-  double productionProduct = 1;
-  for (idx=col;idx<row;idx++)
-    productionProduct *= P[idx+1];
-
-  if (productionProduct == 0)
-    return productionProduct;
-
-  /******* DEFAULT TO LAPLACE EXPANSION TO AVOID ROUND-OFF *********/
   /* initialize matrix with destruction rates */
   Matrix poleMat(d,sz+1);
   Matrix powPoleMat(sz+1);
+
+  /* innocent until proven guilty */
+  converged = TRUE;
 
   /* zeroth term is simply the correct power of t/n!  */
   result = pow(t,sz)/fact(sz);
@@ -187,15 +209,7 @@ double fillTElement(int row, int col, double *P, double *d, double t,
       /* power of t/n! times coefficient, with alternating sign!! */
       correction = powPoleMat.rowSum(sz) * ( 1-2*(termNum%2) )
 	* pow(t,termNum+sz)/fact(termNum+sz);
-
-      /* for monstrous decay rates (e.g. Be-8) the correction or
-       * result may become infinite */
-      if (isinf(correction) || isinf(result))
-	{
-	  /* use the termNum as a flag */
-	  termNum = MAXNUMEXPTERMS;
-	  break;
-	}
+      
       if (fabs(correction/result) > MAXEXPTOL)
 	/* use this term if significant */
 	result += correction;
@@ -204,36 +218,64 @@ double fillTElement(int row, int col, double *P, double *d, double t,
 	break;
     }
 
-  /******* IF WE NEED TOO MANY TERMS *****
-   ******* GO TO ALTERNATIVE METHOD  *****
-   ******* BASED ON LOOP CONDITION   *****/
-  if (termNum == MAXNUMEXPTERMS)
-    /* This seemingly complicated condition saves using the loop
-     * solution during a reference calculation when only the last
-     * isotope introduces the loop.  In this case, there is no real
-     * degeneracy, since the destruction rate of the last isotope is
-     * zero'ed for a reference calculation.  The condition can be
-     * understood as follows: 
-     *  - when checking for loop solution, if we are calculating the
-     *    production from an isotope inside the loop, generally use
-     *    the loop sol'n, but only iff
-     *  - only the last isotope can ever have a destruction rate of
-     *    zero
-     *      - if d[row] > 0, use loop sol'n
-     *  - even if last isotope does have a 0 destruction rate, if
-     *    the previous isotope was already in a loop, we need to use
-     *    the loop sol'n
-     *      - if loopRank[row-1] > -1, check for loop sol'n \
-     *        (This check must be done after the first one because
-     *        it ensures that we are not checking loopRank[-1])*/
-    if (col<=loopRank[row] && (d[row] > 0 || loopRank[row-1] >-1))
-      result = laplaceInverse(row,col,d,t);
-    else
-      result = bateman(row,col,d,t);
+  /* for monstrous decay rates (e.g. Be-8) the correction or
+   * result may become infinite */
+  if (termNum == MAXNUMEXPTERMS || isnan(result))
+    converged = FALSE;
+  
+  return result;
+}
+
+double fillTElement(int row, int col, double *P, double *d, double t, 
+		    int* loopRank)
+{
+
+  int idx;
+  int defSuccess, altSuccess;
+  double result;
+
+  /* do this product up front to eliminate costly
+   * computation which may end in 0 anyway */
+  double productionProduct = 1;
+  for (idx=col;idx<row;idx++)
+    productionProduct *= P[idx+1];
+
+  if (productionProduct == 0)
+    return productionProduct;
+
+  /* implement default method */
+
+  /* This seemingly complicated condition saves using the loop
+   * solution during a reference calculation when only the last
+   * isotope introduces the loop.  In this case, there is no real
+   * degeneracy, since the destruction rate of the last isotope is
+   * zero'ed for a reference calculation.  The condition can be
+   * understood as follows: 
+   *  - when checking for loop solution, if we are calculating the
+   *    production from an isotope inside the loop, generally use
+   *    the loop sol'n, but only iff
+   *  - only the last isotope can ever have a destruction rate of
+   *    zero
+   *      - if d[row] > 0, use loop sol'n
+   *  - even if last isotope does have a 0 destruction rate, if
+   *    the previous isotope was already in a loop, we need to use
+   *    the loop sol'n
+   *      - if loopRank[row-1] > -1, check for loop sol'n \
+   *        (This check must be done after the first one because
+   *        it ensures that we are not checking loopRank[-1])*/
+  if (col<=loopRank[row] && (d[row] > 0 || loopRank[row-1] >-1))
+    {
+      result = laplaceExpansion(row,col,d,t,defSuccess);
+      if (!defSuccess)
+	/* implement other method adaptively */
+	result = laplaceInverse(row,col,d,t,altSuccess);
+    }
+  else
+    result = bateman(row,col,d,t,altSuccess);
 
   /* used during debugging 
-     if (isnan(result) || isinf(result))
-     error(2001,"NaN fuond!"); */
+  if (isinf(result) || isnan(result) )
+    error(2001,"No mathematical method was successful!");  */
      
   return result*productionProduct;
 }
