@@ -189,7 +189,7 @@ void Loading::xCheck(Mixture *mixListHead)
 	  else
 	    {
 	      ptr->nComps = ptr->mixPtr->getNComps();
-	      ptr->outputList = new Result[nComps+1];
+	      ptr->outputList = new Result[ptr->nComps+1];
 	    }
 	}
       
@@ -233,37 +233,40 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList)
       cout << "\tVolume: " << ptr->volume << endl;
       cout << "\tMixture: " << ptr->mixName << endl << endl;
 
-      /* write the component breakdown if requested */
-      if (writeComp)
+      if (ptr->mixPtr != NULL)
 	{
-	  /* get the list of components for this mixture */
-	  Component *compPtr = ptr->mixPtr->getCompList();
-	  int compNum=0;
-	  compPtr = compPtr->advance();
-
-	  /* for each component */
-	  while (compPtr != NULL)
+	  /* write the component breakdown if requested */
+	  if (writeComp)
 	    {
-	      /* write component header */
-	      cout << "Component: " << compPtr->getName() << endl;
-	      ptr->outputList[compNum].write(response, coolList,
-					     ptr->total, ptr->volume);
+	      /* get the list of components for this mixture */
+	      Component *compPtr = ptr->mixPtr->getCompList();
+	      int compNum=0;
 	      compPtr = compPtr->advance();
-	      compNum++;
+	      
+	      /* for each component */
+	      while (compPtr != NULL)
+		{
+		  /* write component header */
+		  cout << "Component: " << compPtr->getName() << endl;
+		  ptr->outputList[compNum].write(response, coolList,
+						 ptr->total, ptr->volume);
+		  compPtr = compPtr->advance();
+		  compNum++;
+		}
 	    }
-	}
-      
-      /* if components were written and there is only one */
-      if (writeComp && ptr->nComps == 0)
-	/* write comment refering total to component total */
-	cout << "** Zone totals are the same as those of the single component."
-	     << endl << endl;
-      else
-	{
-	  /* otherwise write the total response for the zone */
-	  cout << "Total" << endl;
-	  ptr->outputList[nComps].write(response, coolList,
-					ptr->total, ptr->volume);
+	  
+	  /* if components were written and there is only one */
+	  if (writeComp && ptr->nComps == 0)
+	    /* write comment refering total to component total */
+	    cout << "** Zone totals are the same as those of the single component."
+		 << endl << endl;
+	  else
+	    {
+	      /* otherwise write the total response for the zone */
+	      cout << "Total" << endl;
+	      ptr->outputList[ptr->nComps].write(response, coolList,
+					    ptr->total, ptr->volume);
+	    }
 	}
     }
 	  
@@ -285,13 +288,14 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList)
     {
       ptr = ptr->next;
       cout << ++zoneCntr << "\t";
-      for (resNum=0;resNum<nResults;resNum++)
-	{
-	  sprintf(isoSym,"%-11.4e ",ptr->total[resNum]);
-	  cout << isoSym;
-	}
+      if (ptr->mixPtr != NULL)
+	for (resNum=0;resNum<nResults;resNum++)
+	  {
+	    sprintf(isoSym,"%-11.4e ",ptr->total[resNum]);
+	    cout << isoSym;
+	  }
       cout << "\t" << ptr->zoneName 
-	   << " (" << ptr->mixName << ")" <<  endl;
+	   << " (" << ptr->mixName << ")" << endl;
     }
   coolList->writeSeparator();
 

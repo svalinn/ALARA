@@ -184,7 +184,7 @@ Mixture* Mixture::getMixture(istream &input)
    * total only */
   if (mixPtr->nComps == 1)
     mixPtr->nComps = 0;
-  mixPtr->outputList = new Result[nComps+1];
+  mixPtr->outputList = new Result[mixPtr->nComps+1];
   
   debug(1,"Finished reading Mixture %s.", name);
   return mixPtr;         
@@ -415,8 +415,8 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList)
 	{
 	  /* otherwise write the total response for the zone */
 	  cout << "Total" << endl;
-	  ptr->outputList[nComps].write(response,coolList,ptr->total,
-					ptr->volume);
+	  ptr->outputList[ptr->nComps].write(response,coolList,ptr->total,
+					     ptr->volume);
 	}
     }
 	  

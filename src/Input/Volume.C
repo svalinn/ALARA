@@ -424,9 +424,14 @@ void Volume::makeSchedTs(topSchedule *top)
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      ptr->schedT = new topScheduleT(top);
-      memCheck(ptr->schedT,"Volume::makeSchedTs(...): ptr->schedT");
-      verbose(6,"Made next storage hierarchy.");
+      if (ptr->mixPtr != NULL)
+	{
+	  ptr->schedT = new topScheduleT(top);
+	  memCheck(ptr->schedT,"Volume::makeSchedTs(...): ptr->schedT");
+	  verbose(6,"Made next storage hierarchy.");
+	}
+      else
+	verbose(6,"Skipped storage hierarchy in VOID interval.");
     }
 
   verbose(3,"Made all storage hierarchies.");
@@ -519,19 +524,30 @@ void Volume::readDump(int kza)
 void Volume::postProc()
 {
   Volume *ptr = this;
-  int compNum;
+  int compNum, intvlCntr=0;
 
+  verbose(2,"Tallying component results into total result lists.");
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-
-      /* tally each of the components into the total */
-      for (compNum=0;compNum<ptr->nComps;compNum++)
-	ptr->outputList[compNum].postProc(ptr->outputList[ptr->nComps]);
       
-      /* tally the results to the respective mixture and zone */
-      ptr->mixPtr->tally(ptr->outputList,ptr->volume);
-      ptr->zonePtr->tally(ptr->outputList,ptr->volume);
+      if (ptr->mixPtr != NULL)
+	{
+	  verbose(3,"Tallying for interval #%d",++intvlCntr);
+	  /* tally each of the components into the total */
+	  for (compNum=0;compNum<ptr->nComps;compNum++)
+	    ptr->outputList[compNum].postProc(ptr->outputList[ptr->nComps]);
+	  
+	  /* tally the results to the respective mixture and zone */
+	  verbose(3,"Tallying interval #%d into mixture %s",++intvlCntr,
+		  ptr->mixPtr->getName());
+	  ptr->mixPtr->tally(ptr->outputList,ptr->volume);
+	  verbose(3,"Tallying interval #%d into zone %s",++intvlCntr,
+		  ptr->zoneName);
+	  ptr->zonePtr->tally(ptr->outputList,ptr->volume);
+	}
+      else
+	verbose(3,"Skipping VOID interval #%d.",++intvlCntr);
     }
 }
 
@@ -552,38 +568,45 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList)
       cout << "Interval #" << intvlCntr << ":" << endl;
       cout << "\tVolume: " << ptr->volume << endl;
       cout << "\tZone: " << ptr->zoneName << endl;
-      cout << "\tMixture: " << ptr->mixPtr->getName() << endl << endl;
 
-      /* write the component breakdown if requested */
-      if (writeComp)
+      if (ptr->mixPtr != NULL)
 	{
-	  /* get the list of components for this mixture */
-	  Component *compPtr = ptr->mixPtr->getCompList();
-	  int compNum=0;
-	  compPtr = compPtr->advance();
-
-	  /* for each component */
-	  while (compPtr != NULL)
+	  cout << "\tMixture: " << ptr->mixPtr->getName() << endl << endl;
+	  
+	  /* write the component breakdown if requested */
+	  if (writeComp)
 	    {
-	      /* write component header */
-	      cout << "Component: " << compPtr->getName() << endl;
-	      ptr->outputList[compNum].write(response,coolList,ptr->total);
+	      /* get the list of components for this mixture */
+	      Component *compPtr = ptr->mixPtr->getCompList();
+	      int compNum=0;
 	      compPtr = compPtr->advance();
-	      compNum++;
+	      
+	      /* for each component */
+	      while (compPtr != NULL)
+		{
+		  /* write component header */
+		  cout << "Component: " << compPtr->getName() << endl;
+		  ptr->outputList[compNum].write(response,coolList,ptr->total);
+		  compPtr = compPtr->advance();
+		  compNum++;
+		}
+	    }
+	  
+	  /* if components were written and there is only one */
+	  if (writeComp && ptr->nComps == 0)
+	    /* write comment refering total to component total */
+	    cout << "** Interval totals are the same as those of the single component."
+		 << endl << endl;
+	  else
+	    {
+	      /* otherwise write the total response for the zone */
+	      cout << "Total" << endl;
+	      ptr->outputList[ptr->nComps].write(response,coolList,ptr->total);
 	    }
 	}
-      
-      /* if components were written and there is only one */
-      if (writeComp && ptr->nComps == 0)
-	/* write comment refering total to component total */
-	cout << "** Interval totals are the same as those of the single component."
-	     << endl << endl;
       else
-	{
-	  /* otherwise write the total response for the zone */
-	  cout << "Total" << endl;
-	  ptr->outputList[nComps].write(response,coolList,ptr->total);
-	}
+	cout << "\tMixture: VOID" << endl << endl;
+      
     }
 	  
 
@@ -605,13 +628,16 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList)
     {
       ptr = ptr->next;
       intvlCntr++;
-      cout << intvlCntr << "\t";
-      for (resNum=0;resNum<nResults;resNum++)
+      if (ptr->mixPtr != NULL)
 	{
-	  sprintf(isoSym,"%-11.4e ",ptr->total[resNum]);
-	  cout << isoSym;
+	  cout << intvlCntr << "\t";
+	  for (resNum=0;resNum<nResults;resNum++)
+	    {
+	      sprintf(isoSym,"%-11.4e ",ptr->total[resNum]);
+	      cout << isoSym;
+	    }
+	  cout << endl;
 	}
-      cout << endl;
     }
   coolList->writeSeparator();
 
