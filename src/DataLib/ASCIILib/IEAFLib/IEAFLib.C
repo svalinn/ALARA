@@ -1,4 +1,4 @@
-/* $Id: IEAFLib.C,v 1.6 2002-07-25 14:04:19 wilsonp Exp $ */
+/* $Id: IEAFLib.C,v 1.7 2002-07-25 15:33:46 wilsonp Exp $ */
 #include "IEAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
@@ -318,7 +318,10 @@ int IEAFLib::getTransData()
       if (transKza[rxnNum]!=0)
 	strcpy(emitted[rxnNum],"x");
       else
-	strcpy(emitted[rxnNum],"total");
+	{
+	  strcpy(emitted[rxnNum],"total");
+	  inTrans.getline(buffer,MAXLINELENGTH);
+	}
 
       /* check for next x-section: ie. are we still in MT=5 */
       inTrans.getline(buffer,MAXLINELENGTH);
