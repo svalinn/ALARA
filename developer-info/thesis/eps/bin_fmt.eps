@@ -1,0 +1,1446 @@
+%!
+%%BoundingBox: 95 217 448 750
+%%Title: bin_fmt
+%%CreationDate: Mon Mar 22 12:34:56 1999
+%%Creator: Tgif-2.13-p2 by William Chia-Wei Cheng (william@cs.UCLA.edu)
+%%Pages: 1
+%%DocumentFonts: Times-Roman Helvetica Courier NewCenturySchlbk Symbol
+%%EndComments
+%%BeginProlog
+%
+%	Due to bugs in Transcript, the 'PS-Adobe-' stuff is omitted from line 1
+%
+
+/tgifdict 132 dict def
+tgifdict begin
+
+%
+%	Using a zero value radius for an ellipse or an arc would result
+%		in a non-invertible CTM matrix which causes problem when this
+%		when this PostScript is wrapped inside other routines, such as
+%		the multi.ps package from
+%		ftp.ucc.su.oz.au:/pub/ps_printing/multi.  You can overcome such
+%		error by uncommenting the sole line of the procedure below:
+%
+/tgif_min_radius
+ {
+%    dup 0.01 lt { pop 0.01 } if
+ } bind def
+
+/tgifellipsedict 6 dict def
+tgifellipsedict /mtrx matrix put
+
+/tgifellipse
+ { tgifellipsedict begin
+      /yrad exch def
+      /xrad exch def
+      /y exch def
+      /x exch def
+      /savematrix mtrx currentmatrix def
+      x y translate
+      xrad yrad scale
+      0 0 1 0 360 arc
+      savematrix setmatrix
+   end
+ } def
+
+/tgifarrowtipdict 8 dict def
+tgifarrowtipdict /mtrx matrix put
+
+/tgifarrowtip
+ { tgifarrowtipdict begin
+      /dy exch def
+      /dx exch def
+      /h exch def
+      /w exch def
+      /y exch def
+      /x exch def
+      /savematrix mtrx currentmatrix def
+      x y translate
+      dy dx atan rotate
+      0 0 moveto
+      w neg h lineto
+      w neg h neg lineto
+      savematrix setmatrix
+   end
+ } def
+
+/tgifarcdict 8 dict def
+tgifarcdict /mtrx matrix put
+
+/tgifarcn
+ { tgifarcdict begin
+      /endangle exch def
+      /startangle exch def
+      /yrad exch def
+      /xrad exch def
+      /y exch def
+      /x exch def
+      /savematrix mtrx currentmatrix def
+      x y translate
+      xrad yrad scale
+      0 0 1 startangle endangle arc
+      savematrix setmatrix
+   end
+ } def
+
+/tgifarc
+ { tgifarcdict begin
+      /endangle exch def
+      /startangle exch def
+      /yrad exch def
+      /xrad exch def
+      /y exch def
+      /x exch def
+      /savematrix mtrx currentmatrix def
+      x y translate
+      xrad yrad scale
+      0 0 1 startangle endangle arcn
+      savematrix setmatrix
+   end
+ } def
+
+/tgifsetuserscreendict 22 dict def
+tgifsetuserscreendict begin
+   /tempctm matrix def
+   /temprot matrix def
+   /tempscale matrix def
+
+   /concatprocs
+    { /proc2 exch cvlit def
+      /proc1 exch cvlit def
+      /newproc proc1 length proc2 length add array def
+      newproc 0 proc1 putinterval
+      newproc proc1 length proc2 putinterval
+      newproc cvx
+    } def
+   /resmatrix matrix def
+   /findresolution
+    { 72 0 resmatrix defaultmatrix dtransform
+      /yres exch def /xres exch def
+      xres dup mul yres dup mul add sqrt
+    } def
+end
+
+/tgifsetuserscreen
+ { tgifsetuserscreendict begin
+      /spotfunction exch def
+      /screenangle exch def
+      /cellsize exch def
+
+      /m tempctm currentmatrix def
+      /rm screenangle temprot rotate def
+      /sm cellsize dup tempscale scale def
+
+      sm rm m m concatmatrix m concatmatrix pop
+
+      1 0 m dtransform /y1 exch def /x1 exch def
+
+      /veclength x1 dup mul y1 dup mul add sqrt def
+      /frequency findresolution veclength div def
+
+      /newscreenangle y1 x1 atan def
+
+      m 2 get m 1 get mul m 0 get m 3 get mul sub 0 gt
+
+      {{neg} /spotfunction load concatprocs
+         /spotfunction exch def
+      } if
+
+      frequency newscreenangle /spotfunction load setscreen
+   end
+ } def
+
+/tgifsetpatterndict 18 dict def
+tgifsetpatterndict begin
+   /bitison
+    { /ybit exch def /xbit exch def
+      /bytevalue bstring ybit bwidth mul xbit 8 idiv add get def
+
+      /mask 1 7 xbit 8 mod sub bitshift def
+      bytevalue mask and 0 ne
+    } def
+end
+
+/tgifbitpatternspotfunction
+ { tgifsetpatterndict begin
+      /y exch def /x exch def
+
+      /xindex x 1 add 2 div bpside mul cvi def
+      /yindex y 1 add 2 div bpside mul cvi def
+
+      xindex yindex bitison
+       { /onbits onbits 1 add def 1 }
+       { /offbits offbits 1 add def 0 }
+       ifelse
+   end
+ } def
+
+/tgifsetpattern
+ { tgifsetpatterndict begin
+      /cellsz exch def
+      /angle exch def
+      /bwidth exch def
+      /bpside exch def
+      /bstring exch def
+
+      /onbits 0 def /offbits 0 def
+      cellsz angle /tgifbitpatternspotfunction load tgifsetuserscreen
+      {} settransfer
+      offbits offbits onbits add div setgray
+   end
+ } def
+
+/tgifxpmdict 4 dict def
+/tgifbwpicstr 1 string def
+/tgifcolorpicstr 3 string def
+
+/tgifsetpixels { tgifxpmdict begin /pixels exch def end } def
+
+/tgifsetpix { tgifxpmdict begin pixels 3 1 roll putinterval end } def
+
+/tgifbwspot
+ { tgifxpmdict begin
+      /index exch def
+      tgifbwpicstr 0
+      pixels index 3 mul 3 getinterval aload pop
+      255 mul .114 mul exch 255 mul .587 mul add exch 255 mul .299 mul add
+      cvi put
+      tgifbwpicstr
+   end
+ } def
+
+/tgifcolorspot
+ { tgifxpmdict begin
+      /index exch def
+      pixels index 3 mul 3 getinterval aload pop
+      255 mul cvi tgifcolorpicstr 2 3 -1 roll put
+      255 mul cvi tgifcolorpicstr 1 3 -1 roll put
+      255 mul cvi tgifcolorpicstr 0 3 -1 roll put
+      tgifcolorpicstr
+   end
+ } def
+
+/tgifnewcolorspot
+ { tgifxpmdict begin
+      /index exch def
+      pixels index 3 mul 3 getinterval aload pop setrgbcolor
+   end
+ } def
+
+/tgifcolordict 4 dict def
+
+/colorimage where
+ { pop }
+ { /colorimage
+   { tgifcolordict begin
+        pop pop pop pop pop
+        /ih exch def
+        /iw exch def
+        /x 0 def
+        /y 0 def
+        1 1 ih
+         { pop 1 1 iw
+            { pop currentfile
+              tgifbwpicstr readhexstring pop 0 get tgifnewcolorspot
+              x y moveto 1 0 rlineto 0 1 rlineto -1 0 rlineto
+              closepath fill
+              /x x 1 add def
+            } for
+           /y y 1 add def
+           /x 0 def
+         } for
+     end
+   } def
+ } ifelse
+
+/tgifpatdict 10 dict def
+
+/tgifpatbyte
+ { currentdict /retstr get exch
+   pat i cellsz mod get put
+ } def
+
+/tgifpatproc
+ { 0 1 widthlim {tgifpatbyte} for retstr
+   /i i 1 add def
+ } def
+
+/tgifpatfill
+ { tgifpatdict begin
+      /h exch def
+      /w exch def
+      /lty exch def
+      /ltx exch def
+      /cellsz exch def
+      /pat exch def
+
+      /widthlim w cellsz div cvi 1 sub def
+      /retstr widthlim 1 add string def
+      /i 0 def
+
+      ltx lty translate
+      w h true [1 0 0 1 0 0] {tgifpatproc} imagemask
+      ltx neg lty neg translate
+   end
+ } def
+
+/pat1 <ffffffffffffffff> def
+/pat2 <0000000000000000> def
+/pat3 <8000000008000000> def
+/pat4 <8800000022000000> def
+/pat5 <8800220088002200> def
+/pat6 <8822882288228822> def
+/pat7 <aa55aa55aa55aa55> def
+/pat8 <77dd77dd77dd77dd> def
+/pat9 <77ffddff77ffddff> def
+/pat10 <77ffffff77ffffff> def
+/pat11 <7fffffff7fffffff> def
+/pat12 <8040200002040800> def
+/pat13 <40a00000040a0000> def
+/pat14 <ff888888ff888888> def
+/pat15 <ff808080ff080808> def
+/pat16 <f87422478f172271> def
+/pat17 <038448300c020101> def
+/pat18 <081c22c180010204> def
+/pat19 <8080413e080814e3> def
+/pat20 <8040201008040201> def
+/pat21 <8844221188442211> def
+/pat22 <77bbddee77bbddee> def
+/pat23 <c1e070381c0e0783> def
+/pat24 <7fbfdfeff7fbfdfe> def
+/pat25 <3e1f8fc7e3f1f87c> def
+/pat26 <0102040810204080> def
+/pat27 <1122448811224488> def
+/pat28 <eeddbb77eeddbb77> def
+/pat29 <83070e1c3870e0c1> def
+/pat30 <fefdfbf7efdfbf7f> def
+/pat31 <7cf8f1e3c78f1f3e> def
+
+/tgifcentertext { dup stringwidth pop 2 div neg 0 rmoveto } def
+
+/tgifrighttext { dup stringwidth pop neg 0 rmoveto } def
+
+/tgifreencsmalldict 12 dict def
+/tgifReEncodeSmall
+ { tgifreencsmalldict begin
+      /newcodesandnames exch def
+      /newfontname exch def
+      /basefontname exch def
+
+      /basefontdict basefontname findfont def
+      /newfont basefontdict maxlength dict def
+
+      basefontdict
+      { exch dup /FID ne
+         { dup /Encoding eq
+            { exch dup length array copy newfont 3 1 roll put }
+            { exch newfont 3 1 roll put }
+            ifelse
+         }
+         { pop pop }
+         ifelse
+      }
+      forall
+
+      newfont /FontName newfontname put
+      newcodesandnames aload pop
+
+      newcodesandnames length 2 idiv
+      { newfont /Encoding get 3 1 roll put}
+      repeat
+
+      newfontname newfont definefont pop
+   end
+ } def
+
+/tgifgray { 8 1 0 72 300 32 div div tgifsetpattern } bind def
+
+/tgifboxdict 6 dict def
+/tgifboxstroke
+ { tgifboxdict begin
+      /pat def /w def /y2 exch def /x2 exch def /y1 exch def /x1 exch def
+      1.415 setmiterlimit
+      w 1 eq { w setlinewidth } if
+      pat pat1 ne pat pat2 ne and { gsave pat tgifgray } if
+      newpath x1 y1 moveto x2 y1 lineto x2 y2 lineto x1 y2 lineto closepath
+      pat pat2 eq { 1 setgray stroke 0 setgray } { stroke } ifelse
+      pat pat1 ne pat pat2 ne and { grestore } if
+      w 1 eq { 1 setlinewidth } if
+      1 setmiterlimit
+   end
+ } def
+/tgifboxfill
+ { tgifboxdict begin
+      /pat def /y2 exch def /x2 exch def /y1 exch def /x1 exch def
+      pat pat1 ne pat pat2 ne and { gsave pat tgifgray } if
+      newpath x1 y1 moveto x2 y1 lineto x2 y2 lineto x1 y2 lineto closepath
+      pat pat2 eq { 1 setgray fill 0 setgray } { fill } ifelse
+      pat pat1 ne pat pat2 ne and { grestore } if
+   end
+ } def
+
+end
+
+%%EndProlog
+%%Page: 1 1
+
+%%PageBoundingBox: 95 217 448 750
+tgifdict begin
+/tgifsavedpage save def
+
+1 setmiterlimit
+1 setlinewidth
+
+72 0 mul 72 11 mul translate
+72 128 div 100 mul 100 div dup neg scale
+
+gsave
+
+% POLY/OPEN-SPLINE
+gsave
+   3 setlinewidth
+   newpath
+      451 775 moveto
+      323 775 lineto
+      323 1018 lineto
+      451 1018 lineto
+   stroke
+   1 setlinewidth
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      370 879 moveto (For each reaction path,  r  = [1,R]:) show
+   grestore
+
+% POLYGON/CLOSED-SPLINE
+newpath
+   339 869 moveto
+   352 869 lineto
+   352 863 lineto
+   363 872 lineto
+   352 882 lineto
+   352 875 lineto
+   339 875 lineto
+closepath eofill
+gsave
+   newpath
+   339 869 moveto
+      352 869 lineto
+      352 863 lineto
+      363 872 lineto
+      352 882 lineto
+      352 875 lineto
+      339 875 lineto
+   closepath stroke
+grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      547 863 moveto 562 863 lineto 562 883 lineto 547 883 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      388 855 moveto (File position of this parent's data =  Pn) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      339 854 moveto (\(long\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      680 855 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      388 831 moveto (Number of reaction paths,  R) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      339 830 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      618 831 moveto ([1]) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      586 814 moveto 606 814 lineto 606 834 lineto 586 834 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      388 806 moveto (Parent isotope KZA identifier) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      339 805 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      620 806 moveto ([1]) show
+   grestore
+
+% POLY/OPEN-SPLINE
+gsave
+   3 setlinewidth
+   newpath
+      494 889 moveto
+      366 889 lineto
+      366 1005 lineto
+      494 1005 lineto
+   stroke
+   1 setlinewidth
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      428 992 moveto (File position for this reaction's data =  Pr) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      379 991 moveto (\(long\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      738 992 moveto ([G+1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      428 942 moveto (Length of string describing reaction types,  L) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      379 941 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      773 942 moveto ([1]) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      739 926 moveto 759 926 lineto 759 946 lineto 739 946 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      428 967 moveto (Comma separated list of reaction types) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      379 966 moveto (\(char\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      724 967 moveto ([L]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      428 917 moveto (Daughter isotope KZA identifier) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      379 916 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      676 917 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      343 742 moveto (File position of neutron flux weight data =  P2) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      294 741 moveto (\(long\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      688 742 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      343 718 moveto (Special KZA code for neutron flux weight data = 0) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      294 717 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      723 718 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      343 694 moveto (File position of neutron group data =  P1) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      294 693 moveto (\(long\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      650 694 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      343 670 moveto (Special KZA code for neutron group data = -1) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      294 669 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      698 670 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      343 646 moveto (Number of neutron energy groups,  G) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      294 645 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      636 646 moveto ([1]) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      600 629 moveto 620 629 lineto 620 649 lineto 600 649 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      343 622 moveto (Number of parent isotopes,  N) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      294 621 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      579 622 moveto ([1]) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      547 605 moveto 566 605 lineto 566 625 lineto 547 625 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      325 766 moveto (For each parent isotope,  n  = [1,N]:) show
+   grestore
+
+% POLYGON/CLOSED-SPLINE
+newpath
+   294 754 moveto
+   307 754 lineto
+   307 748 lineto
+   318 757 lineto
+   307 767 lineto
+   307 760 lineto
+   294 760 lineto
+closepath eofill
+gsave
+   newpath
+   294 754 moveto
+      307 754 lineto
+      307 748 lineto
+      318 757 lineto
+      307 767 lineto
+      307 760 lineto
+      294 760 lineto
+   closepath stroke
+grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      508 750 moveto 524 750 lineto 524 770 lineto 508 770 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      262 580 moveto 287 580 lineto 287 600 lineto 262 600 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      265 597 moveto (P3) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      343 598 moveto (Library type code) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      294 597 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      483 598 moveto ([1]) show
+   grestore
+
+% POLY/OPEN-SPLINE
+gsave
+   3 setlinewidth
+   newpath
+      449 297 moveto
+      321 297 lineto
+      321 572 lineto
+      449 572 lineto
+   stroke
+   1 setlinewidth
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      384 406 moveto (Average decay energies for                decay) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      337 405 moveto (\(float\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      699 406 moveto ([3]) show
+   grestore
+
+% TEXT
+0 setgray
+/Symbol findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      588 403 moveto (a, b, g) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      386 378 moveto (Half-life of isotopes) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      337 377 moveto (\(float\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      543 378 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      386 352 moveto (Number of reaction paths,  R) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      337 351 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      620 352 moveto ([1]) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      584 335 moveto 604 335 lineto 604 355 lineto 584 355 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      367 432 moveto (For each reaction path,  r  = [1,R]:) show
+   grestore
+
+% POLYGON/CLOSED-SPLINE
+newpath
+   337 422 moveto
+   350 422 lineto
+   350 416 lineto
+   361 425 lineto
+   350 435 lineto
+   350 428 lineto
+   337 428 lineto
+closepath eofill
+gsave
+   newpath
+   337 422 moveto
+      350 422 lineto
+      350 416 lineto
+      361 425 lineto
+      350 435 lineto
+      350 428 lineto
+      337 428 lineto
+   closepath stroke
+grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      544 416 moveto 559 416 lineto 559 436 lineto 544 436 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      289 310 moveto 314 310 lineto 314 330 lineto 289 330 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      292 327 moveto (Pn) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      386 327 moveto (Parent isotope KZA identifier) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      337 326 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      617 327 moveto ([1]) show
+   grestore
+
+% POLY/OPEN-SPLINE
+gsave
+   3 setlinewidth
+   newpath
+      491 443 moveto
+      363 443 lineto
+      363 560 lineto
+      491 560 lineto
+   stroke
+   1 setlinewidth
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      425 547 moveto (Cross-section and decay data) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      376 546 moveto (\(float\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      654 547 moveto ([G+1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      425 521 moveto (Comma separated list of reaction types) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      376 520 moveto (\(char\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      725 521 moveto ([L]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      425 495 moveto (Length of string describing reaction types,  L) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      376 494 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      764 495 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      335 468 moveto (Pr) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      331 451 moveto 356 451 lineto 356 471 lineto 331 471 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      425 469 moveto (Daughter isotope KZA identifier) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      376 468 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      675 469 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      324 288 moveto (For each parent isotope,  n  = [1,N]:) show
+   grestore
+
+% POLYGON/CLOSED-SPLINE
+newpath
+   293 276 moveto
+   306 276 lineto
+   306 270 lineto
+   317 279 lineto
+   306 289 lineto
+   306 282 lineto
+   293 282 lineto
+closepath eofill
+gsave
+   newpath
+   293 276 moveto
+      306 276 lineto
+      306 270 lineto
+      317 279 lineto
+      306 289 lineto
+      306 282 lineto
+      293 282 lineto
+   closepath stroke
+grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      507 272 moveto 523 272 lineto 523 292 lineto 507 292 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      342 261 moveto (Neutron flux weights) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      293 260 moveto (\(float\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      505 261 moveto ([G                         ]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      534 261 moveto (if above flag) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      599 134 moveto 619 134 lineto 619 154 lineto 599 154 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      342 151 moveto (Number of neutron energy groups,  G) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      293 150 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      633 151 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      342 123 moveto (Number of parent isotopes,  N) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      293 122 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      576 123 moveto ([1]) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      546 106 moveto 565 106 lineto 565 126 lineto 546 126 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      342 96 moveto (Files position of index = P5) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      293 95 moveto (\(long\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      546 96 moveto ([1]) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      679 206 moveto (if above flag) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      342 206 moveto (Neutron group boundary information) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      293 205 moveto (\(float\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      626 206 moveto ([G +1                         ]) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      262 160 moveto 287 160 lineto 287 180 lineto 262 180 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      265 177 moveto (P1) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      342 178 moveto (Flag indicating existence of neutron group boundaries) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      293 177 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      744 178 moveto ([1]) show
+   grestore
+
+% BOX
+gsave
+   1.415 setmiterlimit
+   3 setlinewidth
+   newpath
+      262 215 moveto 287 215 lineto 287 235 lineto 262 235 lineto
+   closepath stroke
+   1 setlinewidth
+   1 setmiterlimit
+grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      265 232 moveto (P2) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Roman findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      342 233 moveto (Flag indicating existence of neutron flux weights) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Italic findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      293 232 moveto (\(int\)) show
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [18 0 0 -18 0 0] makefont setfont
+   gsave
+      704 233 moveto ([1]) show
+   grestore
+
+% POLY/OPEN-SPLINE
+gsave
+   3 setlinewidth
+   newpath
+      218 79 moveto
+      218 564 lineto
+   stroke
+   1 setlinewidth
+grestore
+
+% POLY/OPEN-SPLINE
+gsave
+   3 setlinewidth
+   newpath
+      218 576 moveto
+      218 1014 lineto
+   stroke
+   1 setlinewidth
+grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [24 0 0 -24 0 0] makefont setfont
+   gsave
+      196 375 moveto 270 rotate (BINARY DATA) show
+      -270 rotate 
+   grestore
+
+% TEXT
+0 setgray
+/Times-Bold findfont [24 0 0 -24 0 0] makefont setfont
+   gsave
+      196 851 moveto 270 rotate (BINARY INDEX) show
+      -270 rotate 
+   grestore
+
+grestore
+tgifsavedpage restore
+end
+%%Trailer
+%MatchingCreationDate: Mon Mar 22 12:34:56 1999
+%%EOF
