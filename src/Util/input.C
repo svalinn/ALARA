@@ -1,4 +1,4 @@
-/* $Id: input.C,v 1.7 2000-02-19 05:34:12 wilson Exp $ */
+/* $Id: input.C,v 1.8 2000-04-28 15:32:54 wilson Exp $ */
 #include "alara.h"
 #include "input_tokens.h"
 
@@ -92,7 +92,7 @@ double convertTime(double inTime, char units)
     case 'c' : /* century */
       inTime *= 100;
     case 'y' : /* year */
-      inTime *= 52;
+      inTime *= 365/7;
     case 'w' : /* week */
       inTime *= 7;
     case 'd' : /* day */
