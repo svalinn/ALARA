@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.9 2002-09-23 16:50:16 varuttam Exp $
+$Id: ChangeLog,v 1.10 2002-12-02 20:36:11 varuttam Exp $
 	
 Version 2.6.???
 	
@@ -17,7 +17,7 @@ NEW FEATURES
 	* Read user-defined total volume in 'loading' input block. [AV] (09/09/2002)
 	* Use user-defined total volume with special 'units' entry of
 	  output block to give volume integrated results. [AV] (09/09/2002)
-
+        * Adjoint dose calculation for volume resolution [AV] (12/02/2002)
 
 CODE UPDATES
 	* Update for addition of software for producing collaboration 

@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.h,v 1.16 2002-08-05 20:23:19 fateneja Exp $ */
+/* $Id: OutputFormat.h,v 1.17 2002-12-02 20:36:13 varuttam Exp $ */
 #include "alara.h"
 #include <set>
 
@@ -69,8 +69,10 @@ protected:
     *gammaSrc, 
     
     // NEED COMMENT
-    *contactDose;
+    *contactDose,
 
+    *adjointDose;
+ 
   OutputFormat 
     /// The next object in the linked-list.
     *next;

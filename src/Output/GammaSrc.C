@@ -1,8 +1,9 @@
-/* $Id: GammaSrc.C,v 1.10 2002-08-01 17:45:51 wilsonp Exp $ */
+/* $Id: GammaSrc.C,v 1.11 2002-12-02 20:36:12 varuttam Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
 #include "Input/Mixture.h"
+#include "Input/Volume.h"
 
 /***************************
  ********* Service *********
@@ -18,6 +19,7 @@ GammaSrc::GammaSrc(istream& input, int inGammaType)
   strcpy(libType,"gammalib");
   nGroups = 0;
   contactDose = 0;
+  adjDose = 0; 
   grpBnds = NULL;
   dataLib = NULL;
   gammaAttenCoef = NULL;
@@ -34,7 +36,7 @@ GammaSrc::GammaSrc(istream& input, int inGammaType)
       initContactDose(input);
       break;
     case GAMMASRC_ADJOINT:
-      error (6000,"Adjoint Dose it not yet supported!");
+      initAdjointDose(input); 
       break;
     }
 
@@ -83,15 +85,15 @@ void GammaSrc::initContactDose(istream& input)
   input >> token;
   fileName = new char[strlen(token)+1];
   strcpy(fileName,token);
-  gAttenData.open(fileName);
-  if (!gAttenData)
+  gDoseData.open(fileName);
+  if (!gDoseData)
     error(250,
 	  "Unable to open file for gamma attenuation data input (contact dose): %s\n",
 	  fileName);
 
   /* get number of data points used for this data */
-  clearComment(gAttenData);
-  gAttenData >> nGroups;
+  clearComment(gDoseData);
+  gDoseData >> nGroups;
 
   grpBnds = new double[nGroups+1];
   grpBnds[0] = 0.0;
@@ -99,10 +101,43 @@ void GammaSrc::initContactDose(istream& input)
   /* read gamma energy points */
   for (gNum=1;gNum<nGroups+1;gNum++)
     {
-      gAttenData >> grpBnds[gNum];
+      gDoseData >> grpBnds[gNum];
       grpBnds[gNum] *= 1.0E6;
     }
 
+
+}
+
+void GammaSrc::initAdjointDose(istream& input)
+{
+
+  char token[64];
+  int gNum;
+
+  /* get adjoint dose field information from file */
+  clearComment(input);
+  input >> token;
+  fileName = new char[strlen(token)+1];
+  strcpy(fileName,token);
+  gDoseData.open(fileName);
+  if (!gDoseData)
+    error(260,
+	  "Unable to open file for adjoint field data input (adjoint dose): %s\n",
+	  fileName);
+
+  /* get number of data points used for this data */
+  clearComment(input);
+  input >> nGroups;  
+
+  grpBnds = new double[nGroups+1];
+  grpBnds[0] = 0.0;
+
+  /* read gamma energy points */
+  clearComment(input); 
+  for (gNum=1;gNum<nGroups+1;gNum++)
+    {
+      input >> grpBnds[gNum];
+    }
 
 }
 
@@ -114,14 +149,21 @@ GammaSrc::~GammaSrc()
   /* delete vector pointed to by entry */
 
   delete dataLib;
-  delete grpBnds;
+  delete [] grpBnds;
 
 }
 
 void GammaSrc::setGammaAttenCoef(Mixture* mixList)
 {
 
-  mixList->setGammaAttenCoef(nGroups,gAttenData);
+  mixList->setGammaAttenCoef(nGroups,gDoseData);
+
+}
+
+void GammaSrc::setAdjDoseData(Volume* volList)
+{
+
+ volList->setAdjDoseData(nGroups,gDoseData);
 
 }
 
@@ -228,7 +270,8 @@ void GammaSrc::setData(int kza, int numSpec,
 	gammaMult[gNum] = 0.0;
 
       contactDose = 0.0;
-      
+      adjDose = 0.0;
+    
       for (specNum=0;specNum<numSpec;specNum++)
 	{
 	  /* foreach discrete gamma */
@@ -239,6 +282,7 @@ void GammaSrc::setData(int kza, int numSpec,
 	      switch (gammaType)
 		{
 		case GAMMASRC_RAW_SRC:
+		case GAMMASRC_ADJOINT:
 		  /* increment bin */
 		  gammaMult[gNum] += discGammaI[specNum][gammaNum];
 		  break;
@@ -261,7 +305,7 @@ void GammaSrc::setData(int kza, int numSpec,
 		      (gammaAttenCoef[gNum-1]*(1.0 - interpFrac) + 
 		       gammaAttenCoef[gNum] * interpFrac);
 		  break;
-		}
+                }
 	    }
 	  
 	  /* CONTINUOUS ENERGY SPECTRUM */
@@ -274,13 +318,13 @@ void GammaSrc::setData(int kza, int numSpec,
 	      Ehi = std::min(double(contX[specNum][pntNum+1]),grpBnds[gNum+1]);
 	      switch (gammaType)
 		{
-		case GAMMASRC_RAW_SRC:
+                case GAMMASRC_RAW_SRC:
+	        case GAMMASRC_ADJOINT:	
 		  gammaMult[gNum] += subIntegral(pntNum,intRegT[specNum][regNum],
 						 contX[specNum],contY[specNum],
 						 Elo,Ehi);
 		  break;
 		case GAMMASRC_CONTACT:
-		case GAMMASRC_ADJOINT:
 		  /* ignore continuous spectrum for now */
 		  break;
 		}
@@ -365,6 +409,22 @@ double GammaSrc::calcDoseConv(int kza, double *mixGammaAttenCoef)
   gammaAttenCoef = NULL;
 
   return contactDose;
+
+
+}
+
+double GammaSrc::calcAdjDose(int kza, double *volAdjDoseConv, double userVol)
+{
+
+  double adjDose = 0;
+  double* mult = getGammaMult(kza);
+  int gNum;
+
+  for (gNum=0;gNum<nGroups;gNum++)
+    adjDose += mult[gNum]*volAdjDoseConv[gNum];
+
+  return adjDose*userVol;
+  
 
 
 };

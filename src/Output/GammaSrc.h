@@ -1,9 +1,7 @@
-/* $Id: GammaSrc.h,v 1.7 2002-08-05 20:23:19 fateneja Exp $ */
+/* $Id: GammaSrc.h,v 1.8 2002-12-02 20:36:12 varuttam Exp $ */
 #include "alara.h"
 #include <set>
-
 // NEED COMMENT there are no comments for this class
-
 
 /* ******* Class Description ************
 
@@ -27,8 +25,8 @@ protected:
   double *grpBnds;
   char *fileName;
   ofstream gSrcFile;
-  ifstream gAttenData;
-  double contactDose, *gammaAttenCoef;
+  ifstream gDoseData;
+  double contactDose, *gammaAttenCoef, adjDose;
 
   VectorCache gammaMultCache;
 
@@ -42,6 +40,7 @@ public:
 
   void initRawSrc(istream&);
   void initContactDose(istream&);
+  void initAdjointDose(istream&);
 
   double* getGammaMult(int);
   char* getFileName()
@@ -53,7 +52,9 @@ public:
   void writeTotal(double*,int);
 
   double calcDoseConv(int,double*);
+  double calcAdjDose(int,double*,double); 
   void setGammaAttenCoef(Mixture*);
+  void setAdjDoseData(Volume*);
 
   int getNumGrps()
     { return nGroups; };

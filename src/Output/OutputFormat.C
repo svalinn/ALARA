@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.26 2002-01-07 22:00:48 wilsonp Exp $ */
+/* $Id: OutputFormat.C,v 1.27 2002-12-02 20:36:13 varuttam Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -10,9 +10,9 @@
 
 #include "Chains/Node.h"
 
-const char *Out_Types = "ucnstabgpdw";
+const char *Out_Types = "ucnstabgpdwf";
 
-const int nOutTypes = 11;
+const int nOutTypes = 12;
 const int firstResponse = 2;
 const int lastSingularResponse = 10;
 const char *Out_Types_Str[nOutTypes] = {
@@ -26,7 +26,8 @@ const char *Out_Types_Str[nOutTypes] = {
   "Gamma Decay Heat [W%s]",
   "Photon Source Distribution [gammas/s%s] : %s\n\t    with Specific Activity [%s%s]",
   "Contact Dose [ Sv/hr/%s] : %s",
-  "WDR/Clearance index"};
+  "WDR/Clearance index",
+  "Folded (Adjoint) Dose [Sv/hr/%s]"};
 
 /***************************
  ********* Service *********
@@ -180,6 +181,10 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  /* setup gamma source for contact dose */
 	  next->contactDose = new GammaSrc(input,GAMMASRC_CONTACT);
 	  break;
+	case OUTFMT_ADJ:
+	  /* setup gamma source for adjoint dose */
+	  next->adjointDose = new GammaSrc(input,GAMMASRC_ADJOINT);
+          break;	
 	}
 
       clearComment(input);

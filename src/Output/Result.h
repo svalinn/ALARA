@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.14 2002-08-05 20:23:19 fateneja Exp $ */
+/* $Id: Result.h,v 1.15 2002-12-02 20:36:14 varuttam Exp $ */
 #include "alara.h"
 
 #ifndef _RESULT_H
@@ -170,10 +170,12 @@ public:
       pointed to by the second argument.  It simultaneously sets the 
       total for this point at each cooling time, at the pointer passed by
       reference in the third argument. */
-  void write(int, int, Mixture*,CoolingTime*, double*&, double volume_mass=1);
+  void write(int, int, Mixture*,Volume*,CoolingTime*, double*&, double volume_mass=1);
+  void write(int, int, Mixture*, CoolingTime*, double*&, double volume_mass=1);
   
   /// This function is used to set actMult from the first argument and
   /// metricMult by interpretation of the second argument.
+ 
   static void setNorm(double,int);
 
   /// This function opens and initializes the binary dump file used

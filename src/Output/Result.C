@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.24 2002-09-23 16:50:17 varuttam Exp $ */
+/* $Id: Result.C,v 1.25 2002-12-02 20:36:14 varuttam Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -12,6 +12,7 @@
 
 #include "Input/CoolingTime.h"
 #include "Input/Mixture.h"
+#include "Input/Volume.h"
 
 #include "Chains/Chain.h"
 #include "Chains/Node.h"
@@ -255,8 +256,17 @@ void Result::postProc(Result& outputList, double density)
 
 }      
 
+void Result::write(int response, int targetKza, Mixture *mixPtr,
+                   CoolingTime *coolList, double*& total, double volume_mass)
+{
+  Volume* volPtr = NULL;  //This pointer is set to NULL if called from Loading::write or Mixture::write
+ 
+  write(response, targetKza, mixPtr, volPtr, coolList, total, volume_mass);
+
+}
+
 void Result::write(int response, int targetKza, Mixture *mixPtr, 
-		   CoolingTime *coolList, double*& total, double volume_mass)
+		   Volume *volPtr, CoolingTime *coolList, double*& total, double volume_mass)
 {
   int resNum;
   int gGrpNum,nGammaGrps;
@@ -323,7 +333,11 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 	  multiplier = mixPtr->getDoseConv(targetKza, gammaSrc) *
 	    dataAccess.getLambda(targetKza)*actMult;
 	  break;
-	default:
+        case OUTFMT_ADJ:
+	  multiplier = volPtr->getAdjDoseConv(targetKza, gammaSrc) *
+	    dataAccess.getLambda(targetKza)*actMult;
+	  break;
+        default:
 	  multiplier = 1.0;
 	}
       multiplier *= volume_mass;
@@ -367,7 +381,11 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 	      multiplier = mixPtr->getDoseConv(ptr->kza, gammaSrc) *
 		dataAccess.getLambda(ptr->kza)*actMult;
 	      break;
-	    default:
+	    case OUTFMT_ADJ:
+	      multiplier = volPtr->getAdjDoseConv(targetKza,gammaSrc) *
+		dataAccess.getLambda(targetKza)*actMult;
+	      break;
+            default:
 	      multiplier = 1.0;
 	    }
 	  multiplier *= volume_mass;

@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.14 2002-09-09 19:57:53 varuttam Exp $ */
+/* $Id: Volume.h,v 1.15 2002-12-02 20:36:12 varuttam Exp $ */
 #include "alara.h"
 
 #ifndef _VOLUME_H
@@ -88,7 +88,10 @@ protected:
   double 
     /// The response totalled over the whole interval is stored in an 
     /// array to enable the printing of a table of totals.
-    *total;
+    *total,
+
+    /// Gamma source to dose conversion factor (adjoint calculation)
+    *adjConv;
 
   Volume* 
     /// A pointer to the next Volume object in the problem-wide list.
@@ -283,6 +286,13 @@ public:
       according to the second argument. */
   void storeMatrix(double** fluxMatrix, double scale);
 
+  void setAdjDoseData(int, ifstream&);
+  /// This function reads adjoint field data from input file.
+
+  double getAdjDoseConv(int, GammaSrc*);
+  
+  inline double getUservol() { return uservol; }
+  /// Access function for uservol
 };
 
 

@@ -1,10 +1,11 @@
-/* $Id: Volume.C,v 1.29 2002-09-25 07:22:00 wilsonp Exp $ */
+/* $Id: Volume.C,v 1.30 2002-12-02 20:36:11 varuttam Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
 #include "Mixture.h"
 #include "Component.h"
 #include "CoolingTime.h"
+#include "Output/GammaSrc.h"
 #include "Norm.h"
 
 #include "Chains/Chain.h"
@@ -32,6 +33,7 @@ void Volume::init()
   mixPtr = NULL;
   next = NULL;
   mixNext = NULL;
+  adjConv = NULL;
 
   fluxHead = new VolFlux;
   flux = fluxHead;
@@ -49,6 +51,7 @@ void Volume::deinit()
   delete zoneName; 
   delete fluxHead; 
   delete schedT; 
+  delete [] adjConv;
   delete [] outputList;
 }  
 
@@ -94,6 +97,7 @@ Volume::Volume(const Volume& v)
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
   uservol=v.uservol;
+  adjConv=v.adjConv;
 
   if (v.zoneName != NULL)
     {
@@ -145,6 +149,8 @@ Volume& Volume::operator=(const Volume& v)
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
   uservol = v.uservol;
+  adjConv = v.adjConv;
+  
   if (v.zoneName != NULL)
     {
       zoneName = new char[strlen(v.zoneName)+1];
@@ -620,7 +626,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		  cout << endl;
 
 		  ptr->outputList[compNum].write(response,targetKza,ptr->mixPtr,
-						 coolList,ptr->total,volume_mass);
+						 this,coolList,ptr->total,volume_mass);
 
 		  compPtr = compPtr->advance();
 		  compNum++;
@@ -744,5 +750,23 @@ int Volume::count()
   }
 
   return numInt;
+}
+
+void Volume::setAdjDoseData(int nGroups, ifstream& AdjDoseData)
+{
+  Volume *ptr = this;
+  while (ptr->next !=NULL)
+  {
+	ptr = ptr->next;
+        ptr->adjConv=new double[nGroups]; 
+        for (int gNum=0;gNum<nGroups;gNum++)
+	       AdjDoseData >> ptr->adjConv[gNum];
+  }
+}
+
+double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
+{
+ 
+  return adjDose->calcAdjDose(kza,adjConv,uservol);
 }
 
