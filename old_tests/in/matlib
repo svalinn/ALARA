@@ -1,9 +1,11 @@
+# this is a simple material used for testing.
 test_mat_1	1.000	5
 	fe	0.45	26
 	ag	0.15	47
 	cd	0.20	48
 	w	0.10	74
 	pb	0.10	82
+# you might notice that all the test_mat descriptions are identical except for their density!
 test_mat_2	2.000	5
 	fe	0.45	26
 	ag	0.15	47
