@@ -1,3 +1,4 @@
+/* $Id: NuclearData.h,v 1.10 1999-08-24 22:06:17 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************

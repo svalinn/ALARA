@@ -1,3 +1,4 @@
+/* $Id: EAFLib.C,v 1.8 1999-08-24 22:06:18 wilson Exp $ */
 #include "EAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 

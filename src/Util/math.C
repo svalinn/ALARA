@@ -1,3 +1,4 @@
+/* $Id: math.C,v 1.13 1999-08-24 22:06:26 wilson Exp $ */
 #include "alara.h"
 #include "Matrix.h"
 

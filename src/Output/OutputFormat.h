@@ -1,3 +1,4 @@
+/* $Id: OutputFormat.h,v 1.7 1999-08-24 22:06:26 wilson Exp $ */
 #include "alara.h"
 #include <set>
 

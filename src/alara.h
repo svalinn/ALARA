@@ -1,3 +1,4 @@
+/* $Id: alara.h,v 1.5 1999-08-24 22:06:14 wilson Exp $ */
 #ifndef _ALARA_H
 #define _ALARA_H 1
 
@@ -7,7 +8,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include <ctype.h>
 #include <math.h>
 // #include <algorithm>

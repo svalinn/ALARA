@@ -1,3 +1,4 @@
+/* $Id: calcSchedule.h,v 1.3 1999-08-24 22:06:14 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************

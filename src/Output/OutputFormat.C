@@ -1,3 +1,4 @@
+/* $Id: OutputFormat.C,v 1.12 1999-08-24 22:06:26 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"

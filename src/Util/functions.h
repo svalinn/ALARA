@@ -1,3 +1,4 @@
+/* $Id: functions.h,v 1.5 1999-08-24 22:06:26 wilson Exp $ */
 /* input.C */
 istream* openFile(char*);
 void clearComment(istream& input);

@@ -1,3 +1,4 @@
+/* $Id: DoseResponse.C,v 1.5 1999-08-24 22:06:26 wilson Exp $ */
 #include "DoseResponse.h"
 
 DoseResponse::DoseResponse(int type) :

@@ -1,3 +1,4 @@
+/* $Id: LibEntry.C,v 1.2 1999-08-24 22:06:18 wilson Exp $ */
 #include "DataLib.h"
 
 DataLib::LibEntry::LibEntry()

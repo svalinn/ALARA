@@ -1,3 +1,4 @@
+/* $Id: Statistics.h,v 1.6 1999-08-24 22:06:26 wilson Exp $ */
 #include "alara.h"
 
 #define max1(x,y) (x>y?x:y)

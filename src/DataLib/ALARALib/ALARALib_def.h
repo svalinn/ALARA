@@ -1,3 +1,4 @@
+/* $Id: ALARALib_def.h,v 1.4 1999-08-24 22:06:18 wilson Exp $ */
 
 #ifndef _ALARALIB_DEF_H
 #define _ALARALIB_DEF_H

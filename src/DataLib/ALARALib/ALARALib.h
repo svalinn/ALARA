@@ -1,3 +1,4 @@
+/* $Id: ALARALib.h,v 1.5 1999-08-24 22:06:18 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************

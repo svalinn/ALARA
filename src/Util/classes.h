@@ -1,3 +1,4 @@
+/* $Id: classes.h,v 1.4 1999-08-24 22:06:26 wilson Exp $ */
 /* Input */
 class Component;
 class CoolingTime;

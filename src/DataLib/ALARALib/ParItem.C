@@ -1,3 +1,4 @@
+/* $Id: ParItem.C,v 1.3 1999-08-24 22:06:18 wilson Exp $ */
 #include "ADJLib.h"
 
 ADJLib::DaugItem::ParItem::ParItem(int parKza, long rxnOffset)

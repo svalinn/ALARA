@@ -1,3 +1,4 @@
+/* $Id: calcSchedule.C,v 1.6 1999-08-24 22:06:14 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Preproc: functions directly related to preprocessing of input

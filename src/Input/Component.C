@@ -1,3 +1,4 @@
+/* $Id: Component.C,v 1.6 1999-08-24 22:06:18 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 

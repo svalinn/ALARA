@@ -1,3 +1,4 @@
+/* $Id: Node.C,v 1.12 1999-08-24 22:06:14 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains

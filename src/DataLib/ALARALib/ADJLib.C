@@ -1,3 +1,4 @@
+/* $Id: ADJLib.C,v 1.6 1999-08-24 22:06:18 wilson Exp $ */
 #include "ADJLib.h"
 
 /* open an existing library */

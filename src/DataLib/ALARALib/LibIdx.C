@@ -1,3 +1,4 @@
+/* $Id: LibIdx.C,v 1.4 1999-08-24 22:06:18 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling

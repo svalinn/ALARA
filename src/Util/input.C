@@ -1,3 +1,4 @@
+/* $Id: input.C,v 1.4 1999-08-24 22:06:26 wilson Exp $ */
 #include "alara.h"
 #include "input_tokens.h"
 

@@ -1,3 +1,4 @@
+/* $Id: NuclearData.C,v 1.11 1999-08-24 22:06:17 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
