@@ -84,8 +84,8 @@ Matrix& Matrix::operator*=(const Matrix& B)
   else if (size == 0)
     *this = B;
 
-  /* otherwise, do math */
-  else
+  /* otherwise, if B is not zero, do math */
+  else if (B.size > 0)
     {
       double *A_data = data;
       data = new double[size*(size+1)];
@@ -116,7 +116,9 @@ Matrix Matrix::operator*(const Matrix& B)
 {
   if (size == 0)
     return B;
-  
+  else if (B.size == 0)
+    return *this;
+
   Matrix result(size);
   int row=0,col=0,idx,term, idxA=0;
 
@@ -170,6 +172,9 @@ void Matrix::square()
 /* raise a matrix to a power */
 Matrix Matrix::operator^(int power)
 {
+  if (size == 0)
+    return *this;
+
   /* initialize matrices */
   Matrix answer(size);
   Matrix accumulator(*this);
