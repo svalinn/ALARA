@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.21 2000-07-07 02:28:22 wilson Exp $ */
+/* $Id: Result.C,v 1.22 2000-11-29 21:29:47 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -297,7 +297,7 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	{
 	case OUTFMT_SRC:
 	  /* set gamma vector */
-	  gammaMult = gammaSrc->getGammaMult(targetKza,dataAccess.getLambda(targetKza)*volume_mass);
+	  gammaMult = gammaSrc->getGammaMult(targetKza);
 	  /* write activity at same time as gamma source */
 	case OUTFMT_ACT:
 	  multiplier = dataAccess.getLambda(targetKza)*actMult;
@@ -337,7 +337,7 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	    {
 	    case OUTFMT_SRC:
 	      /* set gamma vector */
-	      gammaMult = gammaSrc->getGammaMult(ptr->kza,dataAccess.getLambda(ptr->kza)*volume_mass);
+	      gammaMult = gammaSrc->getGammaMult(ptr->kza);
 	      /* write activity at same time as gamma source */
 	    case OUTFMT_ACT:
 	      multiplier = dataAccess.getLambda(ptr->kza)*actMult;
@@ -380,14 +380,14 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 
 	  /* gamma source */
 	  if (response == OUTFMT_SRC)
-	    gammaSrc->writeIsotope(gammaMult,ptr->N[resNum]);
+	    gammaSrc->writeIsotope(gammaMult,ptr->N[resNum]*multiplier/actMult);
 
 	  /* increment the total */
 	  total[resNum] += ptr->N[resNum]*multiplier;
 	  if (response == OUTFMT_SRC && gammaMult != NULL)
 	    /* accumulate gamma source to total */
 	    for (gGrpNum=0;gGrpNum<nGammaGrps;gGrpNum++)
-	      photonSrc[resNum*nGammaGrps+gGrpNum] += gammaMult[gGrpNum]*ptr->N[resNum];
+	      photonSrc[resNum*nGammaGrps+gGrpNum] += gammaMult[gGrpNum]*ptr->N[resNum]*multiplier/actMult;
 	  
 	}
       cout << endl;

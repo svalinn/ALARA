@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.h,v 1.4 2000-07-07 02:28:22 wilson Exp $ */
+/* $Id: GammaSrc.h,v 1.5 2000-11-29 21:29:47 wilson Exp $ */
 #include "alara.h"
 #include <set>
 
@@ -31,7 +31,7 @@ public:
   GammaSrc(istream&);
   ~GammaSrc();
 
-  double* getGammaMult(int,double);
+  double* getGammaMult(int);
   char* getFileName()
     { return fileName; };
   void setData(int,int,int*,int*,int*,int**,int**,float**,float**,float**,float**);

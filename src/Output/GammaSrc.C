@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.5 2000-07-07 02:28:22 wilson Exp $ */
+/* $Id: GammaSrc.C,v 1.6 2000-11-29 21:29:47 wilson Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -202,7 +202,7 @@ void GammaSrc::setData(int kza, int numSpec,
 
 }
 
-double* GammaSrc::getGammaMult(int kza, double lambda)
+double* GammaSrc::getGammaMult(int kza)
 {
   if (!gammaMultCache.count(kza))
     {
