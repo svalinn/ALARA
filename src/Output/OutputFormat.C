@@ -8,6 +8,8 @@
 #include "Input/Mixture.h"
 #include "Input/Loading.h"
 
+#include "Chains/Node.h"
+
 /***************************
  ********* Service *********
  **************************/
@@ -88,7 +90,7 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
 OutputFormat* OutputFormat::getOutFmts(istream& input)
 {
   const char *Out_Res = " izm";
-  const char *Out_Types = "cnstabgdp";
+  const char *Out_Types = "censtabgw";
 
   int type;
   char token[64];
@@ -118,30 +120,11 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
       verbose(3,"Added output type %d (%s)",1<<type,token);
 
-      if (1<<type == OUTFMT_DOSE)
+      if (1<<type & OUTFMT_WDR)
 	{
-	  clearComment(input);
-	  input >> token >> tmpAdjFluxName >> tmpGSrcName;
-	  dosePtr = dosePtr->add(token,tmpAdjFluxName,tmpGSrcName);
-	  verbose(4," -- dose response %s using flux %s and gamma source structure %s",
-		  token,tmpAdjFluxName,tmpGSrcName);
-	  
-	}
-      else if (1<<type == OUTFMT_PHOTON)
-	{
-	  clearComment(input);
 	  input >> token;
-	  next->gSrcName = new char[strlen(token)+1];
-	  strcpy(next->gSrcName,token);
-
-	  clearComment(input);
-	  input >> token;
-	  next->gSrcFName = new char[strlen(token)+1];
-	  strcpy(next->gSrcFName,token);
-
-	  verbose(4," -- gamma source output to file %s using gamma source structure %s",
-		  next->gSrcFName,next->gSrcName);
-	  
+	  next->wdrFilenames.insert(token);
+	  verbose(4,"Added WDR/Clearance file %s", token);
 	}
 
       clearComment(input);
@@ -202,17 +185,18 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 {
   
   const int nOutTypes = 9;
-  const int firstResponse=1;
+  const int firstResponse=2;
+  const int lastSingularResponse=8;
   const char *Out_Types_Str[nOutTypes] = {
   "Break-down by Component",
-  "Number Density",
-  "Specific Activity",
-  "Total Decay Heat",
-  "Alpha Decay Heat",
-  "Beta Decay Heat",
-  "Gamma Decay Heat",
-  "Dose Response",
-  "Photon Source"};
+  "Binary Data export",
+  "Number Density [atoms/cm3]",
+  "Specific Activity [Bq/cm3]",
+  "Total Decay Heat [W/cm3]",
+  "Alpha Decay Heat [W/cm3]",
+  "Beta Decay Heat [W/cm3]",
+  "Gamma Decay Heat [W/cm3]",
+  "WDR/Clearance index"};
 
   OutputFormat *ptr = this;
   DoseResponse *dosePtr;
@@ -257,7 +241,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       cout << endl << endl;
       
       /* for each indicated response */
-      for (outTypeNum=firstResponse;outTypeNum<LAST_STD_RESP_IDX;outTypeNum++)
+      for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
 	  {
 	    /* write a response title */
@@ -284,76 +268,41 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	    cout << endl << endl << endl;
 	  }
 
-      /* Dose response */
-      if (ptr->outTypes & OUTFMT_DOSE)
+      if (ptr->outTypes & OUTFMT_WDR)
 	{
-	  DoseResponse *dosePtr = ptr->dose->advance();
-	  while (dosePtr != NULL)
+	  for(filenameList::iterator fileName = wdrFilenames.begin();
+	      fileName != wdrFilenames.end(); ++fileName)
 	    {
+	      
 	      /* write a response title */
-	      cout << "*** " << Out_Types_Str[outTypeNum] << ": " <<
-		dosePtr->getName() << " ***" << endl;
-
-	      /* call writeDose() on the appropriate object determined by
+	      cout << "*** " << Out_Types_Str[outTypeNum] << ": " 
+		   << *fileName << " ***" << endl;
+	      
+	      Node::loadWDR(*fileName);
+	      
+	      /* call write() on the appropriate object determined by
 		 the resulotition */
 	      switch(ptr->resolution)
 		{
 		case OUTRES_INT:
-		  volList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza,dosePtr);
+		  volList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
+				 coolList,targetKza);
 		  break;
 		case OUTRES_ZONE:
-		  loadList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-				  coolList,targetKza,dosePtr);
+		  loadList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
+				  coolList,targetKza);
 		  break;
 		case OUTRES_MIX:
-		  mixList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza,dosePtr);
+		  mixList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
+				 coolList,targetKza);
 		  break;
 		}
 	      
 	      cout << endl << endl << endl;
-
-	      dosePtr = dosePtr->advance();
-	    }
-	}
-
-      /* Photon Source */
-      if (ptr->outTypes & OUTFMT_PHOTON)
-	{
-	  outTypeNum++;
-
-	  /* write a response title */
-	  cout << "*** " << Out_Types_Str[outTypeNum] << " ***" << endl;
-	  cout << "\t" << "Written to files: " << gSrcFName << "_*.gam" 
-	       << endl;
-
-	  
-	  /* call writeGamma() on the appropriate object determined by
-	     the resulotition */
-	  switch(ptr->resolution)
-	    {
-	    case OUTRES_INT:
-	      volList->writeGamma(gSrcFName,gSrc,coolList,targetKza);
-	      break;
-	    case OUTRES_ZONE:
-	      loadList->writeGamma(gSrcFName,gSrc,coolList,targetKza);
-	      break;
-	    case OUTRES_MIX:
-	      mixList->writeGamma(gSrcFName,gSrc,coolList,targetKza);
-	      break;
 	    }
 	  
-	  cout << endl << endl << endl;
-	}
-      
-      
+	} 
     }
 
 }
 
-
-
-
-
-  
