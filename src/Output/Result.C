@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.22 2000-11-29 21:29:47 wilson Exp $ */
+/* $Id: Result.C,v 1.23 2001-12-06 23:16:41 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -255,8 +255,8 @@ void Result::postProc(Result& outputList, double density)
 
 }      
 
-void Result::write(int response, int targetKza, CoolingTime *coolList, 
-		   double*& total, double volume_mass)
+void Result::write(int response, int targetKza, Mixture *mixPtr, 
+		   CoolingTime *coolList, double*& total, double volume_mass)
 {
   int resNum;
   int gGrpNum,nGammaGrps;
@@ -317,6 +317,10 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	case OUTFMT_WDR:
 	  multiplier = dataAccess.getWDR(targetKza)*actMult;
 	  break;
+	case OUTFMT_CDOSE:
+	  multiplier = mixPtr->getDoseConv(targetKza, gammaSrc) *
+	    dataAccess.getLambda(targetKza)*actMult;
+	  break;
 	default:
 	  multiplier = 1.0;
 	}
@@ -356,6 +360,10 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	      break;
 	    case OUTFMT_WDR:
 	      multiplier = dataAccess.getWDR(ptr->kza)*actMult;
+	      break;
+	    case OUTFMT_CDOSE:
+	      multiplier = mixPtr->getDoseConv(ptr->kza, gammaSrc) *
+		dataAccess.getLambda(ptr->kza)*actMult;
 	      break;
 	    default:
 	      multiplier = 1.0;

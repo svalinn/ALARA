@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.12 2000-07-07 02:28:22 wilson Exp $ */
+/* $Id: Result.h,v 1.13 2001-12-06 23:16:41 wilsonp Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -230,7 +230,7 @@ public:
   void postProcTarget(Result*, Mixture*);
   void postProcList(Result*, Mixture*, int);
   void postProc(Result&, double density=1.0);
-  void write(int, int, CoolingTime*, double*&, double volume_mass=1);
+  void write(int, int, Mixture*,CoolingTime*, double*&, double volume_mass=1);
   static void setNorm(double,int);
 
   /* Dump */
