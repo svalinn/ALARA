@@ -65,5 +65,7 @@ AC_CONFIG_FILES([Makefile
 		 doc/Makefile
 		 data/Makefile
 		 sample/Makefile
+		 developer-info/Makefile
+		 developer-info/doxyalara
 		 ])
 AC_OUTPUT
