@@ -1,0 +1,526 @@
+\begin{chapter}{Mathematical Technique and Theory}
+
+The mathematical problem which results from the physical system
+described in Chapter \ref{chap:physical} is, at first glance, a very
+simple one.  However, the calculation of matrix exponentials, such as
+the solution to the activation equation:
+$$\vec{N}(t) = e^{\mat{A} t} \vec{N}_o,$$
+are known to be difficult in
+general.  An extensive study of nineteen different methods found them
+all to be ``dubious'', saying that ``some of the methods are
+preferable to others, but that none are [sic] completely
+satisfactory.''
+
+If the original activation tree (without removing cross-links and
+straightening loops -- Figure \ref{fig:physical.tree.basic}) is
+converted directly to its mathematical equivalent, the result is a
+compact but potentially stiff system of linear first order ordinary
+differential equations [ODE's],
+\begin{align}
+  \begin{split}
+    \dot{\vec{N}}(t) &= \mat{A}\vec{N}(t)\\
+    &= \left [
+      \begin{array}{cccccc}
+        -d_1 & P_{2\rightarrow 1} & P_{3\rightarrow 1} & \cdots & \cdots & P_{l\rightarrow 1}\\
+        P_{1\rightarrow 2} & -d_2 & P_{3\rightarrow 2} & \cdots & \cdots & P_{l\rightarrow 2}\\
+        P_{1\rightarrow 3} & P_{2\rightarrow 3} & -d_3 & \cdots & \cdots & P_{l\rightarrow 3}\\
+        \vdots & \vdots & \vdots & \ddots &  & \vdots\\
+        \vdots & \vdots & \vdots & & -d_{l-1} & P_{l\rightarrow l-1}\\
+        P_{1\rightarrow l} & P_{2\rightarrow l} & P_{3\rightarrow l} & \cdots & P_{l-1\rightarrow l} & -d_l
+      \end{array} \right ] \cdot \left [
+      \begin{array}{c}
+        N_1 \\ N_2 \\ N_3 \\ \vdots \\ \vdots \\ N_l
+      \end{array} \right ]_,
+  \end{split}\label{eq:math.intro.explicit}\\
+  \intertext{where:}
+  \vec{N} &\equiv \text{number densities, $N_i$, of all isotopes}\notag \\
+  d_i &\equiv \text{destruction rate of isotope $i$}\notag \\
+  P_{i\rightarrow j} &\equiv \text{production rate of isotope $j$ from isotope $i$.}\notag
+\end{align}
+
+After loop straightening and cross-link removal has been performed,
+the result is a somewhat larger, simpler set of ODE's:
+\begin{equation}
+  \begin{split}
+    \dot{\vec{N}}(t) &= \mat{B}\vec{N}(t)\\
+    &= \left [
+      \begin{array}{cccccc}
+        -d_1 & 0 & 0 & \cdots & \cdots & 0 \\
+        P_{1\rightarrow 2} & -d_2 & 0 & \cdots & \cdots & 0\\
+        P_{1\rightarrow 3} & P_{2\rightarrow 3} & d_3 & \cdots & \cdots & 0 \\
+        \vdots & \vdots & \vdots & \ddots &  & \vdots\\
+        \vdots & \vdots & \vdots & & -d_{m-1} & 0\\
+        P_{1\rightarrow m} & P_{2\rightarrow m} & P_{3\rightarrow m} & \cdots & P_{m-1\rightarrow m} & -d_m
+      \end{array} \right ] \cdot \left [
+      \begin{array}{c}
+        N_1 \\ N_2 \\ N_3 \\ \vdots \\ \vdots \\ N_m
+      \end{array} \right ]_.\label{eq:math.intro.tree}
+  \end{split}
+\end{equation}
+This lower triangular matrix is quite sparse with a maximum of two
+entries in each row since each isotope has only one production path
+and one total destruction rate.
+
+Finally, if this physical model is further broken into the previously
+described linear chains, many small sets of ODE's are created with
+special simplifying characteristics,
+\begin{equation}
+  \begin{split}
+    \dot{\vec{N}}(t) &= \mat{C}\vec{N}(t)\\
+    &= \left [
+      \begin{array}{cccccc}
+        -d_1 & 0 & 0 & \cdots & \cdots & 0 \\
+        P_{1\rightarrow 2} & -d_2 & 0 & \cdots & \cdots & 0\\
+        0 & P_{2\rightarrow 3} & -d_3 & \cdots & \cdots & 0 \\
+        0 & 0 & P_{3\rightarrow 4} & -d_4 &  & \vdots\\
+        \vdots & \vdots & \vdots & & \ddots & 0\\
+        0 & 0 & 0 & \cdots & P_{k-1\rightarrow k} & -d_k
+      \end{array} \right ] \cdot \left [
+      \begin{array}{c}
+        N_1 \\ N_2 \\ N_3 \\ \vdots \\ \vdots \\ N_k
+      \end{array} \right ]_.\label{eq:math.intro.chains}
+  \end{split}
+\end{equation}
+The bidiagonal nature of these matrices is an important factor in
+subsequent derivations and calculations.
+
+In all cases, the generic solution takes the form
+\begin{equation}
+  \vec{N}(t) = \mat{T}\vec{N}_o(t),\label{eq:math.intro.main}
+\end{equation}
+where \mat{T} is the exponential of the matrices \mat{A}, \mat{B}, or
+\mat{C}, depending on which method is used (\textsl{e.g.} $\mat{T} =
+e^{\mat{A} t}$).
+
+It is interesting to compare the sizes of these three matrices as it
+gives some initial insight into the efficiency of the solution.  To
+compare the size of the original tree, $l$, with that of the
+straightened tree, $m$, is not easy.  Since the physical conversion is
+to convert cross-links and loops into \pc-nodes, it is clear that $m >
+l$; however, the severity of this inequality is difficult to
+determine.  An approximate comparison between $k$ and $m$, however,
+can be made.  Since \mat{B} represents a true tree structure, it can
+be analyzed by assuming that it is a full $n$-ary tree, that is,
+assuming that each \pc-node in the tree has the same number of
+branches.  Since $k$ is the depth of such a tree, there will be
+$n^{k-1}$ chains representing the $m = \frac{n^k -1}{n-1} \approx
+O(n^{k-1})$ nodes of the tree.  The mathematical operations performed
+on these matrices are generally at least of order of the square of the
+matrix dimension, and often the cube.  Thus, for matrix \mat{B}, the
+mathematical costs will be at least $O(n^{2k-2})$ and possibly
+$O(n^{3k-3})$ or higher.  On the other hand, for the $n^{k-1}$
+matrices \mat{C}, the mathematical costs will be $O(k^2n^{k-1})$ or
+$O(k^3n^{k-1})$.  This very rough analysis shows that for mathematical
+operations of order $x$, as long as $n^{1-\frac{1}{x}} >
+k^{\frac{1}{k-1}}$, the linear chain method will be more efficient.
+While it may be difficult to visualize this relationship, it can be
+used to define some limits.  For second order operations, for $n \geq
+4$, the linear chain method is always more efficient.  For third order
+operations, only $n \geq 3$ is required.  On the other hand, for $n =
+2$, the chain depth, $k$, must be greater than 2, and even $k = 3$
+requires $5^{th}$ order operations for the linear chains to be more
+efficient.  Finally, for a real problem in which $n \geq 4$, the
+linear chain method is more efficient for all orders of solution.
+
+It is important to note that not only is this analysis not rigorous,
+but the order of the mathematical solution is itself dependent on the
+method which is used.  Thus, the analysis gives a first glance into
+the comparison of efficiency, but is hardly complete.
+
+Historically, a wide range of matrix methods, non-matrix time-step
+based solvers and matrix/time-step hybrid solvers have been used.
+
+For the non-matrix methods, the time history of the problem is divided
+into time steps and the equations are solved using some variation of a
+standard differencing technique, including Runge-Kutta, Euler, or GEAR
+methods.  By choosing small enough time steps, the numerical error of
+such methods can be reduced to make them sufficiently accurate.  The
+consequence of using small enough time steps, however, is increased
+computational time.  
+
+Hybrid methods are variations on ``scaling and squaring'' where some
+small time step is chosen, either based on the time constants of the
+problem, or by taking sufficient square roots of the total time of
+interest.  The scaled matrix exponential is solved with a rapidly
+converging series solution and then raised to some power, or
+successively squared, to reach the full operation time.  These methods
+are both computationally inefficient, and in the general case, can be
+prone to round-off error.
+
+It is also possible to use matrix decomposition methods to solve this
+formulation.  The matrix exponential can be decomposed as, $\mat{A} =
+\mat{S}\mat{D}\mat{S}^{-1},$ giving the solution $e^{\mat{A} t} =
+\mat{S}e^{\mat{D} t}\mat{S}^{-1},$.  The goal of this class of methods
+is to find a decomposition such that the exponential $e^{\mat{D} t}$
+is easily calculated. Some matrix decomposition methods which have
+been explored for this application include eigenvector decomposition,
+generalized eigenvector decomposition or Schur decomposition.  For
+some special forms of the transfer matrix, \mat{A}, these
+decomposition methods are accurate.  However, when formulated for the
+general case, the decompositions can be prone to round-off error.
+
+Within the class of matrix methods, however, implementations designed
+to take advantage of the special nature of the linear chain matrix
+\mat{C}, can be promising.  The individual ODE's are solved with the
+assitance of Laplace transforms, filling the resultant matrix
+exponential one element at a time.  These methods are, in fact,
+versions of matrix decomposition methods which have been reformulated
+to minimize round-off errors and handle defective matrices, so much so
+that they are hardly recognizable as matrix decomposition methods.
+Previous applications have used a formulation the analytic Bateman
+solution for linear chains, but this is only applicable when there are
+no loops.  A new method, developed in this work, is able to replace
+the Bateman solution, in the event that a loop occurs in the linear
+chain.
+
+One of the primary advantages of matrix methods is their ability to
+quickly solve problems with irradiation histories based on repetition,
+whether it be simple hierarchies of pulsing, or complex hierarchies of
+schedules and sub-schedules.  A single matrix must be solved for each
+relevant flux level and/or characteristic time, and these matrices are
+multiplied appropriately to build the response matrix for the entire
+history.  Time-step methods are unable to do this as they never
+generate a transfer matrix, but work directly with the isotopic number
+density vector.  Since it is not possible to determine a unique
+transfer matrix given the initial and final vector, time-step methods
+are forced to simply step through the entire history, applying the
+whole array of calculations at each time step and modelling each pulse
+individually.
+
+By transfering this system to the Laplace domain and considering each
+equation individually, it is possible to write the solution in a more
+compact form (N.B. $P_{i}$ implies $P_{i-1 \rightarrow i}$):
+\begin{align}
+  \tilde{N}_i &= \frac{N_{i_0}}{s+d_i} + P_i
+  \frac{\tilde{N}_{i-1}}{s+d_i}\\
+  \begin{split}
+    &= \frac{N_{i_0}}{s+d_i} + 
+    \frac{N_{i-1_0}}{s+d_{i-1}}\frac{P_i}{s+d_i} +
+    \frac{N_{i-2_0}}{s+d_{i-2}}\frac{P_{i-1}P_i}{(s+d_{i-1})(s+d_i)} + 
+    \cdots\\
+    &\quad+\frac{N_{2_o}}{s+d_2}\prod_{j=3}^i\frac{P_{j}}{s+d_{j}} +
+    \frac{N_{1_o}}{s+d_1}\prod_{j=2}^i\frac{P_j}{s+d_{j}},\\
+  \end{split}\\
+  \intertext{which can be written as}
+  \begin{split}
+    \tilde{N}_i & = \sum_{j=1}^i \tilde{N}_{ij} \\
+    & = \sum_{j=1}^i N_{j_o} \prod_{k=j+1}^i P_k \prod_{l=j}^i
+    \frac{1}{s+d_l} \\
+    & = \sum_{j=1}^i N_{j_o} \tilde{F}_{ij}(s)
+    \prod_{k=j+1}^i P_k.\label{eq:math.full.prob}\\
+  \end{split}\\
+  \intertext{In this representation, the matrix \mat{T} is filled by setting}
+  \begin{split}
+    T_{ij} &= N_{ij}/N_{j_o}\\ &=
+    \mathcal{L}^{-1}\left[\tilde{F}_{ij}(s)\right] \prod_{k=j+1}^{i}
+    P_k,\\
+  \end{split}\label{eq:math.intro.filler}\\
+  \intertext{and it becomes an exercise of solving for the inverse
+    transform of the term}
+  \tilde{F}_{ij}(s) &= \prod_{l=j}^i \frac{1}{s+d_l}\label{eq:math.root.prob}.
+\end{align}
+
+Normally, two such matrices, \mat{T} and \mat{D}, are required to
+represent the pulse and dwell times, respectively.  In the first case,
+all the destruction and production rates include the terms for neutron
+transmutation which are dependent on the flux spectrum and therefore
+it is only during this period in which loops can occur in the isotope
+tree.  In the dwell period, the destruction and production rates are
+only those of decay, and therefore, many of the values will be zero.
+
+
+\begin{section}{The Analytical Bateman Solution}\label{sec:math.bateman}
+  
+  If all the destruction rates, $d_i$, are distinct, Equation
+  \ref{eq:math.root.prob} can be easily inverted,
+  \begin{equation}
+    f_{ij}(t) = \sum_{l=j}^{i} e^{-d_l t} 
+    \prod_{\substack{
+        m=j \\
+        m\neq l
+        }}^i
+    \frac{1}{d_m - d_l}\label{eqn:math.bateman.inversion}.
+  \end{equation}
+  This leads to a compact representation of the solution to the
+  Bateman equations:
+  \begin{equation}
+    N_i(t) = N_{i_o}e^{-d_i t} + \sum_{j=1}^{i-1}N_{j_o}\left [
+      \sum_{k=j}^{i-1}\frac{P_{k+1}(e^{-d_k t} - e^{-d_i t})}{d_i -
+        d_k}\prod_{\substack{l=j\\l\neq k}}^{i-1}\frac{P_{l+1}}{d_l-d_k}\right] \, .
+  \end{equation}
+  Finally, we can write the transfer matrix elements as:
+  \begin{equation}
+    \begin{split}
+      T_{ii} &= e^{-d_i t}\\
+      T_{\substack{ij\\i\neq j}} &= \sum_{k=j}^{i-1}\frac{P_{k+1}(e^{-d_k t} - e^{-d_i t})}{d_i -
+        d_k}\prod_{\substack{l=j\\l\neq k}}^{i-1}\frac{P_{l+1}}{d_l-d_k}.\label{eqn:math.bateman.final}\\
+    \end{split}
+  \end{equation}
+  
+  It it can be shown that the mathematical operations performed in
+  this method are essentially the same operations that would be
+  carried out if an eigenvector decomposition was used to solve the
+  matrix.
+
+\end{section}
+
+\begin{section}{Laplace Inversion Method}\label{sec:math.inversion}
+  
+  When the destruction rates (eigenvalues) are not distinct, other
+  methods of solving equation \ref{eq:math.root.prob} are required.
+  In general, however, because of the bidiagonal nature of the matrix
+  representation (that is, because of the linear chain physical
+  representation), this is a simple problem which, for a small system,
+  can easily be solved on paper by hand.  In particular, this Laplace
+  space representation can be directly inverted to the time
+  representation.
+  
+  For repeated poles, one uses the residue theorem to determine the
+  coefficients for each term in a partial fractions expansion.  Each
+  of those terms would result in an exponential, perhaps multiplied by
+  a polynomial in time, $t$, when converted back to the time domain.
+  Those residues are calculated using one of two simple rules.
+  
+  If the pole is not repeated, then the residue, $R_k$, for the pole,
+  $-d_k$, is calculated as
+  \begin{equation}
+    R_k = \lim_{s\rightarrow d_k} (s+d_k) \tilde{F}_{ij}(s)
+  \end{equation}
+  which becomes $R_k e^{-d_kt}$ in the time domain.  If all poles have a
+  singular multiplicity, the solution reduces exactly to the Bateman
+  solution, and can be represented in many ways.  This is obviously the
+  solution with no loops.
+  
+  If the pole is repeated $m$ times, under a partial fraction
+  expansion, this becomes $m$ terms in that expansion:
+  \begin{equation}
+    \frac{R_{km}}{(s+d_k)^m} + \frac{R_{km-1}}{(s+d_k)^{m-1}} +\cdots + \frac{R_{k1}}{(s+d_k)}
+  \end{equation}
+  which becomes 
+  \begin{equation}
+    e^{-d_kt} \left ( R_{km} \frac{t^{m-1}}{(m-1)!} + R_{k,m-1}
+      \frac{t^{m-2}}{(m-2)!} + \cdots + R_{k2} \frac{t}{1!} + R_{k1} \right )
+  \end{equation}
+  in the time domain.  In this case, the residues are found using:
+  \begin{equation}
+    R_{kn} = \frac{1}{(m-n)!} \lim_{s\rightarrow d_k}
+    \frac{d^{m-n}}{ds^{m-n}} \left [ (s+d_k)^m \tilde{F}_{ij}(s) \right].
+  \end{equation}
+  
+  This latter rule requires the ability to evaluate derivatives of a
+  generic function:
+  \begin{equation}
+    \tilde{G}_{ij}^k(s) = (s+d_k)^m \tilde{F}_{i,j}(s)
+  \end{equation}
+  at values of $s = -d_k$ for all $i$.  By examining the successive
+  derivatives of $\tilde{G}(s)$ it can be shown (see Appendix
+  \ref{app:math.deriveG}) that these derivatives can be recursively
+  defined as:
+  \begin{equation}
+    \left[\tilde{G}_{ij}^k(s)\right]^{(n)} = \sum_{j=1}^n(-1)^j
+    \frac{(n-1)!}{(n-j)!}\left[\tilde{G}_{ij}^k(s)\right]^{(n-j)}
+    \sum_{i=1}^I \frac{1}{(s+d_i)^j}
+  \end{equation}
+  and this, in turn, can be converted to a computational numerical
+  algorithm, allowing the entire problem to be solved.
+  
+  We will call this method the Laplace Inversion Method.
+
+\end{section}  
+  
+\begin{section}{Laplace Expansion Method}\label{sec:math.expansion}
+    
+  Both of the above analytical solutions can be prone to round-off
+  error when the absolute difference between two poles is small,
+  either because the poles are nearly identical or because both poles
+  are very small.  Each term in the sum will be very large due to
+  division by small numbers, and successive terms will differ only in
+  the least significant digits.  For these cases, an expansion in
+  $1/s$ may be prefered.
+    
+  It is apparent from equation \ref{eqn:math.bateman.final}, however,
+  that such divisions can be eliminated by writing the solution as a
+  difference of exponentials, using the series expansions for the
+  exponentials, factoring out the offending term from the numerator
+  and canceling.  While this seems like a monumental task to perform
+  on an arbitrary problem, thanks to the bidiagonal nature of the
+  system, it is again quite simple to implement.  If we start again
+  with our function:
+  \begin{equation}
+    \tilde{F}_{ij}(s) = \prod_{l=j}^{i}\frac{1}{s+d_l}
+  \end{equation}
+  and making no assumptions about the multiplicity of the poles, we
+  expand this as a series in $1/s$, the result is:
+  \begin{align}
+    \begin{split}
+      \tilde{F}_{ij}(s) &=\frac{1}{s^{i-j+1}} \prod_{l=j}^i\frac{1}{1+\frac{d_l}{s}}\\
+      &=\frac{1}{s^{i-j+1}} \prod_{l=j}^i 
+      \left(1 - \frac{d_l}{s} + \frac{d_l^2}{s^2} - \frac{d_l^3}{s^3} + \cdots \right )\\
+      &= \frac{1}{s^{i-j+1}} \left [ 1 - \frac{\sum_{l=j}^i d_l}{s} +
+        \frac{\sum_{l=j}^{i}d_l\sum_{k=l}^i d_k}{s^2} - 
+        \frac{\sum_{l=j}^{i}d_l \sum_{k=l}^i d_k \sum_{m=k}^i d_m}{s^3} + \cdots
+      \right ].
+    \end{split}\\
+    \intertext{If $n=i-j$, in the time domain, this becomes:}
+    \begin{split}
+      f_{ij}(t) &= t^{n} \left[ \frac{1}{n!} - \frac{t}{(n+1)!}\sum_{l=j}^i d_l 
+        +\frac{t^2}{(n+2)!}\sum_{l=j}^{i}d_l \sum_{k=l}^i d_k\right.\\  
+      &\phantom{= t^{n-1} \left[\right.}
+      \left.\quad\quad-\frac{t^3}{(n+3)!}\sum_{l=j}^{i}d_l \sum_{k=l}^i d_k \sum_{m=k}^i d_m 
+        +\cdots \right ]\label{eqn:math.expansion.final}\\
+    \end{split}\\
+    \intertext{and thus:}
+    \begin{split}
+      T_{ii} &= e^{-d_i t}\\
+      T_{\substack{ij\\i\neq j}} &= f_{ij}(t)\prod_{k=j}^{i-1}P_k \, .\\
+    \end{split}
+  \end{align}
+  
+  It is clear that this solution will only be computationally viable
+  when the product, $\max \{d_i\} \cdot t$ is small.  For arbitrary
+  problems, this is only guaranteed when there are small times, but
+  can easily be tested for a particular problem.  Other
+  representations can be formed, each providing different insight into
+  the method (see Appendix \ref{app:math.1_s}).
+    
+  We will call this method the Laplace Expansion Method.
+
+\end{section}
+
+\begin{section}{Adaptive Mathematical Methods\label{sec:math.adaptive}}
+  
+  Upon examining available methods to solve such lower bidiagonal
+  systems, it can be seen that there are certain easily determined
+  characteristics of the matrix which can be used to adaptively choose
+  a method for each matrix element which will optimize the speed and
+  accuracy of the solution.
+  
+  The nature of the neutron fluxes and nuclear cross-sections result
+  in very small destruction rates for most branches, except those of
+  relatively short-lived decay reactions.  This means that in most
+  cases the Laplace Expansion method is preferable to minimize the
+  round-off error.  This is especially true as the chains become
+  longer, and the number of small divisors increases.  When using this
+  method, there is always the possibility of error due to truncating
+  the series expansion too early, but this can always be tested, and
+  another method used if this is the case.  Therefore, the default for
+  determining a particular matrix element is the Laplace Expansion
+  method.
+  
+  When, during the course of the expansion solution, it does not
+  converge quickly enough, another solution method can be chosen.  The
+  primary criterion for choosing between the remaining solutions is
+  the presence of degenerate eigenvalues.  The eigenvalues of these
+  matrices are simply the diagonal elements, which in turn are the
+  destruction rates of each isotope in the linear chain being
+  modelled.  True degeneracies in these values will occur only when
+  the chain being modelled by this matrix has straightened loops and a
+  simple test can determine whether this is the case.  Each matrix
+  element, $T_{i,j}$ represents the transfer within a segment of the
+  chain between nodes $j$ and $i$.  Even if there are loops elsewhere
+  in the chain, if no loops occur in this chain segment, the
+  analytical Bateman solution can be selected.  Alternatively, if
+  loops are found in this chain segment, the recursive Laplace
+  Inversion method can be selected.
+  
+ For the dwell periods between pulses, the Bateman solution can
+  always be used because the absence of transmutation destruction
+  rates results in shorter chain segments, which tend to have larger
+  decay destruction rates, and thus be less prone to round-off error.
+  
+  Because the mathematical method is chosen independently and
+  adaptively for each matrix element, the efficiency and accuracy of
+  the entire solution is optimized.  In particular, round-off error is
+  minimized by using the Laplace Expansion method as a default.  The
+  efficiency of this method is optimized by including only enough
+  terms to allow the series to converge.  If too many terms are
+  required, one of the alternate methods is chosen, but this choice is
+  still based on the chain segment relative to the matrix element
+  being solved.  If a small loop occurs in one small portion of an
+  activation tree, it is not necessary to perform the relatively
+  computationally intensive Laplace Inversion solution on the entire
+  problem.  On the other hand, the solution is not limited by the
+  non-loop Bateman solution when loops do exist.
+
+\end{section}
+
+\begin{section}{\ALARA\ Implementation Summary}\label{sec:math.implement}
+  
+  As with the physical modeling, the implementation of the
+  mathematical solution requires some special implementation to
+  enhance its efficiency.
+  
+  The first such enhancement is to store the solution matrices from
+  one chain to another.  The value of this implementation can be seen
+  when considering the solution of many subsequent chains of large
+  rank, $n$.  Without saving the previously generated matrices, all
+  the $n\times n$ elements of the transfer matrices would have to be
+  completely recalculated ($n^2/2$ calculations) for each of these
+  subsequent chains, even if they only differed in the last rank.
+  When the transfer matrix solution for each interval is stored after
+  its use in the solution of one chain, only the last row ($n$
+  calculations) is necessary.  This savings carries to all situations
+  throughout the activation tree.  Since the chains are formed by a
+  depth-first search, it is likely that for each chain, a significant
+  portion of the data has already been determined for a previous
+  calculation.  Since the physical model allows a complex hierarchy of
+  irradiation schedules and sub-schedules, the storage for these
+  transfer matrices must mimic this hierarchy.  Furthermore, as the
+  reaction rates are a function of the neutron flux, one of these
+  storage hierarchies is required for each interval.
+  
+  This is also true for the decay matrices between pulses and after
+  shutdown, but in this case, the matrices are not only saved from one
+  chain to the next, but across all the intervals being solved for the
+  same chain.  Since the decay matrices are independent of flux, they
+  need only be calculated once for each chain and then used in all the
+  intervals for that chain.  This has large potential savings since
+  there may be many intervals which share the decay matrices, each
+  recalculation of which would cost $n$ calculations even with the
+  already implemented savings.  Furthermore, since the decay matrices
+  are likely to be much sparser than the pulse transfer matrices, a
+  special implementation of the Bateman solution routine to
+  intelligently fill these matrices has been implemented.  If any
+  single production rate is equal to zero in the chain segment
+  relevant to a particular matrix element, that matrix element will be
+  zero, and there is no point in performing the full Bateman solution.
+  
+  These mathematical methods are implemented during a depth-first
+  search of the irradiation history hierarchy.  A storage block is
+  allocated for each item in each schedule in the hierarchy,
+  consisting of a the item's operation block transfer matrix and the
+  total transfer matrix, including the effect of the operation block,
+  the pulsing hierarchy and the inter-item dwell.  For a simple pulse
+  the operation block matrix is the transfer matrix for the pulse
+  itself while the total transfer matrix includes the effect of the
+  pulsing hierarchy and the inter-item dwell period.  For a complex
+  sub-schedule, the operation block is calculated each time the
+  depth-first search retract back up the schedule hierarchy as the
+  product of total transfer matrices of that sub-schedule's items.
+  The total transfer matrix again combines the effects of the
+  operation block, the pulsing hierarchy and the inter-item dwell
+  period.
+  
+  The solution of a particular pulsing hierarchy deserves a little
+  more attention.  Given the transfer matrix of the operation block,
+  say $\mat{T}_0$, and a single dwell matrix for the dwell time of the
+  first level of pulsing, $\mat{D}_1$.  The product of these,
+  $\mat{D}_1\mat{T}_0$, is then raised to a power representing the one
+  less than the number of pulses in that level, $n_1$.  Multiplying by
+  the operation block matrix one more time becomes the transfer matrix
+  for the next level of pulsing, $\mat{T}_1 =
+  \mat{T}_0(\mat{D}_1\mat{T}_0)^{n_1}$.  This is repeated with teh
+  single dwell matrix for the dwell time of the second level,
+  $\mat{D}_2$, and so on, using the general formula\cite{ref:spangler}
+  \begin{equation}
+    \mat{T}_i = \mat{T}_{i-1}(\mat{D}_{i}\mat{T}_{i-1})^{n_i}.\label{eqn:pulsing.recurse}
+  \end{equation}
+  It is important to use an efficient algorithm\cite{ref:UofT_csc280}
+  for this matrix exponentiation process since it will be performed so
+  often during the operation of the code.  For $N$ levels of pulsing,
+  the matrix, $\mat{T}_{N}$, will be the transfer matrix for the
+  entire pulsing hierarchy up to the dwell time after that item.
+\end{section}
+
+\end{chapter}
+

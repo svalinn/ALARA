@@ -1,0 +1,33 @@
+\documentclass[openright,twoside,12pt,dvips,none]{report}
+\usepackage{mythesis}
+
+\title{ALARA: Analytic and Laplacian Adaptive Radioactivity Analysis}
+\author{Paul P.H.~Wilson}
+
+%\draftcopyLastPage{4}
+
+\includeonly{tex/title
+%  ,tex/intro
+  ,tex/physical
+  ,tex/math
+  ,tex/validation
+%  ,tex/summary
+%  ,tex/references
+%  ,tex/acknow
+%  ,tex/appendices
+  }
+
+\begin{document}
+\include{tex/title}
+\newpage
+\pagenumbering{arabic}
+
+\include{tex/intro}
+\include{tex/physical}
+\include{tex/math}
+\include{tex/validation}
+\include{tex/summary}
+\include{tex/references}
+\include{tex/acknow}
+\include{tex/appendices}
+\end{document}

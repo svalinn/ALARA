@@ -1,0 +1,38 @@
+Outline for UW-Madison PhD Thesis:
+----------------------------------
+
+I.   INTRODUCTION
+       A. Problem definition
+             1. What is activation?
+             2. Role of activation in system/reactor design
+             3. Problem to be solved by activation code
+                   a) physical modelling
+                   b) mathematical modelling
+       B. Historical Overview
+       C. Goals
+II.  PHYSICAL MODELLING (including FED paper)
+       A. Activation Tree Modelling
+             1. Tree straightening and loops (including UWFDM 995)
+             2. Truncation
+       B. History modelling
+       C. Spatial modelling
+       D. Summary of implementation
+             1. Tree/Chain handling
+             2. Truncation
+             3. Reverse Calculations
+             4. Spatial variations/ Root isotope list
+III. MATHEMATICAL METHOD (including FED paper)
+       A. Basic Problem
+       B. Adaptive Methods
+          1. Bateman
+          2. Recursive Analytic
+          3. Expansion
+       C. Round-off and method selection
+       D. Software/Implementation issues
+IV.   VALIDATION (ANS Paper)
+       A. Benchmark Specification
+       B. SS Problem
+       C. Pulsing problem
+       D. Computing resources
+V.   SUMMARY
+       
