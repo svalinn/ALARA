@@ -1,8 +1,10 @@
-$Id: ChangeLog,v 1.5 2002-08-12 04:51:38 wilsonp Exp $
+$Id: ChangeLog,v 1.6 2002-08-13 15:55:38 varuttam Exp $
 	
 Version 2.6.???
 	
 BUGS FIXED
+	* Util/input.C:tokentype() - token conversion to lower case only
+	  changed first character [AV] (08/13/2002)
 
 
 NEW FEATURES

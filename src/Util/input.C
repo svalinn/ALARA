@@ -1,4 +1,4 @@
-/* $Id: input.C,v 1.9 2000-06-20 01:50:51 wilson Exp $ */
+/* $Id: input.C,v 1.10 2002-08-13 15:54:59 varuttam Exp $ */
 #include "alara.h"
 #include "input_tokens.h"
 
@@ -71,7 +71,7 @@ int tokenType(char* token)
   unsigned int idx;
 
   for (idx=0;idx<strlen(token);idx++)
-    token[0] = tolower(token[0]);
+    token[idx] = tolower(token[idx]);
 
   char *tokenType = strstr(tokenList,token);
   if (tokenType != NULL)
