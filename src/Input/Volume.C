@@ -516,8 +516,20 @@ void Volume::readDump(int kza)
       /* read the data from the binary dump */
       ptr->results.readDump();
 
-      /* tally the results from this root in the various components */
-      ptr->results.postProcList(ptr->outputList,ptr->mixPtr,kza);
+      switch(NuclearData::getMode())
+	{
+	case MODE_FORWARD:
+	  {
+	    /* tally the results from this root in the various components */
+	    ptr->results.postProcList(ptr->outputList,ptr->mixPtr,kza);
+	    break;
+	  }
+	case MODE_REVERSE:
+	  {
+	    /* tally the results from this target in various components */
+	    ptr->results.postProcTarget(ptr->outputList,ptr->mixPtr);
+	  }
+	}
     }
 }
 
@@ -552,7 +564,8 @@ void Volume::postProc()
 }
 
 
-void Volume::write(int response, int writeComp, CoolingTime* coolList)
+void Volume::write(int response, int writeComp, CoolingTime* coolList, 
+		   int targetKza)
 {
   Volume *head = this;
   Volume *ptr = head;
@@ -586,7 +599,11 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList)
 		{
 		  /* write component header */
 		  cout << "Component: " << compPtr->getName() << endl;
-		  ptr->outputList[compNum].write(response,coolList,ptr->total);
+		  ptr->outputList[compNum].write(response,targetKza,coolList,ptr->total);
+
+		  /* clear outputList when done with it */
+		  ptr->outputList[compNum].clear();
+
 		  compPtr = compPtr->advance();
 		  compNum++;
 		}
@@ -601,7 +618,11 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList)
 	    {
 	      /* otherwise write the total response for the zone */
 	      cout << "Total" << endl;
-	      ptr->outputList[ptr->nComps].write(response,coolList,ptr->total);
+	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total);
+	      
+	      /* clear outputList when done with it */
+	      ptr->outputList[ptr->nComps].clear();
+
 	    }
 	}
       else

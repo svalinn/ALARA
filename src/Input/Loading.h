@@ -171,7 +171,7 @@ public:
 
   /* Postproc */
   void tally(Result* , double);
-  void write(int,int,CoolingTime*);
+  void write(int,int,CoolingTime*,int);
 
   /* Utility */
   Loading* advance() { return (this!= NULL)?next:(Loading*)NULL; };
@@ -181,7 +181,7 @@ public:
   Loading* findZone(char *);
   Loading* findMix(char *);
   int numZones();
-  
+  void resetVolume();
 };
 
 

@@ -217,7 +217,8 @@ void Loading::tally(Result *volOutputList, double vol)
 }
 
 
-void Loading::write(int response, int writeComp, CoolingTime* coolList)
+void Loading::write(int response, int writeComp, CoolingTime* coolList, 
+		    int targetKza)
 {
   Loading *head = this;
   Loading *ptr = head;
@@ -248,7 +249,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList)
 		{
 		  /* write component header */
 		  cout << "Component: " << compPtr->getName() << endl;
-		  ptr->outputList[compNum].write(response, coolList,
+		  ptr->outputList[compNum].write(response, targetKza,coolList,
 						 ptr->total, ptr->volume);
 		  compPtr = compPtr->advance();
 		  compNum++;
@@ -264,7 +265,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList)
 	    {
 	      /* otherwise write the total response for the zone */
 	      cout << "Total" << endl;
-	      ptr->outputList[ptr->nComps].write(response, coolList,
+	      ptr->outputList[ptr->nComps].write(response, targetKza,coolList,
 					    ptr->total, ptr->volume);
 	    }
 	}
@@ -354,3 +355,17 @@ int Loading::numZones()
 
   return numZones;
 }
+
+/* find a named mixture in the list */
+void Loading::resetVolume()
+{
+
+  Loading *ptr = this;
+
+  while (ptr != NULL)
+    {
+      volume = 0;
+      ptr = ptr->next;
+    }
+}
+

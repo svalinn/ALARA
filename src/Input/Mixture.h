@@ -247,7 +247,7 @@ public:
   /* Postproc */
   void readDump(int);
   void tally(Result*,double);
-  void write(int,int,CoolingTime*);
+  void write(int,int,CoolingTime*,int);
 
   /* Utility */
   Component* getComp(int, double&, Component*);
@@ -257,6 +257,7 @@ public:
   Mixture* find(char*);
   int getNComps() { return nComps; };
   Component* getCompList() { return compListHead; };
+  void resetVolume();
 
 };
 

@@ -176,7 +176,9 @@ Mixture* Mixture::getMixture(istream &input)
 	  type = COMP_SIM;
 	  break;
 	case 't':
-	  NuclearData::modeReverse();
+	  Chain::modeReverse();
+	  /* don't count this in component list */
+	  mixPtr->nComps--;
 	  clearComment(input);
 	  input >> token;
 	  switch(tolower(token[0]))
@@ -411,7 +413,8 @@ void Mixture::tally(Result *volOutputList, double vol)
   volOutputList[compNum].postProc(outputList[compNum],vol);
 }
 
-void Mixture::write(int response, int writeComp, CoolingTime* coolList)
+void Mixture::write(int response, int writeComp, CoolingTime* coolList,
+		    int targetKza)
 {
   Mixture *head = this;
   Mixture *ptr = head;
@@ -439,7 +442,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList)
 	    {
 	      /* write component header */
 	      cout << "Component: " << compPtr->getName() << endl;
-	      ptr->outputList[compNum].write(response,coolList,ptr->total,
+	      ptr->outputList[compNum].write(response,targetKza,coolList,ptr->total,
 					     ptr->volume);
 	      compPtr = compPtr->advance();
 	      compNum++;
@@ -455,7 +458,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList)
 	{
 	  /* otherwise write the total response for the zone */
 	  cout << "Total" << endl;
-	  ptr->outputList[ptr->nComps].write(response,coolList,ptr->total,
+	  ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total,
 					     ptr->volume);
 	}
     }
@@ -499,7 +502,10 @@ Component* Mixture::getComp(int kza,double &density, Component *lastComp)
 {
   Root *root = rootList->find(kza);
 
-  return root->getComp(density,this,lastComp);
+  if (root)
+    return root->getComp(density,this,lastComp);
+  else
+    return NULL;
 }
 
 int Mixture::getCompNum(Component* compPtr)
@@ -522,6 +528,19 @@ Mixture* Mixture::find(char* srchName)
     }
 
   return NULL;
+}
+
+/* find a named mixture in the list */
+void Mixture::resetVolume()
+{
+
+  Mixture *ptr = this;
+
+  while (ptr != NULL)
+    {
+      volume = 0;
+      ptr = ptr->next;
+    }
 }
 
 

@@ -177,6 +177,7 @@ Root* Component::expand(Mixture *mix)
 	  delete compRootList;
 	  break;
 	case COMP_ELE:
+	case TARGET_ELE:
 	  compRootList = ptr->expandEle(mix,ptr);
 	  rootList = rootList->merge(compRootList);
 	  verbose(6,"Merged element %s into rootList for mixture",
@@ -184,6 +185,7 @@ Root* Component::expand(Mixture *mix)
 	  delete compRootList;
 	  break;
 	case COMP_ISO:
+	case TARGET_ISO:
 	  Root* newRoot = new Root(ptr->compName,ptr->density,mix,ptr);
 	  memCheck(newRoot,"Component::expand(...) : newRoot");
 	  rootList = rootList->merge(newRoot);

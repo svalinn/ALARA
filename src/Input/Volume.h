@@ -273,7 +273,7 @@ public:
   /* Postproc */
   void readDump(int);
   void postProc();
-  void write(int, int, CoolingTime*);
+  void write(int, int, CoolingTime*,int);
 
   /* Utility */
   int head() {return (volume == VOL_HEAD && next == NULL);};

@@ -368,14 +368,40 @@ void Input::preProc(Root*& rootList, topSchedule*& top)
  ********* Postproc ********
  **************************/
 
-
 void Input::postProc(Root *masterRootList)
 {
-  masterRootList->readDump();
 
-  volList->postProc();
+  switch(NuclearData::getMode())
+    {
+    case MODE_FORWARD:
+      {
+	masterRootList->readDump();
+	volList->postProc();
+	outListHead->write(volList,mixListHead,loadList,coolList);
+	break;
+      }
+    case MODE_REVERSE:
+      {
+	Root *target = masterRootList;
+	int targetKza;
+	char isoSym[16];
 
-  outListHead->write(volList,mixListHead,loadList,coolList);
+	while (target != NULL)
+	  {
+	    target = target->readSingleDump(targetKza);
+	    volList->postProc();
+	    cout << endl << "****** TARGET ****** " 
+		 << isoName(targetKza,isoSym) << " ****** TARGET ****** " 
+		 << isoSym << " ****** TARGET ****** " << endl << endl;
+	    outListHead->write(volList,mixListHead,loadList,coolList,targetKza);
+	    loadList->resetVolume();
+	    mixListHead->resetVolume();
+	  }
+	break;
+      }
+	      
+    }
+  
 
 }
 /***************************
