@@ -88,9 +88,11 @@ ALARALib& ALARALib::operator=(const ALARALib& a)
 /* read data for one isotope and set the NuclearData object */
 void ALARALib::readData(int findKza, NuclearData* data)
 {
-  int checkKza, nRxns;
-  float thalf, E[3];
-
+  int checkKza, nRxns=0;
+  float thalf = 0, E[3] = {0,0,0};
+  int *daugKza = NULL;
+  char **emitted = NULL;
+  float **xSection = NULL, *totalXSect=NULL;
   int rxnNum, emittedLen;
 
   verbose(4,"Looking for data for %d",findKza);
@@ -102,21 +104,27 @@ void ALARALib::readData(int findKza, NuclearData* data)
     {
       verbose(5,"Found data for %d at offset %d",findKza,offset);
       fseek(binLib,offset,SEEK_SET);
+
       
       /* get isotope info */
       fread(&checkKza,SINT,1,binLib);
       fread(&nRxns,SINT,1,binLib);
       fread(&thalf,SFLOAT,1,binLib);
       fread(E,SFLOAT,3,binLib);
-      
+      if (type == DATALIB_ADJOINT)
+	{
+	  totalXSect = new float[nGroups+1];
+	  fread(totalXSect,SFLOAT,nGroups+1,binLib);
+	}
+
       /* setup arrays */
-      int *daugKza= new int[nRxns];
+      daugKza= new int[nRxns];
       memCheck(daugKza,"ALARALib::readData(...): daugKza");
 
-      float **xSection = new float*[nRxns];
+      xSection = new float*[nRxns];
       memCheck(xSection,"ALARALib::readData(...): xSection");
 
-      char **emitted = new char*[nRxns];
+      emitted = new char*[nRxns];
       memCheck(emitted,"ALARALib::readData(...): emitted");
       
       /* Read info for each daughter */
@@ -137,19 +145,23 @@ void ALARALib::readData(int findKza, NuclearData* data)
       
       verbose(5,"Read %d reaction path(s) for %d.",nRxns,findKza);
       /* set the NuclearData object */
-      data->setData(nRxns,E,daugKza,emitted,xSection,thalf);
-      
-      for (rxnNum=0;rxnNum<nRxns;rxnNum++)
-	{
-	  delete xSection[rxnNum];
-	  delete emitted[rxnNum];
-	}
-      delete xSection;
-      delete emitted;
-      delete daugKza;
     }
-  else
-    data->setNoData();
+  data->setData(nRxns,E,daugKza,emitted,xSection,thalf,totalXSect);
+      
+  for (rxnNum=0;rxnNum<nRxns;rxnNum++)
+    {
+      delete xSection[rxnNum];
+      delete emitted[rxnNum];
+    }
+  delete xSection;
+  delete emitted;
+  delete daugKza;
+  delete totalXSect;
+
+  xSection = NULL;
+  emitted = NULL;
+  daugKza = NULL;
+  totalXSect = NULL;
   
 }
 

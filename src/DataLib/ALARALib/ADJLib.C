@@ -3,7 +3,14 @@
 /* open an existing library */
 ADJLib::ADJLib(char* fname)
   : ALARALib(fname,DATALIB_ADJOINT)
-{ }
+{ 
+  totalXSection = NULL;
+  E[0] = 0;
+  E[1] = 0;
+  E[2] = 0;
+  thalf = 0;
+
+}
   
 /* create a new library */
 ADJLib::ADJLib(char* fname, char* adjLibName) :
@@ -38,7 +45,6 @@ ADJLib::ADJLib(char* fname, char* adjLibName) :
 
 }
 
-/* copy binary file header */
 void ADJLib::copyHead()
 {
   float *grpBnds, *grpWeights;
