@@ -1,4 +1,4 @@
-/* $Id: ADJLib.h,v 1.9 2002-12-27 03:39:36 wilsonp Exp $ */
+/* $Id: ADJLib.h,v 1.10 2003-01-06 20:12:06 wilsonp Exp $ */
 #include "alara.h"
 /* ******* Class Description ************
 
@@ -125,13 +125,13 @@ protected:
       long getNextReaction(int& parKza);
 
       /// Inline function to return next list item
-      DaugItem* advance();
+      inline DaugItem* advance();
 
       /// Inline function to return daughter isotope ID
-      int getKza();
+      inline int getKza();
 
       /// Inline function to return number of items in parent list
-      int countRxns();
+      inline int countRxns();
     };
   
   /// Main list of daughters in this ADJLib
@@ -173,5 +173,50 @@ public:
 
   
 };
+
+
+
+inline
+ADJLib::DaugItem* ADJLib::DaugItem::advance()
+{
+  return next;
+}
+
+inline
+int ADJLib::DaugItem::getKza()
+{
+  return kza;
+}
+
+inline
+int ADJLib::DaugItem::countRxns()
+{
+  return parList->count();
+}
+
+/// Inline function to return a pointer to the next item in the list
+inline
+ADJLib::DaugItem::ParItem* ADJLib::DaugItem::ParItem::advance()
+{
+  return next;
+}
+
+/// Inline function to return ID of a given list item
+inline
+int ADJLib::DaugItem::ParItem::getKza()
+{
+  return kza;
+}
+
+/// Inline function to return the offset of a given list item
+inline
+long ADJLib::DaugItem::ParItem::getOffset()
+{
+  return offset;
+}
+
+
   
 #endif
+
+

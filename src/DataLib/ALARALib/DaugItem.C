@@ -1,4 +1,4 @@
-/* $Id: DaugItem.C,v 1.4 2002-12-27 03:39:36 wilsonp Exp $ */
+/* $Id: DaugItem.C,v 1.5 2003-01-06 20:12:07 wilsonp Exp $ */
 #include "ADJLib.h"
 
 /** Use member initialization for most members, including NULL values
@@ -89,21 +89,3 @@ long ADJLib::DaugItem::getNextReaction(int& parKza)
 }
 
   
-inline
-ADJLib::DaugItem* ADJLib::DaugItem::advance()
-{
-  return next;
-}
-
-inline
-int ADJLib::DaugItem::getKza()
-{
-  return kza;
-}
-
-inline
-int ADJLib::DaugItem::countRxns()
-{
-  return parList->count();
-}
-

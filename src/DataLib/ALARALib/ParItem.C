@@ -1,4 +1,4 @@
-/* $Id: ParItem.C,v 1.4 2002-12-27 03:39:36 wilsonp Exp $ */
+/* $Id: ParItem.C,v 1.5 2003-01-06 20:12:07 wilsonp Exp $ */
 #include "ADJLib.h"
 
 /** Default value of ParItem::next is NULL indicating end of list */
@@ -52,23 +52,3 @@ int ADJLib::DaugItem::ParItem::count()
 }
 
 
-/// Inline function to return a pointer to the next item in the list
-inline
-ADJLib::DaugItem::ParItem* ADJLib::DaugItem::ParItem::advance()
-{
-  return next;
-}
-
-/// Inline function to return ID of a given list item
-inline
-int ADJLib::DaugItem::ParItem::getKza()
-{
-  return kza;
-}
-
-/// Inline function to return the offset of a given list item
-inline
-long ADJLib::DaugItem::ParItem::getOffset()
-{
-  return offset;
-}
