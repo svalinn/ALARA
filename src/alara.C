@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.16 2002-05-06 19:10:38 wilsonp Exp $ */
+/* $Id: alara.C,v 1.17 2002-09-09 19:57:12 varuttam Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 	  debug(0,"Set debug level to %d.",debug_level);
 	  break;
 #endif
-	case 'v':
+/*	case 'v':
 	  if (argv[argNum][1] == '\0')
 	    {
 	      verb_level = atoi(argv[argNum+1]);
@@ -97,8 +97,28 @@ int main(int argc, char *argv[])
 	      argNum++;
 	    }
 	  verbose(0,"Set verbose level to %d.",verb_level);
+	  break;	*/
+
+	case 'v':
+	  if (argv[argNum][1] == '\0')
+	    {
+	      if (argNum<argc-1)
+              {
+		verb_level = atoi(argv[argNum+1]);
+	        argNum+=2;
+	      }
+	     else
+		error(2,"-v requires parameter."); 
+	    }
+	  else
+	    {
+	      verb_level = atoi(argv[argNum]+1);
+	      argNum++;
+	    }
+	  verbose(0,"Set verbose level to %d.",verb_level);
 	  break;
-	case 'c':
+	
+ 	case 'c':
 	  verbose(0,"Calculating chains ONLY.");
 	  doOutput=FALSE;
 	  argNum+=1;
@@ -111,9 +131,14 @@ int main(int argc, char *argv[])
 	case 't':
 	  if (argv[argNum][1] == '\0')
 	    {
-	      Statistics::initTree(argv[argNum+1]);
-	      verbose(0,"Openned tree file %s.",argv[argNum+1]);
-	      argNum+=2;
+	      if (argNum<argc-1)
+              {
+                 Statistics::initTree(argv[argNum+1]);
+	         verbose(0,"Openned tree file %s.",argv[argNum+1]);
+	         argNum+=2;
+	      }
+	      else
+		 error(2,"-t requires parameter."); 
 	    }
 	  else
 	    {
@@ -130,7 +155,7 @@ int main(int argc, char *argv[])
 	default:
 	  {
 	    verbose(-1,helpmsg,argv[0]);
-	    error(0,"Invlaid option: %s.",argv[argNum]);
+	    error(0,"Invalid option: %s.",argv[argNum]);
 	  }
 	}
     }
