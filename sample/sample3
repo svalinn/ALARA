@@ -1,0 +1,65 @@
+## Sample 2: Novice
+## Highlights: cylindrical geometry, elements in mixtures,
+## simple pulsed irradition, constituent total decay heat output
+## 02/11/04
+
+geometry cylindrical
+
+## Note that the dimention setting (r) corresponds to the geometry type (cylindrical)
+dimension	r
+		0.0
+	1	10.0
+	2	15.0
+end
+
+mat_loading
+	inner_zone  inner_mix
+	outer_zone  outer_mix
+end
+
+material_lib  data/sampleMatlib
+element_lib  data/myElelib
+
+## The mixtures may be made up of pre-defined materials, elements, or a combination of the two
+mixture	inner_mix
+	material CONC		1.0	0.05
+	material b4c		1.0	0.25
+	element  ni		1.0	0.70
+end
+
+mixture outer_mix
+	element	fe		2.0	1.0
+end
+
+flux  flux_1  data/fluxin2   1e6   0  default
+
+
+## The flux is applied for one second with no delay (the delay is applied in the pulsehistory command)
+schedule  total
+	1 s  flux_1  pulsed_spec  0 s
+end
+
+## The schedule defined above is applied ten (10) times with a five (5) second delay between each pulse
+pulsehistory  pulsed_spec
+        10   5 s
+end
+
+dump_file dump_files/sample2.dump
+
+data_library alaralib data/fendl2bin
+
+cooling
+	1 s
+	1 d
+	1 m
+	1 y
+end
+
+## This outputs the total decay heat broken up by zones
+output zone
+	constituent
+	total_heat
+end
+
+truncation  1e-8
+

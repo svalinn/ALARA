@@ -1,0 +1,68 @@
+## Sample 1 : Beginner
+## Highlights: rectangular geometry, mixtures from the matlib, 
+## steady state irradiation, and number density & specific activity output
+## 02/11/04
+
+## You can choose between a variety of geometries
+geometry rectangular
+
+dimension	x
+		0.0
+	1	5.0
+	1	6.0
+end
+
+mat_loading
+	inner_zone  inner_mix
+	outer_zone  outer_mix
+end
+
+material_lib  data/sampleMatlib
+element_lib  data/myElelib
+
+## Mixtures can be a combination of elements and materials defined in your
+## element and material libraries.  Note that the  volume fraction need not
+## add up to one (1)
+mixture	inner_mix
+	material Li		1.0	0.75
+	material FLiBe		1.0	0.15
+	material WATER		1.0	0.10
+end
+
+mixture outer_mix
+	material WATER		1.0	0.50
+	material C1020		1.0	0.10
+end
+
+flux  flux_1  data/fluxin1  1.0   1   default
+
+## Irradiation is pulsed by default, so the delay terms are set to zero (0)
+## to make the problem steady state
+schedule 1_year
+	1 y  flux_1  steady_state  0 s
+end
+
+pulsehistory steady_state
+	1	0 s
+end
+
+dump_file dump_files/sample1.dump
+
+data_library alaralib data/fendl2bin
+
+cooling
+	1 d
+	100 d
+	1 y
+	100 y
+end
+
+## There are a number of options available for the output, including naming
+## what units are desired
+output interval
+	number_density
+	specific_activity
+end
+
+truncation  1e-7
+

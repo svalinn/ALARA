@@ -1,0 +1,56 @@
+## Sample 6 : Biodose
+## Highlights: Bio dose calculation in output block
+## 03/27/04
+
+geometry rectangular
+
+dimension	x
+		0.0
+	3	10.0
+	1	0.5
+end
+
+mat_loading
+	inner_zone  inner_mix
+	outer_zone  void
+end
+
+material_lib data/sampleMatlib
+element_lib  data/myElelib
+
+mixture	inner_mix
+	element  fe		1.0	1.00
+end
+
+flux  flux_1  data/fluxin1  1.0   1   default
+
+## Irradiation is pulsed by default, so the delay terms are set to zero (0)
+## to make the problem steady state
+schedule 1_year
+	5 y  flux_1  steady_state  0 s
+end
+
+pulsehistory steady_state
+	1	0 s
+end
+
+dump_file dump_files/sample6.dump
+
+data_library alaralib data/fendl2bin
+
+cooling
+	1 d
+	100 d
+	1 y
+	100 y
+end
+
+output interval
+   units Bq cm3
+   number_density
+   dose data/fendl2bin ANS6_4_3
+   folded_dose data/fendl2bin  data/adjfile2.gam  21  14e6 12e6 10e6 8e6 7.5e6 7e6 6.5e6 6e6 5.5e6 5e6 4.5e6 4e6 3.5e6 3e6 2.5e6 2e6 1.5e6 1e6 .4e6 .2e6 .1e6  0.5
+end
+
+truncation  1e-6
+

@@ -1,0 +1,4 @@
+# convert EAF formatted FENDL2.0 libraries (excerpts) 
+# to ALARA formatted libraries
+convert_lib eaflib alaralib data/fendlg-2.0_175 data/fendld-2.0 data/fendl2bin
+

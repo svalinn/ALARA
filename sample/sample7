@@ -1,0 +1,88 @@
+## Sample 5: Expert
+## Highlights: 2-D torodial geometry, reverse mode (target),
+## complex pulsing scheme w/ sub-schedules and multiple fluxes
+## 02/24/04
+
+geometry torus
+
+## The two parameters of dimension (r and theta) are appropriate
+## for the defined geometry (torus)
+
+dimension 	r
+		  0.0
+	1	  5.0
+end
+
+dimension	theta
+		   0.0
+	1	   3.14159
+end
+
+## Since we are using a torroidal geometry, we must also define 
+## the major radius and, if no radial dimension is defined, 
+## must also define a minor radius if we desire
+
+major_radius  30
+
+mat_loading
+	zone_1		mix_1
+end
+
+material_lib data/sampleMatlib
+element_lib data/myElelib
+
+## The "target" command invokes the "reverse mode" in ALARA, 
+## where the output will track the desired element (he in this case)
+mixture mix_1
+	material  CONC   1.0   1.0
+	target  element  he
+end
+
+## The pulsing scheme will employ sub-schedules and several fluxes
+flux flux_1   data/fluxin1	1.0 	0	default
+
+flux flux_2   data/fluxin2	1.0 	0	default
+
+flux flux_3   data/fluxin3	1.0 	0	default
+
+Schedule sub_1
+	5 s	  flux_2   double_pulse      0  s
+end
+
+Schedule myschedule
+	10  s	  flux_1   single_pulse     12  s
+	10  s     flux_2   single_pulse      3  s
+	10  s     flux_3   single_pulse      5  s
+	sub_1	           triple_pulse	     5 s
+end
+
+pulsehistory single_pulse
+	1	0 s
+end
+
+pulsehistory double_pulse
+	2	10 s
+end
+
+pulsehistory triple_pulse
+	3	100 s
+end
+
+cooling
+	1 s
+end
+
+## We must use a different data library (fendl2adj) when 
+## envoking "reverse mode" (see comment on "mixture" above)
+data_library adjlib data/fendl2adj
+
+dump_file dump_files/sample5.dump
+
+output zone
+   units Bq cm3
+   number_density
+end
+
+truncation 1e-6
+impurity 1e-5 1e-2
+

@@ -1,0 +1,68 @@
+## Sample 3: Intermediate
+## Highlights: spherical geometry, complex pulsing scheme, WDR output,
+## tolerence change
+## 02/11/04
+
+geometry spherical
+
+## Note that the parameter (r) corresponds to the geometry type (spherical)
+dimension    r    0.0
+         1        0.02
+         1        0.5
+         1        0.5015
+end
+
+mat_loading
+        SOURCE_REGION           void
+        HOHLRAUM_WALL           target
+        LIQUID_WALL             wall
+end
+
+mixture target
+        material SS-304       1         1.0
+end
+mixture wall
+        material CONC         0.92      1.0
+end
+
+material_lib data/sampleMatlib
+element_lib data/myElelib
+
+## The "90" means that we skip the first 90 values in the hohlflux data before reading it
+flux  target_flux  data/hohlflux  1e-10  90  default
+
+data_library alaralib data/fendl2bin
+
+cooling
+   1 s
+   1 d
+   1 y
+   10 y
+   100 y
+end
+
+dump_file  dump_files/sample3.dump
+
+Pulsehistory part_a
+	25 	25 h
+end
+
+Pulsehistory once
+	1	0  d
+end
+
+Schedule problem_1_a
+	1 d	target_flux	part_a		25 d
+	5 m	target_flux	once		0  d
+end
+
+## The wdr output determines the waste disposal rating based on the requested standard (NRCA and NRCC in this case)
+output zone
+        units Ci m3
+	wdr NRCA
+        wdr NRCC
+end
+
+## The tolerance level determines the level of precision when building the parent/daughter tree
+truncation 1e-8
+
