@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.15 1999-11-19 23:00:46 wilson Exp $ */
+/* $Id: Volume.C,v 1.16 1999-12-21 21:41:03 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -659,7 +659,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	      
 	      if (normType < 0)
 		{
-		  density = mixPtr->getTotalDensity();
+		  density = ptr->mixPtr->getTotalDensity();
 		  volume_mass *= density;
 		  cout
 		    << "\tDensity: " << density 
