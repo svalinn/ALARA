@@ -1,4 +1,4 @@
-# $Id: test1,v 1.1 2000-02-29 01:28:12 wilson Exp $
+# $Id: test1,v 1.2 2000-03-01 14:32:45 wilson Exp $
 # ALARA V2.0 Test Suite Problem #1
 #
 # Testing objectives:
@@ -81,5 +81,5 @@ output zone
 	specific_activity
 end
 
-truncation 1e-6 1e-8
-impurity 1e-5 1e-2 1e-4
+truncation 1e-6 
+impurity 1e-5 1e-2
