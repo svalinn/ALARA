@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.30 2002-12-02 20:36:11 varuttam Exp $ */
+/* $Id: Volume.C,v 1.31 2002-12-07 17:48:08 fateneja Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -389,6 +389,7 @@ void Volume::storeMatrix(double** fluxMatrix, double scale)
 }
 
 
+
 /* setup the hierarchy of storage for transfer matrices */
 /* called by Input::preProc(...) */
 void Volume::makeSchedTs(topSchedule *top)
@@ -752,6 +753,190 @@ int Volume::count()
   return numInt;
 }
 
+//<<<<<<< Volume.C
+void Volume::makeXFlux(Mixture *mixListHead)
+{
+  TempLibType specLib, rangeLib;
+
+  char* rangeFileNames[numCP] = { "EAF_STOP_99.ALP",
+			          "EAF_STOP_99.DEU",
+			          "EAF_STOP_99.HE3",
+			          "EAF_STOP_99.PRO",
+			          "EAF_STOP_99.TRI" };
+  
+  Volume *ptr=this;
+  VolFlux *volFluxPtr=NULL;
+  Mixture* mixPtr = mixListHead;
+  int numNEG = VolFlux::getNumGroups();
+  int energyRel[numNEG];
+
+  // Load Data Libraries
+  loadRangeLib(rangeFileNames,rangeLib);
+  loadSpecLib("EAF_SPEC_99.PT1",specLib,energyRel);
+  loadSpecLib("EAF_SPEC_99.PT2",specLib,NULL);
+  loadSpecLib("EAF_SPEC_99.PT3",specLib,NULL);
+  loadSpecLib("EAF_SPEC_99.PT4",specLib,NULL);
+  loadSpecLib("EAF_SPEC_99.PT5",specLib,NULL);
+
+  // Calculate Mixture ranges and Gvalues
+  while(mixPtr->getNext())
+    {
+      mixPtr = mixPtr->getNext();
+      mixPtr->calcGvalues(rangeLib,specLib,energyRel);
+    }
+
+  // Calculate Charged Partical Spectrum
+  double sumNEG = 0;
+  while(ptr->next)
+    {
+      ptr = ptr->next;
+      volFluxPtr = ptr->fluxHead;
+      while(volFluxPtr->advance())
+	{
+	  volFluxPtr = volFluxPtr->advance();
+	  
+	  for(int CP = 0; CP < numCP; CP++)
+	    {
+	      for(int CPEG = 0; CPEG < numCPEG; CPEG++)
+		{
+		  sumNEG = 0;
+		  for(int NEG = 0; NEG < numNEG; NEG++)
+		    {
+		      sumNEG += volFluxPtr->getnflux()[NEG]*ptr->mixPtr->getGvalues()[CP][CPEG][NEG];
+		    }
+		  volFluxPtr->setCPflux(CP,CPEG,sumNEG);
+		  //cout << volFluxPtr->getCPflux()[CP][CPEG] << ' ';
+		}
+	      //cout << endl << endl;
+	    }
+	  //cout << endl << endl << "Next CP" << endl << endl;
+	}
+    }
+	
+}
+
+void Volume::loadSpecLib(char *fileName, TempLibType &specLib, int energyRel[VolFlux::getNumGroups()])
+{
+  int KZA;
+  int count = 0;
+  char String[100];
+  int Start,Finish;
+  ifstream input(fileName);
+  double *specLibStorage = 0;
+
+  if(!input.is_open())
+    cout << "\nFailed to open spec lib\n";
+
+  // Find Energy Group Conversions
+  if(energyRel)
+    {
+      input.getline(String,100,'\n');
+      input.getline(String,100,'\n');
+
+      for(int i = 0; i < 20; i++)
+	{
+	  input >> Start >> Start >> Start;
+	  
+	  if(Start/1000)
+	    {
+	      Finish = Start % 1000;
+	      Start = Start/1000;
+	    }
+	  else
+	    {
+	      input >> Finish;
+	    }
+
+	  for(int j = Start; j <= Finish; j++)
+	    energyRel[j-1] = i;	    
+
+	  for(int j = 0; j < 21; j++)
+	    input.getline(String, 100, '\n');
+	}
+
+      input.seekg(0,ios::beg);
+    }
+
+  // Get Spec Data
+  while(!input.eof())
+    {
+      input >> KZA;
+      input.getline(String,100,'\n');
+      specLibStorage = new double[2400];
+
+      for(int i = 0; i < 20; i++)
+        {
+          input.getline(String,100,'\n');
+
+          for(int j=0; j < numCP; j++)
+            {
+              input.getline(String,100,'\n');
+
+              for(int k = 0; k < numCPEG; k++)
+                {
+                  input >> specLibStorage[count];
+                  count++;
+                }
+	      
+              input.getline(String,100,'\n');
+            }
+	  specLib[KZA] = specLibStorage;
+        }
+      input.get();
+      count = 0;
+    }
+  
+}
+
+
+void Volume::loadRangeLib(char **fileName, TempLibType &rangeLib)
+{
+  ifstream input[5];
+  for(int i = 0; i < numCP; i++)
+    {
+      input[i].open(fileName[i]);
+      
+      if(!input[i].is_open())
+	{
+	  cout << "\nFailed To Open Range Libraries\n";
+	}
+    }
+
+  // 0: alpha
+  // 1: deuteron
+  // 2: helium 3
+  // 3: proton
+  // 4: triton
+  
+  char String[100];
+  int KZA;
+  double *rangeStorage;
+  
+  for(int i = 0; i < numCP; i++)
+    {
+      while(!input[i].eof())
+        {
+          input[i] >> KZA;
+	  KZA = KZA/10000;
+
+          if(!i)
+            {
+              rangeStorage = new double[numCP*numCPEG];
+              rangeLib[KZA] = rangeStorage;
+            }
+          
+          input[i].getline(String,100,'\n');
+          for(int j = 0; j < numCPEG; j++)
+            {
+              input[i] >> rangeLib[KZA][i*24+j];
+            }
+
+          input[i].get();
+        }
+    }
+
+}
+//=======
 void Volume::setAdjDoseData(int nGroups, ifstream& AdjDoseData)
 {
   Volume *ptr = this;
@@ -770,3 +955,4 @@ double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
   return adjDose->calcAdjDose(kza,adjConv,uservol);
 }
 
+//>>>>>>> 1.30

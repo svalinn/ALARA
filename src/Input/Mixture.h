@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.15 2002-09-09 19:57:53 varuttam Exp $ */
+/* $Id: Mixture.h,v 1.16 2002-12-07 17:48:07 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _MIXTURE_H
@@ -104,10 +104,16 @@ protected:
   DataCache 
     /// Variable for contact dose
     doseConvCache;
-
+ 
   Mixture
     /// The next Mixture in the list of possible Mixtures.
     *next;
+
+  double
+    /// Stores ranges of charged particles in this mixture.
+    //**cpRanges;
+    ***Gvalues,
+    **problemRanges;
 
   /// When the Mixture passed as the argument is referenced in a
   /// COMP_SIM Component, the Component is replaced with the Component
@@ -298,9 +304,26 @@ public:
   /// Inline function provides read access to the current value of the
   /// total volume fraction. 
   double getVolFrac() { return volFraction; };
+  //<<<<<<< Mixture.h
+
+  /// Calculate range of this mixture
+  void calcMixRange(TempLibType &libRanges);
+  void calcGvalues(TempLibType &libRanges,TempLibType &specLib,int *energyRel);
+
+  Root* getRootList() { return rootList; };
+
+  Mixture *getNext() { return next; };
+
+  //double ***Gvalues;
+  //double **problemRanges;
+  //=======
 
   /// Access function for uservol.
   double getuservol() { return uservol; };
+  //>>>>>>> 1.15
+
+  double ***getGvalues() { return Gvalues; };
+
 };
 
 #endif

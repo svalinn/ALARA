@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.27 2002-09-23 16:50:17 varuttam Exp $ */
+/* $Id: Mixture.C,v 1.28 2002-12-07 17:48:07 fateneja Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -23,6 +23,7 @@
 #include "Output/Result.h"
 #include "Output/Output_def.h"
 #include "Output/GammaSrc.h" 
+#include "Calc/VolFlux.h"
 
 /***************************
  ********* Service *********
@@ -96,6 +97,7 @@ Mixture::~Mixture()
   delete volList;
   delete [] outputList;
   delete next;
+  delete Gvalues;
 }
 
 Mixture& Mixture::operator=(const Mixture &m)
@@ -744,7 +746,151 @@ void Mixture::resetOutList()
     }
 }
 
+void Mixture::calcMixRange(TempLibType &libRanges)
+{
+  
+  Root *ptr = rootList;
 
+  // Alpha
+  // Deuteron
+  // Helium 3
+  // Proton
+  // Triton
 
+  double InverseRange = 0, probDensity=0, libDensity=0, molarMass=0;
+  bool   notdone = false;
+  char   String[100];
+  int    libKza=0,probKza=0;
+  
+  ifstream eleLib("in/elelib");
 
+  // Create Storage
+  problemRanges = new double*[numCP];
+  double *problemRangesStorage = new double[numCPEG*numCP];
 
+  for(int i = 0; i < numCP; i++)
+    {
+      problemRanges[i] = &problemRangesStorage[i*24];
+    }
+  
+
+  for(int i = 0; i < numCP; i++)
+    {
+      for(int k = 0; k < numCPEG; k++)
+	{
+	  ptr = rootList;
+	  while(ptr->getNext())
+	    {
+	      eleLib.seekg(0L,ios::beg);
+	      ptr = ptr->getNext();
+	      probKza = ptr->getKza()/10000;
+
+	      while(probKza == ptr->getKza()/10000)
+		{
+		  probDensity += ptr->mixConc(this);
+		  molarMass += ((ptr->getKza()/10)%1000)*ptr->mixConc(this);
+		  if(!ptr->getNext())
+		    break;
+		  ptr = ptr->getNext();
+		}
+
+	      notdone = true;
+
+	      // Only go into this loop if densities of same elements have been
+	      // summed up
+	      while(notdone)
+		{
+		  String[0] = eleLib.get();
+		  
+		  if(String[0] != ' ' && String[0] != '#')
+		    {
+		      eleLib.get(String,20,'\n');
+		      eleLib >> libKza;
+		    }
+		  
+		  eleLib.getline(String,100,'\n');
+		  
+		  if(libKza == probKza)
+		    {
+		      // Found correct atomic number, now get density
+		      //   from the library.
+		      eleLib.seekg(-45,ios::cur);
+		      eleLib >> libDensity;
+
+		      InverseRange += 1/(libRanges[probKza][i*24+k]*
+			(libDensity*AVAGADRO/molarMass));
+		      
+		      probDensity = ptr->mixConc(this);
+		      notdone = false;
+		      molarMass = 0;
+		    }
+	      
+		}
+	  
+	    }
+	  problemRanges[i][k] = 1/InverseRange;
+	  InverseRange = 0;
+	}
+    }
+
+  return;
+}
+
+void Mixture::calcGvalues(TempLibType &libRanges, TempLibType &specLib, int *energyRel)
+{
+  Node dataAccess;
+  Root *rootPtr = rootList;
+  double sumk = 0, sumNEG=0, sumA=0;
+  int numNEG = VolFlux::getNumGroups();
+  Gvalues = new double**[numCP];
+  double *GvaluesStorage = new double[numCPEG*numNEG*numCP];
+  std::map<int, double**, std::less<int> > CPXS;
+
+  // Calculate mixture range
+  calcMixRange(libRanges);
+
+  // Allocate memory
+  for(int i = 0; i < numCP; i++)
+    {
+      Gvalues[i] = new double*[numCPEG];
+      for(int j = 0; j < numCPEG; j++)
+	{
+  	  Gvalues[i][j] = &GvaluesStorage[i*(numCPEG*numNEG)+j*numNEG];
+	}
+    }
+
+  // Get NX cross sections
+  while(rootPtr->getNext())
+    {
+      rootPtr = rootPtr->getNext();
+      CPXS[rootPtr->getKza()] = dataAccess.getCPXS(rootPtr->getKza());
+    }
+
+  // Calculate G-values
+  for(int CP = 0; CP < numCP; CP++)
+    {
+      for(int CPEG = 0; CPEG < numCPEG; CPEG++)
+	{
+	  for(int NEG = 0; NEG < numNEG; NEG++)
+	    {
+	      sumA = 0;
+	      rootPtr = rootList;
+	      while(rootPtr->getNext())
+	      {
+		rootPtr = rootPtr->getNext();
+		sumk = 0;
+		for(int k = CPEG; k < numCPEG; k++)
+		  {
+		    sumk += specLib[rootPtr->getKza()][energyRel[NEG]*(numCP*numCPEG)+CP*numCPEG+CPEG]*
+		      problemRanges[CP][CPEG];
+		  }
+		sumA += sumk*rootPtr->mixConc(this)*CPXS[rootPtr->getKza()][CP][NEG];
+		
+	      }
+	      
+	      Gvalues[CP][CPEG][NEG] = sumA;
+	    }
+	} 
+    }
+  
+}

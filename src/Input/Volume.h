@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.15 2002-12-02 20:36:12 varuttam Exp $ */
+/* $Id: Volume.h,v 1.16 2002-12-07 17:48:08 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _VOLUME_H
@@ -286,6 +286,16 @@ public:
       according to the second argument. */
   void storeMatrix(double** fluxMatrix, double scale);
 
+  //<<<<<<< Volume.h
+  /// Calculate charged particle flux 
+  void makeXFlux(Mixture *mixListHead);
+
+  /// Loads the charged particle spectrum into specLib
+  void loadSpecLib(char *fileName, TempLibType &specLib, int energyRel[175]);
+
+  /// Loads the charged particle ranges into rangeLib
+  void loadRangeLib(char **fileName, TempLibType &rangeLib);
+  //=======
   void setAdjDoseData(int, ifstream&);
   /// This function reads adjoint field data from input file.
 
@@ -293,6 +303,7 @@ public:
   
   inline double getUservol() { return uservol; }
   /// Access function for uservol
+  //>>>>>>> 1.15
 };
 
 

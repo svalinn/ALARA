@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.17 2002-01-07 21:51:05 wilsonp Exp $ */
+/* $Id: Input.C,v 1.18 2002-12-07 17:48:07 fateneja Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -392,6 +392,8 @@ void Input::preProc(Root*& rootList, topSchedule*& top)
   /* make schedule T storage */
   volList->makeSchedTs(top);
 
+  // Add New function
+  volList->makeXFlux(mixListHead);
 }
 
 

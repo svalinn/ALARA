@@ -1,4 +1,4 @@
-/* $Id: Component.h,v 1.10 2002-08-05 20:23:14 fateneja Exp $ */
+/* $Id: Component.h,v 1.11 2002-12-07 17:48:06 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _COMPONENT_H
@@ -14,8 +14,6 @@
 #define TARGET_ELE 12
 #define TARGET_ISO 13
 
-#define AVAGADRO 6.02e23
-
 /** \brief This class is invoked as a linked list, with each object of 
  *         class Mixture having a distinct list.
  *
@@ -26,7 +24,7 @@
 
 class Component
 {
-protected:
+ public:
   static ifstream 
     /// This is a stream connected to the material description library as
     /// given in the input file.
