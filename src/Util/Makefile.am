@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.4 2003-06-12 17:00:29 wilsonp Exp $
+#$Id: Makefile.am,v 1.5 2003-08-19 21:56:55 wilsonp Exp $
 noinst_LIBRARIES = libUtil.a
 
 libUtil_a_SOURCES = Matrix.C  Statistics.C  debug.C  input.C  math.C  output.C  stub.C
@@ -10,4 +10,5 @@ INCLUDE = -I@top_srcdir@/
 # Set the installation data directory
 DISTCLEANFILES = dflt_datadir.h
 dflt_datadir.h: Makefile
-	echo '#define DFLT_DATADIR "$(datadir)"' >$@
+	echo '#define DFLT_DATADIR "$(xsdir)"' >! $@
+

@@ -1,10 +1,7 @@
-#$Id: Makefile.am,v 1.4 2003-01-08 05:21:08 wilsonp Exp $
-AUTOMAKE_OPTIONS = gnu
-
+#$Id: Makefile.am,v 1.5 2003-08-19 21:56:54 wilsonp Exp $
 bin_PROGRAMS = alara
 
-alara_SOURCES = alara.C
-noinst_HEADERS = alara.h
+alara_SOURCES = alara.C alara.h
 LDADD = Chains/libChains.a \
 	DataLib/libDataLib.a \
 	DataLib/ASCIILib/EAFLib/libEAFLib.a DataLib/ASCIILib/IEAFLib/libIEAFLib.a \
