@@ -1,17 +1,12 @@
-$Id: NEWS,v 1.8 2004-08-10 22:09:51 wilsonp Exp $
+$Id: NEWS,v 1.9 2004-08-19 05:51:15 wilsonp Exp $
 
-Version 2.7.1
+Version 2.7.2
 	
 BUGS FIXED
-        * Removed debugging output at response reminders
-        * Fixed ADJOINT libraries to work with v.2 binary libraries [PW] (10/20/2003)
 	* Fixed library checking for g77/Fortran math (02/18/2004)
 	* Fixed bug on forming output type strings (05/12/2004)
 
 NEW FEATURES
-	* Machine-dependent data files (binary ALARA libraries) are searched for in a path
-	  defined by ALARA_XSDIR environment variable and
-	  ${exec_prefix}/lib/alara/$OSTYPE [PW] (10/27/2003)
 	* Improved response reminders at each isotope table and added response reminders
 	  to total summary table. (06/03/2004)
 	* Added new clearance files: NRC and EU based clearance limits. (06/03/2004)
@@ -21,6 +16,21 @@ CODE UPDATES
 	* Developed C/C++ equivalent for reading FORTRAN "unformatted
 	  files" and converted RTFLUX handling to be C/C++ based. [PW] (8/04/2004)
 	* Fixed bug in creating src/Util/dflt_datadir.h [PW] (8/10/2004)
+	
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
+
+Version 2.7.1
+	
+BUGS FIXED
+        * Fixed ADJOINT libraries to work with v.2 binary libraries [PW] (10/20/2003)
+        * Removed debugging output at response reminders [PW] (01/28/2004)
+
+NEW FEATURES
+	* Machine-dependent data files (binary ALARA libraries) are searched for in a path
+	  defined by ALARA_XSDIR environment variable and
+	  ${exec_prefix}/lib/alara/$OSTYPE [PW] (10/27/2003)
+
+CODE UPDATES
 	
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
