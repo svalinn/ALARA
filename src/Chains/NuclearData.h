@@ -1,4 +1,4 @@
-/* $Id: NuclearData.h,v 1.12 2000-01-17 19:18:44 wilson Exp $ */
+/* $Id: NuclearData.h,v 1.13 2000-01-30 06:38:41 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -150,7 +150,7 @@ protected:
   static DataLib *dataLib;
   static int mode;
 
-  int nPaths, *relations;
+  int nPaths, origNPaths, *relations;
   char **emitted;
   double *single;
   double **paths, E[3];
@@ -158,6 +158,7 @@ protected:
 
   /* Chain */
   int stripNonDecay();
+  void sortData();
 
  public:
 
@@ -178,6 +179,7 @@ protected:
   
   /* Chain */
   void setData(int, float *, int *, char **, float **, float, float*);
+
 };
 
 

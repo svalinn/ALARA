@@ -1,4 +1,4 @@
-/* $Id: Statistics.C,v 1.5 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: Statistics.C,v 1.6 2000-01-30 06:38:41 wilson Exp $ */
 #include "Statistics.h"
 
 #include <unistd.h>
@@ -60,7 +60,7 @@ int Statistics::accountNode(int kza, char* emitted, int rank, int state,
 	  treeFile << " *" << endl;
 	  break;
 	case IGNORE:
-	  treeFile << " < " << endl;
+	  treeFile << " <" << endl;
 	  break;
 	}
     }

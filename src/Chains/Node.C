@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.18 2000-01-23 01:07:33 wilson Exp $ */
+/* $Id: Node.C,v 1.19 2000-01-30 06:38:41 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -86,6 +86,8 @@ Node::Node(int nextKza, Node* passedPrev, double* passedSingle,
 void Node::readData()
 {
   dataLib->readData(kza,this);
+
+  sortData();
 
   switch(mode)
     {
@@ -525,6 +527,40 @@ int Node::getRankKza(int findRank)
     return -1;
 }
 
+/* get the information for the reaction given in the first argument */
+void Node::getRxnInfo(double *rateVec, int &baseKza, int &rxnNum, int &numRxns)
+{
 
+  Node *base;
 
-
+  switch(mode)
+    {
+    case MODE_FORWARD:
+      base = prev;
+      break;
+    case MODE_REVERSE:
+      base = this;
+      break;
+    }
+  
+  baseKza = -1;
+  
+  /* if this is a production rate */
+  if (rateVec == P)
+    {
+      if (P != NULL)
+	{
+	  baseKza = base->kza;
+	  rxnNum = base->pathNum;
+	  numRxns = base->origNPaths;
+	}
+    }
+  /* otherwise this is a destruction rate */
+  else
+    {
+      baseKza = kza;
+      rxnNum = 0;
+      numRxns = origNPaths;
+    }
+      
+}

@@ -1,4 +1,4 @@
-/* $Id: NuclearData.C,v 1.11 1999-08-24 22:06:17 wilson Exp $ */
+/* $Id: NuclearData.C,v 1.12 2000-01-30 06:38:41 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -26,6 +26,7 @@ int NuclearData::mode = MODE_FORWARD;
 NuclearData::NuclearData()
 {
   nPaths=-1;
+  origNPaths=nPaths;
   relations=NULL;
   emitted=NULL;
   single=NULL;
@@ -43,6 +44,7 @@ NuclearData::NuclearData(const NuclearData& n)
   
   /* set dimension */
   nPaths = n.nPaths;
+  origNPaths = n.origNPaths;
 
   /* initialize all pointers to NULL */
   relations=NULL;
@@ -155,6 +157,7 @@ NuclearData& NuclearData::operator=(const NuclearData& n)
   P = NULL;
 
   nPaths = n.nPaths;
+  origNPaths = n.origNPaths;
 
   if (nPaths < 0)
     return *this;
@@ -305,6 +308,7 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
 
   /* set dimensions */
   nPaths = numRxns;
+  origNPaths = nPaths;
 
   if (nPaths < 0)
     return;
@@ -377,6 +381,40 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
     }
 
 }
+
+/* sort the rate vectors the various paths to put the vectors with
+   decay rates at the top of the list */
+void NuclearData::sortData()
+{
+  int rxnNum=0,switchNum=nPaths;
+  int tmpRel;
+  char *tmpEmit;
+  double *tmpPath;
+
+  if ( paths[nPaths][nGroups] > 0)
+    while (rxnNum < switchNum)
+      {
+	/* find last decay path */
+	while (paths[--switchNum][nGroups]==0 && switchNum > 0);
+	
+	/* find first non-decay path */
+	while (rxnNum < switchNum && paths[rxnNum][nGroups]>0) rxnNum++;
+	
+	if (rxnNum < switchNum)
+	  {
+	    tmpPath = paths[rxnNum];
+	    tmpRel = relations[rxnNum];
+	    tmpEmit = emitted[rxnNum];
+	    paths[rxnNum] = paths[switchNum];
+	    relations[rxnNum] = relations[switchNum];
+	    emitted[rxnNum] = emitted[switchNum];
+	    paths[switchNum] = tmpPath;
+	    relations[switchNum] = tmpRel;
+	    emitted[switchNum] = tmpEmit;
+	  }
+      }
+}
+				   
 
 /* strip pure transmutation reactions out of data */
 int NuclearData::stripNonDecay()

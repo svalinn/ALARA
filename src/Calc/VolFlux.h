@@ -1,4 +1,4 @@
-/* $Id: VolFlux.h,v 1.6 2000-01-23 01:07:33 wilson Exp $ */
+/* $Id: VolFlux.h,v 1.7 2000-01-30 06:38:41 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -85,7 +85,7 @@ specification.
     called with the object pointed to by the argument, and sets the
     group-wise maximum flux.
 
- double fold(double*)
+ double fold(double*,Node*)
     This function takes a rate vector pointed to by the argument and
     folds it with this flux, returning the scalar reaction rate.
 
@@ -99,6 +99,7 @@ specification.
 #ifndef _VOLFLUX_H
 #define _VOLFLUX_H
 
+#include "RateCache.h"
 
 class VolFlux
 {
@@ -106,6 +107,7 @@ protected:
   static int nFluxes, nGroups;
 
   double *flux;
+  RateCache cache;
 
   VolFlux *next;
 
@@ -134,7 +136,7 @@ public:
   
   /* Solution */
   void updateReference(VolFlux*);
-  double fold(double*);
+  double fold(double*,Node*);
 
   /* Utility */
   VolFlux* advance() {return next;};

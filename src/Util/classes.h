@@ -1,4 +1,4 @@
-/* $Id: classes.h,v 1.4 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: classes.h,v 1.5 2000-01-30 06:38:41 wilson Exp $ */
 /* Input */
 class Component;
 class CoolingTime;
@@ -27,6 +27,9 @@ class TreeInfo;
 /* Calc */
 class SinglePulse;
 class PulseHistory;
+class CacheData;
+class CacheListPtr;
+class RateCache;
 class VolFlux;
 class calcSchedule;
 class calcScheduleT;

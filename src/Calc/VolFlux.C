@@ -1,4 +1,4 @@
-/* $Id: VolFlux.C,v 1.6 2000-01-23 01:07:33 wilson Exp $ */
+/* $Id: VolFlux.C,v 1.7 2000-01-30 06:38:41 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -7,6 +7,8 @@
  */
 
 #include "VolFlux.h"
+
+#include "Chains/Node.h"
 
 /****************************
  ********* Service **********
@@ -133,16 +135,25 @@ void VolFlux::updateReference(VolFlux *compFlux)
 
 }
 
-double VolFlux::fold(double* rateVec)
+double VolFlux::fold(double* rateVec, Node* nodePtr)
 {
-
   int grpNum;
+  int baseKza, pathNum, numPaths;
   double rate=0;
 
-
   if (rateVec != NULL)
-    for (grpNum=0;grpNum<nGroups;grpNum++)
-      rate += rateVec[grpNum]*flux[grpNum];
+    {
+      nodePtr->getRxnInfo(rateVec,baseKza,pathNum,numPaths);
+      rate = cache.read(baseKza,pathNum);
 
+      if (rate < 0)
+	{
+	  rate = 0;
+	  for (grpNum=0;grpNum<nGroups;grpNum++)
+	    rate += rateVec[grpNum]*flux[grpNum];
+	  cache.set(baseKza,numPaths+1,pathNum,rate);
+	}
+    }
+  
   return rate;
 }

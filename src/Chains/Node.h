@@ -1,4 +1,4 @@
-/* $Id: Node.h,v 1.8 2000-01-23 01:07:33 wilson Exp $ */
+/* $Id: Node.h,v 1.9 2000-01-30 06:38:41 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -194,6 +194,7 @@ public:
   int newNode() {  return (nPaths<0); }
   int getKza() { return kza; };
   int getRankKza(int);
+  void getRxnInfo(double*,int&,int&,int&);
 
   /* Statistics */
   int count(double* relProd)

@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.15 2000-01-23 01:07:33 wilson Exp $ */
+/* $Id: Chain.C,v 1.16 2000-01-30 06:38:41 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -409,6 +409,7 @@ void Chain::collapseRates(VolFlux* flux)
 {
   int idx,idx2,rank;
   int fluxNum = 0;
+  Node *nodePtr;
 
   int step = maxChainLength;
   
@@ -416,14 +417,16 @@ void Chain::collapseRates(VolFlux* flux)
   flux = flux->advance();
   while (flux != NULL)
     {
+      nodePtr = root;
       for (rank=0;rank<chainLength;rank++)
 	{
 	  idx = rank;
 	  if (mode == MODE_REVERSE)
 	    idx = (chainLength-1)-rank;
 	  idx2 = fluxNum*chainLength + idx;
-	  P[idx2] = flux->fold(rates[rank])      + L[idx];
-	  d[idx2] = flux->fold(rates[rank+step]) + l[idx];
+	  P[idx2] = flux->fold(rates[rank],nodePtr)      + L[idx];
+	  d[idx2] = flux->fold(rates[rank+step],nodePtr) + l[idx];
+	  nodePtr = nodePtr->getNext();
 	}
       
       /* in forward mode, don't destroy bottom isotope */
