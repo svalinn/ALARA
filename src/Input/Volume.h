@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.20 2003-06-03 19:00:42 varuttam Exp $ */
+/* $Id: Volume.h,v 1.21 2004-07-29 19:55:01 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _VOLUME_H
@@ -86,6 +86,9 @@ protected:
 
   /// Gamma source to dose conversion factor (adjoint calculation)
   double *adjConv;
+
+  /// cache the isotopic specific dose contribution from this volume
+  DataCache doseContrib;
  
   /// A pointer to the next Volume object in the problem-wide list.
   /** This pointer represents the next Volume in the sequence

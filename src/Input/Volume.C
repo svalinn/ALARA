@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.40 2004-07-29 19:23:51 wilsonp Exp $ */
+/* $Id: Volume.C,v 1.41 2004-07-29 19:55:01 wilsonp Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -59,6 +59,7 @@ void Volume::deinit()
   delete fluxHead; 
   delete schedT; 
   delete adjConv;
+  doseContrib.clear();
   delete [] outputList;
 }  
 
@@ -116,8 +117,11 @@ Volume::Volume(const Volume& v)
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
   userVol=v.userVol;
-  // Need to confirm desired behavior of copy constructor for this variable
+
+  // Need to confirm desired behavior of copy constructor for these variable
   adjConv=v.adjConv;
+  doseContrib = v.doseContrib;
+  //
 
   if (v.zoneName != NULL)
     {
@@ -175,9 +179,12 @@ Volume& Volume::operator=(const Volume& v)
   zonePtr = v.zonePtr;
   mixPtr = v.mixPtr;
   userVol = v.userVol;
+
   // Need to confirm desired behavior of assignment operator for this variable
   adjConv = v.adjConv;
-  
+  doseContrib = v.doseContrib;
+  //
+
   if (v.zoneName != NULL)
     {
       zoneName = new char[strlen(v.zoneName)+1];
@@ -1087,7 +1094,13 @@ double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
 
   if (adjDose == NULL || &volume == NULL)
   	error(9000, "Error in Volume::getAdjDoseConv()" ); 
-  return adjDose->calcAdjDose(kza,adjConv,volume);
+  
+  if (!doseContrib.count(kza))
+    {
+      doseContrib[kza] = adjDose->calcAdjDose(kza,adjConv,volume);
+    }
+
+  return doseContrib[kza];
 }
 
 
