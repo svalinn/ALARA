@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.24 2001-07-23 20:02:21 wilsonp Exp $ */
+/* $Id: OutputFormat.C,v 1.25 2001-12-06 23:19:58 wilsonp Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -25,7 +25,7 @@ const char *Out_Types_Str[nOutTypes] = {
   "Beta Decay Heat [W%s]",
   "Gamma Decay Heat [W%s]",
   "Photon Source Distribution [gammas/s%s] : %s\n\t    with Specific Activity [%s%s]",
-  "Contact Dose [ units? ]",
+  "Contact Dose [ Sv/hr/%s] : %s",
   "WDR/Clearance index"};
 
 /***************************
@@ -43,6 +43,9 @@ OutputFormat::OutputFormat(int type)
   normUnits = new char[4];
   strcpy(normUnits,"cm3");
   normType = 1;
+
+  gammaSrc = NULL;
+  contactDose = NULL;
 
   next = NULL;
 }
@@ -64,7 +67,10 @@ OutputFormat::~OutputFormat()
 {
   delete actUnits;
   delete normUnits;
+  delete gammaSrc;
+  delete contactDose;
   delete next;
+  
 }
 
 OutputFormat& OutputFormat::operator=(const OutputFormat& o)
@@ -166,7 +172,11 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  break;
 	case OUTFMT_SRC:
 	  /* set gamma source file name here */
-	  next->gammaSrc= new GammaSrc(input);
+	  next->gammaSrc= new GammaSrc(input,GAMMASRC_RAW_SRC);
+	  break;
+	case OUTFMT_CDOSE:
+	  /* setup gamma source for contact dose */
+	  next->contactDose = new GammaSrc(input,GAMMASRC_CONTACT);
 	  break;
 	}
 
@@ -178,13 +188,12 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
 }
 
-
 void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 			 CoolingTime *coolList, int targetKza)
 {
-  
 
   OutputFormat *ptr = this;
+  GammaSrc *tmpGammaSrc = NULL;
   char buffer[256];
 
   int outTypeNum;
@@ -226,8 +235,12 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		break;
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-		       /* deliver gamma src filename, */
-		       ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
+				/* deliver gamma src filename, */
+			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
+		break;
+	      case (OUTFMT_CDOSE) :
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+			ptr->normUnits, ptr->contactDose->getFileName());
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],
@@ -249,7 +262,6 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       
       /* set units for activity */
       Result::setNorm(ptr->actMult,ptr->normType);
-      Result::setGammaSrc(ptr->gammaSrc);
 
       /* for each indicated response */
       for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++)
@@ -265,6 +277,16 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
+		/* set gamma source to use for this */
+		Result::setGammaSrc(ptr->gammaSrc);
+		break;
+	      case (OUTFMT_CDOSE) :
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+			ptr->normUnits, ptr->contactDose->getFileName());
+		/* setup gamma attenuation coefficients */
+		ptr->contactDose->setGammaAttenCoef(mixList);
+		/* set gamma source to use for this */
+		Result::setGammaSrc(ptr->contactDose);
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],ptr->normUnits);

@@ -1,26 +1,50 @@
-/* $Id: GammaSrc.C,v 1.6 2000-11-29 21:29:47 wilson Exp $ */
+/* $Id: GammaSrc.C,v 1.7 2001-12-06 23:19:58 wilsonp Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
+#include "Input/Mixture.h"
 
 /***************************
  ********* Service *********
  **************************/
 
-GammaSrc::GammaSrc(istream& input)
+GammaSrc::GammaSrc(istream& input, int inGammaType)
 {
   
-  char token[64];
   char libType[9];
-  int gNum;
+
+  gammaType = inGammaType;
 
   strcpy(libType,"gammalib");
   nGroups = 0;
+  contactDose = 0;
   grpBnds = NULL;
   dataLib = NULL;
+  gammaAttenCoef = NULL;
 
   /* get gamma library filename */
   dataLib = DataLib::newLib(libType,input);
+
+  switch(gammaType)
+    {
+    case GAMMASRC_RAW_SRC:
+      initRawSrc(input);
+      break;
+    case GAMMASRC_CONTACT:
+      initContactDose(input);
+      break;
+    case GAMMASRC_ADJOINT:
+      error (6000,"Adjoint Dose it not yet supported!");
+      break;
+    }
+
+}
+
+void GammaSrc::initRawSrc(istream& input)
+{
+
+  char token[64];
+  int gNum;
 
   /* get gamma source output filename */
   clearComment(input);
@@ -29,10 +53,9 @@ GammaSrc::GammaSrc(istream& input)
   strcpy(fileName,token);
   gSrcFile.open(fileName);
   if (!gSrcFile)
-    {
-      /* error */
-    }
-
+    error(250,"Unable to open file for gamma source output: %s\n",
+	  fileName);
+  
   /* get number of gamma groups to use */
   clearComment(input);
   input >> nGroups;
@@ -49,6 +72,40 @@ GammaSrc::GammaSrc(istream& input)
 
 }
 
+void GammaSrc::initContactDose(istream& input)
+{
+
+  char token[64];
+  int gNum;
+
+  /* get gamma attenuation data file */
+  clearComment(input);
+  input >> token;
+  fileName = new char[strlen(token)+1];
+  strcpy(fileName,token);
+  gAttenData.open(fileName);
+  if (!gAttenData)
+    error(250,
+	  "Unable to open file for gamma attenuation data input (contact dose): %s\n",
+	  fileName);
+
+  /* get number of data points used for this data */
+  clearComment(gAttenData);
+  gAttenData >> nGroups;
+
+  grpBnds = new double[nGroups+1];
+  grpBnds[0] = 0.0;
+
+  /* read gamma energy points */
+  for (gNum=1;gNum<nGroups+1;gNum++)
+    {
+      gAttenData >> grpBnds[gNum];
+      grpBnds[gNum] *= 1.0E6;
+    }
+
+
+}
+
 GammaSrc::~GammaSrc()
 {
 
@@ -58,6 +115,13 @@ GammaSrc::~GammaSrc()
 
   delete dataLib;
   delete grpBnds;
+
+}
+
+void GammaSrc::setGammaAttenCoef(Mixture* mixList)
+{
+
+  mixList->setGammaAttenCoef(nGroups,gAttenData);
 
 }
 
@@ -155,14 +219,15 @@ void GammaSrc::setData(int kza, int numSpec,
 {
   int specNum, gammaNum, gNum, pntNum, regNum;
   double *gammaMult = NULL;
-  double Elo, Ehi;
+  double Elo, Ehi, interpFrac;
 
   if (numSpec > 0)
     {
       gammaMult = new double[nGroups];
-      
       for (gNum=0;gNum<nGroups;gNum++)
 	gammaMult[gNum] = 0.0;
+
+      contactDose = 0.0;
       
       for (specNum=0;specNum<numSpec;specNum++)
 	{
@@ -171,21 +236,47 @@ void GammaSrc::setData(int kza, int numSpec,
 	    {
 	      /* determine energy bin */
 	      gNum = findGroup(discGammaE[specNum][gammaNum]);
-	      /* increment bin */
-	      gammaMult[gNum] += discGammaI[specNum][gammaNum];
+	      switch (gammaType)
+		{
+		case GAMMASRC_RAW_SRC:
+		  /* increment bin */
+		  gammaMult[gNum] += discGammaI[specNum][gammaNum];
+		  break;
+		case GAMMASRC_CONTACT:
+		  /* increment total contact dose */
+		  /* if this is the "last group" we are extrapolating */
+		  if (gNum == nGroups-1)
+		    gNum = nGroups-2;
+		  interpFrac = (discGammaE[specNum][gammaNum] - grpBnds[gNum])/
+		    (grpBnds[gNum+1] - grpBnds[gNum]);
+		  contactDose += discGammaI[specNum][gammaNum] * discGammaE[specNum][gammaNum] *
+		    (gammaAttenCoef[gNum]*(1.0 - interpFrac) + 
+		     gammaAttenCoef[gNum+1] * interpFrac);
+		  break;
+		}
 	    }
 	  
 	  /* CONTINUOUS ENERGY SPECTRUM */
 	  regNum = 0;
 	  pntNum = 0;
 	  gNum = 0;
-	  if (numIntReg[specNum] > 0 && nPts[specNum] > 0)
+	  while (numIntReg[specNum] > regNum && nPts[specNum] > pntNum)
 	    {
 	      Elo = max(double(contX[specNum][pntNum]),grpBnds[gNum]);
 	      Ehi = min(double(contX[specNum][pntNum+1]),grpBnds[gNum+1]);
-	      gammaMult[gNum] += subIntegral(pntNum,intRegT[specNum][regNum],
-					     contX[specNum],contY[specNum],
-					     Elo,Ehi);
+	      switch (gammaType)
+		{
+		case GAMMASRC_RAW_SRC:
+		  gammaMult[gNum] += subIntegral(pntNum,intRegT[specNum][regNum],
+						 contX[specNum],contY[specNum],
+						 Elo,Ehi);
+		  break;
+		case GAMMASRC_CONTACT:
+		case GAMMASRC_ADJOINT:
+		  /* ignore continuous spectrum for now */
+		  break;
+		}
+
 	      if (Ehi == grpBnds[gNum+1]) 
 		gNum++;
 	      else
@@ -253,3 +344,19 @@ void GammaSrc::writeIsotope(double *photonSrc, double N)
   
   gSrcFile << endl;
 }
+
+double GammaSrc::calcDoseConv(int kza, double *mixGammaAttenCoef)
+{
+  /* reset contact dose in case there is no gamma data for this isotope */
+  contactDose = 0;
+
+  gammaAttenCoef = mixGammaAttenCoef;
+
+  dataLib->readGammaData(kza,this);
+
+  gammaAttenCoef = NULL;
+
+  return contactDose;
+
+
+};
