@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.2 2003-01-03 03:03:20 wilsonp Exp $
+#$Id: Makefile.am,v 1.3 2003-01-08 05:21:53 wilsonp Exp $
 noinst_LIBRARIES = libDataLib.a
 
 libDataLib_a_SOURCES = DataLib.C
