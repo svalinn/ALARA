@@ -393,6 +393,7 @@ void Chain::setDecay(Matrix& D, double time)
   int idx,idx2,row,col, oldSize;
   int localNewRank = newRank;
   int size = chainLength*(chainLength+1)/2;
+  int success;
   double *data = new double[size];
   memCheck(data,"Chain::setDecay(...): data");
 
@@ -423,7 +424,7 @@ void Chain::setDecay(Matrix& D, double time)
 	  for (idx2=col;idx2<row;idx2++)
 	    data[idx] *= L[idx2+1];
 	  if (data[idx] > 0)
-	    data[idx] *= bateman(row,col,l,time);
+	    data[idx] *= bateman(row,col,l,time,success);
 	  col++;
 	}
     }
