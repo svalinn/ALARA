@@ -1,4 +1,4 @@
-# $Id: test7,v 1.1 2003-07-01 15:05:54 wilsonp Exp $
+# $Id: test7,v 1.2 2003-07-01 15:07:58 wilsonp Exp $
 # ALARA V2.0 Test Suite Problem #6
 #
 # Testing objectives:
@@ -51,7 +51,7 @@ dump_file test6.dump
 output interval
    units Bq cm3
    photon_src fendl2bin gammatest7 2 1e6 1e9
-   folded_dose fendl2bin biotestin 2 1e6 1e9
+   folded_dose fendl2bin in/test7.bio 2 1e6 1e9
 end
 
 
