@@ -1,262 +1,456 @@
+
 \begin{chapter}{Introduction and Background}
-
-\begin{section}{Problem Definition\label{sec:intro.prob_def}}
-
-  \begin{floatingfigure}{0.55\columnwidth}
-    \begin{center}
-      \epsfig{file=eps/basic_tree.eps,width=0.5\columnwidth}
-      \caption{A sample activation tree showing the results of
-        activation of isotope A.}\label{fig:intro.basic_tree}
-    \end{center}
-  \end{floatingfigure}
   
-  Activation is one of the many responses induced in materials when
-  irradiated by neutrons.  When subjected to neutron irradiation, it
-  is possible that the neutrons will interact with the nuclei of an
-  isotope, converting them to different isotopes.  Many such reactions
-  are possible with each isotope, so that after only one round of
-  neutron reactions, a material made of only one isotope can be
-  partially converted into over 20 others.  These isotopes, in turn,
-  can undergo similar interactions, leading to yet more isotopes, and
-  so on.  Many of these isotopes can and will be radioactive, and
-  through their decay, even more isotopes can enter the physical
-  system.  If represented graphically (Figure
-  \ref{fig:intro.basic_tree}), this process forms a tree of isotopes,
-  where each of the branch in the tree represents either a nuclear
-  reaction or a nuclear decay.
+  Since the advent of the nuclear age nearly six decades ago, it has
+  become necessary to study and simulate the effect of radiation on
+  materials.  Most nuclear systems, including existing fission power
+  reactors, anticipated fusion power reactors, and a wide variety of
+  experimental facilities, produce large numbers of energetic
+  neutrons.  These neutrons interact with the systems' materials,
+  inducing a variety of responses.
+
+  \begin{section}{Problem Definition\label{sec:intro.prob_def}}
     
-  The end result of this so called activation process is a radioactive
-  material.  After calculating the concentrations of all the various
-  isotopes created by the activation process, other engineering
-  responses can be determined.  Using the half-lives of the
-  radioactive isotopes, the radioactivity of the material can be
-  determined.  Given the average energy of each decay, these
-  radioactivity values can be converted to decay heat results.  Once
-  the radioactivity is known, it can be compared to regulated limits
-  to determine how the material must be handled.  If the radioactive
-  isotopes emit gamma rays, the radioactivity results can be
-  translated into sources of gamma rays, which may be used to
-  calculate a radiation dose at some point.  These radiation doses
-  determine, in turn, whether systems and components can be maintained
-  by hand or require robotic systems and remote handling.
+    \begin{floatingfigure}{0.55\columnwidth}
+      \begin{center}
+        \epsfig{file=eps/basic_tree.eps,width=0.5\columnwidth}
+        \caption{A sample activation tree showing the results of
+          activation of isotope A.}\label{fig:intro.basic_tree}
+      \end{center}
+    \end{floatingfigure}
     
-  All of these responses are very important when designing, operating
-  and costing a nuclear system.  For safety considerations, it is
-  important to know the inventory of all the radioactive isotopes
-  which may be released and to know the decay heat transient after the
-  system is shutdown.  Furthermore, if the radiation dose at a
-  critical point it too high, either for the other components of the
-  system or for the personnel which must work on the system, addition
-  shielding must be added to the design to mitigate this.  Amongst
-  many other factors, the cost of a system is affected by whether the
-  maintenance can be done ``hands-on'' or remote handling is
-  required.  When the lifetime of the system has been reached, the
-  cost of decommissioning is influenced by the levels of radioactivity
-  in the various materials.
+    \noindent Activation is just one of the many possible responses resulting
+    from the neutron irradiation of materials.  The neutrons interact
+    with the material's nuclei, converting them to different isotopes.
+    With many such reactions possible for most isotopes, each of the
+    original material's isotopes can be partially converted into over
+    20 others after just one generation.  These isotopes, in turn, can
+    undergo similar interactions, leading to yet more isotopes, and so
+    on.  Furthermore, many of these isotopes may be radioactive, and
+    their decay products introduce even more isotopes to the physical
+    system.  If represented graphically (Figure
+    \ref{fig:intro.basic_tree}), this process forms a tree of
+    isotopes, where each branch in the tree represents either a
+    nuclear reaction (\textsl{e.g.} $A \rightarrow B$) or a nuclear
+    decay (\textsl{e.g.} $C \rightarrow G$).  This process of
+    converting a non-radioactive material to a radioactive one is
+    known as activation.
+    
+    After calculating the concentrations of all the various isotopes
+    created by the activation process, other engineering responses can
+    be determined.  Multiplying by the radioactive isotopes' decay
+    constants ($\lambda = \ln 2/t_{\frac{1}{2}}$) determines the
+    material's radioactivity.  Further multiplying by the average
+    energy of each decay, these radioactivity values can be converted
+    to decay heat results.  By comparing the radioactivity to
+    regulated limits, the waste disposal ratings can be determined,
+    indicating how the material must be handled.  Incorporating the
+    gamma ray emission information for each radioactive isotopes gives
+    the gamma ray source, which may be used as the source term for a
+    radiation transport calculation to determine a radiation dose at
+    some spatial point.
+    
+    These responses are essential when designing, operating and
+    costing a nuclear system.  For safety considerations, it is
+    important to know the inventory of all the radioactive isotopes
+    which may be released and to know the decay heat transient after
+    the system is shutdown.  Furthermore, if the radiation dose at a
+    critical point is too high, either for the other components of the
+    system (\textsl{e.g.} fusion magnets) or for the personnel who
+    must work with the system, the doses must be mitigated by the
+    addition of shielding to the design.  Amongst many other factors,
+    the cost of a system is affected by whether ``hands-on''
+    maintenance is possible or remote handling is required.  When the
+    lifetime of the system has been reached, the decommissioning cost
+    is influenced by the levels of radioactivity in the various
+    materials.
   
-  The mathematical description of the activation process is quite
-  straightforward.  The production rate of one isotope, $i$, from
-  another, $j$, is proportional to the concentration of that other
-  isotope, $N_j$.  The constant of proportionality is some reaction
-  rate, $P_{j\rightarrow i}$, based on nuclear data and possibly
-  dependent on the neutron flux, $\phi(t)$.  Logically, this same term
-  represents part of the destruction rate of isotope $j$.  Assuming
-  that there are no other sources for any (such as new material being
-  added to the system), the rate of change of an isotope's
-  concentration is simply the sum of all the production terms from
-  other isotopes, $j$, and the destruction terms to other isotopes,
-  $k$:
-  \begin{equation*}
-    \dot{N}_i(t) = \sum_{j=1}^n P_{j\rightarrow
-      i}\left[\phi(t)\right]N_j(t) - \sum_{k=1}^n P_{i \rightarrow
-      k}\left[\phi(t)\right]N_i(t).
-  \end{equation*}
-  By combining all the production
-  rates of isotopes $k$ into a total destruction rate for isotope $i$,
-  and not explicitly including the dependence on the neutron flux,
-  this ordinary differential equation [ODE] is reduced to
-  \begin{equation*}
-    \dot{N}_i(t) = \sum_{j=1}^n P_{j\rightarrow i}N_j(t) - d_i
-    N_i(t).
-  \end{equation*}
-  With one such equation for each of the isotopes in the activation
-  tree, and one activation tree for each of the isotopes in the
-  initial material, the large system of these coupled ordinary
-  differential equations [ODE's] can be written in a matrix
-  formulation as
-  \begin{equation}
-    \dot{\vec{N}}(t) = \mat{A}\vec{N}(t),\label{eqn:intro.basic_ode}
-  \end{equation}
-  where the term $-d_i$
-  appears on the diagonal in row $i$ and the term $P_{j \rightarrow
-    i}$ appears in column $j$ of row $i$.  The formal solution to this
-  equation is the matrix exponential:
-  \begin{equation}
-    \vec{N}(t) = e^{\mat{A}t}\vec{N}(0).\label{eqn:intro.basic_soln}
-  \end{equation}
+    The mathematical description of the activation process is quite
+    straightforward.  The production rate of one isotope, $i$, from
+    another, $j$, is proportional to the concentration of that other
+    isotope, $N_j$.  The constant of proportionality is some reaction
+    rate, $P_{j\rightarrow i}$, based on nuclear data.  For decay
+    reaction paths, the production rate is equal to the product of the
+    decay rate of isotope $j$ and the branching ratio for the reaction
+    leading to $i$: $P_{j\rightarrow i} = \lambda_j b_{j\rightarrow
+      i}.$ For nuclear reactions, the reaction rate is the inner
+    product of the reaction cross-section for the reaction from $j$ to
+    $i$ and the neutron flux, $P_{j\rightarrow i} = \int_0^\infty
+    \sigma^{j\rightarrow i}(E)\phi(E) dE$.  With the cross-sections
+    represented as group constants, as is usual, this production rate
+    is: $P_{j\rightarrow i} = \sum_{g=1}^G \sigma_g^{j\rightarrow i}
+    \phi_g.$ While each such term represents a production path for
+    isotope $i$, it also represents one for the destruction paths for
+    isotope $j$.  Assuming that there are no other sources (such as
+    mass flux into the system), the rate of change of an isotope's
+    concentration is simply the sum of all the production terms from
+    other isotopes, $j$, and the destruction terms to other isotopes,
+    $k$:
+    \begin{equation*}
+      \dot{N}_i(t) = \sum_{j=1}^n P_{j\rightarrow
+        i}\left[\phi(t)\right]N_j(t) - \sum_{k=1}^n P_{i \rightarrow
+        k}\left[\phi(t)\right]N_i(t).
+    \end{equation*}
+    By combining all the destruction rates to isotopes $k$ into a
+    total destruction rate for isotope $i$, and writing the production
+    rates as $P_{ij}$ without explicitly including the dependence on
+    the neutron flux, this ordinary differential equation [ODE] is
+    reduced to
+    \begin{equation*}
+      \dot{N}_i(t) = \sum_{j=1}^n P_{ij}N_j(t) - d_i N_i(t).
+    \end{equation*}
+    With one such equation for each of the isotopes in the activation
+    tree, and one activation tree for each of the isotopes in the
+    initial material, the large system of these coupled ordinary
+    differential equations [ODE's] can be written in a matrix
+    formulation as
+    \begin{equation}
+      \dot{\vec{N}}(t) = \mat{A}\vec{N}(t),\label{eqn:intro.basic_ode}
+    \end{equation}
+    where $A_{ii} = -d_i$ and $A_{ij} = P_{ij}$.  The formal solution
+    to this equation is the matrix exponential:
+    \begin{equation}
+      \vec{N}(t) = e^{\mat{A}t}\vec{N}(0).\label{eqn:intro.basic_soln}
+    \end{equation}
+    
+    For large problems with many initial isotopes, many fluxes at
+    different spatial points, and complicated irradiation histories,
+    an activation code is required to calculate the induced
+    radioactivity levels.  An activation code must perform two
+    distinct tasks: the physical modeling of the activation tree and
+    the solution of the corresponding mathematical problem.  Starting
+    with a list of initial isotopes, the code must first build the
+    activation trees, deciding how large they need to be in order to
+    include all the important contributions.  The trees are then
+    converted into their mathematical equivalent and some technique is
+    used to solve the matrix exponential problem.  Although these two
+    tasks will be treated as distinct in this work, the way that the
+    trees are built and sub-divided has an important impact on the
+    kind of mathematical method that can be accurately implemented,
+    and vice versa.
+    
+  \end{section}
+  
+  \begin{section}{Historical Overview}
+    
+    The computational solutions to this problem have been well
+    studied\cite{adjoint}.  Many different approaches for modeling the
+    physical problem have been combined with at least as many
+    mathematical solution techniques.  Each combination has advantages
+    and disadvantages, but none has arrived at an optimum mixture of
+    accuracy, efficiency and usability.  Even ignoring the issue of
+    usability (where this author feels many codes fail), there are few
+    codes which are keeping up with the demands for greater accuracy
+    in the physical models and mathematical solutions without becoming
+    inconveniently slow.
+  
+    The predecessors to many modern activation codes were inventory
+    codes (also called burn-up or depletion codes) designed for
+    modeling the burn-up of nuclear fuel and build-up of fission
+    products in nuclear reactors.  These codes use a variety of
+    methods for modeling the physical system and solving the
+    mathematical problem, but have historically been divided into
+    three classes based on the mathematical method: time-step based
+    ODE solvers, matrix exponential methods, and linear chain methods.
+  
+    The time-step based ODE solvers, such as used in
+    FISPIN\cite{FISPIN}, use some algebraic approximation of the
+    derivative on the left hand side of equation
+    \ref{eqn:intro.basic_ode}.  One simple form of this approximation
+    is based on the first principles definition of the derivative:
+    \begin{equation*}
+      \begin{split}
+        \dot{N}(t) = \lim_{t_i - t_{i-1} \rightarrow 0} \frac{N(t_i)
+          - N(t_{i-1})}{t_i - t_{i-1}}\\
+        \therefore \dot{N}(t) \approx \frac{N(t_i)
+          - N(t_{i-1})}{t_i - t_{i-1}}.
+      \end{split}
+    \end{equation*}
+    For the activation problem, where $\vec{N}_i$ is the number
+    density vector at time $i$, and $\Delta t = t_i - t_{i-1}$, this
+    can be implemented simply in the explicit form:
+    \begin{equation}
+      \label{eqn:intro.time-step}
+      \vec{N}_i = \Delta t \mat{A}\vec{N}_{i-1} + \vec{N}_{i-1}.
+    \end{equation}
+    More complicated differencing schemes with more accuracy can be
+    developed based on Taylor series expansions in one or two
+    variables, such as the well known Runge Kutta method.
+  
+    In all cases, however, to ensure accuracy these methods must use
+    time steps small enough that the number density of any single
+    isotope does not change too much during the time step.  For a
+    problem with very short-lived isotopes, this time step must be
+    very short, requiring many steps to solve the entire irradiation
+    history, and therefore these methods can be very slow.
+  
+    The original matrix methods employed in inventory codes such as
+    ORIGEN\cite{ORIGEN} calculate the series expansion of the
+    $e^{\mat{A}t}$ exponential:
+    \begin{equation*}
+      e^{\mat{A}t} = \mat{I} + \mat{A}t + \frac{\mat{A}^2t^2}{2!} +
+      \frac{\mat{A}^3t^3}{3!} + \ldots
+    \end{equation*}
+    In addition to being prone to round-off error, this expansion may
+    need many terms to converge (if it does converge), which is
+    computationally expensive, due to the large number of matrix
+    multiplications.  More recently, this class of methods includes
+    matrix decomposition methods to solve the matrix exponential (see
+    chapter \ref{chap:math}).
+  
+    The final class of solution methods is based on a principle known
+    as linear chains, of which CINDER\cite{CINDER} was one of the
+    first implementations.  While both the time-step methods and the
+    matrix exponential methods have traditionally attempted to solve
+    the entire physical problem as one large system of ODE's, the
+    linear chain method breaks the activation tree into a number of
+    chains so that each isotope has a single production term and a
+    single destruction term.  This creates a smaller system of ODE's
+    in which the transfer matrix, \mat{A}, is exactly bidiagonal
+    allowing an analytical solution commonly known as the Bateman
+    equations\cite{Bateman} to be used:
+    \begin{equation}
+      \label{intro.bateman}
+      N_i(t) = N_{i_o}e^{-d_i t} + \sum_{j=1}^{i-1}N_{j_o}\left [
+        \sum_{k=j}^{i-1}\frac{P_{k+1}(e^{-d_k t} - e^{-d_i t})}{d_i -
+          d_k}\prod_{\substack{l=j\\l\neq k}}^{i-1}\frac{P_{l+1}}{d_l-d_k}\right] \, ,
+    \end{equation}
+    where $P_{k+1} = P_{k \rightarrow k+1}$.
+  
+    One of the biggest limitations of this class of methods is its
+    inability to model loops in the activation tree.  It can be seen
+    in the above equation that there is a singularity when two of the
+    destruction rates are identical.  While this may happen
+    coincidentally in any linear chain, it is guaranteed to be the
+    case if the same isotope occurs more than once in the chain.  This
+    issue may not be significant for the simulation of fission reactor
+    problems because most of the nuclear reactions required for loops
+    (\textsl{e.g.} (n,p) or (n,2n) ) are threshold reactions with low
+    or zero cross-sections in the energy domain of fission neutrons.
+  
+    Activation codes, many of which have been developed for fusion
+    applications, also exist in each of these three classes of
+    solution method.  Some are derived directly from an inventory code
+    while others have no such obvious ancestry.  Conceptually
+    activation calculations and inventory calculations are one and the
+    same, but the wide variety in the nature of the systems being
+    simulated in an activation problem can require more flexibility
+    that an inventory code may provide.  For example, as suggested
+    above, there are some reaction channels which are not relevant to
+    fission inventory calculations.  In systems with higher energy
+    neutron fluxes, such as fusion reactors or accelerator-based
+    neutron sources, these additional channels can become important,
+    if not dominant.  Additionally, the irradiation history for an
+    activation calculation may be very different from that of a
+    fission reaction system, with, for example, many frequent pulses.
+  
+    The most widely used fusion activation codes include
+    FISPACT\cite{FISPACT}, a direct descendant of the FISPIN inventory
+    code, RACC\cite{RACC} (and variations\cite{RACCP,RACCUW}),
+    REAC\cite{REAC}, ACAB\cite{ACAB}, and DKR\cite{DKR} (and
+    variations\cite{adjoint,DKRICF,DKRP}).  Each uses a different
+    combination of physical and mathematical methods, enabling each to
+    implement unique features.  For example, while FISPACT is limited
+    to solutions at a single spatial point and cannot model pulsed
+    histories exactly, the newest versions support sensitivity
+    analyses and secondary activation caused by the light ions emitted
+    by neutron reactions.  Newer versions of RACC switched from the
+    time-step based GEAR ODE solver to matrix decomposition methods,
+    enabling the efficient solution of pulsing histories with loops in
+    the activation tree.  RACC's method for truncating the activation
+    trees, however, is not ideal and may lead to an inaccurate final
+    solution.  Not only was DKR the first to implement exact pulsing
+    solutions, it is able to efficiently solve the activation problem
+    across many points of a complicated geometry.  Due to its reliance
+    on linear chains and the Bateman solution, however, DKR has long
+    been criticized for its inability to handle loops in the
+    activation tree.  Additionally, DKR has not implemented the
+    ability to model the accumulation of light ions emitted from
+    nuclear reactions.
+  
+    Despite the wide variety of available activation codes and their
+    various capabilities, there is no single code which provides a
+    complete range of these capabilities.  Furthermore, because of
+    their original choice of physical methods, mathematical techniques
+    and/or computational design, few, if any are extensible to include
+    additional capabilities.
+  
+  \end{section}
+  
+  \begin{section}{Goals}
+    
+    The goal of this work is to design a fast, accurate and flexible
+    activation code with a wide array of capabilities and features.
+    In addition to establishing a base set of capabilities and
+    features, it is important to look forward to a more advanced set
+    and ensure that the new code will accomodate those features.
+    \ALARA\ is designed to implement the following basic features:
+    \begin{description}
+    \item[Problem Geometry]\ \\
+      \vspace*{-1cm}
+      \begin{itemize}
+      \item simultaneous solution of activation problem at arbitrary
+        number of spatial points
+      \end{itemize}
+    \item[Truncation]\ \\
+      \vspace*{-1cm}
+      \begin{itemize}
+      \item user-defined calculation precision
+      \end{itemize}
+    \item[Irradiation History]\ \\
+      \vspace*{-1cm}
+      \begin{itemize}
+      \item multi-level pulsed operation histories
+      \end{itemize}
+    \item[Physical Modeling]\ \\
+      \vspace*{-1cm}
+      \begin{itemize}
+      \item accurate handling of loops in the activation tree
+      \item modeling of light ion accumulation
+      \end{itemize}
+    \item[User Features]\ \\
+      \vspace*{-1cm}
+      \begin{itemize}
+      \item user-friendly input file format
+      \item flexible geometry definition options
+      \item user-defined output resolution
+      \item user-defined output responses
+      \end{itemize}
+    \end{description}
 
-  For larger problems, with many initial isotopes, many fluxes at
-  different spatial points, and complicated irradiation histories, an
-  activation code is required to calculate the levels of induced
-  radioactivity.  The tasks for an activation calculation can be
-  divided into two distinct areas: physical modeling and mathematical
-  solution.  First the code must build an activation tree, deciding
-  how large it should be in order to include all the important
-  contributions.  The tree is converted into its mathematical
-  equivalent and then some method must be used to solve the matrix
-  exponential problem.  Although these two tasks will be treated as
-  distinct in this work, the way that the trees are built and
-  sub-divided has an important impact on the kind of mathematical
-  method that can be accurately implemented.
+    \vspace*{1cm}
 
-\end{section}
+    The advanced features of \ALARA\ include:
+    \begin{description}
+    \item[Physical Modeling]\ \\
+      \vspace*{-1cm}
+      \begin{itemize}
+      \item modeling of reverse problem for detailed studies
+      \end{itemize}
+    \item[Irradiation History]\ \\
+      \vspace*{-1cm}
+      \begin{itemize}
+      \item fully arbitrary operation schedules
+      \end{itemize}
+    \item[Mathematicl Techniques]\ \\
+      \vspace*{-1cm}
+      \begin{itemize}
+      \item adaptive selection of mathematical method to optimize
+        speed and accuracy
+      \end{itemize}
+    \end{description}
+    
+    
+    Prior to implementing these features, a careful analysis of the
+    various methods for modeling the physical system, the techniques
+    for solving the mathematical problem, and the way that they
+    influence each other, must be performed.  Once the best methods and
+    techniques have been determined, the importance of efficient and
+    portable implementation must not be underestimated.  Even the best
+    methods can be implemented poorly leading to inaccurate and slow
+    solutions.
+    
+    \ALARA\ has been designed with three basic principles in mind:
+    accuracy, speed, and simplicity.  These three qualities have been
+    maximized in \ALARA\ after extensive research of the models
+    involved in such calculations.  The errors, time of execution, and
+    learning curve have all been made ``as low as reasonably
+    achievable''.\footnote{This phrase is the origin of the term
+      \ALARA, a well known philosophy in the nuclear industry related
+      to the minimization of radiation exposure when working in
+      radioactive environments.}  The methods used to model the
+    physical system and to perform the mathematical solution are
+    carefully combined to preserve or enhance the accuracy while
+    accelerating the solution.  Throughout all this, there is an
+    underlying effort to ensure that \ALARA\ be user-friendly by
+    providing a simple, well-documented input file format, checking
+    this input for errors, and providing a broad, flexible range of
+    options.
+    
+    \begin{subsection}{Accuracy\label{ssec:intro.goals.acc}}
+    
+      Despite the list of shortcomings for existing codes, various
+      studies\cite{IAEA.bench2.rep,IAEA.bench1.results} have
+      demonstrated that most of these codes achieve a reasonable
+      degree of accuracy, compared to each other as well as compared
+      to analytical solutions.  It is important, therefore, that
+      \ALARA\ at least maintain this level of accuracy as it expands
+      its range of modeling options.
+  
+      The accuracy of the final solution is affected both by how
+      realistically the physical system is modeled and by what
+      mathematical methods are employed for the final solution.
+      Unfortunately, these two requirements often conflict; as the
+      physical model becomes more realistic the required mathematical
+      methods become more approximate or error prone.  When modeling
+      the physical problem, two of the most important issues are how
+      to deal with loops in the reaction scheme and how to truncate
+      the theoretically infinite isotopic composition to a finite
+      problem.  While the effect of the latter on the mathematical
+      method is negligible, the former has a great impact.  In the
+      past, the unwritten rule has been that realistic treatment of
+      loops requires complicated/inefficient mathematical methods.
+      \ALARA\ has broken that rule by finding a physical approximation
+      to the loops which retains problem accuracy and allows for quite
+      simple and efficient mathematical methods.  The keys to \ALARA's
+      mathematical accuracy are its ability to adaptively choose the
+      mathematical technique and the accuracy of those techniques.
+      Two of the three mathematical techniques which \ALARA\ employs
+      are mathematically exact!
 
-\begin{section}{Historical Overview}
-  
-  The computational solutions to this problem have been well
-  studied\cite{adjoint}.  Many different approaches for modeling the
-  physical problem have been combined with at least as many
-  mathematical solution methodologies.  Each combination has its
-  advantages and disadvantages, but none have arrived at an optimum
-  mixture of accuracy, efficiency and usability.  Even ignoring the
-  issue of usability (where this author feels most codes all fail),
-  there are few codes which are keeping up with the demands of greater
-  accuracy in modeling and solutions without becoming inconveniently
-  slow.
+    \end{subsection}
+    
+    \begin{subsection}{Speed\label{ssec:intro.goals.speed}}
+      
+      The most significant factor affecting the speed is the chosen
+      class of mathematical method.  In particular, unless a linear
+      transformation matrix method is used, the exact modeling of a
+      pulsed history will require a long time.  \ALARA\ employs such
+      matrix methods, solving for the linear transformation from the
+      initial isotopic composition to the final composition for each
+      pulse and inter-pulse dwell period, and then multiplying these
+      matrices to obtain a complete linear transformation for the
+      entire history.  In addition to this decision, speed was
+      considered throughout the code design process.  For example,
+      data library formats and internal data handling have been
+      implemented with modern techniques to enhance versatility
+      without sacrificing speed.
 
-  The predecessors to many modern activation codes were inventory
-  codes designed for modeling the burn-up of nuclear fuel and
-  build-up of fission products in nuclear reactors.  These codes used
-  a variety of methods for modeling the physical system and solving
-  the mathematical problem, but have historically been divided into
-  three classes based on the mathematical method: time-step based ODE
-  solvers, matrix exponential methods, and linear chain methods.
-  
-  The time-step based ODE solvers, such as used in
-  FISPIN\cite{FISPIN}, use some algebraic approximation of the
-  derivative on the left hand side of equation
-  \ref{eqn:intro.basic_ode}.  One simple form of this approximation
-  uses is based on the first principles definition of the derivative:
-  \begin{equation*}
-    \begin{split}
-      \dot{N}(t) = \lim_{t_i - t_{i-1} \rightarrow 0} \frac{N(t_i)
-        - N(t_{i-1})}{t_i - t_{i-1}}\\
-      \therefore \dot{N}(t) \approx \frac{N(t_i)
-        - N(t_{i-1})}{t_i - t_{i-1}}.
-    \end{split}
-  \end{equation*}
-  For the activation problem, where $\vec{N}_i$ is the number density
-  vector at time $i$, this can be implemented simple in the explicit
-  form:
-  \begin{equation}
-    \label{eqn:intro.time-step}
-    \vec{N}_i = \Delta t \mat{A}\vec{N}_{i-1} + \vec{N}_{i-1}.
-  \end{equation}
-  More complicated differencing schemes with more accuracy can be
-  developed based on Taylor series expansions in one or two variables,
-  such as the well known Runge Kutta method.
-  
-  In all cases, however, to ensure accuracy these methods must use
-  time steps small enough that the number density of any single
-  isotope does not change too much during the time step.  For a
-  problem with very short-lived isotopes, this time step must be very
-  short, requiring many steps to solve the entire irradiation history,
-  and thus these methods can be very slow.
-  
-  The original matrix methods employed in inventory codes such as
-  ORIGEN\cite{ORIGEN} calculate the series expansion of the
-  $e^{\mat{A}t}$ exponential:
-  \begin{equation*}
-    e^{\mat{A}t} = \mat{I} + \mat{A}t + \frac{\mat{A}^2t^2}{2!} +
-    \frac{\mat{A}^3t^3}{3!} + \ldots
-  \end{equation*}
-  In addition to being prone to round-off error, this expansion may
-  need many terms to converge (if it does converge), which is
-  computationally expensive, due to the large number of matrix
-  multiplications.  Within this class of methods, there is also the
-  option of using matrix decomposition methods to solve the matrix
-  exponential.
-  
-  The final class of solution methods is linear chains, of which
-  CINDER\cite{CINDER} was one of the first.  While both the time-step
-  methods and the matrix exponential methods have traditionally
-  attempted to solve the entire problem at one time, using a single
-  large system of ODE's, the linear chain method breaks the activation
-  tree into a number of chains so that each isotope has a single
-  production term and a single destruction term.  This creates a
-  smaller system of ODE's in which the transfer matrix, \mat{A}, is
-  exactly bidiagonal allowing an analytical solution commonly known as
-  the Bateman equations\cite{Bateman} to be used:
-  \begin{equation}
-    \label{intro.bateman}
-    N_i(t) = N_{i_o}e^{-d_i t} + \sum_{j=1}^{i-1}N_{j_o}\left [
-      \sum_{k=j}^{i-1}\frac{P_{k+1}(e^{-d_k t} - e^{-d_i t})}{d_i -
-        d_k}\prod_{\substack{l=j\\l\neq k}}^{i-1}\frac{P_{l+1}}{d_l-d_k}\right] \, .
-  \end{equation}
-  
-  One of the biggest limitations of this class of methods is its
-  inability to model loops in the activation tree.  It can be seen in
-  the above equation that there is a singularity when two of the
-  destruction rates are identical.  While this may happen
-  coincidentally in any linear chain, it is guaranteed to be the case
-  if the same isotope occurs more than once in the chain.  This issue
-  is not significant for the simulation of a fission reactor because
-  most of the nuclear reactions which are required for loops
-  (\textsl{e.g.} (n,p) or (n,2n) ) are threshold reactions with low or
-  zero cross-section in the energy domain of fission neutrons.
-  
-  Activation codes, many of which have been developed for fusion
-  applications, also exist in each of these three classes of solution
-  method.  Some are derived directly from an inventory code while
-  others have no such obvious ancestry.  Conceptually activation
-  calculations and inventory calculations are one and the same, but
-  the wide variety in the nature of the system being simulated in an
-  activation problem can require more flexibility that an inventory
-  code may provide.  For example, as suggested above, there are some
-  reaction channels which are not relevant to fission inventory
-  calculations.  In systems with higher energy neutron fluxes, such as
-  fusion reactors or accelerator-based neutron sources, these
-  additional channels can become important, if not dominant.
-  Additionally, the irradiation history for an activation calculation
-  may be very different from that of a fission reaction system, with,
-  for example, many frequent pulses.
-  
-  The most widely used fusion activation codes include
-  FISPACT\cite{FISPACT}, a direct descendant of the FISPIN inventory
-  code, RACC\cite{RACC} (and variations\cite{RACCP,RACCUW}),
-  REAC\cite{REAC}, and DKR\cite{DKR} (and
-  variations\cite{adjoint,DKRICF,DKRP}).  Each uses a different
-  physical and mathematical methods, enabling each to implement unique
-  features.  For example, while FISPACT is limited to solutions at a
-  single spatial point and cannot model pulsed histories exactly, the
-  newest versions support sensitivity analyses and secondary
-  activation caused by the light ions emitted by neutron reactions.
-  Newer versions of RACC switched from the time-step based GEAR ODE
-  solver to matrix decomposition methods, enabling the efficient
-  solution of pulsing histories with loops in the activation tree.
-  RACC's method for truncating the activation trees, however, is not
-  ideal and may lead to an inaccurate final solution.  Not only was
-  DKR the first to implement exact pulsing solutions, it is able to
-  efficiently solve the activation problem across many points of a
-  complicated geometry.  Due to its reliance on linear chains and the
-  Bateman solution, however, DKR has long been criticized for its
-  inability to handle loops in the activation tree.
-  
-  As can be seen, despite the wide variety of available activation
-  codes, there is no single code which provides a complete range of
-  features.  Furthermore, because of their original choice of physical
-  methods, mathematical techniques and/or computational design, few if
-  any are extensible to include the additional features.
-  
+    \end{subsection}
 
-\end{section}
-
-\begin{section}{Goals}
+    \begin{subsection}{Simplicity\label{ssec:intro.goals.simp}}
+      
+      While accuracy and speed have long been issues in the creation
+      of engineering codes, their simplicity is of increasing
+      importance.  In this context, simplicity is an issue for both
+      modification/maintenance and use of the code.  Since \ALARA\ is
+      written in $C\!\!\!\stackrel{+\!\!+}{}$, it benefits from some
+      of the philosophies of object-oriented code design.  This allows
+      the code itself to be more readable to future programmers and
+      facilitates enhanced modularity.  This modularity means that if
+      new functionality is added to the code, it can be optimized
+      internally with minimal detrimental effect on the existing code.
   
-  The goal of this work is to design a new activation code to provides
-  a maximized set of features. 
-
-\end{section}
+      \ALARA\ has been designed with the user in mind.  Even though
+      improved methods have existed for years, many codes have
+      continued to use input formats which are reminiscent of punch
+      card input entry.  Furthermore, most tools in this field have
+      been designed for the solution at a single spatial point,
+      requiring many subsequent and slightly altered runs to get any
+      kind of spatial information.  \ALARA\ allows the user to find
+      the solution to an activation problem in a variety of different
+      multi-dimensional geometries, using a flexible system to define
+      the material properties and allowing a complicated
+      pulsed/intermittent irradiation history and a variety of
+      after-shutdown solution times.  Furthermore, the input file can
+      be fully commented, preventing the common difficulty of creating
+      a long list of seemingly disconnected numbers for code input.
+  
+    \end{subsection}
 
 
+
+  \end{section}
+  
+  
 \end{chapter}

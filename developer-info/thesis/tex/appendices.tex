@@ -1,0 +1,231 @@
+\appendix
+
+\begin{chapter}{Derivation of Recursive Derivative Definition\label{app:math.deriveG}}
+    \begin{align}
+    G(s)      &= \prod_{i=1}^N\frac{1}{s+d_i}\\
+    \begin{split}
+      G'(s)     &= \sum_{j=1}^N \frac{-1}{s+d_j} \prod_{i=1}^N\frac{1}{s+d_i}\\
+                &= -G(s) \sum_{j=1}^N \frac{1}{s+d_j}\label{eqn:Gp}
+    \end{split}\\
+    G''(s)    &=
+         -G'(s)\sum_{j=1}^N \frac{1}{s+d_j} + G(s)\sum_{j=1}^N(s+d_j)^{-2}\label{eqn:Gpp}\\
+    \begin{split}
+      G'''(s)  &= -G''(s)\sum_{j=1}^N \frac{1}{s+d_j} 
+                + G'(s)\sum_{j=1}^N(s+d_j)^{-2}\\
+               &\quad+G'(s)\sum_{j=1}^N(s+d_j)^{-2}  
+                - 2G(s)\sum_{j=1}^N(s+d_j)^{-3}\\
+               &=-G''(s)\sum_{j=1}^N \frac{1}{s+d_j}
+                + 2G'(s)\sum_{j=1}^N(s+d_j)^{-2}\\
+               &\quad-2G(s)\sum_{j=1}^N(s+d_j)^{-3}
+    \end{split}\\
+    \begin{split}
+      G''''(s)  &=-G'''(s)\sum_{j=1}^N \frac{1}{s+d_j}+G''(s)\sum_{j=1}^N(s+d_j)^{-2}\\
+                &\quad+2G''(s)\sum_{j=1}^N(s+d_j)^{-2}-4G'(s)\sum_{j=1}^N(s+d_j)^{-3}\\
+                &\quad-2G'(s)\sum_{j=1}^N(s+d_j)^{-3}+6G(s)\sum_{j=1}^N(s+d_j)^{-4}\\
+                &=-G'''(s)\sum_{j=1}^N\frac{1}{s+d_j}+3G''(s)\sum_{j=1}^N(s+d_j)^{-2}\\
+                &\quad-6G'(s)\sum_{j=1}^N(s+d_j)^{-3}+6G(s)\sum_{j=1}^N(s+d_j)^{-4}
+    \end{split}
+  \end{align}
+  Thus, for n=4,
+  \begin{equation}
+    \begin{split}
+      G^{(n)}(s) &=-\frac{(n-1)!}{(n-1)!}G^{(n-1)}(s)\sum_{j=1}^N \frac{1}{s+d_j}\\ 
+                 &\quad+\frac{(n-1)!}{(n-2)!} G^{(n-2)}(s)\sum_{j=1}^N(s+d_j)^{-2}\\ 
+                 &\quad-\frac{(n-1)!}{(n-3)!} G^{(n-3)}(s)\sum_{j=1}^N(s+d_j)^{-3}\\
+                 &\quad+\frac{(n-1)!}{(n-4)!} G^{(n-4)}(s)\sum_{j=1}^N(s+d_j)^{-4}\\
+                 & = \sum_{i=1}{n} (-1)^i \frac{(n-1)!}{(n-i)!} G^{(n-i)}(s)\sum_{j=1}^N(s+d_j)^{-i}
+    \end{split}
+  \end{equation}
+
+  \begin{section}{Induction Proof}
+
+    \begin{align}
+      G^{(n)}(s) &= \sum_{i=1}^n (-1)^i \frac{(n-1)!}{(n-i)!} G^{(n-i)}(s)
+                    \sum_{j=1}^{N} (s+d_j)^{-i}\\
+      \intertext{given}
+      G^{(0)}(s) &= G(s) = \prod_{j=1}^N (s+d_j)^{-1}\\
+      \intertext{First, we solve for n=1:}
+      \begin{split}
+        G'(s) & =  (-1) \frac{0!}{0!} G(s) \sum_{j=1}^N (s+d_j)^{-1}\\
+             & =  -G(s)  \sum_{j=1}^N (s+d_j)^{-1}
+      \end{split}
+    \end{align}
+    \noindent which matches Equation \ref{eqn:Gp}.
+
+    \vspace{1cm}
+
+    \noindent Now, we solve for n=2:
+    \begin{equation}
+      \begin{split}
+        G''(s) & =  (-1)\frac{1!}{1!}G'(s)\sum_{j=1}^N (s+d_j)^{-1} +
+                    \frac{1!}{0!}G(s)\sum_{j=1}^N (s+d_j)^{-2}\\
+               & =  -G'(s)\sum_{j=1}^N (s+d_j)^{-1} + G(s)\sum_{j=1}^N (s+d_j)^{-2}
+      \end{split}
+    \end{equation}
+    \noindent which matches Equation \ref{eqn:Gpp}.
+
+    \vspace{1cm}
+
+    \noindent Now, given $G^{(k)}(s)$, we take the derivative,
+    $G^{(k+1)}(s)$, and see if it matches the correct form:
+    \begin{align}
+      G^{(k+1)}(s) &= \sum_{i=1}^k (-1)^i \frac{(k-1)!}{(k-i)!} \left [
+                      G^{(k-i+1)} \sum_{j=1}^N (s+d_j)^{-i} - iG^{(k-i)}\sum_{j=1}^N
+                      (s+d_j)^{-(i+1)} \right ]\\
+      \intertext{letting $l = k+1$:}
+      \begin{split}
+        G^{(l)}(s) &=\quad \sum_{i=1}^{l-1} (-1)^i \frac{(l-2)!}{(l-i-1)!} G^{(l-i)} \sum_{j=1}^N (s+d_j)^{-i} \\
+                   &\quad-\sum_{i=1}^{l-1} (-1)^i\frac{(l-2)!}{(l-i-1)!}iG^{(l-i-1)}\sum_{j=1}^N (s+d_j)^{-(i+1)}
+      \end{split}\\
+      \intertext{Now, letting $m=i+1$ in the second sum:}
+      \begin{split}
+        G^{(l)}(s) & = \quad\sum_{i=1}^{l-1} (-1)^i \frac{(l-2)!}{(l-i-1)!}G^{(l-i)} \sum_{j=1}^N (s+d_j)^{-i} \\
+                   &\quad+ \sum_{m=2}^{l} (-1)^m\frac{(l-2)!}{(l-m)!}(m-1)G^{(l-m)}\sum_{j=1}^N (s+d_j)^{-m}
+      \end{split}\\
+      \intertext{and recombining the sums:}
+      \begin{split}
+        G^{(l)}(s) &=-\frac{(l-2)!}{(l-2)!}G^{(l-1)}(s)\sum_{j=1}^N (s+d_j)\\ 
+                   &\quad+ \sum_{i=2}^{l-1} (-1)^i \left [
+                         \frac{(l-2)!}{(l-i-1)!} + (i-1)\frac{(l-2)!}{(l-i)!} \right
+                         ]G^{(l-i)}\sum_{j=1}^N (s+d_j)^{-i}\\
+                   &\quad+ (-1)^l (l-2)!(l-1)G(s)\sum_{j=1}^N (s+d_j)^{-l}
+      \end{split}\\
+      \begin{split}
+        &=-G^{(l-1)}(s)\sum_{j=1}^N (s+d_j)^{-1}\\
+        &\quad+ \sum_{i=2}^{l-1} (-1)^i \left [
+          (l-i)\frac{(l-2)!}{(l-i-1)!(l-i)} + (i-1)\frac{(l-2)!}{(l-i)!} \right ]
+          G^{(l-i)}\sum_{j=1}^N (s+d_j)^{-i}\\
+        &\quad+ (-1)^l (l-1)!G(s)\sum_{j=1}^N (s+d_j)^{-l}
+      \end{split}\\
+      \begin{split}
+        &=-G^{(l-1)}(s)\sum_{j=1}^N (s+d_j)^{-1}\\
+        &\quad+\sum_{i=2}^{l-1} (-1)^i
+            \frac{(l-1)!}{(l-i)!}G^{(l-i)}\sum_{j=1}^N (s+d_j)^{-i}\\
+        &\quad+ (-1)^l (l-1)!G(s)\sum_{j=1}^N (s+d_j)^{-l}
+      \end{split}\\
+      & =  \sum_{i=1}^{l} (-1)^i \frac{(l-1)!}{(l-i)!}G^{(l-i)}\sum_{j=1}^N
+           (s+d_j)^{-i}
+    \end{align}
+
+    QED.
+
+  \end{section} %% induction proof
+
+\end{chapter} %% deriving the recursive derivatives
+
+\begin{chapter}{Other Forms  of $1/s$ Expansion\label{app:math.1_s}}
+  
+  The $1/s$ expansion from section \ref{sec:math.expansion} can take
+  on many slightly different forms providing different methods for
+  determining the coefficients.  First, it is instructive to relate
+  the expansion as shown in equation \ref{eqn:math.expansion.final} to
+  a simple difference of exponentials.  Starting with the Bateman
+  solution (equation \ref{eqn:math.bateman.inversion}) for a single
+  matrix element,
+
+  \begin{align}
+    T_{31} &= \frac{P_2 (e^{-d_1 t} - e^{-d_3 t})}{d_3 - d_1}\frac{P_3}{d_2 - d_1} +
+              \frac{P_3 (e^{-d_2 t} - e^{-d_3 t})}{d_3 - d_2}\frac{P_2}{d_1 - d_2}\tag{\ref{eqn:math.bateman.final}}\\
+    \intertext{and using the standard expansion for the exponential, we get}
+    \begin{split}
+      &= P_2 P_3 \left [ \frac{1 - d_1 t + \frac{(d_1 t)^2}{2} - \frac{(d_1 t)^3}{6} 
+              - 1 + d_3 t - \frac{(d_3 t)^2}{2} + \frac{(d_3 t)^3}{6} + \ldots }
+              {(d_3 - d_1)(d_2 - d_1)} \right.\\
+      &\phantom{= P_2 P_3 \left [ \right .}
+              \left .\quad+\frac{1 - d_2 t + \frac{(d_2 t)^2}{2} - \frac{(d_2 t)^3}{6} 
+              - 1 + d_3 t - \frac{(d_3 t)^2}{2} + \frac{(d_3 t)^3}{6} + \ldots }
+              {(d_3 - d_2)(d_1 - d_2)} \right]\\
+      &= P_2 P_3 \left [ \frac{(d_3 - d_1) [t - (d_3 + d_1)\frac{t^2}{2} + (d_3^2 + d_3d_1 + d_1^2)\frac{t^3}{6} + \ldots ]}
+              {(d_3 - d_1)(d_2 - d_1)} \right.\\
+      &\phantom{= P_2 P_3 \left [ \right .}
+              \left .\quad+\frac{(d_3 - d_2) [t - (d_3 + d_2)\frac{t^2}{2} + (d_3^2 + d_3d_2 + d_2^2)\frac{t^3}{6} + \ldots ]}
+              {(d_3 - d_2)(d_1 - d_2)} \right ]\\
+      &= P_2 P_3 \left [ \frac{(d_2 - d_1)\frac{t^2}{2} + [d_3(d_1-d_2) + (d_1^2-d_2^2)]\frac{t^3}{6} + \ldots }
+              {d_2 - d_1} \right ]\\
+      &= P_2 P_3 \left [ \frac{t^2}{2} - (d_3 + d_2 + d_1) \frac{t^3}{6} + \ldots \right]\\
+      &= P_2 P_3\;t^2 \left [ \frac{1}{2} - \frac{t}{6} (d_3 + d_2 + d_1) + \ldots \right]
+    \end{split}
+  \end{align}
+  which has the form of Equation \ref{eqn:math.expansion.final}.
+  
+  Whether in the Laplace transform domain or the time domain, there is
+  a necessity to calculate coefficients of the form:
+  \begin{equation}
+    \{c_i\} = \left \{\sum_{j=1}^N d_j \ ,\ \sum_{j=1}^N d_j \sum_{k=j}^N
+              d_k\ ,\ \sum_{j=1}^N d_j \sum_{k=j}^N d_k \sum_{l=k}^N d_l\ ,\ \ldots\
+              \right \}.
+  \end{equation}
+  
+  A different form for these coefficients becomes apparent when $N=2$
+  or $N=3$.  The coefficients, $\{c_i\}$, are:
+  \begin{equation}
+    \{c_i\} = \left \{ d_1 + d_2\ ,\ d_1(d_1+d_2)+d_2^2\ ,
+              \ d_1\left[d_1(d_1+d_2)+d_2^2\right] + d_2^3\ , \ldots \right\}
+  \end{equation}
+  or
+  \begin{equation}
+    \begin{split}
+      \{c_i\} &= \left \{ d_1+d_2+d_3,\ d_1(d_1+d_2+d_3)+d_2(d_2+d_3)+d_3^2,\ \right. \\
+              &\quad\quad \left. d_1\left[d_1(d_1+d_2+d_3)+d_2(d_2+d_3)+d_3^2 \right] 
+               + d_2\left[d_2(d_2+d_3)+d_3^2\right] +d_3^3\ , \ldots \right \}.
+    \end{split}
+  \end{equation}
+  This shows the following pattern, assuming $\{\lambda_{0,j}\} = 1;\ j=[1,N]$:
+  \begin{align}
+    \lambda_{ij} &= \sum_{k=j}^N d_k \lambda_{i-1,k}\\
+    c_i &= \lambda_{i1}.
+  \end{align}
+  
+  This last form leads to an efficient way to calculate these
+  coefficients using matrix multiplications.  If we form a matrix,
+  $M$, with elements $m_{ij} = d_j; j \geq i$:
+  \begin{equation}
+    \mat{M} = \begin{bmatrix}
+      d_1 & d_2 & d_3 & \ldots & d_N\\
+      0 & d_2 & d_3 & \ldots & d_N\\
+      0 & 0 & d_3 & \ldots & d_N\\
+      \vdots & & & \ddots & \vdots\\
+      0 & 0 & 0 & \ldots & d_N\\
+    \end{bmatrix},
+  \end{equation}
+  it is clear that $\lambda_1 = [\mat{M}\cdot\vec{1}]$ and that
+  $\lambda_i = [\mat{M}^i\cdot\vec{1}]$.  Therefore,
+  \begin{equation}
+    c_i = \lambda_{i1} = \left [M^i\cdot \vec{1}\right]_1.
+  \end{equation}
+
+  Since the direct calculation of
+  \begin{equation}
+    \sum_{j_1=1}^N d_{j_1} \sum_{j_{2}=j_1}^N d_{j_{2}}
+        \sum_{j_{3}=j_2}^N d_{j_{3}} \cdots \sum_{j_{n-1}=j_{n-2}}^N
+        d_{j_{n-1}}\sum_{j_n=j_{n-1}}^N d_{j_n} =
+        \prod_{l=n}^1\sum_{j_l=j_{l-1}}^Nd_{j_l}
+  \end{equation}
+  tends to require $O(N^n)$ calculations, the matrix method above will
+  be highly advantageous since it requires only $O(nN^3)$
+  calculations.
+  
+  Once these coefficients have been calculated, they are then used to
+  calculate the time response using Equation
+  \ref{eqn:math.expansion.final}:
+  \begin{equation}
+    \begin{split}
+      f(t) &= t^{n} \left[ \frac{1}{n!} - \frac{t}{(n+1)!}\sum_{l=j}^i d_l 
+                           +\frac{t^2}{(n+2)!}\sum_{l=j}^{i}d_l \sum_{k=l}^i d_k\right.\\  
+           &\phantom{= t^{n-1} \left[\right.}
+                    \left.\quad\quad-\frac{t^3}{(n+3)!}\sum_{l=j}^{i}d_l \sum_{k=l}^i d_k \sum_{m=k}^i d_m 
+                          +\cdots \right ].\\
+    \end{split}\tag{\ref{eqn:math.expansion.final}}
+  \end{equation}
+
+\end{chapter}
+
+
+\input{tex/user_guide} 
+
+
+\begin{chapter}{Selected  $C\!\!\!\stackrel{+\!\!+}{}$ header files}
+  \label{app:headers}
+
+\end{chapter}
+

@@ -2,7 +2,7 @@
 \ProvidesPackage{mythesis}
 \RequirePackage{amsmath,amssymb,vmargin,overcite}
 \RequirePackage{subfigure,epsfig,floatflt}
-\RequirePackage{multirow,verbatim,array}
+\RequirePackage{multirow,moreverb,array}
 \RequirePackage{supertab,ulem,draftcopy}
 
 \renewcommand{\baselinestretch}{1.66}
@@ -27,7 +27,7 @@
 \def\ALARA{\textsf{ALARA}}
 \def\nary{\textsl{n}-ary }
 \def\pc{\textsl{pc}}
-\def\mat#1{\mbox{\boldmath $#1$}}
+\def\mat#1{\mbox{$\mathbf{#1}$}}
 
 %% environtments to help describe Perl modules in appendix
 \newenvironment{APIdescription}
@@ -103,3 +103,14 @@
 \def\thline#1{%
   \noalign{\ifnum0=`}\fi\hrule \@height #1\arrayrulewidth \futurelet
    \reserved@a\@xhline}
+
+
+\renewcommand{\thefootnote}{\alph{footnote}}
+
+\newenvironment{binaryFile}
+        {\setlength{\itemsep}{0pt \@plus 0pt \@minus 0pt}
+         \setlength{\parsep}{0pt \@plus 0pt \@minus 0pt}
+         \begin{itemize}}
+        {\end{itemize}}
+
+\allowdisplaybreaks

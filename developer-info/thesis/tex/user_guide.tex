@@ -1,0 +1,899 @@
+
+\begin{chapter}{Users' Guide\label{app:user.guide}}
+  
+  The usage of ALARA is fairly straightforward, requiring little
+  knowledge of the inner workings of the code.  Of course, to ensure
+  that ALARA is well-suited to the problems that you are trying to
+  solve, you are encouraged to read the chapters \ref{chap:physical}
+  and \ref{chap:math} and understand the physical and mathematical
+  modeling characteristics of ALARA.
+  
+  This chapter will describe the command-line options of ALARA and
+  then describe the basic support files which are necessary to run
+  ALARA.
+  
+  \begin{section}{Command-line Options}\label{app:user.cmd}
+    
+    \begin{center}
+      \textbf{\texttt{alara [-t }\textsl{tree\_output\_filename}\texttt{]
+          [-h] [-v }\textsl{[n]}\texttt{]} \textsl{input\_filename}}
+    \end{center}
+    ALARA currently supports 4 command-line options:
+    \begin{description}
+    \item[\texttt{-h} Help]\ \\
+      This option will print a short help message describing the
+      command-line options and their usage.
+    \item[\texttt{-t }\textsl{tree\_output\_filename} Tree File]\ \\
+      This option allows you to define the name of the output file for the
+      tree creation and truncation information.  This information can
+      later be used for basic pathway analysis.  The default is to create
+      no tree file.  The format of this file is described in section
+      \ref{app:user.output.tree}.
+    \item[\texttt{-v }\textsl{[n]} Verbose]\ \\
+      This option alters the verbosity of the output.  Without this
+      option, only the final results will be displayed.  By using this
+      option, some of the details of the calculation are included in the
+      output.  The level of detail is controlled by the optional value,
+      \textsl{n}, which has a value between 1 (least detail) and 5 (most
+      detail).  If no value is given, it defaults to 1.
+    \item[\textsl{input\_filename} Input File]\ \\
+      This option allows you to define the name of the input file to be
+      used by ALARA.  If no name is specified, the input will be read from
+      stdin.
+    \end{description}
+    
+  \end{section}
+  
+  
+  \begin{section}{Input File Description\label{app:user.input}}
+    
+    The input file for ALARA has been designed to ensure that the
+    input information is easy to understand, edit and comment.  This
+    is possible by using a very free format which permits comments,
+    blank lines, inclusion of other files, and arbitrary ordering of
+    the input information.  After reading the full input file, \ALARA\
+    performs various cross-checks and cross-references to ensure that
+    the input data is self-consistent.  It then goes on to preprocess
+    the data for the calculation.  All attempts have been made to give
+    useful error messages when the data is not consistent.
+
+    \begin{subsection}{General}
+    
+      There are 19 possible input block types, which can appear in any
+      order and many blocks can occur more than once, if needed.  One
+      block type, \texttt{convert\_lib}, is only used to convert data
+      library formats, and will cause \ALARA\ to halt if used in an
+      input file.  The other 18 input blocks are:
+
+      {
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \noindent\begin{tabular}{p{2in}p{2in}p{2in}}
+          \begin{enumerate}
+          \item \texttt{geometry}
+          \item \texttt{dimension}
+          \item \texttt{major\_radius}
+          \item \texttt{minor\_radius}
+          \item \texttt{volumes}
+          \item \texttt{mat\_loading}
+          \end{enumerate} &
+          \begin{enumerate}\setcounter{enumi}{6}
+          \item \texttt{mixture}
+          \item \texttt{flux}
+          \item \texttt{spatial\_norm}
+          \item \texttt{schedule}
+          \item \texttt{pulsehistory}
+          \item \texttt{truncation}
+          \end{enumerate} &
+          \begin{enumerate}\setcounter{enumi}{12}
+          \item \texttt{output}
+          \item \texttt{cooling}
+          \item \texttt{material\_lib}
+          \item \texttt{element\_lib}
+          \item \texttt{data\_library}
+          \item \texttt{dump\_file}
+          \end{enumerate}
+        \end{tabular}
+        }
+
+      Not all input blocks are required, with some having default
+      values and others being unnecessary for certain problems.  There
+      are also some input blocks which are incompatible with each
+      other.  While superfluous input blocks may go unnoticed (there
+      are occasional warnings), incompatible input blocks will create
+      an error.
+
+      Most of the input blocks allow the user to define their own
+      symbolic names for cross-referencing the various input data.
+      Any string of characters can be used as long as its does not
+      contain any whitespace (spaces, tabs, new-lines, etc.).  It is
+      considered dangerous, however, to use one of the keywords as a
+      symbolic name.  If the input file is correct, it will function
+      properly, but if there are errors in the input file, the usage
+      of keywords as symbolic names may make the error message
+      irrelevent.  The keywords include those listed in the above list
+      and the keyword ``end''.  While many input blocks of fixed
+      length require nothing to indicate the end of the block, some
+      blocks have a variable length and require the keyword ``end'' to
+      terminate the block.
+      
+      Some input elements are times which can be defined in a number
+      of different units.  When this is the case, the floating point
+      time value should be followed by a single character representing
+      one of the following units:
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{tabular}{|l|l|l|}
+          \hline
+          \texttt{[s]econd} & 
+          \texttt{[m]inute} = 60 seconds& 
+          \texttt{[h]our} = 60 minutes\\\hline
+          \texttt{[d]ay} = 24 hours& 
+          \texttt{[w]eek} = 7 days& 
+          \texttt{[y]ear} = 52 weeks\\\hline
+          \multicolumn{3}{|c|}{\texttt{[c]entury} = 100 years}\\\hline
+        \end{tabular}
+      \end{center}
+
+      One input file can be included in another with the
+      \texttt{\#include} directive, similar to the C programming
+      language.  Any number of files can be included, and included
+      files can also contain directives to include other files.  The
+      only restriction is that the inclusion must not occur within an
+      input block!
+      
+      All other lines in which the first non-space character is the
+      pound sign (or number sign) (\#) are considered as comments.
+      Comments can also be used after any single word input (an input
+      value which has no whitespace) by using the same comment
+      character (\#).  Such comments extend to the end of the current
+      line.  Blank lines are permitted anywhere in the input file.
+      
+      When length units are implied in the input for sizes and
+      dimensions, it is only important that all implied units be
+      consistent but not what unit is implied.
+    \end{subsection}
+    
+    \begin{subsection}{\texttt{geometry}\label{app:user.input.geom}}
+    
+      This input block only necessary when defining a geometry using
+      the \texttt{dimension} input block, but may always be included.
+      It should only occur once.  This input block takes a single
+      argument which must be one of the following:
+      \begin{center}
+        \texttt{point | rectangular | cylindrical | spherical | torus}
+      \end{center}
+      This input block should not be terminated.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# problem geometry
+geometry spherical          
+\end{boxedverbatim}
+      \end{center}
+
+      If using the \texttt{dimension} input block to define the
+      geometry and the type is \texttt{torus}, the
+      \texttt{major\_radius} input block is required and the
+      \texttt{minor\_radius} block may also be required.
+    \end{subsection}
+
+    \begin{subsection}{\texttt{dimension}\label{app:user.input.dim}}
+      
+      This input block is used to define the layout of the geometry,
+      and should be included once for each dimension needed in the
+      problem.  The first element of the dimension block is an
+      indicator of which dimension is being defined and should be one
+      of the following:
+      \begin{center}
+        \texttt{ x | y | z | r | theta | phi }
+      \end{center}
+      \ALARA\ will check to ensure that only dimensions relevant to
+      the defined geometry are included.  For example, defining the
+      '\texttt{x}' dimension in a spherical problem will generate an
+      error.
+
+      The next element of the dimension block is the lower boundary of
+      the first zone, expressed as a floating point number.  This is
+      followed by a list of pairs, one pair for each zone: an integer
+      specifying the number of intervals in this zone in this
+      dimension and a floating point number indicating the upper
+      boundary of the zone.  This list is terminated with the
+      \texttt{end} keyword.
+      
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# sample dimension for spherical problem 
+dimension r 1.0      # inside radius 
+         10 2.0      # 10 intervals in the first zone (1.0,2.0)
+         15 3.0      # 15 intervals in the next zone (2.0,3.0) 
+end
+\end{boxedverbatim}
+      \end{center}
+
+      Since this method of defining the geometry calculates the zone
+      membership and volume of the fine mesh intervals from the
+      \texttt{dimension} data, it is incompatible with the
+      \texttt{volumes} input block.  Including both will generate an
+      error message.
+    \end{subsection}
+
+    \begin{subsection}{\texttt{major\_radius} and  \texttt{minor\_radius} \label{app:user.input.tor_radii}}
+      
+      These two input blocks are used to define the major and minor
+      radii of toroidal geometries.  They are only needed if defining
+      a toroidal geometry with \texttt{dimension} input blocks, and
+      each should only be included once.  Furthermore, if the minor
+      radius dimension is defined with a \texttt{dimension} block, the
+      \texttt{minor\_radius} input block is not required.  In both
+      cases, these input blocks have a fixed size, with a single
+      argument specifying the radius as a floating point number.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# major and minor radii of torus
+major_radius     2.0
+minor_radius     0.5          
+\end{boxedverbatim}
+      \end{center}
+
+    \end{subsection}
+
+    \begin{subsection}{\texttt{volumes}\label{app:user.input.vol}}
+      
+      This input block is used to define the volumes and zone
+      membership of the fine mesh intervals of the problem.  This
+      block can be used instead of the \texttt{dimension} method of
+      defining the geometry.  If both are used, an error will result.
+      This block should only occur once.  Multiple occurences will
+      result in undefined behaviour.
+
+      This input block should be a list of pairs, one pair for each
+      interval.  Each pair consists of a floating point value for the
+      volume of that interval and the symbolic name of the zone which
+      contains that interval.  These symbolic names should correspond
+      with the symbolic names given to the zones in the
+      \texttt{mat\_loading} input block (see section
+      \ref{app:user.input.loading}).  This list must be terminated with the
+      keyword \texttt{end}.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# list of fine mesh intervals
+volumes
+   0.5     vacuum_vessel
+   1.5     shield_zone
+   2.34    blanket_zone
+   1.92    first_wall
+end          
+\end{boxedverbatim}
+      \end{center}
+    \end{subsection}
+
+    \begin{subsection}{\texttt{mat\_loading}\label{app:user.input.loading}}
+      
+      This input block is used to indicate which mixtures are
+      contained in each zone.  This block is a list with one pair of
+      entries for every zone.  Each pair consists of a symbolic name
+      for the zone and a symbolic name for the mixture contained in
+      that zone.  This list is terminated by the keyword \texttt{end}.
+      This block should only occur once.  Multiple occurences will
+      result in undefined behaviour.
+
+      If the geometry is defined using the \texttt{dimension} input
+      blocks, there number of zones defined here must match the number
+      of zones defined in the \texttt{dimension} blocks exactly; if
+      not, an error results.  If the \texttt{volumes} method is used
+      to define the geometry, this block uniquely determines the
+      number of zones.  The symbolic name for the mixture must match
+      one of the \texttt{mixture} definitions exactly, or be the
+      keyword '\texttt{void}', indicating that this zone is empty of
+      material.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# material loadings for all zones
+mat_loading
+   vaccum_vessel  VV_materials
+   shield_zone    shield_mixture
+   blanket_zone   breeding_blanket
+   first_wall     liquid_FW
+   scrapeoff      void          
+end
+\end{boxedverbatim}
+      \end{center}
+      
+    \end{subsection}
+ 
+
+    \begin{subsection}{\texttt{mixture}\label{app:user.input.mix}}
+      
+      This kind of block is used to define the composition of a
+      mixture.  This block can occur as many times as necessary to
+      define all the mixture compositions in the problem.  Any
+      mixtures that are defined, but not used in the problem will
+      generate a warning and be removed from the list of mixtures.
+      
+      The first element of a \texttt{mixture} block is the symbolic
+      name used to refer to this mixture elsewhere in the input file.
+      Following this is a list of triplets with one triplet for each
+      component of the mixture.  The list must be terminated with the
+      keyword '\texttt{end}'.  The first element of each triplet
+      describes what the type of that component and should be one of:
+      \begin{center}
+        \texttt{material | element | isotope | like | target}
+      \end{center}
+
+      The interpretation of the remaining elements in each triplet are
+      based on this first element:
+      \begin{description}
+      \item[\texttt{material}] The second element in this triplet is
+        the symbolic name of a material definition which exists in the
+        material library (see section \ref{app:user.matlib}).  The
+        final element is a floating point value representing the
+        relative density of this material.  This value, usually
+        between 0 and 1, will be multiplied by the density found in
+        the material library to define the density of this component.
+        It can also be interpreted as the volume fraction of this
+        material in this mixture.
+      \item[\texttt{element}] The second element in this triplet is
+        the chemical symbol of the element.  This element will be
+        expanded into a list of isotopes using the natural isotopic
+        abundances found in the element library (see section
+        \ref{app:user.elelib}).  The final element is a floating
+        point value representing the relative density of this
+        material.  This value, usually between 0 and 1, will be
+        multiplied by the standard theoretical density found in the
+        element library to define the density of this component.  It
+        can also be interpreted as the volume fraction of this
+        element in this mixture.
+      \item[\texttt{isotope}] The second element in this triplet is a
+        symbolic name for the isotope in the format ZZ-AAA, where ZZ
+        is the chemical symbol and AAA is the mass number, for
+        example, \texttt{i-127, ca-40} or \texttt{pb-207}.  The final
+        element of this triplet is the number density of this isotope
+        in the mixture.
+      \item[\texttt{like}] This type of entry is provided as a
+        convenience and indicates that this component is like another
+        user-defined mixture, with a potentially different density.
+        The second element of this triplet is the symbolic name of
+        another mixture definition.  If the other mixture definition
+        is not found, an error will result.  The final element of the
+        triplet is a relative density, which will be used to normalize
+        the density as defined in that mixture's own definition.
+        This might be used when a user-defined mixture makes up part
+        of another mixture. [Hint: it is permissable to define a
+        mixture that is not used in any zones, but only used as part
+        of another mixture.]
+      \item[\texttt{target}] This type of entry is used to initiate a
+        reverse calculation (see section \ref{sec:physical.reverse})
+        and define the target isotopes for the reverse calculation.
+        The user can define an arbitrary number of target isotopes.
+        The second element of this triplet is one of the keywords
+        \texttt{element} or \texttt{isotope}, indicating what kind of
+        target this is.  The final element is the symbolic name of
+        either the \texttt{element} or \texttt{isotope}, as defined in
+        the corresponding entries in this list above.  There is no
+        density in this type of entry.  If a target is of type
+        \texttt{element}, the element will be expanded using the
+        element library to create a list of isotopes.
+      \end{description}
+ 
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# definition of vacuum vessel
+mixture VV_materials
+   material SS316-L 1.0
+end
+
+# definition of fusion shield
+mixture shield_mixture
+   like     vacuum_vessel  0.6
+   element  he             0.4
+end
+
+# definition of fusion breeding blanket
+mixture breeding_blanket
+   element  li      0.95
+   isotope  li-6    6.02e23
+   target   isotope h-3
+end
+\end{boxedverbatim}
+      \end{center}
+
+      Note that even if a target is defined in only one mixture, it
+      will cause the whole problem to be run as a reverse problem.
+      There is therefore little purpose in having mixture definitions
+      without targets (such as in this example).
+    \end{subsection}
+
+    \begin{subsection}{\texttt{flux}\label{app:user.input.flux}}
+      
+      This input block defines a set of flux spectra.  Since different
+      parts of the irradiation history can have different flux
+      spectra, this block may occur as many times as necessary to
+      represent all the different necessary flux definitions.  The
+      first element of this block is a symbolic name which will be
+      used to refer to this flux spectra definition.  The other
+      elements of this block are a filename, a floating point scalar
+      normalization, an integer skip value (see below), and flux type
+      indicator string, respectively.
+
+      The flux filename should indicate which file contains this flux
+      information, including path information appropriate to find the
+      file from the directory in which \ALARA\ will be run.
+
+      The scalar normalization permits the scaling of the flux at all
+      spatial points (as opposed to the \texttt{spatial\_norm}
+      information in the next section).  All groups of all fluxes in
+      this definition will be multiplied by this value.
+      
+      The skip value indicates how many N-group flux entries to skip
+      in this file before reading the first flux.  This permits the
+      user to have one file with many different flux spectra.  For
+      example, if the schedule requires two different flux spectra for
+      V different fine mesh points, the data for the first one may be
+      at the beginning of the file, with a skip of 0, while the data
+      for the second flux definition would be after these first
+      fluxes, with a skip of V.
+      
+      The last element is a character string indicating the format of
+      the flux file.  Currently the only supported format is
+      \texttt{default}.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# flux for first part of irradiation schedule
+flux high_yield_flux ../n.transport/machine.flux 1.0 0 default
+
+# flux for second part of irradiation schedule
+flux low_yeild_flux ../n.transport/machine.flux 1.0 432 default
+
+# flux for final part of irradiation schedule
+flux attenuated_high_yield ../n.transprot/machine.flux 0.5 0 default
+\end{boxedverbatim}
+      \end{center}
+      
+      [Hint: Different flux definitions might use exactly the same
+      flux values (same flux file and skip value) but a different
+      scaling value.]
+    \end{subsection}
+
+    \begin{subsection}{\texttt{spatial\_norm}\label{app:user.input.norm}}
+      
+      This input block allows the user to specify a scalar flux
+      normalization for each fine mesh interval, such as might be
+      required to renormalize the results of a transport calculation
+      on an approximated geometry.  The number of normalizations must
+      be at least as many as the number of defined intervals,
+      regardless of how the intervals are defined (\texttt{dimension}
+      vs. \texttt{volumes}).  If there are too few, an error will
+      result; if there are too many, a warning will result.
+      
+      This block consists of a list of floating point normalization
+      values, one value for each interval, and requires the
+      \texttt{end} keyword to terminate the list.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# normalizations to convert cylindrical model
+# to toroidal equivalent
+spatial_norm
+   0.8
+   0.85
+   0.9
+   1.0
+   1.03
+   1.08
+   1.1
+end
+\end{boxedverbatim}
+      \end{center}
+
+      [Hint: if these values are purely a function of problem
+      geometry, and not mixture composition, it is possible that many
+      problems have the same spatial normalization.  Put this data in
+      a separate file and \texttt{\#include} it when you need it.]
+      
+    \end{subsection}
+   
+    \begin{subsection}{\texttt{schedule}\label{app:user.input.sched}}
+      
+      This kind of block is used to define a single schedule in the
+      hierarchy of the full irradiation history.  Since the hierarchy
+      may be composed of many schedules, this block might occur many
+      times.  The first element in this input block is a symbolic name
+      by which this schedule can be refered to.  Following this is a
+      list of items which occur in this schedule.  There are two
+      possible types for each item, and their may be an arbitrary list
+      of items in a schedule.  This list must be terminated with the
+      keyword '\texttt{end}'.  See section \ref{app:user.schedules}
+      for more information about defining schedules.
+      
+      The first type of item is a simple pulse and the entries for
+      this kind of item are a floating point operating time, a single
+      character defining the units of that operating time, a symbolic
+      flux name, a symbolic pulsing definition name, a floating point
+      post-item delay time, and a single character defining the units
+      of that delay time.
+      
+      The second type of item is a sub-schedule and the entries for
+      this kind of item are a symbolic name for the sub-schedule, a
+      symbolic pulsing definition name, a floating point post-item delay
+      time, and a single character defining the units of that delay
+      time.
+      
+      In both cases, if the symbolicly named items (flux, pulsing
+      definition, or schedule) are not found during cross-referencing,
+      an error results.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# top level schedule
+schedule top
+    # a schedule of operation defined by 'phase_1_sched' which
+    #     will be repeated with a cycle defiend by 'phase_1_cycle'
+    #     after which there is a 10 week delay
+  phase_1_sched phase_1_cycle 10 w
+    # a schedule of operation defined by 'phase_2_sched' which
+    #     will be repeated with a cycle defiend by 'phase_2_cycle'
+    #     after which there is a 5 week delay
+  phase_2_sched phase_2_cycle 5 w
+end
+
+# phase 1 schedule
+schedule phase_1_sched
+    # a pulsing regimen with 1800 second pulses at flux 'high_yield_flux' 
+    # pulsed with '5_week_plan_short' after which there is a 1 week delay
+  1800 s high_yield_flux 5_week_plan_short 1 w
+    # a special schedule for cleaning the facility, 'cleaning_sched'
+    # with a pulsing history 'cleaning_cycle' after which there is no delay
+  cleaning_sched cleaning_cycle 0 s
+end
+
+# cleaning sched
+schedule cleaning_sched
+    # two consecutive pulsing regimens, each with one day pulses and
+    # pulsing history 'daily_week_long' followed by a 1 day delay
+    # the first uses 'low_yield_flux' and the other 'low_energy_flux'
+  1 d low_yield_flux daily_week_long 1 d
+  1 d low_energy_flux daily_week_long 1 d
+end
+
+# phase 2 schedule
+schedule phase_2_sched
+    # a pulsing regimen with 1 hour pulses at flux 
+    # 'high_yield_flux' pulsed with '5_week_plan_long' after which
+    # there is a 1 week delay
+  1 h high_yield_flux 5_week_plan_long 1 w
+    # same cleaning phase as in phase 1 schedule
+  cleaning_sched cleaning_cycle 0 s
+end
+\end{boxedverbatim}
+      \end{center}
+
+    \end{subsection}
+
+    \begin{subsection}{\texttt{pulsehistory}\label{app:user.input.pulse}}
+      
+      This kind of input block defines the multi-level pulsing
+      histories which are referenced in the \texttt{schedule}
+      definitions.  See section \ref{app:user.schedules} for more
+      information about defining schedules and histories.  Since many
+      different pulsing histories may be used throughout the hierarchy
+      of schedules, this block may occur many times.
+
+      The first element of each block is a symbolic name for referring
+      to this pulsing schedule.  Following this is a list of pulsing
+      level definition triplets, each consisting of an integer number
+      of pulses, a floating point delay time between pulses, and a
+      single character defining the units of that delay time.  Since
+      an arbitrary number of pulsing levels is allowed, this list must
+      be terminated with the keyword '\texttt{end}'.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# define 5 weeks of the short pulses (1800 s = 1/2 hour)
+pulsehistory 5_week_plan_short
+   4  90 m   # 4 pulses each day with one every 2 hours
+   5  17.5 h # 5 days with 16 hours + 90 minutes delay (overnight)
+   5  2.73 d # 5 weeks with 2 days + 17.5 hours delay (weekends)
+end
+
+# define 5 weeks of the long pulses (1 h)
+pulsehistory 5_week_plan_long
+   4  1 h    # 4 pulses each day with one every 2 hours
+   5  17 h   # 5 days with 16 hours + 1 h delay (overnight)
+   5  2.71 d # 5 weeks with 2 days + 17 hours delay (weekends)
+end
+\end{boxedverbatim}
+      \end{center}
+
+    \end{subsection}
+
+    \begin{subsection}{\texttt{truncation}\label{app:user.input.trunc}}
+      
+      This fixed sized input block defines the parameters used in
+      truncating the activation trees.  See section
+      \ref{sec:physical.chains.trunc} for a detailed discussion of the
+      tree truncation issue.  The first element of this block is the
+      truncation tolerance and the second is an ignore tolerance.
+      When testing the relative atom loss (or relative production in
+      reverse calculations), any value higher than the truncation
+      tolerance will result in continuing the tree while lower values
+      will result in truncation.  If the value is also lower than the
+      ignore tolerance, that node is completely ignored.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# defined a 1/10000 tolerance, ignoring 1e-10
+truncation   1e-4    1e-10
+\end{boxedverbatim}
+      \end{center}
+      
+    \end{subsection}
+
+    \begin{subsection}{\texttt{output}\label{app:user.input.output}}
+      
+      This kind of input block allows the user to define the nature
+      and format of the output.  The first element of an output format
+      block indicates the resolution of the output and should be one
+      of:
+      \begin{center}
+        \texttt{ interval | zone | mixture }
+      \end{center}
+      This is followed by a list of output types and modifiers which
+      are described in the following table:
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{tabular}{|c|l|}
+          \hline
+          keyword & function \\\hline\hline
+          component & component breakdown in addition to total response\\\hline
+          number\_density & number density result of all produced isotopes\\\hline
+          specific\_activity & specific activity of all radioactive isotopes\\\hline
+          total\_heat & total decay heat\\\hline
+          alpha\_heat & total alpha heating\\\hline
+          beta\_heat & total beta heating\\\hline
+          gamma\_heat & total gamma heating\\\hline
+        \end{tabular}
+
+        \vspace{2\baselineskip}
+
+        \begin{boxedverbatim}
+# output only total zone number densities (no component breakdown)
+output zone
+   number_density
+end
+
+# now output activities and decay heats for zones
+#   with component breakdown
+output zone
+   component
+   specific_activity
+   total_heat
+end
+
+# now output total activities for mixtures
+output mixture
+   specific_activity
+end
+\end{boxedverbatim}
+      \end{center}      
+
+
+
+      
+      See section \ref{app:user.output} for information on
+      interpreting the output files generated by \ALARA.
+    \end{subsection}
+
+    \begin{subsection}{\texttt{cooling}\label{app:user.input.cool}}
+      
+      This input block is used to define the after-shutdown cooling
+      times at which the problem will be solved.  Multiple occurences
+      will result in undefined behaviour.  This block is simply a list
+      of times, where each time consists of a floating point time
+      followed by a single character defining the time's units.  Since
+      an arbitrary number of cooling times can be solved, this list
+      must be terminated with the keyword '\texttt{end}'.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# a wide array of cooling times
+cooling
+     1 m
+     1 d    
+     1 w
+   0.5 y
+     1 y
+    10 y
+     1 c
+end          
+\end{boxedverbatim}
+      \end{center}
+
+    \end{subsection}
+
+    \begin{subsection}{\texttt{material\_lib} and \texttt{element\_lib}\label{app:user.input.matlibs}}
+      
+      These two input blocks are used to specify the libraries to be
+      used for looking up the definitions of materials and elements
+      when they are given as mixture components (see section
+      \ref{app:user.input.mix}).  Each block has a single element
+      consisting of the filename to be used in each case, including
+      appropriate path information to find that file from the
+      directory where \ALARA\ is being run.  For more information on
+      the format of these libraries, see section
+      \ref{app:mat_el_libs}.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+material_lib  /alara/data/matlib/magnetic_fusion
+element_lib   /alara/data/std.elelib          
+\end{boxedverbatim}
+      \end{center}
+    \end{subsection}
+
+    \begin{subsection}{\texttt{data\_library}\label{sec:user.input.datalib}}
+      
+      This input block is used to define the type and location of the
+      nuclear data library.  The first element of this block is
+      character string which defines the type of library.  The
+      subsequent elements indicate the location of the file.
+      Currently accepted library types are:
+      \begin{description}
+      \item[alaralib] Standard \ALARA\ v.2 binary library.  This
+        library type requires a single filename indicating the
+        location of the library.
+      \item[adjlib] Standard \ALARA\ v.2 reverse library  This
+        library type requires a single filename indicating the
+        location of the library.
+      \item[eaflib] Data library following EAF conventions (ENDF/B).
+        This library type requires two filenames, the transmutation
+        library and the decay library, respectively.  These libraries
+        will be read and processed, creating an \ALARA\ v.2 binary
+        library with the name '\texttt{alarabin}' for use in
+        subsequent calculations.  Alternatively, this library could be
+        converted to an \ALARA\ v.2 binary library as a separate
+        process using the \texttt{convert\_lib} function.
+      \end{description}
+
+      For both types of \ALARA\ v.2 library, the extension ``.lib''
+      will be added to the filename indicated in this input block.
+      Otherwise, all filenames should include appropriate path
+      information to find the file from the directory in which \ALARA\
+      will be run.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# convert and use an EAF formated FENDL2 library
+data_library eaflib /alara/data.src/FENDL2/fendlg-2.0
+       /alara/data.src/FENDL2/fendld-2.0          
+\end{boxedverbatim}
+      \end{center}
+
+    \end{subsection}
+
+    \begin{subsection}{\texttt{dump\_file}\label{sec:user.input.dump}}
+      
+      This input block defines the filename to use for the binary data
+      dump produced during a run of \ALARA.  This is currently used to
+      store the intermediate results during the calculation, and will
+      be extended in the future to allow sophisticated post-processing
+      of the data.  This filename should be a valid name for a new
+      file, including path information appropriate for the directory
+      where \ALARA\ will be run.  Note that if the dump file already
+      exists, it will be overwritten with no warning.  If this input
+      block is omitted, the default name '\texttt{alara.dump}' will be
+      used.
+
+      \begin{center}
+        \renewcommand{\baselinestretch}{1}\normalsize
+        \begin{boxedverbatim}
+# define a dump file name
+dump_file testing/test_problem.dump          
+\end{boxedverbatim}
+      \end{center}
+
+    \end{subsection}
+
+  \end{section}
+  
+  \begin{section}{Defining Irradiation Schedules\label{app:user.schedules}}
+    
+    With the added flexibility in irradiation schedule definition
+    comes added complication.  All attempts have been made for this to
+    be a straightforward process, and this section should help make it
+    clearer.
+
+  \end{section}
+
+  \begin{section}{\ALARA\ Output File Formats\label{app:user.output}}
+
+    \begin{subsection}{Output File}
+      
+    \end{subsection}
+
+    \begin{subsection}{Tree File\label{app:user.output.tree}}
+      
+    \end{subsection}
+    
+  \end{section}
+
+
+  \begin{section}{Binary Reaction Library Format}\label{app:binary_data}
+  \end{section}
+  \begin{section}{Material and Element Library Formats}\label{app:mat_el_libs}
+
+    For the convenience of the user, ALARA uses both a material and
+    element library.  The element library simply contains the natural
+    isotopic breakdown of all the elements.  The material library
+    contains the elemental breakdown (using natural elemental
+    compositions) of well-known materials.     
+    
+    \begin{subsection}{Material Library\label{app:user.matlib}}
+      
+      \begin{binaryFile}
+      \item Material info once for each material
+        \begin{binaryFile}
+        \item {\em (char)}Material name [no white space allowed in name]
+        \item {\em (float)}Material density
+        \item {\em (int)}Number of elements in material
+        \item Element information once for each element
+          \begin{binaryFile}
+          \item {\em (char)} Elemental symbol
+          \item {\em (float)} Weight fraction of this element
+          \item {\em (int)} Atomic number of element
+          \end{binaryFile}
+        \end{binaryFile}
+      \end{binaryFile}
+    \end{subsection}
+
+    \begin{subsection}{Element Library\label{app:user.elelib}}
+      
+      \begin{binaryFile}
+      \item Title indicating which element library this is
+      \item Element info once for each element
+        \begin{binaryFile}
+        \item elemental symbol
+        \item nominal elemental mass [g/mol]
+        \item atomic number
+        \item nominal elemental density [g/cm$^3$]
+        \item number of constituent isotopes
+        \item isotope information once for each naturally occurring isotope
+          \begin{binaryFile}
+          \item mass number of isotope
+          \item atomic abundance of isotope  
+          \end{binaryFile}
+        \end{binaryFile}
+      \end{binaryFile}
+
+    \end{subsection}
+
+  \end{section}
+
+
+  \begin{section}{Flux File Formats}\label{app:flux_files}
+  \end{section}
+  \begin{section}{Error Messages}\label{app:errors}
+  \end{section}
+  
+
+\end{chapter}
+
