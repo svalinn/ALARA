@@ -1,14 +1,9 @@
 #include "OutputFormat.h"
 
-#include "DoseResponse.h"
-#include "GammaSrc.h"
-
 #include "Input/CoolingTime.h"
 #include "Input/Volume.h"
 #include "Input/Mixture.h"
 #include "Input/Loading.h"
-
-#include "Chains/Node.h"
 
 /***************************
  ********* Service *********
@@ -19,38 +14,18 @@ OutputFormat::OutputFormat(int type)
   resolution = type;
   outTypes = 0;
 
-  dose = new DoseResponse;
-  gSrcName =  NULL;
-  gSrcFName = NULL;
-
   next = NULL;
 }
 
 OutputFormat::OutputFormat(const OutputFormat& o) :
   resolution(o.resolution), outTypes(o.outTypes)
 {
-  dose = new DoseResponse(*(o.dose));
-
-  gSrcName =  NULL;
-  if (o.gSrcName != NULL)
-    {
-      gSrcName = new char[strlen(o.gSrcName)+1];
-      strcpy(gSrcName,o.gSrcName);
-    }
-
-  gSrcFName = NULL;
-  if (o.gSrcFName != NULL)
-    {
-      gSrcFName = new char[strlen(o.gSrcFName)+1];
-      strcpy(gSrcFName,o.gSrcFName);
-    }
 
   next = NULL;
 }
   
 OutputFormat::~OutputFormat()
 {
-  delete dose;
   delete next;
 }
 
@@ -61,24 +36,6 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
 
   resolution = o.resolution;
   outTypes = o.outTypes;
-  delete dose;
-  delete gSrcName;
-  delete gSrcFName;
-  dose = new DoseResponse(*(o.dose));
-  
-  gSrcName =  NULL;
-  if (o.gSrcName != NULL)
-    {
-      gSrcName = new char[strlen(o.gSrcName)+1];
-      strcpy(gSrcName,o.gSrcName);
-    }
-
-  gSrcFName = NULL;
-  if (o.gSrcFName != NULL)
-    {
-      gSrcFName = new char[strlen(o.gSrcFName)+1];
-      strcpy(gSrcFName,o.gSrcFName);
-    }
 
   return *this;
 }
@@ -90,17 +47,15 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
 OutputFormat* OutputFormat::getOutFmts(istream& input)
 {
   const char *Out_Res = " izm";
-  const char *Out_Types = "censtabgw";
+  const char *Out_Types = "censtabg";
 
   int type;
   char token[64];
-  char tmpGSrcName[64], tmpAdjFluxName[64];
 
   input >> token;
   type = strchr(Out_Res,tolower(token[0]))-Out_Res;
 
   next = new OutputFormat(type);
-  DoseResponse *dosePtr = next->dose;
 
   verbose(2,"Added output at resolution %d (%s)",type,token);
   
@@ -120,13 +75,6 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
       verbose(3,"Added output type %d (%s)",1<<type,token);
 
-      if (1<<type & OUTFMT_WDR)
-	{
-	  input >> token;
-	  next->wdrFilenames.insert(token);
-	  verbose(4,"Added WDR/Clearance file %s", token);
-	}
-
       clearComment(input);
       input >> token;
     }	      
@@ -136,70 +84,23 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 }
 
 
-/***************************
- ********** xCheck *********
- **************************/
-
-void OutputFormat::xCheck(GammaSrc *gSrcList, Flux *fluxList)
-{
-  OutputFormat *ptr = this;
-
-  int outTypeNum;
-
-  verbose(2,"Checking for adjoint fluxes and gamma source structures referenced in output formats.");
-
-  /* for each output description */
-  while (ptr->next != NULL)
-    {
-      
-      ptr = ptr->next;
-
-      if (ptr->outTypes & OUTFMT_DOSE)
-	ptr->dose->xCheck(gSrcList,fluxList);
-      if (ptr->outTypes & OUTFMT_PHOTON)
-	{
-	  verbose(3,"Checking for gamma source structure %s for photon source output.",ptr->gSrcName);
-	  /* set pointer to gamma source */
-	  GammaSrc *tmpGSrc = gSrcList->find(ptr->gSrcName);
-	  if (tmpGSrc == NULL)
-	    error(9999,"Gamma source structure %s for this response does not exist.",
-		  ptr->gSrcName);
-	  else
-	    {
-	      verbose(4,"Gamma source structure %s was found.",ptr->gSrcName);
-	      delete gSrcName;
-	      ptr->gSrc = tmpGSrc;
-	    }
-	}
-      
-    }
-
-}
-
-/***************************
- ******** Post-Proc ********
- **************************/
-
 void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 			 CoolingTime *coolList, int targetKza)
 {
   
-  const int nOutTypes = 9;
+  const int nOutTypes = 8;
   const int firstResponse=2;
-  const int lastSingularResponse=8;
   const char *Out_Types_Str[nOutTypes] = {
   "Break-down by Component",
   "Binary Data export",
-  "Number Density [atoms/cm3]",
-  "Specific Activity [Bq/cm3]",
-  "Total Decay Heat [W/cm3]",
-  "Alpha Decay Heat [W/cm3]",
-  "Beta Decay Heat [W/cm3]",
-  "Gamma Decay Heat [W/cm3]",
-  "WDR/Clearance index"};
+  "Number Density",
+  "Specific Activity",
+  "Total Decay Heat",
+  "Alpha Decay Heat",
+  "Beta Decay Heat",
+  "Gamma Decay Heat"};
 
   OutputFormat *ptr = this;
-  DoseResponse *dosePtr;
 
   int outTypeNum;
 
@@ -208,7 +109,6 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
     {
       
       ptr = ptr->next;
-      dosePtr = ptr->dose->advance();
 
       /* write a header */
       switch(ptr->resolution)
@@ -227,21 +127,12 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       /* list the reponses and features to come */
       for (outTypeNum=0;outTypeNum<nOutTypes;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
-	  {
-	    cout << "\t" << Out_Types_Str[outTypeNum] << endl;
-	    if (1<<outTypeNum == OUTFMT_DOSE)
-	      while (dosePtr != NULL)
-		{
-		  cout << "\t\t" << dosePtr->getName() << endl;
-		  dosePtr = dosePtr->advance();
-		}
-	  }
-		  
+	  cout << "\t" << Out_Types_Str[outTypeNum] << endl;
 
       cout << endl << endl;
       
       /* for each indicated response */
-      for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++)
+      for (outTypeNum=firstResponse;outTypeNum<nOutTypes;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
 	  {
 	    /* write a response title */
@@ -267,42 +158,6 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 
 	    cout << endl << endl << endl;
 	  }
-
-      if (ptr->outTypes & OUTFMT_WDR)
-	{
-	  for(filenameList::iterator fileName = wdrFilenames.begin();
-	      fileName != wdrFilenames.end(); ++fileName)
-	    {
-	      
-	      /* write a response title */
-	      cout << "*** " << Out_Types_Str[outTypeNum] << ": " 
-		   << *fileName << " ***" << endl;
-	      
-	      Node::loadWDR(*fileName);
-	      
-	      /* call write() on the appropriate object determined by
-		 the resulotition */
-	      switch(ptr->resolution)
-		{
-		case OUTRES_INT:
-		  volList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza);
-		  break;
-		case OUTRES_ZONE:
-		  loadList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				  coolList,targetKza);
-		  break;
-		case OUTRES_MIX:
-		  mixList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza);
-		  break;
-		}
-	      
-	      cout << endl << endl << endl;
-	    }
-	  
-	} 
     }
 
 }
-

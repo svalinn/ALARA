@@ -12,8 +12,9 @@
  ***************************/
 
 int VolFlux::nFluxes = 0;
+int VolFlux::nGroups = 0;
 
-VolFlux::VolFlux(int nGrps) : nGroups(nGrps)
+VolFlux::VolFlux()
 {
   flux = NULL;
 
@@ -29,11 +30,10 @@ VolFlux::VolFlux(int nGrps) : nGroups(nGrps)
   next = NULL;
 }
 
-VolFlux::VolFlux(const VolFlux& v) :
-  nGroups(v.nGroups)
+VolFlux::VolFlux(const VolFlux& v)
 {
   flux = NULL;
-
+  
   if (nGroups>0)
     {
       flux = new double[nGroups];
@@ -47,14 +47,13 @@ VolFlux::VolFlux(const VolFlux& v) :
   next = NULL;
 }
 
-VolFlux::VolFlux(ifstream &fluxFile, double scale, int nGrps) :
-  nGroups(nGrps)
+VolFlux::VolFlux(ifstream &fluxFile, double scale)
 {
 
   int grpNum;
 
   flux = NULL;
-  
+
   if (nGroups>0)
     {
       flux = new double[nGroups];
@@ -78,8 +77,7 @@ VolFlux& VolFlux::operator=(const VolFlux& v)
 
   delete flux;
   flux = NULL;
-  nGroups = v.nGroups;
-
+  
   if (nGroups>0)
     {
       flux = new double[nGroups];
@@ -96,9 +94,9 @@ VolFlux& VolFlux::operator=(const VolFlux& v)
  ********* Input ************
  ***************************/
 
-VolFlux* VolFlux::read(int nGrps, ifstream &fluxFile, double scale)
+VolFlux* VolFlux::read(ifstream &fluxFile, double scale)
 {
-  next = new VolFlux(fluxFile,scale,nGrps);
+  next = new VolFlux(fluxFile,scale);
   memCheck(next,"VolFlux::read(...): next");
 
   return next;
@@ -125,7 +123,7 @@ void VolFlux::updateReference(VolFlux *compFlux)
       else
 	{
 	  reference = reference->next;
-	  for (gNum=0;gNum<compFlux->nGroups;gNum++)
+	  for (gNum=0;gNum<nGroups;gNum++)
 	    if (compFlux->flux[gNum]>reference->flux[gNum])
 	      reference->flux[gNum] = compFlux->flux[gNum];
 	}
@@ -134,14 +132,14 @@ void VolFlux::updateReference(VolFlux *compFlux)
 
 }
 
-double VolFlux::fold(int rateGrps, double* rateVec)
+double VolFlux::fold(double* rateVec)
 {
 
   int grpNum;
   double rate=0;
 
 
-  if (rateVec != NULL && rateGrps == nGroups)
+  if (rateVec != NULL)
     for (grpNum=0;grpNum<nGroups;grpNum++)
       rate += rateVec[grpNum]*flux[grpNum];
 

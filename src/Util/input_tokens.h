@@ -20,4 +20,4 @@ extern const char *tokenList;
 #define INTOK_NORM       17
 #define INTOK_LIBCONV    18
 #define INTOK_DUMPFILE   19
-#define INTOK_GAMMASRC   20
+

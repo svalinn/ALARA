@@ -12,12 +12,7 @@
 #include "Flux.h"
 
 #include "Volume.h"
-
-#include "Chains/NuclearData.h"
-
 #include "Calc/VolFlux.h"
-
-#include "Output/DoseResponse.h"
 
 /***************************
  ********* Service *********
@@ -44,13 +39,11 @@ Flux::Flux(int inFormat, char *flxName, char *fName,
       strcpy(fileName,fName);
     }
 
-
-  doseResp = NULL;
   next = NULL;
 }
 
 Flux::Flux(const Flux& f) :
-  format(f.format),  skip(f.skip), scale(f.scale), doseResp(f.doseResp)
+  format(f.format),  skip(f.skip), scale(f.scale)
 {
   fluxName = NULL;
   fileName = NULL;
@@ -80,7 +73,6 @@ Flux& Flux::operator=(const Flux& f)
   scale = f.scale;
   skip = f.skip;
   format = f.format;
-  doseResp = f.doseResp;
 
   delete fluxName;
   delete fileName;
@@ -101,6 +93,7 @@ Flux& Flux::operator=(const Flux& f)
       memCheck(fileName,"Flux::operator=(...) : fileName");
       strcpy(fileName,f.fileName);
     }
+  
 
   return *this;
 
@@ -122,9 +115,6 @@ Flux* Flux::getFlux(istream& input)
     {
     case 'd':
       inFormat = FLUX_D;
-      break;
-    case 'a':
-      inFormat = FLUX_AG;
       break;
     default:
       error(140,"Invalid flux type: %s", type);
@@ -163,13 +153,7 @@ void Flux::xRef(Volume *volList)
 	{
 	case FLUX_D:
 	  /* read entire file into intervals */
-	  volList->readFlux(NuclearData::getNumGroups(),
-			    ptr->fileName,ptr->skip,ptr->scale);
-	  break;
-	case FLUX_AG:
-	  /* adjoint gamma flux */
-	  volList->readAdjFlux(doseResp->getNumGroups(),ptr->fileName,
-			       ptr->skip,ptr->scale);
+	  volList->readFlux(ptr->fileName,ptr->skip,ptr->scale);
 	  break;
 	}
     }
@@ -183,7 +167,7 @@ void Flux::xRef(Volume *volList)
  ***************************/
 
 /* find a requested flux definition */
-int Flux::find(char *srchFlux, int fluxType)
+int Flux::find(char *srchFlux)
 {
   Flux *ptr=this;
   int fluxNum = 0;
@@ -191,8 +175,7 @@ int Flux::find(char *srchFlux, int fluxType)
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      if (ptr->format == fluxType)
-	fluxNum++;
+      fluxNum++;
       if (!strcmp(ptr->fluxName,srchFlux))
 	if (ptr->checkFname())
 	  return fluxNum-1;
@@ -203,29 +186,7 @@ int Flux::find(char *srchFlux, int fluxType)
   return FLUX_NOT_FOUND;
 }
 
-/* find and cross-reference a requested adjoint flux definition */
-int Flux::find(char *srchFlux, int fluxType, DoseResponse *dose)
-{
-  Flux *ptr=this;
-  int fluxNum = 0;
 
-  while (ptr->next != NULL)
-    {
-      ptr = ptr->next;
-      if (ptr->format == fluxType)
-	fluxNum++;
-      if (!strcmp(ptr->fluxName,srchFlux))
-	{
-	  doseResp = dose;
-	  if (ptr->checkFname())
-	    return fluxNum-1;
-	  else
-	    return FLUX_BAD_FNAME;
-	}
-    }
-
-  return FLUX_NOT_FOUND;
-}
 
 /* check the flux file */
 int Flux::checkFname()

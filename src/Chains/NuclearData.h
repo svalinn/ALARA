@@ -148,7 +148,6 @@ protected:
   static void closeDataLib();
   static void modeReverse() { mode = MODE_REVERSE;};
   static int getMode() { return mode; };
-  static int getNumGroups() { return nGroups; };
 
   /* Service */
   NuclearData();

@@ -143,7 +143,7 @@ public:
   void postProcTarget(Result*, Mixture*);
   void postProcList(Result*, Mixture*, int);
   void postProc(Result&, double density=1.0);
-  void write(int, int, CoolingTime*, double*&, DoseResponse*, double volume=1);
+  void write(int, int, CoolingTime*, double*&, double volume=1);
 
   /* Dump */
   static void initBinDump(char*);

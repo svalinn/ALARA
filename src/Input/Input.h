@@ -215,7 +215,6 @@ protected:
   Norm *normList;
   Loading *loadList;
   OutputFormat *outListHead;
-  GammaSrc *gSrcListHead;
   
 public:
   /* Service */

@@ -41,9 +41,6 @@ Volume::Volume(double vol, char *name) :
   fluxHead = new VolFlux;
   flux = fluxHead;
 
-  adjFluxHead = new VolFlux;
-  adjFlux = adjFluxHead;
-
   //results = new ResultList;
   //resultHead = results;
 
@@ -77,9 +74,6 @@ Volume::Volume(double vol, Loading *loadPtr) :
   fluxHead = new VolFlux;
   flux = fluxHead;
 
-  adjFluxHead = new VolFlux;
-  adjFlux = adjFluxHead;
-
   //results = new ResultList;
   //resultHead = results;
 
@@ -112,9 +106,6 @@ Volume::Volume(const Volume& v) :
   fluxHead = new VolFlux;
   flux = fluxHead;
 
-  adjFluxHead = new VolFlux;
-  adjFlux = adjFluxHead;
-
   //results = new ResultList;
   //resultHead = results;
 
@@ -140,9 +131,6 @@ Volume::Volume(Root *rootPtr,topSchedule* top) :
 
   fluxHead = new VolFlux;
   flux = fluxHead;
-
-  adjFluxHead = new VolFlux;
-  adjFlux = adjFluxHead;
 
   rootPtr->refFlux(fluxHead);
 
@@ -191,10 +179,6 @@ Volume& Volume::operator=(const Volume& v)
   delete fluxHead;
   fluxHead = new VolFlux;
   flux = fluxHead;
-
-  delete adjFluxHead;
-  adjFluxHead = new VolFlux;
-  adjFlux = adjFluxHead;
 
   //delete resultHead;
   //results = new ResultList;
@@ -399,11 +383,12 @@ void Volume::addMixList(Volume* ptr)
 
 /* read the appropriate flux into each interval's flux member object */
 /* called by Flux::xRef(...) */
-void Volume::readFlux(int nGroups,char* fname, int skip, double scale)
+void Volume::readFlux(char* fname, int skip, double scale)
 {
   Volume* ptr = this;
   ifstream fluxFile(fname);
   int skipNum;
+  int nGroups = VolFlux::getNumGroups();
   double skipDble;
   
   debug(3,"Reading flux in %d groups from %s for all intervals",nGroups,fname);
@@ -423,36 +408,7 @@ void Volume::readFlux(int nGroups,char* fname, int skip, double scale)
 	error(622,"Flux file %s does not contain enough data.",fname);
 
       ptr = ptr->next;
-      ptr->flux = ptr->flux->read(nGroups,fluxFile,scale*ptr->norm);
-    }
-
-}
-
-void Volume::readAdjFlux(int nGroups,char* fname, int skip, double scale)
-{
-  Volume* ptr = this;
-  ifstream fluxFile(fname);
-  int skipNum;
-  double skipDble;
-  
-  debug(3,"Reading adjoint flux in %d groups from %s for all intervals",nGroups,fname);
-
-  /* skip entries at beginning of file */
-  if (skip>0)
-    for (skipNum=0;skipNum<skip*nGroups;skipNum++)
-      fluxFile >> skipDble;
-
-  if (fluxFile.eof())
-    error(622,"Flux file %s does not contain enough data.",fname);
-
-  /* read the flux for each interval */
-  while (ptr->next != NULL)
-    {
-      if (fluxFile.eof())
-	error(622,"Flux file %s does not contain enough data.",fname);
-
-      ptr = ptr->next;
-      ptr->adjFlux = ptr->adjFlux->read(nGroups,fluxFile,scale*ptr->norm);
+      ptr->flux = ptr->flux->read(fluxFile,scale*ptr->norm);
     }
 
 }
@@ -609,24 +565,23 @@ void Volume::postProc()
 
 
 void Volume::write(int response, int writeComp, CoolingTime* coolList, 
-		   int targetKza, DoseResponse* dosePtr)
+		   int targetKza)
 {
   Volume *head = this;
   Volume *ptr = head;
   int intvlCntr = 0;
-
 
   /* for each interval */
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
       intvlCntr++;
-      
+
       /* write header information */
       cout << "Interval #" << intvlCntr << ":" << endl;
       cout << "\tVolume: " << ptr->volume << endl;
       cout << "\tZone: " << ptr->zoneName << endl;
-      
+
       if (ptr->mixPtr != NULL)
 	{
 	  cout << "\tMixture: " << ptr->mixPtr->getName() << endl << endl;
@@ -644,9 +599,8 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		{
 		  /* write component header */
 		  cout << "Component: " << compPtr->getName() << endl;
-		  ptr->outputList[compNum].write(response,targetKza,coolList,
-						 ptr->total,dosePtr);
-		  
+		  ptr->outputList[compNum].write(response,targetKza,coolList,ptr->total);
+
 		  compPtr = compPtr->advance();
 		  compNum++;
 		}
@@ -661,8 +615,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	    {
 	      /* otherwise write the total response for the zone */
 	      cout << "Total" << endl;
-	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,
-						 ptr->total,dosePtr);
+	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total);
 	      
 	    }
 	}
@@ -670,21 +623,21 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	cout << "\tMixture: VOID" << endl << endl;
       
     }
-  
-  
+	  
+
   /** WRITE TOTAL TABLE **/
   /* reset interval pointer and counter */
   ptr = head;
   intvlCntr = 0;
-  
+
   int resNum,nResults = topScheduleT::getNumCoolingTimes()+1;
   char isoSym[15];
-  
+
   cout << "Totals for all intervals." << endl;
-  
+
   /* write header for totals */
   coolList->writeTotalHeader("interval");
-  
+
   /* for each interval */
   while (ptr->next != NULL)
     {
@@ -705,6 +658,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 
   cout << endl << endl;
 }
+
 
 void Volume::resetOutList()
 {
