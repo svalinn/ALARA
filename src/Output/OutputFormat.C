@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.30 2004-05-12 03:12:02 wilsonp Exp $ */
+/* $Id: OutputFormat.C,v 1.31 2004-06-03 21:24:38 wilsonp Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -325,6 +325,8 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      }
 	    cout << "*** " << buffer << " ***" << endl;
 
+	    Result::setReminderStr(buffer);
+
 	    /* call write() on the appropriate object determined by
                the resulotition */
 	    switch(ptr->resolution)
@@ -357,6 +359,11 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      cout << "*** " << Out_Types_Str[outTypeNum] << ": " 
 		   << *fileName << " ***" << endl;
 	      
+
+	      sprintf(buffer,"%s: %s",Out_Types_Str[outTypeNum],*fileName);
+
+	      Result::setReminderStr(buffer);
+
 	      Node::loadWDR(*fileName);
 	      
 	      /* call write() on the appropriate object determined by

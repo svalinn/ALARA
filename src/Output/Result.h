@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.17 2003-01-14 05:01:20 wilsonp Exp $ */
+/* $Id: Result.h,v 1.18 2004-06-03 21:24:38 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _RESULT_H
@@ -52,6 +52,9 @@ protected:
 
   // NEED COMMENT
   static GammaSrc *gammaSrc;
+
+  /// String to print as reminder of current output type
+  static char* outReminderStr;
 
   /// This indicates the kza number of the output isotope which this
   /// data is for.
@@ -127,6 +130,10 @@ public:
   /// This function is used to set actMult from the first argument and
   /// metricMult by interpretation of the second argument.
   static void setNorm(double,int);
+
+  /// This function is used to set outReminderStr so that each table
+  /// makes it clear what is being written.
+  static void setReminderStr(char*);
 
   /// This function opens and initializes the binary dump file used
   /// throughout the solution and postprocessing.

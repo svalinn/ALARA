@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.32 2004-01-28 17:45:41 wilsonp Exp $ */
+/* $Id: Result.C,v 1.33 2004-06-03 21:24:38 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -33,6 +33,7 @@ const int Result::delimiter = -1;
 double Result::actMult = 1;
 double Result::metricMult = 1;
 GammaSrc* Result::gammaSrc = NULL;
+char* Result::outReminderStr = NULL;
 
 /** When called with no arguments, the default constructor sets 'kza'
     and 'next' to 0 and NULL, respectively.  Otherwise, they are set,
@@ -306,15 +307,6 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   char isoSym[15];
   int mode = NuclearData::getMode();
   
-  /* determine ordinal response type */
-  int responseIdx = 0;
-  int tmpResponse = response>>1;
-  while (tmpResponse)
-    {
-      tmpResponse = tmpResponse>>1;
-      responseIdx++;
-    }
-
   /* initialize the total array */
   delete total;
   total = new double[nResults];
@@ -336,8 +328,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   debug(2,"Total volume for normalization: %g",volume_mass);
   
   /* write reminder of response type */
-  std::string responseReminder = Out_Types_Str[responseIdx];
-  cout << responseReminder.substr(0,responseReminder.find('[')) << endl;;
+  cout << outReminderStr << endl;;
 
   /* write a standard header for this table */
   coolList->writeHeader();
@@ -574,4 +565,13 @@ void Result::setNorm(double passedActMult, int normType)
     metricMult = 1;
   }
 
+}
+
+
+void Result::setReminderStr(char *buffer)
+{
+
+  outReminderStr = new char[strlen(buffer)+1];
+
+  strcpy(outReminderStr,buffer);
 }
