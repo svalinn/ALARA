@@ -1,7 +1,11 @@
+## $Id: sample2,v 1.2 2004-07-23 19:26:04 wilsonp Exp $
 ## Sample 1 : Beginner
 ## Highlights: rectangular geometry, mixtures from the matlib, 
 ## steady state irradiation, and number density & specific activity output
-## 02/11/04
+##
+## NOTE: you should run sample1 before any other samples to ensure
+## that the data is available
+##
 
 ## You can choose between a variety of geometries
 geometry rectangular

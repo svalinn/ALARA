@@ -1,7 +1,14 @@
+## $Id: sample7,v 1.2 2004-07-23 19:26:04 wilsonp Exp $
 ## Sample 5: Expert
 ## Highlights: 2-D torodial geometry, reverse mode (target),
 ## complex pulsing scheme w/ sub-schedules and multiple fluxes
-## 02/24/04
+##
+## NOTE: you should run sample1 before any other samples to ensure
+## that the data is available
+##
+## NOTE: you should run sample6 before this sample to ensure reverse
+## mode data is available.
+##
 
 geometry torus
 

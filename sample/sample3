@@ -1,7 +1,12 @@
+## $Id: sample3,v 1.2 2004-07-23 19:26:04 wilsonp Exp $
 ## Sample 2: Novice
 ## Highlights: cylindrical geometry, elements in mixtures,
 ## simple pulsed irradition, constituent total decay heat output
-## 02/11/04
+##
+## NOTE: you should run sample1 before any other samples to ensure
+## that the data is available
+##
+
 
 geometry cylindrical
 

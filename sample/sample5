@@ -1,8 +1,12 @@
+## $Id: sample5,v 1.2 2004-07-23 19:26:04 wilsonp Exp $
 ## Sample 4: Advanced
 ## Highlights: rectangular geometry with volumes, isotopic changes in new
 ## element library, spatial norm, photon source output, changes in tolerance
 ## and impurity settings
-## 02/16/04
+##
+## NOTE: you should run sample1 before any other samples to ensure
+## that the data is available
+##
 
 geometry rectangular
 

@@ -1,5 +1,10 @@
+# $Id: sample6,v 1.2 2004-07-23 19:26:04 wilsonp Exp $
 # create an ALARA formatted adjoint library
 # this library is used for "reverse" mode as it contains
 # a list of all parents for each isotope rather than all 
 # children
+#
+# NOTE: you should run sample1 before any other samples to ensure
+# that the data is available
+#
 convert_lib alaralib adjlib data/fendl2bin data/fendl2adj
