@@ -3,7 +3,8 @@
 
 # where to put documentation, data and sample input/output
 docdir = $(pkgdatadir)/doc
-xsdir = $(pkgdatadir)/data
+nonxsdir = $(pkgdatadir)/data
+xsdir = $(pkglibdir)/$(OSTYPE)
 sampledir = $(pkgdatadir)/samples
 
 AM_CPPFLAGS = -I$(top_srcdir)/src
