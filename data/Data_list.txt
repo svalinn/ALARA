@@ -1,0 +1,40 @@
+This directory is the default location to find data for ALARA.  In
+addition to placing processed transmutation and decay data here, it is
+the main location to find other data including the default element
+library, a sample material library, and all the data required for the
+different responses (waste disposal ratings, contact dose, etc).
+
+A partial catalog of the data files:
+-----------------------------------------
+SHORT NAME	LONG NAME		Purpose
+===================================================================
+ANS6.4.3	ANS6_4_3.txt		Gamma attenuation/absorption 
+					coefficients for contact dose 
+					calculation
+elelib		elelib.std		Standard element library with nominal 
+					elemental densities and natural 
+					isotopic abundances.
+FetterHi	FetterC_hi.Ci_m3.wdr	Waste disposal limits based on the
+					values proposed by Fetter, and
+					using the high value where ranges
+					are given instead of single values.
+					The units are Ci/m^3.
+FetterLo	FetterC_lo.Ci_m3.wdr	Waste disposal limits based on the
+					values proposed by Fetter, and
+					using the low value where ranges
+					are given instead of single values.
+					The units are Ci/m^3.
+IAEA		IAEA.clearance.Bq_kg	Clearance limits proposed by IAEA are
+					used in the same way as waste disposal
+					ratings.  The units are Bq/kg.
+matlib		matlib.sample		Sample mateial library including some
+					materials from the ARIES project
+					with references and some unreferenced
+					sample materials.
+NRCA            NRCA.Ci_m3.wdr		Waste disposal limits based on NRC
+					regulations (10CFR) for class A waste.
+					Units are Ci/m^3.
+NRCC            NRCC.Ci_m3.wdr		Waste disposal limits based on NRC
+					regulations (10CFR) for class C waste.
+					Units are Ci/m^3.
+
