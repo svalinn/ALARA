@@ -6,35 +6,46 @@ different responses (waste disposal ratings, contact dose, etc).
 
 A partial catalog of the data files:
 -----------------------------------------
-SHORT NAME	LONG NAME		Purpose
+SHORT NAME          LONG NAME                  Purpose
 ===================================================================
-ANS6.4.3	ANS6_4_3.txt		Gamma attenuation/absorption 
-					coefficients for contact dose 
-					calculation
-elelib		elelib.std		Standard element library with nominal 
-					elemental densities and natural 
-					isotopic abundances.
-FetterHi	FetterC_hi.Ci_m3.wdr	Waste disposal limits based on the
-					values proposed by Fetter, and
-					using the high value where ranges
-					are given instead of single values.
-					The units are Ci/m^3.
-FetterLo	FetterC_lo.Ci_m3.wdr	Waste disposal limits based on the
-					values proposed by Fetter, and
-					using the low value where ranges
-					are given instead of single values.
-					The units are Ci/m^3.
-IAEA		IAEA.clearance.Bq_kg	Clearance limits proposed by IAEA are
-					used in the same way as waste disposal
-					ratings.  The units are Bq/kg.
-matlib		matlib.sample		Sample mateial library including some
-					materials from the ARIES project
-					with references and some unreferenced
-					sample materials.
-NRCA            NRCA.Ci_m3.wdr		Waste disposal limits based on NRC
-					regulations (10CFR) for class A waste.
-					Units are Ci/m^3.
-NRCC            NRCC.Ci_m3.wdr		Waste disposal limits based on NRC
-					regulations (10CFR) for class C waste.
-					Units are Ci/m^3.
+ANS6.4.3         ANS6_4_3.txt               Gamma attenuation/absorption 
+                                            coefficients for contact dose 
+                                            calculation
+elelib           elelib.std                 Standard element library with nominal 
+                                            elemental densities and natural 
+                                            isotopic abundances.
+FetterHi         FetterC_hi.Ci_m3.wdr       Waste disposal limits based on the
+                                            values proposed by Fetter, and
+                                            using the high value where ranges
+                                            are given instead of single values.
+                                            The units are Ci/m^3.
+FetterLo         FetterC_lo.Ci_m3.wdr       Waste disposal limits based on the
+                                            values proposed by Fetter, and
+                                            using the low value where ranges
+                                            are given instead of single values.
+                                            The units are Ci/m^3.
+matlib           matlib.sample              Sample mateial library including some
+                                            materials from the ARIES project
+                                            with references and some unreferenced
+                                            sample materials.
+NRCA             NRCA.Ci_m3.wdr             Waste disposal limits based on NRC
+                                            regulations (10CFR) for class A waste.
+                                            Units are Ci/m^3.
+NRCC             NRCC.Ci_m3.wdr             Waste disposal limits based on NRC
+                                            regulations (10CFR) for class C waste.
+                                            Units are Ci/m^3.
+IAEA.clearance   IAEA.clearance.XXX.Bq_kg   Clearance limits proposed by IAEA are
+                                            used in the same way as waste disposal
+                                            ratings.  The units are Bq/kg.  XXX can 
+                                            be 'old' (pre-2004) or 2004 (revised in 2004).
+EU.clearance     EU.clearance.XXX.Bq_kg     Clearance limits proposed by IAEA are
+                                            used in the same way as waste disposal
+                                            ratings.  The units are Bq/kg. XXX can 
+                                            be 'old' (pre-2004) or 2004 (revised in 2004).
+NRC.clearance    NRC.clearance.XXX.Bq_kg    Clearance limits proposed by IAEA are
+                                            used in the same way as waste disposal
+                                            ratings.  The units are Bq/kg. XXX can 
+                                            be 'old' (pre-2004) or 2004 (revised in 2004).
 
+NOTE: For all clearance files, if accessed by the short name, the default behavior will
+      be to reference the newest data.
