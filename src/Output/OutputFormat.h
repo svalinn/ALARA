@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.h,v 1.13 2000-07-07 02:28:22 wilson Exp $ */
+/* $Id: OutputFormat.h,v 1.14 2001-12-06 23:17:44 wilsonp Exp $ */
 #include "alara.h"
 #include <set>
 
@@ -114,7 +114,7 @@ protected:
   filenameList wdrFilenames;
   char *actUnits, *normUnits;
   double actMult;
-  GammaSrc *gammaSrc;
+  GammaSrc *gammaSrc, *contactDose;
 
   OutputFormat *next;
 
