@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.10 1999-11-10 18:25:18 wilson Exp $ */
+/* $Id: Component.C,v 1.11 1999-11-10 21:13:38 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -250,7 +250,6 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
       /* if element is found, add a new root for each isotope */
       verbose(5,"Found element %s with %d isotopes in element library",
 	      testName, numIsos);
-      verbose(2,"Using density %g and number density %g", density,Ndensity);
 
       while (numIsos-->0)
 	{
