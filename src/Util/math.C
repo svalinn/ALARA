@@ -187,7 +187,15 @@ double fillTElement(int row, int col, double *P, double *d, double t,
       /* power of t/n! times coefficient, with alternating sign!! */
       correction = powPoleMat.rowSum(sz) * ( 1-2*(termNum%2) )
 	* pow(t,termNum+sz)/fact(termNum+sz);
-      
+
+      /* for monstrous decay rates (e.g. Be-8) the correction or
+       * result may become infinite */
+      if (isinf(correction) || isinf(result))
+	{
+	  /* use the termNum as a flag */
+	  termNum = MAXNUMEXPTERMS;
+	  break;
+	}
       if (fabs(correction/result) > MAXEXPTOL)
 	/* use this term if significant */
 	result += correction;
@@ -222,7 +230,11 @@ double fillTElement(int row, int col, double *P, double *d, double t,
       result = laplaceInverse(row,col,d,t);
     else
       result = bateman(row,col,d,t);
-    
+
+  /* used during debugging 
+     if (isnan(result) || isinf(result))
+     error(2001,"NaN fuond!"); */
+     
   return result*productionProduct;
 }
 
