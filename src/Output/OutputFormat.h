@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.h,v 1.9 1999-11-09 17:11:37 wilson Exp $ */
+/* $Id: OutputFormat.h,v 1.10 1999-11-19 23:02:53 wilson Exp $ */
 #include "alara.h"
 #include <set>
 
@@ -92,10 +92,10 @@ class OutputFormat
 {
 protected:
 
-  int resolution, outTypes;
+  int resolution, outTypes, normType;
   filenameList wdrFilenames;
   char *actUnits, *normUnits;
-  double actMult, normMult;
+  double actMult;
 
   OutputFormat *next;
 

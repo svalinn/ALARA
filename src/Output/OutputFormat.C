@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.19 1999-11-11 17:51:35 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.20 1999-11-19 23:02:53 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -7,9 +7,6 @@
 #include "Input/Loading.h"
 
 #include "Chains/Node.h"
-
-#define Bq2Ci 2.7027e-11
-#define cm32m3 1e-6
 
 const char *Out_Types = "ucnstabgw";
 
@@ -41,14 +38,14 @@ OutputFormat::OutputFormat(int type)
 
   normUnits = new char[4];
   strcpy(normUnits,"cm3");
-  normMult = 1;
+  normType = 1;
 
   next = NULL;
 }
 
 OutputFormat::OutputFormat(const OutputFormat& o) :
   resolution(o.resolution), outTypes(o.outTypes), actMult(o.actMult), 
-  normMult(o.normMult)
+  normType(o.normType)
 {
   actUnits = new char[strlen(o.actUnits)+1];
   strcpy(actUnits,o.actUnits);
@@ -81,7 +78,7 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
   delete normUnits;
   normUnits = new char[strlen(o.normUnits)+1];
   strcpy(normUnits,o.normUnits);
-  normMult = o.normMult;
+  normType = o.normType;
 
   return *this;
 }
@@ -127,12 +124,26 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  input >> token;
 	  next->actUnits = new char[strlen(token)+1];
 	  strcpy(next->actUnits,token);
-	  next->actMult = (tolower(token[0]) == 'c'?Bq2Ci:1);
+	  next->actMult = (tolower(token[0]) == 'c'?BQ_CI:1);
 
 	  input >> token;
 	  next->normUnits = new char[strlen(token)+1];
 	  strcpy(next->normUnits,token);
-	  next->normMult = (tolower(token[0]) == 'm'?cm32m3:1);
+	  switch (tolower(token[0]))
+	    {
+	    case 'm':
+	      next->normType = OUTNORM_M3;
+	      break;
+	    case 'g':
+	      next->normType = OUTNORM_G;
+	      break;
+	    case 'k':
+	      next->normType = OUTNORM_KG;
+	      break;
+	    default:
+	      next->normType = OUTNORM_CM3;
+	      break;
+	    }
 	  break;
 	case OUTFMT_WDR:
 	  input >> token;
@@ -216,7 +227,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       cout << endl << endl;
       
       /* set units for activity */
-      Result::setNorm(ptr->actMult, ptr->normMult);
+      Result::setNorm(ptr->actMult,ptr->normType);
 
       /* for each indicated response */
       for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++)
@@ -240,15 +251,15 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case OUTRES_INT:
 		volList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-			       coolList,targetKza);
+			       coolList,targetKza,ptr->normType);
 		break;
 	      case OUTRES_ZONE:
 		loadList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-				coolList,targetKza);
+				coolList,targetKza,ptr->normType);
 		break;
 	      case OUTRES_MIX:
 		mixList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-			       coolList,targetKza);
+			       coolList,targetKza,ptr->normType);
 		break;
 	      }
 
@@ -274,15 +285,15 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		{
 		case OUTRES_INT:
 		  volList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza);
+				 coolList,targetKza,ptr->normType);
 		  break;
 		case OUTRES_ZONE:
 		  loadList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				  coolList,targetKza);
+				  coolList,targetKza,ptr->normType);
 		  break;
 		case OUTRES_MIX:
 		  mixList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza);
+				 coolList,targetKza,ptr->normType);
 		  break;
 		}
 	      

@@ -1,4 +1,4 @@
-/* $Id: Output_def.h,v 1.8 1999-08-25 19:40:47 wilson Exp $ */
+/* $Id: Output_def.h,v 1.9 1999-11-19 23:02:53 wilson Exp $ */
 #ifndef _OUTPUT_DEF_H
 #define _OUTPUT_DEF_H
 
@@ -13,5 +13,15 @@
 #define OUTFMT_GAMMA  128
 #define OUTFMT_WDR    256
 
+#define OUTNORM_KG        -2
+#define OUTNORM_G         -1
+#define OUTNORM_NULL       0
+#define OUTNORM_CM3        1
+#define OUTNORM_M3         2
+
+#define BQ_CI     2.7027e-11
+
+#define CM3_M3           1e-6
+#define G_KG             1e-3
 
 #endif

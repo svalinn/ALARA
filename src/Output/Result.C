@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.15 1999-11-09 17:16:35 wilson Exp $ */
+/* $Id: Result.C,v 1.16 1999-11-19 23:02:53 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -26,7 +26,7 @@ int Result::nResults = 0;
 FILE* Result::binDump = NULL;
 const int Result::delimiter = -1;
 double Result::actMult = 1;
-double Result::normMult = 1;
+double Result::metricMult = 1;
 
 Result::Result(int setKza, Result* nxtPtr)
 {
@@ -254,7 +254,7 @@ void Result::postProc(Result& outputList, double density)
 }      
 
 void Result::write(int response, int targetKza, CoolingTime *coolList, 
-		   double*& total, double volFrac, double volume)
+		   double*& total, double volume_mass)
 {
   int resNum;
   Result* ptr = this;
@@ -272,8 +272,6 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
   /* write a standard header for this table */
   coolList->writeHeader();
 
-  volume *= volFrac*normMult;
-
   if (mode == MODE_REVERSE)
     {
       /* query the data library through a dummy Node object
@@ -281,24 +279,25 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
       switch(response)
 	{
 	case OUTFMT_ACT:
-	  multiplier = dataAccess.getLambda(targetKza)*actMult/volume;
+	  multiplier = dataAccess.getLambda(targetKza)*actMult;
 	  break;
 	case OUTFMT_HEAT:
-	  multiplier = dataAccess.getHeat(targetKza)/volume * EV2J;
+	  multiplier = dataAccess.getHeat(targetKza) * EV2J;
 	  break;
 	case OUTFMT_ALPHA:
-	  multiplier = dataAccess.getAlpha(targetKza)/volume * EV2J;
+	  multiplier = dataAccess.getAlpha(targetKza) * EV2J;
 	  break;
 	case OUTFMT_BETA:
-	  multiplier = dataAccess.getBeta(targetKza)/volume * EV2J;
+	  multiplier = dataAccess.getBeta(targetKza) * EV2J;
 	  break;
 	case OUTFMT_GAMMA:
-	  multiplier = dataAccess.getGamma(targetKza)/volume * EV2J;
+	  multiplier = dataAccess.getGamma(targetKza) * EV2J;
 	  break;
 	case OUTFMT_WDR:
-	  multiplier = dataAccess.getWDR(targetKza)*actMult/volume;
+	  multiplier = dataAccess.getWDR(targetKza)*actMult;
 	  break;
 	}
+      multiplier *= metricMult/volume_mass;
     }
   
 
@@ -314,24 +313,25 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	  switch(response)
 	    {
 	    case OUTFMT_ACT:
-	      multiplier = dataAccess.getLambda(ptr->kza)*actMult/volume;
+	      multiplier = dataAccess.getLambda(ptr->kza)*actMult;
 	      break;
 	    case OUTFMT_HEAT:
-	      multiplier = dataAccess.getHeat(ptr->kza)/volume * EV2J;
+	      multiplier = dataAccess.getHeat(ptr->kza) * EV2J;
 	      break;
 	    case OUTFMT_ALPHA:
-	      multiplier = dataAccess.getAlpha(ptr->kza)/volume * EV2J;
+	      multiplier = dataAccess.getAlpha(ptr->kza) * EV2J;
 	      break;
 	    case OUTFMT_BETA:
-	      multiplier = dataAccess.getBeta(ptr->kza)/volume * EV2J;
+	      multiplier = dataAccess.getBeta(ptr->kza) * EV2J;
 	      break;
 	    case OUTFMT_GAMMA:
-	      multiplier = dataAccess.getGamma(ptr->kza)/volume * EV2J;
+	      multiplier = dataAccess.getGamma(ptr->kza) * EV2J;
 	      break;
 	    case OUTFMT_WDR:
-	      multiplier = dataAccess.getWDR(ptr->kza)*actMult/volume;
+	      multiplier = dataAccess.getWDR(ptr->kza)*actMult;
 	      break;
 	    }
+	  multiplier *= metricMult/volume_mass;
 	}
       
       /* if the multipier is 0 (e.g. stable isotope for activity based
@@ -441,3 +441,20 @@ void Result::readDump()
     }
 }
 
+void Result::setNorm(double passedActMult, int normType)
+{
+
+  actMult = passedActMult;
+
+  switch (normType) {
+  case OUTNORM_M3:
+    metricMult = CM3_M3;
+    break;
+  case OUTNORM_KG:
+    metricMult = G_KG;
+    break;
+  default:
+    metricMult = 1;
+  }
+
+}
