@@ -1,0 +1,73 @@
+# $Id: test5b,v 1.1 2003-07-01 15:05:12 wilsonp Exp $
+# ALARA V2.x Test Suite Problem #5
+#
+# Testing objectives:
+#	* arbitrary pulsing schedules
+
+geometry rectangular
+
+dimension 	x
+		  0.0
+	1	  1.0
+end
+
+mat_loading
+	zone_1		mix_1
+end
+
+material_lib in/matlib
+element_lib in/elelib
+
+mixture mix_1
+	material test_mat_4	1.0	1.0
+end
+
+flux flux_1 in/fluxin1	 1.0	0	default
+flux flux_2 in/fluxin1	100000.0	0	default
+
+schedule top
+	chamber_wall thirty_years 0 s
+end
+
+schedule chamber_wall
+	1e-3 s flux_1 eleven_pulses 0 s
+end
+
+pulsehistory thirty_years
+	40000000  70 d
+end
+
+pulsehistory eleven_pulses
+	11	0.16567 s
+end
+
+pulsehistory single_pulse
+	1	0 s
+end
+
+cooling
+	1 h
+	6 h
+	12 h
+	1 d
+	4 d
+	1 w
+	2 w
+	4 w
+	0.5 y
+	1 y
+	10 y
+end
+
+data_library alaralib fendl2bin
+
+dump_file test1.dump
+
+output zone
+   units Bq cm3
+   specific_activity
+end
+
+
+truncation 1e-6
+impurity 1e-5 1e-2
