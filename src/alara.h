@@ -15,14 +15,6 @@
 #define PI M_PI
 #endif
 
-#include "Util/classes.h"
-
-#include "Util/debug.h"
-
-#include "Util/functions.h"
-
-#include "Util/Statistics.h"
-
 #define TRUE (1==1)
 #define FALSE (0==1)
 
@@ -32,6 +24,14 @@
 #define SDOUBLE sizeof(double)
 
 #define max(x,y) (x>y?x:y)
+
+#include "Util/classes.h"
+
+#include "Util/debug.h"
+
+#include "Util/functions.h"
+
+#include "Util/Statistics.h"
 
 extern int chainCode;
 extern const char* SYMBOLS;
