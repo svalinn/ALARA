@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.7 2004-08-04 19:46:18 wilsonp Exp $
+$Id: NEWS,v 1.8 2004-08-10 22:09:51 wilsonp Exp $
 
 Version 2.7.1
 	
@@ -19,7 +19,8 @@ NEW FEATURES
 CODE UPDATES
 	* Sample problems and sample data added [DP/PW] (07/23/2004)
 	* Developed C/C++ equivalent for reading FORTRAN "unformatted
-	  files" and converted RTFLUX handling to be C/C++ based. [PW] (08/04/2004)
+	  files" and converted RTFLUX handling to be C/C++ based. [PW] (8/04/2004)
+	* Fixed bug in creating src/Util/dflt_datadir.h [PW] (8/10/2004)
 	
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
