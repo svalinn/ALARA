@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.13 1999-08-24 22:35:51 wilson Exp $ */
+/* $Id: Node.C,v 1.14 1999-08-27 15:21:59 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -201,7 +201,8 @@ double Node::getWDR(int setKza)
 
 void Node::loadWDR(char *fname)
 {
-  int tmpKza, A, Z;
+
+  int tmpKza, A, Z, mode;
   char isoName[16], sym[5], *strPtr, isoFlag;
   double wdr;
   Node dataAccess;
@@ -211,23 +212,33 @@ void Node::loadWDR(char *fname)
 
   wdrFile >> isoName >> wdr;
 
+  if (isdigit(isoName[0]))
+    mode = WDR_KZAMODE;
+  else
+    mode = WDR_SYMMODE;
+
   while (!wdrFile.eof())
     {
-      for (strPtr=isoName;strPtr;strPtr++)
-	*strPtr = tolower(*strPtr);
-      strPtr = strchr(isoName,'-');
-      *strPtr = '\0';
-
-      sprintf(sym," %s ",isoName);
-
-      Z = (strstr(SYMBOLS,sym)-SYMBOLS)/3 + 1;
-      sscanf(strPtr+1,"%d%c",&A,&isoFlag);
-      tmpKza = (Z*1000+A)*10;
-      if (isalpha(isoFlag))
-	tmpKza += isoFlag - 'l';
+      if (mode == WDR_SYMMODE)
+	{
+	  for (strPtr=isoName;strPtr;strPtr++)
+	    *strPtr = tolower(*strPtr);
+	  strPtr = strchr(isoName,'-');
+	  *strPtr = '\0';
+	  
+	  sprintf(sym," %s ",isoName);
+	  
+	  Z = (strstr(SYMBOLS,sym)-SYMBOLS)/3 + 1;
+	  sscanf(strPtr+1,"%d%c",&A,&isoFlag);
+	  tmpKza = (Z*1000+A)*10;
+	  if (isalpha(isoFlag))
+	    tmpKza += isoFlag - 'l';
+	}
+      else
+	tmpKza = atio(isoName);
 
       wdrCache[tmpKza] = dataAccess.getLambda(tmpKza)/wdr;
-      wdrFile >> tmpKza >> wdr;
+      wdrFile >> isoName >> wdr;
     }
 
   wdrFile.close();

@@ -1,4 +1,4 @@
-/* $Id: Node.h,v 1.4 1999-08-24 22:06:16 wilson Exp $ */
+/* $Id: Node.h,v 1.5 1999-08-27 15:21:59 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -135,6 +135,9 @@ classes, it contains all the information about the isotope itself.
 #include "NuclearData.h"
 #include "TreeInfo.h"
 #include <map>
+
+#define WDR_KZAMODE 0
+#define WDR_SYMMODE 1
 
 typedef map<int,double,less<int> > DataCache;
 
