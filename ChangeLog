@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.6 2002-08-13 15:55:38 varuttam Exp $
+$Id: ChangeLog,v 1.7 2002-08-23 20:49:08 fateneja Exp $
 	
 Version 2.6.???
 	
@@ -8,6 +8,7 @@ BUGS FIXED
 
 
 NEW FEATURES
+	* Direct reading of RTFLUX by ALARA [MF] (08/23/02)
 
 
 CODE UPDATES

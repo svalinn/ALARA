@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.12 2002-08-05 20:23:18 fateneja Exp $ */
+/* $Id: Volume.h,v 1.13 2002-08-23 20:46:17 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _VOLUME_H
@@ -89,10 +89,18 @@ protected:
 
   Volume* 
     /// A pointer to the next Volume object in the problem-wide list.
+    /** This pointer represents the next Volume in the sequence
+	defined purely by geometry.  That is, this next Volume is
+	necessarily adjacent to the current Volume. */
     next;
 
   Volume* 
     /// A pointer to the next Volume object in the mixture list.
+    /** This pointer represents the next Volume that contains the same
+	mixture as the current Volume, and comes next in the geometric
+	sequence.  This next Volume is not necessarily adjacent to the
+	current Volume. This is used to traverse the set of Volumes
+	that contain the same mixture. */
     mixNext;
 
   /// This function is called by many of the constructors, as it sets up
@@ -262,6 +270,15 @@ public:
   /** It does this because the results are not cummulative across subsequent
       targets. */
   void resetOutList();
+
+  /// This function returns the number of obejcts in the linked list
+  /// not including the head of the list.
+  int count();
+
+  /// This function reads values from a matrix of flux values.
+  /** It scales the values by the third argument, and skips some values
+      according to the second argument. */
+  void storeMatrix(double** fluxMatrix, double scale);
 
 };
 

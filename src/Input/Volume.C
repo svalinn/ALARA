@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.25 2001-12-06 19:20:02 wilsonp Exp $ */
+/* $Id: Volume.C,v 1.26 2002-08-23 20:46:17 fateneja Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -366,6 +366,20 @@ void Volume::readFlux(char* fname, int skip, double scale)
 
 }
 
+void Volume::storeMatrix(double** fluxMatrix, double scale)
+{
+  Volume *ptr = this;
+  int VolNum = 0;
+
+  while(ptr->next)
+    {
+      ptr = ptr->next;
+      ptr->flux = ptr->flux->copyData(fluxMatrix[VolNum],scale*ptr->norm);
+      VolNum++;
+    }
+}
+
+
 /* setup the hierarchy of storage for transfer matrices */
 /* called by Input::preProc(...) */
 void Volume::makeSchedTs(topSchedule *top)
@@ -698,3 +712,18 @@ void Volume::resetOutList()
 	  ptr->outputList[compNum].clear();
     }
 }
+
+int Volume::count()
+{
+  int numInt = 0;
+  Volume* ptr = this;
+  
+  while(ptr->next)
+  {
+    ptr = ptr->next;
+    numInt++;
+  }
+
+  return numInt;
+}
+

@@ -1,4 +1,4 @@
-/* $Id: Flux.C,v 1.9 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: Flux.C,v 1.10 2002-08-23 20:46:17 fateneja Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -18,6 +18,9 @@
 /***************************
  ********* Service *********
  **************************/
+
+extern "C" float rt2al_(double *freg, int *nInts, int *nGrps, int *skip,
+			char *fname,int *fnamelen, int *err);
 
 Flux::Flux(int inFormat, char *flxName, char *fName, 
 	   double inScale, int inSkip) :
@@ -114,7 +117,14 @@ Flux* Flux::getFlux(istream& input)
   input >>flxName >> fName >> inScale >> inSkip >> type;
   switch(tolower(type[0]))
     {
+    
+    case 'b':
+      // binary format (read from binary file)
+      inFormat = FLUX_B;
+      break;
+    
     case 'd':
+      // default format (read from text file)
       inFormat = FLUX_D;
       break;
     default:
@@ -140,24 +150,96 @@ Flux* Flux::getFlux(istream& input)
 void Flux::xRef(Volume *volList)
 {
   Flux *ptr = this;
+  int numVols = volList->count();
+  int numGrps = VolFlux::getNumGroups();
+  double temp;
 
   VolFlux::setNumFluxes(count());
 
   verbose(2,"Assigning %d fluxes to each interval",count());
+
+  // Dynamically Create Matrix
+  double **FluxMatrix = new double*[numVols];
+  double *MatrixStorage = new double[numVols*numGrps];
+
+  for(int i = 0; i < numVols; i++)
+    FluxMatrix[i] = &MatrixStorage[i*numGrps];
 
   /* for each flux definition */
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
       verbose(3,"Assigning flux %s",ptr->fluxName);
+
       switch (ptr->format)
 	{
 	case FLUX_D:
-	  /* read entire file into intervals */
-	  volList->readFlux(ptr->fileName,ptr->skip,ptr->scale);
-	  break;
-	}
+	  {
+	    /* Default: Reads data from fluxin file */
+
+	    // Open Input File
+	    ifstream FluxData(ptr->fileName);
+
+	    // Skip appropriate number of Volumes
+	    if(ptr->skip > 0)
+	      for(int i = 0; i < ptr->skip; i++)
+		for(int j = 0; j < numGrps; j++)
+		  FluxData >> temp;
+
+	    if(FluxData.eof())
+	      error(622,"Flux file %s does not contain enough data.",
+		    ptr->fileName);
+
+	    // Load data from FluxData
+	    for(int x = 0; x < numVols; x++)
+	    {
+	      for(int y = 0; y < numGrps; y++)
+	      {
+		if(FluxData.eof())
+		  error(622,"Flux file %s does not contain enough data.",
+			ptr->fileName);
+
+		FluxData >> FluxMatrix[x][y];
+	      }
+	    }
+	    FluxData.close();
+	    break;
+	  }
+
+	case FLUX_B:
+	  {
+	    /* Binary: reads data from binary file */
+	    char *fname = new char[strlen(ptr->fileName)];
+	    strcpy(fname,ptr->fileName);
+	    
+	    int length = strlen(fname) + 1, err;
+
+	    rt2al_(MatrixStorage, &numVols, &numGrps, &ptr->skip,
+		   fname,&length,&err);
+	    
+	    switch(err)
+	      {
+	      case 0:
+		// Normal
+		break;
+
+	      case 1:
+		// Data not 1 dimensional
+		break;
+		
+	      case 2:
+		// Not enough data in binary file
+		break;
+	      }
+		
+	    break;
+	  }
+	};
+      
+      volList->storeMatrix(FluxMatrix,ptr->scale);
     }
+
+  delete FluxMatrix;
 
   verbose(3,"Assigned %d fluxes to each interval",count());
 

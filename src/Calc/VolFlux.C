@@ -1,4 +1,4 @@
-/* $Id: VolFlux.C,v 1.11 2001-04-13 15:31:53 wilsonp Exp $ */
+/* $Id: VolFlux.C,v 1.12 2002-08-23 20:46:16 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -53,7 +53,6 @@ VolFlux::VolFlux(const VolFlux& v)
 
 VolFlux::VolFlux(ifstream &fluxFile, double scale)
 {
-
   int grpNum;
 
   flux = NULL;
@@ -67,11 +66,30 @@ VolFlux::VolFlux(ifstream &fluxFile, double scale)
 	{
 	  fluxFile >> flux[grpNum];
 	  flux[grpNum] *= scale;
-	}
+     	}
     }
 
   next = NULL;
 
+}
+
+VolFlux::VolFlux(double* fluxData, double scale)
+{
+  int grpNum;
+
+  flux = NULL;
+
+  if(nGroups>0)
+    {
+      flux = new double[nGroups];
+      
+      for(grpNum=0; grpNum < nGroups; grpNum++)
+	{
+	  flux[grpNum] = fluxData[grpNum]*scale;
+	}
+    }
+
+  next = NULL;
 }
 
 VolFlux& VolFlux::operator=(const VolFlux& v)
@@ -103,6 +121,12 @@ VolFlux* VolFlux::read(ifstream &fluxFile, double scale)
   next = new VolFlux(fluxFile,scale);
   memCheck(next,"VolFlux::read(...): next");
 
+  return next;
+}
+
+VolFlux* VolFlux::copyData(double *fluxData, double scale)
+{
+  next = new VolFlux(fluxData, scale);
   return next;
 }
 

@@ -1,4 +1,4 @@
-/* $Id: Flux.h,v 1.9 2002-08-05 20:23:15 fateneja Exp $ */
+/* $Id: Flux.h,v 1.10 2002-08-23 20:46:17 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _FLUX_H
@@ -7,6 +7,7 @@
 /* flux formats */
 #define FLUX_HEAD 0
 #define FLUX_D 1
+#define FLUX_B 2
 
 /* results of searching for flux */
 #define FLUX_NOT_FOUND -1
@@ -92,8 +93,7 @@ public:
       the file. */
   Flux* getFlux(istream&);
 
-  /// Setup the problem to read the actual flux data into containers in
-  /// each interval.
+  /// Setup the problem to read the actual flux data into containers in each interval.
   /** The function expects a pointer to an object of class Volume which
       should be the head of the global interval list. */
   void xRef(Volume*);
