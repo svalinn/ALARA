@@ -1,5 +1,8 @@
 #include "OutputFormat.h"
 
+#include "DoseResponse.h"
+#include "GammaSrc.h"
+
 #include "Input/CoolingTime.h"
 #include "Input/Volume.h"
 #include "Input/Mixture.h"
@@ -14,18 +17,38 @@ OutputFormat::OutputFormat(int type)
   resolution = type;
   outTypes = 0;
 
+  dose = new DoseResponse;
+  gSrcName =  NULL;
+  gSrcFName = NULL;
+
   next = NULL;
 }
 
 OutputFormat::OutputFormat(const OutputFormat& o) :
   resolution(o.resolution), outTypes(o.outTypes)
 {
+  dose = new DoseResponse(*(o.dose));
+
+  gSrcName =  NULL;
+  if (o.gSrcName != NULL)
+    {
+      gSrcName = new char[strlen(o.gSrcName)+1];
+      strcpy(gSrcName,o.gSrcName);
+    }
+
+  gSrcFName = NULL;
+  if (o.gSrcFName != NULL)
+    {
+      gSrcFName = new char[strlen(o.gSrcFName)+1];
+      strcpy(gSrcFName,o.gSrcFName);
+    }
 
   next = NULL;
 }
   
 OutputFormat::~OutputFormat()
 {
+  delete dose;
   delete next;
 }
 
@@ -36,6 +59,24 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
 
   resolution = o.resolution;
   outTypes = o.outTypes;
+  delete dose;
+  delete gSrcName;
+  delete gSrcFName;
+  dose = new DoseResponse(*(o.dose));
+  
+  gSrcName =  NULL;
+  if (o.gSrcName != NULL)
+    {
+      gSrcName = new char[strlen(o.gSrcName)+1];
+      strcpy(gSrcName,o.gSrcName);
+    }
+
+  gSrcFName = NULL;
+  if (o.gSrcFName != NULL)
+    {
+      gSrcFName = new char[strlen(o.gSrcFName)+1];
+      strcpy(gSrcFName,o.gSrcFName);
+    }
 
   return *this;
 }
@@ -47,7 +88,7 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
 OutputFormat* OutputFormat::getOutFmts(istream& input)
 {
   const char *Out_Res = " izm";
-  const char *Out_Types = "censtabg";
+  const char *Out_Types = "cnstabgdp";
 
   int type;
   char token[64];
@@ -75,6 +116,41 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
       verbose(3,"Added output type %d (%s)",1<<type,token);
 
+      if (1<<type == OUTFMT_DOSE)
+	{
+	  char tmpGSrcName[64], tmpAdjFluxName[64];
+	  DoseResponse *dosePtr = next->dose;
+	  clearComment(input);
+	  input >> token;
+	  while (strcmp(token,"end"))
+	    {
+	      input >> tmpAdjFluxName >> tmpGSrcName;
+	      dosePtr = dosePtr->add(token,tmpAdjFluxName,tmpGSrcName);
+	      verbose(4,"Added dose response %s using flux %s and gamma source structure %s",
+		      token,tmpAdjFluxName,tmpGSrcName);
+
+	      clearComment(input);
+	      input >> token;
+	    }
+
+	}
+      else if (1<<type == OUTFMT_PHOTON)
+	{
+	  clearComment(input);
+	  input >> token;
+	  next->gSrcName = new char[strlen(token)+1];
+	  strcpy(next->gSrcName,token);
+
+	  clearComment(input);
+	  input >> token;
+	  next->gSrcFName = new char[strlen(token)+1];
+	  strcpy(next->gSrcFName,token);
+
+	  verbose(4,"Added gamma source output to file %s using gamma source structure %s",
+		  next->gSrcFName,next->gSrcName);
+	  
+	}
+
       clearComment(input);
       input >> token;
     }	      
@@ -83,6 +159,50 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
 }
 
+
+/***************************
+ ********** xCheck *********
+ **************************/
+
+void OutputFormat::xCheck(GammaSrc *gSrcList, Flux *fluxList)
+{
+  OutputFormat *ptr = this;
+
+  int outTypeNum;
+
+  verbose(2,"Checking for adjoint fluxes and gamma source structures referenced in output formats.");
+
+  /* for each output description */
+  while (ptr->next != NULL)
+    {
+      
+      ptr = ptr->next;
+
+      if (ptr->outTypes & OUTFMT_DOSE)
+	ptr->dose->xCheck(gSrcList,fluxList);
+      if (ptr->outTypes & OUTFMT_PHOTON)
+	{
+	  verbose(3,"Checking for gamma source structure %s for photon source output.",ptr->gSrcName);
+	  /* set pointer to gamma source */
+	  GammaSrc *tmpGSrc = gSrcList->find(ptr->gSrcName);
+	  if (tmpGSrc == NULL)
+	    error(9999,"Gamma source structure %s for this response does not exist.",
+		  ptr->gSrcName);
+	  else
+	    {
+	      verbose(4,"Gamma source structure %s was found.",ptr->gSrcName);
+	      delete gSrcName;
+	      ptr->gSrc = tmpGSrc;
+	    }
+	}
+      
+    }
+
+}
+
+/***************************
+ ******** Post-Proc ********
+ **************************/
 
 void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 			 CoolingTime *coolList, int targetKza)

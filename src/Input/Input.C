@@ -33,6 +33,7 @@
 
 #include "Output/OutputFormat.h"
 #include "Output/Result.h"
+#include "Output/GammaSrc.h"
 
 #include "DataLib/DataLib.h"
 
@@ -93,6 +94,8 @@ Input::Input(char* inputFname)
   outListHead = new OutputFormat(OUTRES_HEAD);
   memCheck(outListHead,"Input::Input() constructor: outListHead");
 
+  gSrcListHead = new GammaSrc(IN_HEAD);
+
 }
 
 Input::~Input()
@@ -121,6 +124,7 @@ void Input::read()
 
   char token[64];
   OutputFormat* outList = outListHead;
+  GammaSrc* gSrcList = gSrcListHead;
 
   while (input != NULL)
     {
@@ -219,6 +223,10 @@ void Input::read()
 		  *input >> token;
 		  Result::initBinDump(token);
 		  break;
+		case INTOK_GAMMASRC:
+		  debug(1,"Setting Gamma Spectrum.");
+		  gSrcList = gSrcList->getGammaSrc(*input);
+		  break;
 		default:
 		  error(100,"Invalid token in input file: %s",token);
 		}
@@ -316,6 +324,9 @@ Those extra zones are being ignored.",loadList->numZones(),dimListHead->totZones
 
   /* write the schedule hierarchy for the user to check */
   schedListHead->write();
+
+  /* if does response requested, check for referenced gamma_src and flux */
+  outListHead->xCheck(gSrcListHead,fluxListHead);
 
 }
 

@@ -17,6 +17,8 @@
 
 #include "Calc/VolFlux.h"
 
+#include "Output/DoseResponse.h"
+
 /***************************
  ********* Service *********
  **************************/
@@ -42,11 +44,13 @@ Flux::Flux(int inFormat, char *flxName, char *fName,
       strcpy(fileName,fName);
     }
 
+
+  doseResp = NULL;
   next = NULL;
 }
 
 Flux::Flux(const Flux& f) :
-  format(f.format),  skip(f.skip), scale(f.scale)
+  format(f.format),  skip(f.skip), scale(f.scale), doseResp(f.doseResp)
 {
   fluxName = NULL;
   fileName = NULL;
@@ -76,6 +80,7 @@ Flux& Flux::operator=(const Flux& f)
   scale = f.scale;
   skip = f.skip;
   format = f.format;
+  doseResp = f.doseResp;
 
   delete fluxName;
   delete fileName;
@@ -96,7 +101,6 @@ Flux& Flux::operator=(const Flux& f)
       memCheck(fileName,"Flux::operator=(...) : fileName");
       strcpy(fileName,f.fileName);
     }
-  
 
   return *this;
 
@@ -164,7 +168,8 @@ void Flux::xRef(Volume *volList)
 	  break;
 	case FLUX_AG:
 	  /* adjoint gamma flux */
-	  volList->readFlux(0,ptr->fileName,ptr->skip,ptr->scale);
+	  volList->readFlux(doseResp->getNumGroups(),ptr->fileName,
+			    ptr->skip,ptr->scale);
 	  break;
 	}
     }
@@ -197,7 +202,28 @@ int Flux::find(char *srchFlux)
   return FLUX_NOT_FOUND;
 }
 
+/* find and cross-reference a requested adjoint flux definition */
+int Flux::find(char *srchFlux, DoseResponse *dose)
+{
+  Flux *ptr=this;
+  int fluxNum = 0;
 
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+      fluxNum++;
+      if (!strcmp(ptr->fluxName,srchFlux))
+	{
+	  doseResp = dose;
+	  if (ptr->checkFname())
+	    return fluxNum-1;
+	  else
+	    return FLUX_BAD_FNAME;
+	}
+    }
+
+  return FLUX_NOT_FOUND;
+}
 
 /* check the flux file */
 int Flux::checkFname()

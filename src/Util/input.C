@@ -22,7 +22,8 @@ output       \
 format_output\
 spatial_norm \
 convert_lib  \
-dump_file    ";
+dump_file    \
+gamma_src    ";
 
 #define MAXLINELENGTH 256
 

@@ -115,6 +115,8 @@ protected:
   double scale;
   char *fluxName, *fileName;
 
+  DoseResponse *doseResp;
+
   Flux* next;
 
 public:
@@ -136,6 +138,7 @@ public:
   
   /* Utility */
   int find(char*);
+  int find(char*,DoseResponse*);
   int checkFname();
   int count();
 };

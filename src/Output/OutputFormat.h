@@ -82,6 +82,15 @@ class OutputFormat
 protected:
 
   int resolution, outTypes;
+  union
+  {
+    char *gSrcName;
+    GammaSrc *gSrc;
+  };
+  char *gSrcFName;
+  ostream gSrcFile;
+
+  DoseResponse *dose;
 
   OutputFormat *next;
 
@@ -95,6 +104,9 @@ public:
 
   /* Input */
   OutputFormat* getOutFmts(istream&);
+
+  /* xCheck */
+  void xCheck(GammaSrc*,Flux*);
 
   /* Postproc */
   void write(Volume*,Mixture*,Loading*,CoolingTime*,int targetKza=0);

@@ -34,6 +34,7 @@ class topScheduleT;
 
 /* Output */
 class DoseResponse;
+class GammaSrc;
 class OutputFormat;
 class Result;
 class ResultList;
