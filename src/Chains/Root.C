@@ -56,20 +56,21 @@ void Root::solve(topSchedule *schedule)
 {
   Root* ptr=this;
   float totalTime, incrTime;
-  int firstNode=0,lastNode=0;
+  int firstNode=0,lastNode=0,rootCtr=0;
+  char isoSym[15];
 
   /* skip over head of rootlist */
   while (ptr != NULL && ptr->kza <1)
     ptr = ptr->nextRoot;
 
+
+  lastNode = Statistics::numNodes();
+  Statistics::cputime(incrTime,totalTime);
+  
   /* for each root */
   while (ptr != NULL)
     {
-      firstNode = lastNode;
-      lastNode = Statistics::numNodes();
-      Statistics::cputime(incrTime,totalTime);
-      verbose(2,"Solving Root: %d (last Root: %d nodes in %0.3f s (Total Nodes: %d in %0.2f s)",
-	      ptr->kza, lastNode-firstNode, incrTime,lastNode,totalTime);
+      verbose(2,"Solving Root #%d: %s", ++rootCtr,isoName(ptr->kza,isoSym));
 
       /* start a new chain */
       Chain *chain = new Chain(ptr,schedule);
@@ -87,6 +88,13 @@ void Root::solve(topSchedule *schedule)
 	}
       delete chain;
 
+      firstNode = lastNode;
+      lastNode = Statistics::numNodes();
+      Statistics::cputime(incrTime,totalTime);
+      verbose(2,"   last Root: %d nodes in %0.3f s (%0.3f nodes/s)",
+	      lastNode-firstNode, incrTime,(lastNode-firstNode)/incrTime);
+      verbose(2,"   Total Nodes: %d in %0.2f s (%0.3f nodes/s)",
+	      lastNode,totalTime,lastNode/totalTime);
       ptr->mixList->writeDump();
 
       ptr = ptr->nextRoot;
