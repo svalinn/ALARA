@@ -124,6 +124,7 @@ void Input::read()
     {
       while (!(*input).eof())
 	{
+	  token[0] = '\0';
 	  clearIncludeComment();
 	  *input >> token;
 
