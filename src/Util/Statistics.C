@@ -9,6 +9,8 @@ ofstream Statistics::treeFile;
 int Statistics::tree = FALSE;
 int Statistics::nodeCtr = 0;
 int Statistics::chainCtr = 0;
+int Statistics::maxRootRank = 0;
+int Statistics::maxProblemRank = 0;
 float Statistics::ticks = (float)sysconf(_SC_CLK_TCK);
 float Statistics::runtime[2] = { 0, 0 };
 

@@ -283,6 +283,7 @@ public:
   int getRoot();
   int getKza(int);
   int getSetRank() { return setRank; };
+  int getChainLength() { return chainLength; };
 };
 
 #endif
