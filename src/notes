@@ -40,6 +40,11 @@ TODO:
   intervals * 20 reactions * 4 bytes (floats) >~ 6 MB.  (Perhaps even
   use a RAM cache.)
 
+* idea: allow multiple input blocks to be addative.  E.G. if user has
+  two 'volumes' blocks, have the second block be appended to the
+  existing list.  current behaviour is undefined, but probably results
+  in a memory leak and a replaced list.
+
 *********************** ROUND-OFF ERROR ********************
 Note that bateman(...) and laplaceInverse(...) currently take the
 absolute value of negative results, which is only valid when assuming
