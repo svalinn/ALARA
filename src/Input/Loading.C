@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.19 2000-04-28 15:33:31 wilson Exp $ */
+/* $Id: Loading.C,v 1.20 2000-06-20 17:30:30 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -304,6 +304,14 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 			<< "\tDensity: " << density 
 			<< "\tMass: " << volume_mass;
 		    }
+		  else if (normType == OUTNORM_VOL_INT)
+		    {
+		      /* The loading responses are volume weighted sums already.
+			 For volume integrated results, don't renormalize */
+		      volume_mass = 1.0;
+		      cout << "\tVolume Integrated ";
+		    }
+
 		  
 		  cout << endl;
 
@@ -344,7 +352,14 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		    << "\tDensity: " << density 
 		    << "\tMass: " << volume_mass;
 		}
-
+	      else if (normType == OUTNORM_VOL_INT)
+		{
+		  /* The loading responses are volume weighted sums already.
+		     For volume integrated results, don't renormalize */
+		  volume_mass = 1.0;
+		  cout << "\tVolume Integrated ";
+		}
+	      
 	      cout << endl;
 
 	      ptr->outputList[ptr->nComps].write(response, targetKza,coolList,

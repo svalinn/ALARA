@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.21 1999-12-21 22:06:22 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.22 2000-06-20 17:30:30 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -127,8 +127,13 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  next->actMult = (tolower(token[0]) == 'c'?BQ_CI:1);
 
 	  input >> token;
-	  next->normUnits = new char[strlen(token)+1];
-	  strcpy(next->normUnits,token);
+	  next->normUnits = new char[strlen(token)+2];
+	  strcpy((next->normUnits)+1,token);
+	  if (tolower(token[0]) == 'v') {
+	    next->normUnits[0] = ' ';
+	  } else {
+	    next->normUnits[0] = '/';
+	  }
 	  switch (tolower(token[0]))
 	    {
 	    case 'm':
@@ -139,6 +144,9 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	      break;
 	    case 'k':
 	      next->normType = OUTNORM_KG;
+	      break;
+	    case 'v':
+	      next->normType = OUTNORM_VOL_INT;
 	      break;
 	    default:
 	      next->normType = OUTNORM_CM3;

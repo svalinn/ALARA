@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.22 2000-06-20 02:35:46 wilson Exp $ */
+/* $Id: Volume.C,v 1.23 2000-06-20 17:30:30 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -579,6 +579,13 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 			<< "\tDensity: " << density 
 			<< "\tMass: " << volume_mass*ptr->volume;
 		    }
+		  else if (normType == OUTNORM_VOL_INT) 
+		    {
+		      /* this effectively multiplies by the interval volume to give
+			 a volume integrated result */
+		      volume_mass = 1.0/ptr->volume;
+		      cout << "\tVolume Integrated";
+		    }
 
 		  cout << endl;
 
@@ -620,6 +627,13 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		  cout
 		    << "\tDensity: " << density 
 		    << "\tMass: " << volume_mass*ptr->volume;
+		}
+	      else if (normType == OUTNORM_VOL_INT) 
+		{
+		  /* this effectively multiplies by the interval volume to give
+		     a volume integrated result */
+		  volume_mass = 1.0/ptr->volume;
+		  cout << "\tVolume Integrated";
 		}
 	      cout << endl;
 

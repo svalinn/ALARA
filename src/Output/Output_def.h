@@ -1,4 +1,4 @@
-/* $Id: Output_def.h,v 1.9 1999-11-19 23:02:53 wilson Exp $ */
+/* $Id: Output_def.h,v 1.10 2000-06-20 17:30:30 wilson Exp $ */
 #ifndef _OUTPUT_DEF_H
 #define _OUTPUT_DEF_H
 
@@ -18,6 +18,7 @@
 #define OUTNORM_NULL       0
 #define OUTNORM_CM3        1
 #define OUTNORM_M3         2
+#define OUTNORM_VOL_INT    3
 
 #define BQ_CI     2.7027e-11
 

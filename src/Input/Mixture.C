@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.21 2000-06-20 01:49:45 wilson Exp $ */
+/* $Id: Mixture.C,v 1.22 2000-06-20 17:30:30 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -473,6 +473,13 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 		    << "\tDensity: " << density 
 		    << "\tMass: " << volume_mass;
 		}
+	      else if (normType == OUTNORM_VOL_INT)
+		{
+		  /* The mixture responses are volume weighted sums already.
+		     For volume integrated results, don't renormalize */
+		  volume_mass = 1.0;
+		  cout << "\tVolume Integrated ";
+		}
 
 	      cout << endl;
 
@@ -513,8 +520,15 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	      cout
 		<< "\tDensity: " << ptr->totalDensity
 		<< "\tMass: " << volume_mass;
-		}
-
+	    }
+	  else if (normType == OUTNORM_VOL_INT)
+	    {
+	      /* The mixture responses are volume weighted sums already.
+		 For volume integrated results, don't renormalize */
+	      volume_mass = 1.0;
+	      cout << "\tVolume Integrated ";
+	    }
+	  
 	  cout << endl;
 	      
 	  ptr->outputList[ptr->nComps].write(response,targetKza,coolList,

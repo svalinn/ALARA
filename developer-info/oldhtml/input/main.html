@@ -1,6 +1,6 @@
 <HTML>
 <head>
-<!-- $Id: main.html,v 1.3 2000-03-01 14:32:24 wilson Exp $ -->
+<!-- $Id: main.html,v 1.4 2000-06-20 17:30:30 wilson Exp $ -->
 </head>
 
 <body bgcolor=white>
@@ -79,7 +79,8 @@ least once in every input file:
   </tr>
   <tr align=center>
     <td><tt><a href=#solve_zones>solve_zones</a></tt></td>
-    <td bgcolor=#bbbbbb>&nbsp;</td>
+    <td bgcolor=#bbbbbb><tt><a href=#refflux>ref_flux_type</a></tt></td>
+    <td>&nbsp;</td>
   </tr>
   <tr align=center>
     <td><tt><a href=#skip_zones>skip_zones</a></tt></td>
@@ -659,6 +660,28 @@ unit is implied.
        used - that is, a relative production 100 times lower than the
        truncation tolerance.
        <p>
+
+  <dt> <a name=refflux><hr><p></a>
+       <tt><b>ref_flux_type</b></tt> (optional once)
+       <p>
+
+  <dd> This optional fixed sized input block defines the type of
+       reference flux to use.  This input block takes a single
+       argument which must be one of the following:
+       <p>
+
+       <center>
+       <tt>max | volume_avg</tt>
+       </center>
+       <p>
+
+       where <tt>max</tt> refers to the default group-wise maximum
+       flux and <tt>volume_avg</tt> refers to a volume weighted
+       average flux.  Note that in both cases, the
+       comparison/averaging takes place over all the intervals which
+       contain a given root isotope, not just over a single zone,
+       component, or material loading.
+       <p>
        
 </dl>
        
@@ -770,18 +793,24 @@ unit is implied.
        
        representing "Curies" and "Bequerel" respectively.  The
        second parameter defines the units for normalization (typically
-       volumetric vs. mass).  This parameter has four possibilities:
+       volumetric vs. mass).  This parameter has five possibilities:
        <p>
        
        <center>
-       <tt>cm3 | m3 | g | kg </tt>
+       <tt>cm3 | m3 | g | kg | volume_integrated</tt>
        </center>
        <p>
        
+       The first four of these are self-evident, giving different
+       volumetric and mass normalizations.  The fifth option allows
+       the calculation of total volume integrated inventories, rather
+       than volume/mass normalized results.
+       <p>
+
        The <tt>wdr</tt> output modifier requires an additional text
        string parameter representing the filename to use for
-       calculating the waste disposal rating or clearance limits.
-       A detailed description of the WDR file is available here.  To
+       calculating the waste disposal rating or clearance limits.  A
+       detailed description of the WDR file is available here.  To
        calculate the WDR based on different standards, simply repeat
        this modifier within a single <tt>output</tt> block, using
        different WDR filenames each time.  Be sure that the
