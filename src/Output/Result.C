@@ -251,7 +251,7 @@ void Result::postProc(Result& outputList, double density)
 }      
 
 void Result::write(int response, int targetKza, CoolingTime *coolList, 
-		   double*& total, double volume)
+		   double*& total, DoseResponse *dosePtr, double volume)
 {
   int resNum;
   Result* ptr = this;
@@ -290,6 +290,8 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	case OUTFMT_GAMMA:
 	  multiplier = dataAccess.getGamma(targetKza)/volume;
 	  break;
+	case OUTFMT_DOSE:
+	  multiplier = dataAccess.getDose(targetKza)/volume;
 	}
     }
   

@@ -12,4 +12,7 @@
 #define OUTFMT_DOSE   128
 #define OUTFMT_PHOTON 256
 
+#define LAST_STD_RESPONSE OUTFMT_GAMMA
+#define LAST_STD_RESP_IDX 7
+
 #endif

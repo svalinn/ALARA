@@ -609,23 +609,24 @@ void Volume::postProc()
 
 
 void Volume::write(int response, int writeComp, CoolingTime* coolList, 
-		   int targetKza)
+		   int targetKza, DoseResponse* dosePtr)
 {
   Volume *head = this;
   Volume *ptr = head;
   int intvlCntr = 0;
+
 
   /* for each interval */
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
       intvlCntr++;
-
+      
       /* write header information */
       cout << "Interval #" << intvlCntr << ":" << endl;
       cout << "\tVolume: " << ptr->volume << endl;
       cout << "\tZone: " << ptr->zoneName << endl;
-
+      
       if (ptr->mixPtr != NULL)
 	{
 	  cout << "\tMixture: " << ptr->mixPtr->getName() << endl << endl;
@@ -643,8 +644,9 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		{
 		  /* write component header */
 		  cout << "Component: " << compPtr->getName() << endl;
-		  ptr->outputList[compNum].write(response,targetKza,coolList,ptr->total);
-
+		  ptr->outputList[compNum].write(response,targetKza,coolList,
+						 ptr->total,dosePtr);
+		  
 		  compPtr = compPtr->advance();
 		  compNum++;
 		}
@@ -659,7 +661,8 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	    {
 	      /* otherwise write the total response for the zone */
 	      cout << "Total" << endl;
-	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,ptr->total);
+	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,
+						 ptr->total,dosePtr);
 	      
 	    }
 	}
@@ -667,21 +670,21 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	cout << "\tMixture: VOID" << endl << endl;
       
     }
-	  
-
+  
+  
   /** WRITE TOTAL TABLE **/
   /* reset interval pointer and counter */
   ptr = head;
   intvlCntr = 0;
-
+  
   int resNum,nResults = topScheduleT::getNumCoolingTimes()+1;
   char isoSym[15];
-
+  
   cout << "Totals for all intervals." << endl;
-
+  
   /* write header for totals */
   coolList->writeTotalHeader("interval");
-
+  
   /* for each interval */
   while (ptr->next != NULL)
     {
@@ -702,7 +705,6 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 
   cout << endl << endl;
 }
-
 
 void Volume::resetOutList()
 {

@@ -28,6 +28,10 @@ public:
   DoseResponse* add(char*, char*, char*);
   void xCheck(GammaSrc*, Flux*);
   int getNumGroups();
+
+  char *getName() { return respName; };
+
+  DoesResponse* advance() { return next;};
   
 };
 

@@ -275,7 +275,7 @@ public:
   /* Postproc */
   void readDump(int);
   void postProc();
-  void write(int, int, CoolingTime*,int);
+  void write(int, int, CoolingTime*,int,DoseResponse *dosePtr=NULL);
 
   /* Utility */
   int head() {return (volume == VOL_HEAD && next == NULL);};

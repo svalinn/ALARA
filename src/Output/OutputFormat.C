@@ -203,7 +203,6 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
   
   const int nOutTypes = 9;
   const int firstResponse=1;
-  const int lastStdResponse=7;
   const char *Out_Types_Str[nOutTypes] = {
   "Break-down by Component",
   "Number Density",
@@ -216,6 +215,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
   "Photon Source"};
 
   OutputFormat *ptr = this;
+  DoseResponse *dosePtr;
 
   int outTypeNum;
 
@@ -224,6 +224,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
     {
       
       ptr = ptr->next;
+      dosePtr = ptr->dose->advance();
 
       /* write a header */
       switch(ptr->resolution)
@@ -242,12 +243,21 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       /* list the reponses and features to come */
       for (outTypeNum=0;outTypeNum<nOutTypes;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
-	  cout << "\t" << Out_Types_Str[outTypeNum] << endl;
+	  {
+	    cout << "\t" << Out_Types_Str[outTypeNum] << endl;
+	    if (1<<outTypeNum == OUTFMT_DOSE)
+	      while (dosePtr != NULL)
+		{
+		  cout << "\t\t" << dosePtr->getName() << endl;
+		  dosePtr = dosePtr->advance();
+		}
+	  }
+		  
 
       cout << endl << endl;
       
       /* for each indicated response */
-      for (outTypeNum=firstResponse;outTypeNum<lastStdResponse;outTypeNum++)
+      for (outTypeNum=firstResponse;outTypeNum<LAST_STD_RESP_IDX;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
 	  {
 	    /* write a response title */
@@ -274,11 +284,76 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	    cout << endl << endl << endl;
 	  }
 
-      for (;outTypeNum<nOutTypes;outTypeNum++)
-	if (ptr->outTypes & 1<<outTypeNum)
-	  {
-	  }
+      /* Dose response */
+      if (ptr->outTypes & OUTFMT_DOSE)
+	{
+	  DoseResponse *dosePtr = ptr->dose->advance();
+	  while (dosePtr != NULL)
+	    {
+	      /* write a response title */
+	      cout << "*** " << Out_Types_Str[outTypeNum] << ": " <<
+		dosePtr->getName() << " ***" << endl;
 
+	      /* call writeDose() on the appropriate object determined by
+		 the resulotition */
+	      switch(ptr->resolution)
+		{
+		case OUTRES_INT:
+		  volList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
+				 coolList,targetKza,dosePtr);
+		  break;
+		case OUTRES_ZONE:
+		  loadList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
+				  coolList,targetKza,dosePtr);
+		  break;
+		case OUTRES_MIX:
+		  mixList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
+				 coolList,targetKza,dosePtr);
+		  break;
+		}
+	      
+	      cout << endl << endl << endl;
+
+	      dosePtr = dosePtr->advance();
+	    }
+	}
+
+      /* Photon Source */
+      if (ptr->outTypes & OUTFMT_PHOTON)
+	{
+	  outTypeNum++;
+
+	  /* write a response title */
+	  cout << "*** " << Out_Types_Str[outTypeNum] << " ***" << endl;
+	  cout << "\t" << "Written to files: " << gSrcFName << "_*.gam" 
+	       << endl;
+
+	  
+	  /* call writeGamma() on the appropriate object determined by
+	     the resulotition */
+	  switch(ptr->resolution)
+	    {
+	    case OUTRES_INT:
+	      volList->writeGamma(gSrcFName,gSrc,coolList,targetKza);
+	      break;
+	    case OUTRES_ZONE:
+	      loadList->writeGamma(gSrcFName,gSrc,coolList,targetKza);
+	      break;
+	    case OUTRES_MIX:
+	      mixList->writeGamma(gSrcFName,gSrc,coolList,targetKza);
+	      break;
+	    }
+	  
+	  cout << endl << endl << endl;
+	}
+      
+      
     }
 
 }
+
+
+
+
+
+  

@@ -88,7 +88,6 @@ protected:
     GammaSrc *gSrc;
   };
   char *gSrcFName;
-  ostream gSrcFile;
 
   DoseResponse *dose;
 
