@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.20 2000-07-07 02:07:17 wilson Exp $ */
+/* $Id: Node.C,v 1.21 2002-12-07 17:46:54 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -560,4 +560,45 @@ void Node::getRxnInfo(double *rateVec, int &baseKza, int &rxnNum, int &numRxns)
       numRxns = origNPaths;
     }
       
+}
+
+double** Node::getCPXS(int findKZA)
+{
+  kza = findKZA;
+  readData();
+  
+  int cpKZA[5] = { 20040,
+		   10020,
+		   20030,
+		   10010,
+		   10030 };
+  // Alpha, Deuteron, Helium3, Proton, Triton
+
+  double **CPXS = new double*[5];
+  double *CPXSStorage = new double[nGroups*5];
+  
+  for(int i = 0; i < 5; i++)
+    {
+      CPXS[i] = &CPXSStorage[i*nGroups];
+      for(int j = 0; j < nGroups; j++)
+	{
+	  CPXS[i][j] = 0;
+	}
+    }
+  
+  // Look for appropriate entry
+  for(int i = 0; i < nPaths; i++)
+    {
+      if(!strcmp(emitted[i],"x"))
+	for(int j = 0; j < 5; j++)
+	  {
+	    if(relations[i] == cpKZA[j])
+	      for(int k = 0; k < nGroups; k++)
+		{
+		  CPXS[j][k] = paths[i][k];
+		}
+	  }
+    }
+
+  return CPXS;
 }

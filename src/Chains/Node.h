@@ -1,4 +1,4 @@
-/* $Id: Node.h,v 1.13 2002-08-05 20:23:13 fateneja Exp $ */
+/* $Id: Node.h,v 1.14 2002-12-07 17:46:54 fateneja Exp $ */
 
 /*
   lambdaCache, heatCache, alphaCache, 
@@ -189,19 +189,11 @@ int count(double* relProd)
 
   double getWDR(int);
 
+  double** getCPXS(int findKZA);
+
   /// This function opens the file whose name is given in the argument
   /// and reads the WDR thresholds into the wdrCache.
   static void loadWDR(char*);
 };
 
-
-
 #endif
-
-
-
-
-
-
-
-

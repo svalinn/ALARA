@@ -1,4 +1,4 @@
-/* $Id: Root.h,v 1.9 2002-08-05 20:23:14 fateneja Exp $ */
+/* $Id: Root.h,v 1.10 2002-12-07 17:46:55 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _ROOT_H
@@ -238,7 +238,6 @@ public:
       mixture/component reference are added with 
 	  MixCompRef::tally(...). */
   Root* merge(Root*);
-  
 };
 
 
