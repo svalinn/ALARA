@@ -352,6 +352,9 @@ void Chain::setupColRates()
 	l[rank] = *(rates[rank+3*step]);
     }
 
+  if (solvingRef)
+    l[rank-1] = 0;
+
 }
 
 /* function to multiply each of the rate vectors of
@@ -373,6 +376,10 @@ void Chain::collapseRates(VolFlux* flux)
 	  P[idx] = flux->fold(rates[rank])      + L[rank];
 	  d[idx] = flux->fold(rates[rank+step]) + l[rank];
 	}
+
+      if (solvingRef)
+	d[idx] = 0;
+
      fluxNum++;
      flux = flux->advance();
     }
@@ -412,8 +419,8 @@ void Chain::setDecay(Matrix& D, double time)
     }
 
   /* for reference calculations, don't destroy the last isotope */
-  if (solvingRef)
-    data[size-1] = 1;
+  /* if (solvingRef)
+    data[size-1] = 1; */
   
   delete D.data;
   D.data = data;
@@ -456,7 +463,26 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
 	  row++;
 	  col = 0;
 	}
-      if (col<=loopRank[row])
+      /* This seemingly complicated condition saves using the loop
+       * solution during a reference calculation when only the last
+       * isotope introduces the loop.  In this case, there is no real
+       * degeneracy, since the destruction rate of the last isotope is
+       * zero'ed for a reference calculation.  The condition can be
+       * understood as follows: 
+       *  - when checking for loop solution, if we are calculating the
+       *    production from an isotope inside the loop, generally use
+       *    the loop sol'n, but only iff
+       *  - only the last isotope can ever have a destruction rate of
+       *    zero
+       *      - if d[row] > 0, use loop sol'n
+       *  - even if last isotope does have a 0 destruction rate, if
+       *    the previous isotope was already in a loop, we need to use
+       *    the loop sol'n
+       *      - if loopRank[row-1] > -1, check for loop sol'n \
+       *        (This check must be done after the first one because
+       *        it ensures that we are not checking loopRank[-1])
+       */
+      if (col<=loopRank[row] && (d[row] > 0 || loopRank[row-1] >-1))
 	data[idx] = loopSoln(row,col,P+fluxOffset,d+fluxOffset,time);
       else
 	data[idx] = bateman(row,col,P+fluxOffset,d+fluxOffset,time);
@@ -464,8 +490,8 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
     }
 
   /* for reference calculations, don't destroy the last isotope */
-  if (solvingRef)
-    data[size-1] = 1;
+  /* if (solvingRef)
+    data[size-1] = 1; */
 
   delete T.data;
   T.data = data;
