@@ -1,10 +1,12 @@
-/* $Id: alara.C,v 1.13 2002-01-07 22:00:46 wilsonp Exp $ */
+/* $Id: alara.C,v 1.14 2002-04-16 20:02:54 wilsonp Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
 #include "Chains/Root.h"
 #include "Util/Statistics.h"
 #include "Output/Result.h"
+
+/* See why Paul is using these silly STL things? */
 
 int chainCode = 0;
 
