@@ -18,6 +18,10 @@ test_mat_3	0.500	5
 	cd	0.20	48
 	w	0.10	74
 	pb	0.10	82
+# A short test material that makes for quicker runtimes
+test_mat_4	1.000	2
+	fe	0.65	26
+	ag	0.35	47
 PCA      0.80440e+01  31 
                               b  0.50000e-02   5 
                               c  0.50000e-02   6
