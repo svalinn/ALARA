@@ -1,34 +1,29 @@
-/* $Id: DaugItem.C,v 1.3 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: DaugItem.C,v 1.4 2002-12-27 03:39:36 wilsonp Exp $ */
 #include "ADJLib.h"
 
-ADJLib::DaugItem::DaugItem(int addKza, int parKza, long rxnOffset)
+/** Use member initialization for most members, including NULL values
+    for pointers.  Allocate new storage for first parent/reaction */
+ADJLib::DaugItem::DaugItem(int addKza, int parKza, long rxnOffset) :
+  kza(addKza), next(0), current(0)
 {
-
-  kza = addKza;
   parList = new ParItem(parKza,rxnOffset);
-  next = NULL;
-
-  current = NULL;
 
 }
 
-ADJLib::DaugItem::DaugItem(DaugItem *cpyPtr)
-{
+/** Use member initialization like a memberwise copy constructor */
+ADJLib::DaugItem::DaugItem(DaugItem *cpyPtr) :
+  kza(cpyPtr->kza),parList(cpyPtr->parList), next(cpyPtr->next), current(0)
+{}
 
-  kza = cpyPtr->kza;
-  parList = cpyPtr->parList;
-  next = cpyPtr->next;
-
-  current = NULL;
-
-}
-
+/** Create a new list item for a new daughter isotope, but also include the information
+    for the first parent/reaction. */
 void ADJLib::DaugItem::add(int addKza, int parKza, long rxnOffset)
 {
 
   DaugItem *ptr = this;
   DaugItem *prev = this;
 
+  /* search list for correct location ordered by kza */
   while (ptr != NULL && ptr->kza < addKza)
     {
       prev = ptr;
@@ -50,7 +45,10 @@ void ADJLib::DaugItem::add(int addKza, int parKza, long rxnOffset)
       ptr->current = NULL;
     }
   else
-    ptr->parList->add(parKza,rxnOffset);
+    {
+      /* if this daughter already exists, just add to the parent/reaction list */
+      ptr->parList->add(parKza,rxnOffset);
+    }
 }
 
 int ADJLib::DaugItem::count()
@@ -68,7 +66,11 @@ int ADJLib::DaugItem::count()
   return cntr;
 }
 
-long ADJLib::DaugItem::getNextReaction(int &parKza)
+/** This function is based on the where the ADJLib::DaugItem::current member is pointing.
+    It assumes that if it is pointing to NULL, that it can be reinitialized at the top
+    of the list.  Otherwise, it just advances to the next parent, and if non-NULL, it
+    sets the passed-by-reference argument and returns the reaction offset. */
+long ADJLib::DaugItem::getNextReaction(int& parKza)
 {
   long rxnOffset = 0;
 
@@ -85,4 +87,23 @@ long ADJLib::DaugItem::getNextReaction(int &parKza)
 
   return rxnOffset;
 }
+
   
+inline
+ADJLib::DaugItem* ADJLib::DaugItem::advance()
+{
+  return next;
+}
+
+inline
+int ADJLib::DaugItem::getKza()
+{
+  return kza;
+}
+
+inline
+int ADJLib::DaugItem::countRxns()
+{
+  return parList->count();
+}
+
