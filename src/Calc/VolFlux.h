@@ -1,4 +1,4 @@
-/* $Id: VolFlux.h,v 1.13 2002-12-07 17:43:08 fateneja Exp $ */
+/* $Id: VolFlux.h,v 1.14 2003-01-08 07:14:22 fateneja Exp $ */
 #include "alara.h"
 
 #ifndef _VOLFLUX_H
@@ -29,7 +29,13 @@ protected:
     
     /// An indicator of which type of reference flux should be used for
     /// truncation calculations.
-    refflux_type;
+    refflux_type,
+    
+    /// Number of charged particles in problem
+    nCP,
+    
+    /// Number of charged particle energy groups
+    nCPEG;
 
   double 
     /// Neutron flux storage
@@ -53,6 +59,18 @@ protected:
     *next;
 
 public:
+  /// Inline function to set number of Charged Particles
+  static void setNumCP(int numCP) { nCP = numCP; };
+
+  /// Inline function to get number of Charged Particles
+  static int getNumCP() { return nCP; };
+
+  /// Inline function to set number of Charged Particle Energy Groups
+  static void setNumCPEG(int numCPEG) { nCPEG = numCPEG; };
+
+  /// Inline function to get number of Charged Particle Energy Groups
+  static int getNumCPEG() { return nCPEG; };
+
   /// Inline function sets the number of fluxes.
   static void setNumFluxes(int numFlx)
     { nFluxes = numFlx; };

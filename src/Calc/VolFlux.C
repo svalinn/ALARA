@@ -1,4 +1,4 @@
-/* $Id: VolFlux.C,v 1.13 2002-12-07 17:43:08 fateneja Exp $ */
+/* $Id: VolFlux.C,v 1.14 2003-01-08 07:14:22 fateneja Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -17,6 +17,8 @@
 int VolFlux::nFluxes = 0;
 int VolFlux::nGroups = 0;
 int VolFlux::refflux_type = REFFLUX_MAX;
+int VolFlux::nCP = 0;
+int VolFlux::nCPEG = 0;
 
 VolFlux::VolFlux()
 {
@@ -30,17 +32,25 @@ VolFlux::VolFlux()
       for (int gNum=0;gNum<nGroups;gNum++)
 	nflux[gNum] = 0;
 
-      CPflux = new double*[numCP];
-      CPfluxStorage = new double[numCP*numCPEG];
-      
-      for(int i = 0; i < numCP; i++)
+      if(nCP)
 	{
-	  CPflux[i] = &CPfluxStorage[i*numCPEG];
-	  
-	  for(int j = 0; j < numCPEG; j++)
+	  CPflux = new double*[nCP];
+	  CPfluxStorage = new double[nCP*nCPEG];
+      
+	  for(int i = 0; i < nCP; i++)
 	    {
-	      CPflux[i][j] = 0;
+	      CPflux[i] = &CPfluxStorage[i*nCPEG];
+	      
+	      for(int j = 0; j < nCPEG; j++)
+		{
+		  CPflux[i][j] = 0;
+		}
 	    }
+	}
+      else
+	{
+	  CPfluxStorage = NULL;
+	  CPflux = NULL;
 	}
     }
 
@@ -57,23 +67,23 @@ VolFlux::VolFlux(const VolFlux& v)
       memCheck(nflux,"VolFlux::VolFlux(...) copy constructor: flux");
 
       for (int gNum=0;gNum<nGroups;gNum++)
-	nflux[gNum] = v.nflux[gNum];
-
-      CPflux = new double*[numCP];
-      CPfluxStorage = new double[numCP*numCPEG];
-      
-      for(int i = 0; i < numCP; i++)
 	{
-	  CPflux[i] = &CPfluxStorage[i*numCPEG];
+	  nflux[gNum] = v.nflux[gNum];
+	}
+      CPflux = new double*[nCP];
+      CPfluxStorage = new double[nCP*nCPEG];
+      
+      for(int i = 0; i < nCP; i++)
+	{
+	  CPflux[i] = &CPfluxStorage[i*nCPEG];
 	  
-	  for(int j = 0; j < numCPEG; j++)
+	  for(int j = 0; j < nCPEG; j++)
 	    {
 	      CPflux[i][j] = v.CPflux[i][j];
 	    }
 	}
 
     }
-
 
   next = NULL;
 }
@@ -95,31 +105,39 @@ VolFlux::VolFlux(ifstream &fluxFile, double scale)
 	  nflux[grpNum] *= scale;
      	}
 
-      CPflux = new double*[numCP];
-      CPfluxStorage = new double[numCP*numCPEG];
-      
-      for(int i = 0; i < numCP; i++)
+      if(nCP)
 	{
-	  CPflux[i] = &CPfluxStorage[i*numCPEG];
+	  CPflux = new double*[nCP];
+	  CPfluxStorage = new double[nCP*nCPEG];
 	  
-	  for(int j = 0; j < numCPEG; j++)
+	  for(int i = 0; i < nCP; i++)
 	    {
-	      CPflux[i][j] = 0;
+	      CPflux[i] = &CPfluxStorage[i*nCPEG];
+	      
+	      for(int j = 0; j < nCPEG; j++)
+		{
+		  CPflux[i][j] = 0;
+		}
 	    }
 	}
-
+      else
+	{
+	  CPfluxStorage = NULL;
+	  CPflux = NULL;
+	}
+      
     }
-
+  
   next = NULL;
-
+  
 }
 
 VolFlux::VolFlux(double* fluxData, double scale)
 {
   int grpNum;
-
+  
   nflux = NULL;
-
+  
   if(nGroups>0)
     {
       nflux = new double[nGroups+120];
@@ -128,18 +146,26 @@ VolFlux::VolFlux(double* fluxData, double scale)
 	{
 	  nflux[grpNum] = fluxData[grpNum]*scale;
 	}
-
-      CPflux = new double*[numCP];
-      CPfluxStorage = new double[numCP*numCPEG];
       
-      for(int i = 0; i < numCP; i++)
+      if(nCP)
 	{
-	  CPflux[i] = &CPfluxStorage[i*numCPEG];
+	  CPflux = new double*[nCP];
+	  CPfluxStorage = new double[nCP*nCPEG];
 	  
-	  for(int j = 0; j < numCPEG; j++)
+	  for(int i = 0; i < nCP; i++)
 	    {
-	      CPflux[i][j] = 0;
+	      CPflux[i] = &CPfluxStorage[i*nCPEG];
+	      
+	      for(int j = 0; j < nCPEG; j++)
+		{
+		  CPflux[i][j] = 0;
+		}
 	    }
+	}
+      else
+	{
+	  CPflux = NULL;
+	  CPfluxStorage = NULL;
 	}
     }
 
@@ -161,21 +187,29 @@ VolFlux& VolFlux::operator=(const VolFlux& v)
 
       for (int gNum=0;gNum<nGroups;gNum++)
 	nflux[gNum] = v.nflux[gNum];
-    }
 
-  CPflux = new double*[numCP];
-  CPfluxStorage = new double[numCP*numCPEG];
-  
-  for(int i = 0; i < numCP; i++)
-    {
-      CPflux[i] = &CPfluxStorage[i*numCPEG];
-      
-      for(int j = 0; j < numCPEG; j++)
+      if(nCP)
 	{
-	  CPflux[i][j] = v.CPflux[i][j];
+	  CPflux = new double*[nCP];
+	  CPfluxStorage = new double[nCP*nCPEG];
+	  
+	  for(int i = 0; i < nCP; i++)
+	    {
+	      CPflux[i] = &CPfluxStorage[i*nCPEG];
+	      
+	      for(int j = 0; j < nCPEG; j++)
+		{
+		  CPflux[i][j] = v.CPflux[i][j];
+		}
+	    }
 	}
+      else
+	{
+	  CPfluxStorage = NULL;
+	  CPflux = NULL;
+	}     
     }
-
+      
   return *this;
 }
 
