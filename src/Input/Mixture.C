@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.16 2000-01-17 03:58:37 wilson Exp $ */
+/* $Id: Mixture.C,v 1.17 2000-01-17 16:57:38 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -30,9 +30,6 @@
 Mixture::Mixture(char *name)
 {
   volume = 0;
-  totalDensity = 0;
-  totalNDensity = 0;
-  volFraction = 0;
   mixName = NULL;
   if (name != NULL)
     {
@@ -43,12 +40,15 @@ Mixture::Mixture(char *name)
 
   compListHead = new Component(COMP_HEAD);
   targetCompListHead = new Component(COMP_HEAD);
+  nComps = 0;
+  totalDensity = 0;
+  totalNDensity = 0;
+  volFraction = 0;
 
   volList = new Volume(VOL_HEAD);
 
   rootList = NULL;
   targetList = NULL;
-  nComps = 0;
   outputList = NULL;
   total = NULL;
 
@@ -58,9 +58,6 @@ Mixture::Mixture(char *name)
 Mixture::Mixture(const Mixture &m)
 {
   volume = m.volume;
-  totalDensity = m.totalDensity;
-  totalNDensity = m.totalNDensity;
-  volFraction = m.volFraction;
   mixName = NULL;
   if (m.mixName != NULL)
     {
@@ -71,12 +68,15 @@ Mixture::Mixture(const Mixture &m)
 
   compListHead = new Component(COMP_HEAD);
   targetCompListHead = new Component(COMP_HEAD);
+  nComps = 0;
+  totalDensity = 0;
+  totalNDensity = 0;
+  volFraction = 0;
 
   volList = new Volume(VOL_HEAD);
 
   rootList = NULL;
   targetList = NULL;
-  nComps = 0;
   outputList = NULL;
   total = NULL;
 

@@ -1,4 +1,4 @@
-/* $Id: Component.h,v 1.8 2000-01-17 03:58:37 wilson Exp $ */
+/* $Id: Component.h,v 1.9 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -25,21 +25,22 @@ COMP_HEAD, and contains no problem data.
     definitions given below.
 
  density : double
-    This is the density of this component.  It is either a number
-    density or a mass density - determined by its type and/or its
-    format (*** TBD ***)
+
+    This is the density of this component.  This number is input as a
+    relative density factor, and is then converted to a mass density
+    by multiplying by the theoretical density (from eleLib of matLib).
 
  volFraction : double
-
     This is the volume fraction of this component in the mixture.
 
  compName : char*
     This is the name of this component, as input by the user.
     For materials, this must match an entry in the material library.
-    For elements, this must be a chemical symbol matching an entry
-       in the element library.
-    For isotopes, this must be have the standard notation 'cc-ddd',
-       where 'cc' is the chemical symbol and 'ddd' the mass number.
+    For elements, this must be a 'modified' chemical symbol matching
+       an entry in the element library.
+    For isotopes (only valid for targets), this must be have the
+       standard notation 'cc-ddd', where 'cc' is the chemical symbol
+       and 'ddd' the mass number.
     For similar components, this must match an entry in the list
        of mixtures read from the input file.
 
@@ -56,7 +57,7 @@ COMP_HEAD, and contains no problem data.
     cross-referencing, it expects a pointer to the mixture and
     component which contain this particular element - it does not
     automatically use the 'this' component pointer, since it can be
-    called through a temporart object (such as might be created in
+    called through a temporary object (such as might be created in
     expandMat() while expanding a material).  It returns a pointer to
     an object of class Root, which serves as the head of a list.
 
@@ -73,14 +74,14 @@ COMP_HEAD, and contains no problem data.
 
  void getMatLib(istream&)
     This function expects the reference to the open input file stream
-    and opens the material library, attaching it to the static class
-    member 'matLib' described above.
+    and reads the name of the material library, opens it, and attaches
+    it to the static class member 'matLib' described above.
 
  void getEleLib(istream&)
     This function expects the reference to the open input file stream
-    and opens the element library, attaching it to the static class
-    member 'eleLib' described above.
-
+    and reads the name of the element library, opens it, and attaches
+    it to the static class member 'eleLib' described above.
+ 
  *** Member Functions ***
 
  * - Constructors & Destructors - *
@@ -91,12 +92,21 @@ COMP_HEAD, and contains no problem data.
     The 'next' element is initialized to NULL.
 
  Component(const Component&)
-    Copy constructor initializes 'type' and 'density' and then creates
-    and fills space for 'compName'. 'next' is NULL
+    Copy constructor initializes 'type', 'density', and 'volFraction'
+    and then creates and fills space for 'compName'. 'next' is NULL
 
  ~Component() 
     Inline destructor destroys *entire* chain by deleting 'next'.
     Also deletes storage for 'compName'.
+
+ Component& operator=(const Component&)
+    The assignment operator is similar to the copy constructor, but it
+    uses an already allocated object on the left hand side.  The
+    correct implementation of this operator must ensure that
+    previously allocated space is returned to the free store before
+    allocating new space into which to copy the object. Note that
+    'next' is NOT copied, the left hand side object will continue to
+    be part of the same list unless explicitly changed.
 
  * - Input - *
 
@@ -136,6 +146,14 @@ COMP_HEAD, and contains no problem data.
 
  char *getName()
     Inline function providing access to the name of the component.
+
+ double getVolFrac()
+    Inline function providing access to the volume fraction of this
+    component.
+
+ double getDensity()
+    Inline function providing access to the mass density of this
+    component.
 
  int getCompNum(Component*)
     Given a pointer to a Component object, this function returns an

@@ -1,4 +1,4 @@
-/* $Id: Schedule.h,v 1.2 1999-08-24 22:06:22 wilson Exp $ */
+/* $Id: Schedule.h,v 1.3 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -54,11 +54,13 @@ of a list of items as defined in ScheduleItem.h.
     and then destroys list of Schedules by deleting 'next'.
 
  Schedule& operator=(const Schedule&)
-    The correct implementation of this operator must ensure that
-    previously allocated space is returned to the free store before
-    allocating new space into which to copy the object. Note that
-    'next' is NOT copied, the object will continue to be part of the
-    same list unless explicitly changed.
+    This assignment operator behaves similarly to the copy
+    constructor.  The correct implementation of this operator must
+    ensure that previously allocated space is returned to the free
+    store before allocating new space into which to copy the
+    object. Note that 'next' is NOT copied, the left hand side object
+    will continue to be part of the same list unless explicitly
+    changed.
 
  * - Input - *
 
@@ -108,6 +110,9 @@ of a list of items as defined in ScheduleItem.h.
  calcSchedule* getCalcSched()
     Inline access to the pointer to the calcSchedule object
     corresponding to this Schedule object.
+
+ char* getName()
+    Inline access to the name of this schedule.
 
  */
 

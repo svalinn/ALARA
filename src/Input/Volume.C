@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.17 1999-12-21 22:06:22 wilson Exp $ */
+/* $Id: Volume.C,v 1.18 2000-01-17 16:57:38 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -21,12 +21,42 @@
  ********* Service *********
  **************************/
 
-Volume::Volume(double vol, char *name) :
-  volume(vol)
+void Volume::init()
 {
+  volume = 1;
   norm = 1;
-
+ 
   zoneName = NULL;
+  zonePtr = NULL;
+  mixPtr = NULL;
+  next = NULL;
+  mixNext = NULL;
+
+  fluxHead = new VolFlux;
+  flux = fluxHead;
+
+  schedT = NULL;
+
+  nComps = 0;
+  outputList = NULL;
+
+  total = NULL;
+}
+
+void Volume::deinit()
+{
+  delete zoneName; 
+  delete fluxHead; 
+  delete schedT; 
+  delete [] outputList;
+}  
+
+Volume::Volume(double vol, char *name)
+{
+  init();
+
+  volume=vol;
+
   if (name != NULL)
     {
       zoneName = new char[strlen(name)+1];
@@ -35,62 +65,34 @@ Volume::Volume(double vol, char *name) :
       
     }
 
-  zonePtr = NULL;
-  mixPtr = NULL;
-  next = NULL;
-  mixNext = NULL;
-
-  fluxHead = new VolFlux;
-  flux = fluxHead;
-
-  //results = new ResultList;
-  //resultHead = results;
-
-  schedT = NULL;
-
-  nComps = 0;
-  outputList = NULL;
-
-  total = NULL;
 }
 
-Volume::Volume(double vol, Loading *loadPtr) :
-  volume(vol)
+Volume::Volume(double vol, Loading *loadPtr)
 {
-  norm = 1;
+  init();
+  volume=vol;
+  zonePtr = loadPtr;
 
-  zoneName = NULL;
-  if (loadPtr->getName() != NULL)
+  if (zonePtr->getName() != NULL)
     {
-      zoneName = new char[strlen(loadPtr->getName())+1];
+      zoneName = new char[strlen(zonePtr->getName())+1];
       memCheck(zoneName,"Volume::Volume(...) alternate constructor: zoneName");
-      strcpy(zoneName,loadPtr->getName());
+      strcpy(zoneName,zonePtr->getName());
       
     }
 
-  zonePtr = loadPtr;
-  mixPtr = NULL;
-  next = NULL;
-  mixNext = NULL;
 
-  fluxHead = new VolFlux;
-  flux = fluxHead;
-
-  //results = new ResultList;
-  //resultHead = results;
-
-  schedT = NULL;
-
-  nComps = 0;
-  outputList = NULL;
-
-  total = NULL;
 }
 
-Volume::Volume(const Volume& v) :
-  volume(v.volume), norm(v.norm)
+Volume::Volume(const Volume& v)
 {
-  zoneName = NULL;
+  init();
+
+  volume = v.volume;
+  norm = v.norm;
+  zonePtr = v.zonePtr;
+  mixPtr = v.mixPtr;
+
   if (v.zoneName != NULL)
     {
       zoneName = new char[strlen(v.zoneName)+1];
@@ -98,75 +100,37 @@ Volume::Volume(const Volume& v) :
       strcpy(zoneName,v.zoneName);
       
     }
-
-  zonePtr = v.zonePtr;
-
-  mixPtr = NULL;
-  next = NULL;
-  mixNext = NULL;
-
-  fluxHead = new VolFlux;
-  flux = fluxHead;
-
-  //results = new ResultList;
-  //resultHead = results;
-
-  schedT = NULL;
-
-  nComps = 0;
-  outputList = NULL;
-
-  total = NULL;
 }
 
-Volume::Volume(Root *rootPtr,topSchedule* top) : 
-  volume(1), norm(1)
+Volume::Volume(Root *rootPtr,topSchedule* top)
 {
-  zoneName = NULL;
-  zonePtr = NULL;
-  mixPtr = NULL;
-  next = NULL;
-  mixNext = NULL;
-
-  //results = NULL;
-  //resultHead = results;
-
-  fluxHead = new VolFlux;
-  flux = fluxHead;
+  init();
 
   rootPtr->refFlux(fluxHead);
 
   schedT = new topScheduleT(top);
 
-  nComps = 0;
-  outputList = NULL;
-
-  total = NULL;
 }
-
-
 
 Volume::~Volume() 
 {
-  delete zoneName; 
-  delete fluxHead; 
-  //delete resultHead;
-  delete schedT; 
-  delete [] outputList;
+  deinit();
   delete next; 
 }
-
 
 Volume& Volume::operator=(const Volume& v)
 {
   if (this == &v)
     return *this;
 
+  deinit();
+  init();
+
   volume = v.volume;
   norm = v.norm;
+  zonePtr = v.zonePtr;
+  mixPtr = v.mixPtr;
 
-  delete zoneName;
-  zoneName = NULL;
   if (v.zoneName != NULL)
     {
       zoneName = new char[strlen(v.zoneName)+1];
@@ -174,34 +138,8 @@ Volume& Volume::operator=(const Volume& v)
       strcpy(zoneName,v.zoneName);
     }
 
-  zonePtr = v.zonePtr;
-
-  mixPtr = v.mixPtr;
-
-  delete fluxHead;
-  fluxHead = new VolFlux;
-  flux = fluxHead;
-
-  //delete resultHead;
-  //results = new ResultList;
-  //resultHead = results;
-
-  nComps = 0;
-  delete [] outputList;
-  outputList = NULL;
-
-
-  delete total;
-  total = NULL;
-  
-  /* next??
-     mixNext??
-     schedT?? */
-
   return *this;
 }
-
-
 
 /****************************
  *********** Input **********
@@ -345,6 +283,7 @@ void Volume::xRef(Mixture *mixListHead)
     }
 }
 
+/* cross-reference intervals with normalizations */
 void Volume::xRef(Norm *normList)
 {
   Volume *ptr=this;

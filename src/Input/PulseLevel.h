@@ -1,4 +1,4 @@
-/* $Id: PulseLevel.h,v 1.2 1999-08-24 22:06:22 wilson Exp $ */
+/* $Id: PulseLevel.h,v 1.3 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -28,24 +28,25 @@ data.
  * - Constructors & Destructors - *
 
  PulseLevel(int, double, char)
-    When called with no arguments, default constructor creates a blank
-    list head.  Otherwise, it sets the number of pulses, the time and
-    the units, and initializes the 'next' pointer to NULL.
+    When called with no arguments, default inline constructor creates
+    a blank list head.  Otherwise, it sets the number of pulses, the
+    time and the units, and initializes the 'next' pointer to NULL.
 
  PulseLevel(const PulseLevel&)
-    Copy constructor is identical to default constructor.  Therefore,
-    the number of pulses, time and units are copied, but not the
-    subsequent list item 'next'.
+    Inline copy constructor is identical to default constructor.
+    Therefore, the number of pulses, time and units are copied, but
+    not the subsequent list item 'next'.
 
  ~PulseLevel()
     Inline destructor destroys the entire list by deleting 'next'.
 
  PulseLevel& operator=(const PulseLevel&);
-   The correct implementation of this operator must ensure that
-   previously allocated space is returned to the free store before
-   allocating new space into which to copy the object. Note that
-   'next' is NOT copied, the object will continue to be part of the
-   same list unless explicitly changed.
+   This assignmnent operator behaves similarly to the copy
+   constructor.  The correct implementation of this operator must
+   ensure that previously allocated space is returned to the free
+   store before allocating new space into which to copy the
+   object. Note that 'next' is NOT copied, the object will continue to
+   be part of the same list unless explicitly changed.
 
 
  * - Input - *
@@ -91,8 +92,13 @@ protected:
 
 public:
   /* Service */
-  PulseLevel(int inNumPulse=PULSE_HEAD, double inDelay=0, char inUnits=' ');
-  PulseLevel(const PulseLevel&);
+  PulseLevel(int inNumPulse=PULSE_HEAD, double inDelay=0, 
+	     char inUnits=' ') 
+    : nPulses(inNumPulse),  units(inUnits),  
+      delay(inDelay), next(NULL) {};
+  PulseLevel(const PulseLevel &p)
+    : nPulses(p.nPulses),  units(p.units),  
+      delay(p.delay), next(NULL) {};
   ~PulseLevel()
     { delete next; };
 

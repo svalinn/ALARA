@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.14 1999-12-21 22:06:21 wilson Exp $ */
+/* $Id: Loading.C,v 1.15 2000-01-17 16:57:38 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -409,7 +409,7 @@ int Loading::numZones()
   return numZones;
 }
 
-/* find a named mixture in the list */
+/* reset the output info for next target */
 void Loading::resetOutList()
 {
   int compNum;
@@ -424,4 +424,5 @@ void Loading::resetOutList()
 	  ptr->outputList[compNum].clear();
     }
 }
+
 

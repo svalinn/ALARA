@@ -1,4 +1,4 @@
-/* $Id: Loading.h,v 1.7 1999-11-19 23:00:46 wilson Exp $ */
+/* $Id: Loading.h,v 1.8 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -50,19 +50,22 @@ IN_HEAD (defined in Input.h), and contains no problem data.
 
  Loading(const Loading&)
     Copy constructor is identical to default constructor.  Therefore,
-    'zoneName' and 'mixName' are copied, but the successive list item
-    'next' is not.
+    'zoneName' and 'mixName' are copied, but the 'outputList' and
+    'total' are initialized to NULL successive list item 'next' is
+    not.
 
  ~Loading()
     Inline destructor deletes the storage for the names and destroys
     the whole list by deleting 'next'.
  
  Loading& operator=(const Loading&);
-    The correct implementation of this operator must ensure that
-    previously allocated space is returned to the free store before
-    allocating new space into which to copy the object. Note that
-    'next' is NOT copied, the object will continue to be part of the
-    same list unless explicitly changed.
+    This assignment operator behaves similarly to the copy copy
+    constructor.  The correct implementation of this operator must
+    ensure that previously allocated space is returned to the free
+    store before allocating new space into which to copy the
+    object. Note that 'next' is NOT copied, the left hand side object
+    will continue to be part of the same list unless explicitly
+    changed.
 
  * - Input - *
 
@@ -92,9 +95,13 @@ IN_HEAD (defined in Input.h), and contains no problem data.
  void write(int,int,CoolingTime*,int,int)
     This function is responsible for writing the results to standard
     output.  The first argument indicates which kind of response is
-    being written, the second indicates whether a mixture component
-    breakdown was requested, and the last points to the list of
-    after-shutdown cooling times.
+    being written and the second indicates whether a mixture component
+    breakdown was requested.  The third argument points to the list of
+    after-shutdown cooling times.  The fourth argument indicates the
+    kza of the target isotope for a reverse calculation and is simply
+    passed on the the Result::write().  The final argument indicates
+    what type of normalization is being used, so that the correct
+    output information can be given.
 
  * - Utility - *
 
@@ -136,6 +143,11 @@ IN_HEAD (defined in Input.h), and contains no problem data.
  int numZones()
     Function to count the number of elements in this list, i.e. the
     number of zones.
+
+ void resetOutList()
+    This function is used for reverse calculations to clear the values
+    of the outputList, since the results are not cummulative across
+    subsequent targets.
 
  */
 

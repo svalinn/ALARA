@@ -1,4 +1,4 @@
-/* $Id: Norm.h,v 1.2 1999-08-24 22:06:22 wilson Exp $ */
+/* $Id: Norm.h,v 1.3 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -17,7 +17,6 @@ data.
  
  scale : double
     The scalar normalization of the flux at this interval.
-
 
  next : Norm*
     A pointer to the next Volume object in the problem-wide list.
@@ -38,12 +37,13 @@ data.
  ~Norm() 
     In-line destructor destroys the whole list by deleting 'next'.
 
- Norm& operator=(const Norm&)
-    The correct implementation of this operator must ensure that
-    previously allocated space is returned to the free store before
-    allocating new space into which to copy the object. Note that
-    'next' is NOT copied, the object will continue to be part of the
-    same list unless explicitly changed.
+ Norm& operator=(const Norm&) 
+    This inline assignment operator behaves similarly to the copy
+    constructor. The correct implementation of this operator must
+    ensure that previously allocated space is returned to the free
+    store before allocating new space into which to copy the
+    object. Note that 'next' is NOT copied, the object will continue
+    to be part of the same list unless explicitly changed.
 
 
  * - Input - *
@@ -57,7 +57,7 @@ data.
 
  int head()
     Inline function to determine whether this object is the head of
-    the list.  Creates boolean by comparing 'volume' to VOL_HEAD.
+    the list.  Creates boolean by comparing 'scale' to NORM_HEAD.
 
  double getScale()
     Inline function provides read only interface to 'scale' member.
@@ -84,9 +84,9 @@ protected:
 public:
   /* Service */
   Norm(double norm=NORM_HEAD)
-    { scale=norm; next=NULL; };
+    : scale(norm), next(NULL) {};
   Norm(const Norm& n)
-    { scale=n.scale; next=NULL; };
+    : scale(n.scale), next(NULL) {};
   ~Norm()
     { delete next; };
 

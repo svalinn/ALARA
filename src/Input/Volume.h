@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.9 1999-11-19 23:00:46 wilson Exp $ */
+/* $Id: Volume.h,v 1.10 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -48,15 +48,11 @@ member), and contains no problem data.
     topScheduleT (derived from calcScheduleT) is needed to store all
     the different transfer matrices.
 
- results : ResultList* 
-    A linked list of results.  Each ResultList item in the list points
+ results : Result 
+    A linked list of results.  Each Result item in the list points
     to a linked list of results for a particular root isotope.  There
-    is one ResultList item in the list for each root isotope in the
+    is one Result item in the list for each root isotope in the
     interval.
-
- resultHead : ResultList* 
-    This keeps track of the first list of results (for the first root
-    isotope) in each interval.
 
  nComps : int
     The number of components in this zone.
@@ -79,12 +75,21 @@ member), and contains no problem data.
 
  * - Constructors & Destructors - *
 
+ private init()
+    This function is called by many of the constructors, as it sets up
+    all the variables, particularly setting pointers to NULL and
+    initializing the 'flux' list.
+
+ private deinit()
+    This function is called by the destructor and the assignment
+    operator to delete the storage for 'zoneName', delete the
+    'flux' and 'results' lists, and delete the 'schedT' storage.
+
  Volume(double, char* )
-    When called without arguments, the default constructor creates a
-    blank list with no problem data.  Otherwise, it sets the volume of
-    the interval, creates and fills the storage for 'zoneName',
-    initializes 'fluxHead' and 'results' with new lists, and sets
-    other pointers to NULL.
+    This constructor always call init.  When called without arguments,
+    the default constructor creates a blank list with no problem data.
+    Otherwise, it sets the volume of the interval, and creates and
+    fills the storage for 'zoneName'.
 
  Volume(double, Loading*) 
     Special constructor used to convert Dimension lists to Volume
@@ -95,24 +100,20 @@ member), and contains no problem data.
     initialized with this second argument.
 
  Volume(const Volume&)
-    Copy constructor is identical to the above constructors, depending
-    on whether or not the 'zonePtr' is already defined.  Therefore,
-    only the 'volume', 'zoneName', and possibly the 'zonePtr' are
-    copied.  The 'fluxHead' and 'results' are initialized with new
-    lists, while the other pointeres are set to NULL.
+    This copy constructor starts by calling init(), and then copies
+    the 'volume', 'norm', 'zonePtr', 'mixPtr', and 'zoneName' from the
+    passed argument. 
 
  ~Volume() 
-    Destructor deletes the storage for 'zoneName', deletes the
-    'flux' and 'results' lists, deletes the 'schedT' storage, and
-    destroys the whole list by deleting 'next'.
+    This destructor calls deinit(), and then destroys the whole list
+    by deleting 'next'.
 
  Volume& operator=(const Volume&)
-    The correct implementation of this operator must ensure that
-    previously allocated space is returned to the free store before
-    allocating new space into which to copy the object. Note that
-    'next' and 'mixNext' are NOT copied, the object will continue to be
-    part of the same list unless explicitly changed.
-
+    This assignment operator first calls deinit() and init() to
+    reinitialize its storage.  It then behaves similarly to the copy
+    constructor.  Note that 'next' and 'mixNext' are NOT copied, the
+    left hand side object will continue to be part of the same list
+    unless explicitly changed.
 
  * - Input - *
 
@@ -151,6 +152,10 @@ member), and contains no problem data.
     pointer is set following a lookup on the list pointed to by the
     first argument.  The 'this' pointer is then passed to the object
     pointed to by 'mixPtr' to reference it the other way.
+
+ void xRef(Norm *)
+    This function is used to cross-reference the intervals with the
+    list of normalizations pointed to by the first argument.
 
  void addMixList(Volume *)
     This function is called as the last step of the Volume<->Mixture
@@ -192,25 +197,45 @@ member), and contains no problem data.
     order to extract an array of relative productions at the various
     cooling times.
 
+ void writeDump()
+    This short function supports the creation of the dump file by
+    calling writeDump() for each interval in the mixture's list of
+    intervals.
+
  * - Postproc - *
+
+ void readDump()
+    This short function supports the reading of the dump file by
+    calling readDump() for each interval in this mixture's list of
+    intervals, and then tallying those results to the various lists of
+    results.
 
  void postProc()
     This is the front-end to the function which tallies that tallies
     the results for each root isotope into lists of results for each
     component and a total list of results.
 
- void write(int,int,CoolingTime*)
+ void write(int,int,CoolingTime*,int,int)
     This function is responsible for writing the results to standard
     output.  The first argument indicates which kind of response is
     being written, the second indicates whether a mixture component
-    breakdown was requested, and the last points to the list of
-    after-shutdown cooling times.
+    breakdown was requested, and the third points to the list of
+    after-shutdown cooling times.  The fourth argument indicates the
+    kza of the target isotope for a reverse calculation and is simply
+    passed on the the Result::write().  The final argument indicates
+    what type of normalization is being used, so that the correct
+    output information can be given.
 
  * - Utility - *
 
  int head()
     Inline function to determine whether this object is the head of
     the list.  Creates boolean by comparing 'volume' to VOL_HEAD.
+
+ void resetOutList()
+    This function is used for reverse calculations to clear the values
+    of the outputList, since the results are not cummulative across
+    subsequent targets.
 
  */
 
@@ -238,6 +263,9 @@ protected:
 
   Volume* next;
   Volume* mixNext;
+
+  void init();
+  void deinit();
   
 public:
   /* Service */
@@ -251,14 +279,12 @@ public:
   
   /* Input */
   void getVolumes(istream&);
-
   /* xCheck */
   void xCheck(Loading*);
 
   /* Preproc */
   Volume* calculate(double* , double* , int* , Geometry* , Loading*);
 
-  /* void xRef(Loading *); */
   void xRef(Mixture *);
   void xRef(Norm *);
   void addMixList(Volume *);

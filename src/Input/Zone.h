@@ -1,4 +1,4 @@
-/* $Id: Zone.h,v 1.2 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: Zone.h,v 1.3 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -60,7 +60,6 @@ problem data.
  * - Input - *
 
  Zone* addZone(int,double) 
-
     This function simply adds a new zone to the list by calling the
     constructor with the passed argument nInts and boundary.  It
     returns a pointer to the newly created zone.
@@ -96,8 +95,10 @@ public:
   static void convert(double*, int*, Zone**, Geometry*, 
 			   Loading*, Volume*);
 
-  Zone(double bound=ZONE_HEAD,int ints=0);
-  Zone(const Zone&);
+  Zone(double bound=ZONE_HEAD,int ints=0)
+    : boundary(bound), nInts(ints), next(NULL) {};
+  Zone(const Zone &z)
+    : boundary(z.boundary), nInts(z.nInts), next(NULL) {};
   ~Zone() 
     { delete next; };
 

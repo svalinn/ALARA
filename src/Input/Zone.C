@@ -1,4 +1,4 @@
-/* $Id: Zone.C,v 1.2 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: Zone.C,v 1.3 2000-01-17 16:57:38 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -18,17 +18,6 @@
  ********* Service *********
  **************************/
 
-Zone::Zone(double bound, int ints) :
-  boundary(bound), nInts(ints)
-{
-  next = NULL;
-}
-
-Zone::Zone(const Zone& z) :
-  boundary(z.boundary), nInts(z.nInts)
-{
-  next = NULL;
-}
 
 Zone& Zone::operator=(const Zone& z)
 {

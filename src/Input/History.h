@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.2 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: History.h,v 1.3 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -53,11 +53,14 @@ in Input.h), and contains no problem data.
 
 
  History& operator=(const History&)
+    This assignment operator behaves the similarly to the copy
+    constructor.  Even though new puleList and calcHist information is
+    not copied from the righ hand side, the old values are deleted.
     The correct implementation of this operator must ensure that
     previously allocated space is returned to the free store before
     allocating new space into which to copy the object. Note that
-    'next' is NOT copied, the object will continue to be part of the
-    same list unless explicitly changed.
+    'next' is NOT copied, the left hand side object will continue to
+    be part of the same list unless explicitly changed.
 
 
  * - Input - *

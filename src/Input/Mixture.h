@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.10 2000-01-17 03:58:37 wilson Exp $ */
+/* $Id: Mixture.h,v 1.11 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -94,22 +94,23 @@ contains no problem data.
     NULL.
 
  Mixture(const Mixture&) 
-    Inline copy constructor invokes default constructor.  Therefore,
-    the name is copied, but the component and interval lists are
-    initialized as new lists, but the rootList and successive list
-    item 'next' are not copied.
+    Copy constructor copies 'volume' and 'mixName', and initializes
+    'compListHead', 'targetCompListHead', and 'volList', setting other
+    variables to NULL.
 
  ~Mixture()
     Destructor deletes storage for 'mixName', component list
     and rootList, but not the interval list.  It then destroys the
     rest of the mixture list by deleting 'next'.
   
-  Mixture& operator=(const Mixture&)
-    The correct implementation of this operator must ensure that
-    previously allocated space is returned to the free store before
-    allocating new space into which to copy the object. Note that
-    'next' is NOT copied, the object will continue to be part of the
-    same list unless explicitly changed.
+ Mixture& operator=(const Mixture&)
+    This assignment operator behaves similarly to the copy
+    constructor.  The correct implementation of this operator must
+    ensure that previously allocated space is returned to the free
+    store before allocating new space into which to copy the
+    object. Note that 'next' is NOT copied, the left-hand-side object
+    will continue to be part of the same list unless explicitly
+    changed.  
 
  * - Input - *
 
@@ -190,12 +191,16 @@ contains no problem data.
     interval in to the total mixture results, weighted by the interval
     volume.
 
- void write(int,int,CoolingTime*)
+ void write(int,int,CoolingTime*,int,int)
     This function is responsible for writing the results to standard
     output.  The first argument indicates which kind of response is
     being written, the second indicates whether a mixture component
-    breakdown was requested, and the last points to the list of
-    after-shutdown cooling times.
+    breakdown was requested, and the third points to the list of
+    after-shutdown cooling times. The fourth argument indicates the
+    kza of the target isotope for a reverse calculation and is simply
+    passed on the the Result::write().  The final argument indicates
+    what type of normalization is being used, so that the correct
+    output information can be given.
 
  * - Utility - *
 
@@ -233,6 +238,11 @@ contains no problem data.
  int getCompList()
     Inline function provides access to the list of components in the
     mixture.
+
+ void resetOutList()
+    This function is used for reverse calculations to clear the values
+    of the outputList, since the results are not cummulative across
+    subsequent targets.
 
  * - Access - *
 

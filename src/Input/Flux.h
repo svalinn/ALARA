@@ -1,4 +1,4 @@
-/* $Id: Flux.h,v 1.7 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: Flux.h,v 1.8 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -59,7 +59,8 @@ list of Fluxes.  The first element in each list has type FLUX_HEAD
     pointer.
 
  Flux& operator=(const Flux&)
-    The correct implementation of this operator must ensure that
+    This assignmnet operator behaves similarly to the copy
+    constructor. The correct implementation of this operator must ensure that
     previously allocated space is returned to the free store before
     allocating new space into which to copy the object.  It does NOT
     copy 'next'.
@@ -71,7 +72,8 @@ list of Fluxes.  The first element in each list has type FLUX_HEAD
     Function to read the flux description from the input file
     connected to the stream given in the first argument.  It returns a
     pointer to the new object of class Flux which has just been
-    created.
+    created.  It does NOT read the actual flux information from the
+    file.
 
  * - Preproc - *
 

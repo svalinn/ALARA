@@ -1,4 +1,4 @@
-/* $Id: PulseLevel.C,v 1.3 1999-08-24 22:06:22 wilson Exp $ */
+/* $Id: PulseLevel.C,v 1.4 2000-01-17 16:57:38 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -19,18 +19,6 @@
 /***************************
  ********* Service *********
  **************************/
-
-PulseLevel::PulseLevel(int inNumPulse, double inDelay, char inUnits) :
-  nPulses(inNumPulse),  units(inUnits),  delay(inDelay)
-{
-  next = NULL;
-}
-
-PulseLevel::PulseLevel(const PulseLevel& p) :
-  nPulses(p.nPulses),  units(p.units),  delay(p.delay)
-{
-  next = NULL;
-}
 
 PulseLevel& PulseLevel::operator=(const PulseLevel& p)
 {

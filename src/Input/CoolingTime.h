@@ -1,4 +1,4 @@
-/* $Id: CoolingTime.h,v 1.2 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: CoolingTime.h,v 1.3 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -70,9 +70,8 @@ the 'coolingTime' member), and contains no problem data.
  * - Utility - *
 
  int head()
-    Inline function to return the boolean result of the equality of
-    this Component's type to the type which indicates the head of the
-    list.
+    Inline function to return the boolean result indicating whether or
+    not this CoolingTime is the head of the list. 
 
  */
 

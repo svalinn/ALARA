@@ -1,4 +1,4 @@
-/* $Id: Dimension.h,v 1.2 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: Dimension.h,v 1.3 2000-01-17 16:57:38 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -32,6 +32,9 @@ has type DIM_HEAD and contains no problem data.
     dimension.  This pointer will be used to perform actions on the
     whole list, rather than just the last zone.
 
+ next : Dimension*
+    A pointer to the next Dimension object in the list.
+
  *** Member Functions ***
 
  * - Constructors & Destructors - *
@@ -49,10 +52,13 @@ has type DIM_HEAD and contains no problem data.
     Also deletes the zoneList in each dimension object.
 
  Dimension& operator=(const Dimension&)
-    The correct implementation of this operator must ensure that
-    previously allocated space is returned to the free store before
-    allocating new space into which to copy the object.  It doesn't
-    copy the pointer or the object for zoneListHead or next.
+    This assignment operator functions similarly to the copy
+    constructor.  The correct implementation of this operator must
+    ensure that previously allocated space is returned to the free
+    store before allocating new space into which to copy the object.
+    It doesn't copy the pointer or the object for zoneListHead or
+    next, but it does delete any previously existing zoneList
+    information.
 
 
  * - Input - *
