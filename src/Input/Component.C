@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.14 2000-01-28 21:30:59 wilson Exp $ */
+/* $Id: Component.C,v 1.15 2000-04-28 15:31:56 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -229,12 +229,17 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
   if (eleNameLen <= 0) eleNameLen = strlen(compName);
 
   /* search for this element */
+  clearComment(eleLib);
   eleLib >> testName >> A >> Z >> eleDens >> numIsos;
   while (strcmp(testName,compName) && !eleLib.eof())
     {
       verbose(5,"Skipping element %s in element library",testName);
       while (numIsos-->0)
-	eleLib >> isoName >> isoDens;
+	{
+	  clearComment(eleLib);
+	  eleLib >> isoName >> isoDens;
+	}
+      clearComment(eleLib);
       eleLib >> testName >> A >> Z >> eleDens >> numIsos;
     }
       
@@ -254,6 +259,7 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
 
       while (numIsos-->0)
 	{
+	  clearComment(eleLib);
 	  eleLib >> isoName >> isoDens;
 	  isoDens *= Ndensity/100.0;
 	  strncpy(testName,compName,eleNameLen);
@@ -294,12 +300,17 @@ Root* Component::expandMat(Mixture* mix)
   verbose(4,"Expanding material %s",compName);
 
   /* search for this material */
+  clearComment(matLib);
   matLib >> testName >> matDens >> numEles;
   while (strcmp(testName,compName) && !matLib.eof())
     {
       verbose(5,"Skipping material %s in material library.",testName);
       while (numEles-->0)
-	matLib >> eleName >> eleDens >> eleZ;
+	{
+	  clearComment(matLib);
+	  matLib >> eleName >> eleDens >> eleZ;
+	}
+      clearComment(matLib);
       matLib >> testName >> matDens >> numEles;
     }
 
@@ -313,6 +324,7 @@ Root* Component::expandMat(Mixture* mix)
        * supplementing the root list for each one */
       while (numEles-->0)
 	{
+	  clearComment(matLib);
 	  matLib >> eleName >> eleDens  >> eleZ;
 	  eleDens *= -density*volFraction/100.0;
 	  element = new Component(COMP_ELE,eleName,eleDens);
