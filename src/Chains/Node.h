@@ -1,8 +1,4 @@
-
-
-
-
-/* $Id: Node.h,v 1.11 2001-07-23 15:34:39 demonter Exp $ */
+/* $Id: Node.h,v 1.12 2001-07-23 20:02:21 wilsonp Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -28,8 +24,9 @@ classes, it contains all the information about the isotope itself.
    mass number and the isomeric number.  KZA = (Z*1000+A)*10+M
 
 nodenum : int
-   This is a member function that stores the number returned when accountNode 
-   is called.  This will be used later for manipulating values.
+   This is an interger that stores the global idenifier for this node,
+   a number returned by Statistics::accountNode.  It is used to identifying
+   parents in the binary tree output.
 
  *** Protected Member Functions ***
 

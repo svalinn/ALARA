@@ -1,4 +1,4 @@
-/* $Id: Statistics.C,v 1.8 2001-07-23 15:34:39 demonter Exp $ */
+/* $Id: Statistics.C,v 1.9 2001-07-23 20:02:22 wilsonp Exp $ */
 #include "Statistics.h"
 
 #include <unistd.h>
@@ -42,10 +42,7 @@ FILE * Statistics::openBinFile(char* fname)
 {
   binFile=fopen(fname, "wb");
   if (binFile==NULL)
-    {
-      printf("Error opening %s\n", fname);
-      exit(1);
-    }
+    error(1500,"Error opening binary tree file: %s\n", fname);
 
   return binFile;
 }
@@ -109,42 +106,29 @@ int Statistics::accountNode(int kza, char* emitted, int rank, int state,
     {
       
       int itemsWritten=fwrite(&parentnum, sizeof(int), 1, binFile);
-      if( itemsWritten!=1)
-	{
-
-
-	  printf("There was an error in writng to the file\n");
-	}
       //check to see if anything was actually written
-
+      if( itemsWritten!=1)
+	error(1501,"There was an error in writng to the binary tree file\n");
       
       itemsWritten=fwrite(&nodeCtr, sizeof(int), 1, binFile);
-       if( itemsWritten!=1)
-	{
-	  printf("There was an error in writng to the file\n");
-	}
+      //check to see if anything was actually written
+      if( itemsWritten!=1)
+	error(1501,"There was an error in writng to the binary tree file\n");
 
+      itemsWritten=fwrite(&kza, sizeof(int), 1, binFile);
+      //check to see if anything was actually written
+      if( itemsWritten!=1)
+	error(1501,"There was an error in writng to the binary tree file\n");
        
-       itemsWritten=fwrite(&kza, sizeof(int), 1, binFile);
-       if( itemsWritten!=1)
-	{
-	  printf("There was an error in writng to the file\n");
-	}
-       
-       if (relProd != NULL)
-	 {
-	   newRelProd = relProd[0];
-	 }
-       else
-	 {
-	   newRelProd = -1;
-	 }
-       itemsWritten=fwrite(&newRelProd, sizeof(float), 1, binFile);
-
-       if( itemsWritten!=1)
-	{
-	  printf("There was an error in writng to the file\n");
-	}
+      if (relProd != NULL)
+	newRelProd = relProd[0];
+      else
+	newRelProd = -1;
+	
+      itemsWritten=fwrite(&newRelProd, sizeof(float), 1, binFile);
+      //check to see if anything was actually written
+      if( itemsWritten!=1)
+	error(1501,"There was an error in writng to the binary tree file\n");
     }
 
   return nodeCtr;

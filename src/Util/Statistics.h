@@ -1,4 +1,4 @@
-/* $Id: Statistics.h,v 1.9 2001-07-23 15:34:40 demonter Exp $ */
+/* $Id: Statistics.h,v 1.10 2001-07-23 20:02:22 wilsonp Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -49,9 +49,9 @@ This class is used to measure some statistics of each run.
  *** Static Member Functions ***
 
 
-int accountNode(int,char*,int,int,double*, int)
+ int accountNode(int,char*,int,int,double*, int)
     This function increments nodeCtr, and then writes the information
-    about this node to the tree file, if requested. The current value
+    about this node to the tree file(s), if requested. The current value
     of nodeCtr (after the incrementing) is returned.
 
  int accountChain(int)
