@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<htmll>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/htmll; charset=iso-8859-1">
+</head>
+
+<body>
+<div align="center"><strong>ALARA Users' Guide<br>
+  <font size="+3">Output File Formats </font></strong></div>
+<hr>
+<p align="center"><br>
+  <font size="+1"><strong><font face="Arial, Helvetica, sans-serif"><a name="so"></a>Standard 
+  Output</font></strong></font></p>
+<p><font face="Arial, Helvetica, sans-serif"><strong>Description: </strong></font></p>
+<blockquote> 
+  <blockquote>
+    <p>ALARA output is always written to the standard output of the system in 
+      question. The standard methods of your system should be used to capture 
+      this output to a file, if desired. A sample output is available here. </p>
+  </blockquote>
+</blockquote>
+<p><strong><font face="Arial, Helvetica, sans-serif">Format: </font></strong></p>
+<blockquote> 
+  <blockquote> 
+    <p>As described in the section on <a href="commandtext.html">command-line<font size="-3"><a href="glossarytext.html#cl">[G]</a></font></a> 
+      arguments, various levels of output are available during the calculation. 
+      The first part of the output file will contain this verbose output, including 
+      confirmation of the input data and details of the cross-referencing and 
+      preprocessing of the input. <br>
+      <br>
+      The second part of the output file shows details on the tree building process, 
+      ranging from a simple list of the root isotopes being solved and statistics 
+      on the size and speed of the solution, to details on the chain growth and 
+      truncation<font size="-3"><a href="glossarytext.html#trun">[G]</a></font> 
+      calculations (depending on the verbosity<font size="-3"><a href="glossarytext.html#ver">[G]</a></font> 
+      specified on the <a href="commandtext.html">command-line<font size="-3"><a href="glossarytext.html#cl">[G]</a></font></a>). 
+      <br>
+      <br>
+      The final part of the output file<font size="-3"><a href="glossarytext.html#of">[G]</a></font> 
+      are the results, as requested by the user in the input file. This output 
+      will include one section for each output format description given by the 
+      user. Each of these sections will be divided into blocks as shown in the 
+      following block diagram. </p>
+  </blockquote>
+</blockquote>
+<p>&nbsp;</p>
+<p>&nbsp; </p>
+<table width="75%" border="1">
+  <tr> 
+    <td><p align="center"><strong>Output block diagram</strong></p>
+      <p>For each output description </p>
+      <blockquote> 
+        <p>For each requested response </p>
+        <blockquote> 
+          <p>For each point = (interval|zone|mixture) </p>
+          <blockquote> 
+            <p>Information about point (e.g. volume, loaded mixture, etc) </p>
+            <p>If constituent breakdown requested<br>
+              (Optional) </p>
+            <p><a href="#typ1">Table type 1 </a>for each constituent </p>
+          </blockquote>
+          <p><a href="#typ1">Table type 1</a> of total response for this point 
+          </p>
+        </blockquote>
+        <p><a href="#typ2">Table type 2</a> summarizing total responses for all 
+          points </p>
+      </blockquote></td>
+  </tr>
+</table>
+<blockquote> 
+  <p><strong><a name="typ1"></a>Table type 1 </strong></p>
+  <blockquote> 
+    <p>The first type has a row for each isotope<font size="-3"><a href="glossarytext.html#iso">[G]</a></font> 
+      produced in the problem that has a non-zero response. If the constituent 
+      keyword<font size="-3"><a href="glossarytext.html#key">[G]</a></font> is 
+      given in the output block, there will be one table for each constituent, 
+      followed by a table for the total mixture<font size="-3"><a href="glossarytext.html#mix">[G]</a></font>. 
+    </p>
+    <p>For the isotopic results of individual mixture constituents, all the values 
+      are normalized to the volume fraction of that constituent. Therefore, the 
+      table represents the results for a sample made up entirely of that constituent. 
+      Put another way, the table represents the results normalized per unit volume 
+      (or mass) containing only that constituent. </p>
+    <p>For most results, the table containing the total isotopic results for the 
+      interval, zone<font size="-3"><a href="glossarytext.html#ia">[G]</a></font>, 
+      or mixture, is not normalized, and these values represent the result for 
+      the mixture as described in the input, regardless of what volume fraction 
+      if filled. However, for tables showing the total waste disposal rating (or 
+      clearance index) of intervals, zones, or mixtures, all the values are normalized 
+      by the total volume fraction of the mixture. Therefore, the table represents 
+      the results for a 100% dense sample made up of the same composition as the 
+      mixture. </p>
+  </blockquote>
+  <p><strong><a name="typ2"></a>Table type 2 </strong></p>
+  <blockquote> 
+    <p>The second type of table has a row for each point in the requested resolution, 
+      giving the total response at that point. These results are normalized as 
+      described in the previous paragraph (ie. only the waste disposal rating 
+      results are normalized). </p>
+    <p><strong>Note: </strong>For reverse calculations, the entire structure defined 
+      above will be repeated for each target isotope. </p>
+  </blockquote>
+</blockquote>
+<hr>
+<p></p>
+<p align="center"><font size="+1"><strong><a name="tf"></a>Tree File</strong></font></p>
+<p><strong>Description: </strong></p>
+<blockquote> 
+  <blockquote> 
+    <p>ALARA also optionally produces a so-called tree file<font size="-3"><a href="glossarytext.html#ia">[G]</a></font> 
+      to allow some rudimentary pathway analysis. The tree file contains much 
+      information about the creation and truncation of the trees and chains used 
+      to calculate the transmutation and activation in the problem. </p>
+  </blockquote>
+</blockquote>
+<p><strong>Format: </strong></p>
+<blockquote> 
+  <blockquote> 
+    <p>One tree will be created for each initial isotope. All the information 
+      given for this isotope is based on the flux chosen for the truncation calculations 
+      of this isotope, namely, the group-wise maximum flux across all the intervals 
+      in which the initial isotope exists. An entry for an isotope in the tree 
+      will look like this: </p>
+    <p><font face="Courier New, Courier, mono">-(na)-&gt;h-3 - (0.00306937)</font></p>
+    <p>The level of indentation indicates the rank of this isotope<font size="-3"><a href="glossarytext.html#iso">[G]</a></font> 
+      in the tree. This can be best seen by viewing the whole file and noting 
+      the line's relative indentation. The information given in such an entry 
+      is as follows: </p>
+  </blockquote>
+  <p><strong>reaction type: (na)</strong> This indicates the reaction type(s). 
+  </p>
+  <blockquote> 
+    <p>If multiple reactions lead to this product, the reactions will be separated 
+      by commas. The information indicates the emitted particles only. Therefore, 
+      in this example, the reaction is an (n,na) reaction. Generally, standard 
+      symbols are used, such as 'n' for neutrons, 'a' for alpha particles, 'p','d','t' 
+      for the three isotopes of hydrogen, respectively, and 'h' for helium-3. 
+      For all neutron reactions, an additional '*' is used to indicate that the 
+      product is in an excited isomeric state. Finally, for decay reactions the 
+      symbol '*D' is used. </p>
+  </blockquote>
+  <p><strong>product nuclide: h-3</strong> The product isotope's chemical symbol 
+    and atomic number. </p>
+  <blockquote> 
+    <p>In cases where the product is in an isomeric state, this will be followed 
+      by a letter (m,n,...) indicating which isomeric state. </p>
+  </blockquote>
+  <p><strong>truncation mode: -</strong> This single character indicates the result 
+    of the truncation calculation<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at this node. </p>
+  <p>There are four possible results as follows: </p>
+  <p>Result&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Description<br>
+    <font face="Courier New, Courier, mono">-</font> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+  <blockquote> 
+    <blockquote> 
+      <p>This code indicates that the chain continues normally because this isotope 
+        passed all the tests. </p>
+    </blockquote>
+  </blockquote>
+  <p><font face="Courier New, Courier, mono">* </font></p>
+  <blockquote> 
+    <blockquote> 
+      <p>This code indicates that only the radioactive decays of the chain will 
+        be followed after this node. This arises when the production does not 
+        pass the truncation tolerance test, but ensures that the result includes 
+        all the radioactive products. Stable products which are descendants of 
+        this node may be calculated if they themselves pass the ignore tolerance 
+        test. </p>
+    </blockquote>
+  </blockquote>
+  <p><font face="Times New Roman, Times, serif">/ </font></p>
+  <blockquote> 
+    <blockquote> 
+      <p>This code indicates that the chain will be fully truncated at this node, 
+        and the result will include this node. This arises when the node is a 
+        stable isotope and does not pass the truncation tolerance test, but does 
+        pass the ignore tolerance test. </p>
+    </blockquote>
+  </blockquote>
+  <p><font face="Courier New, Courier, mono">&lt; </font></p>
+  <blockquote> 
+    <blockquote> 
+      <p>This code indicates that the chain will be fully truncated at this node 
+        and will not be included in the result. This arises when the production 
+        of this nuclide does not pass either the truncation or the ignore tolerance 
+        test. </p>
+    </blockquote>
+  </blockquote>
+  <p><strong>truncation production: (0.00306937) </strong></p>
+  <blockquote> 
+    <blockquote>
+      <p>This indicates the relative production at the end<br>
+        of operation of this nuclide from the initial isotope during the truncation<br>
+        calculation. <br>
+        As explained in the ALARA Technical Manual], this represents the total 
+        production of this nuclide during the whole problem, assuming that none 
+        of it is transmuted or decays further. If this production is not calculated, 
+        for example, because the chain is only being followed on radioactive reactions 
+        and this nuclide is stable, then this entry will be '-'. </p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+<hr>
+<p></p>
+<p align="center"><font size="+1"><strong><a name="gs"></a>Gamma Source File</strong></font></p>
+<p><strong><font face="Arial, Helvetica, sans-serif">Description: </font></strong></p>
+<blockquote>
+  <p>The gamma source files created by ALARA currently has a very simple (if not 
+    unweildy) format. This file is only created if the photon_src option is used 
+    in one of the output blocks of the input file where the filename is also given. 
+    The spatial resolution of this file is that specified by the output block. 
+  </p>
+</blockquote>
+<p><strong><font face="Arial, Helvetica, sans-serif">Format: </font></strong></p>
+<blockquote> 
+  <p>For each spatial region, there is a section for each isotope responsible 
+    for gamma emissions<font size="-3"><a href="glossarytext.html#ge">[G]</a></font> 
+    and a section for the total gamma emissions. Each of these sections has a 
+    header line consisting of the isotope's identifier (chemical symbol and mass 
+    number) or the keyword &quot;TOTAL&quot;, respectively. Within each section, 
+    there is one block of gamma source values for each output time, that is, one 
+    for shutdown and one for each cooling time. Finally, each of these blocks 
+    contains the group-wise gamma source values in photons per second, arranged 
+    in lines of 6 values per line. <br>
+  </p>
+</blockquote>
+</body>
+</htmll>

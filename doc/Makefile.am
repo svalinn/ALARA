@@ -1,6 +1,12 @@
-#$Id: Makefile.am,v 1.3 2003-10-22 06:07:01 wilsonp Exp $
+#$Id: Makefile.am,v 1.4 2003-10-29 08:02:35 wilsonp Exp $
 
 include $(top_srcdir)/Makefile.h
 
-# fill in list of sample inputs and outputs here
-# sample_DATA = ....
+# determine how to implement installation of non-code files ie. docs
+
+# this wild card probably needs to be fixed
+doc_DATA = ALARA_Intro.html commandtext.html glossarytext.html		\
+	outputtext.html support.html Introset.html credittext.html	\
+	inputtext.html side.html Manual_syntax.html errortext.html	\
+	introtext.html sidebar.html
+
