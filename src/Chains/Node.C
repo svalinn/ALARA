@@ -153,6 +153,7 @@ double Node::getGamma(int setKza)
 void Node::copyRates(double **rates, const int step, int *loopRank)
 {
 
+
   if (D == NULL)
     {
       rates[rank+step] = NULL;
@@ -163,24 +164,61 @@ void Node::copyRates(double **rates, const int step, int *loopRank)
       rates[rank+step] = D;
       rates[rank+3*step] = rates[rank+step]+nGroups;
     }
-  if (P == NULL)
+
+  /* in reverse mode, we have to set the daughter's P rate
+   * and not this parent's */
+  int idx = rank;
+  double *setP = P;
+  if (mode == MODE_REVERSE && idx > 0)
     {
-      rates[rank] = NULL;
-      rates[rank+2*step] = NULL;
+      idx = rank-1;
+      setP = prev->P;
+    }
+
+  if (setP == NULL)
+    {
+      rates[idx] = NULL;
+      rates[idx+2*step] = NULL;
     }
   else
     {
-      rates[rank] = P;
-      rates[rank+2*step] = rates[rank]+nGroups;
+      rates[idx] = setP;
+      rates[idx+2*step] = rates[idx]+nGroups;
     }
 
   /* find natural loop with current isotope */
-  loopRank[rank] = findLoop();
+  switch(mode)
+    {
+    case MODE_FORWARD:
+      {
+	loopRank[rank] = findLoop();
+	
+	/* make sure that there is no loop within this natural loop
+	 * i.e. loopRank must monotonically increase */
+	if (rank > 0 && loopRank[rank]<loopRank[rank-1] && loopRank[rank-1]>-1)
+	  loopRank[rank] = loopRank[rank-1];
+	
+	break;
+      }
+    case MODE_REVERSE:
+      {
+	int foundLoop = findLoop();
+	
+	if (foundLoop>0)
+	  {
+	    loopRank[rank] = -1;
+	    loopRank[foundLoop] = rank;
+	    /* make sure that there is no loop within this natural loop
+	     * i.e. loopRank must monotonically decrease*/
+	    if (loopRank[foundLoop] > loopRank[foundLoop+1])
+	      loopRank[foundLoop] = loopRank[foundLoop+1];
+	  }
+	break;
+      }
+    }
 
-  /* make sure that there is no loop within this natural loop
-   * i.e. loopRank must monotonically increase */
-  if (rank > 0 && loopRank[rank]<loopRank[rank-1] && loopRank[rank-1]>-1)
-    loopRank[rank] = loopRank[rank-1];
+	  
+
 }
 
 /* re-initialize elements when the chain retracts */
