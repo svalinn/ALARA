@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.9 2000-02-19 05:44:48 wilson Exp $ */
+/* $Id: alara.C,v 1.10 2000-03-01 02:22:44 wilson Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -16,6 +16,16 @@ pu am cm bk cf es fm md no lr ";
 
 static char *id="$Name: not supported by cvs2svn $";
 
+static char *helpmsg="\
+usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
+\t                -h  Show this message\n\
+\t                -r  Restart option for calculating new respones\n\
+\t -t <tree_filename> Create tree file with given name\n\
+\t                -V  Show version\n\
+\t            -v <n>  Set verbosity level\n\
+\t  <input_filename>  Name of input file\n\
+See Users' Guide (http://fti.neep.wisc.edu/ALARA) for more info.\n";
+
 int main(int argc, char *argv[])
 {
   int argNum = 1;
@@ -23,6 +33,8 @@ int main(int argc, char *argv[])
   char *inFname = NULL;
   Root* rootList = new Root;
   topSchedule* schedule;
+
+  verbose(-1,"ALARA %s",id);
 
   while (argNum<argc)
     {
@@ -89,19 +101,19 @@ int main(int argc, char *argv[])
 	      argNum++;
 	    }
 	  break;
+	case 'h':
+	  verbose(-1,helpmsg,argv[0]);
 	case 'V':
-	  verbose(-1,"ALARA %s",id);
 	  exit(0);
 	  break;
 	default:
 	  {
-	    warning(0,"Option %s is not implemented yet.",argv[argNum]);
-	    argNum++;
+	    verbose(-1,helpmsg,argv[0]);
+	    error(0,"Invlaid option: %s.",argv[argNum]);
 	  }
 	}
     }
 
-  verbose(-1,"ALARA %s",id);
 
   Input problemInput(inFname);
 
