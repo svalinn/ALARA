@@ -9,6 +9,8 @@
 #include "topScheduleT.h"
 #include "topSchedule.h"
 
+#include "Chains/NuclearData.h"
+
 /****************************
  ********* Service **********
  ***************************/
@@ -99,8 +101,18 @@ double* topScheduleT::results(int rank)
   int idx, coolNum;
 
   double *data = new double[nCoolingTimes+1];
-  
-  idx = rank*(rank+1)/2;
+
+  switch(NuclearData::getMode())
+    {
+    case MODE_FORWARD:
+      idx = rank*(rank+1)/2;
+      break;
+    case MODE_REVERSE:
+      idx = totalT.getSize();
+      idx = (idx*(idx+1))/2-1;
+      idx -= rank;
+      break;
+    }
 
   data[0] = totalT[idx];
 
