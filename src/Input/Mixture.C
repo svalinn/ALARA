@@ -538,7 +538,7 @@ void Mixture::resetVolume()
 
   while (ptr != NULL)
     {
-      volume = 0;
+      ptr->volume = 0;
       ptr = ptr->next;
     }
 }
