@@ -1,4 +1,4 @@
-/* $Id: Input.C,v 1.22 2003-10-28 22:11:37 wilsonp Exp $ */
+/* $Id: Input.C,v 1.23 2004-07-29 19:53:45 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -261,15 +261,15 @@ void Input::read()
 		  *input >> token;
 		  VolFlux::setRefFluxType(tolower(token[0]));
 		  break;
-		case INTOK_CPLIBS:
-		  int num;
-		  *input >> num;
-		  VolFlux::setNumCP(num);
-		  *input >> num;
-		  VolFlux::setNumCPEG(num);
-  		  Volume::loadRangeLib(input);
-		  Volume::loadSpecLib(input);
-		  break;
+// 		case INTOK_CPLIBS:
+// 		  int num;
+// 		  *input >> num;
+// 		  VolFlux::setNumCP(num);
+// 		  *input >> num;
+// 		  VolFlux::setNumCPEG(num);
+//   		  Volume::loadRangeLib(input);
+// 		  Volume::loadSpecLib(input);
+// 		  break;
 		default:
 		  error(100,"Invalid token in input file: %s",token);
 		}
@@ -422,8 +422,8 @@ void Input::preProc(Root*& rootList, topSchedule*& top)
   volList->makeSchedTs(top);
 
   // Add New function
-  if(VolFlux::getNumCP())
-    volList->makeXFlux(mixListHead);
+//   if(VolFlux::getNumCP())
+//     volList->makeXFlux(mixListHead);
 }
 
 
