@@ -146,7 +146,7 @@ protected:
   /* Input */
   static void getDataLib(istream&);
   static void closeDataLib();
-  static void modeReverse() { mode = MODE_REVERSE; };
+  static void modeReverse() { mode = MODE_REVERSE;};
   static int getMode() { return mode; };
 
   /* Service */

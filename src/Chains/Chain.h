@@ -239,6 +239,7 @@ class Chain
 protected:
   static double truncLimit;
   static double ignoreLimit;
+  static int mode;
 
   int chainLength, newRank, setRank, solvingRef;
   int *loopRank;
@@ -261,6 +262,7 @@ protected:
 public:
   /* Input */
   static void getTruncInfo(istream&);
+  static void modeReverse();
 
   /* Service */
   Chain(Root *newRoot=NULL,topSchedule* top=NULL);
