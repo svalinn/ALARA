@@ -23,6 +23,7 @@
  ***************************/
 double Chain::truncLimit = 1;
 double Chain::ignoreLimit = 1;
+int Chain::mode = MODE_FORWARD;
 
 Chain::Chain(Root *newRoot, topSchedule *top)
 {
@@ -275,7 +276,15 @@ int Chain::build(topSchedule *top)
       /* If already solved, then the action is the same as ignoring,
        * except we have to retract newRank as the chain retracts. 
        */
-      newRank = chainLength-1;
+      switch(mode)
+	{
+	case MODE_FORWARD:
+	  newRank = chainLength-1;
+	  break;
+	case MODE_REVERSE:
+	  newRank = 0;
+	  break;
+	}
     case IGNORE:
       /* If already solved or ignoring, then we are done with this
        * isotope.
@@ -318,7 +327,6 @@ void Chain::setupColRates()
   int rank,idx;
 
   int sliceSize = VolFlux::getNumFluxes()*chainLength;
-  int mode = NuclearData::getMode();
 
   int step = maxChainLength;
   
@@ -358,8 +366,8 @@ void Chain::setupColRates()
 	l[idx] = *(rates[rank+3*step]);
     }
 
-  if (solvingRef && mode == MODE_FORWARD)
-    l[rank-1] = 0;
+  if (solvingRef)
+    l[chainLength-1] = 0;
 
 }
 
@@ -367,9 +375,8 @@ void Chain::setupColRates()
  * a chain by the list of fluxes for a specfic interval */
 void Chain::collapseRates(VolFlux* flux)
 {
-  int idx,rank;
+  int idx,idx2,rank;
   int fluxNum = 0;
-  int mode = NuclearData::getMode();
 
   int step = maxChainLength;
   
@@ -379,16 +386,17 @@ void Chain::collapseRates(VolFlux* flux)
     {
       for (rank=0;rank<chainLength;rank++)
 	{
-	  idx = fluxNum*chainLength + rank;
+	  idx = rank;
 	  if (mode == MODE_REVERSE)
-	    idx = fluxNum*chainLength + (chainLength-1)-rank;
-	  P[idx] = flux->fold(rates[rank])      + L[rank];
-	  d[idx] = flux->fold(rates[rank+step]) + l[rank];
+	    idx = (chainLength-1)-rank;
+	  idx2 = fluxNum*chainLength + idx;
+	  P[idx2] = flux->fold(rates[rank])      + L[idx];
+	  d[idx2] = flux->fold(rates[rank+step]) + l[idx];
 	}
       
       /* in forward mode, don't destroy bottom isotope */
-      if (solvingRef && mode == MODE_FORWARD)
-	d[idx] = 0;
+      if (solvingRef)
+	d[fluxNum*chainLength+chainLength-1] = 0;
 
      fluxNum++;
      flux = flux->advance();
@@ -407,8 +415,9 @@ void Chain::setDecay(Matrix& D, double time)
 
   /* when solving reference calculations, only the most
    * recent isotope can be a new addition */
-  if (solvingRef)
+  if (mode == MODE_FORWARD && solvingRef)
     localNewRank = max(0,chainLength-2);
+
   oldSize = (localNewRank*(localNewRank+1)/2);
 
   /* copy previously calculated rows */
@@ -448,7 +457,7 @@ void Chain::setDecay(Matrix& D, double time)
  * on a element by element basis */
 void Chain::fillTMat(Matrix& T,double time, int fluxNum)
 {
-  int idx,row,col, oldSize;
+  int idx,row,col,rank,oldSize;
   int localNewRank = newRank;
   int size = chainLength*(chainLength+1)/2;
   int fluxOffset = fluxNum*chainLength;
@@ -460,7 +469,7 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
    * recent isotope can be a new addition, BUT
    * the previous isotope needs to have its destruction rates updated
    */
-  if (solvingRef)
+  if (mode == MODE_FORWARD && solvingRef)
     localNewRank = max(0,chainLength-2);
   oldSize = (localNewRank*(localNewRank+1)/2);
 
@@ -470,9 +479,19 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
   
   /* fill new rows */
   row = localNewRank;
+  rank = row;
   col = 0;
   for (;idx<size;idx++)
     {
+      switch(mode)
+	{
+	case MODE_FORWARD:
+	  rank = row;
+	  break;
+	case MODE_REVERSE:
+	  rank = (chainLength-1)-row;
+	  break;
+	}
       if (col == row)
 	{
 	  data[idx] = exp(-d[row]*time);
@@ -482,7 +501,7 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
       else
 	{
 	  data[idx] = fillTElement(row,col,P+fluxOffset,d+fluxOffset,time,
-				   loopRank);
+				   loopRank,rank);
 	  col++;
 	}
     }
@@ -508,7 +527,7 @@ void Chain::mult(Matrix &result, Matrix& A, Matrix& B)
 
   /* when solving reference calculations, only the most
    * recent isotope can be a new addition */
-  if (solvingRef)
+  if (mode == MODE_FORWARD && solvingRef)
     localNewRank = max(0,chainLength-2);
   oldSize = (localNewRank*(localNewRank+1)/2);
 
@@ -626,4 +645,10 @@ int Chain::getKza(int rank)
 int Chain::getRoot() 
 { 
   return root->getKza(); 
+}
+
+void Chain::modeReverse()
+{
+  mode  = MODE_REVERSE;
+  NuclearData::modeReverse();
 }
