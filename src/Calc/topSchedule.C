@@ -77,7 +77,6 @@ topSchedule& topSchedule::operator=(const topSchedule& t)
 
   /**** BEGIN copied directly from calcSchedule.C ***/
   setCode = t.setCode;
-  nItems = t.nItems;
   
   delay = t.delay;
   D = t.D;
@@ -86,8 +85,12 @@ topSchedule& topSchedule::operator=(const topSchedule& t)
   opTime = t.opTime;
   fluxCode = t.fluxCode;
   
-  delete [] subSched;
+  while (nItems-->0)
+    delete subSched[nItems];
+  delete subSched;
   subSched=NULL;
+
+  nItems = t.nItems;
 
   if (nItems>0)
     {  

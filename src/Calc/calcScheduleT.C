@@ -55,10 +55,13 @@ calcScheduleT& calcScheduleT::operator=(const calcScheduleT& c)
   totalT = c.totalT;
   histT = c.histT;
   opBlockT = c.opBlockT;
-  nItems = c.nItems;
 
-  delete [] subSchedT;
+  while (nItems-->0)
+    delete subSchedT[nItems];
+  delete subSchedT;
   subSchedT = NULL;
+
+  nItems = c.nItems;
 
   if (nItems > 0)
     {

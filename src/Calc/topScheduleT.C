@@ -53,10 +53,13 @@ topScheduleT& topScheduleT::operator=(const topScheduleT &t)
   totalT = t.totalT;
   histT = t.histT;
   opBlockT = t.opBlockT;
-  nItems = t.nItems;
 
-  delete [] subSchedT;
+  while (nItems-->0)
+    delete subSchedT[nItems];
+  delete subSchedT;
   subSchedT = NULL;
+
+  nItems = t.nItems;
 
   if (nItems > 0)
     {

@@ -14,6 +14,23 @@ EAFLib::EAFLib(char* transFname, char* decayFname) : ASCIILib(DATALIB_EAF)
 
 EAFLib::~EAFLib()
 {
+
+  /* delete arrays here that were dimensioned with
+   * EAF relevant constants */
+  int rxnNum;
+
+  for (rxnNum=0;rxnNum<MAXEAFRXNS;rxnNum++)
+    {
+      delete xSection[rxnNum];
+      delete emitted[rxnNum];
+    }
+  delete xSection;
+  delete emitted;
+  delete transKza;
+
+  delete decayKza;
+  delete bRatio;
+
   inTrans.close();
   inDecay.close();
 }
@@ -347,8 +364,6 @@ int EAFLib::getTransData()
 	for(gNum=0;gNum<nGroups;gNum++)
 	  xSection[nTRxns][gNum] = gas[gasNum][gNum];
 	transKza[nTRxns] = gasKza[gasNum];
-	emitted[nTRxns] = new char[strlen(gasEmitted)+1];
-	memCheck(emitted[nTRxns],"EAFLib::getTransInfo(...): emitted[n]");
 	strcpy(emitted[nTRxns],gasEmitted);
 	nTRxns++;
       }

@@ -150,6 +150,7 @@ Volume::~Volume()
   delete fluxHead; 
   //delete resultHead;
   delete schedT; 
+  delete [] outputList;
   delete next; 
 }
 

@@ -115,18 +115,21 @@ calcSchedule& calcSchedule::operator=(const calcSchedule& c)
     return *this;
 
   setCode = c.setCode;
-  nItems = c.nItems;
-  
+
   delay = c.delay;
   D = c.D;
   history = c.history;
 
   opTime = c.opTime;
   fluxCode = c.fluxCode;
-  
-  delete [] subSched;
+
+  while (nItems-->0)
+    delete subSched[nItems];
+  delete subSched;
   subSched = NULL;
 
+  nItems = c.nItems;
+  
   if (nItems>0)
     {  
       subSched = new calcSchedule*[nItems];
