@@ -234,19 +234,21 @@ double fillTElement(int row, int col, double *P, double *d, double t,
   int defSuccess, altSuccess;
   double result;
 
-
-
   /* process loop information in reverse problem */
   if (rank != row)
     {
-      loopIdx = (row+rank) - loopRank[rank];
-      parLoopIdx = (row+rank) - loopRank[rank+1];
+      loopIdx = loopRank[rank];
+      parLoopIdx = loopRank[rank+1];
     }
   else
     {
       loopIdx = loopRank[row];
       parLoopIdx = loopRank[row-1];
     }
+
+  /* if there is no loop, at this level, row - loopIdx = -1 */
+  if (loopIdx == -1)
+    loopIdx = row+1;
 
   /* do this product up front to eliminate costly
    * computation which may end in 0 anyway */
@@ -277,7 +279,7 @@ double fillTElement(int row, int col, double *P, double *d, double t,
    *      - if loopRank[row-1] > -1, check for loop sol'n \
    *        (This check must be done after the first one because
    *        it ensures that we are not checking loopRank[-1])*/
-  if (col<=loopIdx && (d[row] > 0 || parLoopIdx >-1))
+  if (col<=row-loopIdx && (d[row] > 0 || parLoopIdx >-1))
     {
       result = laplaceExpansion(row,col,d,t,defSuccess);
       if (!defSuccess)
