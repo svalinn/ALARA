@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.13 1999-11-09 17:09:56 wilson Exp $ */
+/* $Id: Volume.C,v 1.14 1999-11-11 17:50:41 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -15,6 +15,7 @@
 #include "Calc/topScheduleT.h"
 
 #include "Output/Result.h"
+#include "Output/Output_def.h"
 
 /***************************
  ********* Service *********
@@ -612,7 +613,10 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		}
 	    }
 	  
-	  volFrac = ptr->mixPtr->getVolFrac();
+	  volFrac = 1.0;
+	  if (response == OUTFMT_WDR)
+	    volFrac = ptr->mixPtr->getVolFrac();
+
 	  /* if components were written and there is only one */
 	  if (writeComp && ptr->nComps == 0)
 	    /* write comment refering total to component total */

@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.11 1999-11-09 17:09:06 wilson Exp $ */
+/* $Id: Mixture.C,v 1.12 1999-11-11 17:50:26 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -21,6 +21,7 @@
 #include "Calc/topScheduleT.h"
 
 #include "Output/Result.h"
+#include "Output/Output_def.h"
 
 /***************************
  ********* Service *********
@@ -462,6 +463,10 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	    }
 	}
       
+      volFrac = 1.0;
+      if (response == OUTFMT_WDR)
+	volFrac = ptr->volFraction;
+
       /* if components were written and there is only one */
       if (writeComp && ptr->nComps == 0)
 	/* write comment refering total to component total */
@@ -472,7 +477,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	  /* otherwise write the total response for the zone */
 	  cout << "Total (All components)" << endl;
 	  ptr->outputList[ptr->nComps].write(response,targetKza,coolList,
-					     ptr->total,ptr->volFraction,
+					     ptr->total,volFrac,
 					     ptr->volume);
 
 	}

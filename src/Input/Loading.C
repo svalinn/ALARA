@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.10 1999-11-09 17:06:54 wilson Exp $ */
+/* $Id: Loading.C,v 1.11 1999-11-11 17:50:05 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -18,6 +18,7 @@
 #include "Calc/topScheduleT.h"
 
 #include "Output/Result.h"
+#include "Output/Output_def.h"
 
 /***************************
  ********* Service *********
@@ -263,7 +264,10 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		}
 	    }
 	  
-	  volFrac = ptr->mixPtr->getVolFrac();
+	  volFrac = 1.0;
+	  if (response == OUTFMT_WDR)
+	    volFrac = ptr->mixPtr->getVolFrac();
+
 	  /* if components were written and there is only one */
 	  if (writeComp && ptr->nComps == 0)
 	    /* write comment refering total to component total */
