@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.17 2000-01-17 16:57:38 wilson Exp $ */
+/* $Id: Mixture.C,v 1.18 2000-02-17 00:13:18 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -501,18 +501,25 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	  
 	  /* write component header */
 	  cout << "Total (All constituents) " << endl;
+	  if (response != OUTFMT_WDR)
+	    cout << "\tNON-Compacted" << endl;
+	  else
+	    cout << "\tCOMPACTED" << endl;
 	  cout 
 	    << "\tVolume Fraction: " << volFrac
 	    << "\tVolume: " << volume_mass;
 	  
 	  if (normType < 0)
 	    {
-	      volume_mass *= ptr->totalDensity;
+	      /* different from constituent: mixture densities 
+		 already take volume fraction into account */
+	      volume_mass = ptr->totalDensity;
 	      cout
 		<< "\tDensity: " << ptr->totalDensity
-		<< "\tMass: " << volume_mass
-		<< endl;
+		<< "\tMass: " << volume_mass*ptr->volume;
 		}
+
+	  cout << endl;
 	      
 	  ptr->outputList[ptr->nComps].write(response,targetKza,coolList,
 					     ptr->total,volume_mass);

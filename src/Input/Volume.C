@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.18 2000-01-17 16:57:38 wilson Exp $ */
+/* $Id: Volume.C,v 1.19 2000-02-17 00:13:18 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -592,6 +592,12 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	      
 	      /* write component header */
 	      cout << "Total (All constituents) " << endl;
+
+	      if (response != OUTFMT_WDR)
+		cout << "\tNON-Compacted" << endl;
+	      else
+		cout << "\tCOMPACTED" << endl;
+
 	      cout 
 		<< "\tVolume Fraction: " << volFrac
 		<< "\tVolume: " << volume_mass*ptr->volume;
@@ -599,13 +605,15 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	      if (normType < 0)
 		{
 		  density = ptr->mixPtr->getTotalDensity();
-		  volume_mass *= density;
+		  /* different from constituent: mixture densities 
+		     already take volume fraction into account */
+		  volume_mass = density;
 		  cout
 		    << "\tDensity: " << density 
-		    << "\tMass: " << volume_mass*ptr->volume
-		    << endl;
+		    << "\tMass: " << volume_mass*ptr->volume;
 		}
-	      
+	      cout << endl;
+
 	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,
 						 ptr->total, volume_mass);
 	      

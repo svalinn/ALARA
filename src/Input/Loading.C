@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.16 2000-01-18 02:38:12 wilson Exp $ */
+/* $Id: Loading.C,v 1.17 2000-02-17 00:13:18 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -316,7 +316,6 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	    }
 
 	  volFrac = ptr->mixPtr->getVolFrac();
-
 	  /* if components were written and there is only one */
 	  if (writeComp && ptr->nComps == 0 && volFrac == 1.0)
 	    /* write comment refering total to component total */
@@ -331,6 +330,11 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	      volume_mass = ptr->volume * volFrac;
 
 	      cout << "Total (All constituents) " << endl;
+	      if (response != OUTFMT_WDR)
+		cout << "\tNON-Compacted" << endl;
+	      else
+		cout << "\tCOMPACTED" << endl;
+
 	      cout 
 		<< "\tVolume Fraction: " << volFrac
 		<< "\tVolume: " << volume_mass;
@@ -338,12 +342,15 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	      if (normType < 0)
 		{
 		  density = ptr->mixPtr->getTotalDensity();
-		  volume_mass *= density;
+		  /* different from constituent: mixture densities 
+		     already take volume fraction into account */
+		  volume_mass = density;
 		  cout
 		    << "\tDensity: " << density 
-		    << "\tMass: " << volume_mass
-		    << endl;
+		    << "\tMass: " << volume_mass*ptr->volume;
 		}
+
+	      cout << endl;
 
 	      ptr->outputList[ptr->nComps].write(response, targetKza,coolList,
 					    ptr->total, volume_mass);
