@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.16 2003-06-12 17:00:29 wilsonp Exp $ */
+/* $Id: GammaSrc.C,v 1.17 2003-06-18 20:14:06 varuttam Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -438,11 +438,11 @@ double GammaSrc::calcAdjDose(int kza, double *volAdjDoseConv, double vol)
   double* mult = getGammaMult(kza);
   int gNum;
 
- // volAdjDoseConv group order is hi-lo but getGammaMult order is lo-hi 
+ // volAdjDoseConv group order is lo-hi and getGammaMult order is lo-hi 
   if (mult != NULL)
     {
       for (gNum=0;gNum<nGroups;gNum++)
-	adjDose += mult[nGroups-1-gNum]*volAdjDoseConv[gNum];
+	adjDose += mult[gNum]*volAdjDoseConv[gNum];
     }
 
   return adjDose*vol/detvolume;

@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.37 2003-06-03 19:00:42 varuttam Exp $ */
+/* $Id: Volume.C,v 1.38 2003-06-18 20:14:06 varuttam Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -785,13 +785,24 @@ int* intHEAD = intervalptr; //HEAD of interval list
 int listsize = *intervalptr; //first element of intervalptr is number of element
 int sizectr; //variable used in loop to track advancement of intervalptr pointer 
 int lower,upper; //upper and lower boundary of one set of requested interval
+int volumeCtr=0; //counter to keep track of fine mesh number; needed to build intervalptr
 float* value[nResults];  //Dose for all shutdown times for one fine mesh
 float sum=0;  // Total for dose in mesh range
 
 //stores zone information in intervalptr
-ptr=ptr->next;
-Loading* ldrptr=ptr->zonePtr;
+*intHEAD=0; //list has zero length so far
 
+//loop to count number of interval
+while (ptr->next != NULL)
+{
+	ptr=ptr->next; // First ptr is head
+	volumeCtr++;	
+	Loading* ldrptr=ptr->zonePtr;
+ 	if ((ptr->next != NULL) & (ptr->next>zonePtr<>ldrptr))
+		(*intHEAD)++;		
+}
+
+//performs summation and prints result
 while (ptr->next != NULL)
 {
  
