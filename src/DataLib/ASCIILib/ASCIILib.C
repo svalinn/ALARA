@@ -1,4 +1,4 @@
-/* $Id: ASCIILib.C,v 1.6 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: ASCIILib.C,v 1.7 2001-07-10 20:52:06 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -381,7 +381,7 @@ void ASCIILib::makeBinLib(char *alaraFname)
       else if (dKza < tKza)
 	{
 	  /* make a pure decay entry */
-	  debug(4,"Writing pure decay entry for %d.",tKza);
+	  debug(4,"Writing pure decay entry for %d.",dKza);
 	  kza = dKza;
 	  decay2merge();
 	  if (numSpec > 0)

@@ -1,4 +1,4 @@
-/* $Id: EAFLib.C,v 1.8 1999-08-24 22:06:18 wilson Exp $ */
+/* $Id: EAFLib.C,v 1.9 2001-07-10 20:52:13 wilsonp Exp $ */
 #include "EAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
@@ -365,7 +365,7 @@ int EAFLib::getTransData()
 	nTRxns++;
       }
   
-  debug(5,"Found %d reaction paths for %d.",nTRxns,zak);
+  debug(5,"Found %d reaction paths for %d.",nTRxns,oldZak);
   
   return oldZak;
 }
