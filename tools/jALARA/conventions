@@ -1,0 +1,11 @@
+    //*******************************************************************
+    //Use: output data of a table specified by user and ouput as a table
+    //     not in anyparticular order but how it was inserted into the
+    //     data base initially
+    //Pass: tableName -> the table desire to get data from
+    //      conn      -> the connection to the server
+    //Return: None
+    //******************************************************************
+
+nameThingsThisWay
+

@@ -1,0 +1,77 @@
+8/05
+begin a new implemetation for getting mim tree w/ given kza
+now start using a tree data structure
+9/03
+merging the tree data structure with the existing TreeFile class (done)
+9/12
+fix ui so it doesn't crash w/ unhappy input
+goal:
+have IO.java handle all the output and input
+1 promt for string 
+1 promt for int
+1 prompt for menuoption
+//maybe direct output to a file as well
+and also make a reduced ui
+9/20/02
+-powermode is implemented
+ui is fixed well
+ui doesn't crash w/ undsire type of input anymore
+for menus switches
+case -1 is to switch back to normal mode
+case 0 is to switch to powermode
+-view as table now adds option for number of lines displayed
+-read bin file now shows the percent of data to be read
+9/23/02
+try to find a way to show the table names....
+-got it, it's implemented int viewData.java
+-showing data as table now has the option to stop in the middle
+treeTableDB's contructor now checks for exiting table
+if the table exist the user have the option
+to name another table or use the existn one
+if the table did not exist the table will be created
+-read in file now checks if the file exist 
+9/25/2002
+the original treetabledb constructor creates a table
+when using treeTabledb, we don't always want to create a tatle
+so now creating a new project and make change to 
+treetabledb
+-Because it's not alway the case that when creating an object
+of TreeTableDB a new table must to be made, therefore
+a new consturctor is implemented just to take connection
+as a parameter.
+A New method selectTable is alway impleamted
+if no table is selected when the object of treetabledb is created
+then can use selectTable to select table
+and because the code is repeated, the original
+consturctor( that takes table name and conn as param) nose
+uses selectTable to determine if there is already
+a table w/ the same name
+-now checks if a particular tables exist before proceeding
+in both viewChainw/KZA and also viewMinTreew/KZA
+-in both viewChainw/KZA and also viewMinTreew/KZA
+if the particular kza doesn't exit, it won't crash anymore
+9/26/02
+done merging code 
+####### NEW #######
+8/05
+new file tree_ds.java - the tree data structure
+8/16!!
+getMinTree w/ given kza finally works the new Tree implementation
+9/23/02
+added showTables in viewData
+9/25/02
+new constructor in TreeTableDB
+new method selectTable in TreeTableDB
+###### CHANGE ######
+8/13
+take out quick sort from viewData
+change the sql command in TreeTableDB::getKza so it gets the 
+TreeData already sorted by kza DSCE
+8/17
+change the try clause in InOut::connectDBServer
+9/23/02
+take away toString in viewData and use regular 
+System.out.print
+###### PEDDING #####
+replace vector use w/ tree (9/12)
+mark ** for the given kza
