@@ -1,10 +1,25 @@
-$Id: NEWS,v 1.2 2003-09-04 13:32:15 wilsonp Exp $
+$Id: NEWS,v 1.3 2003-12-05 22:21:13 wilsonp Exp $
 
-Version 2.6.???
+Version 2.7.1
 	
 BUGS FIXED
+        * Fixed ADJOINT libraries to work with v.2 binary libraries [PW] (10/20/2003)
+
+NEW FEATURES
+	* Machine-dependent data files (binary ALARA libraries) are searched for in a path
+	  defined by ALARA_XSDIR environment variable and
+	  ${exec_prefix}/lib/alara/$OSTYPE [PW] (10/27/2003)
+
+CODE UPDATES
+	
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
+
+Version 2.7.0
+	
+BUGS FIXED
+        * Fixed ADJOINT libraries to work with v.2 binary libraries [PW] (10/20/2003)
         * Reversal of multiplication made on 6/03/03 undone; group order
-          in GammaSrc and adjoint input file is the same [AV] (6/18/2003	
+          in GammaSrc and adjoint input file is the same [AV] (6/18/2003)
         * Fixed indexing of average energy vector for decay types [PW] (06/10/2003)
         * Multiplication of importance and gamma source for bio dose
           calculation is reversed to account for order of gp struc [AV] (6/03/03) 
@@ -23,9 +38,12 @@ BUGS FIXED
 	
 
 NEW FEATURES
+	* Machine-dependent data files (binary ALARA libraries) are searched for in a path
+	  defined by ALARA_XSDIR environment variable and
+	  ${exec_prefix}/lib/alara/$OSTYPE [PW] (10/27/2003)
 	* Response type reminders now appear above each and every table [PW] (6/12/2003)
-	* Many input files (data, WDR, etc) are searched for in a path
-	  defined by ALARA_DATADIR environment variable and ${prefix}/share
+	* Machine-independent data files (WDR, ANS 6.4.3, etc) are searched for in a path
+	  defined by ALARA_DATADIR environment variable and ${prefix}/share/alara/data
 	  defined by configure [PW] (6/12/2003)
 	* Implemented Biological/Adjoint/Folded dose in Volumes [AV] (3/??/03)
 	* Direct reading of RTFLUX by ALARA [MF] (08/23/02)
@@ -35,7 +53,7 @@ NEW FEATURES
         * Adjoint dose calculation for volume resolution [AV] (12/02/2002)
 
 CODE UPDATES
-	* Update for addition of software for producing collaboration 
+	* Update for addition of software for producing collaboration
 	  graphs in doxygen called 'dot'  [PW] (08/11/2002)
 	* Changed code to use GNU autoconf/make, etc... [EK,PW] (01/06/2003)
 	

@@ -1,3 +1,30 @@
-$Id: README,v 1.1 2003-01-03 02:04:39 wilsonp Exp $
+$Id: README,v 1.2 2003-12-05 22:21:13 wilsonp Exp $
 
-Insert README here...
+Thank you for your interest in ALARA.
+
+Please see the INSTALL file for generic details on building and
+installing packages using 'configure' and 'make'.
+
+In addition to building and installing the ALARA program, this package
+includes an accessory program, dant2alara, and a pair of Perl scripts
+for post-processing data.
+
+dant2alara...
+...is an interactive program for converting RTFLUX/ATFLUX files (from
+DANTSYS and similar) to text based flux files for use in ALARA.  Since
+ALARA can read RTFLUX files directly, this use may not be useful.  On
+the other hand, the biological dose method requires ggamma source to
+dose conversion factors from an ATFLUX type file, which can not be
+handled directly by ALARA at this time.
+
+extract_pathways...
+.... is a Perl script that scans an ASCII tree file and finds all the
+chains/pathways that result in a given isotope.
+
+summary ....
+... is a Perl script that extracts a summary of the output file, most
+notably removing all results for individual isotopes and leaving all
+totals.  You can also extract results for a single specific isotopes
+by giving the argument "-iso" followed by the isotope in question
+written as a lower case atomic symbol hyphenated with the mass
+number. e.g. tritium is h-3.
