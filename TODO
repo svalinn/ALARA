@@ -1,4 +1,4 @@
-$Id: TODO,v 1.18 2003-07-01 13:28:01 wilsonp Exp $
+$Id: TODO,v 1.19 2004-07-23 19:34:05 wilsonp Exp $
 
 When claiming a task from this list, please immediately place your
 name beside it, change the date from the date that it was added to
@@ -7,21 +7,19 @@ the date that you claimed the task, send an email to
 
 alaradev Members
 PW - Paul Wilson
-AV - Athi Varuttamaseni
 PP - Phiphat "Nor" Phruksarojanakun
 MF - Milad Fatenejad
-EK - Eric Kuo
-JN - Jon Newell
+DP - David Paige
 
 BUG FIXES
 ------------------
 
 NEW FEATURES
 ------------------
-[AV] Adjoint dose in zones
+[PW] Adjoint dose in zones
 [MF] Sequential Charged Particle Reactions
 **** (08/08/2002) Direct writing of SRCDX (?) gamma source file for DANTSYS
-**** (08/08/2002) Direct reading of MCTAL files from MCNP
+[MF] (08/08/2002) Direct reading of MCTAL files from MCNP
 **** (08/08/2002) Alternative approximations for dose (e.g. line source)
 **** (08/08/2002) Improve volume calculation and output
 	* automatically change units to reduce significant figures (e.g. cm3->m3)
@@ -37,8 +35,7 @@ CODE FEATURES
 USER DOCUMENTATION
 ------------------
 [PW] (08/08/2002) bring up to date with current features
-[JN] (23/06/2003) Edit & reformat user manual
-**** (08/08/2002) add sample problems
+[PW] (23/06/2003) Edit & reformat user manual
 **** (08/08/2002) add tutorials
 **** (08/08/2002) add/improve description of supported ASCII Library formats
 

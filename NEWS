@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.5 2004-06-03 22:03:29 wilsonp Exp $
+$Id: NEWS,v 1.6 2004-07-23 19:34:05 wilsonp Exp $
 
 Version 2.7.1
 	
@@ -17,6 +17,7 @@ NEW FEATURES
 	* Added new clearance files: NRC and EU based clearance limits. (06/03/2004)
 
 CODE UPDATES
+	* Sample problems and sample data added [DP/PW] (07/23/2004)
 	
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
