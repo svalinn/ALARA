@@ -1,6 +1,6 @@
 <HTML>
 <head>
-<!-- $Id: main.html,v 1.1 2000-02-29 13:10:08 wilson Exp $ -->
+<!-- $Id: main.html,v 1.2 2000-03-01 14:32:24 wilson Exp $ -->
 </head>
 
 <body bgcolor=white>
@@ -9,6 +9,408 @@
 <h1>Error Messages</h3>
 <hr>
 </center>
+
+
+<dl>
+
+<dt> <h3>Command-line Parsing</h3>
+
+<dd>
+<dl>
+
+    <dt> <b>0: Option <i>&lt;string&gt;</i> is not implemented yet.</b> 
+    <dd> An unsupported command-line option was specified: <i>string</i>.
+    <p>
+
+    <dt> <b>1: Only one input filename can be specified:
+        <i>&lt;string&gt;</i>.</b>
+    <dd> There appears to be more than one input filename on the
+    command-line.  This may be caused by an error in the other command
+    line options, or a missing option.
+</dl>
+    
+<dt> <h3>Input Phase</h3>
+   
+<dd>
+Note that all error messages which occur during the input phase may
+not report the accurate cause of the error.  If there is an error in
+the input file, <b>ALARA</b> may not immediately recognize the error
+and then report an error during some later input block.  This is
+particularly true during the first step, reading the input file
+itself.
+<p>
+  
+<dl>
+<dt><b>Read Input File</b><p>
+<dd>
+<dl>
+    <dt> <b>100: Invalid token in input file:
+        <i>&lt;string&gt;</i></b>
+    <dd> There is an error in the input file causing it to read an
+      invalid keyword.
+    <p>
+
+    <dt> <b>101: Unable to open included file:
+        '<i>&lt;string&gt;</i>'.</b>
+    <dd> The file <i>string</i> included in one of the input files can not
+      be openned.
+    <p>
+
+    <dt> <b>110: Unable to open material library:
+        <i>&lt;string&gt;</i></b>
+    <dd> The file <i>string</i> specified in the <tt>material_lib</tt> input
+      block cannot be openned.
+    <p>
+
+    <dt> <b>111: Unable to open element library: <i>&lt;string&gt;</i></b>
+    <dd> The file <i>string</i> specified in the <tt>element_lib</tt> input
+      block cannot be openned.
+    <p>
+
+    <dt> <b>120: Invalid units in cooling time: %10g %c</b>
+    <dd> The specified cooling time does not have one of the supported
+      time units.
+    <p>
+
+    <dt> <b>121: No after-shutdown/cooling times were defined.</b>
+    <dd> The <tt>cooling</tt> input block contains no information before
+      the <tt>end</tt> keyword.
+    <p>
+
+    <dt> <b>130: Invalid dimension type: <i>&lt;string&gt;</i></b>
+    <dd> The type of dimension, <i>string</i>, declared in the <tt>dimension</tt> block
+      is not supported.
+    <p>
+
+    <dt> <b>131: Dimension has no boundaries</b>
+    <dd> The <tt>dimension</tt> block has no zone boundary information
+      before the <tt>end</tt> keyword.
+    <p>
+
+    <dt> <b>140: Invalid flux type: <i>&lt;string&gt;</i></b>
+    <dd> The flux type, <i>string</i>, specified in the <tt>flux</tt> block in
+      not supported.
+    <p>
+
+    <dt> <b>150: Invalid geometry type: <i>&lt;string&gt;</i></b>
+    <dd> The geometry type, <i>string</i>, specified in the <tt>geometry</tt>
+      block is not supported.
+    <p>
+
+    <dt> <b>160: History <i>&lt;string&gt;</i> is empty</b> 
+    <dd> The <tt>history</tt> input block, <i>string</i>, contains no
+      information before the <tt>end</tt> keyword.
+    <p>
+
+    <dt> <b>170: Material Loading is empty.</b>
+    <dd> The <tt>mat_loading</tt> input block contains no information
+      before the <tt>end</tt> keyword.
+    <p>
+
+    <dt> <b>180: Target materials for reverse calculations can only be
+        elements or isotopes and not '<i>&lt;string&gt;</i>'</b>
+    <dd> The constituent type, <i>string</i>, given for this target material
+      is not supported.  It must be either ``element'' or ``isostope''.
+    <p>
+
+    <dt> <b>181: Invalid material constituent:
+        <i>&lt;string&gt;</i></b>
+    <dd> The constituent type, <i>string</i>, specified for this mixture
+      constituent is not supported.
+    <p>
+
+    <dt> <b>182: Mixture <i>&lt;string&gt;</i> has no
+        constituents</b>
+    <dd> The <tt>mixture</tt> input block, <i>string</i>, contains no
+      information before the <tt>end</tt> keyword.
+    <p>
+
+    <dt> <b>190: Invalid units in pulse level: %10g %c</b>
+    <dd> The specified pulse level decay time does not have one of
+      the supported time units.
+    <p>
+
+    <dt> <b>200: Schedule <i>&lt;string&gt;</i> is empty</b>  
+    <dd> The <tt>schedule</tt> input block, <i>string</i>, contains no
+      information before the <tt>end</tt> keyword.
+    <p>
+
+    <dt> <b>210: Invalid units in schedule item delay
+        time:  %10g %c</b>
+    <dd> The specified inter-schedule delay time does not have one
+      of the supported time units.
+    <p>
+
+    <dt> <b>211: Invalid units in single pulse time: %10g %c</b>
+    <dd> The specified pulse length does not have one of the
+      supported time units.
+    <p>
+
+    <dt> <b>230: Output type '<i>&lt;string&gt;</i>' is not
+        currently supported.</b>
+    <dd> The output type, <i>string</i>, specified for this output
+      format is not supported.
+    <p>
+
+    <dt> <b>240: Unable to open dump file
+        <i>&lt;string&gt;</i></b>
+    <dd> The output ``dump'' file could not be openned.
+    </dl>
+    <p>  
+  
+<dt><b>Input Checking</b><p>
+<dd>
+    <dl>
+    <p>
+
+    <dt> <b>300: Cannot define both zone dimensions and
+        interval volumes.</b>
+    <dd> <b>ALARA</b> does not permit the geometry to be defined with both
+      the <tt>dimension</tt> input block and the <tt>volumes</tt>
+      input block.  This would result in redundant and possibly
+      inconsistent input.
+    <p>
+
+    <dt> <b>301: A material loading is given for more
+        zones (%d) than are defined by the zone dimensions
+        (%d).  Those extra
+        zones are being ignored.</b>
+    <dd> The number of zones as defined by the
+      <tt>mat_loading</tt> input block does is larger than the
+      number defined by the <tt>dimension</tt> blocks.  This is
+      permissible, but may lead to dubious results.  The extra
+      zones from the <tt>mat_loading</tt> block will be ignored.
+    <p>
+
+    <dt> <b>302: Material loadings were not defined for as many zones
+    (%d) as were defined by the zone dimensions (%d).</b>
+    <dd> The number of zones as defined by the
+      <tt>mat_loading</tt> input block is smaller than the
+      number defined by the <tt>dimension</tt> blocks.  This is
+      NOT permissible as it would leave some zones unfilled.
+    <p>
+
+    <dt> <b>303: Must define either zone dimensions or
+        interval volumes for multi-point problems.</b>
+    <dd> <b>ALARA</b> requires a definition of the geomery using either
+      the <tt>dimension</tt> input block or the <tt>volumes</tt>
+      input block for problems in more than 0 dimensions.
+    <p>
+k
+    <dt> <b>310: Could not find element <i>&lt;string&gt;</i>
+        in element library.</b>
+    <dd> The element <i>string</i> was not found in the element library.
+      This could be due to an error in the material library,
+      incorrect user input, or an omission in the element
+      library.
+    <p>
+
+    <dt> <b>311: Could not find material
+        <i>&lt;string&gt;</i> in material library.</b>
+    <dd> The material <i>string</i> was not found in the material
+      library.  This could be due to incorrect user input or an
+      omission in the element library.
+    <p>
+
+    <dt> <b>330: Duplicate dimensions of type
+        <i>&lt;string&gt;</i>.</b>
+    <dd> The dimension <i>string</i> was defined more that once in the
+      input file.
+    <p>
+
+    <dt> <b>331: <i>&lt;string1&gt;</i> geometries don't have
+        dimensions of type <i>&lt;string2&gt;</i>.</b>
+    <dd> The dimension type <i>string2</i> was defined for geometry type
+      <i>string1</i>, which does not allow this kind of dimension.
+    <p>
+
+    <dt> <b>340: Unable to open flux file
+        <i>&lt;string1&gt;</i> for flux <i>&lt;string2&gt;</i>.</b>
+    <dd> In the flux definition <i>string2</i> the given flux file
+      <i>string1</i> cannot be openned.
+    <p>
+
+    <dt> <b>350: Toroidal problems with zone dimensions
+        require a major radius.</b>
+    <dd> All problems defined as having toroidal geometries must
+      define a major radius with the <tt>major_radius</tt> input
+      block.
+    <p>
+
+    <dt> <b>351: Toroidal problems with zone dimensions
+        require either a minor radius or a radius dimension.</b>
+    <dd> All problems defined as having toroidal geometries must
+      define a minor radius with either a <tt>dimension</tt> block
+      or the <tt>minor_radius</tt> input block.
+    <p>
+
+    <dt> <b>370: Zone <i>&lt;string1&gt;</i> is loaded with a
+        non-existent mixture: <i>&lt;string2&gt;</i></b>
+    <dd> The mixture <i>string2</i> specified to fill zone <i>string1</i> in
+      the <tt>mat_loading</tt> block is not defined in the input
+      file.  Either add a new mixture definition or change the
+      name of the mixture to be used for this zone.
+    <p>
+
+    <dt> <b>380: Constituent type 'l' of mixture
+        <i>&lt;string1&gt;</i> references a non-existent
+        mixture: <i>&lt;string2&gt;</i></b>
+    <dd> The mixture <i>string2</i> specified in the ``similar'' constituent
+      of mixture <i>string1</i> is not defined in the input file.
+      Either add a new mixture definition or change the name of
+      the mixture to be used for this definition.
+    <p>
+
+    <dt> <b>400: Unable to find top level schedule.  A top
+        level schedule must not used as a sub-schedule.</b>
+    <dd> All of the defined schedules are referenced as sub-schedules
+      of other schedules.  This means that there is no top to the
+      hierarchical schedule system, as required.
+    <p>
+
+    <dt> <b>410: Flux <i>&lt;string1&gt;</i> for simple pulse
+        item of schedule <i>&lt;string2&gt;</i> does not exist.</b>
+    <dd> The flux <i>string1</i> required to calculate the simple pulsing
+      schedule item of schedule <i>string2</i> is not defined.
+    <p>
+
+    <dt> <b>411: Bad flux file for flux <i>&lt;string&gt;</i>
+        for simple pulse item of schedule <i>&lt;string&gt;</i>.</b>
+    <dd> The file for flux <i>string1</i> required to calculate the simple
+      pulsing schedule item of schedule <i>string2</i> cannot be openned.
+    <p>
+
+    <dt> <b>412: Schedule recursion: <i>&lt;string&gt;</i>.</b> 
+    <dd> There is a loop in the schedule hierarchy.  This implies an
+      infinitely long and infinitely complex total irradiation
+      history, which is unphysical.  Check the definition of the
+      schedules.
+    <p>
+
+    <dt> <b>413: Schedule <i>&lt;string1&gt;</i> for subschedule
+        item of schedule <i>&lt;string2&gt;</i> does not exist.</b>
+    <dd> The sub-schedule <i>string1</i> defined as a schedule item of
+      schedule <i>string2</i> has not been defined.
+    <p>
+
+    <dt> <b>414: Pulse history <i>&lt;string1&gt;</i> for
+        item of schedule <i>&lt;string2&gt;</i> does not exist.</b>
+    <dd> The pulsing history <i>string1</i> required to calculate a
+      schedule item of schedule <i>string2</i> has not been defined.
+    <p>
+
+    <dt> <b>420: Zone <i>&lt;string&gt;</i> specified in
+        interval volumes was not found in the material loading.</b> 
+    <dd> The zone <i>string</i> specified to contain one of the volumes in
+      the <tt>volumes</tt> input block does not exist.
+    <p>
+
+    <dt> <b>440: <b>ALARA</b> now requires a binary dump file.
+        Openning the default file 'alara.dmp'.</b>
+    <dd> <b>ALARA</b> uses a binary file to store intermediate results.
+      You can set the name of this file using the
+      <tt>dump_file</tt> input block.  Otherwise, the default is
+      used.
+    </dl>
+    <p>  
+  
+<dt><b>Input Cross-referencing</b><p>
+<dd>
+
+    <dl>
+    <dt> <b>580: Removing mixture <i>&lt;string&gt;</i> not
+        used in any zones.</b>
+    <dd> Mixture <i>string</i> was defined in the input file, but is not
+      used in any zones.  It's definition is being removed.
+    <p>
+
+    <dt> <b>620: You have specified too few normalizations.
+        If you specifiy any normalizations, you must specify one
+        for each interval.</b>
+    <dd> The <tt>spatial_norm</tt> input block must contain an entry
+      for each of the fine mesh intervals.  It is not permissible
+      to have too few.
+    <p>
+
+    <dt> <b>621: You have specified too many normalizations.
+        Extra normalizations will be ignored.</b>
+    <dd> It permissible to define too many spatial normalizations,
+      but the results may by dubious.  The extra normalizations
+      will be ignored.
+    <p>
+
+    <dt> <b>622: Flux file <i>&lt;string&gt;</i> does not
+        contain enough data.</b>
+    <dd> The flux file <i>string</i> does not contain enough data to
+      provide a flux for each of the fine mesh intervals.
+    </dl>    
+</dl>  
+
+
+<dt><h3>Data Library Errors</h3>
+  
+<dd>
+  <dl>
+  <dt> <b>1000: Data library type <i>&lt;string&gt;</i> (%d) is
+      not yet supported.</b>
+    <dd> The specified library type <i>string</i> is not supported.
+    <p>
+
+  <dt> <b>1001: Conversion from <i>&lt;string1&gt;</i> (%d) to
+      <i>&lt;string2&gt;</i> (%d) is not yet supported.</b>
+    <dd> Conversion between the specified library types <i>string1</i> and
+    <i>string2</i> is not supported.
+    <p>
+
+  <dt> <b>1001: Conversion from <i>&lt;string&gt;</i> (%d) to
+      (%d) is not yet supported.</b>
+    <dd> Conversion between the specified library types <i>string1</i> and
+    <i>%d</i> is not supported.
+    <p>
+
+  <dt> <b>1100: You have specified library type 'alaralib' but
+      given the filename of an 'adjlib' library.</b>
+    <dd> The type of library specified in the input block must match the
+    internally recorded library type.
+    <p>
+
+  <dt> <b>1101: You have specified library type 'alaralib' but
+      given the filename of an unidentified library.</b>
+    <dd> The type of library specified in the input block must match the
+    internally recorded library type.
+    <p>
+
+  <dt> <b>1102: You have specified library type 'adjlib' but
+      given the filename of an 'alaralib' library.</b>
+    <dd> The type of library specified in the input block must match the
+    internally recorded library type.
+    <p>
+
+  <dt> <b>1103: You have specified library type 'adjlib' but
+      given the filename of an unidentified library.</b>
+    <dd> The type of library specified in the input block must match the
+    internally recorded library type.
+  </dl>    
+
+
+<dt><h3>Programming Errors</h3>
+<dd>
+  
+  In some places, if <b>ALARA</b> reaches that point in the program, it
+  implies an error in the logic of the code.  Please report such
+  errors to the code author.
+  <p>
+  <dl>
+
+  <dt> <b>-1: Memory allocation error: <i>&lt;string&gt;</i></b>
+  <dd> An error in the runtime allocation of memory occured.
+      ``<i>&lt;string&gt;</i>'' reports the function and variable where
+      the error occurred.
+      <p>
+
+  <dt> <b>9000: Programming Error:...</b>
+  </dl>    
+</dl>  
 
 
 </body>
