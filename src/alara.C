@@ -1,12 +1,10 @@
-/* $Id: alara.C,v 1.7 2000-02-19 05:28:20 wilson Exp $ */
+/* $Id: alara.C,v 1.8 2000-02-19 05:33:52 wilson Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
 #include "Chains/Root.h"
 #include "Util/Statistics.h"
 #include "Output/Result.h"
-
-#define VERSION $Name: not supported by cvs2svn $
 
 int chainCode = 0;
 
@@ -16,6 +14,7 @@ rh pd ag cd in sn sb te i  xe cs ba la ce pr nd pm sm eu gd tb dy ho er tm \
 yb lu hf ta w  re os ir pt au hg tl pb bi po at rn fr ra ac th pa u  np \
 pu am cm bk cf es fm md no lr ";
 
+static char *id="$Name: not supported by cvs2svn $";
 
 int main(int argc, char *argv[])
 {
@@ -91,7 +90,7 @@ int main(int argc, char *argv[])
 	    }
 	  break;
 	case 'V':
-	  verbose(0,"Version: VERSION");
+	  verbose(0,"ALARA %s",id);
 	  exit(0);
 	  break;
 	default:
@@ -102,7 +101,7 @@ int main(int argc, char *argv[])
 	}
     }
 
-  verbose(0,"Using ALARA VERSION");
+  verbose(0,"ALARA %s",id);
 
   Input problemInput(inFname);
 
