@@ -1,6 +1,9 @@
-/* $Id: GammaSrc.h,v 1.6 2001-12-06 23:18:31 wilsonp Exp $ */
+/* $Id: GammaSrc.h,v 1.7 2002-08-05 20:23:19 fateneja Exp $ */
 #include "alara.h"
 #include <set>
+
+// NEED COMMENT there are no comments for this class
+
 
 /* ******* Class Description ************
 

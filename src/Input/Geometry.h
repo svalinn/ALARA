@@ -1,59 +1,5 @@
-/* $Id: Geometry.h,v 1.2 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: Geometry.h,v 1.3 2002-08-05 20:23:16 fateneja Exp $ */
 #include "alara.h"
-
-/******* Class Description ***************
-
-This class is a simple container for information about the type of geometry.
-
- *** Class Members ***
-
- type : int
-
-    This indicates the geometry type of this problem and is based on
-    the definitions given below.
-
- rMin : double
-    The minor radius of a torroidal configuraiton.
-
- rMaj : double
-    The major radius of a torroidal configuraiton.
-
- *** Member Functions ***
-
- * - Constructors & Destructors - *
-
- Geometry(char*)
-    Default constructor defaults to a point geometry if no argument is given.
-
- ~Geometry()
-    Default destructor;
-
-  Note: no copy constructor is defined because memberwise copying is
-        appropriate.
-  
-  * - Input - *
-
-  double setMajorR(double)
-  double setMinorR(double)
-     Inline access functions set the major and minor radii, respectively.
-
-  * - xCheck - *
-
-  void checkTorus(Dimension*) 
-     Check that the major radius is defined when torroidal geometry is
-     specified.  Also confirm that either minor radius or a minor
-     radius dimension is defined.
-  
-
-  * - Utility - *
-
-  double majR()
-     Inline access function to major radius' value.
-
-  int getType()
-     Inline access function to geometry type.
-
- */
 
 #ifndef _GEOMETRY_H
 #define _GEOMETRY_H
@@ -65,26 +11,51 @@ This class is a simple container for information about the type of geometry.
 #define GEOM_S  3
 #define GEOM_T  4
 
+/** \brief This class is a simple container for information about the 
+ *         type of geometry.
+ *
+ *  Note: no copy constructor is defined because memberwise copying is
+ *        appropriate.
+ */
+
 class Geometry
 {
 protected:
-  int type;
-  double rMin,rMaj;
+  int 
+    /// This indicates the geometry type of this problem and is based on
+    /// the definitions given below.
+    type;
+
+  double 
+    /// The minor radius of a torroidal configuraiton.
+    rMin,
+    
+    /// The major radius of a torroidal configuraiton.
+    rMaj;
 
 public:
-  /* Service */
+  /// Default constructor defaults to a point geometry if no argument 
+  /// is given.
   Geometry(char *token="p");
+
+  /// Default destructor
   ~Geometry() {};
   
-  /* Input */
+  /// Inline access function to set the major radii
   void setMajorR(double majR) {rMaj = majR;};
+  
+  /// Inline access function to set the minor radii
   void setMinorR(double minR) {rMin = minR;};
 
-  /* xCheck */
+  /// Check that the major radius is defined when torroidal geometry is
+  /// specified. Also confirm that either minor radius or a minor
+  /// radius dimension is defined.
   void checkTorus(Dimension*);
 
-  /* Utility */
+  /// Inline access function to major radius' value.
   double majR() {return rMaj;};
+
+  /// Inline access function to geometry type.
   int getType() {return type;};
 };
 
