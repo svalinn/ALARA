@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.14 2002-04-16 20:02:54 wilsonp Exp $ */
+/* $Id: alara.C,v 1.15 2002-05-06 18:03:24 wilsonp Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -10,14 +10,25 @@
 
 int chainCode = 0;
 
+/*!
+ This list of elemental symbols is specially formatted to be used for
+ looking up the atomic number of a given element.  For each element
+ with atomic number, Z, and symbol, CC, the string " CC " exists at
+ index Z-1.
+*/
 const char *SYMBOLS=" h  he li be b  c  n  o  f  ne na mg al si p  s  cl ar \
 k  ca sc ti v  cr mn fe co ni cu zn ga ge as se br kr rb sr y  zr nb mo tc ru \
 rh pd ag cd in sn sb te i  xe cs ba la ce pr nd pm sm eu gd tb dy ho er tm \
 yb lu hf ta w  re os ir pt au hg tl pb bi po at rn fr ra ac th pa u  np \
 pu am cm bk cf es fm md no lr ";
 
+/// This is derived from a CVS variable to determine the version string
 static char *id="$Name: not supported by cvs2svn $";
 
+/*!
+ This is the standard help/usage message that is printed when an incorrect
+ command-line option is used, or when -h is used.
+*/
 static char *helpmsg="\
 usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
 \t -h                 Show this message\n\
