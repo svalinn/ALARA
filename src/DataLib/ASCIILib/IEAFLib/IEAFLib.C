@@ -1,4 +1,4 @@
-/* $Id: IEAFLib.C,v 1.1 2001-07-10 20:52:48 wilsonp Exp $ */
+/* $Id: IEAFLib.C,v 1.2 2001-08-17 05:30:55 wilsonp Exp $ */
 #include "IEAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
@@ -242,8 +242,7 @@ int IEAFLib::getTransData()
 
   /* at MT=5, extract kza */
   extract(buffer,&tmpFlt);
-  /* NOTE: abscence of isomeric info means all are ground state */
-  zak = int(tmpFlt) * 10;
+  zak = int(tmpFlt);
   
   /* check for end of file */
   if (zak == -1 || inTrans.eof())
@@ -311,7 +310,7 @@ int IEAFLib::getTransData()
       /* check for next x-section */
       inTrans.getline(buffer,MAXLINELENGTH);
       extract(buffer,&tmpFlt);
-      zak = int(tmpFlt) * 10;
+      zak = int(tmpFlt);
 
       /* get next modified kza number */
       if (inTrans.eof())
