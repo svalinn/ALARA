@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.31 2003-12-01 20:26:53 wilsonp Exp $ */
+/* $Id: Result.C,v 1.32 2004-01-28 17:45:41 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -313,7 +313,6 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
     {
       tmpResponse = tmpResponse>>1;
       responseIdx++;
-	cout << responseIdx <<endl;
     }
 
   /* initialize the total array */
