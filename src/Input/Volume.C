@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.41 2004-07-29 19:55:01 wilsonp Exp $ */
+/* $Id: Volume.C,v 1.42 2004-08-04 19:44:13 wilsonp Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -1088,6 +1088,9 @@ void Volume::readAdjDoseData(int nGroups, ifstream& AdjDoseData)
   }
 }
 
+// passes through to calculation of:
+//  gamma_src -dot- doseResponse * volume/detector_volume
+// and cache result
 double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
 {
 // adjDose or volume can be NULL if folded dose (bio dose) requested for unsupported resolution
@@ -1095,12 +1098,38 @@ double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
   if (adjDose == NULL || &volume == NULL)
   	error(9000, "Error in Volume::getAdjDoseConv()" ); 
   
+  // check cache for data
   if (!doseContrib.count(kza))
     {
+      // lookup/calculate data
       doseContrib[kza] = adjDose->calcAdjDose(kza,adjConv,volume);
     }
 
+  // return result
   return doseContrib[kza];
 }
 
 
+// double Volume::getZoneAdjDose(int kza, GammaSrc *adjDose)
+// {
+//   thisLoading = loadingPtr;
+//   Node dataAccess;
+
+//   zoneResponse = getAdjDoseConv(kza,adjDose)*kzaResult;
+
+//   Volume* ptr = next;
+
+//   if (dataAccess.getLambda(kza))
+//     {
+//       while (ptr->loadingPtr = thisLoading)
+// 	{
+// 	  zoneResponse += ptr->getAdjDoseConv(kza,adjDose) * kzaResult;
+// 	}
+//     }
+
+// }
+
+// double Volume::getMixAdjDose(int kza, GammaSrc *adjDose)
+// {
+
+// }
