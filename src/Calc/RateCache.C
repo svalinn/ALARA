@@ -1,4 +1,4 @@
-/* $Id: RateCache.C,v 1.1 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: RateCache.C,v 1.2 2000-03-21 22:59:13 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -139,13 +139,15 @@ RateCache::CacheData* RateCache::add(int baseKza, int nRates)
     {
       if (kzaList[idx+1].dataPtr != NULL)
 	kzaList[idx+1].dataPtr->kzaIdx = idx;
-      kzaList[idx] = kzaList[++idx];
+      kzaList[idx] = kzaList[idx+1];
+      idx++;
     }
   while (idx > 0 && baseKza < kzaList[idx-1].kza)
     {
       if (kzaList[idx-1].dataPtr != NULL)
 	kzaList[idx-1].dataPtr->kzaIdx = idx;
-      kzaList[idx] = kzaList[--idx];
+      kzaList[idx] = kzaList[idx-1];
+      idx--;
     }
 
 
