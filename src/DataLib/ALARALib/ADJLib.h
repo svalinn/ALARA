@@ -1,4 +1,4 @@
-/* $Id: ADJLib.h,v 1.7 2000-07-07 02:15:51 wilson Exp $ */
+/* $Id: ADJLib.h,v 1.8 2001-07-10 20:51:16 wilsonp Exp $ */
 #include "alara.h"
 /* ******* Class Description ************
 
@@ -26,6 +26,11 @@ DATALIB_ADJOINT  4     adj      An alara binary library in reversed format
                                 for reverse calculations.
 DATALIB_GAMMA    5     gamma    An alara binary library containing gamma
                                 source information.
+DATALIB_IEAF     6     ieaf     A data library with cross-section
+                                libraries following the GENDF format and 
+                                decay/gamma libraries following the 
+                                formatting definition of the EAF library 
+                                (roughly ENDF/B-6) 
 -------------------------------------------------------------------
 
 
