@@ -3,8 +3,8 @@
   
   \begin{section}{Modern Implementation Features\label{sec:summary.modern}}
     
-    One of the advantages to writing an absolutely new activation code
-    is the ability to implement modern computing techniques, including
+    One advantage to writing an absolutely new activation code is the
+    ability to implement modern computing techniques, including
     algorithms and data structures, data handling, software design and
     user-oriented features.  This section will describe some of those
     implementations in \ALARA.
@@ -21,98 +21,100 @@
       readable by using short functions with specific purposes and
       overloaded operators to perform standard operations on complex
       classes (such as matrix operations: A = B * C).  Appendix
-      \ref{app:headers} includes selected class headers with the
-      documentation and definition of the data classes.
+      \ref{app:headers} includes selected class headers the
+      documentation and definition of the data classes and their
+      interfaces.
       
       Many of these classes are implemented as linked lists,
-      permitting the computational representation of the problem to
-      grow freely as required.  During the input processing, this
-      permits the user to add an arbitrary number of each input
-      element, such as mixture descriptions, schedule definitions or
-      flux declarations.  During the next phase, the linked lists for
-      each of the input elements is then conveniently cross-referenced
-      to accelerate future searches and linking in the problem.  The
+      permitting the problem's computational representation to grow
+      freely as required.  During the input processing, this permits
+      the user to add an arbitrary number of each input element, such
+      as mixture descriptions, schedule definitions or flux
+      declarations.  During the next phase, the linked lists for each
+      input element is then conveniently cross-referenced to
+      accelerate future searches and linking in the problem.  The
       linked list structures are also important for accumulating the
       solution.  Each interval has a linked list of solution vectors
-      where each item in the list represents an isotope which is
-      generated in the tree.
+      where each item in the list represents an isotope generated in
+      the tree.
     \end{subsection}
 
     \begin{subsection}{Data Handling}
-      Due to the size of the individual activation trees and the
-      number of initial isotopes, \ALARA\ must frequently access the
-      nuclear data library.  Past codes have developed various
-      mechanisms to optimize this access to sequentially read data
-      files, but many of the methods are based on the usage of
-      magnetic tapes.  For example, DKR performs a breadth-first
-      search algorithm for chain creation, sorting the isotopes at
-      each generation before reading their nuclear data.  This
-      requires it to simultaneously store all the chains for a whole
-      activation tree.  In order to minimize the requied computational
-      resources for physical modelling in \ALARA, the data access is
-      not restricted to optimized sequential access of the data
-      libraries.  Instead, an indexed binary data file format has been
-      designed to permit frequent random access of the data.  Built
-      into \ALARA\ is the ability to convert other popular non-binary
-      library formats to the proprietary \ALARA\ format.  If a library
-      formated to the conventions of the European Activation File, for
-      example, is offered as the data library, it is automatically
-      converted to an \ALARA\ binary library for the immediate problem
-      and then saved under a default name for future problems.
-
+      Due to the size of the individual activation tree and the number
+      of initial isotopes, \ALARA\  must frequently access the nuclear
+      data library.  Past codes have developed various mechanisms to
+      optimize this access to sequentially read data files, but many
+      methods are based on the usage of magnetic tapes.  For example,
+      DKR performs a breadth-first search algorithm for chain
+      creation, sorting the isotopes at each generation before reading
+      their nuclear data.  This requires it to simultaneously store
+      all the chains for a whole activation tree.  In order to
+      minimize the required computational resources for physical
+      modeling in \ALARA, the data library access is not restricted
+      to optimized sequential access.  Instead, an indexed binary data
+      file format has been designed to permit frequent random access.
+      Built into \ALARA\   is the ability to convert other popular
+      non-binary library formats to the proprietary \ALARA\  format.
+      If a library formated to the European Activation File\cite{EAF}
+      conventions, for example, is offered as the data library, it is
+      automatically converted to an \ALARA\  binary library for the
+      immediate problem and then saved under a default name for future
+      problems.
+      
       Similarly, to minimize memory usage throughout the problem,
-      \ALARA\ makes use of a binary file to log the solution of each
+      \ALARA\  makes use of a binary file to log the solution of each
       root isotope in each interval.  In essence, this so-called dump
-      file records the concentration of all the isotopes which result
-      from a single root isotope.  This data is loaded again at the
-      end of the calculation to be summed and processed into the type
-      of output requested by the user.  This dump file could also
-      serve as the interface to a graphical post-processor, should one
-      be developed.  Since all the engineering responses based on an
-      activation calculation are a generated from the scaling and
-      summing of these individual interval results, the input file and
-      dump file can be used to reconstruct the solution of the problem.
+      file records the concentration of all the isotopes resulting
+      from a single root isotope.  This data is loaded again during
+      post-processing after the calculation to be summed and processed
+      into the type of output requested by the user.  This dump file
+      could also serve as the interface to a graphical post-processor,
+      should one be developed.  Since all the engineering responses
+      based on an activation calculation are a generated from the
+      scaling and summing of these individual interval results, the
+      input file and dump file can be used to reconstruct the solution
+      to the problem.
     \end{subsection}
     
     \begin{subsection}{User-Oriented Design}
       
-      When choosing new software, one of the primary factors
-      considered by users is the ease of use.  Two aspects of this
-      factor is the nature of the input file and the flexibility the
-      code to a variety of applications.  
+      When choosing new software, one primary factors considered by
+      users is the ease of use.  Two aspects of this factor are the
+      input file's simplicity and readability and the code's
+      flexibility to a variety of applications.
       
       The first of these has been addressed by creating a
       freely-formatted input file format based on natural language
       (rather than a seemingly random array of numbers and
       parameters).  The various sections of the input can be given in
       any order and are cross-referenced using symbolic names defined
-      by the user.  Sections of the input file can be included from
-      other files, permitting frequently re-used segments to be
-      archived in a kind of library.  Finally, the input file permits
-      comments and blank lines to improve its readability.  Once read,
-      the input is tested extensively for completeness and
-      self-consistency, with a long list of error and/or warning
-      messages when it is found to be incomplete of inconsistent.
+      by the user.  Input file sections can be included from other
+      files, permitting frequently re-used segments to be archived in
+      a kind of library.  Finally, the input file permits comments and
+      blank lines to improve its readability.  Once read, the input is
+      tested extensively for completeness and self-consistency, with a
+      long list of error and/or warning messages when it is found to
+      be incomplete of inconsistent.
       
-      The flexibility of \ALARA\ for different problems has already
-      been demonstrated.  One of the main sources of flexibility is
-      \ALARA's reliance on its data library to provide all the
-      information needed for each nuclear reaction.  \ALARA\ has
-      already been implemented to study a nuclear system with
-      intermediate energy fluxes (up to 55 MeV), where no other major
+      The flexibility of \ALARA\  for different problems has already
+      been demonstrated.  One main sources of flexibility is \ALARA's
+      reliance on its data library to provide all the information
+      needed for each nuclear reaction.  \ALARA\  has already been
+      implemented to study a nuclear system with intermediate energy
+      fluxes (up to 55 MeV)\cite{UKA.Thesis}, where no other major
       activation code was able to solve the problem.  Furthermore,
-      this application demonstrated the importance of the higher
-      energy portion of the spectrum compared to previous
-      approximations using other activation codes.  It is
+      this application demonstrated the importance of the spectrum's
+      higher energy tail to the activation results compared to
+      previous approximations using other activation codes.  It is
       theoretically possible to analyze systems with fissile material
       if the fission product production terms were included as a type
-      of ``transmutation'' cross-section.  Finally, \ALARA\ is not
+      of ``transmutation'' cross-section.  Finally, \ALARA\  is not
       limited to neutron activation problems, but since it is library
       driven, can solve activation problems with any kind of incident
       particle (\textsl{e.g.} proton activation).
       
       The reverse calculation mode also enhances the flexibility,
-      allowing \ALARA\ to be used in completely new ways and
+      allowing \ALARA\  to be used in completely new ways and
       applications.  For example, assuming that small changes in the
       material composition have little impact on the neutron transport
       solution, the reverse calculation can be used to tailor a
@@ -120,14 +122,14 @@
       system.  Similarly, a reverse calculation could be used to
       determine the best composition to irradiate in order to produce
       a desired radioactive isotope such as those used in medical
-      applicaitons.
+      applications.
     \end{subsection}
 
     \newpage
     \begin{subsection}{General Program Flow}
       
       \begin{figure}[htbp]
-        \caption{The general flow of \ALARA\ can be described as follows:}
+        \caption{The general flow of \ALARA\  can be described as follows:}
         \label{fig:summary.prog_flow}
       \end{figure}
       \begin{center}
@@ -142,7 +144,7 @@
   
     A variety of extensions and features have already been considered
     for implementation in \ALARA.  This section will describe just a
-    few ideas which may be added to future versions in its continuing
+    few possible extensions for future versions in \ALARA's continuing
     development.
 
     \begin{subsection}{Sequential Charged-Particle Reactions}\label{ssec:future.data.seq}
@@ -166,10 +168,10 @@
       require either greatly reduced speed or greatly increased
       internal storage.  Instead, it is possible to modify the
       equations into a matrix format, creating a transformation from
-      neutron flux to charged particle flux, which is dependent only
-      on the initial isotopic composition.  Then, for each interval
-      which has that mixture definition, the charged particle fluxes
-      can be determined and stored for later use in calculating
+      neutron flux to charged particle flux, dependent only on the
+      initial isotopic composition.  Then, for each interval having
+      that mixture definition, the charged particle fluxes can be
+      determined and stored for later use in calculating
       production/destruction rates.  A group-wise maximum charged
       particle flux will also be used in truncation calculations.
     
@@ -203,7 +205,7 @@
       To convert this to a transformation matrix between the neutron
       flux and the charged particle flux, it is first necessary to
       recognize that the energy increment, $\Delta E_{n_i}$ is usually
-      part of the group-wise flux,
+      included in the group-wise flux,
       \begin{equation}
         \begin{split}
           \sigma_{nx}(E_{n_i}) &= \frac{\int_{E_{n_i-}}^{E_{n_i+}} \sigma_{nx}(E_n)
@@ -238,11 +240,11 @@
       \end{equation}
       
       It should be noted that this method will only calculate the
-      charged particle fluxes which originate from interactions with
-      the initial isotopes in the mixture, and not with those which
-      are induced by neutron interactions.  In most cases this is very
-      reasonable since only a small fraction of the initial isotopes
-      is actually converted to something else.
+      charged particle fluxes originating from interactions with the
+      initial isotopes in the mixture, and not with those induced by
+      neutron interactions.  In most cases this is very reasonable
+      since only a small fraction of the initial isotopes is actually
+      converted to something else.
     
       The implementation of this feature will require the creation,
       indexing and inclusion of another set of libraries to contain
@@ -254,27 +256,27 @@
     \begin{subsection}{Sensitivity Analysis}\label{ssec:future.data.sens}
     
       By performing a sensitivity analysis, it is possible to
-      determine how the solution of the activation problem depends on
-      the transmutation and decay data used in the
-      problem\cite{sensPhD}.  This analysis can be used in a number of
-      ways including pathway analysis (see Ref. \citen{sensPhD}), data
-      evaluation, and error estimates of solutions.  By understanding
-      how the solution depends on the input data, evaluators can
-      determine which cross-sections and decay constants need to have
-      the most accurate determination.  For example, if the solution
-      depends more strongly on the decay constant for tritium than on
-      the transmutation rate of deuterium to tritium, more effort
-      should be spent on improving the evaluation of that decay
-      constant that on refining the $D(n,\gamma)T$ cross-section.
-      Furthermore, the sensitivity coefficients obtained by this
-      method define how the data uncertainties should be weighted when
-      they are summed to find the uncertainty in the final solution.
+      determine how an activation problem's solution depends on the
+      transmutation and decay data used in the problem\cite{sensPhD}.
+      This analysis can be used in a number of ways including pathway
+      analysis (see Ref. \citen{sensPhD}), data evaluation, and error
+      estimates of solutions.  By understanding how the solution
+      depends on the input data, evaluators can determine which
+      cross-sections and decay constants need to have the most
+      accurate determination.  For example, if the solution depends
+      more strongly on the decay constant for tritium than on the
+      transmutation rate of deuterium to tritium, more effort should
+      be spent on improving the evaluation of that decay constant that
+      on refining the $D(n,\gamma)T$ cross-section.  Furthermore, the
+      sensitivity coefficients obtained by this method define how the
+      data uncertainties should be weighted when they are summed to
+      find the uncertainty in the final solution.
     
       The method developed by Khursheed\cite{sensPhD} and based on
-      work by James\cite{sensJames} is particularly suited to a
-      code which uses a time-step based ODE solver.  To find the
-      sensitivity to a particular datum, $x$, one differentiates the
-      initial equation:
+      work by James\cite{sensJames} is particularly suited to a code
+      based on a time-step ODE solver.  To find the sensitivity
+      to a particular datum, $x$, one differentiates the initial
+      equation:
       \begin{equation*}
         \frac{\partial\dot{\vec{N}}(t)}{\partial x} =
         \frac{\partial\mat{A}}{\partial x}\vec{N}(t) +
@@ -285,7 +287,7 @@
       \begin{equation}
         \dot{N'} =  \mat{A}N' + \frac{\partial\mat{A}}{\partial x}\vec{N}(t)
       \end{equation}
-      which has almost the same form as the original equation.  In
+      having almost the same form as the original equation.  In
       this case, if using a time-step based ODE solver, this solution
       can be easily calculated concurrently with the main solution.
     
@@ -331,7 +333,7 @@
       matrix, $\frac{\partial\mat{T}}{\partial x}$, with at most one
       extra calculation to invert $\frac{1}{s+d_l}\tilde{F}_{ij}$
       (since the inversion of $\tilde{F}_{ij}$ is performed for the
-      main solution anyway) which has a similar form to
+      main solution anyway) due to its similar form to
       $\tilde{F}_{ij}$.  This inversion would have to be performed
       using the Laplace methods because there is a guaranteed
       multiplicity of pole $d_l$.
@@ -351,7 +353,7 @@
       database engine for data lookup.  While the implications of
       database implementation on the code's performance would have to
       be considered, it would avoid the use of proprietary binary
-      formats for nuclear data, such as that used by \ALARA\ to
+      formats for nuclear data, such as that used by \ALARA\  to
       maximize its performance.  Furthermore it would allow for the
       more straightforward selection of nuclear data to be used in a
       problem.  A variety of different indexes could be used to
@@ -365,39 +367,40 @@
       
       Similarly, relational databases could be used to store the data
       created by an activation problem.  The current version of
-      \ALARA\ creates a hierarchical binary dump file with one block
+      \ALARA\  creates a hierarchical binary dump file with one block
       per initial isotope and one record per block for each interval
       containing that root isotope.  This is another proprietary data
-      format which will require special tools to access it for more
-      advanced post-processing.  If this data were to be stored in a
+      format requiring special tools to access it for more advanced
+      post-processing.  If this data were to be stored in a
       standardized database, standard tools could be used to extract
       and combine in various arrangements required by the user.  It
-      may also provide the possibility to increase the resolution of
-      the data, storing the exact solution of every \pc-node in an
+      may also provide the possibility to increase the archived data's
+      resolution, storing the exact solution of every \pc-node in an
       activation tree for each interval.  This volume of data would be
-      of the order of 300 MB for a typical problem.  While creating
-      and storing a file of such size may not be a problem, randomly
+      of the order of 300 MB for a problem similar to the benchmark
+      problems in chapter \ref{chap:valid}.  While creating and
+      storing a file of such size may not be a problem, randomly
       accessing individual records to be summed into a single response
       may be inefficient.
-
+      
       All of these advanced data handling techniques lead to the
-      question of post-processing.  By upgrading the \ALARA\ dump file
+      question of post-processing.  By upgrading the \ALARA\  dump file
       with an index, a graphical tool could be built to randomly
       access the file as requested by the user, calculating a wider
-      range of responses than built in to \ALARA\ itself and with more
+      range of responses than built in to \ALARA\  itself and with more
       flexibility.  For example, the specific activity could be
       averaged across a user-defined set of zones in order to lower
-      the bulk activity to some acceptable level.  An application
-      could be created to allow tailoring of materials, with slides
-      and dials being used to adjust impurity concentrations in order
-      to lower then activation of the material.
+      the bulk activity to some acceptable level.  A graphical
+      application could be created to allow tailoring of materials,
+      with ``slides'' and ``dials'' being used to adjust impurity
+      concentrations in order to lower the material's activation.
     \end{subsection}
 
   \end{section}
   
   \begin{section}{Summary}
     
-    The \ALARA\ activation code has been developed and validated for
+    The \ALARA\  activation code has been developed and validated for
     the solution of activation problems.  The set of basic features
     has been implemented and a selection of advanced features are also
     operational.  
@@ -408,25 +411,25 @@
     algorithm, this permits the use of transfer matrix mathematical
     techniques.  Such techniques are particular important for ensuring
     efficient solutions when modeling arbitrary hierarchical
-    irradiation schedules exactly.  Another new feature of \ALARA\ is
+    irradiation schedules exactly.  Another new feature of \ALARA\  is
     the ability to perform so-called reverse calculations.
     
     In order to permit the solution of the straightened linear chains,
     new mathematical methods have been implemented.  The best method
-    is adaptively chosen based on the characteristics of the
-    sub-problem at the time of the solution.  This ensures an optimum
-    balance of accuracy and speed throughout the problem.
+    is adaptively chosen based on the sub-problem's characteristics at
+    the time of the solution.  This ensures an optimum balance of
+    accuracy and speed throughout the problem.
     
-    \ALARA\ has been validated against the performance of other
+    \ALARA\  has been validated against the performance of other
     activation codes known to perform accurately.  The validation
     benchmarks demonstrated that \ALARA's accuracy equals that of the
     state-of-the-art activation codes, with significantly shorter
-    runtimes.  Once the basic features had been validated, \ALARA\ was
+    runtimes.  Once the basic features had been validated, \ALARA\  was
     also able to validate its advanced features by comparing the
     solutions to a suite of benchmark problems.
     
     With its modern computational techniques and continuing
-    development, it is hoped that \ALARA\ will become a widely used
+    development, it is hoped that \ALARA\  will become a widely used
     code for the activation analysis of nuclear systems.  With its
     library driven handling of transmutation reactions, it can be used
     for the analysis of a wide variety of systems, based on energy

@@ -1,22 +1,22 @@
 
-\begin{chapter}{Validation and Benchmarking}
+\begin{chapter}{Validation and Benchmarking\label{chap:valid}}
   
   For all new computer programs, an important step in the development
-  process is the validation of the program against other computational
+  process is the program's validation against other computational
   tools.  In the field of fusion activation calculations, there are
   many such tools.  Both FISPACT-97\cite{FISPACT} (time-step based ODE
   solver) and DKR\cite{DKR} (no-loop Bateman solution to linear
   chains) have been shown in the past to agree well with analytical
-  solutions to multi-step activation pathways\cite{IAEA.bench2.rep}.
-  \ALARA\ offers improvement over DKR because it is able to accurately
-  model loops in the activation trees and calculate the gas
-  production.  In comparison to FISPACT-97, \ALARA\ has many
-  advantages, including the ability to exactly model pulsed
-  irradiation histories and simultaneously calculate the solution at
-  many spatial points.  In comparison to both codes, \ALARA\ uses
-  modern programming practices and data handling to increase the
-  flexibility of operation and reduce memory requirements (see section
-  \ref{sec:summary.modern}).
+  solutions to multi-step activation
+  pathways\cite{IAEA.bench2.rep,ITER.exp.valid}.  \ALARA\ offers
+  improvement over DKR because it is able to accurately model loops in
+  the activation trees and calculate the gas production.  In
+  comparison to FISPACT-97, \ALARA\ has many advantages, including the
+  ability to exactly model pulsed irradiation histories and
+  simultaneously calculate the solution at many spatial points.  In
+  comparison to both codes, \ALARA\ uses modern programming practices
+  and data handling to increase the flexibility of operation and
+  reduce memory requirements (see section \ref{sec:summary.modern}).
 
   \begin{section}{Benchmark Specifications}
   
@@ -43,7 +43,7 @@
     outboard neutron wall loadings of 1 and 1.5 MW/m$^2$,
     respectively.
     
-    Version 2.0 of the IAEA Fusion Evaluated Nuclear Data Library for
+    IAEA Fusion Evaluated Nuclear Data Library (Version 2.0) for
     Activation (FENDL/A 2.0) and for Decay (FENDL/D 2.0) were used for
     all calculations, ensuring that difference in the results were due
     to the activation codes themselves and not the nuclear data.
@@ -87,16 +87,16 @@
     \end{figure}
     
     Figures \ref{fig:rel.diff.ss.1} and \ref{fig:rel.diff.ss.2} show
-    the relative difference between the results of the steady state
-    problem from \ALARA\ and FISPACT-97 and between \ALARA\ and DKR at
-    a cooling time of 1 hour and 1 century, respectively.
+    the relative difference between the steady state problem's results
+    from \ALARA\ and FISPACT-97 and between \ALARA\ and DKR at a
+    cooling time of 1 hour and 1 century, respectively.
     
     At a cooling time of 1 hour, the \ALARA\ results are within 1.8\%
     of the FISPACT-97 results throughout the entire geometry, with
     most zones having a difference of less than 0.4\%.  The largest
-    differences occur in the 14 water-filled zones of the blanket,
-    increasing in directions away from the plasma in the zones with
-    lower and softer fluxes.
+    differences occur in the blanket's 14 water-filled zones,
+    increasing in directions away from the plasma as flux becomes
+    lower and softer.
     
     At a cooling time of 1 century, the differences between \ALARA\ 
     and FISPACT-97 are as high as 2.5\%, with the largest differences
@@ -104,26 +104,25 @@
     tritium half-lives, the dominant isotope is now $^{14}$C.  The
     differences in the other zones remain below 0.4\%.
     
-    The results from these comparisons immediately demonstrate some of
-    the differences in the methods of the various activation codes.
-    In most zones, the \ALARA\ results are within a fraction of a
-    percent of the FISPACT-97 values.  In the water-filled zones,
-    alternating with the steel in the inboard and outboard blanket,
-    the total activity was greatly underestimated.  Further
-    investigation shows that the activity is dominated by tritium and
-    $^{14}$C, and that their relative production levels are as low as
-    $5 \times 10^{-12}$ and $3 \times 10^{-9}$, respectively.  It is
-    clear that this level of accuracy is not sufficient for these
-    zones.  On the other hand, increasing the accuracy for the whole
-    problem would dramatically increase the size of the activation
-    trees in all the other zones.  While this demonstrates the
-    limitations of a problem-wide truncation tolerance, it requires
-    little effort to perform a second \ALARA\ calculation.  A second
-    calculation was performed for this problem using $10^{-10}$ for
-    both the truncation and ignore tolerances.  Figures
-    \ref{fig:rel.diff.ss.1} and \ref{fig:rel.diff.ss.2} are based on
-    these values in the odd numbered zones between 11 and 23 and
-    between 33 and 45, inclusively.
+    The results from these comparisons immediately demonstrate the
+    impact of the various activation codes different methods.  In most
+    zones, the \ALARA\ results are within a fraction of a percent of
+    the FISPACT-97 values.  In the water-filled zones, alternating
+    with the steel in the inboard and outboard blanket, the total
+    activity was greatly underestimated.  Further investigation shows
+    that the activity is dominated by tritium and $^{14}$C, and that
+    their relative production levels are as low as $5 \times 10^{-12}$
+    and $3 \times 10^{-9}$, respectively.  It is clear that this level
+    of accuracy is not sufficient for these zones.  On the other hand,
+    increasing the accuracy for the whole problem would dramatically
+    increase the activation tree size in all the other zones.  While
+    this demonstrates the limitations of a problem-wide truncation
+    tolerance, it requires little effort to perform a second \ALARA\ 
+    calculation.  A second calculation was performed for this problem
+    using $10^{-10}$ for both the truncation and ignore tolerances.
+    Figures \ref{fig:rel.diff.ss.1} and \ref{fig:rel.diff.ss.2} are
+    based on these values in the odd numbered zones between 11 and 23
+    and between 33 and 45, inclusively.
     
     DKR had an even more drastic problem with zones where the specific
     activity was dominated by tritium.  Since the methods implemented
@@ -148,15 +147,14 @@
     though the relative contribution of tritium has increased in some
     of those same zones, the relative differences are still less than
     1\%.  DKR's inability to account for the light ion production
-    results in tritium inventories which are as much as 6 orders of
-    magnitude too low in the first wall's Be coating, and up to 3
-    times too low in the blanket's water cooled zones.  Even after
-    more than 8 tritium half-lives (1 century), when tritium is
-    responsible for less than 10\% of the total activity, the
-    difference between \ALARA\ and DKR in the water can be as high as
-    7\% (zone \#33).  This discrepancy demonstrates why the modeling
-    of light ion accumulation is one of the base features for any new
-    activation code.
+    results in tritium inventories as much as 6 orders of magnitude
+    too low in the first wall's Be coating, and up to 3 times too low
+    in the blanket's water cooled zones.  Even after more than 8
+    tritium half-lives (1 century), when tritium is responsible for
+    less than 10\% of the total activity, the difference between
+    \ALARA\ and DKR in the water can be as high as 7\% (zone \#33).
+    This discrepancy demonstrates why the modeling of light ion
+    accumulation is a base features for any new activation code.
     
     A single fine mesh interval was chosen in which to compare the
     activity of various nuclides in detail.  The 1 mm thick stainless
@@ -166,8 +164,8 @@
     plasma make this a good choice for comparison.
     
     Table \ref{tab:detail.1} shows the seven most dominant isotopes at
-    a cooling time of 1 hour, which together account for over 95\% of
-    the total activity.  Table \ref{tab:detail.2} shows the five most
+    a cooling time of 1 hour, together accounting for over 95\% of the
+    total activity.  Table \ref{tab:detail.2} shows the five most
     dominant isotopes at a cooling time of 1 century, accounting for
     more than 99.7\% of the total activity.
 
@@ -211,8 +209,8 @@
     1\% in all cases.  DKR, on the other hand, has relative
     differences of up to 16\%.  These discrepancies are most probably
     caused by the inability of DKR to model certain kinds of loops in
-    the decay chains and the influence which this has on the decay
-    chain creation calculations.
+    the decay chains and the influence this has on the decay chain
+    creation calculations.
     
   \end{section}
 
@@ -229,29 +227,29 @@
     the full problem would require more than 220 days for each of the
     317 spatial points -- a total computation time of over 190 years!
     
-    Once again, tritium plays an important role in the discrepancies,
+    Once again, tritium plays an important role in the discrepancies
     which are nearly identical to the discrepancies between \ALARA\ 
-    and DKR for the steady state problem.  In the glass insulator of
-    the TF coil (zone \#3), the discrepancy in the pulsing problem is
+    and DKR for the steady state problem.  In TF coil's glass
+    insulator (zone \#3), the discrepancy in the pulsing problem is
     twice as high as in the steady state problem at 1 hour, but the
     same at 1 century.  This demonstrates the true physical effect of
-    pulsing on the importance of the tritium inventory at relatively
-    short cooling times, even though the tritium inventory itself is
-    not significantly affected by the pulsed history.  
+    pulsing on the tritium inventory's importance at relatively short
+    cooling times, even though the tritium inventory itself is not
+    significantly affected by the pulsed history.
     
     The pulsed operation will tend to reduce the inventory of isotopes
-    with half-lives which are of the same order of magnitude as the
-    dwell time between pulses: very long-lived isotopes will decay
-    little between pulses and slowly reach their saturation level
-    while very short-lived isotopes will decay completely between
-    pulses, but can reach their saturation level in a single
-    pulse\cite{Pulsar}.  The dominant isotopes in the glass at 1 hour
-    are $^{64}$Cu and $^{24}$Na, both with half-lives slightly longer
-    than half a day.  Their inventories in the pulsed problem are 50\%
-    less than in the steady state problem, while the tritium inventory
-    is reduced by less than 10\%.  Thus, the fraction of the total
-    activity from tritium is increased, even though the tritium
-    inventory itself goes down.
+    with half-lives of the same order of magnitude as the dwell time
+    between pulses: very long-lived isotopes will decay little between
+    pulses and slowly reach their saturation level while very
+    short-lived isotopes will decay completely between pulses, but can
+    reach their saturation level in a single pulse\cite{Pulsar}.  The
+    dominant isotopes in the glass at 1 hour are $^{64}$Cu and
+    $^{24}$Na, both with half-lives slightly longer than half a day.
+    Their inventories in the pulsed problem are 50\% less than in the
+    steady state problem, while the tritium inventory is reduced by
+    less than 10\%.  Thus, the fraction of the total activity from
+    tritium is increased, even though the tritium inventory itself
+    goes down.
 
     \begin{figure}[htbp]
       \begin{center}
@@ -271,21 +269,12 @@
     \ref{fig:rel.diff.approx}, represented as
     $$\mbox{Relative Difference} = \frac{\mbox{Pulsing}}{\mbox{Steady
         State}} - 1.$$
-    In this case, because of the nature of the
-    pulsing history, the effect can only be seen at short cooling
-    times.  As discussed above, the effect of the pulses is greatest
-    for isotopes with half-lives of roughly the same order of
-    magnitude as the dwell time between pulses.  Thus the effect
-    decays away within a few ``dwell times'' of shutdown.
-    
-    The two materials with largest discrepancies are the glass
-    insulator (zone \#3) and the first wall heat sink (Cu-Be-Ni in
-    zones \#25 and \#31).  In the former, the activity of $^{28}$Al
-    (t$_{1/2}$ = 2.25 m), responsible for over 25\% of the activity at
-    a cooling time of 1 minute, is under-calculated in the
-    steady-state approximation by 50\%.  The same is true of $^{66}$Cu
-    (t$_{1/2}$ = 5.10 m) which is responsible for just under 10\% of
-    the activity in the first wall.
+    In this case, due to the nature of the pulsing
+    history, the effect can only be seen at short cooling times.  As
+    discussed above, the pulses' effect is greatest for isotopes with
+    half-lives of roughly the same order of magnitude as the dwell
+    time between pulses.  Thus the effect decays away within a few
+    ``dwell times'' of shutdown.
     
     \begin{figure}[htbp]
       \begin{center}
@@ -295,27 +284,35 @@
       \end{center}
     \end{figure}
     
+    The two materials with largest discrepancies are the glass
+    insulator (zone \#3) and the first wall heat sink (Cu-Be-Ni in
+    zones \#25 and \#31).  In the former, the activity of $^{28}$Al
+    (t$_{1/2}$ = 2.25 m), responsible for over 25\% of the activity at
+    a cooling time of 1 minute, is under-calculated in the
+    steady-state approximation by 50\%.  The same is true of $^{66}$Cu
+    (t$_{1/2}$ = 5.10 m), responsible for just under 10\% of the
+    activity in the first wall.
+    
   \end{section}
 
   \begin{section}{Advanced Features}
   
     It is not possible to validate \ALARA's complex schedule modeling
     or reverse calculation mode through comparison to other codes
-    because these features are unique to \ALARA.  With \ALARA's
-    standard features validated against these other codes, however, it
-    is possible to construct test problems for \ALARA's advanced
-    features which can be formulated within the limits of the standard
-    features.
+    because these features are unique to \ALARA.  It is possible to
+    reformulate these benchmark problems into test problems for
+    \ALARA's advanced features, comparing the results to those for the
+    standard benchmark problem.
 
     \begin{subsection}{Complex Schedule Modeling}
     
       With the standard single pulsing history capabilities validated
       against DKR in section \ref{sec:valid.pulse}, it is possible to
-      construct a number of complex pulsing schedules which
-      technically reduce to the same pulsing schedule as the IAEA
-      Benchmark problem.  Four such reformulations, with increasing
-      complexities, have been tested and compared to the results of
-      the normal pulsing problem.
+      construct a number of complex pulsing schedules, each reducible
+      to the same pulsing schedule as the IAEA Benchmark problem.
+      Four such reformulations, with increasing complexities, have
+      been tested and compared to the normal pulsing problem's
+      results.
     
       The first formulation splits the 94500 pulses into two groups of
       47250 pulses, and a delay of 1200 s after the first group of
@@ -333,35 +330,35 @@
       formulation is the most complicated.  The top level schedule
       again has two sub-schedules.  The first sub-schedule is repeated
       10 times and consists of a block of 2500 pulses followed by a
-      1200 s delay and then another sub-schedule, which in turn
-      consists of two blocks of 125 pulses, and is repeated 10 times.
-      The second sub-schedule is repeated 100 times and has one block
-      of 445 pulses.  Summing the entire schedule gives $\left[ 10
-        \times ( 2500 + 10 \times (125 + 125)) + 100 \times 445\right]
-      = 94500$ pulses.
+      1200 s delay and then another sub-schedule, consisting, in turn,
+      of two blocks of 125 pulses, and is repeated 10 times.  The
+      second sub-schedule is repeated 100 times and has one block of
+      445 pulses.  Summing the entire schedule gives $\left[ 10 \times
+        ( 2500 + 10 \times (125 + 125)) + 100 \times 445\right] =
+      94500$ pulses.
     
       After the complete solution of all four problems, the only
       difference amongst the results was the length of time taken to
       calculate them (using the unix program 'diff' on both the output
       files and tree files showed no difference).  This is logical
-      since increasing the complexity of the schedule increases both
-      the number of matrices which must be created and the number of
-      matrix calculations required to combine their effects into the
-      whole schedule.
+      since increasing the schedule complexity increases both
+      the number of matrices created and the number of matrix
+      calculations required to combine their effects into the whole
+      schedule.
       
     \end{subsection}
     
     \begin{subsection}{Reverse Calculation}
     
       In order to test the reverse calculation mode, it is sufficient
-      to formulate a problem which targets isotopes known to be
-      created by the forward calculation.  Since steel is the most
-      prevalent material in the IAEA Benchmark, the 4 most significant
-      (in terms of specific activity) isotopes were chosen as targets
-      in the steel mixtures: $^{51}$Cr, $^{54}$Mn, $^{55}$Fe, and
-      $^{57}$Co.  With the goal being to determine the production of
-      these isotopes from steel, all zones without stainless steel 316
-      were changed to ``void'' to reduce the computational time.
+      to formulate a problem targeting isotopes known to be created by
+      the forward calculation.  Since steel is the most prevalent
+      material in the IAEA Benchmark, the 4 most significant (in terms
+      of specific activity) isotopes were chosen as targets in the
+      steel mixtures: $^{51}$Cr, $^{54}$Mn, $^{55}$Fe, and $^{57}$Co.
+      With the goal being to determine the production of these
+      isotopes from steel, all zones without stainless steel 316 were
+      changed to ``void'' to reduce the computational time.
       
       The shutdown inventories for these four isotopes were identical
       to those of the forward calculation and table
@@ -394,17 +391,17 @@
   
   \begin{section}{Computing Resources}
     
-
+    
     For the steady-state and pulsing code comparison, all three codes
     were used on the same IBM RS/6000 Model 595 P2SC workstation.  The
     full steady-state problem was solved by \ALARA\ in 3425 s
     (57$^m$5$^s$) and by DKR in 5253 s (1$^h$27$^m$33$^s$).  The same
     problem required 20715 s (5$^h$36$^m$25$^s$) for a previously
-    developed shell-script system which sequentially runs FISPACT-97
-    for each of the intervals.  The pulsed problem was solved by
-    \ALARA\ in 5736 s (1$^h$35$^m$36$^s$), with 44591 nodes and a
-    longest chain of 14.  DKR needed 10855 s (3$^h$0$^m$55$^s$).
-    FISPACT-97 was unable to solve the pulsed problem.
+    developed shell-script system sequentially running FISPACT-97 for
+    each of the intervals.  The pulsed problem was solved by \ALARA\ 
+    in 5736 s (1$^h$35$^m$36$^s$), with 44591 nodes and a longest
+    chain of 14.  DKR needed 10855 s (3$^h$0$^m$55$^s$).  FISPACT-97
+    was unable to solve the pulsed problem.
     
     For the steady state problem, \ALARA\ requires a maximum of 35 MB
     of RAM and, other than the binary library of just over 11 MB, uses
@@ -436,6 +433,7 @@
         \label{tab:valid.runtime}
       \end{center}
     \end{table}
+
   \end{section}
   
   \begin{section}{Conclusions}
@@ -444,15 +442,15 @@
     calculating the activation of fusion power systems.  The results
     for a steady state activation problem have been compared to the
     results from two standard codes whose accuracy has been well
-    documented\cite{IAEA.bench2.rep}: FISPACT-97 and DKR.
-    Discrepancies between the total activities calculated by \ALARA\ 
-    and the other codes are always less than 2.5\%, except where DKR
-    is unable to calculate the tritium production from emitted light
-    ions.  The results of a pulsing problem have been compared to DKR
-    (FISPACT-97 was unable to perform such a calculation in a
-    reasonable time).  The discrepancies in this case are once again
-    primarily due to the lack of tritium production in DKR, and are
-    otherwise less than 1\%.
+    documented: FISPACT-97 and DKR.  Discrepancies between the total
+    activities calculated by \ALARA\ and the other codes are always
+    less than 2.5\%, except where DKR is unable to calculate the
+    tritium production from emitted light ions.  The results of a
+    pulsing problem have been compared to DKR (FISPACT-97 was unable
+    to perform such a calculation in a reasonable time).  The
+    discrepancies in this case are once again primarily due to the
+    lack of tritium production in DKR, and are otherwise less than
+    1\%.
     
     Based on this validation and its faster and less memory-intensive
     operation, \ALARA\ is recommended for the solution of fusion
@@ -461,3 +459,4 @@
   \end{section}
 
 \end{chapter}
+

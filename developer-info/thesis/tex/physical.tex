@@ -15,7 +15,7 @@ used in this chapter and others.
 \end{floatingfigure}
 
 A tree is constructed of \textsl{nodes}, each representing a single
-isotope, and \textsl{branches}, each representing a reaction path
+isotope, and \linebreak \textsl{branches}, each representing a reaction path
 between the \textsl{parent} isotope and \textsl{daughter} isotope for
 that reaction.  The top isotope in the tree will be called the
 \textsl{root} and each succeeding generation of reaction products will
@@ -216,7 +216,7 @@ computational efficiency and optimum memory usage.
     matrix still prevents the use of the traditional analytic methods
     based on the Bateman equations.
     
-    In the past, some methods\cite{DKR,DKRICF,DKRP} have simply
+    \noindent In the past, some methods\cite{DKR,DKRICF,DKRP} have simply
     ignored all but the simplest of loops, 1$^{st}$ order loops at
     rank 1, and analytically handled these simple loops as special
     cases.  Thus, for the majority of the problem, only bidiagonal
@@ -286,7 +286,7 @@ computational efficiency and optimum memory usage.
       \end{center}
     \end{table}
     
-    \begin{figure}[htbp]
+    \begin{figure}[htb]
       \begin{center}
         \leavevmode
         \epsfig{file=eps/si-28_error.eps,height=\columnwidth,angle=-90}
@@ -318,6 +318,7 @@ computational efficiency and optimum memory usage.
     Relative to other methods, tree and loop straightening can allow
     faster and more accurate mathematical methods without jeopardizing
     accuracy in the physical model.
+
   \end{subsection}
 
   \begin{subsection}{Truncation of Activation Trees\label{sec:physical.chains.trunc}}
@@ -606,12 +607,11 @@ computational efficiency and optimum memory usage.
   These approximate approaches are favored by codes that use time-step
   based ODE solvers, since the pulses impose additional restrictions
   on the length of the time step which may be used.  In many cases,
-  the first approximation can be successfully improved by modeling
-  the majority of the pulses as a single steady state period, with a
-  scaled flux, and then modeling the last few pulses
-  exactly\cite{FISPACT-pulse}.  This ensures the correct flux level for
-  the determination of the secular equilibrium level of the
-  short-lived isotopes.
+  the first approximation can be successfully improved by modeling the
+  majority of the pulses as a single steady state period, with a
+  scaled flux, and then modeling the last few pulses exactly.  This
+  ensures the correct flux level for the determination of the secular
+  equilibrium level of the short-lived isotopes.
   
   Alternatively, if matrix methods are used, the equation
   \ref{eqn:intro.basic_ode} can be solved for each pulse and dwell

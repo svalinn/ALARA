@@ -12,7 +12,8 @@
 %%% Float control
 \renewcommand{\topfraction}{1.0}
 \renewcommand{\bottomfraction}{1.0}
-\renewcommand{\textfraction}{0.1}
+\renewcommand{\textfraction}{0}
+\renewcommand{\floatpagefraction}{0.8}
 \setlength{\floatsep}{0pt plus 2pt minus 2pt}
 \setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
 \setlength{\intextsep}{12pt plus 2pt minus 2pt}
@@ -69,14 +70,9 @@
 }
 
 
-\newenvironment{myabstract}[2]{%
+\newenvironment{myabstract}[1]{%
   \newpage
   \thispagestyle{empty}
-  \selectlanguage{#1}
-  \begin{center}
-    \textbf{#2}\\
-    \ \\
-  \end{center}
   \noindent\textbf{\abstractname}
   \addcontentsline{toc}{section}{\abstractname}
 

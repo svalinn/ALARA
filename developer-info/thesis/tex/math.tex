@@ -1,10 +1,10 @@
 
 \begin{chapter}{Mathematical Technique and Theory\label{chap:math}}
   
-  The mathematical problem which results from the physical system
+  The mathematical problem resulting from the physical system
   described in Chapter \ref{chap:physical} is, at first glance, a very
   simple one.  However, the calculation of matrix exponentials, such
-  as the solution to the activation equation:
+  as the solution to the activation equation
   \begin{equation}
     \vec{N}(t) = e^{\mat{A} t} \vec{N}_o,\tag{\ref{eqn:intro.basic_soln}}
   \end{equation}
@@ -40,9 +40,9 @@
     P_{i\rightarrow j} &\equiv \text{production rate of isotope $j$ from isotope $i$.}\notag
   \end{align}
   
-  After loop straightening and cross-link removal has been performed
-  (see figure \ref{fig:physical.straight_tree}), the result is a
-  somewhat larger, simpler set of ODE's:
+  After loop straightening and cross-link removal is performed (see
+  figure \ref{fig:physical.straight_tree}), the result is a somewhat
+  larger, simpler set of ODE's:
   \begin{equation}
     \begin{split}
       \dot{\vec{N}}(t) &= \mat{B}\vec{N}(t)\\
@@ -102,19 +102,19 @@
   straightened tree, $m$, is not easy.  Since the physical conversion
   is to convert cross-links and loops into \pc-nodes, it is clear that
   $m > l$; however, the severity of this inequality is difficult to
-  determine.  An approximate comparison between $k$ and $m$, however,
-  can be made.  Since \mat{B} represents a true tree structure, it can
-  be analyzed by assuming that it is a balanced $n$-ary tree, that is,
-  assuming that every \pc-node in the tree has exactly $n$ branches.
-  Since $k$ is the depth of such a tree, there will be $n^{k-1}$
-  chains representing the $m = \frac{n^k -1}{n-1} \approx O(n^{k-1})$
-  nodes of the tree.  The computational complexity of the mathematical
-  operations performed on these matrices are generally at least of
-  order of the square of the matrix dimension, and often the cube.
-  Thus, for matrix \mat{B}, the mathematical costs will be at least
-  $O(n^{2k-2})$ and possibly $O(n^{3k-3})$ or higher.  On the other
-  hand, for the $n^{k-1}$ matrices \mat{C}, the mathematical costs
-  will be $O(k^2n^{k-1})$ or $O(k^3n^{k-1})$.  This very rough
+  determine.  Nevertheless, an approximate comparison between $k$ and
+  $m$ can be made.  Since \mat{B} represents a true tree structure, it
+  can be analyzed by assuming that it is a balanced $n$-ary tree, that
+  is, assuming that every \pc-node in the tree has exactly $n$
+  branches.  Since $k$ is the depth of such a tree, there will be
+  $n^{k-1}$ chains representing the $m = \frac{n^k -1}{n-1} \approx
+  O(n^{k-1})$ nodes of the tree.  The computational complexity of the
+  mathematical operations performed on these matrices are generally at
+  least of the order of the square of the matrix dimension, and often
+  the cube.  Thus, for matrix \mat{B}, the mathematical costs will be
+  at least $O(n^{2k-2})$ and possibly $O(n^{3k-3})$ or higher.  On the
+  other hand, for the $n^{k-1}$ matrices \mat{C}, the mathematical
+  costs will be $O(k^2n^{k-1})$ or $O(k^3n^{k-1})$.  This very rough
   analysis shows that for mathematical operations of order $x$, as
   long as $n^{1-\frac{1}{x}} > k^{\frac{1}{k-1}}$, the linear chain
   method will be more efficient.  While it may be difficult to
@@ -177,27 +177,26 @@
   designed to take advantage of the special nature of the linear chain
   matrix \mat{C}, can be promising.  The individual ODE's are solved
   with the assistance of Laplace transforms, filling the resultant
-  matrix exponential one element at a time.  These methods are, in
-  fact, versions of matrix decomposition methods which have been
+  matrix exponential one element at a time.  These methods are
+  versions of matrix decomposition methods which have been
   reformulated to minimize round-off errors and handle defective
   matrices, so much so that they are hardly recognizable as matrix
   decomposition methods.  Previous applications have used a
   formulation of the analytic Bateman\cite{DKR,DKRICF,DKRP} solution
-  for linear chains, but this is only applicable when there are no
-  loops.  A new method, developed in this work, is able to replace the
-  Bateman solution, in the event that a loop occurs in the linear
-  chain.
+  for linear chains, but this is only applicable when no loops occur.
+  A new method, developed in this work, is able to replace the Bateman
+  solution, in the event that a loop occurs in the linear chain.
   
-  One of the primary advantages of matrix methods is their ability to
-  quickly solve problems with irradiation histories based on
-  repetition, whether it be simple hierarchies of pulsing, or complex
-  hierarchies of schedules and sub-schedules.  A single matrix must be
-  solved for each relevant flux level and/or characteristic time, and
-  these matrices are multiplied appropriately to build the response
-  matrix for the entire history.  Time-step methods are unable to do
-  this as they never generate a transfer matrix, but work directly
-  with the isotopic number density vector.  Since it is not possible
-  to determine a unique transfer matrix given the initial and final
+  One primary advantage of matrix methods is their ability to quickly
+  solve problems with irradiation histories based on repetition,
+  whether it be simple hierarchies of pulsing, or complex hierarchies
+  of schedules and sub-schedules.  A single matrix must be solved for
+  each relevant flux level and/or characteristic time, and these
+  matrices are multiplied appropriately to build the response matrix
+  for the entire history.  Time-step methods are unable to do this as
+  they never generate a transfer matrix, but work directly with the
+  isotopic number density vector.  Since it is impossible to
+  determine a unique transfer matrix given the initial and final
   vector, time-step methods are forced to simply step through the
   entire history, applying the whole array of calculations at each
   time step and modeling each pulse individually.
@@ -394,8 +393,8 @@
     
     It is clear that this solution will only be computationally viable
     when the product, $\max \{d_i\} \cdot t$ is small.  For arbitrary
-    problems, this is only guaranteed when there are small times, but
-    can easily be tested for a particular problem.  Other
+    problems, this is only guaranteed when there are short operating
+    times, but can easily be tested for a particular problem.  Other
     representations can be formed, each providing different insight
     into the method (see Appendix \ref{app:math.1_s}).
     
@@ -406,10 +405,10 @@
   \begin{section}{Adaptive Mathematical Methods\label{sec:math.adaptive}}
   
     Upon examining available methods to solve such lower bidiagonal
-    systems, it can be seen that there are certain easily determined
-    matrix characteristics which can be used to adaptively choose a
-    method for each matrix element which will optimize the speed and
-    accuracy of the solution.
+    systems, there are certain easily determined matrix
+    characteristics which can be used to adaptively choose a method
+    for each matrix element which will optimize the speed and accuracy
+    of the solution.
   
     The primary criterion for choosing amongst the solution methods is
     the presence of degenerate eigenvalues.  The eigenvalues of these
@@ -419,9 +418,9 @@
     the chain being modeled by this matrix has straightened loops and
     a simple test can determine whether this is the case.  Each matrix
     element, $T_{i,j}$ represents the transfer within a segment of the
-    chain between nodes $j$ and $i$.  Even if there are loops
-    elsewhere in the chain, if no loops occur in this chain segment,
-    the analytical Bateman solution can be selected.
+    chain between nodes $j$ and $i$.  Even if loops exist elsewhere in
+    the chain, if no loops occur in this chain segment, the analytical
+    Bateman solution can be selected.
   
     If a loop does exist within this sub-chain, the laplace expansion
     technique is immediately implemented.  When, during the course of
@@ -449,6 +448,7 @@
     mathematical solution requires some special implementation to
     enhance its efficiency.
   
+    \enlargethispage*{\baselineskip}
     The first such enhancement is to store the solution matrices from
     one chain to another.  The value of this implementation can be
     seen when considering the solution of many subsequent chains of
@@ -468,16 +468,17 @@
     mimic this hierarchy.  Furthermore, as the reaction rates are a
     function of the neutron flux, one of these storage hierarchies is
     required for each interval.
-  
+    
+    \enlargethispage*{\baselineskip}
     This is also true for the decay matrices between pulses and after
-    shutdown, but in this case, the matrices are not only saved from
-    one chain to the next, but across all the intervals being solved
-    for the same chain.  Since the decay matrices are independent of
-    flux, they need only be calculated once for each chain and then
-    used in all the intervals for that chain.  This has large
-    potential savings since there may be many intervals which share
-    the decay matrices, each recalculation of which would cost $n$
-    calculations even with the already implemented savings.
+    shutdown, however in this case, the matrices are not only saved
+    from one chain to the next, but across all the intervals being
+    solved for the same chain.  Since the decay matrices are
+    independent of flux, they need only be calculated once for each
+    chain and then used in all the intervals for that chain.  This has
+    potentially large savings since there may be many intervals
+    sharing the decay matrices, each recalculation of which costing
+    $n$ calculations even with the already implemented savings.
     Furthermore, since the decay matrices are likely to be much
     sparser than the pulse transfer matrices, a special implementation
     of the Bateman solution routine to intelligently fill these
@@ -506,10 +507,10 @@
     more attention.  Given the transfer matrix of the operation block,
     say $\mat{T}_0$, and a single dwell matrix for the dwell time of
     the first level of pulsing, $\mat{D}_1$.  The product of these,
-    $\mat{D}_1\mat{T}_0$, is then raised to a power representing the
-    one less than the number of pulses in that level, $n_1$.
-    Multiplying by the operation block matrix one more time becomes
-    the transfer matrix for the next level of pulsing, $\mat{T}_1 =
+    $\mat{D}_1\mat{T}_0$, is then raised to a power representing one
+    less than the number of pulses in that level, $n_1$.  Multiplying
+    by the operation block matrix one more time becomes the transfer
+    matrix for the next level of pulsing, $\mat{T}_1 =
     \mat{T}_0(\mat{D}_1\mat{T}_0)^{n_1}$.  This is repeated with the
     single dwell matrix for the dwell time of the second level,
     $\mat{D}_2$, and so on, using the general formula\cite{spangler}
@@ -520,9 +521,8 @@
     It is important to use an efficient algorithm\cite{UofT_csc280}
     for this matrix exponentiation process since it will be performed
     so often during the operation of the code.  For $N$ levels of
-    pulsing, the matrix, $\mat{T}_{N}$, will be the transfer matrix
-    for the entire pulsing hierarchy up to the dwell time after that
-    item.
+    pulsing, the matrix, $\mat{T}_{N}$, is the transfer matrix for the
+    entire pulsing hierarchy up to the dwell time after that item.
     
     Using figure \ref{fig:physical.sample_hist} as an example,
     $\mat{T}_0$ represents the activation solution for one 10 minute
