@@ -29,6 +29,17 @@ TODO:
 
 * handling of void zones ????
 
+* Since about 12% of the run-time is spend in Volume::fold(...), it
+  might be a big time saver to cache the collapsed reaction rates.
+  With 22000 nodes, fewer than 2000 isotopes in the library, and
+  probably only about 200 in any given problem, Volume::fold(...) is
+  being invoked, on average, between 10 and 100 times for each
+  isotope.  A disk cache could be implemented as part of the ALARALib
+  class, extending its LibIdx member class to include a second offset
+  into the cache library.  Cache size estimate: 200 isotopes * 400
+  intervals * 20 reactions * 4 bytes (floats) >~ 6 MB.  (Perhaps even
+  use a RAM cache.)
+
 *********************** ROUND-OFF ERROR ********************
 Note that bateman(...) and laplaceInverse(...) currently take the
 absolute value of negative results, which is only valid when assuming
