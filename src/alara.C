@@ -1,4 +1,4 @@
-/* $Id: alara.C,v 1.17 2002-09-09 19:57:12 varuttam Exp $ */
+/* $Id: alara.C,v 1.18 2003-09-04 13:31:02 wilsonp Exp $ */
 #include "alara.h"
 
 #include "Input/Input.h"
@@ -39,7 +39,7 @@ usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
 \t -v <n>             Set verbosity level\n\
 \t <input_filename>   Name of input file\n\
 See Users' Guide for more info.\n\
-(http://www.cae.wisc.edu/~wilsonp/projects/ALARA/users.guide.html/)\n";
+(http://www.cae.wisc.edu/~wilsonp/research/ALARA/users.guide.html/)\n";
 
 int main(int argc, char *argv[])
 {
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   Root* rootList = new Root;
   topSchedule* schedule;
 
-  verbose(-1,"ALARA %s",id);
+  verbose(-1,"%s",PACKAGE_STRING);
 
   while (argNum<argc)
     {
