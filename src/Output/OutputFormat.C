@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.16 1999-08-27 19:43:33 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.17 1999-11-09 17:11:37 wilson Exp $ */
 #include "OutputFormat.h"
 
 #include "Input/CoolingTime.h"
@@ -9,6 +9,7 @@
 #include "Chains/Node.h"
 
 #define Bq2Ci 2.7027e-11
+#define m32cm3 1e6
 
 const char *Out_Types = "ucnstabgw";
 
@@ -18,12 +19,12 @@ const int lastSingularResponse = 8;
 const char *Out_Types_Str[nOutTypes] = {
   "Response Units",
   "Break-down by Component",
-  "Number Density [atoms/cm3]",
-  "Specific Activity [%s/cm3]",
-  "Total Decay Heat [W/cm3]",
-  "Alpha Decay Heat [W/cm3]",
-  "Beta Decay Heat [W/cm3]",
-  "Gamma Decay Heat [W/cm3]",
+  "Number Density [atoms/%s]",
+  "Specific Activity [%s/%s]",
+  "Total Decay Heat [W/%s]",
+  "Alpha Decay Heat [W/%s]",
+  "Beta Decay Heat [W/%s]",
+  "Gamma Decay Heat [W/%s]",
   "WDR/Clearance index"};
 
 /***************************
@@ -40,12 +41,14 @@ OutputFormat::OutputFormat(int type)
 
   normUnits = new char[4];
   strcpy(normUnits,"cm3");
+  normMult = 1;
 
   next = NULL;
 }
 
 OutputFormat::OutputFormat(const OutputFormat& o) :
-  resolution(o.resolution), outTypes(o.outTypes), actMult(o.actMult)
+  resolution(o.resolution), outTypes(o.outTypes), actMult(o.actMult), 
+  normMult(o.normMult)
 {
   actUnits = new char[strlen(o.actUnits)+1];
   strcpy(actUnits,o.actUnits);
@@ -78,7 +81,7 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
   delete normUnits;
   normUnits = new char[strlen(o.normUnits)+1];
   strcpy(normUnits,o.normUnits);
-  
+  normMult = o.normMult;
 
   return *this;
 }
@@ -129,7 +132,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  input >> token;
 	  next->normUnits = new char[strlen(token)+1];
 	  strcpy(next->normUnits,token);
-
+	  next->normMult = (tolower(token[0]) == 'm'?m32cm3:1);
 	  break;
 	case OUTFMT_WDR:
 	  input >> token;
@@ -188,10 +191,19 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       for (++outTypeNum;outTypeNum<lastSingularResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
 	  {
-	    sprintf(buffer,Out_Types_Str[outTypeNum],
-		    ptr->actUnits,ptr->normUnits);
+	    switch(1<<outTypeNum)
+	      {
+	      case (OUTFMT_ACT):
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+			ptr->actUnits,ptr->normUnits);
+		break;
+	      default:
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+			ptr->normUnits);
+	      }
 	    cout << "\t" << buffer << endl;
 	  }
+      
       /* WDR header */
       if (ptr->outTypes & OUTFMT_WDR)
 	for(filenameList::iterator fileName = ptr->wdrFilenames.begin();
@@ -204,14 +216,21 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       cout << endl << endl;
       
       /* set units for activity */
-      Result::setActMult(ptr->actMult);
+      Result::setNorm(ptr->actMult, ptr->normMult);
 
       /* for each indicated response */
       for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
 	  {
 	    /* write a response title */
-	    sprintf(buffer,Out_Types_Str[outTypeNum],ptr->actUnits);
+	    switch(1<<outTypeNum)
+	      {
+	      case(OUTFMT_ACT):
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+			ptr->actUnits,ptr->normUnits);
+	      default:
+		sprintf(buffer,Out_Types_Str[outTypeNum],ptr->normUnits);
+	      }
 	    cout << "*** " << buffer << " ***" << endl;
 
 	    /* call write() on the appropriate object determined by
