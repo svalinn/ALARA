@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.11 1999-11-11 17:50:05 wilson Exp $ */
+/* $Id: Loading.C,v 1.12 1999-11-19 23:00:46 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -220,12 +220,12 @@ void Loading::tally(Result *volOutputList, double vol)
 
 
 void Loading::write(int response, int writeComp, CoolingTime* coolList, 
-		    int targetKza)
+		    int targetKza, int normType)
 {
   Loading *head = this;
   Loading *ptr = head;
   int zoneCntr = 0;
-  double volFrac;
+  double volFrac, volume_mass, density;
 
   /* for each zone */
   while (ptr->next != NULL)
@@ -235,11 +235,17 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
       /* write header info */
       cout << endl;
       cout << "Zone #" << ++zoneCntr << ": " << ptr->zoneName << endl;
-      cout << "\tVolume: " << ptr->volume << endl;
-      cout << "\tMixture: " << ptr->mixName << endl << endl;
 
       if (ptr->mixPtr != NULL)
 	{
+	  if (normType > 0)
+	    cout << "\tVolume: " << ptr->volume << endl;
+	  else
+	    cout << "\tMass: " << ptr->volume*ptr->mixPtr->getTotalDensity()
+		 << endl;
+
+	  cout << "\tContaining mixture: " << ptr->mixName << endl << endl;
+
 	  /* write the component breakdown if requested */
 	  if (writeComp)
 	    {
@@ -251,34 +257,67 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 	      /* for each component */
 	      while (compPtr != NULL)
 		{
+
 		  volFrac = compPtr->getVolFrac();
+		  volume_mass = ptr->volume*volFrac;
+
 		  /* write component header */
-		  cout << "Component: " << compPtr->getName()
-		    << " (volume fraction: " << volFrac << ") " << endl;
+		  cout << "Component: " << compPtr->getName() << endl;
+		  cout
+		       << "\tVolume Fraction: " << volFrac
+		       << "\tVolume: " << volume_mass;
+		  
+		  if (normType < 0)
+		    {
+		      density = compPtr->getDensity();
+		      volume_mass *= density;
+		      cout
+			<< "\tDensity: " << density 
+			<< "\tMass: " << volume_mass;
+		    }
+		  
+		  cout << endl;
+
 		  ptr->outputList[compNum].write(response,targetKza,coolList,
-						 ptr->total,volFrac,
-						 ptr->volume);
+						 ptr->total,volume_mass);
 
 		  compPtr = compPtr->advance();
 		  compNum++;
 		}
 	    }
-	  
-	  volFrac = 1.0;
-	  if (response == OUTFMT_WDR)
-	    volFrac = ptr->mixPtr->getVolFrac();
+
+	  volFrac = ptr->mixPtr->getVolFrac();
 
 	  /* if components were written and there is only one */
-	  if (writeComp && ptr->nComps == 0)
+	  if (writeComp && ptr->nComps == 0 && volFrac == 1.0)
 	    /* write comment refering total to component total */
 	    cout << "** Zone totals are the same as those of the single component."
 		 << endl << endl;
 	  else
 	    {
 	      /* otherwise write the total response for the zone */
-	      cout << "Total (All components)" << endl;
+	      if (response != OUTFMT_WDR)
+		volFrac = 1.0;
+
+	      volume_mass = ptr->volume * volFrac;
+
+	      cout << "Total (All components) " << endl;
+	      cout 
+		<< "\tVolume Fraction: " << volFrac
+		<< "\tVolume: " << volume_mass;
+	      
+	      if (normType < 0)
+		{
+		  density = mixPtr->getTotalDensity();
+		  volume_mass *= density;
+		  cout
+		    << "\tDensity: " << density 
+		    << "\tMass: " << volume_mass
+		    << endl;
+		}
+
 	      ptr->outputList[ptr->nComps].write(response, targetKza,coolList,
-					    ptr->total, volFrac, ptr->volume);
+					    ptr->total, volume_mass);
 
 	    }
 	}

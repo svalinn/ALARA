@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.14 1999-11-11 17:50:41 wilson Exp $ */
+/* $Id: Volume.C,v 1.15 1999-11-19 23:00:46 wilson Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -567,28 +567,33 @@ void Volume::postProc()
 
 
 void Volume::write(int response, int writeComp, CoolingTime* coolList, 
-		   int targetKza)
+		   int targetKza, int normType)
 {
   Volume *head = this;
   Volume *ptr = head;
   int intvlCntr = 0;
-  double volFrac;
+  double volFrac, volume_mass, density;
 
   /* for each interval */
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      intvlCntr++;
 
       /* write header information */
       cout << endl;
-      cout << "Interval #" << intvlCntr << ":" << endl;
-      cout << "\tVolume: " << ptr->volume << endl;
-      cout << "\tZone: " << ptr->zoneName << endl;
+      cout << "Interval #" << ++intvlCntr << " (Zone: " 
+	   << ptr->zoneName <<") :" << endl;
 
       if (ptr->mixPtr != NULL)
 	{
-	  cout << "\tMixture: " << ptr->mixPtr->getName() << endl << endl;
+	  if (normType > 0)
+	    cout << "\tVolume: " << ptr->volume << endl;
+	  else
+	    cout << "\tMass: " << ptr->volume*ptr->mixPtr->getTotalDensity() 
+		 << endl;
+
+	  cout << "\tContaining mixture: " << ptr->mixPtr->getName() << endl 
+	       << endl;
 	  
 	  /* write the component breakdown if requested */
 	  if (writeComp)
@@ -601,33 +606,69 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 	      /* for each component */
 	      while (compPtr != NULL)
 		{
+		  /* NOTE: interval results are already normalized 
+		           for the correct total interval volume */
 		  volFrac = compPtr->getVolFrac();
+		  volume_mass = volFrac;
+
 		  /* write component header */
-		  cout << "Component: " << compPtr->getName()
-		    << " (volume fraction: " << volFrac << ") " << endl;
+		  cout << "Component: " << compPtr->getName() << endl;
+		  cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tVolume: " << volume_mass*ptr->volume;
+
+		  if (normType < 0)
+		    {
+		      density = compPtr->getDensity();
+		      volume_mass *= density;
+		      cout
+			<< "\tDensity: " << density 
+			<< "\tMass: " << volume_mass*ptr->volume;
+		    }
+
+		  cout << endl;
+
 		  ptr->outputList[compNum].write(response,targetKza,coolList,
-						 ptr->total,volFrac);
+						 ptr->total,volume_mass);
 
 		  compPtr = compPtr->advance();
 		  compNum++;
 		}
 	    }
 	  
-	  volFrac = 1.0;
-	  if (response == OUTFMT_WDR)
-	    volFrac = ptr->mixPtr->getVolFrac();
+	  volFrac = ptr->mixPtr->getVolFrac();
 
 	  /* if components were written and there is only one */
-	  if (writeComp && ptr->nComps == 0)
+	  if (writeComp && ptr->nComps == 0 && volFrac == 1.0)
 	    /* write comment refering total to component total */
 	    cout << "** Interval totals are the same as those of the single component."
 		 << endl << endl;
 	  else
 	    {
 	      /* otherwise write the total response for the zone */
-	      cout << "Total (All components)" << endl;
+	      if (response != OUTFMT_WDR)
+		volFrac = 1.0;
+
+	      volume_mass = volFrac;
+	      
+	      /* write component header */
+	      cout << "Total (All components) " << endl;
+	      cout 
+		<< "\tVolume Fraction: " << volFrac
+		<< "\tVolume: " << volume_mass*ptr->volume;
+	      
+	      if (normType < 0)
+		{
+		  density = mixPtr->getTotalDensity();
+		  volume_mass *= density;
+		  cout
+		    << "\tDensity: " << density 
+		    << "\tMass: " << volume_mass*ptr->volume
+		    << endl;
+		}
+	      
 	      ptr->outputList[ptr->nComps].write(response,targetKza,coolList,
-						 ptr->total, volFrac);
+						 ptr->total, volume_mass);
 	      
 	    }
 	}

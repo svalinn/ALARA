@@ -1,4 +1,4 @@
-/* $Id: Volume.h,v 1.8 1999-08-24 22:06:26 wilson Exp $ */
+/* $Id: Volume.h,v 1.9 1999-11-19 23:00:46 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -274,7 +274,7 @@ public:
   /* Postproc */
   void readDump(int);
   void postProc();
-  void write(int, int, CoolingTime*,int);
+  void write(int, int, CoolingTime*,int,int);
 
   /* Utility */
   int head() {return (volume == VOL_HEAD && next == NULL);};

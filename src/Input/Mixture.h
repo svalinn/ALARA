@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.7 1999-11-09 17:09:06 wilson Exp $ */
+/* $Id: Mixture.h,v 1.8 1999-11-19 23:00:46 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -248,7 +248,7 @@ public:
   /* Postproc */
   void readDump(int);
   void tally(Result*,double);
-  void write(int,int,CoolingTime*,int);
+  void write(int,int,CoolingTime*,int,int);
 
   /* Utility */
   Component* getComp(int, double&, Component*);

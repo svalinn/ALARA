@@ -1,4 +1,4 @@
-/* $Id: Loading.h,v 1.6 1999-08-24 22:06:21 wilson Exp $ */
+/* $Id: Loading.h,v 1.7 1999-11-19 23:00:46 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -89,7 +89,7 @@ IN_HEAD (defined in Input.h), and contains no problem data.
     interval in to the total zone results, weighted by the interval
     volume.
 
- void write(int,int,CoolingTime*)
+ void write(int,int,CoolingTime*,int,int)
     This function is responsible for writing the results to standard
     output.  The first argument indicates which kind of response is
     being written, the second indicates whether a mixture component
@@ -172,7 +172,7 @@ public:
 
   /* Postproc */
   void tally(Result* , double);
-  void write(int,int,CoolingTime*,int);
+  void write(int,int,CoolingTime*,int,int);
 
   /* Utility */
   Loading* advance() { return (this!= NULL)?next:(Loading*)NULL; };

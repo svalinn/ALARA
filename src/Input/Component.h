@@ -1,4 +1,4 @@
-/* $Id: Component.h,v 1.6 1999-11-09 17:05:32 wilson Exp $ */
+/* $Id: Component.h,v 1.7 1999-11-19 23:00:46 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -204,6 +204,7 @@ public:
   int head() {return (type == COMP_HEAD);};
   char *getName() {return compName;};
   double getVolFrac() {return volFraction;};
+  double getDensity() {return density;};
   int getCompNum(Component*);
   Component* exists(int);
   Component* advance() { return next; };

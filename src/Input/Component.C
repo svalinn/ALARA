@@ -1,4 +1,4 @@
-/* $Id: Component.C,v 1.11 1999-11-10 21:13:38 wilson Exp $ */
+/* $Id: Component.C,v 1.12 1999-11-19 23:00:46 wilson Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -366,3 +366,5 @@ Component* Component::exists(int srchType)
   return ptr->next;
 }
 
+
+  
