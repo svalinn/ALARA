@@ -28,3 +28,9 @@ TODO:
 * add the possibility to set the width of the output
 
 * handling of void zones ????
+
+*********************** ROUND-OFF ERROR ********************
+Note that bateman(...) and laplaceInverse(...) currently take the
+absolute value of negative results, which is only valid when assuming
+that they are inconsequential.  This is a source of numerical error!!!
+but a positive wrong answer is better than a negative wrong answer.

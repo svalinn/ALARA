@@ -76,7 +76,9 @@ double bateman(int row, int col, double* P, double* d, double t)
     }
 
   /* multiply normalization by sum of Laplace inverse terms */
-  result *= sum;
+  /* absolute value here takes care of negative results */
+  /******* THIS IS AN INCORRECT STOP-GAP **********/
+  result *= fabs(sum);
 
   return result;
 
@@ -168,7 +170,9 @@ double laplaceInverse(int row, int col, double *d, double t)
       result += poleResult * exp(-pole[idx]*t);
     }
 
-  return result;
+  /* absolute value here takes care of negative results */
+  /******* THIS IS AN INCORRECT STOP-GAP **********/
+  return fabs(result);
 
 }
 
