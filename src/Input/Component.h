@@ -1,4 +1,4 @@
-/* $Id: Component.h,v 1.7 1999-11-19 23:00:46 wilson Exp $ */
+/* $Id: Component.h,v 1.8 2000-01-17 03:58:37 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -28,6 +28,10 @@ COMP_HEAD, and contains no problem data.
     This is the density of this component.  It is either a number
     density or a mass density - determined by its type and/or its
     format (*** TBD ***)
+
+ volFraction : double
+
+    This is the volume fraction of this component in the mixture.
 
  compName : char*
     This is the name of this component, as input by the user.

@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.15 1999-12-21 22:06:22 wilson Exp $ */
+/* $Id: Mixture.C,v 1.16 2000-01-17 03:58:37 wilson Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -591,7 +591,7 @@ Mixture* Mixture::find(char* srchName)
   return NULL;
 }
 
-/* find a named mixture in the list */
+/* reset the output list in this mixture */
 void Mixture::resetOutList()
 {
   int compNum;

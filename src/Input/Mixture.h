@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.9 1999-12-21 21:37:29 wilson Exp $ */
+/* $Id: Mixture.h,v 1.10 2000-01-17 03:58:37 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -8,6 +8,11 @@ mixtures used in the problem.  Each object is a named mixture which
 may be referenced as part of zero, one or more loadings.  The first
 element in each list is named IN_HEAD (defined in Input.h), and
 contains no problem data.
+
+** NOTE: The term constituent has been introduced in the user manual
+** and user interaction to refer to the 'Components' of a 'Mixture'.
+** By necessity, the vocabulary of the source code has not been
+** changed, and class and variable names will refer to components.
 
  *** Class Members ***
 
@@ -20,6 +25,12 @@ contains no problem data.
     of this Mixture.  This pointer is used to initiate actions or
     perform actions on the whole list, rather than just a single
     Component object.
+
+ targetCompListHead : Component* 
+    A pointer to the first Component object in the list of targets for
+    a reverse calculation in this Mixture.  This pointer is used to
+    initiate actions or perform actions on the whole list of targets,
+    rather than just a single Component object.
 
  volList : Volume*
     A pointer to a list of Volume objects, specifying which intervals
@@ -34,9 +45,28 @@ contains no problem data.
     cross-referencing tool, as each root has pointers back to the
     Mixture.
 
+ targetList : Root* 
+    A pointer to a list of Root objects, specifying the target
+    isotopes (expanded from the target components) for this Mixture.
+    This is a cross-referencing tool, as each root has pointers back
+    to the Mixture.
+
  volume : double
     The volume of the mixture for weighting the tallying of the
     results.
+
+ totalDensity : double
+    The total mass density of this mixture may be used to normalize
+    the results.
+
+ totalNDensity : double
+    The total number density of this mixture is used to determine the
+    relative concentration of initial isotopes for use with the
+    'impurity' input flag.
+
+ volFraction : double
+    The total volume fraction of the mixture can be used to normalize
+    the results.
 
  nComps : int
     The number of components in this zone.
@@ -138,11 +168,20 @@ contains no problem data.
 
  void solve(Chain*, topSchedule*)
     Function simply passes the two arguments, the chain information
-    and the schedule informaiton, to the list of intervals which
+    and the schedule information, to the list of intervals which
     contain this mixture.  The chain is solved on the schedule for
     each interval.
 
+ void writeDump()
+    Function simply calls Volume::writeDump() to start the process of
+    writing the dump file using the list of intervals which contain
+    this mixture.
+
  * - Postproc - *
+
+ void readDump(int)
+    Function simply passes the argument to the list of intervals which
+    contain this mixture in order to read the dump file.
 
  void tally(Result*,double)
     This function tallies the result list pointed to by the first
@@ -195,6 +234,32 @@ contains no problem data.
     Inline function provides access to the list of components in the
     mixture.
 
+ * - Access - *
+
+ void incrTotalDensity(double)
+    Inline function increments the total mass density by the value of
+    the single argument.
+
+ double getTotalDensity()
+    Inline function provides read access to the current value of the
+    total mass density.
+
+ void incrTotalNDensity(double)
+    Inline function increments the total number density by the value of
+    the single argument.
+
+ double getTotalNDensity()
+    Inline function provides read access to the current value of the
+    total number density.
+
+ void incrVolFrac(double)
+    Inline function increments the total volume fraction by the value
+    of the single argument.
+
+ double getVolFrac()
+    Inline function provides read access to the current value of the
+    total volume fraction. 
+
  */
 
 
@@ -210,7 +275,7 @@ protected:
   Component *compListHead;
   Component *targetCompListHead;
   Volume *volList;
-  Root* rootList, *targetList;
+  Root *rootList, *targetList;
   double volume, totalDensity, totalNDensity, volFraction;
   int nComps;
   Result *outputList;
@@ -260,6 +325,7 @@ public:
   Component* getCompList() { return compListHead; };
   void resetOutList();
 
+  /* Access */
   void incrTotalDensity(double incr) { totalDensity += incr; };
   double getTotalDensity() { return totalDensity; };
   void incrTotalNDensity(double incr) { totalNDensity += incr; };
