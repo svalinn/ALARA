@@ -1,4 +1,4 @@
-/* $Id: classes.h,v 1.5 2000-01-30 06:38:41 wilson Exp $ */
+/* $Id: classes.h,v 1.6 2000-07-07 02:28:38 wilson Exp $ */
 /* Input */
 class Component;
 class CoolingTime;
@@ -41,6 +41,7 @@ class DoseResponse;
 class OutputFormat;
 class Result;
 class ResultList;
+class GammaSrc;
 
 /* DataLib */
 class DataLib;

@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.11 2000-01-17 19:19:05 wilson Exp $ */
+/* $Id: Result.h,v 1.12 2000-07-07 02:28:22 wilson Exp $ */
 #include "alara.h"
 
 /* ******* Class Description ************
@@ -194,6 +194,7 @@ protected:
   static const int delimiter;
   static double actMult;
   static double metricMult;
+  static GammaSrc *gammaSrc;
 
   int kza;
   double *N;
@@ -204,6 +205,8 @@ public:
   /* Preproc */
   static void setNResults(int numRes)
     { nResults = numRes; };
+  static void setGammaSrc(GammaSrc *setGammaSrc)
+    { gammaSrc = setGammaSrc; };
 
   /* Service */
   Result(int setKza = 0, Result* nxtPtr=NULL);

@@ -1,4 +1,4 @@
-/* $Id: Output_def.h,v 1.10 2000-06-20 17:30:30 wilson Exp $ */
+/* $Id: Output_def.h,v 1.11 2000-07-07 02:28:22 wilson Exp $ */
 #ifndef _OUTPUT_DEF_H
 #define _OUTPUT_DEF_H
 
@@ -11,14 +11,15 @@
 #define OUTFMT_ALPHA   32
 #define OUTFMT_BETA    64
 #define OUTFMT_GAMMA  128
-#define OUTFMT_WDR    256
+#define OUTFMT_SRC    256
+#define OUTFMT_WDR    512
 
 #define OUTNORM_KG        -2
 #define OUTNORM_G         -1
 #define OUTNORM_NULL       0
 #define OUTNORM_CM3        1
 #define OUTNORM_M3         2
-#define OUTNORM_VOL_INT    3
+#define OUTNORM_VOL_INT  100
 
 #define BQ_CI     2.7027e-11
 

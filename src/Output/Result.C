@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.20 2000-01-18 02:43:25 wilson Exp $ */
+/* $Id: Result.C,v 1.21 2000-07-07 02:28:22 wilson Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -7,6 +7,7 @@
  */
 
 #include "Result.h"
+#include "GammaSrc.h"
 #include "Output_def.h"
 
 #include "Input/CoolingTime.h"
@@ -27,6 +28,7 @@ FILE* Result::binDump = NULL;
 const int Result::delimiter = -1;
 double Result::actMult = 1;
 double Result::metricMult = 1;
+GammaSrc* Result::gammaSrc = NULL;
 
 Result::Result(int setKza, Result* nxtPtr)
 {
@@ -257,8 +259,11 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 		   double*& total, double volume_mass)
 {
   int resNum;
+  int gGrpNum,nGammaGrps;
   Result* ptr = this;
   double multiplier=1.0;
+  double *gammaMult = NULL;
+  double *photonSrc = NULL;
   Node dataAccess;
   char isoSym[15];
   int mode = NuclearData::getMode();
@@ -268,7 +273,19 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
   total = new double[nResults];
   for (resNum=0;resNum<nResults;resNum++)
     total[resNum] = 0;
-
+  
+  if (response == OUTFMT_SRC)
+    {
+      nGammaGrps = gammaSrc->getNumGrps();
+      /* initialize total gamma source array */
+      photonSrc = new double[nResults*nGammaGrps];
+      for (gGrpNum=0;gGrpNum<nResults*nGammaGrps;gGrpNum++)
+	photonSrc[gGrpNum] = 0.0;
+    }
+  
+  /* invert volume_mass */
+  volume_mass = metricMult/volume_mass;
+  
   /* write a standard header for this table */
   coolList->writeHeader();
 
@@ -278,6 +295,10 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
        * to get the nuclear data for the multiplier */
       switch(response)
 	{
+	case OUTFMT_SRC:
+	  /* set gamma vector */
+	  gammaMult = gammaSrc->getGammaMult(targetKza,dataAccess.getLambda(targetKza)*volume_mass);
+	  /* write activity at same time as gamma source */
 	case OUTFMT_ACT:
 	  multiplier = dataAccess.getLambda(targetKza)*actMult;
 	  break;
@@ -299,7 +320,7 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	default:
 	  multiplier = 1.0;
 	}
-      multiplier *= metricMult/volume_mass;
+      multiplier *= volume_mass;
     }
   
 
@@ -314,6 +335,10 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	   * to get the nuclear data for the multiplier */
 	  switch(response)
 	    {
+	    case OUTFMT_SRC:
+	      /* set gamma vector */
+	      gammaMult = gammaSrc->getGammaMult(ptr->kza,dataAccess.getLambda(ptr->kza)*volume_mass);
+	      /* write activity at same time as gamma source */
 	    case OUTFMT_ACT:
 	      multiplier = dataAccess.getLambda(ptr->kza)*actMult;
 	      break;
@@ -335,7 +360,7 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 	    default:
 	      multiplier = 1.0;
 	    }
-	  multiplier *= metricMult/volume_mass;
+	  multiplier *= volume_mass;
 	}
       
       /* if the multipier is 0 (e.g. stable isotope for activity based
@@ -345,17 +370,32 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
 
       /* write the formatted output for this isotope */
       cout << isoName(ptr->kza,isoSym) << "\t";
+      if (response == OUTFMT_SRC)
+	gammaSrc->writeIsoName(isoName(ptr->kza,isoSym));
 
       for (resNum=0;resNum<nResults;resNum++)
 	{
 	  sprintf(isoSym,"%-11.4e ",ptr->N[resNum]*multiplier);
 	  cout << isoSym;
+
+	  /* gamma source */
+	  if (response == OUTFMT_SRC)
+	    gammaSrc->writeIsotope(gammaMult,ptr->N[resNum]);
+
 	  /* increment the total */
 	  total[resNum] += ptr->N[resNum]*multiplier;
+	  if (response == OUTFMT_SRC && gammaMult != NULL)
+	    /* accumulate gamma source to total */
+	    for (gGrpNum=0;gGrpNum<nGammaGrps;gGrpNum++)
+	      photonSrc[resNum*nGammaGrps+gGrpNum] += gammaMult[gGrpNum]*ptr->N[resNum];
+	  
 	}
-
       cout << endl;
     }
+  
+  /* write the gamma source */
+  if (response == OUTFMT_SRC)
+    gammaSrc->writeTotal(photonSrc,nResults);
   
   /* write a separator for the table */
   coolList->writeSeparator();
@@ -368,7 +408,8 @@ void Result::write(int response, int targetKza, CoolingTime *coolList,
       cout << isoSym;
     }
   cout << endl;
-	
+
+  delete photonSrc;
 }
 
 /*****************************

@@ -1,5 +1,7 @@
-/* $Id: OutputFormat.C,v 1.22 2000-06-20 17:30:30 wilson Exp $ */
+/* $Id: OutputFormat.C,v 1.23 2000-07-07 02:28:22 wilson Exp $ */
 #include "OutputFormat.h"
+
+#include "GammaSrc.h"
 
 #include "Input/CoolingTime.h"
 #include "Input/Volume.h"
@@ -8,20 +10,21 @@
 
 #include "Chains/Node.h"
 
-const char *Out_Types = "ucnstabgw";
+const char *Out_Types = "ucnstabgpw";
 
-const int nOutTypes = 9;
+const int nOutTypes = 10;
 const int firstResponse = 2;
-const int lastSingularResponse = 8;
+const int lastSingularResponse = 9;
 const char *Out_Types_Str[nOutTypes] = {
   "Response Units",
   "Break-down by Constituent",
-  "Number Density [atoms/%s]",
-  "Specific Activity [%s/%s]",
-  "Total Decay Heat [W/%s]",
-  "Alpha Decay Heat [W/%s]",
-  "Beta Decay Heat [W/%s]",
-  "Gamma Decay Heat [W/%s]",
+  "Number Density [atoms%s]",
+  "Specific Activity [%s%s]",
+  "Total Decay Heat [W%s]",
+  "Alpha Decay Heat [W%s]",
+  "Beta Decay Heat [W%s]",
+  "Gamma Decay Heat [W%s]",
+  "Photon Source Distribution [gammas/s%s] : %s\n\t    with Specific Activity [%s%s]",
   "WDR/Clearance index"};
 
 /***************************
@@ -159,8 +162,12 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  strcpy(fileNamePtr,token);
 	  next->wdrFilenames.insert(fileNamePtr);
 	  verbose(4,"Added WDR/Clearance file %s", token);
+	  break;
+	case OUTFMT_SRC:
+	  /* set gamma source file name here */
+	  next->gammaSrc= new GammaSrc(input);
+	  break;
 	}
-
 
       clearComment(input);
       input >> token;
@@ -177,7 +184,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
   
 
   OutputFormat *ptr = this;
-  char buffer[64];
+  char buffer[256];
 
   int outTypeNum;
 
@@ -216,6 +223,11 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 			ptr->actUnits,ptr->normUnits);
 		break;
+	      case (OUTFMT_SRC) :
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+		       /* deliver gamma src filename, */
+		       ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
+		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 			ptr->normUnits);
@@ -236,6 +248,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       
       /* set units for activity */
       Result::setNorm(ptr->actMult,ptr->normType);
+      Result::setGammaSrc(ptr->gammaSrc);
 
       /* for each indicated response */
       for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++)
@@ -247,6 +260,10 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      case(OUTFMT_ACT):
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 			ptr->actUnits,ptr->normUnits);
+		break;
+	      case (OUTFMT_SRC) :
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],ptr->normUnits);
