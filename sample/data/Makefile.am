@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.1 2004-07-23 19:28:14 wilsonp Exp $
+#$Id: Makefile.am,v 1.2 2005-01-17 22:09:26 wilsonp Exp $
 
 include $(top_srcdir)/Makefile.h
 
@@ -13,5 +13,8 @@ dist_sampledata_DATA =  adjfile2.gam    \
                     fluxin3         \
                     hohlflux        \
                     myElelib        \
-                    sampleMatlib  
+                    sampleMatlib    \
+                    ANS6_4_3        \
+                    NRCA            \
+                    NRCC
 
