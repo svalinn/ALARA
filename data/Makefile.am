@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.8 2004-06-03 16:12:13 wilsonp Exp $
+#$Id: Makefile.am,v 1.9 2004-06-03 19:55:47 wilsonp Exp $
 
 include $(top_srcdir)/Makefile.h
 
@@ -6,7 +6,7 @@ include $(top_srcdir)/Makefile.h
 # fill in final data files here
 dist_nonxs_DATA = ANS6_4_3.txt Data_list.txt elelib.std FetterC_hi.Ci_m3.wdr	\
           FetterC_lo.Ci_m3.wdr IAEA.clearance.Bq_kg matlib.sample	\
-          NRCA.Ci_m3.wdr NRCC.Ci_m3.wdr
+          NRCA.Ci_m3.wdr NRCC.Ci_m3.wdr NRC.clearance.Bq_kg EU.clearance.Bq_kg
 
 # create symbolic links to easily remebered filenames
 install-data-hook:
