@@ -63,12 +63,14 @@ void Node::readData()
 
   /* this is only true for forward mode */
   if (nPaths > 0)
-    D = paths[nPaths];
-  
-  /* if a new node is created with TRUNCATE_STABLE state
-   * strip its pure transmutation reactions immediately */
-  if (state == TRUNCATE_STABLE)
-    state = stripNonDecay();
+    {
+      D = paths[nPaths];
+      
+      /* if a new node is created with TRUNCATE_STABLE state
+       * strip its pure transmutation reactions immediately */
+      if (state == TRUNCATE_STABLE)
+	state = stripNonDecay();
+    }
 }
 
 

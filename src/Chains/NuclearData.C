@@ -397,7 +397,8 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
 int NuclearData::stripNonDecay()
 {
   int rxnNum = 0;
-
+  int *newDaug = NULL;
+  char **newEmitted = NULL;
   /* count decay reactions */
   int numDecay = 0;
   for (rxnNum=0;rxnNum<nPaths;rxnNum++)
@@ -406,50 +407,55 @@ int NuclearData::stripNonDecay()
 
   /* if there are fewer decay reactions than the total number, 
    * copy them to a new array */
-  if (numDecay == 0)
-    cleanUp();
-  else if (numDecay < nPaths)
+  if (numDecay < nPaths)
     {
       int decayRxnNum = 0;
 
-      int* newDaug = new int[numDecay];
-      memCheck(newDaug,"NuclearData::stripNonDecay(...): newDaug");
-
+      /* always need at least one path array for the total */
       double **newPaths = new double*[numDecay+1];
       memCheck(newPaths,"NuclearData::stripNonDecay(...): newPaths");
 
-      char **newEmitted = new char*[numDecay];
-      memCheck(newEmitted,"NuclearData::stripNonDecay(...): newEmitted");
-
-      /* if we have any decay reactions
-       * find them and copy them */
+      /* only need relations and emitted if we have decay reactions */
       if (numDecay > 0)
-	for (rxnNum=0;rxnNum<nPaths;rxnNum++)
-	  if (paths[rxnNum][nGroups]>0)
-	    {
-	      newDaug[decayRxnNum] = relations[rxnNum];
-	      newPaths[decayRxnNum] = paths[rxnNum];
-	      newEmitted[decayRxnNum++] = emitted[rxnNum];
-	    }
-	  else
-	    {
-	      delete paths[rxnNum];
-	      delete emitted[rxnNum];
-	    }
+	{
+	  newDaug = new int[numDecay];
+	  memCheck(newDaug,"NuclearData::stripNonDecay(...): newDaug");
+	  
+	  newEmitted = new char*[numDecay];
+	  memCheck(newEmitted,"NuclearData::stripNonDecay(...): newEmitted");
+	}  
 
-      /* copy total decay rate */
+      /* always need to copy the decay paths (could be none) and
+       * delete the non decay paths */
+      for (rxnNum=0;rxnNum<nPaths;rxnNum++)
+	if (paths[rxnNum][nGroups]>0)
+	  {
+	    newDaug[decayRxnNum] = relations[rxnNum];
+	    newPaths[decayRxnNum] = paths[rxnNum];
+	    newEmitted[decayRxnNum++] = emitted[rxnNum];
+	  }
+	else
+	  {
+	    delete paths[rxnNum];
+	    delete emitted[rxnNum];
+	  }
+      
+      /* always must copy total decay rate */
       newPaths[decayRxnNum] = paths[rxnNum];
 
       delete relations;
-      delete paths;
       delete emitted;
+      delete paths;
       relations = newDaug;
-      paths = newPaths;
       emitted = newEmitted;
+      paths = newPaths;
       
       nPaths = numDecay;
     }
   
+  /* for forward calculation */
+  D = paths[nPaths];
+
   if (nPaths == 0)
     return TRUNCATE;
   else
