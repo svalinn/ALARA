@@ -165,7 +165,7 @@ int Eaf41::ParticleEtoF(const char part)
     case 'P':
       return PROTON;
     case 'H':
-      return HELIUM3
+      return HELIUM3;
     }
 
   return 0;
