@@ -289,10 +289,10 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
 	    }
 	}
 
-      priDsLambda[i] += decay_const*GetBratio(parent,priDs[i]);
-
       total += priDsLambda[i];
     }
+
+  total += decay_const;
 
   for(i = 0; i < secDs.size(); i++)
     {
