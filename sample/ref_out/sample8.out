@@ -1,6 +1,6 @@
-ALARA 2.7.5
+ALARA 2.7.6
 Set verbose level to 3.
-Openned tree file ref_new/sample8.tree.
+Openned tree file ref_out_new/sample8.tree.
 	Openned sample8 for input.
 Starting problem input processing.
 	Reading input.
@@ -54,19 +54,19 @@ Starting problem solution.
 		Solving Root #2: fe-56 
 		   Maximum relative concentration: 0.9172
 		      last Root: 475 nodes in 145 chains with maximum length 7.
-		                 in 0.100 s (4750.000 nodes/s)
+		                 in 0.090 s (5277.778 nodes/s)
 		   Total so far: 1308 nodes in 389 chains with maximum length 8.
-		                 in 0.29 s (4510.345 nodes/s)
+		                 in 0.28 s (4671.429 nodes/s)
 		Solving Root #3: fe-57 
 		   Maximum relative concentration: 0.021
 		      last Root: 522 nodes in 138 chains with maximum length 8.
-		                 in 0.100 s (5220.000 nodes/s)
+		                 in 0.090 s (5800.000 nodes/s)
 		   Total so far: 1830 nodes in 527 chains with maximum length 8.
-		                 in 0.39 s (4692.308 nodes/s)
+		                 in 0.37 s (4945.946 nodes/s)
 		Solving Root #4: fe-58 
 		   Maximum relative concentration: 0.0028
 		      last Root: 892 nodes in 213 chains with maximum length 9.
-		                 in 0.180 s (4955.555 nodes/s)
+		                 in 0.200 s (4460.000 nodes/s)
 		   Total so far: 2722 nodes in 740 chains with maximum length 9.
 		                 in 0.57 s (4775.439 nodes/s)
 	Solved problem.
