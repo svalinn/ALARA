@@ -1,4 +1,16 @@
-$Id: NEWS,v 1.13 2005-02-24 09:33:31 wilsonp Exp $
+$Id: NEWS,v 1.14 2005-05-04 03:03:24 wilsonp Exp $
+
+Version 2.7.6
+	
+BUGS FIXED
+	* added include to dant2alara.C to provide std::min()
+	  [PW] (05/03/2005)
+
+NEW FEATURES
+
+CODE UPDATES
+	
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
 Version 2.7.5
 	
