@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.19 2003-01-14 05:01:19 wilsonp Exp $ */
+/* $Id: Mixture.h,v 1.20 2005-05-25 02:30:42 wilsonp Exp $ */
 #include "alara.h"
 
 #ifndef _MIXTURE_H
@@ -96,22 +96,6 @@ protected:
  
   /// The next Mixture in the list of possible Mixtures.
   Mixture *next;
-
-  /// Stores ranges of charged particles in this mixture.
-  /** Gvalues is referenced: Gvalues[Charged Particle]
-      [Charged Particle Energy Group][Neutron energy group] */
-  double ***Gvalues;
-
-  /// Storage for the Gvalues
-  double *GvaluesStorage;
-
-  /// Charged Particle Ranges
-  /** Referenced by: 
-      problemRanges[Charged Particle][Charged Particle Energy Group] */
-  double **problemRanges;
-
-  /// Storage for charged particle ranges
-  double *problemRangesStorage;
 
   /// When the Mixture passed as the argument is referenced in a
   /// COMP_SIM Component, the Component is replaced with the Component
@@ -241,12 +225,6 @@ public:
   /// total volume fraction. 
   double getVolFrac() { return volFraction; };
 
-  /// Calculate charged particle ranges of this mixture
-  void calcMixRange();
-
-  /// Calculate Gvalues of this mixture
-  void calcGvalues();
-
   /// Access function for rootList
   Root* getRootList() { return rootList; };
 
@@ -256,8 +234,6 @@ public:
   /// Access function for userVol.
   double getUserVol() { return userVol; };
 
-  /// Access function for Gvalues
-  double ***getGvalues() { return Gvalues; };
 
 };
 
