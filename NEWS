@@ -1,8 +1,10 @@
-$Id: NEWS,v 1.15 2005-05-25 02:35:16 wilsonp Exp $
+$Id: NEWS,v 1.16 2005-05-25 02:44:19 wilsonp Exp $
 
 Version 2.7.6
 	
 BUGS FIXED
+        * run_samples.sh script now creates dump_files directory
+	  [PW] (05/24/2005)
 	* removed some old "sequential charged particle reaction" code
 	  that was never used and caused occasional core dumps 
 	  [PW] (05/24/2005)
