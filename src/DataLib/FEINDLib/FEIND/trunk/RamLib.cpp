@@ -6,6 +6,22 @@
 using namespace std;
 using namespace FEIND;
 
+std::vector<Kza> RamLib::Parents()
+{
+  map<Kza,Parent>::iterator iter;
+  iter = Data.begin();
+
+  vector<Kza> ret;
+
+  while(iter != Data.end())
+    {
+      ret.push_back(iter->first);
+      iter++;
+    }
+
+  return ret;
+}
+
 ErrCode RamLib::AddPCs(const Kza parent, const int csType, 
 		       const std::vector<double>& cs)
 {

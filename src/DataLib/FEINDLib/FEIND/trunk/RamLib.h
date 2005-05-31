@@ -11,6 +11,9 @@
 class FEIND::RamLib
 {
  public:
+  /// Return a list of all of the parents in the library
+  std::vector<Kza> Parents();
+
   ErrCode AddSec(const Kza parent, const Kza daughter, const int csType, 
 		 const std::vector<double>& cs)
   {
