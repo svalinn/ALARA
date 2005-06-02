@@ -115,9 +115,24 @@ double RamLib::GetDecayConstant(Kza parent)
 
 }
 
-double RamLib::GetDecayEnergy(Kza parent, Kza enType)
+double RamLib::GetDecayEnergy(Kza parent, int enType)
 {
   return Data[parent].DecayEnergies[enType];
+}
+
+double RamLib::GetTotalDecayEnergy(Kza parent)
+{
+  map<int,double>::iterator iter = Data[parent].DecayEnergies.begin();
+
+  double ret = 0;
+
+  while(iter != Data[parent].DecayEnergies.end())
+    {
+      ret += iter->second;
+      iter++;
+    }
+
+  return ret;
 }
 
 vector<pair<double,double> > RamLib::GetDiscreteSpec(Kza parent, int specType)

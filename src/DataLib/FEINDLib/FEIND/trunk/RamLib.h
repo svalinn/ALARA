@@ -61,7 +61,8 @@ class FEIND::RamLib
   std::vector<std::pair<double,double> > GetDiscreteSpec(Kza parent, 
 							 int specType);
   double GetDecayConstant(Kza parent);
-  double GetDecayEnergy(Kza parent, Kza enType);
+  double GetDecayEnergy(Kza parent, int enType);
+  double GetTotalDecayEnergy(Kza parent);
 
   std::vector<std::pair<double,double> > 
     GetFissionYield(Kza parent, int fissionType);
