@@ -4,6 +4,18 @@
 const unsigned int NUM_ELEMENTS = 110;
 
 // Energy Group Structures:
+
+/// The Group Struct Types
+/** This enum just contains codes for each different groups structure used
+ *  in FEINDs various parsers
+ */
+enum GSType{ 
+  VITAMIN_J,      // 175 group Vitamin - J structure, used by EAF (fendl)
+  IEAF,          
+  CINDER_NEUTRON, // 63 group Cinder neutron energy group structure
+  CINDER_GAMMA    // 25 group Cinder gamma energy group structure
+};
+
 const int VITAMINJ_175 = 1;
 const int IEAF_256 = 2;
 const int CINDER_60 = 3;
