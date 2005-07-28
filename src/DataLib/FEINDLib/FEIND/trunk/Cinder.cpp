@@ -10,12 +10,9 @@
 using namespace std;
 using namespace FEIND;
 
-unsigned int Cinder::NumGroups = 63;
-
 Cinder::Cinder(const LibDefine& lib) :
   InFile(lib.Args[0].c_str())
 {
-
 }
 
 ErrCode Cinder::LoadLibrary()
@@ -25,9 +22,13 @@ ErrCode Cinder::LoadLibrary()
   if(!InFile.is_open())
     return FEC_FILE_OPEN;
 
-  // This file is divided into two sections:
-  // - The first contains transmutation and decay data
-  // - The second contains fission yield data
+  // This file is divided into three sections:
+  // - The first contains the groups structure information
+  // - The second contains transmutation and decay data
+  // - The third contains fission yield data
+
+  // Read gamma and neutron groups structures
+  GetGroupInfo();
 
   // Begin Reading Activation Data:  
   ActivationData();
@@ -45,8 +46,10 @@ void Cinder::ActivationData()
   const string fission_rxn = "(n,f)";
 
   string str;
-  vector<double> cs(63,0);
+  string path_str;
+  vector<double> cs(NumNeutronGroups,0);
   bool total_flag = false;
+  vector<double> parent_cs;
 
   int i;
   int j;
@@ -76,12 +79,14 @@ void Cinder::ActivationData()
 	  if(CheckFission(str))
 	    {
 	      // There is a non-zero fission cross-section:
-	      for(i = 0; i < NumGroups; i++)
+	      for(i = 0; i < NumNeutronGroups; i++)
 		{
 		  InFile >> str;
 		  cs[i] = atof(str.c_str());
 		} 
+
 	      Library.AddPCs(parent_kza, NEUTRON_FISSION_CS, cs);
+	      AddToCs(parent_kza, cs);
 	    }
 
 	  // Done with fission, deal with other transmutation reactions:
@@ -95,55 +100,61 @@ void Cinder::ActivationData()
 	      daughter_kza = atoi(str.substr(10,7).c_str());
 	      daughter_kza = CinderToKza(daughter_kza);
 
+	      // Grab the CINDER path string:
+	      path_str = str.substr(50,4);
+
 	      // Create total parent/daughter cross sections:
-	      if(str.find('c') == string::npos) total_flag = true;
+	      if(path_str.find('c') == string::npos || path_str.find('x') || 
+		 path_str == "    ") 
+		  total_flag = true;
+	      else 
+		  path = MakePath(path_str);
 
-	      if(!(str.find('c') != string::npos || 
-		   str.find('x') != string::npos ||
-		   str == "    ")) 
-		{
-		  path = MakePath(str.substr(50,4));
-		}
-
-
-	      if(parent_kza == 20030) cout << daughter_kza << endl;
-	      for(j = 0; j < NumGroups; j++)
+	      for(j = 0; j < NumNeutronGroups; j++)
 		{
 		  InFile >> str;
 		  cs[j] = atof(str.c_str());
-		  path.CrossSection = cs;
-		  if(parent_kza == 20030) cout << cs[j] << "\t";
 		}
 
-	      if(parent_kza == 20030) cout << endl;
+	      if(!total_flag) path.CrossSection = cs;	      
 
-	      AddToCs(parent_kza, daughter_kza, cs);	     
-	      if(!total_flag) Library.AddPath(parent_kza, daughter_kza, path);
+ 	      if(IsPri(parent_kza, daughter_kza)) 
+		{
+		  // This is a primary cross-section
+		  // It must be added to the parent total cross-section:
+		  AddToCs(parent_kza, cs);
 
-// 	      if(IsPri(parent_kza, daughter_kza))
-// 		AddToCs(parent_kza, daughter_kza, cs);
-// 	      else
-// 	        Library.AddSec(parent_kza, daughter_kza, TOTAL_CS, cs);
-	      
-// 	      if(!total_flag)
-// 		{
-// 		  if(IsPri(parent_kza,daughter_kza))
-// 		    Library.AddPath(parent_kza, daughter_kza, path);
-// 		  else
-// 		    Library.AddSecPath(parent_kza, daughter_kza, path);
-// 		}
+		  // Since there is only one cross-section per daughter, this
+		  // will be used as the total daughter cross-section
+		  Library.AddDCs( parent_kza, daughter_kza, TOTAL_CS, cs );
 
+		  if(!total_flag) 
+		    Library.AddPath(parent_kza, daughter_kza, path);
+		}
+ 	      else
+		{
+		  Library.AddSec(parent_kza, daughter_kza, TOTAL_CS, cs);
+
+		  if(!total_flag) 
+		    Library.AddSecPath(parent_kza, daughter_kza, path);
+		}
+
+ 	      if(!total_flag)
+ 		{
+ 		  if(IsPri(parent_kza,daughter_kza))
+ 		    Library.AddPath(parent_kza, daughter_kza, path);
+ 		  else
+ 		    Library.AddSecPath(parent_kza, daughter_kza, path);
+ 		}
 
 	      getline(InFile,str,'\n');
-
+	      
 	      total_flag = false;
-
 	    }
 	}
 
       getline(InFile, str, '\n');
-    }
-    
+    }    
 }
 
 Kza Cinder::ExtractActParent()
@@ -324,19 +335,20 @@ Path Cinder::MakePath(const string& str)
   // the AddToCs function.
   
   int part_id;
-  int num;
+  int num = 1;
   string character;
 
-  // First, lets take care of (   ), (c  ), and (x  ) cases.
   for(int i = 0; i < str.size(); i++)
     {
-      if(str[i] >= 0 && str[i] <= 9) 
+      // Ignore blank characters:
+      if(str[i] == ' ') continue;
+
+      if(str[i] >= '0' && str[i] <= '9') 
 	{
 	  character = str[i];
 	  num = atoi(character.c_str());
+	  continue;
 	}
-      else
-	num = 1;
 
       switch(toupper(str[i]))
 	{
@@ -361,26 +373,77 @@ Path Cinder::MakePath(const string& str)
 	case 'D':
 	  part_id = DEUTERON;
 	  break;
+	default:
+	  break;
+	  // THROW AN EXCEPTION
 	}
       
       ret.Emitted[part_id] = num;
+      num = 1;
     }
   
   return ret;
 }
 
-void Cinder::AddToCs(Kza parent, Kza daughter, std::vector<double>& newCs)
+void Cinder::AddToCs(Kza parent_kza, vector<double>& newCs)
 {
-  vector<double> pcs = Library.GetPCs(parent, TOTAL_CS);
+  vector<double> parent_cs = Library.GetPCs(parent_kza, TOTAL_CS);
 
-  // Check to see if the parent entry already exists
-  if(!pcs.size()) pcs.assign(NumGroups, 0.0);
+  if(parent_cs.size() != newCs.size())
+    {
+      Library.AddPCs(parent_kza, TOTAL_CS, newCs);
+    }
+  else
+    {
+      // Add the cross sections:
+      for(int i = 0; i < NumNeutronGroups; i++)
+	parent_cs[i] += newCs[i];
 
-  // Add the cross sections:
-  for(int i = 0; i < NumGroups; i++)
-    pcs[i] += newCs[i];
+      Library.AddPCs(parent_kza, TOTAL_CS, parent_cs);
+    }
+}
 
-  // Add the entry to the Library:
-  Library.AddPCs(parent, TOTAL_CS, pcs);
-  Library.AddDCs(parent, daughter, TOTAL_CS, newCs);
+bool Cinder::IsPri(Kza parent, Kza daughter)
+{  
+  if( double((daughter/10)%1000) >= ((parent/10)%1000)/2.0 ) return true;
+  
+  return false; 
+}
+  
+
+void Cinder::GetGroupInfo()
+{
+  unsigned int i;
+  string str;
+
+  // Skip the first line...
+  getline(InFile, str, '\n');
+
+  // Get the number of neutron groups...
+  InFile >> str >> str >> str;
+  NumNeutronGroups = atoi(str.c_str());
+
+  // Get the number of gamma groups...
+  InFile >> str >> str >> str >> str >> str >> str;
+  NumGammaGroups = atoi(str.c_str());
+
+  // Read the neutron group boundaries:
+  getline(InFile, str, '\n');
+  getline(InFile, str, '\n');
+  for(i = 0; i < NumNeutronGroups+1; i++)
+    {
+      InFile >> str;
+      NeutronGroupBounds.push_back( atof(str.c_str()) );
+    }
+  Library.SetGroupStruct(CINDER_NEUTRON, NeutronGroupBounds);
+
+  // Read the gamma group boundaries:
+  getline(InFile, str, '\n');
+  getline(InFile, str, '\n');
+  for(i = 0; i < NumGammaGroups+1; i++)
+    {
+      InFile >> str;
+      GammaGroupBounds.push_back( atof(str.c_str()) );
+    }
+  Library.SetGroupStruct(CINDER_GAMMA, GammaGroupBounds);  
 }
