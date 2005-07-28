@@ -52,6 +52,13 @@ class FEIND::Spectrum
   /** This vector is simply a list of points for each energy and intensity.
    */
   std::vector< std::pair<double, double> > Discrete;
+
+  /// This vector stores a group wise spectrum.
+  /** To save memory the energy group structure is not build into this class.
+   *  The user must be aware of this information himself.
+   */
+  std::vector<double> GroupWise;
+
 };
 
 class FEIND::Daughter
