@@ -92,9 +92,19 @@ class FEIND::RamLib
 		   std::vector<Kza>& secDs, std::vector<double>& secDsLambda);
 
 
+  std::vector<double> GetGroupStruct( GSType gst )
+    {
+      return GroupStructs[gst];
+    }
+
+  std::vector<double> SetGroupStruct( GSType gst, std::vector<double>& gs)
+    {
+      GroupStructs[gst] = gs;
+    }
+
  private:
   std::map<Kza,Parent> Data;
-  std::map<int, std::vector<double> > GroupStructs;
+  std::map<GSType, std::vector<double> > GroupStructs;
 };
 
 #endif
