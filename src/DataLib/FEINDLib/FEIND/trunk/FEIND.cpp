@@ -21,30 +21,32 @@ RamLib FEIND::Library;
 
 ErrCode FEIND::LoadLibrary(const LibDefine& lib)
 {
+  int err;
+
   switch(lib.Format)
     {
     case DECAY_ENDF_6:
       {
 	DecayEndf6 data_lib(lib);
-	data_lib.LoadLibrary();
+	err = data_lib.LoadLibrary();
       }
       break;
     case EAF_4_1:
       {
 	Eaf41 data_lib(lib);
-	data_lib.LoadLibrary();
+	err = data_lib.LoadLibrary();
       }
       break;
     case CINDER:
       {
 	Cinder data_lib(lib);
-	data_lib.LoadLibrary();
+	err = data_lib.LoadLibrary();
       }
       break;
     case ENDF_IEAF:
       {
 	EndfIeaf data_lib(lib);
-	data_lib.LoadLibrary();
+	err = data_lib.LoadLibrary();
       }
       break;
     default:
@@ -53,7 +55,7 @@ ErrCode FEIND::LoadLibrary(const LibDefine& lib)
     }
 
 
-  return FEC_NO_ERROR;
+  return err;
 }
 
 // ErrCode FEIND::AddEntry(const Parent& parent)
