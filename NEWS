@@ -1,4 +1,18 @@
-$Id: NEWS,v 1.16 2005-05-25 02:44:19 wilsonp Exp $
+$Id: NEWS,v 1.17 2005-08-01 22:16:12 wilsonp Exp $
+
+Version 2.7.7
+
+BUGS FIXED
+        * run_samples.sh script now creates dump_files directory
+          CORRECTLY!!! [PW] (08/01/2005)
+        * improved/corrected output for constituent output
+          [PW] (08/01/2005)  
+
+NEW FEATURES
+
+CODE UPDATES
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
 Version 2.7.6
 	

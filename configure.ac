@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(ALARA,2.7.6,wilsonp@engr.wisc.edu)
+AC_INIT(ALARA,2.7.7,wilsonp@engr.wisc.edu)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([src/alara.C])
 AM_INIT_AUTOMAKE
