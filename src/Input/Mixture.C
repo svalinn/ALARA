@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.33 2005-05-25 02:30:42 wilsonp Exp $ */
+/* $Id: Mixture.C,v 1.34 2005-08-01 21:58:35 wilsonp Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -528,6 +528,12 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 		  volume_mass /= ptr->userVol;
 		  cout << "\tVolume Integrated ";
 		}
+	      else
+		{
+	          cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tRelative Volume: " << volume_mass;
+		}
 
 	      cout << endl;
 
@@ -578,6 +584,12 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	        << "\tAbsolute Volume: " << ptr->userVol;
 	      volume_mass /=ptr->userVol;
 	      cout << "\tVolume Integrated ";
+	    }
+	  else
+	    {
+	      cout 
+		<< "\tVolume Fraction: " << volFrac
+		<< "\tRelative Volume: " << volume_mass;
 	    }
 	  
 	  cout << endl;

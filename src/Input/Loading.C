@@ -1,4 +1,4 @@
-/* $Id: Loading.C,v 1.27 2004-06-03 21:56:24 wilsonp Exp $ */
+/* $Id: Loading.C,v 1.28 2005-08-01 21:58:35 wilsonp Exp $ */
 /* (Potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -358,11 +358,11 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		  
 		  if (normType < 0)
 		    {
-		      density = compPtr->getDensity();
-		      volume_mass *= density;
 		      cout
 		           << "\tVolume Fraction: " << volFrac
 		           << "\tRelative Volume: " << volume_mass;
+		      density = compPtr->getDensity();
+		      volume_mass *= density;
 		      cout
 			<< "\tDensity: " << density 
 			<< "\tMass: " << volume_mass;
@@ -376,6 +376,12 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		           << "\tAbsolute Volume: " << ptr->userVol;
 		      volume_mass /= ptr->userVol;
 		      cout << "\tVolume Integrated ";
+		    }
+		  else
+		    {
+		      cout
+		           << "\tVolume Fraction: " << volFrac
+		           << "\tRelative Volume: " << volume_mass;
 		    }
 
 		  
@@ -427,6 +433,12 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
 		    << "\tAbsolute Volume: " << ptr->userVol;
 		  volume_mass /= ptr->userVol;
 		  cout << "\tVolume Integrated ";
+		}
+	      else
+		{
+	          cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tRelative Volume: " << volume_mass;
 		}
 	      
 	      cout << endl;

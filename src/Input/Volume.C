@@ -1,4 +1,4 @@
-/* $Id: Volume.C,v 1.42 2004-08-04 19:44:13 wilsonp Exp $ */
+/* $Id: Volume.C,v 1.43 2005-08-01 21:58:36 wilsonp Exp $ */
 #include "Volume.h"
 #include "Loading.h"
 #include "Geometry.h"
@@ -685,6 +685,12 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		      volume_mass /= ptr->userVol;
 		      cout << "\tVolume Integrated";
 		    }
+		  else
+		    {
+		      cout 
+		        << "\tVolume Fraction: " << volFrac
+		        << "\tRelative Volume: " << volume_mass*ptr->volume;
+		    }
 
 		  cout << endl;
 
@@ -737,6 +743,13 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
 		  cout << "\tVolume Integrated";
 		  volume_mass /= ptr->userVol;
 		}
+	      else
+		{
+		  cout 
+		    << "\tVolume Fraction: " << volFrac
+		    << "\tRelative Volume: " << volume_mass*ptr->volume;
+		}
+	      
 	      cout << endl;
 
 	      ptr->outputList[ptr->nComps].write(response,targetKza,ptr->mixPtr,
