@@ -23,7 +23,8 @@ $alarabin -V
 
 rm -rf $outdir
 mkdir $outdir
-mkdir -f dump_files
+rm -rf dump_files
+mkdir dump_files
 echo sample1
 $alarabin -v 3 -t $outdir/sample1.tree sample1 > $outdir/sample1.out
 echo sample2
