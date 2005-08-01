@@ -1,6 +1,6 @@
-ALARA 2.7.6
+ALARA 2.7.7
 Set verbose level to 3.
-Openned tree file ref_out_new/sample8.tree.
+Openned tree file ref_new/sample8.tree.
 	Openned sample8 for input.
 Starting problem input processing.
 	Reading input.
@@ -48,19 +48,19 @@ Starting problem solution.
 		Solving Root #1: fe-54 
 		   Maximum relative concentration: 0.059
 		      last Root: 833 nodes in 244 chains with maximum length 8.
-		                 in 0.170 s (4900.000 nodes/s)
+		                 in 0.150 s (5553.333 nodes/s)
 		   Total so far: 833 nodes in 244 chains with maximum length 8.
-		                 in 0.19 s (4384.211 nodes/s)
+		                 in 0.17 s (4900.000 nodes/s)
 		Solving Root #2: fe-56 
 		   Maximum relative concentration: 0.9172
 		      last Root: 475 nodes in 145 chains with maximum length 7.
 		                 in 0.090 s (5277.778 nodes/s)
 		   Total so far: 1308 nodes in 389 chains with maximum length 8.
-		                 in 0.28 s (4671.429 nodes/s)
+		                 in 0.26 s (5030.769 nodes/s)
 		Solving Root #3: fe-57 
 		   Maximum relative concentration: 0.021
 		      last Root: 522 nodes in 138 chains with maximum length 8.
-		                 in 0.090 s (5800.000 nodes/s)
+		                 in 0.110 s (4745.454 nodes/s)
 		   Total so far: 1830 nodes in 527 chains with maximum length 8.
 		                 in 0.37 s (4945.946 nodes/s)
 		Solving Root #4: fe-58 
@@ -88,7 +88,7 @@ Interval #1 (Zone: inner_zone) :
 
 Total (All constituents) 
 	COMPACTED
-
+	Volume Fraction: 1	Relative Volume: 3.33333
 Number Density [atoms/cm3]
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
@@ -153,7 +153,7 @@ Interval #2 (Zone: inner_zone) :
 
 Total (All constituents) 
 	COMPACTED
-
+	Volume Fraction: 1	Relative Volume: 3.33333
 Number Density [atoms/cm3]
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
@@ -218,7 +218,7 @@ Interval #3 (Zone: inner_zone) :
 
 Total (All constituents) 
 	COMPACTED
-
+	Volume Fraction: 1	Relative Volume: 3.33333
 Number Density [atoms/cm3]
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
@@ -302,7 +302,7 @@ Interval #1 (Zone: inner_zone) :
 
 Total (All constituents) 
 	COMPACTED
-
+	Volume Fraction: 1	Relative Volume: 3.33333
 Contact Dose [ Sv/hr] : data/ANS6_4_3
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
@@ -344,7 +344,7 @@ Interval #2 (Zone: inner_zone) :
 
 Total (All constituents) 
 	COMPACTED
-
+	Volume Fraction: 1	Relative Volume: 3.33333
 Contact Dose [ Sv/hr] : data/ANS6_4_3
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
@@ -386,7 +386,7 @@ Interval #3 (Zone: inner_zone) :
 
 Total (All constituents) 
 	COMPACTED
-
+	Volume Fraction: 1	Relative Volume: 3.33333
 Contact Dose [ Sv/hr] : data/ANS6_4_3
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
@@ -447,7 +447,7 @@ Interval #1 (Zone: inner_zone) :
 
 Total (All constituents) 
 	COMPACTED
-
+	Volume Fraction: 1	Relative Volume: 3.33333
 Folded (Adjoint/Biological) Dose [Sv/hr] : data/adjfile2.gam
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
@@ -483,7 +483,7 @@ Interval #2 (Zone: inner_zone) :
 
 Total (All constituents) 
 	COMPACTED
-
+	Volume Fraction: 1	Relative Volume: 3.33333
 Folded (Adjoint/Biological) Dose [Sv/hr] : data/adjfile2.gam
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
@@ -519,7 +519,7 @@ Interval #3 (Zone: inner_zone) :
 
 Total (All constituents) 
 	COMPACTED
-
+	Volume Fraction: 1	Relative Volume: 3.33333
 Folded (Adjoint/Biological) Dose [Sv/hr] : data/adjfile2.gam
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
