@@ -100,7 +100,6 @@ class FEIND::Parent
   
   /// The list of daughters.
   std::map<Kza,Daughter> Daughters;
-  std::map<Kza,Daughter> Secondary;
 
   /// DecayConstant stores the decay constant for this parent.
   /** This member should be set to 0 for parents that are stable and do not

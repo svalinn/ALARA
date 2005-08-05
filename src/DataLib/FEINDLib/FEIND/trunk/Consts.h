@@ -104,14 +104,19 @@ const unsigned int ELECTRON = 3;
 const unsigned int XRAY = 4;
 const unsigned int SF_FRAGMENTS = 5;
 const unsigned int POSITRON = 6;
+const unsigned int FISSION_DAUGHTER = 7;
 
 // ***************************
 
-// Types of Fission Yields:
-const unsigned int FISSION_FAST = 1;
-const unsigned int FISSION_THERMAL = 2;
-const unsigned int FISSION_HOT = 3;
-const unsigned int FISSION_SF = 4;
+/// Types of Fission Yields:
+enum FissionType
+  {
+    NO_FISSION,
+    FISSION_FAST,
+    FISSION_THERMAL,
+    FISSION_HOT,
+    FISSION_SF
+  };
 
 // Special Cross Sections:
 const unsigned int TOTAL_CS = 1;

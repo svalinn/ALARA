@@ -14,6 +14,8 @@ namespace FEIND
 
   extern RamLib Library;
 
+  extern FissionType DefaultFT;
+
   // Functions to query the element list (Elements)
   extern std::pair<std::string,int> Elements[NUM_ELEMENTS];
   int GetAtomicNumber(const std::string& symbol);
@@ -24,9 +26,14 @@ namespace FEIND
   void LoadStructs();
   extern std::map<int, std::vector<double> > GroupStructs;
 
+
+  
+
   bool ParentExists(Kza parent);
   ErrCode LoadLibrary(const LibDefine& lib);
   Kza DecayModetoKza(int decayMode, int dIso, Kza parent, Kza& sec);
+  
+
 };
 
 #endif

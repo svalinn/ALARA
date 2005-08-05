@@ -20,6 +20,12 @@ class FEIND::Cinder
  private:
   std::ifstream InFile;
 
+  //*** ARGUMENT HANDLING ***//
+
+  bool LoadTransmutation;
+  bool LoadDecay;
+  bool LoadYields;
+
   //*** FUNCTIONS RELATED TO LOADING ACTIVATION DATA ***//
 
   /// Load cross-sections and decay data
@@ -40,12 +46,11 @@ class FEIND::Cinder
    *  the parent.
    */
   bool IsPri(Kza parent, Kza daughter);
-
-  /// Add newCs to oldCs
-  /** If oldCs has a different size than newCs, it will be resized.
+  
+  /// This function is responsible for loading decay data.
+  /** This can be prevented by sending CINDER the "nodecay" argument.
    */
-  void AddToCs(Kza parent_kza, std::vector<double>& newCs);
-
+  void DecayData(Kza parent);
 
 
   //*** FUCNTIONS RELATED TO LOADING FISSION YIELDS ***//
@@ -69,7 +74,7 @@ class FEIND::Cinder
    */
   int FissionType(char t);
 
-
+  
 
   //*** OTHER FUCNTIONS ***//
 
@@ -85,10 +90,10 @@ class FEIND::Cinder
   Kza CinderToKza(int cinder);
 
   /// The number of neutron energy groups for the cross-sections
-  unsigned int NumNeutronGroups;
+  int NumNeutronGroups;
 
   /// The number of gamma groups for gamma spectra
-  unsigned int NumGammaGroups;
+  int NumGammaGroups;
 
   /// The neutron energy group boundaries
   /** NeutronGroupBounds.size() = NumNeutronGroups + 1
@@ -99,6 +104,11 @@ class FEIND::Cinder
   /** GammaGroupBounds.size() = NumGammaGroups + 1
    */
   std::vector<double> GammaGroupBounds;
+
+  int KzaToDecayMode(Kza parent, Kza daughter);
+
+  const static double CINDER_UPPER_HL;
+  const static int FLOAT_DIGITS;
 };
 
 #endif

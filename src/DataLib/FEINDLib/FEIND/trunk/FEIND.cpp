@@ -18,6 +18,7 @@ using namespace FEIND;
 #include "GroupStructs.h"
 
 RamLib FEIND::Library;
+FissionType FEIND::DefaultFT = NO_FISSION;
 
 ErrCode FEIND::LoadLibrary(const LibDefine& lib)
 {
@@ -57,11 +58,6 @@ ErrCode FEIND::LoadLibrary(const LibDefine& lib)
 
   return err;
 }
-
-// ErrCode FEIND::AddEntry(const Parent& parent)
-// {
-//   return FEC_NO_ERROR;
-// }
 
 Kza FEIND::DecayModetoKza(int decayMode, int dIso, Kza parent, Kza& sec)
 {
@@ -111,10 +107,9 @@ Kza FEIND::DecayModetoKza(int decayMode, int dIso, Kza parent, Kza& sec)
       ret = parent - 20010;
       sec = PROTON;
       break;
-    case IT_ALPHA_EMIT:
-      ret = parent - 20040;
-      sec = ALPHA;
-      break;
+    default:
+      // EXCEPTION: Unknown decay mode
+      0;
     }
 
     // Take care of isomeric state transition:

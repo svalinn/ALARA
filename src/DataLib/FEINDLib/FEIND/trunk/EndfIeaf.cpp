@@ -72,10 +72,10 @@ void EndfIeaf::ExtractCs(Kza parent, Kza daughter, int num)
   // Add the data to the library:
   if(daughter)
     {
-      Library.AddDCs(parent,daughter,TOTAL_CS,cs);
+      Library.SetDCs(parent,daughter,TOTAL_CS,cs);
     }
   else
     {
-      Library.AddPCs(parent,TOTAL_CS,cs);
+      Library.SetPCs(parent,TOTAL_CS,cs);
     }
 }

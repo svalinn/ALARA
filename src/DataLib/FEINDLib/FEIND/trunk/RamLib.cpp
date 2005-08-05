@@ -22,11 +22,79 @@ std::vector<Kza> RamLib::Parents()
   return ret;
 }
 
-ErrCode RamLib::AddPCs(const Kza parent, const int csType, 
-		       const std::vector<double>& cs)
+ErrCode RamLib::SetPCs(const Kza parent, const int csType, 
+		       const std::vector<double>& cs, bool add, double mult)
 {
-  Data[parent].CrossSections[csType] = cs;
+
+  if(!add || Data[parent].CrossSections.find(csType) == 
+     Data[parent].CrossSections.end())
+    {
+      Data[parent].CrossSections[csType] = cs;
+    }
+  else {
+
+    // EXCEPTION: cs size
+
+    vector<double>& old_cs = Data[parent].CrossSections[csType];
+    int i;
+
+    if(mult == 1.0)
+      {
+	for(i = 0; i < cs.size(); i++)
+	  old_cs[i] += cs[i];
+      }
+    else
+      {
+	for(i = 0; i < cs.size(); i++)
+	  old_cs[i] += cs[i]*mult;
+      }
+  }
+
   return FEC_NO_ERROR;
+}
+
+const vector<double>& RamLib::GetPCs(Kza parent, int csType)
+{
+  return Data[parent].CrossSections[csType];
+}
+
+ErrCode RamLib::SetDCs(const Kza parent, const Kza daughter, const int csType,
+		       const std::vector<double>& cs, bool add, double mult)
+{
+
+  if(!add || Data[parent].Daughters[daughter].CrossSections.find(csType) ==
+     Data[parent].CrossSections.end() )
+    {
+      // The cross-section does not exist...or the user wants to replace it
+      Data[parent].Daughters[daughter].CrossSections[csType] = cs;
+    }
+  else
+    {
+      // EXCEPTION: cs size
+
+      vector<double>& old_cs = Data[parent].Daughters[daughter].
+	CrossSections[csType];
+
+      int i;
+
+      if(mult == 1.0)
+	{
+	  for(i = 0; i < cs.size(); i++)
+	    old_cs[i] += cs[i];
+	}
+      else
+	{
+	  for(i = 0; i < cs.size(); i++)
+	    old_cs[i] += cs[i]*mult;
+	}
+    }
+
+  return FEC_NO_ERROR;
+}
+
+const vector<double>& RamLib::GetDCs(Kza parent, Kza daughter, int csType)
+{
+  return Data[parent].Daughters[daughter].CrossSections[csType];
 }
 
 ErrCode RamLib::AddSpectrum(const Kza parent, const int specType, 
@@ -43,49 +111,18 @@ ErrCode RamLib::AddDecayEnergy(const Kza parent, const int enType,
   return FEC_NO_ERROR;
 }
 
-ErrCode RamLib::AddSecPath(const Kza parent, const Kza daughter, 
-			   const Path& path)
-{
-  Data[parent].Secondary[daughter].PathList.push_back(path);
-  return FEC_NO_ERROR;
-}
-
 ErrCode RamLib::AddPath(const Kza parent, const Kza daughter, const Path& path)
 {
   Data[parent].Daughters[daughter].PathList.push_back(path);
   return FEC_NO_ERROR;
 }
 
-ErrCode RamLib::AddDCs(const Kza parent, const Kza daughter, const int csType,
-		       const std::vector<double>& cs)
-{
-  Data[parent].Daughters[daughter].CrossSections[csType] = cs;
-  return FEC_NO_ERROR;
-}
 
 ErrCode RamLib::AddDecayConstant(Kza parent, const double constant)
 {
   Data[parent].DecayConstant = constant;
   return FEC_NO_ERROR;
 }
-
-// ErrCode RamLib::AddBranchingRatio(const Kza parent, const Kza daughter,
-// 				  const double br)
-// {
-//   Data[parent].Daughters[daughter].BranchingRatio = br;
-//   return FEC_NO_ERROR;
-// }
-
-// ErrCode RamLib::AddDecayMode(const Kza parent, const int mode, const int dIso)
-// {
-//   if(mode != SPONTANEOUS_FISSION)
-//     {
-//       int daughter = DecayModetoKza(mode,dIso,parent);
-//       Data[parent].Daughters[daughter].DecayMode = dIso;
-//     }
-
-//   return FEC_NO_ERROR;
-// }
 
 ErrCode RamLib::AddFissionYield(const Kza parent, const Kza daughter,
 				const int fissionType, const double yield)
@@ -94,19 +131,15 @@ ErrCode RamLib::AddFissionYield(const Kza parent, const Kza daughter,
   return FEC_NO_ERROR;
 }
 
-vector<double> RamLib::GetPCs(Kza parent, int csType)
+
+double RamLib::GetSfbr(Kza parent)
 {
-  return Data[parent].CrossSections[csType];
+  return Data[parent].Sfbr;
 }
 
 double RamLib::GetBratio(Kza parent, Kza daughter)
 {
   return Data[parent].Daughters[daughter].BranchingRatio;
-}
-
-double RamLib::GetSecBratio(Kza parent, Kza sec_daughter)
-{
-  return Data[parent].Secondary[sec_daughter].BranchingRatio;
 }
 
 double RamLib::GetDecayConstant(Kza parent)
@@ -186,20 +219,6 @@ vector<Kza> RamLib::Daughters(Kza parent)
   return ret;
 }
 
-std::vector<Kza> RamLib::SecDaughters(Kza parent)
-{
-  map<int,Daughter>::iterator iter = Data[parent].Secondary.begin();
-  vector<Kza> ret;
-  
-  while(iter != Data[parent].Secondary.end())
-    {
-      ret.push_back(iter->first);
-      iter++;
-    }
-
-  return ret;
-}
-
 ErrCode RamLib::AddDecayMode(Kza parent, int decayMode, int dIso, double br)
 {
   Kza sec;
@@ -217,16 +236,11 @@ ErrCode RamLib::AddDecayMode(Kza parent, int decayMode, int dIso, double br)
 
   if(sec)
     {
-      Data[parent].Secondary[sec].DecayMode = decayMode;
-      Data[parent].Secondary[sec].BranchingRatio = br;
+      Data[parent].Daughters[sec].DecayMode = decayMode;
+      Data[parent].Daughters[sec].BranchingRatio = br;
     }
 
   return FEC_NO_ERROR;
-}
-
-vector<double> RamLib::GetDCs(Kza parent, Kza daughter, int csType)
-{
-  return Data[parent].Daughters[daughter].CrossSections[csType];
 }
 
 ErrCode RamLib::LambdaEff(Kza parent, const vector<double>& flux, 
@@ -292,52 +306,101 @@ ErrCode RamLib::LambdaEff(Kza parent, Kza daughter,
 }
 
 double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
-			 vector<Kza>& priDs, vector<double>& priDsLambda,
-			 vector<Kza>& secDs, vector<double>& secDsLambda)
+			 vector<Kza>& daughters, vector<double>& dLambdas,
+			 double& secLambda, FissionType ft)
 {
-  double decay_const = GetDecayConstant(parent);
-  double total = decay_const;
+  double decay_constant = GetDecayConstant(parent);
+
+  double sfbr = GetSfbr(parent);
+  double sfyield = 0.0;
+  double fission_sigphi = 0.0;
+  vector<double> fission_cs = GetPCs(parent, NEUTRON_FISSION_CS);
+
+  // EXCEPTION: unknown parent
+
+  // The return value (primary lambda effective)
+  double pri_lambda = decay_constant;
+  
+  double total_lambda = decay_constant;
+
+  // Reference to total cross-section
+  const vector<double>& total_cs = GetPCs(parent, TOTAL_CS);
+
+  // Get the list of daughter kzas
+  daughters = Daughters(parent);
+
+  // Dimension the daughter lambda vector appropriately
+  dLambdas.assign(daughters.size(), 0.0);
+
   int i,j;
 
-  priDs = Daughters(parent);
-  secDs = SecDaughters(parent);
+  // EXCEPTION: cs size
 
-  priDsLambda.assign(priDs.size(), 0.0);
-  secDsLambda.assign(secDs.size(), 0.0);
-
-  vector<double> cs;
-
-  for(i = 0; i < priDs.size(); i++)
+  // Calculate the primary lambda effective:
+  for(i = 0; i < flux.size(); i++)
     {
-      cs = GetDCs(parent, priDs[i], TOTAL_CS);
+      pri_lambda += flux[i] * total_cs[i];
+    }
+  
+  // Calculate lambda effective for each daughter:
+  
+  // Check to see if we should precalculate sigma*phi for fission:
+  if(fission_cs.size())
+    {
+      // EXCEPTION: cs size
 
+      for(i = 0; i < fission_cs.size(); i++)
+	fission_sigphi += fission_cs[i]*flux[i];
+      
+      // Add the fission daughter to the daughter list...
+      daughters.push_back(FISSION_DAUGHTER);
+      dLambdas.push_back(fission_sigphi);
+    }
+
+  for(i = 0; i < daughters.size(); i++)
+    {
+      const vector<double>& cs = GetDCs(parent, daughters[i], TOTAL_CS);
+
+      // Make sure the cross-section exists:
       if(cs.size())
 	{
+	  // EXCEPTION: cs size
 
 	  for(j = 0; j < flux.size(); j++)
 	    {
-	      priDsLambda[i] += cs[j]*flux[j];
+	      dLambdas[i] += cs[j] * flux[j];
 	    }
 	}
 
-      total += priDsLambda[i];
-      priDsLambda[i] += GetBratio(parent,priDs[i])*decay_const;
+      total_lambda += dLambdas[i];
+
+      dLambdas[i] += GetBratio(parent, daughters[i])*decay_constant;
+
+      // Make sure to handle spontaneous fission, which is NOT included in the
+      // normal decay branching ratios..
+      if(sfbr > 0.0 && 
+	 (sfyield = GetFissionYield(parent,daughters[i],FISSION_SF)))
+	dLambdas[i] += sfbr*decay_constant*sfyield;
+
+      // Add non-spontaneous fission contribution..
+      if(fission_sigphi && ft != NO_FISSION)
+	dLambdas[i] += fission_sigphi*GetFissionYield(parent,daughters[i],ft);
     }
 
-  for(i = 0; i < secDs.size(); i++)
-    {
-      cs = GetSec(parent, secDs[i], TOTAL_CS);
+  // Calculate the secondary lambda:
+  secLambda = total_lambda - pri_lambda;
 
-      if(cs.size())
-	{
-	  for(j = 0; j < flux.size(); j++)
-	    {
-	      secDsLambda[i] += cs[j]*flux[j];
-	    }
-	}
+  return pri_lambda;
+}
 
-      secDsLambda[i] += decay_const * GetSecBratio(parent, secDs[i]);
-    }
+std::vector<double> RamLib::GetGroupStruct( GSType gst )
+{
+  // EXCEPTION - Invalid group structure
 
-  return total;
+  return GroupStructs[gst];
+}
+
+void RamLib::SetGroupStruct( GSType gst, std::vector<double>& gs)
+{
+  GroupStructs[gst] = gs;
 }

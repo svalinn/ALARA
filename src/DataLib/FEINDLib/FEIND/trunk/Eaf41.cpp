@@ -84,16 +84,27 @@ ErrCode Eaf41::LoadLibrary()
 
       if(!fission_type)
 	{
-	  AddToCs(parent_kza, daughter_kza, path.CrossSection);
+	  // Add the parent, parent/daughter contributions:
+	  Library.SetPCs(parent_kza, TOTAL_CS, path.CrossSection, true);
+	  Library.SetDCs(parent_kza, daughter_kza, TOTAL_CS, 
+			 path.CrossSection, true);
+
+	  // Add the parent/daughter/path data:
 	  Library.AddPath(parent_kza, daughter_kza, path);
+
+	  // Add secondary daughters to the daughter list:
 	  AddCPPCS(parent_kza,path);
 	}
       else
 	{
-	  Library.AddPCs(parent_kza, fission_type, path.CrossSection);
+	  // Set the fission cross-section:
+	  Library.SetPCs(parent_kza, fission_type, path.CrossSection);
 	}
       
-
+      // Every reaction in this file format contributes to the total
+      // cross-section
+      Library.SetPCs(parent_kza, TOTAL_CS, path.CrossSection, true);      
+      
       path.CrossSection.clear();
 
       // Get the header for this reaction:
@@ -215,28 +226,6 @@ int Eaf41::FissionType(const char projectile)
     }
 }
 
-void Eaf41::AddToCs(Kza parent, Kza daughter, std::vector<double> newCs )
-{
-  vector<double> pcs = Library.GetPCs(parent, TOTAL_CS);
-  vector<double> dcs = Library.GetDCs(parent, daughter, TOTAL_CS);
-
-  // Check to make sure pcs, dcs has the right size:
-  if(!pcs.size()) pcs.assign(NumGroups, 0.0);
-  if(!dcs.size()) dcs.assign(NumGroups, 0.0);
-
-  // Add the cross sections:
-  for(int i = 0; i < NumGroups; i++)
-    {
-      pcs[i] += newCs[i];
-      dcs[i] += newCs[i];
-    }
-
-
-  // Add the entry to the Library:
-  Library.AddPCs(parent, TOTAL_CS, pcs);
-  Library.AddDCs(parent, daughter, TOTAL_CS, dcs);
-}
-
 void Eaf41::AddCPPCS(Kza parent, Path& path)
 {
   // This function will add any charged particles produced to the production
@@ -247,23 +236,12 @@ void Eaf41::AddCPPCS(Kza parent, Path& path)
 
   for(i = 0; i < Cpt.size(); i++)
     {
-
       if(path.Emitted.find(Cpt[i]) != path.Emitted.end())
 	{
-	  // We need to add the reaction cross section:
-	  cs = Library.GetSec(parent, Cpt[i], TOTAL_CS);
+	  if(!cs.size()) cs.assign(path.CrossSection.size(), 0.0);
 
-	  if(!cs.size()) 
-	    {
-	      cs.assign(path.CrossSection.size(), 0.0);
-	    }
-	
-	  for(j = 0; j < cs.size(); j++)
-	    {
-	      cs[j] += path.CrossSection[j] * path.Emitted[Cpt[i]];
-	    } 
-	  
-	  Library.AddSec(parent,Cpt[i],TOTAL_CS,cs);
+	  Library.SetDCs(parent, Cpt[i], TOTAL_CS, path.CrossSection,
+			 true, path.Emitted[Cpt[i]]);
 	}
     }
 }
