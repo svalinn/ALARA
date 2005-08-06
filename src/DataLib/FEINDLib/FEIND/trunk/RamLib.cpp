@@ -134,18 +134,54 @@ ErrCode RamLib::AddFissionYield(const Kza parent, const Kza daughter,
 
 double RamLib::GetSfbr(Kza parent)
 {
-  return Data[parent].Sfbr;
+  map<Kza,Parent>::iterator iter = Data.find(parent);
+
+  // Check to make sure parent exists:
+  if(iter != Data.end())
+    {
+      // Parent found:
+      return iter->second.Sfbr;
+    }
+
+  // Parent not found, return default value:
+  return 0.0;
 }
 
 double RamLib::GetBratio(Kza parent, Kza daughter)
 {
-  return Data[parent].Daughters[daughter].BranchingRatio;
+  map<Kza,Parent>::iterator parent_iter = Data.find(parent);
+
+  // Make sure parent exists:
+  if(parent_iter != Data.end())
+    {
+      // Parent exists, now, check for daughter:
+      map<Kza,Daughter>::iterator daughter_iter = 
+	parent_iter->second.Daughters.find(daughter);
+      
+      if(daughter_iter != parent_iter->second.Daughters.end())
+	{
+	  // Parent and daughter exist, exit:
+	  return daughter_iter->second.BranchingRatio;
+	}
+      // Daughter does not exist...
+    }
+  // Return default value:
+  return 0.0;
 }
 
 double RamLib::GetDecayConstant(Kza parent)
 {
-  return Data[parent].DecayConstant;
+  map<Kza,Parent>::iterator parent_iter = Data.find(parent);
 
+  // Make sure parent exists:
+  if(parent_iter != Data.end())
+    {
+      // Parent found
+      return parent_iter->second.DecayConstant;
+    }
+
+  // Return default value:
+  return 0;
 }
 
 double RamLib::GetDecayEnergy(Kza parent, int enType)
@@ -226,8 +262,8 @@ ErrCode RamLib::AddDecayMode(Kza parent, int decayMode, int dIso, double br)
 
   if(decayMode != SPONTANEOUS_FISSION)
     {
-      Data[parent].Daughters[daughter].DecayMode = decayMode;
-      Data[parent].Daughters[daughter].BranchingRatio = br;
+      Data[parent].DecayModes.push_back(decayMode);
+      Data[parent].Daughters[daughter].BranchingRatio += br;
     }
   else
     {
@@ -236,8 +272,8 @@ ErrCode RamLib::AddDecayMode(Kza parent, int decayMode, int dIso, double br)
 
   if(sec)
     {
-      Data[parent].Daughters[sec].DecayMode = decayMode;
-      Data[parent].Daughters[sec].BranchingRatio = br;
+      Data[parent].DecayModes.push_back(decayMode);
+      Data[parent].Daughters[sec].BranchingRatio += br;
     }
 
   return FEC_NO_ERROR;

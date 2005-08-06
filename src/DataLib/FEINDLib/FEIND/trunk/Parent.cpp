@@ -17,8 +17,6 @@ void ContSpec::Clear()
 }
 
 Daughter::Daughter() :
-  BranchingRatio(0.0),
-  DecayMode(UNKNOWN)
+  BranchingRatio(0.0)
 {
-
 }

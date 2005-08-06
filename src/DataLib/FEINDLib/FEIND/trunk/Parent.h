@@ -82,7 +82,7 @@ class FEIND::Daughter
   /** This member is set to zero when this daughter is not produced as a
    *  result of decay.
    */
-  double DecayMode;
+  //double DecayMode;
 
   std::map<int, double> FissionYield;
 };
@@ -117,10 +117,14 @@ class FEIND::Parent
    */
   std::map<int, Spectrum> SpecList;
 
+  std::vector<int> DecayModes;
+
   /// Spontaneous fission branching ratio:
   /** This number should be set to zero for no spontaneous fission.
    */
   double Sfbr;
+
+  
 };
 
 #endif
