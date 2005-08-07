@@ -352,8 +352,6 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
   double fission_sigphi = 0.0;
   vector<double> fission_cs = GetPCs(parent, NEUTRON_FISSION_CS);
 
-  // EXCEPTION: unknown parent
-
   // The return value (primary lambda effective)
   double pri_lambda = decay_constant;
   
@@ -439,4 +437,141 @@ std::vector<double> RamLib::GetGroupStruct( GSType gst )
 void RamLib::SetGroupStruct( GSType gst, std::vector<double>& gs)
 {
   GroupStructs[gst] = gs;
+}
+
+
+void RamLib::ConstructAdjoint()
+{
+  
+  // Get a list of all of the parents
+  vector<Kza> parents = Parents();
+  Kza parent;
+  Kza daughter;
+
+  map<Kza, Daughter>::iterator iter;
+  int i,k;
+  
+  bool parent_exists;
+
+  // Loop through all parents...
+  for(i = 0; i < parents.size(); i++)
+    {
+      parent = parents[i];
+      map<Kza,Daughter>& daughter_map = Data[parent].Daughters;
+
+      iter = daughter_map.begin();
+
+      while(iter != daughter_map.end())
+	{
+	  daughter = iter->first;
+	  parent_exists = false;
+
+	  // Check to see if this parent is already in the daughter list:
+	  for(k = 0; k < Adjoint[daughter].size(); k++)
+	    {
+	      if(parent == Adjoint[daughter][k])
+		{
+		  // The parent already exists
+		  parent_exists = true;
+		  break;
+		}
+	    }
+	  
+	  if(!parent_exists) Adjoint[daughter].push_back(parent);
+	  
+	  iter++;
+	}
+    }
+}
+
+
+const std::vector<Kza>& RamLib::Parents(Kza daughter)
+{
+  return Adjoint[daughter];
+}
+
+
+double RamLib::ProdRates(Kza daughter, const vector<double>& flux,
+			 vector<Kza>& parents, vector<double>& pLambdas, 
+			 FissionType ft)
+{
+  double decay_constant;
+  
+  // The total destruction rate, return value:
+  double pri_lambda = GetDecayConstant(daughter);
+  
+  int i,j;
+  
+  const vector<double>& total_cs = GetPCs(daughter, TOTAL_CS);
+  
+  double fission_yield;
+  double b_ratio;
+  double sfbr;
+  double sigphi = 0;
+
+  // Calculate pri_lambda:
+  for(i = 0; i < total_cs.size(); i++)
+    {
+      pri_lambda += total_cs[i]*flux[i];
+    }  
+
+  parents = Parents(daughter);
+  
+  // Initialize the production rate vector:
+
+  pLambdas.assign(parents.size(), 0.0);
+
+  // Check to see if we should precalculate sigma*phi for fission:
+  const vector<double>& fission_cs = GetPCs(daughter, NEUTRON_FISSION_CS);
+
+  if(fission_cs.size())
+    {
+      // EXCEPTION: cs size
+
+      for(i = 0; i < fission_cs.size(); i++)
+	pri_lambda += fission_cs[i]*flux[i];
+    }
+
+
+   for(i = 0; i < parents.size(); i++)
+     {
+       const vector<double>& cs = GetDCs(parents[i], daughter, TOTAL_CS);
+
+       if(cs.size())
+ 	{
+	  for(j = 0; j < cs.size(); j++)
+	    {
+	      pLambdas[i] += cs[j]*flux[j];
+	    }
+ 	}
+
+       // Now, check for fission...
+       const vector<double>& f_cs = GetDCs(parents[i], daughter, 
+					   NEUTRON_FISSION_CS);
+       
+       if(f_cs.size() && ft != NO_FISSION)
+	 {
+	   // Get the yield...
+	   fission_yield = GetFissionYield(parents[i], daughter, ft);
+
+	   if(fission_yield)
+	     {
+	       for(j = 0; j < cs.size(); j++)
+		 {
+		   pLambdas[i] += f_cs[j]*flux[j]*fission_yield;
+		 }
+	     }
+	 }
+
+       // Now decay...
+       b_ratio = GetBratio(parents[i], daughter);
+       decay_constant = GetDecayConstant(parents[i]);
+       pLambdas[i] += decay_constant*b_ratio;
+
+       // Finally...spontaneous fission...
+       pLambdas[i] += GetSfbr(parents[i])*decay_constant*
+	 GetFissionYield(parents[i],daughter,FISSION_SF);
+     }
+
+   return pri_lambda;
 }
