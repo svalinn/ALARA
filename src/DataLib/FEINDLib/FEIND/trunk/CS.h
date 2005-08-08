@@ -34,6 +34,12 @@ class FEIND::CS
       return const_cast<std::vector<double>*>(PCs->P);
     }
 
+  operator bool() const
+    {
+      if(PCs) return true;
+      return false;
+    }
+
   ~CS();
 
  private:
