@@ -41,14 +41,12 @@ class FEIND::RamLib
    *  be automatically created.
    */
   ErrCode SetPCs(const Kza parent, const int csType, 
-		 const std::vector<double>& cs, bool add = false, 
-		 double mult = 1.0);
+		 const std::vector<double>& cs, bool add = false);
 
   const std::vector<double>& GetPCs(Kza parent, int csType);
 
   ErrCode SetDCs(const Kza parent, const Kza daughter, const int csType,
-		 const std::vector<double>& cs, bool add=false, 
-		 double mult = 1.0);
+		 const std::vector<double>& cs, bool add=false);
 
   const std::vector<double>& GetDCs(Kza parent, Kza daughter, int csType);
   

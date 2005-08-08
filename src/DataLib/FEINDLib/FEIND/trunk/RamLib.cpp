@@ -23,7 +23,7 @@ std::vector<Kza> RamLib::Parents()
 }
 
 ErrCode RamLib::SetPCs(const Kza parent, const int csType, 
-		       const std::vector<double>& cs, bool add, double mult)
+		       const std::vector<double>& cs, bool add)
 {
 
   if(!add || Data[parent].CrossSections.find(csType) == 
@@ -37,17 +37,9 @@ ErrCode RamLib::SetPCs(const Kza parent, const int csType,
 
     vector<double>& old_cs = Data[parent].CrossSections[csType];
     int i;
-
-    if(mult == 1.0)
-      {
-	for(i = 0; i < cs.size(); i++)
-	  old_cs[i] += cs[i];
-      }
-    else
-      {
-	for(i = 0; i < cs.size(); i++)
-	  old_cs[i] += cs[i]*mult;
-      }
+    
+    for(i = 0; i < cs.size(); i++)
+      old_cs[i] += cs[i];
   }
 
   return FEC_NO_ERROR;
@@ -59,11 +51,10 @@ const vector<double>& RamLib::GetPCs(Kza parent, int csType)
 }
 
 ErrCode RamLib::SetDCs(const Kza parent, const Kza daughter, const int csType,
-		       const std::vector<double>& cs, bool add, double mult)
+		       const std::vector<double>& cs, bool add)
 {
-
   if(!add || Data[parent].Daughters[daughter].CrossSections.find(csType) ==
-     Data[parent].CrossSections.end() )
+     Data[parent].Daughters[daughter].CrossSections.end() )
     {
       // The cross-section does not exist...or the user wants to replace it
       Data[parent].Daughters[daughter].CrossSections[csType] = cs;
@@ -77,16 +68,8 @@ ErrCode RamLib::SetDCs(const Kza parent, const Kza daughter, const int csType,
 
       int i;
 
-      if(mult == 1.0)
-	{
-	  for(i = 0; i < cs.size(); i++)
-	    old_cs[i] += cs[i];
-	}
-      else
-	{
-	  for(i = 0; i < cs.size(); i++)
-	    old_cs[i] += cs[i]*mult;
-	}
+      for(i = 0; i < cs.size(); i++)
+	old_cs[i] += cs[i];
     }
 
   return FEC_NO_ERROR;

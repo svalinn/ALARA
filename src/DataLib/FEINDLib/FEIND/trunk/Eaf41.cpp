@@ -1,9 +1,11 @@
 #include <iostream>
+#include <cassert>
 #include <cctype>
 
 #include "Eaf41.h"
 #include "LibDefine.h"
 #include "RamLib.h"
+
 
 using namespace FEIND;
 using namespace std;
@@ -238,10 +240,19 @@ void Eaf41::AddCPPCS(Kza parent, Path& path)
     {
       if(path.Emitted.find(Cpt[i]) != path.Emitted.end())
 	{
-	  if(!cs.size()) cs.assign(path.CrossSection.size(), 0.0);
+	  assert(path.Emitted[Cpt[i]]);
 
-	  Library.SetDCs(parent, Cpt[i], TOTAL_CS, path.CrossSection,
-			 true, path.Emitted[Cpt[i]]);
+	  cs = path.CrossSection;
+
+	  if(path.Emitted[Cpt[i]] > 1)
+	    {
+	      for(j = 0; j < cs.size(); j++)
+		{
+		  cs[j] *= path.Emitted[Cpt[i]];
+		}
+	    }
+
+	  Library.SetDCs(parent, Cpt[i], TOTAL_CS, cs, true);
 	}
     }
 }
