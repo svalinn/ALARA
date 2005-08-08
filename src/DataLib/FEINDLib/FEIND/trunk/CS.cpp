@@ -10,7 +10,7 @@ CS::CS() :
 {
 }
 
-CS::CS(vector<double>* pcs) :
+CS::CS(const vector<double>* pcs) :
   PCs(new PCsCounter)
 {
   PCs->Count = 1;
@@ -23,7 +23,7 @@ CS::CS(const CS& cs) :
   if(PCs) PCs->Count++;
 }
 
-const CS& CS::operator=(vector<double>* pcs)
+const CS& CS::operator=(const vector<double>* pcs)
 {
   if(PCs->P != pcs)
     {
