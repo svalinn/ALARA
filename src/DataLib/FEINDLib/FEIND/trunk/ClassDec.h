@@ -1,6 +1,8 @@
 #ifndef __CLASSDEC_H
 #define __CLASSDEC_H
 
+// The following classes will be declared in the FEIND namespace:
+
 class Parent;
 class Path;
 class ContSpec;
@@ -14,5 +16,7 @@ class DecayEndf6;
 class Eaf41;
 class Cinder;
 class EndfIeaf;
+
+class CS;
 
 #endif
