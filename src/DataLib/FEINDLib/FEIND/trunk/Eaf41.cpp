@@ -87,7 +87,6 @@ ErrCode Eaf41::LoadLibrary()
       if(!fission_type)
 	{
 	  // Add the parent, parent/daughter contributions:
-	  Library.SetPCs(parent_kza, TOTAL_CS, path.CrossSection, true);
 	  Library.SetDCs(parent_kza, daughter_kza, TOTAL_CS, 
 			 path.CrossSection, true);
 
