@@ -338,7 +338,7 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
   // The return value (primary lambda effective)
   double pri_lambda = decay_constant;
   
-  double total_lambda = decay_constant;
+  double total_lambda = 0;
 
   // Reference to total cross-section
   const vector<double>& total_cs = GetPCs(parent, TOTAL_CS);
@@ -354,11 +354,13 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
   // EXCEPTION: cs size
 
   // Calculate the primary lambda effective:
-  for(i = 0; i < flux.size(); i++)
+  if(total_cs.size())
     {
-      pri_lambda += flux[i] * total_cs[i];
+      for(i = 0; i < flux.size(); i++)
+	{
+	  pri_lambda += flux[i] * total_cs[i];
+	}
     }
-  
   // Calculate lambda effective for each daughter:
   
   // Check to see if we should precalculate sigma*phi for fission:
@@ -389,8 +391,6 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
 	    }
 	}
 
-      total_lambda += dLambdas[i];
-
       dLambdas[i] += GetBratio(parent, daughters[i])*decay_constant;
 
       // Make sure to handle spontaneous fission, which is NOT included in the
@@ -402,6 +402,8 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
       // Add non-spontaneous fission contribution..
       if(fission_sigphi && ft != NO_FISSION)
 	dLambdas[i] += fission_sigphi*GetFissionYield(parent,daughters[i],ft);
+
+      total_lambda += dLambdas[i];
     }
 
   // Calculate the secondary lambda:
