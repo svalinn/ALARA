@@ -4,6 +4,6 @@
 #include "FeindNs.h"
 #include "LibDefine.h"
 #include "RamLib.h"
-#include "CS.h"
+#include "XSec.h"
 
 #endif

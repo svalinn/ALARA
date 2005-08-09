@@ -1,5 +1,5 @@
-#ifndef __CS_H__
-#define __CS_H__
+#ifndef __XSEC_H__
+#define __XSEC_H__
 
 #include "FeindNs.h"
 
@@ -13,34 +13,43 @@
  *  Eventually, the CS class will implement member functions for performing
  *  useful tasks with cross-sections...
  */
-class FEIND::CS
+class FEIND::XSec
 {
  public:
 
-  CS();
-  explicit CS(const std::vector<double>* pcs);
-  explicit CS(const CS& cs);
+  XSec();
+  XSec(const std::vector<double>* pcs);
+  XSec(const XSec& cs);
   
-  const CS& operator=(const std::vector<double>* pcs);
-  const CS& operator=(const CS& cs);
+  const XSec& operator=(const std::vector<double>* pcs);
+  const XSec& operator=(const XSec& cs);
 
-  std::vector<double>& operator*() const
+  double& operator[](unsigned i);
+  const double& operator[](unsigned i) const;
+
+  operator bool() const;
+
+  const std::vector<double>& operator*() const
     { 
       return *(const_cast<std::vector<double>*>(PCs->P)); 
     }
 
-  std::vector<double>* operator->() const
+  std::vector<double>& operator*()
+    { 
+      return *(const_cast<std::vector<double>*>(PCs->P)); 
+    }
+
+  const std::vector<double>* operator->() const
     { 
       return const_cast<std::vector<double>*>(PCs->P);
     }
 
-  operator bool() const
-    {
-      if(PCs) return true;
-      return false;
+  std::vector<double>* operator->()
+    { 
+      return const_cast<std::vector<double>*>(PCs->P);
     }
 
-  ~CS();
+  ~XSec();
 
  private:
 

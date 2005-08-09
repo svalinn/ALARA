@@ -17,6 +17,6 @@ class Eaf41;
 class Cinder;
 class EndfIeaf;
 
-class CS;
+class XSec;
 
 #endif
