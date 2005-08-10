@@ -132,7 +132,7 @@ void XSec::Copy()
 {
   if(PCs && PCs->Count > 1)
     {
-      P->Count--;
+      PCs->Count--;
       PCs = new PCsCounter(new vector<double>( (*PCs->P) ));      
     }
 }
