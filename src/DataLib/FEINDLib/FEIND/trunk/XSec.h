@@ -15,48 +15,43 @@
  */
 class FEIND::XSec
 {
- public:
-
-  XSec();
-  XSec(const std::vector<double>* pcs);
-  XSec(const XSec& cs);
+public:
   
-  const XSec& operator=(const std::vector<double>* pcs);
+  XSec();
+  XSec(const XSec& cs);  
+  XSec(unsigned numGroups, double initValue = 0.0);
+
+  void Reset(unsigned numGroups, double initValue = 0.0);
+
   const XSec& operator=(const XSec& cs);
 
   double& operator[](unsigned i);
   const double& operator[](unsigned i) const;
 
+  unsigned NumGroups() const;
+
+  double Integrate(std::vector<double>& mult) const;
+
+  XSec& operator+=(const XSec& rhs);
+  XSec& operator*=(double mult);
+
   operator bool() const;
-
-  const std::vector<double>& operator*() const
-    { 
-      return *(const_cast<std::vector<double>*>(PCs->P)); 
-    }
-
-  std::vector<double>& operator*()
-    { 
-      return *(const_cast<std::vector<double>*>(PCs->P)); 
-    }
-
-  const std::vector<double>* operator->() const
-    { 
-      return const_cast<std::vector<double>*>(PCs->P);
-    }
-
-  std::vector<double>* operator->()
-    { 
-      return const_cast<std::vector<double>*>(PCs->P);
-    }
 
   ~XSec();
 
- private:
-
+private:
+  
   void CleanUp();
+  void Copy();
 
   struct PCsCounter
   {
+    PCsCounter(const std::vector<double>* p) :
+      Count(1),
+      P(p)
+    {
+    }
+
     int Count;
     const std::vector<double>* P;
   };
