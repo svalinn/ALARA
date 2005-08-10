@@ -66,7 +66,7 @@ void Cinder::ActivationData()
 
   string str;
   string path_str;
-  vector<double> cs(NumNeutronGroups,0);
+  XSec cs(NumNeutronGroups);
   bool total_flag = false;
   vector<double> parent_cs;
 
@@ -87,7 +87,6 @@ void Cinder::ActivationData()
 	  // Found new isotope:
 	  parent_kza = ExtractActParent();
 	  
-
 	  // TODO - Decay data would normally be read here. This feature is
 	  // not currently supported however, so the decay data is skipped
 
@@ -99,8 +98,6 @@ void Cinder::ActivationData()
 	  getline(InFile,str,'\n');
 	  while(str.find(fission_rxn) == string::npos)
 	    getline(InFile,str,'\n');
-
-
 
 	  // Check for the option to not load transmutation data. If this 
 	  // option is set, do not load!

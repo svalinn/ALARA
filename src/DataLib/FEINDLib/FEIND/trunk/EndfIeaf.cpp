@@ -51,7 +51,7 @@ bool EndfIeaf::Is35(const string& str)
 
 void EndfIeaf::ExtractCs(Kza parent, Kza daughter, int num)
 {
-  vector<double> cs(num,0);
+  XSec cs(num);
   string str;
   int first_group;
 

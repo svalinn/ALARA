@@ -71,16 +71,18 @@ ErrCode Eaf41::LoadLibrary()
       getline(InFile,str,'\n');
       getline(InFile,str,'\n');
 
+      path.CrossSection.Reset(NumGroups);
+
       for(i = 0; i < 175; i++)
 	{
 	  if(i < non_zero)
 	    {
 	      InFile >> str;
-	      path.CrossSection.push_back(atof(str.c_str()));
+	      path.CrossSection[i] = atof(str.c_str());
 	    }
 	  else
 	    {
-	      path.CrossSection.push_back(0.0);
+	      path.CrossSection[i] = 0.0;
 	    }
 	}
 
@@ -106,8 +108,6 @@ ErrCode Eaf41::LoadLibrary()
       // cross-section
       Library.SetPCs(parent_kza, TOTAL_CS, path.CrossSection, true);      
       
-      path.CrossSection.clear();
-
       // Get the header for this reaction:
       getline(InFile, str, '\n');
       if(str == "") getline(InFile, str, '\n');
@@ -232,7 +232,7 @@ void Eaf41::AddCPPCS(Kza parent, Path& path)
   // This function will add any charged particles produced to the production
   // cross-section.
 
-  vector<double> cs;
+  XSec cs;
   int i,j;
 
   for(i = 0; i < Cpt.size(); i++)
@@ -245,10 +245,7 @@ void Eaf41::AddCPPCS(Kza parent, Path& path)
 
 	  if(path.Emitted[Cpt[i]] > 1)
 	    {
-	      for(j = 0; j < cs.size(); j++)
-		{
-		  cs[j] *= path.Emitted[Cpt[i]];
-		}
+	      cs *= path.Emitted[Cpt[i]];
 	    }
 
 	  Library.SetDCs(parent, Cpt[i], TOTAL_CS, cs, true);

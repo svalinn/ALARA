@@ -2,6 +2,7 @@
 #define __PARENT_H
 
 #include "FeindNs.h"
+#include "XSec.h"
 
 #include <vector>
 #include <map>
@@ -20,7 +21,7 @@ class FEIND::Path
   std::map<Kza, int> Emitted;
 
   /// The groupwise cross-section for this reaction.
-  std::vector<double> CrossSection;
+  XSec CrossSection;
 };
 
 class FEIND::ContSpec
@@ -69,7 +70,7 @@ class FEIND::Daughter
   /// This map contains special cross sections for this parent/daughter pair.
   /** For example, if you wanted the fission, fusion, total cross section...
    */
-  std::map<int, std::vector<double> > CrossSections;
+  std::map<int, XSec > CrossSections;
 
   std::vector<Path> PathList;
 
@@ -96,7 +97,7 @@ class FEIND::Parent
   /// This map contains special cross sections for this parent.
   /** For example, if you wanted the fission, fusion, total cross section...
    */
-  std::map<int, std::vector<double> > CrossSections;
+  std::map<int, XSec > CrossSections;
   
   /// The list of daughters.
   std::map<Kza,Daughter> Daughters;

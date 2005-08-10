@@ -24,7 +24,6 @@ XSec::XSec(unsigned numGroups, double initValue)
 void XSec::Reset(unsigned numGroups, double initValue)
 {
   CleanUp();
-
   PCs = new PCsCounter(new vector<double>(numGroups, initValue));
 }
 
@@ -71,7 +70,7 @@ unsigned XSec::NumGroups() const
   return 0;
 }
 
-double XSec::Integrate(vector<double>& mult) const
+double XSec::Integrate(const vector<double>& mult) const
 {
 
   // EXCEPTION: PCS NULL
@@ -93,8 +92,6 @@ XSec& XSec::operator+=(const XSec& rhs)
   // EXCEPTION: PCS NULL
   // EXCEPTION: XSEC SIZES
 
-  Copy();
-  
   unsigned ng = NumGroups();
 
   for(int i = 0; i < ng; i++)
@@ -109,8 +106,6 @@ XSec& XSec::operator*=(double mult)
 {
   // EXCEPTION: PCS NULL
   // EXCEPTION: XSEC SIZES
-
-  Copy();
 
   unsigned ng = NumGroups();
 

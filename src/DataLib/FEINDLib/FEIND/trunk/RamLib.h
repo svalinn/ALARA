@@ -40,15 +40,14 @@ class FEIND::RamLib
    *  is false. In either case, if the cross-section does not exist, it will
    *  be automatically created.
    */
-  ErrCode SetPCs(const Kza parent, const int csType, 
-		 const std::vector<double>& cs, bool add = false);
+  ErrCode SetPCs(const Kza parent, const int csType, XSec cs, bool add=false);
 
-  const std::vector<double>& GetPCs(Kza parent, int csType);
+  XSec GetPCs(Kza parent, int csType);
 
   ErrCode SetDCs(const Kza parent, const Kza daughter, const int csType,
-		 const std::vector<double>& cs, bool add=false);
+		 XSec cs, bool add=false);
 
-  const std::vector<double>& GetDCs(Kza parent, Kza daughter, int csType);
+  XSec GetDCs(Kza parent, Kza daughter, int csType);
   
   ErrCode AddPath(const Kza parent, const Kza daughter, const Path& path);
 

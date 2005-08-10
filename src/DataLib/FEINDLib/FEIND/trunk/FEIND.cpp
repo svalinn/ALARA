@@ -19,6 +19,7 @@ using namespace FEIND;
 
 RamLib FEIND::Library;
 FissionType FEIND::DefaultFT = NO_FISSION;
+XSec FEIND::NULLCS;
 
 ErrCode FEIND::LoadLibrary(const LibDefine& lib)
 {

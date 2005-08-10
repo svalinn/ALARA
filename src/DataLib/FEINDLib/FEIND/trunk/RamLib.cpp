@@ -23,35 +23,49 @@ std::vector<Kza> RamLib::Parents()
 }
 
 ErrCode RamLib::SetPCs(const Kza parent, const int csType, 
-		       const std::vector<double>& cs, bool add)
+		       XSec cs, bool add)
 {
 
   if(!add || Data[parent].CrossSections.find(csType) == 
      Data[parent].CrossSections.end())
     {
+      // Replace the old cross-section with the new one...
       Data[parent].CrossSections[csType] = cs;
     }
   else {
 
     // EXCEPTION: cs size
 
-    vector<double>& old_cs = Data[parent].CrossSections[csType];
-    int i;
+    // Get the old cs...
+    XSec old_cs = Data[parent].CrossSections[csType];
+
+    // Add the two cross-sections together...
+    old_cs += cs;
     
-    for(i = 0; i < cs.size(); i++)
-      old_cs[i] += cs[i];
+    // WARNGING - As soon as the value of the old cross section was changed,
+    // (in operator+=) it was probably copied to a new address!
+
+    // We have to reset the cross-section!
+    SetPCs(parent, csType, old_cs, false);
   }
 
   return FEC_NO_ERROR;
 }
 
-const vector<double>& RamLib::GetPCs(Kza parent, int csType)
+XSec RamLib::GetPCs(Kza parent, int csType)
 {
-  return Data[parent].CrossSections[csType];
+  map<Kza,Parent>::iterator p_iter = Data.find(parent);
+  if(p_iter == Data.end()) return NULLCS;
+
+  map<int,XSec>::iterator cs_iter = p_iter->second.CrossSections.find(csType);
+  if(cs_iter == p_iter->second.CrossSections.end()) return NULLCS;
+
+  // The cross-section does exist...
+  return cs_iter->second;
 }
 
 ErrCode RamLib::SetDCs(const Kza parent, const Kza daughter, const int csType,
-		       const std::vector<double>& cs, bool add)
+		       XSec cs, bool add)
 {
   if(!add || Data[parent].Daughters[daughter].CrossSections.find(csType) ==
      Data[parent].Daughters[daughter].CrossSections.end() )
@@ -63,21 +77,29 @@ ErrCode RamLib::SetDCs(const Kza parent, const Kza daughter, const int csType,
     {
       // EXCEPTION: cs size
 
-      vector<double>& old_cs = Data[parent].Daughters[daughter].
-	CrossSections[csType];
+      XSec old_cs = Data[parent].Daughters[daughter].CrossSections[csType];
 
-      int i;
+      old_cs += cs;
 
-      for(i = 0; i < cs.size(); i++)
-	old_cs[i] += cs[i];
+      SetDCs(parent, daughter, csType, cs, false);
     }
 
   return FEC_NO_ERROR;
 }
 
-const vector<double>& RamLib::GetDCs(Kza parent, Kza daughter, int csType)
+XSec RamLib::GetDCs(Kza parent, Kza daughter, int csType)
 {
-  return Data[parent].Daughters[daughter].CrossSections[csType];
+  map<Kza,Parent>::iterator p_iter = Data.find(parent);
+  if(p_iter == Data.end()) return NULLCS;
+
+  map<Kza,Daughter>::iterator d_iter = p_iter->second.Daughters.find(daughter);
+  if(d_iter == p_iter->second.Daughters.end()) return NULLCS;
+
+  map<int,XSec>::iterator cs_iter = d_iter->second.CrossSections.find(csType);
+  if(cs_iter == d_iter->second.CrossSections.end()) return NULLCS;
+
+  // The cross-section exists...
+  return cs_iter->second;
 }
 
 ErrCode RamLib::AddSpectrum(const Kza parent, const int specType, 
@@ -267,7 +289,7 @@ ErrCode RamLib::LambdaEff(Kza parent, const vector<double>& flux,
 {
   int i, j;
   vector<Kza> d_kzas = Daughters(parent);
-  vector<double> cs;
+  XSec cs;
 
   result = 0;
 
@@ -277,15 +299,9 @@ ErrCode RamLib::LambdaEff(Kza parent, const vector<double>& flux,
       // Check to see if there is a total cross section for this daughter:
       cs = GetDCs(parent, d_kzas[i], TOTAL_CS);
 
-      if(cs.size())
+      if(cs)
 	{
-	  // Make sure correct group structure:
-	  if(cs.size() != flux.size()) return FEC_BAD_GROUP_STRUCT;
-
-	  for(j = 0; j < flux.size(); j++)
-	    {
-	      result += flux[j]*cs[j];
-	    }	  
+	  result = cs.Integrate(flux);
 	}
 
     }
@@ -303,18 +319,13 @@ ErrCode RamLib::LambdaEff(Kza parent, Kza daughter,
 {
   int i;
 
-  vector<double> cs = GetDCs(parent,daughter,TOTAL_CS);
+  XSec cs = GetDCs(parent,daughter,TOTAL_CS);
 
   result = 0;
 
-  if(cs.size())
+  if(cs)
     {
-      if(cs.size() != flux.size()) return FEC_BAD_GROUP_STRUCT;
-
-      for(i = 0; i < flux.size(); i++)
-	{
-	  result += flux[i]*cs[i];
-	}
+      result = cs.Integrate(flux);
     }
 
   result *= 1E-24;
@@ -333,7 +344,7 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
   double sfbr = GetSfbr(parent);
   double sfyield = 0.0;
   double fission_sigphi = 0.0;
-  vector<double> fission_cs = GetPCs(parent, NEUTRON_FISSION_CS);
+  XSec fission_cs = GetPCs(parent, NEUTRON_FISSION_CS);
 
   // The return value (primary lambda effective)
   double pri_lambda = decay_constant;
@@ -341,7 +352,7 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
   double total_lambda = 0;
 
   // Reference to total cross-section
-  const vector<double>& total_cs = GetPCs(parent, TOTAL_CS);
+  XSec total_cs = GetPCs(parent, TOTAL_CS);
 
   // Get the list of daughter kzas
   daughters = Daughters(parent);
@@ -354,22 +365,18 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
   // EXCEPTION: cs size
 
   // Calculate the primary lambda effective:
-  if(total_cs.size())
+  if(total_cs)
     {
-      for(i = 0; i < flux.size(); i++)
-	{
-	  pri_lambda += flux[i] * total_cs[i];
-	}
+      pri_lambda += total_cs.Integrate(flux);
     }
   // Calculate lambda effective for each daughter:
   
   // Check to see if we should precalculate sigma*phi for fission:
-  if(fission_cs.size())
+  if(fission_cs)
     {
       // EXCEPTION: cs size
 
-      for(i = 0; i < fission_cs.size(); i++)
-	fission_sigphi += fission_cs[i]*flux[i];
+      fission_sigphi += fission_cs.Integrate(flux);
       
       // Add the fission daughter to the daughter list...
       daughters.push_back(FISSION_DAUGHTER);
@@ -378,17 +385,14 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
 
   for(i = 0; i < daughters.size(); i++)
     {
-      const vector<double>& cs = GetDCs(parent, daughters[i], TOTAL_CS);
+      XSec cs = GetDCs(parent, daughters[i], TOTAL_CS);
 
       // Make sure the cross-section exists:
-      if(cs.size())
+      if(cs)
 	{
 	  // EXCEPTION: cs size
 
-	  for(j = 0; j < flux.size(); j++)
-	    {
-	      dLambdas[i] += cs[j] * flux[j];
-	    }
+	  dLambdas[i] += cs.Integrate(flux);
 	}
 
       dLambdas[i] += GetBratio(parent, daughters[i])*decay_constant;
@@ -487,7 +491,7 @@ double RamLib::ProdRates(Kza daughter, const vector<double>& flux,
   
   int i,j;
   
-  const vector<double>& total_cs = GetPCs(daughter, TOTAL_CS);
+  XSec total_cs = GetPCs(daughter, TOTAL_CS);
   
   double fission_yield;
   double b_ratio;
@@ -495,10 +499,11 @@ double RamLib::ProdRates(Kza daughter, const vector<double>& flux,
   double sigphi = 0;
 
   // Calculate pri_lambda:
-  for(i = 0; i < total_cs.size(); i++)
+
+  if(total_cs)
     {
-      pri_lambda += total_cs[i]*flux[i];
-    }  
+      pri_lambda += total_cs.Integrate(flux);
+    }
 
   parents = Parents(daughter);
   
@@ -507,44 +512,35 @@ double RamLib::ProdRates(Kza daughter, const vector<double>& flux,
   pLambdas.assign(parents.size(), 0.0);
 
   // Check to see if we should precalculate sigma*phi for fission:
-  const vector<double>& fission_cs = GetPCs(daughter, NEUTRON_FISSION_CS);
+  XSec fission_cs = GetPCs(daughter, NEUTRON_FISSION_CS);
 
-  if(fission_cs.size())
+  if(fission_cs)
     {
       // EXCEPTION: cs size
 
-      for(i = 0; i < fission_cs.size(); i++)
-	pri_lambda += fission_cs[i]*flux[i];
+      pri_lambda += fission_cs.Integrate(flux);
     }
-
 
    for(i = 0; i < parents.size(); i++)
      {
-       const vector<double>& cs = GetDCs(parents[i], daughter, TOTAL_CS);
+       XSec cs = GetDCs(parents[i], daughter, TOTAL_CS);
 
-       if(cs.size())
+       if(cs)
  	{
-	  for(j = 0; j < cs.size(); j++)
-	    {
-	      pLambdas[i] += cs[j]*flux[j];
-	    }
+	  pLambdas[i] += cs.Integrate(flux);
  	}
 
        // Now, check for fission...
-       const vector<double>& f_cs = GetDCs(parents[i], daughter, 
-					   NEUTRON_FISSION_CS);
+       XSec f_cs = GetDCs(parents[i], daughter, NEUTRON_FISSION_CS);
        
-       if(f_cs.size() && ft != NO_FISSION)
+       if(f_cs && ft != NO_FISSION)
 	 {
 	   // Get the yield...
 	   fission_yield = GetFissionYield(parents[i], daughter, ft);
 
 	   if(fission_yield)
 	     {
-	       for(j = 0; j < cs.size(); j++)
-		 {
-		   pLambdas[i] += f_cs[j]*flux[j]*fission_yield;
-		 }
+	       pLambdas[i] += f_cs.Integrate(flux)*fission_yield;
 	     }
 	 }
 

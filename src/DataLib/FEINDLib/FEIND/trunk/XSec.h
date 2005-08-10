@@ -30,7 +30,7 @@ public:
 
   unsigned NumGroups() const;
 
-  double Integrate(std::vector<double>& mult) const;
+  double Integrate(const std::vector<double>& mult) const;
 
   XSec& operator+=(const XSec& rhs);
   XSec& operator*=(double mult);

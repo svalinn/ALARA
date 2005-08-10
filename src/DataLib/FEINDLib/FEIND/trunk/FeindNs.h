@@ -16,6 +16,8 @@ namespace FEIND
 
   extern FissionType DefaultFT;
 
+  extern XSec NULLCS;
+
   // Functions to query the element list (Elements)
   extern std::pair<std::string,int> Elements[NUM_ELEMENTS];
   int GetAtomicNumber(const std::string& symbol);
