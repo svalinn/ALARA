@@ -70,8 +70,8 @@ class FEIND::RamLib
   ErrCode AddSpectrum(const Kza parent, const int specType, 
 		      const Spectrum& spec);
 
-  std::vector<std::pair<double,double> > GetDiscreteSpec(Kza parent, 
-							 int specType);
+  const std::vector<std::pair<double,double> >& GetDiscreteSpec(Kza parent, 
+								int specType);
 
   /// Add a decay mode to the library
   /** This function will automatically add the appropriate information for
@@ -93,8 +93,6 @@ class FEIND::RamLib
   ErrCode AddFissionYield(const Kza parent, const Kza daughter,
 			  const int fissionType, const double yield);
   double GetFissionYield(Kza parent, Kza daughter, int fissionType);
-  std::vector<std::pair<double,double> > 
-    GetFissionYield(Kza parent, int fissionType);
 
 
 

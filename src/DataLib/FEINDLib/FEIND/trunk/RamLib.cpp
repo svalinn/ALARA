@@ -191,11 +191,22 @@ double RamLib::GetDecayConstant(Kza parent)
 
 double RamLib::GetDecayEnergy(Kza parent, int enType)
 {
-  return Data[parent].DecayEnergies[enType];
+  map<Kza,Parent>::iterator parent_iter = Data.find(parent);
+  if(parent_iter == Data.end()) return 0;
+
+  map<int,double>::iterator en_iter = 
+    parent_iter->second.DecayEnergies.find(enType);
+
+  if(en_iter == parent_iter->second.DecayEnergies.end()) return 0;
+
+  return en_iter->second;
 }
 
 double RamLib::GetTotalDecayEnergy(Kza parent)
 {
+  map<Kza,Parent>::iterator p_iter = Data.find(parent);
+  if(p_iter == Data.end()) return 0;
+
   map<int,double>::iterator iter = Data[parent].DecayEnergies.begin();
 
   double ret = 0;
@@ -209,41 +220,33 @@ double RamLib::GetTotalDecayEnergy(Kza parent)
   return ret;
 }
 
-vector<pair<double,double> > RamLib::GetDiscreteSpec(Kza parent, int specType)
+const vector<pair<double,double> >& RamLib::GetDiscreteSpec(Kza parent, 
+							    int specType)
 {
-  return Data[parent].SpecList[specType].Discrete;
+  map<Kza,Parent>::iterator p_iter = Data.find(parent);
+  if(p_iter == Data.end()) return EMPTY_PAIR_DOUBLE;
+
+  map<int,Spectrum>::iterator s_iter = p_iter->second.SpecList.find(specType);
+  if(s_iter == p_iter->second.SpecList.end())
+    return EMPTY_PAIR_DOUBLE;
+
+  return s_iter->second.Discrete;
 }
-
-
-vector<pair<double,double> > 
-RamLib::GetFissionYield(Kza parent, int fissionType)
-{
-  map<int,Daughter>::iterator iter = Data[parent].Daughters.begin();
-  vector<pair<double,double> > ret;
-
-  cout << "Start\n";
-
-  while(iter != Data[parent].Daughters.end())
-    {
-      if(iter->second.FissionYield[fissionType])
-	{
-	  ret.push_back(pair<double,double>
-			(iter->first, iter->second.FissionYield[fissionType]));
-	}
-
-      cout << iter->first << '\t' << iter->second.FissionYield[fissionType]
-	   << endl;
-
-      iter++;
-    }
-  
-  return ret;
-}
-
 
 double RamLib::GetFissionYield(Kza parent, Kza daughter, int fissionType)
 {
-  return Data[parent].Daughters[daughter].FissionYield[fissionType];
+  map<Kza,Parent>::iterator p_iter = Data.find(parent);
+  if(p_iter == Data.end()) return 0;
+
+  map<Kza,Daughter>::iterator d_iter = p_iter->second.Daughters.find(daughter);
+  if(d_iter == p_iter->second.Daughters.end()) return 0;
+
+  map<int,double>::iterator f_iter = 
+    d_iter->second.FissionYield.find(fissionType);
+
+  if(f_iter == d_iter->second.FissionYield.end()) return 0;
+
+  return f_iter->second;
 }
 
 vector<Kza> RamLib::Daughters(Kza parent)
@@ -476,9 +479,11 @@ void RamLib::ConstructAdjoint()
 
 const std::vector<Kza>& RamLib::Parents(Kza daughter)
 {
-  return Adjoint[daughter];
-}
+  map<Kza,vector<Kza> >::iterator iter = Adjoint.find(daughter);
+  if(iter == Adjoint.end()) return EMPTY_VEC_KZA;
 
+  return iter->second;
+}
 
 double RamLib::ProdRates(Kza daughter, const vector<double>& flux,
 			 vector<Kza>& parents, vector<double>& pLambdas, 

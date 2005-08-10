@@ -16,7 +16,9 @@ namespace FEIND
 
   extern FissionType DefaultFT;
 
-  extern XSec NULLCS;
+  extern const XSec NULLCS;
+  extern const std::vector<Kza> EMPTY_VEC_KZA;
+  extern const std::vector<std::pair<double,double> > EMPTY_PAIR_DOUBLE;
 
   // Functions to query the element list (Elements)
   extern std::pair<std::string,int> Elements[NUM_ELEMENTS];

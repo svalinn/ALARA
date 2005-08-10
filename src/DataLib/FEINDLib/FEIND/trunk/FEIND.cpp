@@ -19,7 +19,11 @@ using namespace FEIND;
 
 RamLib FEIND::Library;
 FissionType FEIND::DefaultFT = NO_FISSION;
-XSec FEIND::NULLCS;
+
+const XSec FEIND::NULLCS;
+const vector<Kza> FEIND::EMPTY_VEC_KZA;
+const vector<pair<double,double> > FEIND::EMPTY_PAIR_DOUBLE;
+
 
 ErrCode FEIND::LoadLibrary(const LibDefine& lib)
 {
