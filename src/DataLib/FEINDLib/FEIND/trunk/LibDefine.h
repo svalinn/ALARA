@@ -1,5 +1,5 @@
-#ifndef __LIBDEFINE_H
-#define __LIBDEFEIN_H
+#ifndef __LIBDEFINE_H__
+#define __LIBDEFINE_H__
 
 #include <string>
 #include <vector>
@@ -10,7 +10,7 @@ class FEIND::LibDefine
 {
  public:
   std::vector< std::string > Args;
-  LibFormat Format;
+  FEINDFormat Format;
 };
 
 #endif

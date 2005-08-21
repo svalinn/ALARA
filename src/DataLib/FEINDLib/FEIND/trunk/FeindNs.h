@@ -8,14 +8,13 @@
 
 namespace FEIND
 {
-  #include "Typedefs.h"
+  typedef int Kza;
   #include "ClassDec.h"
   #include "Consts.h"
 
   extern RamLib Library;
 
   extern FissionType DefaultFT;
-
   extern const XSec NULLCS;
   extern const std::vector<Kza> EMPTY_VEC_KZA;
   extern const std::vector<std::pair<double,double> > EMPTY_PAIR_DOUBLE;
@@ -24,18 +23,8 @@ namespace FEIND
   extern std::pair<std::string,int> Elements[NUM_ELEMENTS];
   int GetAtomicNumber(const std::string& symbol);
   const std::string GetAtomicSymbol(int atomicNumber);
-
-  // Functions to load built in energy group structures:
-  /// Simple functions that assigns values to GroupStructs;
-  void LoadStructs();
-  extern std::map<int, std::vector<double> > GroupStructs;
-
-
-  
-
-  bool ParentExists(Kza parent);
-  ErrCode LoadLibrary(const LibDefine& lib);
-  Kza DecayModetoKza(int decayMode, int dIso, Kza parent, Kza& sec);
+  void LoadLibrary(const LibDefine& lib);
+  Kza DecayModetoKza(DecayModeType decayMode, int dIso, Kza parent, Kza& sec);
   
 
 };

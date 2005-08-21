@@ -7,6 +7,7 @@
 
 #include "FeindNs.h"
 #include "Parent.h"
+#include "exception/ExInclude.h"
 
 class FEIND::RamLib
 {
@@ -40,16 +41,17 @@ class FEIND::RamLib
    *  is false. In either case, if the cross-section does not exist, it will
    *  be automatically created.
    */
-  ErrCode SetPCs(const Kza parent, const int csType, XSec cs, bool add=false);
+  void SetPCs(const Kza parent, const int csType, XSec cs, bool add=false) 
+    throw(ExXsecSize);
 
   XSec GetPCs(Kza parent, int csType);
 
-  ErrCode SetDCs(const Kza parent, const Kza daughter, const int csType,
-		 XSec cs, bool add=false);
+  void SetDCs(const Kza parent, const Kza daughter, const int csType,
+		 XSec cs, bool add=false) throw(ExXsecSize);
 
   XSec GetDCs(Kza parent, Kza daughter, int csType);
   
-  ErrCode AddPath(const Kza parent, const Kza daughter, const Path& path);
+  void AddPath(const Kza parent, const Kza daughter, const Path& path);
 
 
 
@@ -57,17 +59,17 @@ class FEIND::RamLib
   //*** GET/SET DECAY DATA ***//
   //**************************//
 
-  ErrCode AddDecayConstant(Kza parent, const double constant);
+  void AddDecayConstant(Kza parent, const double constant);
   double GetDecayConstant(Kza parent);
 
-  ErrCode AddDecayEnergy(const Kza parent, const int enType, 
+  void AddDecayEnergy(const Kza parent, const int enType, 
 			 const double energy);
   double GetDecayEnergy(Kza parent, int enType);  
 
   double GetTotalDecayEnergy(Kza parent);
 
   /// Add a spectrum.
-  ErrCode AddSpectrum(const Kza parent, const int specType, 
+  void AddSpectrum(const Kza parent, const int specType, 
 		      const Spectrum& spec);
 
   const std::vector<std::pair<double,double> >& GetDiscreteSpec(Kza parent, 
@@ -77,8 +79,9 @@ class FEIND::RamLib
   /** This function will automatically add the appropriate information for
    *  secondary radiation as well
    */
-  ErrCode AddDecayMode(Kza parent, int decayMode, int dIso, double br);
-
+  void AddDecayMode(Kza parent, DecayModeType decayMode, int dIso, double br)
+    throw(ExDecayMode);
+  
   double GetBratio(Kza parent, Kza daughter);
 
   /// Get the total spontaneous fission branching ratio for a parent
@@ -90,7 +93,7 @@ class FEIND::RamLib
   //*** SET/GET FISSION DATA ***//
   //****************************//
 
-  ErrCode AddFissionYield(const Kza parent, const Kza daughter,
+  void AddFissionYield(const Kza parent, const Kza daughter,
 			  const int fissionType, const double yield);
   double GetFissionYield(Kza parent, Kza daughter, int fissionType);
 
@@ -106,14 +109,15 @@ class FEIND::RamLib
    *    [INSERT EQUATION]
    *  The total reaction rate is returned.
    */
-  ErrCode LambdaEff(Kza parent,const std::vector<double>& flux,double& result);
+  void LambdaEff(Kza parent,const std::vector<double>& flux,double& result);
 
-  ErrCode LambdaEff(Kza parent, Kza daughter, const std::vector<double>& flux, 
+  void LambdaEff(Kza parent, Kza daughter, const std::vector<double>& flux, 
 		    double& result);
 
   double LambdaEff(Kza parent, const std::vector<double>& flux,
 		   std::vector<Kza>& daughters, std::vector<double>& dLambdas,
-		   double& secLambda, FissionType ft=DefaultFT);
+		   double& secLambda, FissionType ft=DefaultFT) 
+    throw(ExXsecSize);
 
 
   double ProdRates(Kza daughter, const std::vector<double>& flux,

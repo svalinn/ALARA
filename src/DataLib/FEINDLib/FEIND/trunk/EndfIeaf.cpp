@@ -10,11 +10,12 @@ using namespace std;
 using namespace FEIND;
 
 EndfIeaf::EndfIeaf(const LibDefine& lib) :
+  FileName(lib.Args[0].c_str()),
   InFile(lib.Args[0].c_str())
 {  
 }
 
-ErrCode EndfIeaf::LoadLibrary()
+void EndfIeaf::LoadLibrary() throw(ExFileOpen)
 {
   string str;
   Kza parent_kza;
@@ -22,7 +23,7 @@ ErrCode EndfIeaf::LoadLibrary()
   int num_groups;
 
   if(!InFile.is_open())
-    return FEC_FILE_OPEN;
+    throw ExFileOpen("EndfIeaf::LoadLibrary() function", FileName);
 
   while(getline(InFile,str,'\n'))
     {

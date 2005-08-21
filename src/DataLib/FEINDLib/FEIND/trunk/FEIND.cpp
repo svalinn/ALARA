@@ -1,11 +1,14 @@
 #include <vector>
 #include <iostream>
+#include <string>
+#include <cassert>
 
 #include "FeindNs.h"
 #include "Parent.h"
 #include "LibDefine.h"
 #include "RamLib.h"
 
+#include "Parser.h"
 #include "DecayEndf6.h"
 #include "Eaf41.h"
 #include "Cinder.h"
@@ -15,7 +18,7 @@ using namespace std;
 using namespace FEIND;
 
 #include "Elements.h"
-#include "GroupStructs.h"
+#include "exception/ExInclude.h"
 
 RamLib FEIND::Library;
 FissionType FEIND::DefaultFT = NO_FISSION;
@@ -24,57 +27,53 @@ const XSec FEIND::NULLCS;
 const vector<Kza> FEIND::EMPTY_VEC_KZA;
 const vector<pair<double,double> > FEIND::EMPTY_PAIR_DOUBLE;
 
-
-ErrCode FEIND::LoadLibrary(const LibDefine& lib)
+void FEIND::LoadLibrary(const LibDefine& lib)
 {
-  int err;
+  Parser* p_parser = NULL;
 
-  switch(lib.Format)
-    {
-    case DECAY_ENDF_6:
+  try{
+    switch(lib.Format)
       {
-	DecayEndf6 data_lib(lib);
-	err = data_lib.LoadLibrary();
+      case DECAY_ENDF_6:
+	p_parser = new DecayEndf6(lib);
+	break;
+      case EAF_4_1:
+	p_parser = new Eaf41(lib);
+	break;
+      case CINDER:
+	p_parser = new Cinder(lib);
+	break;
+      case ENDF_IEAF:
+	p_parser = new EndfIeaf(lib);
+	break;
+      default:
+	throw ExFormat("Global FEIND::LoadLibrary function", lib.Format);
       }
-      break;
-    case EAF_4_1:
-      {
-	Eaf41 data_lib(lib);
-	err = data_lib.LoadLibrary();
-      }
-      break;
-    case CINDER:
-      {
-	Cinder data_lib(lib);
-	err = data_lib.LoadLibrary();
-      }
-      break;
-    case ENDF_IEAF:
-      {
-	EndfIeaf data_lib(lib);
-	err = data_lib.LoadLibrary();
-      }
-      break;
-    default:
-      return FEC_UNKNOWN_FORMAT;
-      break;
-    }
+  
+    assert(p_parser);
 
+    p_parser->LoadLibrary();
+ 
+  } catch (Exception& ex) {
+    if(p_parser) delete p_parser;
+    throw;
+  }
 
-  return err;
+  delete p_parser;
 }
 
-Kza FEIND::DecayModetoKza(int decayMode, int dIso, Kza parent, Kza& sec)
+Kza FEIND::DecayModetoKza(DecayModeType decayMode, int dIso, Kza parent, 
+			  Kza& sec)
 {
   Kza ret;
   sec = 0;
 
   switch(decayMode)
     {
-    case BETA_DECAY:
-      // A_D = A_P, Z_D = Z_P+1:
-      ret = parent + 10000;
-      break;
+     case BETA_DECAY:
+       //A_D = A_P, Z_D = Z_P+1:
+       ret = parent + 10000;
+       break;
     case ELECTRON_CAPTURE:
       // A_D = A_P, Z_D = Z_P-1:
       ret = parent - 10000;
@@ -112,9 +111,12 @@ Kza FEIND::DecayModetoKza(int decayMode, int dIso, Kza parent, Kza& sec)
       ret = parent - 20010;
       sec = PROTON;
       break;
+    case IT_ALPHA_EMIT:
+      ret = parent - 20040;
+      sec = ALPHA;
+      break;
     default:
-      // EXCEPTION: Unknown decay mode
-      0;
+      throw ExDecayMode("FEIND::DecayModeToKza() function",  decayMode);
     }
 
     // Take care of isomeric state transition:
@@ -125,11 +127,3 @@ Kza FEIND::DecayModetoKza(int decayMode, int dIso, Kza parent, Kza& sec)
 
   return ret;
 }
-
-// bool FEIND::ParentExists(Kza parent)
-// {
-//   if(RamLib.find(parent) == RamLib.end())
-//     return false;
-  
-//   return true;
-// }

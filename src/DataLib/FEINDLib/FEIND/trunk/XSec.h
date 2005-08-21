@@ -2,6 +2,7 @@
 #define __XSEC_H__
 
 #include "FeindNs.h"
+#include "exception/ExInclude.h"
 
 #include <vector>
 
@@ -25,15 +26,16 @@ public:
 
   const XSec& operator=(const XSec& cs);
 
-  double& operator[](unsigned i);
-  const double& operator[](unsigned i) const;
+  double& operator[](unsigned i) throw(ExEmptyXSec);
+  const double& operator[](unsigned i) const throw(ExEmptyXSec);
 
   unsigned NumGroups() const;
 
-  double Integrate(const std::vector<double>& mult) const;
+  double Integrate(const std::vector<double>& mult) const 
+    throw(ExXsecSize, ExEmptyXSec);
 
-  XSec& operator+=(const XSec& rhs);
-  XSec& operator*=(double mult);
+  XSec& operator+=(const XSec& rhs) throw(ExXsecSize, ExEmptyXSec);
+  XSec& operator*=(double mult) throw(ExEmptyXSec);
 
   operator bool() const;
 

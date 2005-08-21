@@ -6,18 +6,21 @@
 
 #include "FeindNs.h"
 #include "Parent.h"
+#include "exception/ExInclude.h"
+#include "Parser.h"
 
 /// The parser for the EAF 4.1 data format
 /** This library simply contains transmutation cross-sections, including some
  *  fission cross-sections.
  */
-class FEIND::Eaf41
+class FEIND::Eaf41 : public Parser
 {
  public:
   Eaf41(const LibDefine& lib);
-  ErrCode LoadLibrary();
+  virtual void LoadLibrary() throw(ExFileOpen, ExEmptyXSec);
 
  private:
+  std::string FileName;
   std::ifstream InFile;
   const static int NumGroups;
 
@@ -42,7 +45,7 @@ class FEIND::Eaf41
   int FissionType(const char projectile);
 
   /// Add the secondary production cross-sections for the charged particles.
-  void AddCPPCS(Kza parent, Path& path);
+  void AddCPPCS(Kza parent, Path& path) throw(ExEmptyXSec);
 
   std::vector<Kza> Cpt;
 };

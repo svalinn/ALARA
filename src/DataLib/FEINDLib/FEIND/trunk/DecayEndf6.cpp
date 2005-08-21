@@ -10,17 +10,17 @@ using namespace FEIND;
 using namespace std;
 
 DecayEndf6::DecayEndf6(const LibDefine& lib) :
-  InFile(lib.Args[0].c_str())
+  InFile(lib.Args[0].c_str()),
+  FileName(lib.Args[0].c_str())
 {
 }
 
-ErrCode DecayEndf6::LoadLibrary()
+void DecayEndf6::LoadLibrary() throw(ExFileOpen, ExDecayMode)
 {
   unsigned int num_spec;
-  ErrCode err = FEC_NO_ERROR;
 
   if(!InFile.is_open())
-    return FEC_FILE_OPEN;
+    throw ExFileOpen("DecayEndf6::LoadLibrary() function", FileName);
 
   Kza parent_kza;
 
@@ -47,16 +47,13 @@ ErrCode DecayEndf6::LoadLibrary()
       ExtractEnergies(parent_kza, str);
 
       // Get the information for each decay daughter:
-      if( (err = ExtractDecayModes(parent_kza)) ) 
-	return err;
+      ExtractDecayModes(parent_kza);
 
       ExtractSpectrum(num_spec, parent_kza);
       
       while(Is8457(str))
 	getline(InFile, str, '\n');
     }
-  
-  return FEC_NO_ERROR;
 }
 
 bool DecayEndf6::Is8457(const string& str)
@@ -122,12 +119,12 @@ void DecayEndf6::ExtractEnergies(Kza parent, string& str)
 			 FormatFloat(str.substr(44,11)));
 }
 
-ErrCode DecayEndf6::ExtractDecayModes(Kza parent)
+void DecayEndf6::ExtractDecayModes(Kza parent) throw(ExDecayMode)
 {
   string str;
   int num_modes;
   int i;
-  int decay_mode;
+  DecayModeType decay_mode;
 
   double branching_ratio;
 
@@ -142,15 +139,18 @@ ErrCode DecayEndf6::ExtractDecayModes(Kza parent)
 
       branching_ratio = FormatFloat(str.substr(44,11));
 
-      Library.AddDecayMode(parent, decay_mode, 
-			   int(FormatFloat(str.substr(11,11))),
-			   branching_ratio);      
+      try{
+	Library.AddDecayMode(parent, decay_mode,
+			     int(FormatFloat(str.substr(11,11))),
+			     branching_ratio);
+      } catch (ExDecayMode& ex){ 
+	throw; 
+      }
+      
     }
-  
-  return FEC_NO_ERROR;
 }
 
-ErrCode DecayEndf6::ExtractSpectrum(unsigned int num, Kza parent)
+void DecayEndf6::ExtractSpectrum(unsigned int num, Kza parent)
 {
   unsigned int i;
   unsigned int j;
@@ -260,11 +260,9 @@ ErrCode DecayEndf6::ExtractSpectrum(unsigned int num, Kza parent)
       spectrum.Discrete.clear();
 
     }
-
-  return FEC_NO_ERROR;
 }
 
-int DecayEndf6::ModeEtoF(double endf)
+DecayModeType DecayEndf6::ModeEtoF(double endf)
 {
   if ( endf == 0 )
     return GAMMA_DECAY;

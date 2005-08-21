@@ -16,74 +16,84 @@ enum GSType{
   CINDER_GAMMA    // 25 group Cinder gamma energy group structure
 };
 
-const int VITAMINJ_175 = 1;
-const int IEAF_256 = 2;
-const int CINDER_60 = 3;
-
 // Library Types:
-const LibFormat DECAY_ENDF_6 = 1;
-const LibFormat EAF_4_1 = 2;
-const LibFormat CINDER = 3;
-const LibFormat ENDF_IEAF = 4;
+enum FEINDFormat
+  {
+    DECAY_ENDF_6 = 0,
+    EAF_4_1 = 1,
+    CINDER = 2,
+    ENDF_IEAF = 3
+  };
 
-// FEIND Error Codes:
-const ErrCode FEC_NO_ERROR = 0;
-const ErrCode FEC_UNKNOWN_FORMAT = 1;
-const ErrCode FEC_FILE_OPEN = 2;
-const ErrCode FEC_UNKNOWN_DECAY_MODE = 3;
-const ErrCode FEC_BAD_GROUP_STRUCT = 4;
+enum FEINDErrorType
+  {
+    FEIND_UNKNOWN_ERROR,
+    FEIND_FORMAT_ERROR,
+    FEIND_DECAYMODE_ERROR,
+    FEIND_FILEOPEN_ERROR,
+    FEIND_INVALIDOPTION_ERROR,
+    FEIND_XSECSIZE_ERROR,
+    FEIND_EMPTYXSEC_ERROR
+  };
 
 // Types of Decay Energies:
-const int HEAVY_PARTICLES = 1;
-const int LIGHT_PARTICLES = 2;
-const int EM_RADIATION = 3;
+enum DecayEnergyType
+  {
+    HEAVY_PARTICLES = 0,
+    LIGHT_PARTICLES = 1,
+    EM_RADIATION = 3
+  };
 
-// ***** DECAY MODES *****
-const unsigned int GAMMA_DECAY         = 1;
+enum DecayModeType
+  {
+
+    // ***** DECAY MODES *****
+    UNKNOWN              = 0,
+
+    GAMMA_DECAY          = 1,
  
-/// Constant to represent beta decay.
-const unsigned int BETA_DECAY          = 2;
+    /// Constant to represent beta decay.
+    BETA_DECAY           = 2,
  
-/// Constant to represent electron capture.
-const unsigned int ELECTRON_CAPTURE    = 3;
- 
-/// Constant to represent an isomeric transition
-/** Basically the same as gamma decay.
- */
-const unsigned int ISOMERIC_TRANSITION = 4;
- 
-/// Constant to represent alpha decay.
-const unsigned int ALPHA_DECAY         = 5;
+    /// Constant to represent electron capture.
+    ELECTRON_CAPTURE     = 3,
+    
+    /// Constant to represent an isomeric transition
+    /** Basically the same as gamma decay.
+     */
+    ISOMERIC_TRANSITION  = 4,
+    
+    /// Constant to represent alpha decay.
+    ALPHA_DECAY          = 5,
+    
+    /// Constant to represent neutron emission.
+    /** Not the same as delayed neutron emission.
+     */
+    NEUTRON_EMISSION     = 6,
+    
+    /// Constant to represent spontaneous fission.
+    /** Spontaneous fission will be supported by the Fission set of classes.
+     */
+    SPONTANEOUS_FISSION  = 7,
+    
+    /// Constant to represent proton emission.
+    PROTON_EMISSION      = 8,
+    
+    /// Constant to represent beta decay, followed by a neutron emission.
+    /** This is delayed neutron emission.
+     */
+    BETA_NEUTRON_EMIT    = 9,
+    
+    /// Constant to represent beta decay, followed by an alpha emission.
+    BETA_ALPHA_EMIT      = 10,
+    
+    /// Constant to represent positron decay, followed by an alpha emission.
+    POSITRON_ALPHA_EMIT  = 11,
+    
+    POSITRON_PROTON_EMIT = 12,
 
-/// Constant to represent neutron emission.
-/** Not the same as delayed neutron emission.
- */
-const unsigned int NEUTRON_EMISSION    = 6;
-
-/// Constant to represent spontaneous fission.
-/** Spontaneous fission will be supported by the Fission set of classes.
- */
-const unsigned int SPONTANEOUS_FISSION = 7;
-
-/// Constant to represent proton emission.
-const unsigned int PROTON_EMISSION     = 8;
-
-/// Constant to represent beta decay, followed by a neutron emission.
-/** This is delayed neutron emission.
- */
-const unsigned int BETA_NEUTRON_EMIT   = 9;
-
-/// Constant to represent beta decay, followed by an alpha emission.
-const unsigned int BETA_ALPHA_EMIT     = 10;
-
-/// Constant to represent positron decay, followed by an alpha emission.
-const unsigned int POSITRON_ALPHA_EMIT = 11;
-
-const unsigned int POSITRON_PROTON_EMIT = 12;
-const unsigned int IT_ALPHA_EMIT = 13;
-const unsigned int UNKNOWN = 0;
-
-// *********************************
+    IT_ALPHA_EMIT        = 13
+  };
 
 // ***** Types of Particles *****
 const unsigned int PROTON = 10010;
@@ -119,8 +129,11 @@ enum FissionType
   };
 
 // Special Cross Sections:
-const unsigned int TOTAL_CS = 1;
-const unsigned int NEUTRON_FISSION_CS = 2;
-const unsigned int CHARGED_CS = 3;
+enum XSecType
+  {
+    TOTAL_CS = 1,
+    NEUTRON_FISSION_CS = 2,
+    CHARGED_CS = 3
+  };
 
 #endif

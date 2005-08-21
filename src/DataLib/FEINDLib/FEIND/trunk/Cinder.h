@@ -3,22 +3,26 @@
 
 #include <fstream>
 #include <vector>
-
 #include <iostream>
+#include <string>
+
 #include "FeindNs.h"
+#include "exception/ExInclude.h"
+#include "Parser.h"
 
 /// The FEIND parser for CINDER format files
 /** The Cinder format contains fission yields, cross-sections and decay data.
  *  Only certain cross-sections are primary as well.
  */
-class FEIND::Cinder
+class FEIND::Cinder : public Parser
 {
  public:
   Cinder(const LibDefine& lib);
-  ErrCode LoadLibrary();
+  virtual void LoadLibrary() throw(Exception);
   
  private:
   std::ifstream InFile;
+  std::string FileName;
 
   //*** ARGUMENT HANDLING ***//
 
@@ -29,7 +33,7 @@ class FEIND::Cinder
   //*** FUNCTIONS RELATED TO LOADING ACTIVATION DATA ***//
 
   /// Load cross-sections and decay data
-  void ActivationData();
+  void ActivationData() throw(Exception);
 
   /// Get the parent kza
   Kza ExtractActParent();
@@ -50,7 +54,7 @@ class FEIND::Cinder
   /// This function is responsible for loading decay data.
   /** This can be prevented by sending CINDER the "nodecay" argument.
    */
-  void DecayData(Kza parent);
+  void DecayData(Kza parent) throw(ExDecayMode);
 
 
   //*** FUCNTIONS RELATED TO LOADING FISSION YIELDS ***//
@@ -105,7 +109,7 @@ class FEIND::Cinder
    */
   std::vector<double> GammaGroupBounds;
 
-  int KzaToDecayMode(Kza parent, Kza daughter);
+  DecayModeType KzaToDecayMode(Kza parent, Kza daughter);
 
   const static double CINDER_UPPER_HL;
   const static int FLOAT_DIGITS;

@@ -15,6 +15,7 @@ const double Cinder::CINDER_UPPER_HL = 1.0E+99;
 const int    Cinder::FLOAT_DIGITS    = 10;
 
 Cinder::Cinder(const LibDefine& lib) :
+  FileName(lib.Args[0].c_str()), 
   InFile(lib.Args[0].c_str()),
   LoadTransmutation(true),
   LoadDecay(true),
@@ -30,16 +31,17 @@ Cinder::Cinder(const LibDefine& lib) :
 	LoadDecay = false;
       else if(lib.Args[i] == "noyields")
 	LoadYields = false;
-      // EXCEPTION - Invalid Option
+      else
+	throw ExInvalidOption("Cinder parser constructor", lib.Args[i]);
     }
 }
 
-ErrCode Cinder::LoadLibrary()
+void Cinder::LoadLibrary() throw(Exception)
 {
   string str;
 
   if(!InFile.is_open())
-    return FEC_FILE_OPEN;
+    throw ExFileOpen("Cinder::LoadLibrary() function", FileName);
 
   // This file is divided into three sections:
   // - The first contains the groups structure information
@@ -50,15 +52,18 @@ ErrCode Cinder::LoadLibrary()
   GetGroupInfo();
 
   // Begin Reading Activation Data:  
-  ActivationData();
+  try{
+    ActivationData();
+  }
+  catch (Exception& ex) {
+    throw;
+  }
 
   // Read the Fission Yields:
   if(LoadYields) FissionYields();
-
-  return FEC_NO_ERROR;
 }
 
-void Cinder::ActivationData()
+void Cinder::ActivationData() throw(Exception)
 {
   const string start_iso = "_______________________";
   const string begin_fission = "Fission Yield Data";
@@ -453,7 +458,7 @@ void Cinder::GetGroupInfo()
   Library.SetGroupStruct(CINDER_GAMMA, GammaGroupBounds);  
 }
 
-void Cinder::DecayData(Kza parent)
+void Cinder::DecayData(Kza parent) throw(ExDecayMode)
 {
   string str;
   double half_life;
@@ -491,9 +496,13 @@ void Cinder::DecayData(Kza parent)
 			  atof(str.substr(40,FLOAT_DIGITS).c_str()) );
 
 
-  // Check for spontaneous fission:
-  if(sfbr = atof( str.substr(59,FLOAT_DIGITS).c_str()))
-    Library.AddDecayMode(parent, SPONTANEOUS_FISSION, 0, sfbr);
+  try{
+    // Check for spontaneous fission:
+    if(sfbr = atof( str.substr(59,FLOAT_DIGITS).c_str()))
+      Library.AddDecayMode(parent, SPONTANEOUS_FISSION, 0, sfbr);
+  } catch(ExDecayMode& ex){
+    throw;
+  }
 
   // Read the number of non-sf decay paths
   InFile >> str;
@@ -512,8 +521,12 @@ void Cinder::DecayData(Kza parent)
       // Get the daughter kza:
       daughter = CinderToKza( atoi(str.substr(29,7).c_str()) );
 
-      Library.AddDecayMode(parent, KzaToDecayMode(parent, daughter),
-			   daughter % 10, branch);
+      try{
+	Library.AddDecayMode(parent, KzaToDecayMode(parent, daughter),
+			     daughter % 10, branch);
+      } catch(ExDecayMode& ex){
+	throw;
+      }
     }
 
   // Load gamma spectrum:
@@ -534,7 +547,7 @@ void Cinder::DecayData(Kza parent)
     }
 }
 
-int Cinder::KzaToDecayMode(Kza parent, Kza daughter)
+DecayModeType Cinder::KzaToDecayMode(Kza parent, Kza daughter)
 {
   if( (parent/10 - daughter/10) == 2004)
     return ALPHA_DECAY;

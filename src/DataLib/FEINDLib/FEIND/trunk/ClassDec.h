@@ -8,15 +8,23 @@ class Path;
 class ContSpec;
 class Spectrum;
 class Daughter;
+class XSec;
 
 class LibDefine;
 class RamLib;
 
+class Parser;
 class DecayEndf6;
 class Eaf41;
 class Cinder;
 class EndfIeaf;
 
-class XSec;
+class Exception;
+class ExFormat;
+class ExFileOpen;
+class ExDecayMode;
+class ExInvalidOption;
+class ExXsecSize;
+class ExEmptyXSec;
 
 #endif

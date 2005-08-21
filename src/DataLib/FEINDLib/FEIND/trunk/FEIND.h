@@ -5,5 +5,6 @@
 #include "LibDefine.h"
 #include "RamLib.h"
 #include "XSec.h"
+#include "exception/ExInclude.h"
 
 #endif

@@ -13,6 +13,7 @@ using namespace std;
 const int Eaf41::NumGroups = 175;
 
 Eaf41::Eaf41(const LibDefine& lib) :
+  FileName(lib.Args[0].c_str()),
   InFile(lib.Args[0].c_str())
 {
   Cpt.push_back(PROTON);
@@ -22,7 +23,7 @@ Eaf41::Eaf41(const LibDefine& lib) :
   Cpt.push_back(ALPHA);
 }
 
-ErrCode Eaf41::LoadLibrary()
+void Eaf41::LoadLibrary() throw(ExFileOpen, ExEmptyXSec)
 {
   int non_zero,i, fission_type = 0;
   string str;
@@ -36,7 +37,7 @@ ErrCode Eaf41::LoadLibrary()
   Path path;
 
   if(!InFile.is_open())
-    return FEC_FILE_OPEN;
+    throw ExFileOpen("Eaf41::LoadLibrary() function", FileName);
 
   SkipHeader();
 
@@ -112,8 +113,6 @@ ErrCode Eaf41::LoadLibrary()
       getline(InFile, str, '\n');
       if(str == "") getline(InFile, str, '\n');
     }
-
-  return FEC_NO_ERROR;
 }
 
 void Eaf41::SkipHeader()
@@ -227,7 +226,7 @@ int Eaf41::FissionType(const char projectile)
     }
 }
 
-void Eaf41::AddCPPCS(Kza parent, Path& path)
+void Eaf41::AddCPPCS(Kza parent, Path& path) throw(ExEmptyXSec)
 {
   // This function will add any charged particles produced to the production
   // cross-section.
@@ -237,6 +236,8 @@ void Eaf41::AddCPPCS(Kza parent, Path& path)
 
   for(i = 0; i < Cpt.size(); i++)
     {
+      // EXCEPTION - Cpt find
+
       if(path.Emitted.find(Cpt[i]) != path.Emitted.end())
 	{
 	  assert(path.Emitted[Cpt[i]]);
