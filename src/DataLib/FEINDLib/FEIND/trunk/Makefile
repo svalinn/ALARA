@@ -6,5 +6,5 @@ mpi:
 
 all:
 	-rm FEIND.a
-	g++ *.cpp -O3 -c
+	g++ *.cpp exception/*.cpp -c -I exception -I /home/fateneja/FEIND
 	ar -cq FEIND.a *.o
