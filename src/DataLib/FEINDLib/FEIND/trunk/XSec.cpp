@@ -126,7 +126,7 @@ XSec& XSec::operator*=(double mult) throw(ExEmptyXSec)
 
   for(int i = 0; i < ng; i++)
     {
-      (*this)[i] += mult;
+      (*this)[i] *= mult;
     }
 
   return *this;
@@ -165,4 +165,18 @@ void XSec::CleanUp()
 XSec::~XSec()
 {
   CleanUp();
+}
+
+ostream& operator<<(ostream& os, XSec rhs) 
+{
+  if(!rhs.NumGroups()) return os;
+
+  cout << "NUM GROUPS = " << rhs.NumGroups() << endl;
+
+  for(int i = 0; i < rhs.NumGroups(); i++)
+    {
+      os << i << "\t" << rhs[i] << endl;
+    }
+
+  return os;
 }

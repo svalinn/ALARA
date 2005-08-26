@@ -39,6 +39,8 @@ public:
 
   operator bool() const;
 
+  friend std::ostream& operator<<(std::ostream& os, XSec rhs);
+
   ~XSec();
 
 private:
