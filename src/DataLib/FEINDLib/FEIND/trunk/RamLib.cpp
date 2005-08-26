@@ -94,7 +94,7 @@ void RamLib::SetDCs(const Kza parent, const Kza daughter, const int csType,
 	throw;
       }
 
-      SetDCs(parent, daughter, csType, cs, false);
+      SetDCs(parent, daughter, csType, old_cs, false);
     }
 }
 
