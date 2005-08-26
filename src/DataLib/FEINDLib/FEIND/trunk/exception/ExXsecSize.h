@@ -15,6 +15,17 @@
 class FEIND::ExXsecSize : public Exception
 {
 public:
+  
+  /// Main Constructor
+  /** \param[in] loc
+   *  The location where the error occurred.
+   *
+   *  \param[in] xsSize
+   *  The size of the XSection object
+   *
+   *  \param[in] otherSize
+   *  The size of the other obect (XSec or vector)
+   */
   ExXsecSize(const std::string& loc, int xsSize, int otherSize);
 
 };

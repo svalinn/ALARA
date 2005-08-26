@@ -8,6 +8,15 @@
 #include <map>
 #include <utility>
 
+/** \file Parent.h
+ *  \brief This file stores classes which store all of the relevent nuclear
+ *         data for a specific isotope.
+ */
+
+/// Stores path information about a given reaction.
+/** The path simply governs which projectile causes a reaction, and which 
+ *  particles are emitted.
+ */
 class FEIND::Path
 {
  public:
@@ -24,6 +33,7 @@ class FEIND::Path
   XSec CrossSection;
 };
 
+/// Stores data about a continuous decay spectrum
 class FEIND::ContSpec
 {
  public:
@@ -38,6 +48,9 @@ class FEIND::ContSpec
   void Clear();
 };
 
+/// Stores information about decay spectra.
+/** These decay spectra may be discrete continuous or groupwise.
+ */
 class FEIND::Spectrum
 {
  public:
@@ -62,6 +75,7 @@ class FEIND::Spectrum
 
 };
 
+/// Stores all nuclear data regarding a specific daughter of an isotope.
 class FEIND::Daughter
 {
  public:
@@ -88,7 +102,10 @@ class FEIND::Daughter
   std::map<int, double> FissionYield;
 };
 
-
+/// Stores all nuclear data for a single isotope
+/** The RamLib contains a map of parent objects. Information is added to these
+ *  through the RamLibs interface.
+ */
 class FEIND::Parent
 {
  public:
@@ -118,7 +135,8 @@ class FEIND::Parent
    */
   std::map<int, Spectrum> SpecList;
 
-  std::vector<int> DecayModes;
+  /// A list of possible decay modes for an isotope
+  std::vector<DecayModeType> DecayModes;
 
   /// Spontaneous fission branching ratio:
   /** This number should be set to zero for no spontaneous fission.

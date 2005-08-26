@@ -16,12 +16,27 @@
 class FEIND::Eaf41 : public Parser
 {
  public:
+  /// The main constructor
+  /** param[in] lib
+   *  Data structure to store the library format and arguments. This parser
+   *  takes only a single argument, the path to the nuclear data file.
+   */
   Eaf41(const LibDefine& lib);
+
+  /// Function to load data from files into the RamLib
   virtual void LoadLibrary() throw(ExFileOpen, ExEmptyXSec);
 
  private:
+
+  /// The name of the data file
   std::string FileName;
+
+  /// A file stream associated with the data file
   std::ifstream InFile;
+
+  /// The number of energy groups
+  /** As far as I know, Eaf 4.1 files all use the 175 group VITAMIN-J structure
+   */
   const static int NumGroups;
 
   /// Convert the path string into a FEIND path object
@@ -42,7 +57,7 @@ class FEIND::Eaf41 : public Parser
   void SkipHeader();
 
   /// Determine the fission type from the projectile
-  int FissionType(const char projectile);
+  XSecType FissionType(const char projectile);
 
   /// Add the secondary production cross-sections for the charged particles.
   void AddCPPCS(Kza parent, Path& path) throw(ExEmptyXSec);

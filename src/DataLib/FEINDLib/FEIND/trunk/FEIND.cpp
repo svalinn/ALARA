@@ -70,10 +70,10 @@ Kza FEIND::DecayModetoKza(DecayModeType decayMode, int dIso, Kza parent,
 
   switch(decayMode)
     {
-     case BETA_DECAY:
-       //A_D = A_P, Z_D = Z_P+1:
-       ret = parent + 10000;
-       break;
+    case BETA_DECAY:
+      // A_D = A_P, Z_D = Z_P+1:
+      ret = parent + 10000;
+      break;
     case ELECTRON_CAPTURE:
       // A_D = A_P, Z_D = Z_P-1:
       ret = parent - 10000;

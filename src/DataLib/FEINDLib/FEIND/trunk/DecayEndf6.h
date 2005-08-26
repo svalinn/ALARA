@@ -12,6 +12,7 @@
 #include "exception/ExInclude.h"
 #include "Parser.h"
 
+/// Parser for loading decay data from ENDF-VI files
 class FEIND::DecayEndf6 : public Parser
 {
  public:

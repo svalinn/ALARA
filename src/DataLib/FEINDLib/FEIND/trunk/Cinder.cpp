@@ -2,6 +2,7 @@
 #include <string>
 #include <cctype>
 #include <cmath>
+#include <sstream>
 
 #include "Parent.h"
 #include "Cinder.h"
@@ -73,7 +74,6 @@ void Cinder::ActivationData() throw(Exception)
   string path_str;
   XSec cs(NumNeutronGroups);
   bool total_flag = false;
-  vector<double> parent_cs;
 
   int i;
   int j;
@@ -525,6 +525,10 @@ void Cinder::DecayData(Kza parent) throw(ExDecayMode)
 	Library.AddDecayMode(parent, KzaToDecayMode(parent, daughter),
 			     daughter % 10, branch);
       } catch(ExDecayMode& ex){
+	stringstream ss;
+	ss << "\nError occurred while parsing CINDER data.\n"
+	   << "I was reading decay data for parent " << parent << endl;
+	ex.AddToDetailed(ss.str());
 	throw;
       }
     }

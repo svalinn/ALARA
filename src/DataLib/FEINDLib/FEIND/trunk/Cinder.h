@@ -12,22 +12,43 @@
 
 /// The FEIND parser for CINDER format files
 /** The Cinder format contains fission yields, cross-sections and decay data.
- *  Only certain cross-sections are primary as well.
  */
 class FEIND::Cinder : public Parser
 {
  public:
+
+  /// Primary constructor for the FEIND parser
+  /** \param[in] lib
+   *  Structure to store information about the file format, and parser options.
+   *  The cinder parser takes several options. The first element of the
+   *  lib.Args must be the path to the nuclead data file. Other options
+   *  include:
+   *    - notrans: indicates that transmutation data (cross-sections) should
+   *               not be loaded.
+   *    - nodecay: indicates that decay data should not be loaded
+   *    - noyields: indicates that fission yields should not be loaded
+   */
   Cinder(const LibDefine& lib);
+
+  /// Function to load data into the RamLib.
   virtual void LoadLibrary() throw(Exception);
   
  private:
+  /// The input file stream
   std::ifstream InFile;
+
+  /// The name of the data file
   std::string FileName;
 
   //*** ARGUMENT HANDLING ***//
 
+  /// Flag to indicate whether transmutation data should be loaded
   bool LoadTransmutation;
+
+  /// Flag to indicate whether decay data should be loaded
   bool LoadDecay;
+
+  /// Flag to indicate whether fission yields should be loaded.
   bool LoadYields;
 
   //*** FUNCTIONS RELATED TO LOADING ACTIVATION DATA ***//
@@ -42,7 +63,7 @@ class FEIND::Cinder : public Parser
   bool CheckFission(const std::string& str);
 
   /// Build a path object for a reaction
-  Path Cinder::MakePath(const std::string& str);
+  Path MakePath(const std::string& str);
 
   /// IsPri compares the parent/daughter kzas to determine if this is a primary
   /// daughter
@@ -109,9 +130,19 @@ class FEIND::Cinder : public Parser
    */
   std::vector<double> GammaGroupBounds;
 
+  /// Function to determine the decay mode from the parent and daughter.
   DecayModeType KzaToDecayMode(Kza parent, Kza daughter);
 
+  
+  /// The upper limit for half lives
+  /** Instead of using some special symbol to indicate that certain isotopes
+   *  are stable, the CINDER just sets the half life to a really big number.
+   *  CINDER_UPPER_HL is compared against to determine whether this is the
+   *  case.
+   */
   const static double CINDER_UPPER_HL;
+  
+  /// The number of digits CINDER files use to represent floating point numbers
   const static int FLOAT_DIGITS;
 };
 

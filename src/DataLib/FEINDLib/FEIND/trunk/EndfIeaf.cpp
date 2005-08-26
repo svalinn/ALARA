@@ -15,7 +15,7 @@ EndfIeaf::EndfIeaf(const LibDefine& lib) :
 {  
 }
 
-void EndfIeaf::LoadLibrary() throw(ExFileOpen)
+void EndfIeaf::LoadLibrary() throw(ExFileOpen, ExEmptyXSec)
 {
   string str;
   Kza parent_kza;
@@ -50,7 +50,7 @@ bool EndfIeaf::Is35(const string& str)
   return false;
 }
 
-void EndfIeaf::ExtractCs(Kza parent, Kza daughter, int num)
+void EndfIeaf::ExtractCs(Kza parent, Kza daughter, int num) throw(ExEmptyXSec)
 {
   XSec cs(num);
   string str;

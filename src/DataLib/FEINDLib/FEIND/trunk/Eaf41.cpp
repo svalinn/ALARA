@@ -25,7 +25,9 @@ Eaf41::Eaf41(const LibDefine& lib) :
 
 void Eaf41::LoadLibrary() throw(ExFileOpen, ExEmptyXSec)
 {
-  int non_zero,i, fission_type = 0;
+  int non_zero,i;
+  XSecType fission_type;
+  bool is_fission;
   string str;
 
   Kza parent_kza;
@@ -44,7 +46,7 @@ void Eaf41::LoadLibrary() throw(ExFileOpen, ExEmptyXSec)
   getline(InFile, str, '\n');
   while(!InFile.eof())
     {
-      fission_type = 0;
+      is_fission = false;
 
       // Get the parent:
       parent_kza = atoi(str.substr(0,7).c_str());
@@ -61,6 +63,7 @@ void Eaf41::LoadLibrary() throw(ExFileOpen, ExEmptyXSec)
 	  // Fission Reaction
 	  // Find the type of fission:
 	  fission_type = FissionType(path_str[0]);
+	  is_fission = true;
 	}
       else
 	{
@@ -87,7 +90,7 @@ void Eaf41::LoadLibrary() throw(ExFileOpen, ExEmptyXSec)
 	    }
 	}
 
-      if(!fission_type)
+      if(!is_fission)
 	{
 	  // Add the parent, parent/daughter contributions:
 	  Library.SetDCs(parent_kza, daughter_kza, TOTAL_CS, 
@@ -217,7 +220,7 @@ Kza Eaf41::DaughterEtoF(const string& daughter)
   return z*10000 + a*10 + iso;
 }
 
-int Eaf41::FissionType(const char projectile)
+XSecType Eaf41::FissionType(const char projectile)
 {
   switch(ParticleEtoF(projectile))
     {

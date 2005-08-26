@@ -23,8 +23,8 @@ std::vector<Kza> RamLib::Parents()
   return ret;
 }
 
-void RamLib::SetPCs(const Kza parent, const int csType, XSec cs, bool add) 
-  throw(ExXsecSize)
+void RamLib::SetPCs(const Kza parent, XSecType csType, XSec cs, bool add) 
+  throw(ExXsecSize, ExEmptyXSec)
 {
 
   if(!add || Data[parent].CrossSections.find(csType) == 
@@ -70,8 +70,8 @@ XSec RamLib::GetPCs(Kza parent, int csType)
   return cs_iter->second;
 }
 
-void RamLib::SetDCs(const Kza parent, const Kza daughter, const int csType,
-		    XSec cs, bool add) throw(ExXsecSize)
+void RamLib::SetDCs(const Kza parent, const Kza daughter, XSecType csType,
+		    XSec cs, bool add) throw(ExXsecSize, ExEmptyXSec)
 {
   if(!add || Data[parent].Daughters[daughter].CrossSections.find(csType) ==
      Data[parent].Daughters[daughter].CrossSections.end() )
@@ -342,7 +342,8 @@ void RamLib::LambdaEff(Kza parent, Kza daughter,
 
 double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
 			 vector<Kza>& daughters, vector<double>& dLambdas,
-			 double& secLambda, FissionType ft) throw(ExXsecSize)
+			 double& secLambda, FissionType ft) 
+  throw(ExXsecSize, ExEmptyXSec)
 {
   double decay_constant = GetDecayConstant(parent);
 
@@ -509,6 +510,7 @@ const std::vector<Kza>& RamLib::Parents(Kza daughter)
 double RamLib::ProdRates(Kza daughter, const vector<double>& flux,
 			 vector<Kza>& parents, vector<double>& pLambdas, 
 			 FissionType ft)
+  throw(ExXsecSize, ExEmptyXSec)
 {
   double decay_constant;
   

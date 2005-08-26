@@ -12,8 +12,9 @@
 /// The main FEIND exception class
 /** Functions should not throw objects of this type. Instead, they should use
  *  one of the derived exception objects, which are tailored for specific
- *  errors. Users can catch this exception, however, and call the Print() 
- *  statement if they need to print an error message and exit.
+ *  errors. Users can use this class to easily catch any FEIND exception. Once
+ *  exception objects are caught, the Print() and Abort() functions can be used
+ *  to print error messages and exit.
  */
 class FEIND::Exception
 {
@@ -33,6 +34,9 @@ class FEIND::Exception
   /** This function allows users of the exception class to add to the detailed
    *  description of an error, if the default detailed description is not
    *  adequate.
+   *
+   *  \param[in] str
+   *  String to be apended to the detailed error description
    */
   inline void AddToDetailed(const std::string& str);
   
@@ -47,6 +51,14 @@ class FEIND::Exception
  protected:
 
   /// Constructor for setting error codes
+  /** \param[in] loc
+   *  String identifying the location where the error occurred. This string
+   *  is used to set the Location member of FEIND::Exception.
+   *
+   *  \param[in] ec
+   *  The error code of the exception. This code is eventually used to set the
+   *  ErrorCode member of this class.
+   */
   Exception(const std::string& loc, FEINDErrorType ec);
   
   /// The location string contains information about where the error occured
@@ -58,6 +70,9 @@ class FEIND::Exception
   std::string Detailed;
 
   /// An enum that is used to store error codes.
+  /** This member exists to simplify writing a fortran interface around FEIND.
+   *  It is also used as the exit value when the Abort() function is called.
+   */
   FEINDErrorType ErrorCode;
 };
 
