@@ -32,6 +32,8 @@ namespace FEIND
   {
   public:
     double GetTotalDecayEnergy(Kza parent);
+    double GetDecayEnergy(Kza parent, int enType);
+    double GetDecayConstant(Kza parent);
   };
 
   extern RamLib Library;
