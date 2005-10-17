@@ -62,7 +62,7 @@ class FEIND::RamLib
   
   void AddPath(const Kza parent, const Kza daughter, const Path& path);
 
-
+  
 
   //**************************//
   //*** GET/SET DECAY DATA ***//
@@ -106,7 +106,8 @@ class FEIND::RamLib
 			  const int fissionType, const double yield);
   double GetFissionYield(Kza parent, Kza daughter, int fissionType);
 
-
+  void GetFissionYield(Kza parent, std::vector<Kza>& daughters, 
+		       std::vector<double>& yields, FissionType ft);
 
   //****************************************************//
   //*** CALCULATING PRODUCTION AND DESTRUCTION RATES ***//
