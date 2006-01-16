@@ -1,4 +1,4 @@
-/* $Id: DataLib.h,v 1.7 2003-01-13 04:34:53 fateneja Exp $ */
+/* $Id: DataLib.h,v 1.8 2006-01-16 19:11:51 phruksar Exp $ */
 #include "alara.h"
 
 /** \brief This class is the base class for the handling of all nuclear
@@ -35,6 +35,7 @@
     decay/gamma libraries following the 
     formatting definition of the EAF library 
     (roughly ENDF/B-6) 
+    DATALIB_FEIND   7      feind    A FEIND library
     -------------------------------------------------------------------
     */
     

@@ -1,4 +1,4 @@
-/* $Id: DataLib.C,v 1.8 2003-01-13 04:34:53 fateneja Exp $ */
+/* $Id: DataLib.C,v 1.9 2006-01-16 19:11:51 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -7,6 +7,9 @@
  */
 
 #include "DataLib.h"
+#include <string>
+
+using namespace std;
 
 /* possible library sub-types */
 #include "ASCIILib/EAFLib/EAFLib.h"
@@ -22,9 +25,10 @@ ascii \
 eaf   \
 adj   \
 gamma \
-ieaf  ";
+ieaf  \
+feind ";
 
-const int libTypeLength = 6;
+const int libTypeLength = 7;
 
 const char *libTypeStr[] = {
   "an unspecified",
@@ -33,7 +37,8 @@ const char *libTypeStr[] = {
   "an EAF library",
   "an 'adjlib' ALARA",
   "a 'gammalib' ALARA",
-  "an IEAF library"};
+  "an IEAF library",
+  "a FEIND library"};
 
 const char *libTypeSuffix[] = {
   ".null",
@@ -42,7 +47,8 @@ const char *libTypeSuffix[] = {
   ".eaf",
   ".lib",
   ".gam",
-  ".ieaf"};
+  ".ieaf",
+  ".feind"};
 
 
 /****************************
@@ -73,6 +79,13 @@ DataLib* DataLib::newLib(char* libType, istream& input)
       dl = new ALARALib(alaraLibName,type);
       verbose(3,"Openned binary library with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
+      break;
+    case DATALIB_FEIND:
+      vector<string> libArg(3);
+      input >> libArg[0] >> libArg[1] >> libArg[2];
+      dl = new FEINDLib(libArg, type);
+      verbose(3,"Openned FEIND library with %d parents and %d groups.",
+	      dl->nParents,dl->nGroups);      
       break;
     case DATALIB_ADJOINT:
       char adjointLibName[256];

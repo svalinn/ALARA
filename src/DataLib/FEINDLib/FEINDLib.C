@@ -1,47 +1,66 @@
 #include "FEINDLib.h"
 #include <math.h>
 
-FEINDLib::FEINDLib(vector<string> filePath,vector<string> fileFormat,int setType) 
+FEINDLib::FEINDLib(vector<string> libArg,int setType)
   : DataLib(setType)
 {
   FEIND::LibDefine lib;
-  lib.push_back(" ");
-  
-  for (int idx=0; idx < filePath.size(); idx++)
+  lib.Args.push_back(" ");
+
+  int libCase = -9;
+
+  if (libArg[0] == "EAF")
+    libCase = 1;
+  else if (libArg[0] == "CINDER")
+    libCase = 2;
+
+  switch (libCase)
   {
-    
-    string format_str = fileFormat[idx];
-
-     //*** SET THE FORMAT ***//
-
-    if(format_str == "DECAY_ENDF_6")
-      lib.Format = FEIND::DECAY_ENDF_6;
-    else if(format_str == "EAF_4_1")
-      {lib.Format = FEIND::EAF_4_1; nGroups = 175;}
-    else if(format_str == "CINDER")
-      {lib.Format = FEIND::CINDER; nGroups = 63;}
-    else
-      {
-        cerr << "*** ERROR LOADING NUCLEAR LIBRARY...\n"
-	   << "Unknown nuclear data format \"" << format_str
-	   << "\" encountered."
-	   << "\n\nABORTING\n\n";
-        assert(0);
+    case 1:
+      //Load decay library
+      lib.format = FEIND::DECAY_ENDF_6;
+      lib.Args[0] = libArg[1];
+      //*** LOAD THE LIBRARY ***//
+      try{
+        FEIND::LoadLibrary(lib);
+      } catch(FEIND::Exception& ex) {
+        ex.Abort();
       }
-     
-    lib.Args[0] = filePath[idx];
+    
+      //Load activation library
+      lib.format = FEIND::EAF_4_1;
+      nGroups = 175;
+      lib.Args[0] = libArg[2];
+      //*** LOAD THE LIBRARY ***//
+      try{
+        FEIND::LoadLibrary(lib);
+      } catch(FEIND::Exception& ex) {
+        ex.Abort();
+      }
+    break;
+    case 2:
+      lib.format = FEIND::CINDER;
+      nGroups = 63;
+      lib.Args[0] = libArg[1];
+      lib.Args.push_back(libArg[2]);
 
-  //*** LOAD THE LIBRARY ***//
-  try{
-    FEIND::LoadLibrary(lib);
-  } catch(FEIND::Exception& ex) {
-    ex.Abort();
-  }
+      //*** LOAD THE LIBRARY ***//
+      try{
+        FEIND::LoadLibrary(lib);
+      } catch(FEIND::Exception& ex) {
+        ex.Abort();
+      }
+    break;
+    default: 
+    cerr << "*** ERROR LOADING NUCLEAR LIBRARY...\n"
+	 << "Unknown nuclear data format \"" << format_str
+	 << "\" encountered."
+	 << "\n\nABORTING\n\n";
+    assert(0);
 
   }
 
   nParents = (FEIND::Library.Parents()).size();
-
 }
 
 void FEINDLib::readData(int parent, NuclearData* data)
