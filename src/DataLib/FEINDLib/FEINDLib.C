@@ -18,7 +18,7 @@ FEINDLib::FEINDLib(char* arg0, char* arg1, char* arg2, int setType)
   {
     case 1:
       //Load decay library
-      lib.format = FEIND::DECAY_ENDF_6;
+      lib.Format = FEIND::DECAY_ENDF_6;
       lib.Args[0] = arg1;
       //*** LOAD THE LIBRARY ***//
       try{
@@ -28,7 +28,7 @@ FEINDLib::FEINDLib(char* arg0, char* arg1, char* arg2, int setType)
       }
     
       //Load activation library
-      lib.format = FEIND::EAF_4_1;
+      lib.Format = FEIND::EAF_4_1;
       nGroups = 175;
       lib.Args[0] = arg2;
       //*** LOAD THE LIBRARY ***//
@@ -39,7 +39,7 @@ FEINDLib::FEINDLib(char* arg0, char* arg1, char* arg2, int setType)
       }
     break;
     case 2:
-      lib.format = FEIND::CINDER;
+      lib.Format = FEIND::CINDER;
       nGroups = 63;
       lib.Args[0] = arg1;
       lib.Args.push_back(arg2);
@@ -53,10 +53,10 @@ FEINDLib::FEINDLib(char* arg0, char* arg1, char* arg2, int setType)
     break;
     default: 
     cerr << "*** ERROR LOADING NUCLEAR LIBRARY...\n"
-	 << "Unknown nuclear data format \"" << format_str
+	 << "Unknown nuclear data format \"" << arg0
 	 << "\" encountered."
 	 << "\n\nABORTING\n\n";
-    assert(0);
+    exit(0);
 
   }
 
@@ -67,16 +67,16 @@ void FEINDLib::readData(int parent, NuclearData* data)
 {
   int checkKza, nRxns=0;
   float thalf = 0, E[3] = {0,0,0};
-  int *daugKza = NULL;
+  int *daughKza = NULL;
   char **emitted = NULL;
   float **xSection = NULL, *totalXSect=NULL;
   int rxnNum, emittedLen, numNZGrps, gNum;
   float bRatio;
-  float decayConst = FEIND::GetDecayConstant(parent);
-  thalf = log(2)/decayConst;
+  float decayConst = FEIND::Library.GetDecayConstant(parent);
+  thalf = log(2.0)/decayConst;
 
 
-  vector<int> daughterVec = FEIND::Daughters(parent);
+  vector<int> daughterVec = FEIND::Library.Daughters(parent);
 
   nRxns = daughterVec.size();
   daughKza = new int[nRxns];
@@ -100,31 +100,30 @@ void FEINDLib::readData(int parent, NuclearData* data)
    //Create xSection[rxnNum] with a size of nGroups+1  
     xSection[rxnNum] = new float[nGroups+1];
     
-    FEIND::XSec csc = FEIND::GetDCs(parent, daughterVec[rxnNum], FEIND::TOTAL_CS);
+    FEIND::XSec csc = FEIND::Library.GetDCs(parent, daughterVec[rxnNum], FEIND::TOTAL_CS);
     for (gNum = 0; gNum < nGroups; gNum++)
-      xSection[gNum] = csc[gNum];
+      *xSection[gNum] = csc[gNum];
 
-    bRatio = FEIND::GetBratio(parent, daughterVec[rxnNum];
+    bRatio = FEIND::Library.GetBratio(parent, daughterVec[rxnNum]);
   
-    xSection[nGroups] = bRatio*decayConst;
+    *xSection[nGroups] = bRatio*decayConst;
 
-    //HAVE TO WORK ON totalXSect
     totalXSect = new float[nGroups+1];
 
-    FEIND::XSec tCsc = FEIND::GetPCs(parent, FEIND::TOTAL_CS);
+    FEIND::XSec tCsc = FEIND::Library.GetPCs(parent, FEIND::TOTAL_CS);
     for (gNum = 0; gNum < nGroups; gNum++)
       totalXSect[gNum] = tCsc[gNum];
      
-    totalXSec[nGroups] = decayConst;
+    totalXSect[nGroups] = decayConst;
 			      
   }  
 
   
-  E[0] = FEIND::GetDecayEnergy(parent, LIGHT_PARTICLES); 
-  E[1] = FEIND::GetDecayEnergy(parent, EM_RADIATION);
-  E[2] = FEIND::GetDecayEnergy(parent, HEAVY_PARTICLES);
+  E[0] = FEIND::Library.GetDecayEnergy(parent, FEIND::LIGHT_PARTICLES); 
+  E[1] = FEIND::Library.GetDecayEnergy(parent, FEIND::EM_RADIATION);
+  E[2] = FEIND::Library.GetDecayEnergy(parent, FEIND::HEAVY_PARTICLES);
 
-  data->setData(nRxns,E,daugKza,emitted,xSection,thalf,totalXSect);
+  data->setData(nRxns,E,daughKza,emitted,xSection,thalf,totalXSect);
 
   for (rxnNum=0;rxnNum<nRxns;rxnNum++)
     {
@@ -133,17 +132,17 @@ void FEINDLib::readData(int parent, NuclearData* data)
     }
   delete xSection;
   delete emitted;
-  delete daugKza;
+  delete daughKza;
   delete totalXSect;
 
   xSection = NULL;
   emitted = NULL;
-  daugKza = NULL;
+  daughKza = NULL;
   totalXSect = NULL;
 
 }
 
-void FEINDLib::readGammaData(int parent, GammSrc* gsrc)
+void FEINDLib::readGammaData(int parent, GammaSrc* gsrc)
 {
 
 
