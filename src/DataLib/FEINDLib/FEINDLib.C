@@ -1,7 +1,7 @@
 #include "FEINDLib.h"
 #include <math.h>
 
-FEINDLib::FEINDLib(vector<string> libArg,int setType)
+FEINDLib::FEINDLib(char* arg0, char* arg1, char* arg2, int setType)
   : DataLib(setType)
 {
   FEIND::LibDefine lib;
@@ -9,9 +9,9 @@ FEINDLib::FEINDLib(vector<string> libArg,int setType)
 
   int libCase = -9;
 
-  if (libArg[0] == "EAF")
+  if (arg0 == "EAF")
     libCase = 1;
-  else if (libArg[0] == "CINDER")
+  else if (arg0 == "CINDER")
     libCase = 2;
 
   switch (libCase)
@@ -19,7 +19,7 @@ FEINDLib::FEINDLib(vector<string> libArg,int setType)
     case 1:
       //Load decay library
       lib.format = FEIND::DECAY_ENDF_6;
-      lib.Args[0] = libArg[1];
+      lib.Args[0] = arg1;
       //*** LOAD THE LIBRARY ***//
       try{
         FEIND::LoadLibrary(lib);
@@ -30,7 +30,7 @@ FEINDLib::FEINDLib(vector<string> libArg,int setType)
       //Load activation library
       lib.format = FEIND::EAF_4_1;
       nGroups = 175;
-      lib.Args[0] = libArg[2];
+      lib.Args[0] = arg2;
       //*** LOAD THE LIBRARY ***//
       try{
         FEIND::LoadLibrary(lib);
@@ -41,8 +41,8 @@ FEINDLib::FEINDLib(vector<string> libArg,int setType)
     case 2:
       lib.format = FEIND::CINDER;
       nGroups = 63;
-      lib.Args[0] = libArg[1];
-      lib.Args.push_back(libArg[2]);
+      lib.Args[0] = arg1;
+      lib.Args.push_back(arg2);
 
       //*** LOAD THE LIBRARY ***//
       try{

@@ -1,4 +1,4 @@
-/* $Id: DataLib.C,v 1.9 2006-01-16 19:11:51 phruksar Exp $ */
+/* $Id: DataLib.C,v 1.10 2006-01-17 17:55:55 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -8,6 +8,7 @@
 
 #include "DataLib.h"
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -16,7 +17,7 @@ using namespace std;
 #include "ASCIILib/IEAFLib/IEAFLib.h"
 #include "ALARALib/ALARALib.h"
 #include "ALARALib/ADJLib.h"
-
+#include "FEINDLib/FEINDLib.h"
 
 const char *libTypes =  "\
 null  \
@@ -81,9 +82,11 @@ DataLib* DataLib::newLib(char* libType, istream& input)
 	      dl->nParents,dl->nGroups);
       break;
     case DATALIB_FEIND:
-      vector<string> libArg(3);
-      input >> libArg[0] >> libArg[1] >> libArg[2];
-      dl = new FEINDLib(libArg, type);
+      char arg0[256];
+      char arg1[256];
+      char arg2[256];
+      input >> arg0 >> arg1 >> arg2;
+      dl = new FEINDLib(arg0,arg1,arg2, type);
       verbose(3,"Openned FEIND library with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);      
       break;
