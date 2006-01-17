@@ -53,6 +53,9 @@ AC_CONFIG_FILES([Makefile
                  src/Calc/Makefile
                  src/Chains/Makefile
                  src/DataLib/ALARALib/Makefile
+                 src/DataLib/FEINDLib/FEIND/exception/Makefile
+                 src/DataLib/FEINDLib/FEIND/Makefile
+                 src/DataLib/FEINDLib/Makefile
                  src/DataLib/ASCIILib/EAFLib/Makefile
                  src/DataLib/ASCIILib/IEAFLib/Makefile
                  src/DataLib/ASCIILib/Makefile
