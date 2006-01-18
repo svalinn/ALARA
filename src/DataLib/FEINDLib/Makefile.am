@@ -1,0 +1,12 @@
+#AM_INCLUDES = -IFEIND/ -I../
+AM_LDFLAGS = $(top_srcdir)/src/DataLib/FEINDLib/FEIND/FEIND.a
+
+AM_CPPFLAGS = -I$(top_srcdir)/src
+
+noinst_LIBRARIES = libFEINDLib.a
+
+libFEINDLib_a_SOURCES = FEINDLib.C
+noinst_HEADERS = FEINDLib.h
+libFEINDLib_a_LIBADD = FEIND/FEIND.a
+
+SUBDIRS = FEIND
