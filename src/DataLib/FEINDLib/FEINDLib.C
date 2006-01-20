@@ -9,9 +9,9 @@ FEINDLib::FEINDLib(char* arg0, char* arg1, char* arg2, int setType)
 
   int libCase = -9;
 
-  if (arg0 == "EAF")
+  if (strcmp(arg0,"EAF")==0)
     libCase = 1;
-  else if (arg0 == "CINDER")
+  else if (strcmp(arg0,"CINDER")==0)
     libCase = 2;
 
   switch (libCase)
@@ -87,8 +87,7 @@ void FEINDLib::readData(int parent, NuclearData* data)
 
   for (rxnNum = 0; rxnNum < nRxns; rxnNum++)
   {
-    *daughKza = daughterVec[rxnNum];
-    daughKza++;
+    daughKza[rxnNum] = daughterVec[rxnNum];
 
     //Create emitted[rxnNum]. Currently, FEIND cannot handle types of reaction.
     emitted[rxnNum] = new char[3+1];
@@ -102,19 +101,12 @@ void FEINDLib::readData(int parent, NuclearData* data)
     
     FEIND::XSec csc = FEIND::Library.GetDCs(parent, daughterVec[rxnNum], FEIND::TOTAL_CS);
     for (gNum = 0; gNum < nGroups; gNum++)
-      *xSection[gNum] = csc[gNum];
+      xSection[rxnNum][gNum] = csc[gNum];
 
     bRatio = FEIND::Library.GetBratio(parent, daughterVec[rxnNum]);
   
-    *xSection[nGroups] = bRatio*decayConst;
+    xSection[rxnNum][nGroups] = bRatio*decayConst;
 
-    totalXSect = new float[nGroups+1];
-
-    FEIND::XSec tCsc = FEIND::Library.GetPCs(parent, FEIND::TOTAL_CS);
-    for (gNum = 0; gNum < nGroups; gNum++)
-      totalXSect[gNum] = tCsc[gNum];
-     
-    totalXSect[nGroups] = decayConst;
 			      
   }  
 
@@ -133,12 +125,10 @@ void FEINDLib::readData(int parent, NuclearData* data)
   delete xSection;
   delete emitted;
   delete daughKza;
-  delete totalXSect;
 
   xSection = NULL;
   emitted = NULL;
   daughKza = NULL;
-  totalXSect = NULL;
 
 }
 
