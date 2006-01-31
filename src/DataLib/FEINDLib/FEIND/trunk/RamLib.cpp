@@ -130,6 +130,17 @@ void RamLib::AddPath(const Kza parent, const Kza daughter, const Path& path)
   Data[parent].Daughters[daughter].PathList.push_back(path);
 }
 
+vector<Path> RamLib::GetPaths(const Kza parent, const Kza daughter)
+{
+  map<Kza,Parent>::iterator p_iter = Data.find(parent);
+  if(p_iter == Data.end()) return vector<Path>();
+
+  map<Kza,Daughter>::iterator d_iter = p_iter->second.Daughters.find(daughter);
+  if(d_iter == p_iter->second.Daughters.end()) return vector<Path>();
+
+  return Data[parent].Daughters[daughter].PathList;
+}
+
 void RamLib::AddDecayConstant(Kza parent, const double constant)
 {
   Data[parent].DecayConstant = constant;
@@ -396,13 +407,16 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
 	ex.AddToDetailed(ss.str());
 	throw;
       }
-      
+    }
+
+  if( fission_cs || sfbr )
+    {
       // Add the fission daughter to the daughter list...
 
       if(ft == NO_FISSION) total_lambda += fission_sigphi;
 
       daughters.push_back(FISSION_DAUGHTER);
-      dLambdas.push_back(fission_sigphi);
+      dLambdas.push_back(fission_sigphi + sfbr);
     }
 
   for(i = 0; i < daughters.size(); i++)
@@ -428,7 +442,7 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
 
       // Make sure to handle spontaneous fission, which is NOT included in the
       // normal decay branching ratios..
-      if(sfbr > 0.0 && 
+      if(sfbr > 0.0 && ft != NO_FISSION &&
 	 (sfyield = GetFissionYield(parent,daughters[i],FISSION_SF)))
 	dLambdas[i] += sfbr*decay_constant*sfyield;
 

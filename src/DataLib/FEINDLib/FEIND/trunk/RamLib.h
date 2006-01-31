@@ -63,6 +63,7 @@ class FEIND::RamLib
   void AddPath(const Kza parent, const Kza daughter, const Path& path);
 
   
+  std::vector<Path> GetPaths(const Kza parent, const Kza daughter);
 
   //**************************//
   //*** GET/SET DECAY DATA ***//
