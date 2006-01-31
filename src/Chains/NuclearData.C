@@ -1,4 +1,4 @@
-/* $Id: NuclearData.C,v 1.15 2003-01-13 04:34:52 fateneja Exp $ */
+/* $Id: NuclearData.C,v 1.16 2006-01-31 21:40:30 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -361,7 +361,7 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
     paths[nPaths][gNum] = 0;
 
   /* if we are passed a total xsection (we must be in reverse mode) */
-  if (totalXSection != NULL)
+  if (NuclearData::mode == MODE_REVERSE)
     {  
       delete single;
       single = NULL;
@@ -381,28 +381,62 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
     D[nGroups] = 0;
 
   /* setup each reaction */
-  for (rxnNum=0;rxnNum<nPaths;rxnNum++)
+  if ( (NuclearData::mode == MODE_REVERSE) || (totalXSection == NULL) )
+    for (rxnNum=0;rxnNum<nPaths;rxnNum++)
+      {
+        debug(4,"Copying reaction %d with %d groups.",rxnNum,nGroups+1);
+        relations[rxnNum] = daugKza[rxnNum];
+        /* log location of total reaction */
+        if (daugKza[rxnNum] == 0)
+	  totalRxnNum = rxnNum;
+        emitted[rxnNum] = new char[strlen(emissions[rxnNum])+1];
+        memCheck(emitted[rxnNum],"NuclearData::setData(...) : emitted[n]");
+        strcpy(emitted[rxnNum],emissions[rxnNum]);
+
+        paths[rxnNum] = new double[nGroups+1];
+        memCheck(paths[rxnNum],"NuclearData::setData(...) : paths[n]");
+
+        for (gNum=0;gNum<nGroups;gNum++)
+	  {
+	    paths[rxnNum][gNum] = xSection[rxnNum][gNum]*1e-24;
+	    if (strcmp(emitted[rxnNum],"x"))
+	      paths[nPaths][gNum] += paths[rxnNum][gNum];
+	  }
+        paths[rxnNum][nGroups] = xSection[rxnNum][nGroups];
+      }
+  else
     {
-      debug(4,"Copying reaction %d with %d groups.",rxnNum,nGroups+1);
-      relations[rxnNum] = daugKza[rxnNum];
-      /* log location of total reaction */
-      if (daugKza[rxnNum] == 0)
-	totalRxnNum = rxnNum;
-      emitted[rxnNum] = new char[strlen(emissions[rxnNum])+1];
-      memCheck(emitted[rxnNum],"NuclearData::setData(...) : emitted[n]");
-      strcpy(emitted[rxnNum],emissions[rxnNum]);
+    for (rxnNum=0;rxnNum<nPaths;rxnNum++)
+      {
+        debug(4,"Copying reaction %d with %d groups.",rxnNum,nGroups+1);
+        relations[rxnNum] = daugKza[rxnNum];
+        /* log location of total reaction */
+        if (daugKza[rxnNum] == 0)
+	  totalRxnNum = rxnNum;
+        emitted[rxnNum] = new char[strlen(emissions[rxnNum])+1];
+        memCheck(emitted[rxnNum],"NuclearData::setData(...) : emitted[n]");
+        strcpy(emitted[rxnNum],emissions[rxnNum]);
 
-      paths[rxnNum] = new double[nGroups+1];
-      memCheck(paths[rxnNum],"NuclearData::setData(...) : paths[n]");
+        paths[rxnNum] = new double[nGroups+1];
+        memCheck(paths[rxnNum],"NuclearData::setData(...) : paths[n]");
 
-      for (gNum=0;gNum<nGroups;gNum++)
-	{
-	  paths[rxnNum][gNum] = xSection[rxnNum][gNum]*1e-24;
-	  if (strcmp(emitted[rxnNum],"x"))
-	    paths[nPaths][gNum] += paths[rxnNum][gNum];
-	}
-      paths[rxnNum][nGroups] = xSection[rxnNum][nGroups];
+        for (gNum=0;gNum<nGroups;gNum++)
+	  {
+	    paths[rxnNum][gNum] = xSection[rxnNum][gNum]*1e-24;
+// 	    if (strcmp(emitted[rxnNum],"x"))
+// 	      paths[nPaths][gNum] += paths[rxnNum][gNum];
+	  }
+        paths[rxnNum][nGroups] = xSection[rxnNum][nGroups];
+      }
+
+      //Initialize path[nPaths] with totalXSection
+      for (gNum=0; gNum<nGroups;gNum++)
+        paths[nPaths][gNum] = totalXSection[gNum]*1e-24;
+
+      paths[nPaths][nGroups] = totalXSection[nGroups];
     }
+       
+
 
   if (totalRxnNum>-1)
     {
