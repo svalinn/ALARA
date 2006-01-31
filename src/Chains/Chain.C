@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.21 2003-12-01 20:25:18 wilsonp Exp $ */
+/* $Id: Chain.C,v 1.22 2006-01-31 21:37:35 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -459,6 +459,8 @@ void Chain::collapseRates(VolFlux* flux)
 	  nodePtr = nodePtr->getNext();
 	}
       
+      debug(5,"collapsed rates P[last] and d[last]: %12.5e, %12.5e",P[chainLength-1],d[chainLength-1]);
+
       /* in forward mode, don't destroy bottom isotope */
       if (solvingRef)
 	d[fluxNum*chainLength+chainLength-1] = 0;

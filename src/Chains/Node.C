@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.26 2003-10-28 22:11:35 wilsonp Exp $ */
+/* $Id: Node.C,v 1.27 2006-01-31 21:39:29 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -34,11 +34,11 @@ DataCache Node::wdrCache;
           constructors are used for the base class. */
 Node::Node(char *isoName)
 {
-  debug(4,"Making new Node: %s.",isoName);
 
   kza = 0;
   if (isoName != NULL)
     {
+      debug(4,"Making new Node: %s.",isoName);
       char cpyName[8], sym[5];
       strcpy(cpyName,isoName);
       
