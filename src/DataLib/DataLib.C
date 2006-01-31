@@ -1,4 +1,4 @@
-/* $Id: DataLib.C,v 1.10 2006-01-17 17:55:55 phruksar Exp $ */
+/* $Id: DataLib.C,v 1.11 2006-01-31 21:41:02 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -29,7 +29,7 @@ gamma \
 ieaf  \
 feind ";
 
-const int libTypeLength = 7;
+const int libTypeLength = 6;
 
 const char *libTypeStr[] = {
   "an unspecified",
