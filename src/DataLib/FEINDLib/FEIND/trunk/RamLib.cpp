@@ -416,7 +416,7 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
       if(ft == NO_FISSION) total_lambda += fission_sigphi;
 
       daughters.push_back(FISSION_DAUGHTER);
-      dLambdas.push_back(fission_sigphi + sfbr);
+      dLambdas.push_back(fission_sigphi + sfbr*decay_constant);
     }
 
   for(i = 0; i < daughters.size(); i++)
