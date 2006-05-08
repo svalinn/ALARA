@@ -620,11 +620,20 @@ double RamLib::ProdRates(Kza daughter, const vector<double>& flux,
 void RamLib::GetFissionYield(Kza parent, vector<Kza>& daughters, 
 			     vector<double>& yields, FissionType ft)
 {
-  daughters = Daughters(parent);
-  yields.assign(daughters.size(), 0.0);
+  vector<Kza> all_daughters = Daughters(parent);
+  double y;
 
-  for(unsigned i = 0; i < daughters.size(); i++)
+  daughters.clear();
+  yields.clear();
+
+  for(unsigned i = 0; i < all_daughters.size(); i++)
     {
-      yields[i] = GetFissionYield(parent, daughters[i], ft);
+      y = GetFissionYield(parent, all_daughters[i], ft);
+
+      if(y != 0.0)
+	{
+	  daughters.push_back( all_daughters[i] );
+	  yields.push_back( y );
+	}
     }
 }
