@@ -1,4 +1,4 @@
-#$Id: Makefile.am,v 1.12 2005-04-06 03:05:22 wilsonp Exp $
+#$Id: Makefile.am,v 1.13 2006-06-26 16:40:03 wilsonp Exp $
 
 include $(top_srcdir)/Makefile.h
 
@@ -8,7 +8,8 @@ dist_nonxs_DATA = ANS6_4_3.txt Data_list.txt elelib.std matlib.sample			\
           FetterC_hi.Ci_m3.wdr	FetterC_lo.Ci_m3.wdr NRCA.Ci_m3.wdr NRCC.Ci_m3.wdr	\
           IAEA.clearance.old.Bq_kg NRC.clearance.old.Bq_kg EU.clearance.old.Bq_kg	\
           EU.clearance.2000.Bq_kg IAEA.clearance.2004.Bq_kg                             \
-          NRC.clearance.steel.2003.Bq_kg NRC.clearance.concrete.2003.Bq_kg
+          NRC.clearance.steel.2003.Bq_kg NRC.clearance.concrete.2003.Bq_kg              \
+          NRC.clearance.copper.2003.Bq_kg
 
 
 # create symbolic links to easily remebered filenames
@@ -33,6 +34,9 @@ install-data-hook:
 	rm -f NRC.clearance.concrete.Bq_kg; ln -sf NRC.clearance.concrete.2003.Bq_kg NRC.clearance.concrete.Bq_kg; \
 	rm -f NRC.clearance.concrete; ln -sf NRC.clearance.concrete.Bq_kg NRC.clearance.concrete; \
 	rm -f NRC_clearance_concrete; ln -sf NRC.clearance.concrete.Bq_kg NRC_clearance_concrete
+	rm -f NRC.clearance.copper.Bq_kg; ln -sf NRC.clearance.copper.2003.Bq_kg NRC.clearance.copper.Bq_kg; \
+	rm -f NRC.clearance.copper; ln -sf NRC.clearance.copper.Bq_kg NRC.clearance.copper; \
+	rm -f NRC_clearance_copper; ln -sf NRC.clearance.copper.Bq_kg NRC_clearance_copper
 
 
 install-exec-hook:

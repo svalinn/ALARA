@@ -1,4 +1,16 @@
-$Id: NEWS,v 1.17 2005-08-01 22:16:12 wilsonp Exp $
+$Id: NEWS,v 1.18 2006-06-26 16:40:03 wilsonp Exp $
+
+Version x.x.x
+
+BUGS FIXED
+
+NEW FEATURES
+	* added clearance indices for Copper from US-NRC [PW]
+ 	  (06/26/06)
+
+CODE UPDATES
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
 Version 2.7.7
 
