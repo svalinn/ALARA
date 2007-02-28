@@ -42,7 +42,8 @@ FEINDLib::FEINDLib(char* arg0, char* arg1, char* arg2, int setType)
       lib.Format = FEIND::CINDER;
       nGroups = 63;
       lib.Args[0] = arg1;
-      lib.Args.push_back("noyields");
+      initFissionType(arg2);
+      //lib.Args.push_back("noyields");
 
       //*** LOAD THE LIBRARY ***//
       try{
@@ -71,11 +72,20 @@ void FEINDLib::readData(int parent, NuclearData* data)
   char **emitted = NULL;
   float **xSection = NULL, *totalXSect = NULL;
   int rxnNum, emittedLen, numNZGrps, gNum;
+  double fy,sfy;
   float bRatio;
   float decayConst = FEIND::Library.GetDecayConstant(parent);
   thalf = log(2.0)/decayConst;
 
+  double sfbr = FEIND::Library.GetSfbr(parent);
+  FEIND::XSec fission_xs = FEIND::Library.GetPCs(parent,FEIND::NEUTRON_FISSION_CS);
+
   vector<int> daughterVec = FEIND::Library.Daughters(parent);
+
+  bool check = 0;
+  check = (parent == -10);
+//   if (!check)
+//     check = (parent == 501220); 
 
   nRxns = daughterVec.size();
 
@@ -113,6 +123,19 @@ void FEINDLib::readData(int parent, NuclearData* data)
 
   totalXSect[nGroups] = decayConst;
 
+
+  if (check)
+    {
+      cout << parent << "  DECAY Const  = " << decayConst << endl;
+      cout << "Daughter size = " << daughterVec.size() << endl;
+          
+    cout << "Total - Sn-122\n";
+    for (int idx=0; idx < nGroups+1; idx++)
+      cout << totalXSect[idx] << endl;
+    
+    }
+
+
   for (rxnNum = 0; rxnNum < nRxns; rxnNum++)
   {
     daughKza[rxnNum] = daughterVec[rxnNum];
@@ -129,6 +152,8 @@ void FEINDLib::readData(int parent, NuclearData* data)
  
     FEIND::XSec csc = FEIND::Library.GetDCs(parent, daughterVec[rxnNum], FEIND::TOTAL_CS);
    
+    //Modify csc if this parent-daughterVec[rxnNum] path is a fission path.
+    //If fission yield does not exist, fy will be zero.    
     try{
 
       if(csc)
@@ -145,17 +170,46 @@ void FEINDLib::readData(int parent, NuclearData* data)
 	      xSection[rxnNum][gNum] =  0.0; 
 	    }
 	}
+  
+      xSection[rxnNum][nGroups] = 0.0;
 
     } catch(FEIND::Exception& ex)
       {
 	ex.Abort();
       }
 
+    fy = FEIND::Library.GetFissionYield(parent,daughterVec[rxnNum], fissionType);
 
-    bRatio = FEIND::Library.GetBratio(parent, daughterVec[rxnNum]);
-  
-    xSection[rxnNum][nGroups] = bRatio*decayConst;
-    
+    if (fy != 0)
+     {     
+       for (gNum = 0; gNum < nGroups; gNum++)
+         xSection[rxnNum][gNum] += fy*fission_xs[gNum];                
+     }
+
+    if (decayConst != 0)
+    {
+      if (sfbr != 0 )
+      {
+        //Check for spontaneous fission
+        sfy = FEIND::Library.GetFissionYield(parent,daughterVec[rxnNum], FEIND::FISSION_SF);  
+        xSection[rxnNum][nGroups] = decayConst*sfy*sfbr;
+      }
+      else 
+      {  
+        bRatio = FEIND::Library.GetBratio(parent, daughterVec[rxnNum]);  
+        xSection[rxnNum][nGroups] = bRatio*decayConst;
+      }
+    }
+
+//     if ((check))
+//     { 
+//       cout << "Daughter = " << daughterVec[rxnNum] << endl;
+//       cout << "Fission Yield = " << fy << endl;
+//       for (int idx = 0; idx < nGroups+1; idx++)
+//         cout << "Group " << idx << "\t" << xSection[rxnNum][idx] << endl;
+//     }
+
+        
   }  
   
   E[0] = FEIND::Library.GetDecayEnergy(parent, FEIND::LIGHT_PARTICLES); 
@@ -185,5 +239,21 @@ void FEINDLib::readData(int parent, NuclearData* data)
 void FEINDLib::readGammaData(int parent, GammaSrc* gsrc)
 {
 
+
+}
+
+void FEINDLib::initFissionType(char* arg2)
+{
+
+  if (strcmp(arg2,"NO_FISSION")==0)
+    fissionType = NO_FISSION;
+  else if (strcmp(arg2,"FAST")==0)
+    fissionType = FAST;
+  else if (strcmp(arg2,"THERMAL")==0)
+    fissionType = THERMAL;
+  else if (strcmp(arg2,"HOT")==0)
+    fissionType = HOT;
+  else if (strcmp(arg2,"SF")==0)
+    fissionType = SF;  
 
 }

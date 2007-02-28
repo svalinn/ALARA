@@ -9,6 +9,8 @@
 
 using namespace std;
 
+enum FissionType {NO_FISSION, FAST, THERMAL, HOT, SF};
+
 class FEINDLib : public DataLib
 { 
  public:
@@ -16,6 +18,11 @@ class FEINDLib : public DataLib
 
   void readData(int, NuclearData*);
   void readGammaData(int, GammaSrc*);
+
+ private:
+  FissionType fissionType;
+  void initFissionType(char* arg2);
+
 };
 
 #endif

@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.22 2006-01-31 21:37:35 phruksar Exp $ */
+/* $Id: Chain.C,v 1.23 2007-02-28 23:25:24 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -468,6 +468,17 @@ void Chain::collapseRates(VolFlux* flux)
      fluxNum++;
      flux = flux->advance();
     }
+
+//   if ( node->getKza() == 501220)
+//     {
+//       cout << "\tsn-122\t Size = " << chainLength << endl;
+//       for (int i = 0; i < chainLength; i++)
+// 	cout << "\t" << P[i] << "\t" << L[i] << "\t" << d[i] << "\t" << l[i] << endl;
+      
+//       cout << endl;
+//     }
+
+
 }
 
 /* set the decay matrices, based on chain parameters */
@@ -523,7 +534,7 @@ void Chain::setDecay(Matrix& D, double time)
   delete D.data;
   D.data = data;
   D.size = chainLength;
-  
+
 }
 
 /* function to fill a basic transfer matrix */

@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.27 2006-01-31 21:39:29 phruksar Exp $ */
+/* $Id: Node.C,v 1.28 2007-02-28 23:25:37 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -134,7 +134,7 @@ double Node::getLambda(int setKza)
       else
 	lambdaCache[kza] = 0;
     }
-  
+
   return lambdaCache[setKza];
 }
 
