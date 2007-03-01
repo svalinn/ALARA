@@ -1,4 +1,4 @@
-/* $Id: math.C,v 1.16 2002-01-07 22:00:48 wilsonp Exp $ */
+/* $Id: math.C,v 1.17 2007-03-01 15:53:22 phruksar Exp $ */
 #include "alara.h"
 #include "Matrix.h"
 
@@ -48,6 +48,15 @@ double fact(int i)
 
 double bateman(int row, int col, double* d, double t, int& finitePositive)
 {
+  //A short-term solution to a loop problem is to bypass a Bateman method.
+  ////////
+//   double sum_la = laplaceExpansion(row, col, d, t, finitePositive);
+//   if (finitePositive)
+//     return sum_la;
+//   else
+    return laplaceInverse(row, col, d, t, finitePositive);
+  ////////
+
   double sum, sumInc, den;
   int term, denTerm;
 
