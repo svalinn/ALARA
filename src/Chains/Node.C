@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.28 2007-02-28 23:25:37 phruksar Exp $ */
+/* $Id: Node.C,v 1.29 2007-03-09 16:43:46 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -522,7 +522,7 @@ int Node::findLoop()
 
   while (nodePtr != NULL)
     {
-      if (nodePtr->kza == kza)
+      if ( (nodePtr->kza == kza) || (lambdaCache[nodePtr->kza] == lambdaCache[kza]) )
 	return nodePtr->rank;
       nodePtr = nodePtr->prev;
     }
