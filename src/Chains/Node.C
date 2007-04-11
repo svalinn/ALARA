@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.29 2007-03-09 16:43:46 phruksar Exp $ */
+/* $Id: Node.C,v 1.30 2007-04-11 19:48:17 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -124,11 +124,12 @@ void Node::readData()
 
 double Node::getLambda(int setKza)
 {
+
   if (!lambdaCache.count(setKza))
     {
       kza = setKza;
       readData();
-      
+    
       if (nPaths>0 && D[nGroups]>0)
 	lambdaCache[kza] = D[nGroups];
       else
@@ -137,6 +138,7 @@ double Node::getLambda(int setKza)
 
   return lambdaCache[setKza];
 }
+
 
 double Node::getHeat(int setKza)
 {
@@ -519,11 +521,19 @@ Node* Node::retract()
 int Node::findLoop()
 {
   Node* nodePtr = prev;
+  
+  //Get decay constant for the current node object
+  double l = D[nGroups];
 
+  double other_l;
   while (nodePtr != NULL)
     {
-      if ( (nodePtr->kza == kza) || (lambdaCache[nodePtr->kza] == lambdaCache[kza]) )
+      //Get decay constant for nodePtr object
+      other_l = nodePtr->D[nGroups];
+     
+      if ( (nodePtr->kza == kza) || (l == other_l) )
 	return nodePtr->rank;
+	  
       nodePtr = nodePtr->prev;
     }
 
