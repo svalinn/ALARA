@@ -82,11 +82,6 @@ void FEINDLib::readData(int parent, NuclearData* data)
 
   vector<int> daughterVec = FEIND::Library.Daughters(parent);
 
-  bool check = 0;
-  check = (parent == -10);
-//   if (!check)
-//     check = (parent == 501220); 
-
   nRxns = daughterVec.size();
 
   daughKza = new int[nRxns];
@@ -122,19 +117,6 @@ void FEINDLib::readData(int parent, NuclearData* data)
       }
 
   totalXSect[nGroups] = decayConst;
-
-
-  if (check)
-    {
-      cout << parent << "  DECAY Const  = " << decayConst << endl;
-      cout << "Daughter size = " << daughterVec.size() << endl;
-          
-    cout << "Total - Sn-122\n";
-    for (int idx=0; idx < nGroups+1; idx++)
-      cout << totalXSect[idx] << endl;
-    
-    }
-
 
   for (rxnNum = 0; rxnNum < nRxns; rxnNum++)
   {
@@ -201,16 +183,8 @@ void FEINDLib::readData(int parent, NuclearData* data)
       }
     }
 
-//     if ((check))
-//     { 
-//       cout << "Daughter = " << daughterVec[rxnNum] << endl;
-//       cout << "Fission Yield = " << fy << endl;
-//       for (int idx = 0; idx < nGroups+1; idx++)
-//         cout << "Group " << idx << "\t" << xSection[rxnNum][idx] << endl;
-//     }
 
-        
-  }  
+  }
   
   E[0] = FEIND::Library.GetDecayEnergy(parent, FEIND::LIGHT_PARTICLES); 
   E[1] = FEIND::Library.GetDecayEnergy(parent, FEIND::EM_RADIATION);
@@ -238,8 +212,7 @@ void FEINDLib::readData(int parent, NuclearData* data)
 
 void FEINDLib::readGammaData(int parent, GammaSrc* gsrc)
 {
-
-
+  
 }
 
 void FEINDLib::initFissionType(char* arg2)
@@ -257,3 +230,4 @@ void FEINDLib::initFissionType(char* arg2)
     fissionType = SF;  
 
 }
+
