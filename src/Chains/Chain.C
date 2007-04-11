@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.23 2007-02-28 23:25:24 phruksar Exp $ */
+/* $Id: Chain.C,v 1.24 2007-04-11 19:47:04 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -141,7 +141,7 @@ Chain::~Chain()
   delete rates; 
   delete colRates; 
   delete reference;
-  root->cleanUp();
+  root->cleanUp(); 
 };
 
 /** The correct implementation of this operator must ensure that
@@ -468,16 +468,6 @@ void Chain::collapseRates(VolFlux* flux)
      fluxNum++;
      flux = flux->advance();
     }
-
-//   if ( node->getKza() == 501220)
-//     {
-//       cout << "\tsn-122\t Size = " << chainLength << endl;
-//       for (int i = 0; i < chainLength; i++)
-// 	cout << "\t" << P[i] << "\t" << L[i] << "\t" << d[i] << "\t" << l[i] << endl;
-      
-//       cout << endl;
-//     }
-
 
 }
 
