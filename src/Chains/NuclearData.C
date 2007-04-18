@@ -1,4 +1,4 @@
-/* $Id: NuclearData.C,v 1.16 2006-01-31 21:40:30 phruksar Exp $ */
+/* $Id: NuclearData.C,v 1.17 2007-04-18 19:29:32 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -361,7 +361,7 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
     paths[nPaths][gNum] = 0;
 
   /* if we are passed a total xsection (we must be in reverse mode) */
-  if (NuclearData::mode == MODE_REVERSE)
+  if ( (NuclearData::mode == MODE_REVERSE) && (totalXSection != NULL) )
     {  
       delete single;
       single = NULL;
