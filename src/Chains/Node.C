@@ -1,4 +1,4 @@
-/* $Id: Node.C,v 1.30 2007-04-11 19:48:17 phruksar Exp $ */
+/* $Id: Node.C,v 1.31 2007-04-18 14:21:29 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -40,9 +40,18 @@ Node::Node(char *isoName)
     {
       debug(4,"Making new Node: %s.",isoName);
       char cpyName[8], sym[5];
+      int isoFlag=0;
       strcpy(cpyName,isoName);
       
-      char *strPtr = strchr(cpyName,'-');
+      /* strip isomeric flag */
+      char *strPtr = cpyName + strlen(cpyName) - 1;
+      if(isalpha(*strPtr))
+	{
+	  isoFlag = (*strPtr) - 'l';
+	  *strPtr = '\0';
+	}
+
+      strPtr = strchr(cpyName,'-');
       
       int A = atoi(strPtr+1);
       *strPtr = '\0';
@@ -53,7 +62,7 @@ Node::Node(char *isoName)
 
       int Z = (strstr(SYMBOLS,sym)-SYMBOLS)/3 + 1;
       
-      kza = (Z*1000+A)*10;
+      kza = (Z*1000+A)*10 + isoFlag;
     }
 }
 
