@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(ALARA,2.7.7,wilsonp@engr.wisc.edu)
+AC_INIT(ALARA,2.7.9,wilsonp@engr.wisc.edu)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([src/alara.C])
 AM_INIT_AUTOMAKE
@@ -53,7 +53,6 @@ AC_CONFIG_FILES([Makefile
                  src/Calc/Makefile
                  src/Chains/Makefile
                  src/DataLib/ALARALib/Makefile
-                 src/DataLib/FEINDLib/FEIND/exception/Makefile
                  src/DataLib/FEINDLib/FEIND/Makefile
                  src/DataLib/FEINDLib/Makefile
                  src/DataLib/ASCIILib/EAFLib/Makefile
