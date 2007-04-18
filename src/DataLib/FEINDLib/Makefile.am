@@ -1,6 +1,3 @@
-#AM_INCLUDES = -IFEIND/ -I../
-AM_LDFLAGS = $(top_srcdir)/src/DataLib/FEINDLib/FEIND/libFEIND.a
-
 AM_CPPFLAGS = -I$(top_srcdir)/src
 
 noinst_LIBRARIES = libFEINDLib.a
