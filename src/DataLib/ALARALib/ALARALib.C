@@ -1,4 +1,4 @@
-/* $Id: ALARALib.C,v 1.14 2003-10-28 22:11:36 wilsonp Exp $ */
+/* $Id: ALARALib.C,v 1.15 2007-04-18 14:06:38 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Lib: functions directly related to library handling
@@ -61,7 +61,8 @@ ALARALib::ALARALib(const ALARALib& a) : DataLib(a)
 ALARALib::~ALARALib()
 {
 
-  fclose(binLib);
+  if (binLib != NULL)
+    fclose(binLib);
   delete idx;
 }
 
@@ -411,6 +412,8 @@ void ALARALib::close(int readNParents, int libType, char *idxName)
 
   /* close library */
   fclose(binLib);
+  /* assume fclose works - probably should test return value! */
+  binLib = NULL;
 
 }
 
