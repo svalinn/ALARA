@@ -1,4 +1,4 @@
-/* $Id: NuclearData.C,v 1.17 2007-04-18 19:29:32 phruksar Exp $ */
+/* $Id: NuclearData.C,v 1.18 2007-04-19 19:38:15 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -375,13 +375,14 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
   else
     D = paths[nPaths];
 
+  //For FEINDLib, a value of thalf is "inf" for a stable isotope. D[nGroups] will be re-initialized. 
   if (thalf>0)
     D[nGroups] = log(2.0)/thalf;
   else
     D[nGroups] = 0;
 
   /* setup each reaction */
-  if ( (NuclearData::mode == MODE_REVERSE) || (totalXSection == NULL) )
+  if ( (NuclearData::mode == MODE_REVERSE) || (totalXSection == NULL) ) // ALARALib and ADJLib always yield "true"
     for (rxnNum=0;rxnNum<nPaths;rxnNum++)
       {
         debug(4,"Copying reaction %d with %d groups.",rxnNum,nGroups+1);
@@ -404,7 +405,7 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
 	  }
         paths[rxnNum][nGroups] = xSection[rxnNum][nGroups];
       }
-  else
+  else //FIENDLib always comes here. It doesn't have a emitted particle implemented
     {
     for (rxnNum=0;rxnNum<nPaths;rxnNum++)
       {
@@ -430,13 +431,11 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
       }
 
       //Initialize path[nPaths] with totalXSection
-      for (gNum=0; gNum<nGroups;gNum++)
-        paths[nPaths][gNum] = totalXSection[gNum]*1e-24;
+       for (gNum=0; gNum<nGroups;gNum++)
+         paths[nPaths][gNum] = totalXSection[gNum]*1e-24;
 
-      paths[nPaths][nGroups] = totalXSection[nGroups];
+       paths[nPaths][nGroups] = totalXSection[nGroups];
     }
-       
-
 
   if (totalRxnNum>-1)
     {
