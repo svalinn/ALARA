@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.18 2003-10-28 22:11:38 wilsonp Exp $ */
+/* $Id: GammaSrc.C,v 1.19 2007-05-02 20:13:34 phruksar Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -235,7 +235,8 @@ double GammaSrc::subIntegral(int pntNum, int intTyp, float* x, float* y,
       /* find m */
       m =(y2-y1)/(x2-x1); 
       /* area of trapezoid */
-      I = (xhi-xlo)*(0.5*(xhi + xlo)*m + y1);
+      //I = (xhi-xlo)*(0.5*(xhi + xlo)*m + y1);
+      I = (xhi-xlo)*(0.5*(xhi + xlo)*m + y1-m*x1);
       break;
     case 3: /* type 3: linear-log */
       /* y = m*ln(x) + y1 -m*ln(x1) */
@@ -244,7 +245,7 @@ double GammaSrc::subIntegral(int pntNum, int intTyp, float* x, float* y,
       I = m*( (xhi*log(xhi)-xhi) - (xlo*log(xlo)-xlo) ) 
 	+ ( y1-m*log(x1) ) * (xhi-xlo);
       break;
-    case 4: /* type 4: log-linesr */
+    case 4: /* type 4: log-linear */
       /* y = y1*exp( m*(x-x1)) */
       /* I = y1*exp( m*(x-x1))/m @ dx*/
       m = (log(y2)-log(y1))/(x2-x1);
