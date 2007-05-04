@@ -1,6 +1,6 @@
-ALARA 2.7.7
+ALARA 2.8.0
 Set verbose level to 3.
-Openned tree file ref_new/sample7.tree.
+Openned tree file ref_out/sample7.tree.
 	Openned sample7 for input.
 Starting problem input processing.
 	Reading input.
@@ -64,13 +64,13 @@ Starting problem solution.
 		      last Root: 111 nodes in 19 chains with maximum length 2.
 		                 in 0.020 s (5550.000 nodes/s)
 		   Total so far: 111 nodes in 19 chains with maximum length 2.
-		                 in 0.04 s (2775.000 nodes/s)
+		                 in 0.02 s (5550.000 nodes/s)
 		Solving Root #2: he-4 
 		   Maximum relative concentration: 0
-		      last Root: 1546 nodes in 481 chains with maximum length 5.
-		                 in 0.390 s (3964.102 nodes/s)
-		   Total so far: 1657 nodes in 500 chains with maximum length 5.
-		                 in 0.43 s (3853.488 nodes/s)
+		      last Root: 1546 nodes in 478 chains with maximum length 5.
+		                 in 0.170 s (9094.118 nodes/s)
+		   Total so far: 1657 nodes in 497 chains with maximum length 5.
+		                 in 0.19 s (8721.053 nodes/s)
 	Solved problem.
 	Reset binary dump with 2 results per isotope.
 		Tallying constituent results into total result lists.

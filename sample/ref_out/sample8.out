@@ -1,6 +1,6 @@
-ALARA 2.7.7
+ALARA 2.8.0
 Set verbose level to 3.
-Openned tree file ref_new/sample8.tree.
+Openned tree file ref_out/sample8.tree.
 	Openned sample8 for input.
 Starting problem input processing.
 	Reading input.
@@ -48,27 +48,27 @@ Starting problem solution.
 		Solving Root #1: fe-54 
 		   Maximum relative concentration: 0.059
 		      last Root: 833 nodes in 244 chains with maximum length 8.
-		                 in 0.150 s (5553.333 nodes/s)
+		                 in 0.070 s (11900.000 nodes/s)
 		   Total so far: 833 nodes in 244 chains with maximum length 8.
-		                 in 0.17 s (4900.000 nodes/s)
+		                 in 0.08 s (10412.500 nodes/s)
 		Solving Root #2: fe-56 
 		   Maximum relative concentration: 0.9172
 		      last Root: 475 nodes in 145 chains with maximum length 7.
-		                 in 0.090 s (5277.778 nodes/s)
+		                 in 0.050 s (9500.000 nodes/s)
 		   Total so far: 1308 nodes in 389 chains with maximum length 8.
-		                 in 0.26 s (5030.769 nodes/s)
+		                 in 0.13 s (10061.539 nodes/s)
 		Solving Root #3: fe-57 
 		   Maximum relative concentration: 0.021
 		      last Root: 522 nodes in 138 chains with maximum length 8.
-		                 in 0.110 s (4745.454 nodes/s)
+		                 in 0.050 s (10439.999 nodes/s)
 		   Total so far: 1830 nodes in 527 chains with maximum length 8.
-		                 in 0.37 s (4945.946 nodes/s)
+		                 in 0.18 s (10166.666 nodes/s)
 		Solving Root #4: fe-58 
 		   Maximum relative concentration: 0.0028
 		      last Root: 892 nodes in 213 chains with maximum length 9.
-		                 in 0.200 s (4460.000 nodes/s)
+		                 in 0.110 s (8109.092 nodes/s)
 		   Total so far: 2722 nodes in 740 chains with maximum length 9.
-		                 in 0.57 s (4775.439 nodes/s)
+		                 in 0.29 s (9386.207 nodes/s)
 	Solved problem.
 	Reset binary dump with 5 results per isotope.
 		Read dump file.
