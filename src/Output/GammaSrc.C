@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.19 2007-05-02 20:13:34 phruksar Exp $ */
+/* $Id: GammaSrc.C,v 1.20 2007-05-04 19:01:28 phruksar Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -330,15 +330,18 @@ void GammaSrc::setData(int kza, int numSpec,
 	  /* CONTINUOUS ENERGY SPECTRUM */
 	  regNum = 0;
 	  pntNum = 0;
-	  gNum = 0;
-	  while (numIntReg[specNum] > regNum && nPts[specNum] > pntNum)
+	  gNum = 0; 
+          // nPts[specNum] indicates size of contX[specNum].
+          // (pntNum + 1) must never exceed nPts[specNum] so that contX[specNum][pntNum+1] is valid.
+	  while ( regNum < numIntReg[specNum] && pntNum < (nPts[specNum]-1))
 	    {
-	      Elo = std::max(double(contX[specNum][pntNum]),grpBnds[gNum]);
+	      Elo = std::max(double(contX[specNum][pntNum]),grpBnds[gNum]);		
 	      Ehi = std::min(double(contX[specNum][pntNum+1]),grpBnds[gNum+1]);
 	      switch (gammaType)
 		{
                 case GAMMASRC_RAW_SRC:
-	        case GAMMASRC_ADJOINT:	
+	        case GAMMASRC_ADJOINT:
+                  	
 		  gammaMult[gNum] += subIntegral(pntNum,intRegT[specNum][regNum],
 						 contX[specNum],contY[specNum],
 						 Elo,Ehi);
