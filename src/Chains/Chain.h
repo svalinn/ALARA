@@ -1,4 +1,4 @@
-/* $Id: Chain.h,v 1.11 2003-01-13 04:34:51 fateneja Exp $ */
+/* $Id: Chain.h,v 1.12 2007-10-18 20:28:46 phruksar Exp $ */
 #include "alara.h"
 
 #ifndef _CHAIN_H 
@@ -224,7 +224,7 @@ public:
   /// This function fills the necessary elements of a decay matrix,
   /// referenced by the first argument, using the decay time of the
   /// second argument.
-  void Chain::setDecay(Matrix& D, double time);
+  void setDecay(Matrix& D, double time);
 
   /// Calls interface routine of object pointed to by 'root' to get,
   /// and return, its KZA value
