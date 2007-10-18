@@ -1,10 +1,10 @@
-/* $Id: GammaSrc.C,v 1.20 2007-05-04 19:01:28 phruksar Exp $ */
+/* $Id: GammaSrc.C,v 1.21 2007-10-18 20:30:36 phruksar Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
 #include "Input/Mixture.h"
 #include "Input/Volume.h"
-
+#include <math.h>
 /***************************
  ********* Service *********
  **************************/
@@ -20,6 +20,7 @@ GammaSrc::GammaSrc(istream& input, int inGammaType)
   nGroups = 0;
   contactDose = 0;
   adjDose = 0; 
+  exposureDose = 0;
   detvolume = 1; 
   grpBnds = NULL;
   dataLib = NULL;
@@ -39,6 +40,9 @@ GammaSrc::GammaSrc(istream& input, int inGammaType)
       break;
     case GAMMASRC_ADJOINT:
       initAdjointDose(input); 
+      break;
+    case GAMMASRC_EXPOSURE:
+      initExposureDose(input); 
       break;
     }
 
@@ -73,6 +77,47 @@ void GammaSrc::initRawSrc(istream& input)
   clearComment(input);
   for (gNum=1;gNum<nGroups+1;gNum++)
     input >> grpBnds[gNum];
+
+}
+
+void GammaSrc::initExposureDose(istream& input)
+{
+  char token[64];
+  int gNum;
+
+  /* get gamma attenuation data file */
+  clearComment(input);
+  input >> token;
+  fileName = new char[strlen(token)+1];
+  strcpy(fileName,token);
+  gDoseData.open(searchNonXSPath(fileName));
+  if (!gDoseData)
+    error(250,
+	  "Unable to open file for gamma attenuation data input (contact dose): %s\n",
+	  fileName);
+
+  /* get number of data points used for this data */
+  clearComment(gDoseData);
+  gDoseData >> nGroups;
+
+  grpBnds = new double[nGroups+1];
+  grpBnds[0] = 0.0;
+
+  /* read gamma energy points */
+  for (gNum=1;gNum<nGroups+1;gNum++)
+    {
+      gDoseData >> grpBnds[gNum];
+      grpBnds[gNum] *= 1.0E6;
+    }
+
+  /* read gamma energy absorption coefficient for air */
+  gammaAbsAir.resize(nGroups,0);
+  for (gNum=0;gNum<nGroups;gNum++)
+     gDoseData >> gammaAbsAir[gNum];
+
+  //Radius and distance are needed for infinite line approximation
+  input >> radius;
+  input >> distance;
 
 }
 
@@ -278,18 +323,21 @@ void GammaSrc::setData(int kza, int numSpec,
 		       float **discGammaE, float **discGammaI,
 		       float **contX, float **contY)
 {
+
   int specNum, gammaNum, gNum, pntNum, regNum;
   double *gammaMult = NULL;
   double Elo, Ehi, interpFrac;
 
   if (numSpec > 0)
     {
-      gammaMult = new double[nGroups];
-      for (gNum=0;gNum<nGroups;gNum++)
-	gammaMult[gNum] = 0.0;
+        gammaMult = new double[nGroups];
+        for (gNum=0;gNum<nGroups;gNum++)
+	  gammaMult[gNum] = 0.0;
+      
 
       contactDose = 0.0;
       adjDose = 0.0;
+      exposureDose = 0.0;
     
       for (specNum=0;specNum<numSpec;specNum++)
 	{
@@ -297,7 +345,8 @@ void GammaSrc::setData(int kza, int numSpec,
 	  for (gammaNum=0;gammaNum<numDisc[specNum];gammaNum++)
 	    {
 	      /* determine energy bin */
-	      gNum = findGroup(discGammaE[specNum][gammaNum]);
+   	        gNum = findGroup(discGammaE[specNum][gammaNum]);
+
 	      switch (gammaType)
 		{
 		case GAMMASRC_RAW_SRC:
@@ -324,6 +373,18 @@ void GammaSrc::setData(int kza, int numSpec,
 		      (gammaAttenCoef[gNum-1]*(1.0 - interpFrac) + 
 		       gammaAttenCoef[gNum] * interpFrac);
 		  break;
+                 case GAMMASRC_EXPOSURE:
+		  interpFrac = (discGammaE[specNum][gammaNum] - grpBnds[gNum])/
+		    (grpBnds[gNum+1] - grpBnds[gNum]);		   
+		   //infinite cylinder
+		  if (gNum == 0) 
+		   exposureDose += discGammaI[specNum][gammaNum] * discGammaE[specNum][gammaNum] *1e-6 *
+		     M_PI*radius*radius/(4*distance)*gammaAbsAir[gNum] * interpFrac;  
+		  else 
+		    exposureDose += discGammaI[specNum][gammaNum] * discGammaE[specNum][gammaNum] *1e-6 *
+		     M_PI*radius*radius/(4*distance)*(gammaAbsAir[gNum-1]*(1.0 - interpFrac) + 
+		      gammaAbsAir[gNum] * interpFrac); 
+		  break;
                 }
 	    }
 	  
@@ -333,11 +394,15 @@ void GammaSrc::setData(int kza, int numSpec,
 	  gNum = 0; 
           // nPts[specNum] indicates size of contX[specNum].
           // (pntNum + 1) must never exceed nPts[specNum] so that contX[specNum][pntNum+1] is valid.
+         
+	  //Only perform the following while loop when dealing with adjoint dose and photon source
+          if (gammaType == GAMMASRC_ADJOINT || gammaType == GAMMASRC_RAW_SRC )
 	  while ( regNum < numIntReg[specNum] && pntNum < (nPts[specNum]-1))
 	    {
-	      Elo = std::max(double(contX[specNum][pntNum]),grpBnds[gNum]);		
+ 	      Elo = std::max(double(contX[specNum][pntNum]),grpBnds[gNum]);		
 	      Ehi = std::min(double(contX[specNum][pntNum+1]),grpBnds[gNum+1]);
-	      switch (gammaType)
+	       
+              switch (gammaType)
 		{
                 case GAMMASRC_RAW_SRC:
 	        case GAMMASRC_ADJOINT:
@@ -349,8 +414,10 @@ void GammaSrc::setData(int kza, int numSpec,
 		case GAMMASRC_CONTACT:
 		  /* ignore continuous spectrum for now */
 		  break;
+		
 		}
 
+             if ( gammaType != GAMMASRC_EXPOSURE)
 	      if (Ehi == grpBnds[gNum+1]) 
 		gNum++;
 	      else
@@ -362,7 +429,7 @@ void GammaSrc::setData(int kza, int numSpec,
 	    }
 	}
 
-      gammaMultCache[kza] = gammaMult;
+        gammaMultCache[kza] = gammaMult;
     }
 
 }
@@ -451,6 +518,21 @@ double GammaSrc::calcAdjDose(int kza, double *volAdjDoseConv, double vol)
 
   return adjDose*vol/detvolume;
   
+}
 
+double GammaSrc::calcExposureDoseConv(int kza)
+{
+  if ( exposureDoseCache.find(kza) == exposureDoseCache.end() ) {
+
+    exposureDose = 0;
+
+    dataLib->readGammaData(kza,this);
+
+    exposureDoseCache[kza] = exposureDose;
+
+  }
+
+  return exposureDoseCache[kza];
 
 };
+

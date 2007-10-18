@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.33 2004-06-03 21:24:38 wilsonp Exp $ */
+/* $Id: Result.C,v 1.34 2007-10-18 20:31:10 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -369,6 +369,10 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
           multiplier = volPtr->getAdjDoseConv(targetKza, gammaSrc) *
 	    dataAccess.getLambda(targetKza)*actMult;
 	  break;
+	 case OUTFMT_EXP:
+	  multiplier = dataAccess.getLambda(targetKza)*actMult*0.0659 * 
+		gammaSrc->calcExposureDoseConv(targetKza) ;
+	  break;
         default:
 	  multiplier = 1.0;
 	}
@@ -417,14 +421,20 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 	      multiplier = volPtr->getAdjDoseConv(ptr->kza,gammaSrc) *
 		dataAccess.getLambda(ptr->kza)*actMult;
 	      break;
+	    case OUTFMT_EXP:
+	      multiplier = dataAccess.getLambda(ptr->kza)*actMult*0.0659 *
+		gammaSrc->calcExposureDoseConv(ptr->kza);
+	      break;
             default:
 	      multiplier = 1.0;
 	    }
+	 
 	  multiplier *= volume_mass;
 	}
       
       /* if the multipier is 0 (e.g. stable isotope for activity based
 	 responses) skip this isotope */
+
       if (multiplier == 0)
 	continue;
 

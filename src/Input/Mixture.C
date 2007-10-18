@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.34 2005-08-01 21:58:35 wilsonp Exp $ */
+/* $Id: Mixture.C,v 1.35 2007-10-18 20:30:36 phruksar Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 

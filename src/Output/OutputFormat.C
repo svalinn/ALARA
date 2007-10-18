@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.31 2004-06-03 21:24:38 wilsonp Exp $ */
+/* $Id: OutputFormat.C,v 1.32 2007-10-18 20:30:53 phruksar Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -10,11 +10,11 @@
 
 #include "Chains/Node.h"
 
-const char *Out_Types = "ucnstabgpdfw";
+const char *Out_Types = "ucnstabgpdfew";
 
-const int nOutTypes = 12;
+const int nOutTypes = 13;
 const int firstResponse = 2;
-const int lastSingularResponse = 11;
+const int lastSingularResponse = 12;
 const char *Out_Types_Str[nOutTypes] = {
   "Response Units",
   "Break-down by Constituent",
@@ -27,6 +27,7 @@ const char *Out_Types_Str[nOutTypes] = {
   "Photon Source Distribution [gammas/s%s] : %s\n\t    with Specific Activity [%s%s]",
   "Contact Dose [ Sv/hr] : %s",
   "Folded (Adjoint/Biological) Dose [Sv/hr] : %s",
+  "Exposure Rate [mR/hr]",
   "WDR/Clearance index"};
 
 /***************************
@@ -115,7 +116,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
   char token[64];
   char *fileNamePtr;
 
-  input >> token;
+  input >> token; 
   type = strchr(Out_Res,tolower(token[0]))-Out_Res;
 
   next = new OutputFormat(type);
@@ -124,16 +125,17 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
   
   /* read a list of output types until keyword "end" */
   clearComment(input);
-  input >> token;
+  input >> token; 
   while (strcmp(token,"end"))
     {
       /* match the first character of the type in the constant string */
-      type = strchr(Out_Types,tolower(token[0]))-Out_Types;
+      type = strchr(Out_Types,tolower(token[0]))-Out_Types; 
       if (type<0)
 	error(230,"Output type '%s' is not currently supported.",
 	      token);
 
       /* use logical and to set the correct bit in the outTypes field */
+    
       next->outTypes |= 1<<type;
 
       verbose(3,"Added output type %d (%s)",1<<type,token);
@@ -194,6 +196,10 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  /* setup gamma source for adjoint dose */
 	  next->adjointDose = new GammaSrc(input,GAMMASRC_ADJOINT);
           break;	
+	case OUTFMT_EXP:
+	  next->exposureDose = new GammaSrc(input,GAMMASRC_EXPOSURE);
+	  break;
+
 	}
 
       clearComment(input);
@@ -256,7 +262,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 				/* deliver gamma src filename, */
-			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
+			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits); 
 		break;
 	      case (OUTFMT_CDOSE) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
@@ -265,6 +271,9 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      case (OUTFMT_ADJ) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 			ptr->adjointDose->getFileName());
+		break;
+	      case (OUTFMT_EXP) : 
+		sprintf(buffer, Out_Types_Str[outTypeNum]);
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],
@@ -320,10 +329,14 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		/* set gamma source to use for this */
 		Result::setGammaSrc(ptr->adjointDose);
 		break;
+	      case (OUTFMT_EXP) :
+		sprintf(buffer,Out_Types_Str[outTypeNum]);
+		Result::setGammaSrc(ptr->exposureDose);
+		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],ptr->normUnits);
 	      }
-	    cout << "*** " << buffer << " ***" << endl;
+	    cout << "*** " << buffer << " ***" << endl; 
 
 	    Result::setReminderStr(buffer);
 
