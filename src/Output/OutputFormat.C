@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.32 2007-10-18 20:30:53 phruksar Exp $ */
+/* $Id: OutputFormat.C,v 1.33 2007-10-19 15:41:47 phruksar Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -135,7 +135,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	      token);
 
       /* use logical and to set the correct bit in the outTypes field */
-    
+     
       next->outTypes |= 1<<type;
 
       verbose(3,"Added output type %d (%s)",1<<type,token);
@@ -189,17 +189,25 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  next->gammaSrc= new GammaSrc(input,GAMMASRC_RAW_SRC);
 	  break;
 	case OUTFMT_CDOSE:
-	  /* setup gamma source for contact dose */
-	  next->contactDose = new GammaSrc(input,GAMMASRC_CONTACT);
+	  //Need to determine which dose approximation is defined
+          char approx_token[64];
+          input >> approx_token;
+	  if (approx_token[0] == 'c' || approx_token[0] == 'C')
+	     /* setup gamma source for contact dose */
+	     next->contactDose = new GammaSrc(input,GAMMASRC_CONTACT);
+	  else if (approx_token[0] == 'l' || approx_token[0] == 'L') {
+
+	    //adjust outTypes
+	    next->outTypes -= OUTFMT_CDOSE;
+	    next->outTypes += OUTFMT_EXP; 
+	    /* setup gamma source for exposure dose with line approximation */
+	    next->exposureDose = new GammaSrc(input, GAMMASRC_EXPOSURE);
+	  }
 	  break;
 	case OUTFMT_ADJ:
 	  /* setup gamma source for adjoint dose */
 	  next->adjointDose = new GammaSrc(input,GAMMASRC_ADJOINT);
           break;	
-	case OUTFMT_EXP:
-	  next->exposureDose = new GammaSrc(input,GAMMASRC_EXPOSURE);
-	  break;
-
 	}
 
       clearComment(input);
@@ -273,7 +281,8 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 			ptr->adjointDose->getFileName());
 		break;
 	      case (OUTFMT_EXP) : 
-		sprintf(buffer, Out_Types_Str[outTypeNum]);
+		sprintf(buffer, Out_Types_Str[outTypeNum],
+			ptr->exposureDose->getFileName());
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],
@@ -297,7 +306,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       Result::setNorm(ptr->actMult,ptr->normType);
 
       /* for each indicated response */
-      for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++)
+      for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++) {
 	if (ptr->outTypes & 1<<outTypeNum)
 	  {
 	    /* write a response title */
@@ -320,6 +329,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		ptr->contactDose->setGammaAttenCoef(mixList);
 		/* set gamma source to use for this */
 		Result::setGammaSrc(ptr->contactDose);
+		
 		break;
 	      case (OUTFMT_ADJ) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
@@ -360,6 +370,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 
 	    cout << endl << endl << endl;
 	  }
+      }
 
       if (ptr->outTypes & OUTFMT_WDR)
 	{

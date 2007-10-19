@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.21 2007-10-18 20:30:36 phruksar Exp $ */
+/* $Id: GammaSrc.C,v 1.22 2007-10-19 15:41:47 phruksar Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -84,7 +84,7 @@ void GammaSrc::initExposureDose(istream& input)
 {
   char token[64];
   int gNum;
-
+  
   /* get gamma attenuation data file */
   clearComment(input);
   input >> token;
