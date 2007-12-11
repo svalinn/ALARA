@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.24 2007-04-11 19:47:04 phruksar Exp $ */
+/* $Id: Chain.C,v 1.25 2007-12-11 21:33:55 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -453,7 +453,7 @@ void Chain::collapseRates(VolFlux* flux)
 	  idx = rank;
 	  if (mode == MODE_REVERSE)
 	    idx = (chainLength-1)-rank;
-	  idx2 = fluxNum*chainLength + idx;
+	  idx2 = fluxNum*chainLength + idx; 
 	  P[idx2] = flux->fold(rates[rank],nodePtr)      + L[idx];
 	  d[idx2] = flux->fold(rates[rank+step],nodePtr) + l[idx];
 	  nodePtr = nodePtr->getNext();
@@ -515,8 +515,13 @@ void Chain::setDecay(Matrix& D, double time)
 	  data[idx] = 1;
 	  for (idx2=col;idx2<row;idx2++)
 	    data[idx] *= L[idx2+1];
+
 	  if (data[idx] > 0)
-	    data[idx] *= bateman(row,col,l,time,success);
+	    if ( checkForDecayLoop() )
+              data[idx] *= laplaceInverse(row, col, l, time, success);
+            else
+	      data[idx] *= bateman(row,col,l,time,success);
+
 	  col++;
 	}
     }
@@ -743,4 +748,15 @@ void Chain::modeReverse()
 {
   mode  = MODE_REVERSE;
   NuclearData::modeReverse();
+}
+
+bool Chain::checkForDecayLoop()
+{
+  int idx1,idx2;
+  for (idx1 = 0; idx1 < chainLength; idx1++)
+    for (idx2 = idx1+1; idx2 < chainLength; idx2++)
+      if (l[idx1] == l[idx2])
+	return true;
+
+  return false;
 }
