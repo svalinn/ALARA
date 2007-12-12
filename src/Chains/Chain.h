@@ -1,4 +1,4 @@
-/* $Id: Chain.h,v 1.13 2007-12-11 21:33:55 phruksar Exp $ */
+/* $Id: Chain.h,v 1.14 2007-12-12 06:06:14 phruksar Exp $ */
 #include "alara.h"
 
 #ifndef _CHAIN_H 
@@ -39,8 +39,6 @@ protected:
 
   /// Flag indicating whether this is a forward or reverse calculation
   static int mode;
-
-  bool checkForDecayLoop();
 
   /// A counter which simply tracks the length of the current chain.
   /** By convention, it will always be 1 greater than the rank of the
