@@ -1,4 +1,4 @@
-/* $Id: Chain.C,v 1.26 2007-12-12 06:06:14 phruksar Exp $ */
+/* $Id: Chain.C,v 1.27 2007-12-12 15:42:44 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Chain: functions directly related to the building and analysis of chains
@@ -517,7 +517,7 @@ void Chain::setDecay(Matrix& D, double time)
 	    data[idx] *= L[idx2+1];
 
 	  if (data[idx] > 0)
-	    if ( loopRank[idx2] != -1 ) //Check for loop in a decay chain
+	    if ( loopRank[idx2] == -1 ) //Check for loop in a decay chain
                data[idx] *= bateman(row,col,l,time,success);
             else
 	       data[idx] *= laplaceInverse(row, col, l, time, success);
