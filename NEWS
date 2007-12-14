@@ -1,4 +1,17 @@
-$Id: NEWS,v 1.20 2007-05-04 19:18:16 wilsonp Exp $
+$Id: NEWS,v 1.21 2007-12-14 02:25:38 wilsonp Exp $
+
+Version 2.8.1
+
+BUGS FIXED
+	* fixed bug in recognizing loops in pure decay [PP] (12/12/07)
+	  
+NEW FEATURES
+	* Added alternative dose approximation - infinte line source. 
+	  [PP] (10/19/07)
+
+CODE UPDATES
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 	
 
 Version 2.8.0
 
