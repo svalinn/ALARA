@@ -1,4 +1,4 @@
-/* $Id: input.C,v 1.13 2003-10-28 22:11:39 wilsonp Exp $ */
+/* $Id: input.C,v 1.14 2007-12-20 22:03:56 wilsonp Exp $ */
 #include "alara.h"
 #include "input_tokens.h"
 #include "dflt_datadir.h"
@@ -191,7 +191,7 @@ const char* searchPath(const char* filename, const char* envPathVar, const char*
     verbose(100,"Found %s",searchFilename.c_str());
     
 
-  return searchFilename.c_str();
+  return strdup(searchFilename.c_str());
 
 }
 
