@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.23 2008-07-31 18:07:04 phruksar Exp $ */
+/* $Id: GammaSrc.C,v 1.24 2008-07-31 19:52:30 phruksar Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -602,21 +602,26 @@ void GammaSrc::setData(int kza, int numSpec,
 
 		  if (gNum == 0)
 		  {
+		    double A1,A2,alpha1,alpha2;
 		    //Determine Buildup Factor using Taylor's Method
-		    double B = calcBuildupFactor(grpBnds[gNum+1]+grpBnds[gNum], gammaAttenCoef[gNum]*interpFrac*radius, media);
+		    calcBuildupParameters((grpBnds[gNum+1]+grpBnds[gNum])/2, media, A1,A2,alpha1,alpha2);
+		    
+		    // buildup flux = A1*uncollided_flux_1 + A2*uncollided_flux_2;
+		    double MuR = gammaAttenCoef[gNum]*interpFrac*radius;
 
-        	    exposureDose += 0.0659*B*discGammaI[specNum][gammaNum] * discGammaE[specNum][gammaNum] *1e-6 *
-		     radius/(2*M_PI)*gammaAbsAir[gNum] * interpFrac*G_factor(height/radius,distance/radius,gammaAttenCoef[gNum]*interpFrac*radius,0);  
+        	    exposureDose += 0.0659*discGammaI[specNum][gammaNum] * discGammaE[specNum][gammaNum] *1e-6 *
+		     radius/(2*M_PI)*gammaAbsAir[gNum] * interpFrac*
+		     (A1*G_factor(height/radius,distance/radius,MuR*(1+alpha1),0) + A2*G_factor(height/radius,distance/radius,MuR*(1+alpha2),0));  
 		  }
 		  else
 		   {
-		    double B = calcBuildupFactor(grpBnds[gNum+1]+grpBnds[gNum],
-                               (gammaAttenCoef[gNum]*interpFrac+gammaAttenCoef[gNum-1]*(1.0-interpFrac))*radius ,media); 
+                    double A1,A2,alpha1,alpha2;
+		    calcBuildupParameters((grpBnds[gNum+1]+grpBnds[gNum])/2,media,A1,A2,alpha1,alpha2); 
 
-		    exposureDose += 0.0659*B*discGammaI[specNum][gammaNum] * discGammaE[specNum][gammaNum] *1e-6 *
-		    radius/(2*M_PI)*(gammaAbsAir[gNum-1]*(1.0 - interpFrac) + 
-				     gammaAbsAir[gNum] * interpFrac)*G_factor(height/radius,distance/radius,
-                                    (gammaAttenCoef[gNum]*interpFrac+gammaAttenCoef[gNum-1]*(1.0-interpFrac))*radius,0); 
+		    double MuR = (gammaAttenCoef[gNum]*interpFrac+gammaAttenCoef[gNum-1]*(1.0-interpFrac))*radius;
+		    exposureDose += 0.0659*discGammaI[specNum][gammaNum] * discGammaE[specNum][gammaNum] *1e-6 *
+		    radius/(2*M_PI)*(gammaAbsAir[gNum-1]*(1.0 - interpFrac) + gammaAbsAir[gNum] * interpFrac)*
+		    (A1*G_factor(height/radius,distance/radius,MuR*(1+alpha1),0) + A2*G_factor(height/radius,distance/radius,MuR*(1+alpha2),0)); 
 
 		   }
 		  //////
@@ -777,7 +782,7 @@ double GammaSrc::calcExposureDoseConv(int kza, double *mixGammaAttenCoef)
 
 };
 
-float GammaSrc::calcBuildupFactor(double En, double MsR, char mat)
+void GammaSrc::calcBuildupParameters(double En,  char mat, double& A1, double& A2, double& alpha1, double& alpha2)
 {
   //Convert En to MeV
   En = En/1e6;
@@ -905,11 +910,9 @@ float GammaSrc::calcBuildupFactor(double En, double MsR, char mat)
 	}
    }
 
- double A = param_vec[0];
- double a1 = param_vec[1];
- double a2 = param_vec[2];
+ A1 = param_vec[0];
+ A2 = 1 - A1;
+ alpha1 = param_vec[1];
+ alpha2 = param_vec[2];
 
- double B = A*exp(-1*a1*MsR) + (1-A)*exp(-1*a2*MsR);
-
- return B;
 }
