@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.24 2008-07-31 19:52:30 phruksar Exp $ */
+/* $Id: GammaSrc.C,v 1.25 2008-07-31 19:57:12 phruksar Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -604,7 +604,7 @@ void GammaSrc::setData(int kza, int numSpec,
 		  {
 		    double A1,A2,alpha1,alpha2;
 		    //Determine Buildup Factor using Taylor's Method
-		    calcBuildupParameters((grpBnds[gNum+1]+grpBnds[gNum])/2, media, A1,A2,alpha1,alpha2);
+		    calcBuildupParameters(grpBnds[gNum], media, A1,A2,alpha1,alpha2);
 		    
 		    // buildup flux = A1*uncollided_flux_1 + A2*uncollided_flux_2;
 		    double MuR = gammaAttenCoef[gNum]*interpFrac*radius;
