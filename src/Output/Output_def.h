@@ -1,4 +1,4 @@
-/* $Id: Output_def.h,v 1.16 2007-10-18 20:30:58 phruksar Exp $ */
+/* $Id: Output_def.h,v 1.17 2008-07-31 18:08:50 phruksar Exp $ */
 #ifndef _OUTPUT_DEF_H
 #define _OUTPUT_DEF_H
 
@@ -15,7 +15,8 @@
 #define OUTFMT_CDOSE  512
 #define OUTFMT_ADJ   1024
 #define OUTFMT_EXP   2048
-#define OUTFMT_WDR   4096
+#define OUTFMT_EXP_CYL_VOL 4096
+#define OUTFMT_WDR   8192
 
 #define OUTNORM_KG        -2
 #define OUTNORM_G         -1
