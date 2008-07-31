@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.35 2007-10-18 20:30:36 phruksar Exp $ */
+/* $Id: Mixture.C,v 1.36 2008-07-31 18:05:34 phruksar Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -538,7 +538,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	      cout << endl;
 
 	      ptr->outputList[compNum].write(response,targetKza,this,
-					     coolList,ptr->total,volume_mass);
+					     coolList,ptr->total_initial,ptr->total,volume_mass);
 
 	      compPtr = compPtr->advance();
 	      compNum++;
@@ -595,7 +595,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	  cout << endl;
 	      
 	  ptr->outputList[ptr->nComps].write(response,targetKza,this,
-					     coolList,ptr->total,volume_mass);
+					     coolList,ptr->total_initial,ptr->total,volume_mass);
 
 	}
     }
@@ -622,6 +622,9 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
     {
       ptr = ptr->next;
       cout << ++mixCntr << "\t";
+
+      sprintf(isoSym,"%-11.4e\t",ptr->total_initial);
+      cout << isoSym;    
       for (resNum=0;resNum<nResults;resNum++)
 	{
 	  sprintf(isoSym,"%-11.4e ",ptr->total[resNum]);
@@ -650,20 +653,14 @@ void Mixture::setGammaAttenCoef(int nGroups, ifstream& gAttenData)
   const int MaxEle = 106;
   Mixture *ptr = this;
   Root *root = NULL;
-  double *gammaAttenData = NULL, *gammaAbsAir = NULL;
+  double *gammaAttenData = NULL;
   double density, totalDens, interp;
-  const double doseConvConst = 5.76e-10;
+  
   int gammaAttenZ[MaxEle], kza, Z, A;
   int gNum, idx, numEle;
 
 
   gammaAttenData = new double[nGroups*MaxEle];
-  gammaAbsAir = new double[nGroups];
-
-  /* read gamma energy absorption coefficient for air */
-  clearComment(gAttenData);
-  for (gNum=0;gNum<nGroups;gNum++)
-    gAttenData >> gammaAbsAir[gNum];
 
   numEle = 0;
   /* read all attenuation coeffcient data */
@@ -733,14 +730,12 @@ void Mixture::setGammaAttenCoef(int nGroups, ifstream& gAttenData)
 	}
 
       for (gNum=0;gNum<nGroups;gNum++)
-	ptr->gammaAttenCoef[gNum] = doseConvConst * gammaAbsAir[gNum] * totalDens/ptr->gammaAttenCoef[gNum];
+	ptr->gammaAttenCoef[gNum] = ptr->gammaAttenCoef[gNum]/totalDens;
 
     }
       
   delete gammaAttenData;
-  delete gammaAbsAir;
   
-
 }
 
 

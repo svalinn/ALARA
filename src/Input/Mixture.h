@@ -1,4 +1,4 @@
-/* $Id: Mixture.h,v 1.20 2005-05-25 02:30:42 wilsonp Exp $ */
+/* $Id: Mixture.h,v 1.21 2008-07-31 18:05:34 phruksar Exp $ */
 #include "alara.h"
 
 #ifndef _MIXTURE_H
@@ -87,6 +87,9 @@ protected:
   /// The response totalled over the whole mixture is stored in an array
   /// to enable the printing of a table of totals.
   double *total;
+
+  /// The response totaled over the initial mixture
+  double total_initial;
   
   /// Variable for contact dose
   double *gammaAttenCoef;
@@ -234,7 +237,7 @@ public:
   /// Access function for userVol.
   double getUserVol() { return userVol; };
 
-
+  double* getGammaAttenCoef() { return gammaAttenCoef;}
 };
 
 #endif
