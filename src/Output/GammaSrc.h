@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.h,v 1.11 2007-10-18 20:30:36 phruksar Exp $ */
+/* $Id: GammaSrc.h,v 1.12 2008-07-31 18:07:04 phruksar Exp $ */
 #include "alara.h"
 #include <map>
 #include <vector>
@@ -17,6 +17,7 @@
 #define GAMMASRC_CONTACT  2
 #define GAMMASRC_ADJOINT  3
 #define GAMMASRC_EXPOSURE 4
+#define GAMMASRC_EXPOSURE_CYLINDRICAL_VOLUME 5
 
 class GammaSrc
 {
@@ -33,6 +34,8 @@ protected:
   double contactDose, *gammaAttenCoef, adjDose, exposureDose;
   //These variables are for calculating exposure dose
   double radius, distance;
+  double height;
+  char media;
   float detvolume; // detector volume
   VectorCache gammaMultCache;
 
@@ -43,8 +46,11 @@ protected:
   void initContactDose(istream&);
   void initAdjointDose(istream&);
   void initExposureDose(istream&);
+  void initExposureCylVolDose(istream&);
   std::map<int, double> exposureDoseCache;
   std::vector< double > gammaAbsAir; //Mass absorption attenuation in air
+  float G_factor(float,float,float,float);
+  float calcBuildupFactor(double,double, char);
 
 public:
 
@@ -62,7 +68,7 @@ public:
 
   double calcDoseConv(int,double*);
   double calcAdjDose(int,double*,double); 
-  double calcExposureDoseConv(int);
+  double calcExposureDoseConv(int,double*);
   void setGammaAttenCoef(Mixture*);
   void setAdjDoseData(Volume*);
 

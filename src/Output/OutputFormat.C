@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.33 2007-10-19 15:41:47 phruksar Exp $ */
+/* $Id: OutputFormat.C,v 1.34 2008-07-31 18:07:52 phruksar Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -12,9 +12,9 @@
 
 const char *Out_Types = "ucnstabgpdfew";
 
-const int nOutTypes = 13;
+const int nOutTypes = 14;
 const int firstResponse = 2;
-const int lastSingularResponse = 12;
+const int lastSingularResponse = 13;
 const char *Out_Types_Str[nOutTypes] = {
   "Response Units",
   "Break-down by Constituent",
@@ -27,7 +27,8 @@ const char *Out_Types_Str[nOutTypes] = {
   "Photon Source Distribution [gammas/s%s] : %s\n\t    with Specific Activity [%s%s]",
   "Contact Dose [ Sv/hr] : %s",
   "Folded (Adjoint/Biological) Dose [Sv/hr] : %s",
-  "Exposure Rate [mR/hr]",
+  "Exposure Rate [mR/hr] - Infinite Line Approximation: %s",
+  "Exposure Rate [mR/hr] - Cylindrical Volume Source: %s",
   "WDR/Clearance index"};
 
 /***************************
@@ -134,15 +135,12 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	error(230,"Output type '%s' is not currently supported.",
 	      token);
 
-      /* use logical and to set the correct bit in the outTypes field */
-     
-      next->outTypes |= 1<<type;
-
       verbose(3,"Added output type %d (%s)",1<<type,token);
 
       switch (1<<type)
 	{
 	case OUTFMT_UNITS:
+	  next->outTypes |= 1<<type;
 	  delete next->actUnits;
 	  input >> token;
 	  next->actUnits = new char[strlen(token)+1];
@@ -178,6 +176,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	    }
 	  break;
 	case OUTFMT_WDR:
+          next->outTypes |= 1<<type;
 	  input >> token;
 	  fileNamePtr = new char[strlen(token)+1];
 	  strcpy(fileNamePtr,token);
@@ -185,6 +184,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  verbose(4,"Added WDR/Clearance file %s", token);
 	  break;
 	case OUTFMT_SRC:
+	  next->outTypes |= 1<<type;
 	  /* set gamma source file name here */
 	  next->gammaSrc= new GammaSrc(input,GAMMASRC_RAW_SRC);
 	  break;
@@ -192,22 +192,40 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  //Need to determine which dose approximation is defined
           char approx_token[64];
           input >> approx_token;
-	  if (approx_token[0] == 'c' || approx_token[0] == 'C')
-	     /* setup gamma source for contact dose */
-	     next->contactDose = new GammaSrc(input,GAMMASRC_CONTACT);
-	  else if (approx_token[0] == 'l' || approx_token[0] == 'L') {
+	  if (approx_token[0] == 'l' || approx_token[0] == 'L') {
 
 	    //adjust outTypes
-	    next->outTypes -= OUTFMT_CDOSE;
+	    //next->outTypes -= OUTFMT_CDOSE;
 	    next->outTypes += OUTFMT_EXP; 
 	    /* setup gamma source for exposure dose with line approximation */
 	    next->exposureDose = new GammaSrc(input, GAMMASRC_EXPOSURE);
 	  }
+	  else if ( approx_token[0] == 'v' || approx_token[0] == 'V' ) {
+	    //adjust outTypes
+	    //next->outTypes -= OUTFMT_CDOSE;
+	    next->outTypes += OUTFMT_EXP_CYL_VOL; 
+	    /* setup gamma source for exposure dose with line approximation */
+	    next->exposureCylVolDose = new GammaSrc(input, GAMMASRC_EXPOSURE_CYLINDRICAL_VOLUME);
+	  }
+	  else if (approx_token[0] == 'c' || approx_token[0] == 'C') {
+             next->outTypes |= 1<<type;
+	     /* setup gamma source for contact dose */
+	     next->contactDose = new GammaSrc(input,GAMMASRC_CONTACT);
+	    }
+
+	  //Add more types of dose output here
 	  break;
+
 	case OUTFMT_ADJ:
 	  /* setup gamma source for adjoint dose */
 	  next->adjointDose = new GammaSrc(input,GAMMASRC_ADJOINT);
           break;	
+	
+	default:
+        /* use logical and to set the correct bit in the outTypes field */
+	   next->outTypes |= 1<<type;
+	  break;
+	   
 	}
 
       clearComment(input);
@@ -284,6 +302,10 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		sprintf(buffer, Out_Types_Str[outTypeNum],
 			ptr->exposureDose->getFileName());
 		break;
+	      case (OUTFMT_EXP_CYL_VOL) :
+		sprintf(buffer, Out_Types_Str[outTypeNum],
+			ptr->exposureCylVolDose->getFileName());
+		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 			ptr->normUnits);
@@ -340,8 +362,18 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		Result::setGammaSrc(ptr->adjointDose);
 		break;
 	      case (OUTFMT_EXP) :
-		sprintf(buffer,Out_Types_Str[outTypeNum]);
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+                       ptr->exposureDose->getFileName());
+        	/* setup gamma attenuation coefficients */
+		ptr->exposureDose->setGammaAttenCoef(mixList);
 		Result::setGammaSrc(ptr->exposureDose);
+		break;
+	      case (OUTFMT_EXP_CYL_VOL) :
+		sprintf(buffer,Out_Types_Str[outTypeNum],
+			ptr->exposureCylVolDose->getFileName());
+        	/* setup gamma attenuation coefficients */
+		ptr->exposureCylVolDose->setGammaAttenCoef(mixList);
+		Result::setGammaSrc(ptr->exposureCylVolDose);
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],ptr->normUnits);
