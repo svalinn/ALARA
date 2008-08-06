@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.h,v 1.12 2008-07-31 18:07:04 phruksar Exp $ */
+/* $Id: GammaSrc.h,v 1.13 2008-08-06 16:44:20 phruksar Exp $ */
 #include "alara.h"
 #include <map>
 #include <vector>
@@ -50,7 +50,7 @@ protected:
   std::map<int, double> exposureDoseCache;
   std::vector< double > gammaAbsAir; //Mass absorption attenuation in air
   float G_factor(float,float,float,float);
-  float calcBuildupFactor(double,double, char);
+  void calcBuildupParameters(double, char, double&, double&, double&, double&);
 
 public:
 
