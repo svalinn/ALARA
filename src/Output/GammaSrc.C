@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.25 2008-07-31 19:57:12 phruksar Exp $ */
+/* $Id: GammaSrc.C,v 1.26 2008-08-06 17:38:10 phruksar Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -318,7 +318,7 @@ float GammaSrc::G_factor(float k,float p,float MsR,float b1 = 0)
 {
 
   ifstream GFile;
-  GFile.open(searchNonXSPath("GFile.txt"));
+  GFile.open(searchNonXSPath("GFunction"));
 
   //float k_min, k_max, p_min, p_max;
   int readint;

@@ -1,4 +1,4 @@
-/* $Id: Result.h,v 1.19 2004-06-03 21:56:27 wilsonp Exp $ */
+/* $Id: Result.h,v 1.20 2008-08-06 17:38:10 phruksar Exp $ */
 #include "alara.h"
 
 #ifndef _RESULT_H

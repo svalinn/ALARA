@@ -1,4 +1,4 @@
-/* $Id: Result.C,v 1.34 2007-10-18 20:31:10 phruksar Exp $ */
+/* $Id: Result.C,v 1.35 2008-08-06 17:38:10 phruksar Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Solution: functions directly related to the solution of a (sub)problem
@@ -40,10 +40,12 @@ char* Result::outReminderStr = NULL;
     respectively, by the arguments. */
 Result::Result(int setKza, Result* nxtPtr)
 {
+
   int resNum;
 
   kza = setKza;
   N = NULL;
+
   if (nResults>0)
     {
       N = new double[nResults];
@@ -61,6 +63,7 @@ Result::Result(const Result& r)
 
   kza = r.kza;
   N = NULL;
+
   if (nResults>0)
     {
       N = new double[nResults];
@@ -93,12 +96,14 @@ Result::Result(int setKza,float* floatN)
     same list unless explicitly changed. */
 Result& Result::operator=(const Result& r)
 {
+ 
   if (this == &r)
     return *this;
 
   int resNum;
 
   kza = r.kza;
+
   delete N;
   N = NULL;
   if (nResults>0)
@@ -165,7 +170,7 @@ void Result::tallySoln(Chain *chain, topScheduleT* schedT)
     {      
       /* tally result */
       double *Nlist = schedT->results(rank);
-
+      
       head->find(setKza)->tally(Nlist);
 
       /* this is allocated in topScheduleT::results() */
@@ -182,7 +187,7 @@ void Result::tallySoln(Chain *chain, topScheduleT* schedT)
     used to tally this particular result i.e. a density or a volume. */
 void Result::tally(double* Nlist, double scale)
 {
-  int resNum;
+  int resNum; 
 
   for (resNum=0;resNum<nResults;resNum++)
     {
@@ -228,6 +233,7 @@ void Result::postProcTarget(Result* outputList, Mixture *mixPtr)
 	  compNum = mixPtr->getCompNum(compPtr);
 	  
 	  /* update this component */
+	  
 	  outputList[compNum].find(root->kza)->tally(root->N,density);
 	  
 	  /* get the next component */
@@ -257,10 +263,10 @@ void Result::postProcList(Result* outputList, Mixture *mixPtr, int rootKza)
   while (compPtr)
     {
       compNum = mixPtr->getCompNum(compPtr);
-
+      
       /* update this component */
       postProc(outputList[compNum],density);
-      
+     
       /* get the next component */
       compPtr = mixPtr->getComp(rootKza,density,compPtr);
     }
@@ -295,7 +301,7 @@ void Result::postProc(Result& outputList, double density)
     total for this point at each cooling time, at the pointer passed by
     reference in the third argument. */
 void Result::write(int response, int targetKza, Mixture *mixPtr, 
-		   CoolingTime *coolList, double*& total, double volume_mass, Volume *volPtr)
+		   CoolingTime *coolList,double*& total, double volume_mass, Volume *volPtr)
 {
   int resNum;
   int gGrpNum,nGammaGrps;
@@ -308,8 +314,8 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   int mode = NuclearData::getMode();
   
   /* initialize the total array */
-  delete total;
   total = new double[nResults];
+
   for (resNum=0;resNum<nResults;resNum++)
     total[resNum] = 0;
   
@@ -370,8 +376,12 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 	    dataAccess.getLambda(targetKza)*actMult;
 	  break;
 	 case OUTFMT_EXP:
-	  multiplier = dataAccess.getLambda(targetKza)*actMult*0.0659 * 
-		gammaSrc->calcExposureDoseConv(targetKza) ;
+	  multiplier = dataAccess.getLambda(targetKza)*actMult* 
+		gammaSrc->calcExposureDoseConv(targetKza,mixPtr->getGammaAttenCoef()) ;
+	  break;
+	case OUTFMT_EXP_CYL_VOL:
+	  multiplier = dataAccess.getLambda(targetKza)*actMult* 
+	        gammaSrc->calcExposureDoseConv(targetKza,mixPtr->getGammaAttenCoef()) ;
 	  break;
         default:
 	  multiplier = 1.0;
@@ -422,9 +432,13 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 		dataAccess.getLambda(ptr->kza)*actMult;
 	      break;
 	    case OUTFMT_EXP:
-	      multiplier = dataAccess.getLambda(ptr->kza)*actMult*0.0659 *
-		gammaSrc->calcExposureDoseConv(ptr->kza);
+	      multiplier = dataAccess.getLambda(ptr->kza)*actMult*
+		gammaSrc->calcExposureDoseConv(ptr->kza,mixPtr->getGammaAttenCoef());
 	      break;
+	    case OUTFMT_EXP_CYL_VOL:
+	      multiplier = dataAccess.getLambda(ptr->kza)*actMult* 
+	        gammaSrc->calcExposureDoseConv(ptr->kza,mixPtr->getGammaAttenCoef()) ;
+  	      break;
             default:
 	      multiplier = 1.0;
 	    }
@@ -440,8 +454,10 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 
       /* write the formatted output for this isotope */
       cout << isoName(ptr->kza,isoSym) << "\t";
+
       if (response == OUTFMT_SRC)
 	gammaSrc->writeIsoName(isoName(ptr->kza,isoSym));
+
 
       for (resNum=0;resNum<nResults;resNum++)
 	{
@@ -472,6 +488,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 
   /* write the formatted output for the total response */
   cout << "total\t";
+  
   for (resNum=0;resNum<nResults;resNum++)
     {
       sprintf(isoSym,"%-11.4e ",total[resNum]);

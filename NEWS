@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.21 2007-12-14 02:25:38 wilsonp Exp $
+$Id: NEWS,v 1.22 2008-08-06 17:38:09 phruksar Exp $
 
 Version 2.8.1
 
@@ -8,6 +8,8 @@ BUGS FIXED
 NEW FEATURES
 	* Added alternative dose approximation - infinte line source. 
 	  [PP] (10/19/07)
+	* Added alternative dose approximation - cylindrical volume source.
+	  [PP] (08/06/08) 
 
 CODE UPDATES
 

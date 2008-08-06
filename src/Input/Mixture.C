@@ -1,4 +1,4 @@
-/* $Id: Mixture.C,v 1.36 2008-07-31 18:05:34 phruksar Exp $ */
+/* $Id: Mixture.C,v 1.37 2008-08-06 17:38:09 phruksar Exp $ */
 /* (potential) File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -538,7 +538,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	      cout << endl;
 
 	      ptr->outputList[compNum].write(response,targetKza,this,
-					     coolList,ptr->total_initial,ptr->total,volume_mass);
+					     coolList,ptr->total,volume_mass);
 
 	      compPtr = compPtr->advance();
 	      compNum++;
@@ -595,7 +595,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
 	  cout << endl;
 	      
 	  ptr->outputList[ptr->nComps].write(response,targetKza,this,
-					     coolList,ptr->total_initial,ptr->total,volume_mass);
+					     coolList,ptr->total,volume_mass);
 
 	}
     }
@@ -623,8 +623,6 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
       ptr = ptr->next;
       cout << ++mixCntr << "\t";
 
-      sprintf(isoSym,"%-11.4e\t",ptr->total_initial);
-      cout << isoSym;    
       for (resNum=0;resNum<nResults;resNum++)
 	{
 	  sprintf(isoSym,"%-11.4e ",ptr->total[resNum]);
