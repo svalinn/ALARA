@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.26 2008-08-06 17:38:10 phruksar Exp $ */
+/* $Id: GammaSrc.C,v 1.27 2008-08-07 15:13:37 phruksar Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -319,6 +319,9 @@ float GammaSrc::G_factor(float k,float p,float MsR,float b1 = 0)
 
   ifstream GFile;
   GFile.open(searchNonXSPath("GFunction"));
+  if (!GFile)
+    error(250,"Unable to open file for interpolating G function: %s\n",
+	  "GFunction");
 
   //float k_min, k_max, p_min, p_max;
   int readint;
@@ -344,9 +347,9 @@ float GammaSrc::G_factor(float k,float p,float MsR,float b1 = 0)
 
   //Make sure that all parameters are within ranges
   if ( ( k < k_val[0] ) || ( k > k_val[k_val.size()-1] ) )
-    return -2.0;
+    error(1104, "The ratio height/radius is out of range for cylindrical volume source calculation.\n");
   else if ( (p < p_val[0] ) || (p > p_val[p_val.size()-1] ) )
-    return -3.0;
+    error(1105, "The ratio distance/radius is out of range for cylindrical volume source calculation.\n");
 
 
   vector<float> MsR_val;
@@ -789,6 +792,9 @@ void GammaSrc::calcBuildupParameters(double En,  char mat, double& A1, double& A
 
   ifstream BFile;
   BFile.open(searchNonXSPath("Buildup_Parameter"));
+  if (!BFile)
+    error(250,"Unable to open file for interpolating buildup factors: %s\n",
+	  "Buildup_Parameter");
 
   vector<double> E_vec;
 
