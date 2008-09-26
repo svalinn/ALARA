@@ -487,13 +487,13 @@ void Cinder::DecayData(Kza parent) throw(ExDecayMode)
   getline(InFile,str,'\n');
 
   Library.AddDecayEnergy( parent, LIGHT_PARTICLES,
-			  atof(str.substr(6,FLOAT_DIGITS).c_str()) );
+			  atof(str.substr(6,FLOAT_DIGITS).c_str())*1e6 );
 			 
   Library.AddDecayEnergy( parent, EM_RADIATION,
-			  atof(str.substr(23,FLOAT_DIGITS).c_str()) );
+			  atof(str.substr(23,FLOAT_DIGITS).c_str())*1e6 );
 
   Library.AddDecayEnergy( parent, HEAVY_PARTICLES,
-			  atof(str.substr(40,FLOAT_DIGITS).c_str()) );
+			  atof(str.substr(40,FLOAT_DIGITS).c_str())*1e6 );
 
 
   try{
