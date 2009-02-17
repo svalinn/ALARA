@@ -1,4 +1,4 @@
-$Id: DEVEL_NOTES,v 1.3 2005-01-17 22:58:49 wilsonp Exp $
+$Id: DEVEL_NOTES,v 1.4 2009-02-17 22:07:43 wilsonp Exp $
 
 This file contains some information on how to use automake/autoconf
 and reminders about which files are necessary for the user-level
@@ -12,22 +12,14 @@ This means that users don't need copies of configure.in or Makefile.am.
 ------------------------------------------
 2. installation directory locations
 
-datadir = ${prefix}/share
-	pkgdatadir = $(datadir)/alara
-		XXXXXXXX nonxsdir = $(pkgdatadir)/data XXXXXXXXXXX
-		XXXXXXXX docdir = $(pkgdatadir)/doc XXXXXXXXXXX
-		XXXXXXXX sampledir = $(pkgdatadir)/sample XXXXXXXXXXX
-sysconfdir = ${prefix}/etc
 
-
+nonxsdir  = $(prefix)/data
+xsdir     = $(prefix)/data
+docdir    = $(prefix)/doc
+sampledir = $(prefix)/sample
 bindir = ${exec_prefix}/bin
 	XXXXXXXX alara executable XXXXXXXX
 	XXXXXXXX tools:scripts & executables XXXXXXX
-libdir = ${exec_prefix}/lib
-	pkglibdir = $(libdir)/alara
-		XXXXXXX xsdir = $(pkglibdir)/$OSTYPE
-libexecdir = ${exec_prefix}/libexec
-sbindir = ${exec_prefix}/sbin
 
 ---------------------------------------------
 3. Upon a fresh CVS check out...

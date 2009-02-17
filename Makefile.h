@@ -2,10 +2,10 @@
 #### in this hierarchy
 
 # where to put documentation, data and sample input/output
-docdir = $(pkgdatadir)/doc
-nonxsdir = $(pkgdatadir)/data
-xsdir = $(pkglibdir)/$(OSTYPE)
-sampledir = $(pkgdatadir)/sample
-sampledatadir = $(pkgdatadir)/sample/data
+docdir = $(prefix)/doc
+nonxsdir = $(prefix)/data
+xsdir = $(prefix)/data
+sampledir = $(prefix)/sample
+sampledatadir = $(prefix)/sample/data
 
 AM_CPPFLAGS = -I$(top_srcdir)/src
