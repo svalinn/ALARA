@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.34 2008-07-31 18:07:52 phruksar Exp $ */
+/* $Id: OutputFormat.C,v 1.35 2009-02-17 21:51:28 wilsonp Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -10,7 +10,7 @@
 
 #include "Chains/Node.h"
 
-const char *Out_Types = "ucnstabgpdfew";
+const char *Out_Types = "ucnstabgpdflvw";
 
 const int nOutTypes = 14;
 const int firstResponse = 2;
