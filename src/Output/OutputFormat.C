@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.35 2009-02-17 21:51:28 wilsonp Exp $ */
+/* $Id: OutputFormat.C,v 1.36 2009-02-22 19:17:29 wilsonp Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -218,6 +218,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 
 	case OUTFMT_ADJ:
 	  /* setup gamma source for adjoint dose */
+	  next->outTypes |= 1<<type;
 	  next->adjointDose = new GammaSrc(input,GAMMASRC_ADJOINT);
           break;	
 	
