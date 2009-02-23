@@ -1,4 +1,4 @@
-/* $Id: OutputFormat.C,v 1.36 2009-02-22 19:17:29 wilsonp Exp $ */
+/* $Id: OutputFormat.C,v 1.37 2009-02-23 15:20:26 wilsonp Exp $ */
 #include "OutputFormat.h"
 
 #include "GammaSrc.h"
@@ -26,7 +26,7 @@ const char *Out_Types_Str[nOutTypes] = {
   "Gamma Decay Heat [W%s]",
   "Photon Source Distribution [gammas/s%s] : %s\n\t    with Specific Activity [%s%s]",
   "Contact Dose [ Sv/hr] : %s",
-  "Folded (Adjoint/Biological) Dose [Sv/hr] : %s",
+  "Folded (Adjoint/Biological) Dose [units defined by adjoint flux] : %s",
   "Exposure Rate [mR/hr] - Infinite Line Approximation: %s",
   "Exposure Rate [mR/hr] - Cylindrical Volume Source: %s",
   "WDR/Clearance index"};
@@ -189,6 +189,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  next->gammaSrc= new GammaSrc(input,GAMMASRC_RAW_SRC);
 	  break;
 	case OUTFMT_CDOSE:
+          next->outTypes |= 1<<type;
 	  //Need to determine which dose approximation is defined
           char approx_token[64];
           input >> approx_token;
@@ -208,7 +209,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	    next->exposureCylVolDose = new GammaSrc(input, GAMMASRC_EXPOSURE_CYLINDRICAL_VOLUME);
 	  }
 	  else if (approx_token[0] == 'c' || approx_token[0] == 'C') {
-             next->outTypes |= 1<<type;
+	    next->outTypes |= 1<<type;
 	     /* setup gamma source for contact dose */
 	     next->contactDose = new GammaSrc(input,GAMMASRC_CONTACT);
 	    }
@@ -217,6 +218,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  break;
 
 	case OUTFMT_ADJ:
+	  next->outTypes |= 1<<type;
 	  /* setup gamma source for adjoint dose */
 	  next->outTypes |= 1<<type;
 	  next->adjointDose = new GammaSrc(input,GAMMASRC_ADJOINT);
