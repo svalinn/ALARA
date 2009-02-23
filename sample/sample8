@@ -1,4 +1,4 @@
-## $Id: sample8,v 1.4 2007-12-14 02:25:10 wilsonp Exp $
+## $Id: sample8,v 1.5 2009-02-23 15:25:15 wilsonp Exp $
 ## Sample 6 : Biodose
 ## Highlights: Bio dose calculation in output block
 ##
@@ -54,7 +54,7 @@ output interval
    units Bq cm3
    number_density
    dose contact data/fendl2bin data/ANS6_4_3
-   folded_dose data/fendl2bin  data/adjfile2.gam  21  14e6 12e6 10e6 8e6 7.5e6 7e6 6.5e6 6e6 5.5e6 5e6 4.5e6 4e6 3.5e6 3e6 2.5e6 2e6 1.5e6 1e6 .4e6 .2e6 .1e6  0.5
+   folded_dose data/fendl2bin  0.5 data/adjfile2.gam  21  14e6 12e6 10e6 8e6 7.5e6 7e6 6.5e6 6e6 5.5e6 5e6 4.5e6 4e6 3.5e6 3e6 2.5e6 2e6 1.5e6 1e6 .4e6 .2e6 .1e6
 end
 
 truncation  1e-6
