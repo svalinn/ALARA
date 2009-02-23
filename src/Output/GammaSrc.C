@@ -1,4 +1,4 @@
-/* $Id: GammaSrc.C,v 1.27 2008-08-07 15:13:37 phruksar Exp $ */
+/* $Id: GammaSrc.C,v 1.28 2009-02-23 15:17:44 wilsonp Exp $ */
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
@@ -220,6 +220,9 @@ void GammaSrc::initAdjointDose(istream& input)
   int gNum;
   int suminterval;
 
+  /* read detector volume */
+  clearComment(input);
+  input >> detvolume;
   /* get adjoint dose field information from file */
   clearComment(input);
   input >> token;
@@ -244,8 +247,6 @@ void GammaSrc::initAdjointDose(istream& input)
     {
       input >> grpBnds[gNum];
     }
-  /* read detector volume */
-  input >> detvolume;
 
 
   /* read number of interval to be summed */
