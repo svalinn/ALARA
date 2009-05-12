@@ -1,4 +1,4 @@
-/* $Id: Zone.C,v 1.5 2009-05-12 20:00:01 wilsonp Exp $ */
+/* $Id: Zone.C,v 1.6 2009-05-12 20:07:45 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -67,7 +67,7 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
 {
   
   double d1[3],d2[3],dx[3];
-  Loading *loadPtr = loadList->advance();
+  Loading *loadPtr = loadList;
   Loading *firstLoadPtr[3];
   Zone* zonePtr[3];
   int inNum[3], nmInts[3];
@@ -89,6 +89,8 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
 
       /* store the pointer to the first loading in this dimension */
       firstLoadPtr[2] = loadPtr;
+
+      loadPtr = loadPtr->advance();
 
       /* G: for each interval in this boundary dimension */
       for (inNum[2]=0;inNum[2]<nmInts[2];inNum[2]++)
@@ -115,6 +117,8 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
 	      /* store the pointer to the first loading in this dimension */
 	      firstLoadPtr[1] = loadPtr;
 
+	      loadPtr = loadPtr->advance();
+
 	      /* G */
 	      for (inNum[1]=0;inNum[1]<nmInts[1];inNum[1]++)
 		{
@@ -129,6 +133,8 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
 		  /* C */
 		  while (zonePtr[0] != NULL)
 		    {
+		      loadPtr = loadPtr->advance();
+
 		      /* D */
 		      d2[0] = zonePtr[0]->boundary;
 		      /* E */
@@ -149,7 +155,6 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
 		      
 		      /* I */
 		      zonePtr[0] = zonePtr[0]->next;
-		      loadPtr = loadPtr->advance();
 		      /* J */
 		      d1[0] = d2[0];
 		      
@@ -162,7 +167,6 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
 	      
 	      /* I */
 	      zonePtr[1] = zonePtr[1]->next;
-	      loadPtr = loadPtr->advance();
 	      /* J */
 	      d1[1] = d2[1];
 	      
@@ -174,7 +178,6 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
 	  
       /* I: advance to next boundary */
       zonePtr[2] = zonePtr[2]->next;
-      loadPtr = loadPtr->advance();
       /* J: reset lower boundary */
       d1[2] = d2[2];
       
