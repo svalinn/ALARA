@@ -1,4 +1,4 @@
-/* $Id: Zone.C,v 1.4 2003-01-13 04:35:00 fateneja Exp $ */
+/* $Id: Zone.C,v 1.5 2009-05-12 20:00:01 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
  * Input: functions directly related to input of data 
@@ -68,6 +68,7 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
   
   double d1[3],d2[3],dx[3];
   Loading *loadPtr = loadList->advance();
+  Loading *firstLoadPtr[3];
   Zone* zonePtr[3];
   int inNum[3], nmInts[3];
 
@@ -86,9 +87,15 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
       /* F: initialize boundary increment */
       dx[2] = (d2[2]-d1[2])/nmInts[2];
 
+      /* store the pointer to the first loading in this dimension */
+      firstLoadPtr[2] = loadPtr;
+
       /* G: for each interval in this boundary dimension */
       for (inNum[2]=0;inNum[2]<nmInts[2];inNum[2]++)
 	{
+
+	  /* always start at the first loading definition of this row */
+	  loadPtr = firstLoadPtr[2];
 
 	  /* A: see comment A above */
 	  zonePtr[1] = zoneStart[1]->next;
@@ -105,10 +112,15 @@ void Zone::convert(double *start, int *coord, Zone **zoneStart,
 	      /* F */
 	      dx[1] = (d2[1]-d1[1])/nmInts[1];
 
+	      /* store the pointer to the first loading in this dimension */
+	      firstLoadPtr[1] = loadPtr;
+
 	      /* G */
 	      for (inNum[1]=0;inNum[1]<nmInts[1];inNum[1]++)
 		{
-		 
+		  /* always start at the first loading definition of this row */
+		  loadPtr = firstLoadPtr[1];
+
 		  /* A */
 		  zonePtr[0] = zoneStart[0]->next;
 		  /* B */
