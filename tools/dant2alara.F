@@ -41,6 +41,7 @@
 
 ! write header info 
  110  write(6,8000) ngroup,ninti,nintj,nintk,nint,ndim
+      write(6,*) nblock
 
 ! exclude multi-d (for now)
       if (ndim > 2) then
@@ -105,7 +106,8 @@
                   lj = (bNum-1) * ((nintj-1) / nblock + 1) + 1
                   uj =   bNum   * ((nintj-1) / nblock + 1)
                   uj = min(nintj, uj)
-                  read(2) ((fluxTmp(iint,grp),iint=1,ninti),jint=lj,uj)
+                  read(2) ((fluxTmp(iint,jint),iint=1,ninti),jint=lj,uj)
+                 
 
                   do jint=lj,uj
                      do iint=1,ninti
