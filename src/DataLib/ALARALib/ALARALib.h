@@ -147,8 +147,8 @@ DATALIB_IEAF     6     ieaf     A data library with cross-section
 
  */
 
-#ifndef _ALARALIB_H
-#define _ALARALIB_H
+#ifndef ALARALIB_H
+#define ALARALIB_H
 
 #define DATALIB_ALARA 1
 #define DATALIB_GAMMA 5

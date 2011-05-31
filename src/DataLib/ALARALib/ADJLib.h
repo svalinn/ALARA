@@ -37,8 +37,8 @@ DATALIB_IEAF     6     ieaf     A data library with cross-section
 
 */
 
-#ifndef _ADJLIB_H
-#define _ADJLIB_H
+#ifndef ADJLIB_H
+#define ADJLIB_H
 
 #include "ALARALib.h"
 

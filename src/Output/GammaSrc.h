@@ -9,8 +9,8 @@
 
  */
 
-#ifndef _GAMMASRC_H
-#define _GAMMASRC_H
+#ifndef GAMMASRC_H
+#define GAMMASRC_H
 
 
 #define GAMMASRC_RAW_SRC  1

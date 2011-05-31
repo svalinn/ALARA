@@ -1,8 +1,8 @@
 /* $Id: ScheduleItem.h,v 1.5 2003-01-13 04:34:59 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _SCHEDULEITEM_H
-#define _SCHEDULEITEM_H
+#ifndef SCHEDULEITEM_H
+#define SCHEDULEITEM_H
 
 /* types of input schedule items */
 #define SCHED_HEAD 0

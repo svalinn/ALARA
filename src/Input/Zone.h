@@ -1,8 +1,8 @@
 /* $Id: Zone.h,v 1.5 2003-01-13 04:35:00 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _ZONE_H
-#define _ZONE_H
+#ifndef ZONE_H
+#define ZONE_H
 
 /* zone head*/
 #define ZONE_HEAD -1

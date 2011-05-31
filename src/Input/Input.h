@@ -1,8 +1,8 @@
 /* $Id: Input.h,v 1.7 2003-01-13 04:34:57 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _INPUT_H
-#define _INPUT_H
+#ifndef INPUT_H
+#define INPUT_H
 
 /** \brief This class is the container for the entire problem input.  
  *

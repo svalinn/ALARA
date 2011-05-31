@@ -1,5 +1,5 @@
-#ifndef _FEINDLIB_H
-#define _FEINDLIB_H
+#ifndef FEINDLIB_H
+#define FEINDLIB_H
 
 #define DATALIB_FEIND 7
 

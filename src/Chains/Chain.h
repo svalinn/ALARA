@@ -1,8 +1,8 @@
 /* $Id: Chain.h,v 1.14 2007-12-12 06:06:14 phruksar Exp $ */
 #include "alara.h"
 
-#ifndef _CHAIN_H 
-#define _CHAIN_H
+#ifndef CHAIN_H 
+#define CHAIN_H
 
 #define INITMAXCHAINLENGTH 25
 

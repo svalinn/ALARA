@@ -1,8 +1,8 @@
 /* $Id: Matrix.h,v 1.6 2002-08-05 20:23:19 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _MATRIX_H
-#define _MATRIX_H
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include "Chains/Chain.h"
 

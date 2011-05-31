@@ -85,8 +85,8 @@ DATALIB_IEAF     6     ieaf     A data library with cross-section
  
  */
 
-#ifndef _EAFLIB_H
-#define _EAFLIB_H
+#ifndef EAFLIB_H
+#define EAFLIB_H
 
 #define DATALIB_EAF 3
 

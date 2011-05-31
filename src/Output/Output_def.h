@@ -1,6 +1,6 @@
 /* $Id: Output_def.h,v 1.17 2008-07-31 18:08:50 phruksar Exp $ */
-#ifndef _OUTPUT_DEF_H
-#define _OUTPUT_DEF_H
+#ifndef OUTPUT_DEF_H
+#define OUTPUT_DEF_H
 
 #define OUTFMT_HEAD     0
 #define OUTFMT_UNITS    1

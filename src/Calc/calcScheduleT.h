@@ -1,8 +1,8 @@
 /* $Id: calcScheduleT.h,v 1.5 2003-01-13 04:34:29 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _CALCSCHEDULET_H
-#define _CALCSCHEDULET_H
+#ifndef CALCSCHEDULET_H
+#define CALCSCHEDULET_H
 
 #include "Util/Matrix.h"
 

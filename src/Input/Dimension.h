@@ -1,8 +1,8 @@
 /* $Id: Dimension.h,v 1.5 2003-01-13 04:34:55 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _DIMENSION_H
-#define _DIMENSION_H
+#ifndef DIMENSION_H
+#define DIMENSION_H
 
 #include "Input_def.h"
 

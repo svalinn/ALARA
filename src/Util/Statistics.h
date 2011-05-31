@@ -94,8 +94,8 @@
 
 */
 
-#ifndef _STATISTICS_H
-#define _STATISTICS_H
+#ifndef STATISTICS_H
+#define STATISTICS_H
 
 /** \brief This class is used to measure some statistics of each run.
  */

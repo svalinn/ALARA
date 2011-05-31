@@ -1,8 +1,8 @@
 /* $Id: Norm.h,v 1.5 2003-01-13 04:34:58 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _NORM_H
-#define _NORM_H
+#ifndef NORM_H
+#define NORM_H
 
 #define NORM_HEAD -1
 

@@ -1,8 +1,8 @@
 /* $Id: VolFlux.h,v 1.15 2003-01-13 04:34:28 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _VOLFLUX_H
-#define _VOLFLUX_H
+#ifndef VOLFLUX_H
+#define VOLFLUX_H
 
 #define REFFLUX_MAX     0
 #define REFFLUX_VOL_AVG 1

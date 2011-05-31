@@ -1,8 +1,8 @@
 /* $Id: Flux.h,v 1.13 2004-08-04 19:44:52 wilsonp Exp $ */
 #include "alara.h"
 
-#ifndef _FLUX_H
-#define _FLUX_H
+#ifndef FLUX_H
+#define FLUX_H
 
 /* flux formats */
 #define FLUX_HEAD 0

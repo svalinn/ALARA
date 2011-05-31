@@ -1,8 +1,8 @@
 /* $Id: TreeInfo.h,v 1.6 2003-01-13 04:34:53 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _TREEINFO_H
-#define _TREEINFO_H
+#ifndef TREEINFO_H
+#define TREEINFO_H
 
 /** \brief This class stores the tree information for a particular 
  *         isotope in the chain.

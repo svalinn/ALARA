@@ -1,8 +1,8 @@
 /* $Id: History.h,v 1.5 2003-01-13 04:34:56 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _HISTORY_H
-#define _HISTORY_H
+#ifndef HISTORY_H
+#define HISTORY_H
 
 #include "Input_def.h"
 

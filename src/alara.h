@@ -1,6 +1,6 @@
 /* $Id: alara.h,v 1.18 2003-10-22 06:07:02 wilsonp Exp $ */
-#ifndef _ALARA_H
-#define _ALARA_H 1
+#ifndef ALARA_H
+#define ALARA_H 1
 
 #include "config.h"
 

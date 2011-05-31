@@ -1,8 +1,8 @@
 /* $Id: topSchedule.h,v 1.4 2003-01-13 04:34:30 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _TOPSCHEDULE_H
-#define _TOPSCHEDULE_H
+#ifndef TOPSCHEDULE_H
+#define TOPSCHEDULE_H
 
 #include "calcSchedule.h"
 

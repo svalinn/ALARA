@@ -1,8 +1,8 @@
 /* $Id: NuclearData.h,v 1.16 2003-01-13 04:34:52 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _NUCLEARDATA_H
-#define _NUCLEARDATA_H
+#ifndef NUCLEARDATA_H
+#define NUCLEARDATA_H
 
 /** \brief Stores the nuclear data information for a particular isotope 
            in the chain.

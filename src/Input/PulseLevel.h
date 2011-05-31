@@ -1,8 +1,8 @@
 /* $Id: PulseLevel.h,v 1.5 2003-01-13 04:34:58 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _PULSELEVEL_H
-#define _PULSELEVEL_H
+#ifndef PULSELEVEL_H
+#define PULSELEVEL_H
 
 /* pulsing head */
 #define PULSE_HEAD -1

@@ -1,8 +1,8 @@
 /* $Id: Geometry.h,v 1.4 2003-01-13 04:34:56 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _GEOMETRY_H
-#define _GEOMETRY_H
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
 
 /* Geometry types */
 #define GEOM_P  0 

@@ -9,8 +9,8 @@
 
 #include "alara.h"
 
-#ifndef _NODE_H
-#define _NODE_H
+#ifndef NODE_H
+#define NODE_H
 
 #include "NuclearData.h"
 #include "TreeInfo.h"

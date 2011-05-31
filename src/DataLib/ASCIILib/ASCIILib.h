@@ -236,8 +236,8 @@ DATALIB_IEAF     6     ieaf     A data library with cross-section
 
  */
 
-#ifndef _ASCIILIB_H
-#define _ASCIILIB_H
+#ifndef ASCIILIB_H
+#define ASCIILIB_H
 
 #include "DataLib/DataLib.h"
 

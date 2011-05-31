@@ -1,8 +1,8 @@
 /* $Id: Volume.h,v 1.21 2004-07-29 19:55:01 wilsonp Exp $ */
 #include "alara.h"
 
-#ifndef _VOLUME_H
-#define _VOLUME_H
+#ifndef VOLUME_H
+#define VOLUME_H
 
 /* fineMP volume head */
 #define VOL_HEAD -1

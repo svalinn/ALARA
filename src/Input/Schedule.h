@@ -1,8 +1,8 @@
 /* $Id: Schedule.h,v 1.5 2003-01-13 04:34:59 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _SCHEDULE_H
-#define _SCHEDULE_H
+#ifndef SCHEDULE_H
+#define SCHEDULE_H
 
 #include "Input_def.h"
 

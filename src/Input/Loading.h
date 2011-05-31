@@ -1,8 +1,8 @@
 /* $Id: Loading.h,v 1.14 2003-01-14 05:01:18 wilsonp Exp $ */
 #include "alara.h"
 
-#ifndef _LOADING_H
-#define _LOADING_H
+#ifndef LOADING_H
+#define LOADING_H
 
 #include "Input_def.h"
 

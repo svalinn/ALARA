@@ -1,8 +1,8 @@
 /* $Id: Mixture.h,v 1.22 2008-08-06 17:38:09 phruksar Exp $ */
 #include "alara.h"
 
-#ifndef _MIXTURE_H
-#define _MIXTURE_H
+#ifndef MIXTURE_H
+#define MIXTURE_H
 
 #include "Input_def.h"
 

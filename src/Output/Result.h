@@ -1,8 +1,8 @@
 /* $Id: Result.h,v 1.20 2008-08-06 17:38:10 phruksar Exp $ */
 #include "alara.h"
 
-#ifndef _RESULT_H
-#define _RESULT_H
+#ifndef RESULT_H
+#define RESULT_H
 
 /* conversion from eV to Joules */
 #define EV2J 1.6e-19

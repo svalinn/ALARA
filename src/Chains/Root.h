@@ -1,8 +1,8 @@
 /* $Id: Root.h,v 1.11 2003-01-13 04:34:53 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _ROOT_H
-#define _ROOT_H
+#ifndef ROOT_H
+#define ROOT_H
 
 #include "Node.h"
 

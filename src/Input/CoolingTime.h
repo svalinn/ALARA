@@ -1,8 +1,8 @@
 /* $Id: CoolingTime.h,v 1.5 2003-01-13 04:34:55 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _COOLINGTIME_H
-#define _COOLINGTIME_H
+#ifndef COOLINGTIME_H
+#define COOLINGTIME_H
 
 /* cooling time head */
 #define COOL_HEAD -1

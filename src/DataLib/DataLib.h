@@ -39,8 +39,8 @@
     -------------------------------------------------------------------
     */
     
-#ifndef _DATALIB_H
-#define _DATALIB_H
+#ifndef DATALIB_H
+#define DATALIB_H
 
 #define DATALIB_NULL 0
 

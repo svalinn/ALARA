@@ -1,8 +1,8 @@
 /* $Id: PulseHistory.h,v 1.4 2003-01-13 04:34:27 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _PULSEHISTORY_H
-#define _PULSEHISTORY_H
+#ifndef PULSEHISTORY_H
+#define PULSEHISTORY_H
 
 #include "Util/Matrix.h"
 

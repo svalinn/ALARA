@@ -1,8 +1,8 @@
 /* $Id: RateCache.h,v 1.5 2003-01-13 04:34:28 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _RATECACHE_H
-#define _RATECACHE_H
+#ifndef RATECACHE_H
+#define RATECACHE_H
 
 #define CACHE_SIZE 64
 #define BLANK_KZA 9999999

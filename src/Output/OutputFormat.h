@@ -2,8 +2,8 @@
 #include "alara.h"
 #include <set>
 
-#ifndef _OUTPUTFORMAT_H
-#define _OUTPUTFORMAT_H
+#ifndef OUTPUTFORMAT_H
+#define OUTPUTFORMAT_H
 
 #define OUTRES_HEAD 0
 #define OUTRES_INT  1

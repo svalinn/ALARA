@@ -1,8 +1,8 @@
 /* $Id: Component.h,v 1.14 2003-01-13 04:34:54 fateneja Exp $ */
 #include "alara.h"
 
-#ifndef _COMPONENT_H
-#define _COMPONENT_H
+#ifndef COMPONENT_H
+#define COMPONENT_H
 
 /* component types */
 #define COMP_HEAD   0
