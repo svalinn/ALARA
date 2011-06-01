@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cassert>
 #include <cctype>
+#include <cstdlib>
 
 #include "Eaf41.h"
 #include "LibDefine.h"

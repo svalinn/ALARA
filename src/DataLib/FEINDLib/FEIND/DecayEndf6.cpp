@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cctype>
 #include <cmath>
+#include <cstdlib>
 
 #include "DecayEndf6.h"
 #include "LibDefine.h"

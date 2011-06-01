@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cctype>
+#include <cstdlib>
 
 #include "RamLib.h"
 #include "DecayEndf6.h"

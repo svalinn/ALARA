@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cmath>
 #include <sstream>
+#include <cstdlib>
 
 #include "Parent.h"
 #include "Cinder.h"
