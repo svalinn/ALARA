@@ -1,5 +1,5 @@
-#ifndef __CINDER_H
-#define __CINDER_H
+#ifndef CINDER_H
+#define CINDER_H
 
 #include <fstream>
 #include <vector>

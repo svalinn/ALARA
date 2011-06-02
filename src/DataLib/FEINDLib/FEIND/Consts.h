@@ -1,5 +1,5 @@
-#ifndef __CONSTS_H
-#define __CONSTS_H
+#ifndef CONSTS_H
+#define CONSTS_H
 
 const unsigned int NUM_ELEMENTS = 110;
 

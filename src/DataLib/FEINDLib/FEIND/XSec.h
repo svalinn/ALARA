@@ -1,5 +1,5 @@
-#ifndef __XSEC_H__
-#define __XSEC_H__
+#ifndef XSEC_H
+#define XSEC_H
 
 #include "FeindNs.h"
 #include "exception/ExInclude.h"

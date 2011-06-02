@@ -1,5 +1,5 @@
-#ifndef __FEINDNS_H
-#define __FEINDNS_H
+#ifndef FEINDNS_H
+#define FEINDNS_H
 
 /** \file FeindNs.h
  *  \brief This file stores the declaration of the FEIND namespace. 

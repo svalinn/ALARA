@@ -1,5 +1,5 @@
-#ifndef __CLASSDEC_H
-#define __CLASSDEC_H
+#ifndef CLASSDEC_H
+#define CLASSDEC_H
 
 // The following classes will be declared in the FEIND namespace:
 

@@ -1,5 +1,5 @@
-#ifndef __LIBDEFINE_H__
-#define __LIBDEFINE_H__
+#ifndef LIBDEFINE_H
+#define LIBDEFINE_H
 
 #include <string>
 #include <vector>

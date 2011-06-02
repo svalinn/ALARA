@@ -1,5 +1,5 @@
-#ifndef __FEIND_H
-#define __FEIND_H
+#ifndef FEIND_H
+#define FEIND_H
 
 /** \file FEIND.h
  *  \brief This is the only file that should be included by applications

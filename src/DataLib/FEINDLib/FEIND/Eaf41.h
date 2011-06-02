@@ -1,5 +1,5 @@
-#ifndef __EAF41_H
-#define __EAF41_H
+#ifndef EAF41_H
+#define EAF41_H
 
 #include <string>
 #include <fstream>

@@ -1,5 +1,5 @@
-#ifndef __ENDFIEAF_H
-#define __ENDFIEAF_H
+#ifndef ENDFIEAF_H
+#define ENDFIEAF_H
 
 #include <vector>
 #include <string>

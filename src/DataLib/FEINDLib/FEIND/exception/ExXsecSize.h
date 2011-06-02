@@ -1,5 +1,5 @@
-#ifndef __EXXSECSIZE_H__
-#define __EXXSECSIZE_H__
+#ifndef EXXSECSIZE_H
+#define EXXSECSIZE_H
 
 #include "../FeindNs.h"
 #include "Exception.h"

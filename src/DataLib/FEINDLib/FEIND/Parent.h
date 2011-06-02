@@ -1,5 +1,5 @@
-#ifndef __PARENT_H
-#define __PARENT_H
+#ifndef PARENT_H
+#define PARENT_H
 
 #include "FeindNs.h"
 #include "XSec.h"

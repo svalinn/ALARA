@@ -1,5 +1,5 @@
-#ifndef __EXDECAYMODE_H__
-#define __EXDECAYMODE_H__
+#ifndef EXDECAYMODE_H
+#define EXDECAYMODE_H
 
 #include "../FeindNs.h"
 #include "Exception.h"

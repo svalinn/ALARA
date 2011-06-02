@@ -1,5 +1,5 @@
-#ifndef __DECAYENDF6_H
-#define __DECAYENDF6_H
+#ifndef DECAYENDF6_H
+#define DECAYENDF6_H
 
 #include <string>
 #include <fstream>

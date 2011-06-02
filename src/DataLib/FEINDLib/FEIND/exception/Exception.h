@@ -1,5 +1,5 @@
-#ifndef __EXCEPTION_H__
-#define __EXCEPTION_H__
+#ifndef EXCEPTION_H
+#define EXCEPTION_H
 
 #include "../FeindNs.h"
 #include "../Consts.h"

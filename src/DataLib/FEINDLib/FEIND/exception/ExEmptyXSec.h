@@ -1,5 +1,5 @@
-#ifndef __EXEMPTYXSEC_H__
-#define __EXEMPTYXSEC_H__
+#ifndef EXEMPTYXSEC_H
+#define EXEMPTYXSEC_H
 
 #include "../FeindNs.h"
 #include "Exception.h"

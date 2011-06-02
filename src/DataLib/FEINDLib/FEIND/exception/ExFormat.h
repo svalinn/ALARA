@@ -1,5 +1,5 @@
-#ifndef __EXFORMAT_H__
-#define __EXFORMAT_H__
+#ifndef EXFORMAT_H
+#define EXFORMAT_H
 
 #include "../FeindNs.h"
 #include "Exception.h"

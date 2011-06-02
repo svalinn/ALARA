@@ -1,5 +1,5 @@
-#ifndef __RAMLIB_H
-#define __RAMLIB_H
+#ifndef RAMLIB_H
+#define RAMLIB_H
 
 #include <map>
 #include <vector>

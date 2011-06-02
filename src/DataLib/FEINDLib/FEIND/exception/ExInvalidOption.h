@@ -1,5 +1,5 @@
-#ifndef __EXINVALIDOPTION_H__
-#define __EXINVALIDOPTION_H__
+#ifndef EXINVALIDOPTION_H
+#define EXINVALIDOPTION_H
 
 #include "../FeindNs.h"
 #include "Exception.h"

@@ -1,5 +1,5 @@
-#ifndef __EXFILEOPEN_H__
-#define __EXFILEOPEN_H__
+#ifndef EXFILEOPEN_H
+#define EXFILEOPEN_H
 
 #include "../FeindNs.h"
 #include "Exception.h"

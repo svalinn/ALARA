@@ -1,5 +1,5 @@
-#ifndef __TYPEDEFS_H
-#define __TYPEDEFS_H
+#ifndef TYPEDEFS_H
+#define TYPEDEFS_H
 
 typedef int Kza;
 

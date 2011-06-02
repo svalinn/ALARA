@@ -1,5 +1,5 @@
-#ifndef __PARSER_H__
-#define __PARSER_H__
+#ifndef PARSER_H
+#define PARSER_H
 
 #include "FeindNs.h"
 #include "LibDefine.h"
