@@ -72,7 +72,7 @@ double DecayEndf6::FormatFloat(string str)
       (str.find('e') == string::npos && str.find('E') == string::npos) )
     {
       // There is a + or - present, and no E, so put one in:
-      unsigned int loc;
+      size_t loc;
 
       if((loc = str.find('+')) == string::npos)
         loc = str.find('-');
@@ -154,11 +154,9 @@ void DecayEndf6::ExtractDecayModes(Kza parent) throw(ExDecayMode)
 void DecayEndf6::ExtractSpectrum(unsigned int num, Kza parent)
 {
   unsigned int i;
-  unsigned int j;
-  unsigned int k;
+  int k;
   string str;
   int spec_type;
-  unsigned int lcon;
   unsigned int num_disc;
   double disc_rel;
   double cont_rel;
@@ -187,7 +185,7 @@ void DecayEndf6::ExtractSpectrum(unsigned int num, Kza parent)
       cont_rel = FormatFloat(str.substr(44,11));
 
       // We now have enough information to begin reading discrete spectrum:
-      for(j = 0; j < num_disc; j++)
+      for(unsigned int j = 0; j < num_disc; j++)
 	{
 	  // Read information about the energy:
 	  getline(InFile, str, '\n');
@@ -202,7 +200,7 @@ void DecayEndf6::ExtractSpectrum(unsigned int num, Kza parent)
 	  if(line_parm > 6) getline(InFile, str, '\n');
 	  
 	  // Now add the spectrum entry, but check to make sure its not zero:
-	  if(intensity = intensity*disc_rel)
+	  if( (intensity = intensity*disc_rel) )
 	    {
 	      spectrum.Discrete.push_back(pair<double,double>(energy, 
 							      intensity));
@@ -213,7 +211,6 @@ void DecayEndf6::ExtractSpectrum(unsigned int num, Kza parent)
       // If it exists:
       if(disc_cont == 1 || disc_cont == 2)
 	{
-	  int count = 0;
 	  ContSpec cont;
 	  vector<int> last_point;
 	  vector<int> int_method;
@@ -231,7 +228,7 @@ void DecayEndf6::ExtractSpectrum(unsigned int num, Kza parent)
 	  region_info.insert(region_info.begin(),pair<double,double>(0,0));
 	  energy_info = ExtractPairs(num_points);
 
-	  for(j = 0; j < num_regions; j++)
+	  for(int j = 0; j < num_regions; j++)
 	    {
 	      cont.IntMethod = int(region_info[j+1].second);
 
@@ -251,7 +248,7 @@ void DecayEndf6::ExtractSpectrum(unsigned int num, Kza parent)
 	      getline(InFile, str, '\n');
 	      num_points = atoi(str.substr(55,11).c_str());
 
-	      for(j = 0; j < num_points; j += 3) getline(InFile, str, '\n');
+	      for(int j = 0; j < num_points; j += 3) getline(InFile, str, '\n');
 	    }
 	}
 

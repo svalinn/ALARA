@@ -166,8 +166,8 @@ void Dimension::checkTypes(int geom_type)
   double dimUnit[7] = {0,1,1,1,1,2*PI,PI};
 
   /* for use in error output */
-  char *dimTypeText[7] = {"","X","Y","Z","R","THETA","PHI"};
-  char *geomTypeText[5] = {"","Rectangular","Cylindrical","Spherical","Toroidal"};
+  const char *dimTypeText[7] = {"","X","Y","Z","R","THETA","PHI"};
+  const char *geomTypeText[5] = {"","Rectangular","Cylindrical","Spherical","Toroidal"};
 
   switch (geom_type)
     {

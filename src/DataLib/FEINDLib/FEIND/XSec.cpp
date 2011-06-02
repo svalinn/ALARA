@@ -87,7 +87,7 @@ double XSec::Integrate(const vector<double>& mult) const
   if(ng != mult.size())
     throw ExXsecSize("XSec::Integrate(...) function", ng, mult.size());
 
-  for(int i = 0; i < ng; i++)
+  for(unsigned int i = 0; i < ng; i++)
     {
       ret += (*this)[i]*mult[i];
     }
@@ -107,7 +107,7 @@ XSec& XSec::operator+=(const XSec& rhs) throw(ExXsecSize, ExEmptyXSec)
   if(ng != rhs.NumGroups())
     throw ExXsecSize("XSec::operator+=(...) function", ng, rhs.NumGroups());
 
-  for(int i = 0; i < ng; i++)
+  for(unsigned int i = 0; i < ng; i++)
     {
       (*this)[i] += rhs[i];
     }
@@ -124,7 +124,7 @@ XSec& XSec::operator*=(double mult) throw(ExEmptyXSec)
 
   unsigned ng = NumGroups();
 
-  for(int i = 0; i < ng; i++)
+  for(unsigned int i = 0; i < ng; i++)
     {
       (*this)[i] *= mult;
     }
@@ -173,7 +173,7 @@ ostream& operator<<(ostream& os, XSec rhs)
 
   cout << "NUM GROUPS = " << rhs.NumGroups() << endl;
 
-  for(int i = 0; i < rhs.NumGroups(); i++)
+  for(unsigned int i = 0; i < rhs.NumGroups(); i++)
     {
       os << i << "\t" << rhs[i] << endl;
     }

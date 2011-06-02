@@ -28,7 +28,7 @@
     no problem data.  Otherwise, it creates and fills the storage for
     'zoneName' ,'mixName', 'userVol', 'userVolFlag' and initializes
     next to NULL. */
-Loading::Loading(char *name, char *mxName, bool inUserVolFlag, double inUserVol)
+Loading::Loading(const char *name, const char *mxName, bool inUserVolFlag, double inUserVol)
 {
   volume = 0;
   

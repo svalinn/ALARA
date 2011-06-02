@@ -156,7 +156,7 @@ Result* Result::find(int srchKza)
     of ALARA. */
 void Result::tallySoln(Chain *chain, topScheduleT* schedT)
 {
-  Result *ptr, *head = this;
+  Result *head = this;
   int rank, setKza;
 
   /* get the rank of the first node to be tallied */
@@ -503,7 +503,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
  ********* PostProc **********
  ****************************/
 
-void Result::initBinDump(char* fname)
+void Result::initBinDump(const char* fname)
 { 
   binDump = fopen(fname,"rb+"); 
   if (!binDump)
@@ -512,7 +512,7 @@ void Result::initBinDump(char* fname)
       if (!binDump)
 	error(240,"Unable to open dump file %s",fname);
     }
-};
+}
 
 void Result::dumpHeader()
 {
@@ -562,7 +562,7 @@ void Result::writeDump()
 void Result::readDump()
 {
   Result *ptr = this;
-  int readKza,resNum;
+  int readKza;
 
   static float *floatN = new float[nResults];
   

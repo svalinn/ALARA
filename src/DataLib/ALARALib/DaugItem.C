@@ -4,7 +4,7 @@
 /** Use member initialization for most members, including NULL values
     for pointers.  Allocate new storage for first parent/reaction */
 ADJLib::DaugItem::DaugItem(int addKza, int parKza, long rxnOffset) :
-  kza(addKza), next(0), current(0)
+  current(0), kza(addKza), next(0)
 {
   parList = new ParItem(parKza,rxnOffset);
 
@@ -12,7 +12,7 @@ ADJLib::DaugItem::DaugItem(int addKza, int parKza, long rxnOffset) :
 
 /** Use member initialization like a memberwise copy constructor */
 ADJLib::DaugItem::DaugItem(DaugItem *cpyPtr) :
-  kza(cpyPtr->kza),parList(cpyPtr->parList), next(cpyPtr->next), current(0)
+  parList(cpyPtr->parList), current(0), kza(cpyPtr->kza), next(cpyPtr->next)
 {}
 
 /** Create a new list item for a new daughter isotope, but also include the information

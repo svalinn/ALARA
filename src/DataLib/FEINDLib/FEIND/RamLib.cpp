@@ -307,7 +307,7 @@ void RamLib::AddDecayMode(Kza parent, DecayModeType decayMode, int dIso,
 void RamLib::LambdaEff(Kza parent, const vector<double>& flux, 
 			  double& result)
 {
-  int i, j;
+  unsigned int i;
   vector<Kza> d_kzas = Daughters(parent);
   XSec cs;
 
@@ -335,8 +335,6 @@ void RamLib::LambdaEff(Kza parent, const vector<double>& flux,
 void RamLib::LambdaEff(Kza parent, Kza daughter, 
 			  const vector<double>& flux, double& result)
 {
-  int i;
-
   XSec cs = GetDCs(parent,daughter,TOTAL_CS);
 
   result = 0;
@@ -377,7 +375,7 @@ double RamLib::LambdaEff(Kza parent, const std::vector<double>& flux,
   // Dimension the daughter lambda vector appropriately
   dLambdas.assign(daughters.size(), 0.0);
 
-  int i,j;
+  unsigned int i;
 
   // Calculate the primary lambda effective:
   if(total_cs)
@@ -481,7 +479,7 @@ void RamLib::ConstructAdjoint()
   Kza daughter;
 
   map<Kza, Daughter>::iterator iter;
-  int i,k;
+  unsigned int i,k;
   
   bool parent_exists;
 
@@ -534,14 +532,12 @@ double RamLib::ProdRates(Kza daughter, const vector<double>& flux,
   // The total destruction rate, return value:
   double pri_lambda = GetDecayConstant(daughter);
   
-  int i,j;
+  unsigned int i;
   
   XSec total_cs = GetPCs(daughter, TOTAL_CS);
   
   double fission_yield;
   double b_ratio;
-  double sfbr;
-  double sigphi = 0;
 
   // Calculate pri_lambda:
 

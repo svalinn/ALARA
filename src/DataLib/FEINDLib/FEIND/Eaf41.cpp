@@ -130,7 +130,7 @@ void Eaf41::SkipHeader()
 Path Eaf41::ConvertPath(const string& str)
 {
   Path ret;
-  int i;
+  unsigned int i;
   int num_part = 1;
 
   string character;
@@ -188,7 +188,6 @@ int Eaf41::ParticleEtoF(const char part)
 
 Kza Eaf41::DaughterEtoF(const string& daughter)
 {
-  int i;
   string element;
   int z;
   int a;
@@ -228,6 +227,8 @@ XSecType Eaf41::FissionType(const char projectile)
     case NEUTRON:
       return NEUTRON_FISSION_CS;
     }
+  assert(false);
+  exit(EXIT_FAILURE);
 }
 
 void Eaf41::AddCPPCS(Kza parent, Path& path) throw(ExEmptyXSec)
@@ -236,7 +237,7 @@ void Eaf41::AddCPPCS(Kza parent, Path& path) throw(ExEmptyXSec)
   // cross-section.
 
   XSec cs;
-  int i,j;
+  unsigned int i;
 
   for(i = 0; i < Cpt.size(); i++)
     {

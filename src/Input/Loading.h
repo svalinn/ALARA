@@ -54,7 +54,7 @@ protected:
 
 public:
   ///  Default constructor 
-  Loading(char* name=IN_HEAD, char *mxName=NULL, bool inUserVolFlag=FALSE, double inUserVol=0.0);
+  Loading(const char* name=IN_HEAD, const char *mxName=NULL, bool inUserVolFlag=FALSE, double inUserVol=0.0);
   
   /// Copy constructor 
   Loading(const Loading&);

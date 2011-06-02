@@ -115,11 +115,13 @@ pair<string,int> FEIND::Elements[NUM_ELEMENTS] =
 int FEIND::GetAtomicNumber(const std::string& symbol)
 {
   // We will travers the Elements array, until we find the symol:
-  for(int i = 0; i < NUM_ELEMENTS; i++)
+  for(unsigned int i = 0; i < NUM_ELEMENTS; i++)
     {
       if(Elements[i].first == symbol)
 	return i+1;	
     }
+  assert(false);
+  return -1;
 }
      
   

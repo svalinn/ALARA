@@ -218,13 +218,13 @@ int DataLib::convertLibType(char* libType)
     intended to be the KZA number of an isotope in question and a
     pointer to the NuclearData object which will store the data being
     read. */
-void DataLib::readData(int kza, NuclearData* data)
+void DataLib::readData(int /*kza*/, NuclearData* /*data*/)
 {
   error(9000, "Programming error: DataLib::readData() must be called from a derived object.");
 }
 
 
-void DataLib::readGammaData(int kza, GammaSrc* gammaSrc)
+void DataLib::readGammaData(int /*kza*/, GammaSrc* /*gammaSrc*/)
 {
   error(9000, "Programming error: DataLib::readGammaData() must be called from a derived object.");
 }

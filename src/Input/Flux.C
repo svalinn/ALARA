@@ -29,7 +29,7 @@
     are given.  Otherwise, it sets the format, flux identifier, flux
     file name, scaling factor, and skip value, with arguments given in
     that order. */
-Flux::Flux(int inFormat, char *flxName, char *fName, 
+Flux::Flux(int inFormat, const char *flxName, const char *fName, 
 	   double inScale, int inSkip) :
   format(inFormat),  skip(inSkip), scale(inScale)
 {
@@ -262,8 +262,7 @@ void Flux::readRTFLUX(double *MatrixStorage,int numVols, int numGrps)
   debug(2,"readRTFLUX: f77_reclen: %d",f77_reclen);
 
   /// read dimensions in file
-  int ndim, ngrp, ninti, nintj, nintk, iter, nblok;
-  float effk, power;
+  int ndim, ngrp, ninti, nintj, nintk, nblok;
   fread((char*)&f77_reclen,SINT,1,binFile);
   fread((char*)&ndim, SINT,1,binFile);
   fread((char*)&ngrp, SINT,1,binFile);
@@ -334,10 +333,12 @@ int Flux::find(char *srchFlux)
       ptr = ptr->next;
       fluxNum++;
       if (!strcmp(ptr->fluxName,srchFlux))
+	{
 	if (ptr->checkFname())
 	  return fluxNum-1;
 	else
 	  return FLUX_BAD_FNAME;
+	}
     }
 
   return FLUX_NOT_FOUND;

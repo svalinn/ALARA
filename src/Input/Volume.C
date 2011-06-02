@@ -67,7 +67,7 @@ void Volume::deinit()
     the default constructor creates a blank list with no problem data.
     Otherwise, it sets the volume of the interval, and creates and
     fills the storage for 'zoneName'. */
-Volume::Volume(double vol, char *name)
+Volume::Volume(double vol, const char *name)
 {
   init();
 
@@ -541,7 +541,6 @@ topScheduleT* Volume::solveRef(Chain* chain, topSchedule* schedule)
 void Volume::readDump(int kza)
 {
   Volume* ptr= this;
-  int compNum;
   
   while (ptr->mixNext != NULL)
     {

@@ -55,8 +55,8 @@ protected:
 
 public:
   /// Default constructor
-  Flux(int inFormat=FLUX_HEAD, char* flxName=NULL, 
-       char* fName=NULL, double Scale=0, 
+  Flux(int inFormat=FLUX_HEAD, const char* flxName=NULL, 
+       const char* fName=NULL, double Scale=0, 
        int inSkip=0);
 
   /// Copy constructor

@@ -22,6 +22,8 @@ AC_PATH_PROG(PERLPATH,perl)
 
 # AC_F77_LIBRARY_LDFLAGS   ### Check autoconf manual
 
+# Enable warnings on most compilers
+CXXFLAGS='-Wall'
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lg2c':

@@ -237,7 +237,7 @@ Root::MixCompRef* Root::MixCompRef::find(Mixture* mix, Component* comp)
 
 double Root::MixCompRef::maxConc()
 {
-  double relConc,maxRelConc = -1;
+  double maxRelConc = -1;
 
   MixCompRef *ptr = this;
   
@@ -307,6 +307,7 @@ Component* Root::MixCompRef::getComp(double& dens, Mixture *mix, Component *last
   else
     /* if match, and this is not the first search */
     if (lastComp != NULL)
+      {
       /* if there are no more matches for this mixture */
       if (ptr->next == NULL || ptr->next->mixPtr != mix)
 	{
@@ -316,6 +317,7 @@ Component* Root::MixCompRef::getComp(double& dens, Mixture *mix, Component *last
       else
 	/* otherwise advance ptr */
 	ptr = ptr->next;
+      }
 
   dens = ptr->density;
   return ptr->compPtr;

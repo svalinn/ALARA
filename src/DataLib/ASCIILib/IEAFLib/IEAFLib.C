@@ -2,7 +2,7 @@
 #include "IEAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
-IEAFLib::IEAFLib(char *transFname, char *decayFname, char *alaraFname) 
+IEAFLib::IEAFLib(const char *transFname, const char *decayFname, const char *alaraFname) 
   : ASCIILib(DATALIB_IEAF)
 {
   if (transFname != NULL && decayFname != NULL)
@@ -217,7 +217,6 @@ int IEAFLib::getTransData()
 
   /* counters */
   int gNum, thisGNum;
-  unsigned int eNum;
 
   /* for each new isotope */
 
@@ -753,11 +752,13 @@ int IEAFLib::getGammaData()
 	  discGammaI[numGSpec] = NULL;
 	  
 	  if (numGammas > 0 )
+	    {
 	    /* if there are valid discrete gammas */
 	    if (discFactor > 0 )
 	      readDiscreteGammas(numGSpec,numGammas,discFactor,buffer);
 	    else
 	      skipDiscreteGammas(buffer,numGammas);
+	    }
 	  
 	  nIntReg[numGSpec] = 0;
 	  intRegB[numGSpec] = NULL;
@@ -768,11 +769,13 @@ int IEAFLib::getGammaData()
 	  
 	  /* read continuous data */
 	  if (specType>0)
+	    {
 	    /* if the scaling factor is non-zero */
 	    if (contFactor>0)
 	      readContGammas(numGSpec,contFactor,buffer);
 	    else
 	      skipContGammas(buffer);
+	    }
 	  
 	  /* increment gamma spectra counter */
 	  numGSpec++;

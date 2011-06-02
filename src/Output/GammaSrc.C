@@ -218,7 +218,6 @@ void GammaSrc::initAdjointDose(istream& input)
 
   char token[64];
   int gNum;
-  int suminterval;
 
   /* read detector volume */
   clearComment(input);
@@ -315,7 +314,7 @@ int GammaSrc::findGroup(float E)
   
 }
 
-float GammaSrc::G_factor(float k,float p,float MsR,float b1 = 0)
+float GammaSrc::G_factor(float k,float p,float MsR,float /*b1 = 0*/)
 {
 
   ifstream GFile;
@@ -369,10 +368,10 @@ float GammaSrc::G_factor(float k,float p,float MsR,float b1 = 0)
  //Create map entries for MsRTable[2];
   vector< vector<float> > kpMatrix(4, vector<float>(5,0));
 
-  for (int numMsR=0; numMsR<MsR_val.size(); numMsR++)
+  for (unsigned int numMsR=0; numMsR<MsR_val.size(); numMsR++)
   {
-    for (int i=0; i<k_val.size(); i++)
-      for (int j=0;j<p_val.size(); j++)
+    for (unsigned int i=0; i<k_val.size(); i++)
+      for (unsigned int j=0;j<p_val.size(); j++)
 	GFile >> kpMatrix[i][j];
 
   
@@ -387,8 +386,8 @@ float GammaSrc::G_factor(float k,float p,float MsR,float b1 = 0)
     kpM2 = MsRTable[MsR_val.size()-1];
     kpM1 = MsRTable[MsR_val.size()-2];
 
-    for (int i=0; i<k_val.size(); i++)
-      for (int j=0; j<p_val.size(); j++)
+    for (unsigned int i=0; i<k_val.size(); i++)
+      for (unsigned int j=0; j<p_val.size(); j++)
 	kpMatrix[i][j] = ( kpM2[i][j] - kpM1[i][j] )/(MsR_val[MsR_val.size()-1] -MsR_val[MsR_val.size()-2] )*(MsR-MsR_val[MsR_val.size()-1]) + kpM2[i][j];
 
   }
@@ -415,15 +414,15 @@ float GammaSrc::G_factor(float k,float p,float MsR,float b1 = 0)
 	currPtr--;
 	kpM1 = currPtr->second; l_MsR = currPtr->first;
    
-	for (int i=0; i<k_val.size(); i++)
-	  for (int j=0; j<p_val.size(); j++)
+	for (unsigned int i=0; i<k_val.size(); i++)
+	  for (unsigned int j=0; j<p_val.size(); j++)
 	    kpMatrix[i][j] = (kpM2[i][j] - kpM1[i][j])/(h_MsR - l_MsR)*(MsR-l_MsR) + kpM1[i][j];
       }
   }
   //Interpolate kpMatrix based on k (row) to determine p vectors
   vector<float> p_vec(p_val.size(),0);
 
-  int k_idx;
+  unsigned int k_idx;
   for (k_idx=0; k_idx < k_val.size(); k_idx++)
     if ( k <= k_val[k_idx] )
       break;
@@ -438,14 +437,14 @@ float GammaSrc::G_factor(float k,float p,float MsR,float b1 = 0)
     p1 = kpMatrix[k_idx-1]; lo_k = k_val[k_idx-1];
     p2 = kpMatrix[k_idx];   hi_k = k_val[k_idx];
 
-    for (int j=1; j<p1.size(); j++)
+    for (unsigned int j=1; j<p1.size(); j++)
       p_vec[j] = (p2[j] - p1[j])/(hi_k - lo_k)*(k - lo_k) + p1[j];
 
   }
 
   //Interpolate p_vec based on p to finally obtain G Factor
   double G_Factor;
-  int p_idx;
+  unsigned int p_idx;
 
   for (p_idx = 0; p_idx < p_val.size(); p_idx++)
     if (p <= p_val[p_idx])
@@ -664,6 +663,7 @@ void GammaSrc::setData(int kza, int numSpec,
 		}
 
              if ( gammaType != GAMMASRC_EXPOSURE)
+	     {
 	      if (Ehi == grpBnds[gNum+1]) 
 		gNum++;
 	      else
@@ -672,6 +672,7 @@ void GammaSrc::setData(int kza, int numSpec,
 		  if (pntNum > intRegB[specNum][regNum])
 		    regNum++;
 		}
+	     }
 	    }
 	}
 
@@ -784,7 +785,7 @@ double GammaSrc::calcExposureDoseConv(int kza, double *mixGammaAttenCoef)
 
   return exposureDoseCache[kza];
 
-};
+}
 
 void GammaSrc::calcBuildupParameters(double En,  char mat, double& A1, double& A2, double& alpha1, double& alpha2)
 {
@@ -839,12 +840,12 @@ void GammaSrc::calcBuildupParameters(double En,  char mat, double& A1, double& A
   }
     
   //Skip entries to intended set of material
-  for (int i=0;i < (n_skip*E_vec.size()*3);i++)
+  for (unsigned int i=0;i < (n_skip*E_vec.size()*3);i++)
     BFile >> readflt;
 
   
   map<double, vector<double> > params;
-  for (int i=0; i<E_vec.size(); i++)
+  for (unsigned int i=0; i<E_vec.size(); i++)
   {
     vector<double> param_vec;
     

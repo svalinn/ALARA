@@ -23,7 +23,7 @@
     Otherwise, it sets the name of the history and initializes the
     pulse level list with a head item.  Other pointers are set to
     NULL. */
-History::History(char* name)
+History::History(const char* name)
 {
   histName = NULL;
   if (name != NULL)

@@ -139,7 +139,7 @@ public:
 
   /// This function opens and initializes the binary dump file used
   /// throughout the solution and postprocessing.
-  static void initBinDump(char*);
+  static void initBinDump(const char*);
   
   /// This function dumps the value of nResults to the binary dump file.
   static void dumpHeader();

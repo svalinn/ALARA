@@ -118,8 +118,8 @@ double convertTime(double inTime, char units)
 const char* searchNonXSPath(const char* filename)
 {
 
-  char *pathVar = getenv("ALARA_DATADIR");
-  char *dfltPath = DFLT_DATADIR;
+  const char *pathVar = getenv("ALARA_DATADIR");
+  const char *dfltPath = DFLT_DATADIR;
 
   return searchPath(filename,pathVar,dfltPath);
 
@@ -130,8 +130,8 @@ const char* searchNonXSPath(const char* filename)
 const char* searchXSPath(const char* filename)
 {
 
-  char *pathVar = getenv("ALARA_XSDIR");
-  char *dfltPath = DFLT_XSDIR;
+  const char *pathVar = getenv("ALARA_XSDIR");
+  const char *dfltPath = DFLT_XSDIR;
 
   return searchPath(filename,pathVar,dfltPath);
 

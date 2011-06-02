@@ -34,7 +34,7 @@ topScheduleT::topScheduleT(topSchedule *top) :
       memCheck(coolT,"topScheduleT::topScheduleT(...) constructor: coolT");
     }
 
-};
+}
 
 /** This constructor invokes the equivalent base class constructor
     calcScheduleT(const calcScheduleT&).  If the number of

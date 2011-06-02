@@ -105,7 +105,7 @@ protected:
 
 public:
   /// Default Constructor
-  Mixture(char* name=IN_HEAD);
+  Mixture(const char* name=IN_HEAD);
 
   /// Copy constructor 
   Mixture(const Mixture&);

@@ -376,7 +376,7 @@ int Component::getCompNum(Component *compPtr)
   int compNum = -1;
   Component *ptr = this;
 
-  while (ptr != NULL & ptr != compPtr)
+  while (ptr != NULL && ptr != compPtr)
     {
       ptr = ptr->next;
       compNum++;

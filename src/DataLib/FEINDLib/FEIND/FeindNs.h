@@ -131,6 +131,6 @@ namespace FEIND
    *  This function returns the Kza of the daughter nuclide.
    */
   Kza DecayModetoKza(DecayModeType decayMode, int dIso, Kza parent, Kza& sec);
-};
+}
 
 #endif

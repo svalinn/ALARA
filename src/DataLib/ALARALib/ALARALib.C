@@ -13,7 +13,7 @@
  ***************************/
 
 /* create a new library */
-ALARALib::ALARALib(char* fname, char* idxName) 
+ALARALib::ALARALib(const char* fname, const char* idxName) 
   : DataLib(DATALIB_ALARA)
 {
   binLib = fopen(fname,"wb");
@@ -29,7 +29,7 @@ ALARALib::ALARALib(char* fname, char* idxName)
 }
 
 /* open an existing library */
-ALARALib::ALARALib(char* fname,int setType) 
+ALARALib::ALARALib(const char* fname,int setType) 
   : DataLib(setType)
 {
 
@@ -287,7 +287,7 @@ void ALARALib::writeHead(int readNGrps, float *grpBnds, float *grpWeights)
 void ALARALib::writeData(int kza, int nRxns, float thalf, float *E,
 			 int *daugKza, char **emitted, float **xSection)
 {
-  int unique, emittedLen, numNZGrps, gNum;
+  int unique, emittedLen, numNZGrps;
 
   verbose(2,"Writing entry for %d (%d)",kza,offset);
 

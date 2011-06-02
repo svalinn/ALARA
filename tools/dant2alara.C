@@ -16,7 +16,7 @@ using std::cerr;
 using std::endl;
 using std::ios;
 
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char* /*argv*/[]) {
 
   char rtfluxFname[256];
 
@@ -44,8 +44,7 @@ int main(int argc, char* argv[]) {
   fread((char*)&f77_reclen,SINT,1,binFile);
   
   // read dimensions
-  int ndim, ngrp, ninti, nintj, nintk, iter, nblok;
-  float effk, power;
+  int ndim, ngrp, ninti, nintj, nintk, nblok;
   fread((char*)&f77_reclen,SINT,1,binFile);
   fread((char*)&ndim, SINT,1,binFile);
   fread((char*)&ngrp, SINT,1,binFile);

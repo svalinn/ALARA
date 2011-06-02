@@ -50,7 +50,7 @@ public:
   void writeHeader();
 
   /// This function writes a header for the table of totals. 
-  void writeTotalHeader(char*);
+  void writeTotalHeader(const char*);
 
   /// This function writes an appropriately sized separator of
   /// "===...===" to frame the table.

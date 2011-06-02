@@ -20,14 +20,11 @@ rh pd ag cd in sn sb te i  xe cs ba la ce pr nd pm sm eu gd tb dy ho er tm \
 yb lu hf ta w  re os ir pt au hg tl pb bi po at rn fr ra ac th pa u  np \
 pu am cm bk cf es fm md no lr ";
 
-/// This is derived from a CVS variable to determine the version string
-static char *id="$Name: not supported by cvs2svn $";
-
 /*!
  This is the standard help/usage message that is printed when an incorrect
  command-line option is used, or when -h is used.
 */
-static char *helpmsg="\
+static const char *helpmsg="\
 usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
 \t -h                 Show this message\n\
 \t -c                 Option to only calculate chains and skip post-processing\n\
@@ -53,6 +50,7 @@ int main(int argc, char *argv[])
   while (argNum<argc)
     {
       if (argv[argNum][0] != '-')
+	{
 	if (inFname == NULL)
 	  {
 	    inFname = new char[strlen(argv[argNum])+1];
@@ -63,6 +61,7 @@ int main(int argc, char *argv[])
 	  }
 	else
 	  error(1,"Only one input filename can be specified: %s.",inFname);
+	}
 
       while (argv[argNum][0] == '-')
 	argv[argNum]++;

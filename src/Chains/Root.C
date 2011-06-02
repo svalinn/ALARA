@@ -35,7 +35,7 @@ Root::Root(const Root& r) :
 { 
   nextRoot=NULL; 
   mixList=r.mixList; 
-};
+}
 
 /** Invoks a copy constructor of base class Node with the dereferenced
     first argument and then copying the 'mixList' pointer (see note for

@@ -187,8 +187,8 @@ protected:
 
 public:
   /* Service */
-  ALARALib(char*,int setType=DATALIB_ALARA);
-  ALARALib(char*, char*);
+  ALARALib(const char*,int setType=DATALIB_ALARA);
+  ALARALib(const char*, const char*);
   ALARALib(const ALARALib&);
   ~ALARALib();
 

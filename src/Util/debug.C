@@ -4,7 +4,7 @@
 int verb_level = 0;
 int debug_level = -1;
 
-void verbose(int msg_level, char *msgFmt, ...)
+void verbose(int msg_level, const char *msgFmt, ...)
 {
 
   static char msg[1024];
@@ -24,7 +24,7 @@ void verbose(int msg_level, char *msgFmt, ...)
 
 }
 
-void debug(int msg_level, char *msgFmt, ...)
+void debug(int msg_level, const char *msgFmt, ...)
 {
 
   static char msg[1024];
@@ -44,7 +44,7 @@ void debug(int msg_level, char *msgFmt, ...)
 
 }
 
-void error(int error_num, char *msgFmt, ...)
+void error(int error_num, const char *msgFmt, ...)
 {
   static char msg[1024];
 
@@ -64,7 +64,7 @@ void memCheck(void* ptr, const char *msg)
     error(-1,"Memory allocation error: %s",msg);
 }
 
-void warning(int error_num, char *msgFmt, ...)
+void warning(int error_num, const char *msgFmt, ...)
 {
   static char msg[1024];
 

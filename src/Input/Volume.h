@@ -126,7 +126,7 @@ protected:
   
 public:
   /// Default constructor
-  Volume(double vol=VOL_HEAD, char *name=NULL);
+  Volume(double vol=VOL_HEAD, const char *name=NULL);
 
   /// Special constructor used to convert Dimension lists to Volume
   /// lists - called from Volume::calculate(...).  

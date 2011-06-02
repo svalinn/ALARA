@@ -287,7 +287,7 @@ public:
   ~ASCIILib();
   
   /* Binary Libaray Management */
-  void makeBinLib(char*);
+  void makeBinLib(const char*);
 
   /* Utility */
   float sum(float*);

@@ -17,7 +17,7 @@ RateCache::CacheData::CacheData(int size)
 { 
   if (size>0) 
     cache = new double[size]; 
-  for (int ix=0;ix<size;cache[ix++]=-1);
+  for (int ix=0;ix<size;cache[ix++]=-1) ;
 }
 
 RateCache::~RateCache()

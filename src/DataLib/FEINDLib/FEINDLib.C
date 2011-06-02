@@ -66,12 +66,12 @@ FEINDLib::FEINDLib(char* arg0, char* arg1, char* arg2, int setType)
 
 void FEINDLib::readData(int parent, NuclearData* data)
 {
-  int checkKza, nRxns=0;
+  int nRxns=0;
   float thalf = 0, E[3] = {0,0,0};
   int *daughKza = NULL;
   char **emitted = NULL;
   float **xSection = NULL, *totalXSect = NULL;
-  int rxnNum, emittedLen, numNZGrps, gNum;
+  int rxnNum, gNum;
   double fy,sfy;
   float bRatio;
   float decayConst = FEIND::Library.GetDecayConstant(parent);
@@ -210,7 +210,7 @@ void FEINDLib::readData(int parent, NuclearData* data)
 
 }
 
-void FEINDLib::readGammaData(int parent, GammaSrc* gsrc)
+void FEINDLib::readGammaData(int /*parent*/, GammaSrc* /*gsrc*/)
 {
   
 }

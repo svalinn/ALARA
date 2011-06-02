@@ -331,7 +331,7 @@ void ASCIILib::merge()
  ********** Binary Library Mgmt **********
  ****************************************/
 
-void ASCIILib::makeBinLib(char *alaraFname)
+void ASCIILib::makeBinLib(const char *alaraFname)
 {
 
   int tKza, dKza, nGammaParents=0, writeGamma;
@@ -476,7 +476,7 @@ int ASCIILib::getDecayData()
   return -1;
 }
 
-void ASCIILib::readData(int getKza, NuclearData* data)
+void ASCIILib::readData(int /*getKza*/, NuclearData* /*data*/)
 {
   error(9000,
 	"Programming error: ASCIILib::readData() must be called from a derived object.");

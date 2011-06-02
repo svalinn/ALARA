@@ -122,7 +122,7 @@ protected:
 
 public:
   /* Service */
-  EAFLib(char*, char*, char*);
+  EAFLib(const char*, const char*, const char*);
   ~EAFLib();
 
 };

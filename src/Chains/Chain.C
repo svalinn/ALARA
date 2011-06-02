@@ -142,7 +142,7 @@ Chain::~Chain()
   delete colRates; 
   delete reference;
   root->cleanUp(); 
-};
+}
 
 /** The correct implementation of this operator must ensure that
     previously allocated space is returned to the free store
@@ -517,10 +517,12 @@ void Chain::setDecay(Matrix& D, double time)
 	    data[idx] *= L[idx2+1];
 
 	  if (data[idx] > 0)
+            {
 	    if ( loopRank[idx2] == -1 ) //Check for loop in a decay chain
                data[idx] *= bateman(row,col,l,time,success);
             else
 	       data[idx] *= laplaceInverse(row, col, l, time, success);
+            }
 
 	  col++;
 	}

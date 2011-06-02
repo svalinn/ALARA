@@ -41,7 +41,7 @@ protected:
 
 public:
   /// Default constructor
-  History(char *name=IN_HEAD);
+  History(const char *name=IN_HEAD);
 
   /// Copy constructor
   History(const History&);

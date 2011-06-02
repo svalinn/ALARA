@@ -34,7 +34,7 @@
     fills the storage for 'mixName', initializes a new component list
     and volume list, and sets the 'rootList' and 'next' pointer to
     NULL. */
-Mixture::Mixture(char *name)
+Mixture::Mixture(const char *name)
 {
   volume = 0;
   userVol = 0.0;
@@ -686,7 +686,7 @@ void Mixture::setGammaAttenCoef(int nGroups, ifstream& gAttenData)
 
       /* create & initialize array */
       ptr->gammaAttenCoef = new double[nGroups];
-      for (gNum=0;gNum<nGroups;ptr->gammaAttenCoef[gNum++]=0);
+      for (gNum=0;gNum<nGroups;ptr->gammaAttenCoef[gNum++]=0) ;
 
       totalDens = 0;
 
@@ -704,7 +704,7 @@ void Mixture::setGammaAttenCoef(int nGroups, ifstream& gAttenData)
 
 	  /* find data for this Z */
 	  idx=-1;
-	  while (gammaAttenZ[++idx] < Z);
+	  while (gammaAttenZ[++idx] < Z) ;
 	  if (gammaAttenZ[idx] == Z)
 	    for (gNum=0;gNum<nGroups;gNum++)
 	      ptr->gammaAttenCoef[gNum] += density*gammaAttenData[idx*nGroups+gNum];

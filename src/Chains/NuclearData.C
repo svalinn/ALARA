@@ -492,7 +492,7 @@ void NuclearData::sortData()
     while (rxnNum < switchNum)
       {
 	/* find last decay path */
-	while (paths[--switchNum][nGroups]==0 && switchNum > 0);
+	while (paths[--switchNum][nGroups]==0 && switchNum > 0) ;
 	
 	/* find first non-decay path */
 	while (rxnNum < switchNum && paths[rxnNum][nGroups]>0) rxnNum++;

@@ -47,7 +47,7 @@ protected:
 
 public:
   /// Default constructor
-  Schedule(char* name=IN_HEAD);
+  Schedule(const char* name=IN_HEAD);
 
   /// Copy constructor
   Schedule(const Schedule& );

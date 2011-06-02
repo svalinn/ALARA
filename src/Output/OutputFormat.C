@@ -58,8 +58,8 @@ OutputFormat::OutputFormat(int type)
 }
 
 OutputFormat::OutputFormat(const OutputFormat& o) :
-  resolution(o.resolution), outTypes(o.outTypes), actMult(o.actMult), 
-  normType(o.normType)
+  resolution(o.resolution), outTypes(o.outTypes), normType(o.normType), actMult(o.actMult)
+
 {
   actUnits = new char[strlen(o.actUnits)+1];
   strcpy(actUnits,o.actUnits);
@@ -248,7 +248,6 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 {
 
   OutputFormat *ptr = this;
-  GammaSrc *tmpGammaSrc = NULL;
   char buffer[256];
 
   int outTypeNum;

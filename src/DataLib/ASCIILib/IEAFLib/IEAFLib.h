@@ -116,7 +116,7 @@ protected:
 
 public:
   /* Service */
-  IEAFLib(char*, char*, char*);
+  IEAFLib(const char*, const char*, const char*);
   ~IEAFLib();
 
 };

@@ -151,7 +151,7 @@ void CoolingTime::writeHeader()
 /** There is a  column indicating the counter for the total in question,
     one column for @ shutdown results, and then one column for each of the
     after-shutdown cooling times. */
-void CoolingTime::writeTotalHeader(char* type)
+void CoolingTime::writeTotalHeader(const char* type)
 {
   CoolingTime *ptr = this;
   char textBuf[16];

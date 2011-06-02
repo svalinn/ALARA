@@ -85,7 +85,7 @@ double bateman(int row, int col, double* d, double t, int& finitePositive)
   else
    return sum;
 
-};
+}
 
 
 double dGn(int idx, double *pole, int *mult, int numPoles, int termNum)
@@ -213,7 +213,7 @@ int smallExpansion(int row, int col, double *d, double t)
 double laplaceExpansion(int row, int col, double *d, double t, int &converged)
 {
 
-  int idx, termNum;
+  int termNum;
   int sz = row-col;
   double result, correction;
 

@@ -11,8 +11,8 @@ using namespace std;
 using namespace FEIND;
 
 EndfIeaf::EndfIeaf(const LibDefine& lib) :
-  FileName(lib.Args[0].c_str()),
-  InFile(lib.Args[0].c_str())
+  InFile(lib.Args[0].c_str()),
+  FileName(lib.Args[0].c_str())
 {  
 }
 

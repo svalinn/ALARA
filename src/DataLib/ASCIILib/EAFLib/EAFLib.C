@@ -2,7 +2,7 @@
 #include "EAFLib.h"
 #include "DataLib/ALARALib/ALARALib_def.h"
 
-EAFLib::EAFLib(char *transFname, char *decayFname, char *alaraFname) 
+EAFLib::EAFLib(const char *transFname, const char *decayFname, const char *alaraFname) 
   : ASCIILib(DATALIB_EAF)
 {
   if (transFname != NULL && decayFname != NULL)
@@ -268,8 +268,8 @@ int EAFLib::getTransData()
   const int numGases = 5;
   int mult,gasNum,gasFlag[numGases];
   int gasKza[numGases]={10030,10020,10010,20040,20030};
-  char *gasList = "tdpah";
-  char *gasEmitted = "x    ";
+  const char *gasList = "tdpah";
+  const char *gasEmitted = "x    ";
   static float *gas[numGases]={NULL,NULL,NULL,NULL,NULL};
 
   if (gas[0] == NULL)
@@ -781,11 +781,13 @@ int EAFLib::getGammaData()
 	  discGammaI[numGSpec] = NULL;
 	  
 	  if (numGammas > 0 )
+	    {
 	    /* if there are valid discrete gammas */
 	    if (discFactor > 0 )
 	      readDiscreteGammas(numGSpec,numGammas,discFactor,buffer);
 	    else
 	      skipDiscreteGammas(buffer,numGammas);
+	    }
 	  
 	  nIntReg[numGSpec] = 0;
 	  intRegB[numGSpec] = NULL;
@@ -796,11 +798,13 @@ int EAFLib::getGammaData()
 	  
 	  /* read continuous data */
 	  if (specType>0)
+	    {
 	    /* if the scaling factor is non-zero */
 	    if (contFactor>0)
 	      readContGammas(numGSpec,contFactor,buffer);
 	    else
 	      skipContGammas(buffer);
+	    }
 	  
 	  /* increment gamma spectra counter */
 	  numGSpec++;

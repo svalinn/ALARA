@@ -517,7 +517,7 @@ void Node::prune()
 { 
   delete next; 
   next = NULL; 
-};
+}
 
 /** Retract the chain by returning the prev - usually followed by a 
     call to prune() */

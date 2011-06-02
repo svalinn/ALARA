@@ -17,13 +17,13 @@ const double Cinder::CINDER_UPPER_HL = 1.0E+99;
 const int    Cinder::FLOAT_DIGITS    = 10;
 
 Cinder::Cinder(const LibDefine& lib) :
-  FileName(lib.Args[0].c_str()), 
   InFile(lib.Args[0].c_str()),
+  FileName(lib.Args[0].c_str()), 
   LoadTransmutation(true),
   LoadDecay(true),
   LoadYields(true)
 {
-  int i;
+  unsigned int i;
 
   for(i = 1; i < lib.Args.size(); i++)
     {
@@ -349,7 +349,6 @@ int Cinder::FissionType(char t)
 
 Path Cinder::MakePath(const string& str)
 {
-  int i;
   Path ret;
   ret.Projectile = NEUTRON;
   
@@ -362,7 +361,7 @@ Path Cinder::MakePath(const string& str)
   int num = 1;
   string character;
 
-  for(int i = 0; i < str.size(); i++)
+  for(unsigned int i = 0; i < str.size(); i++)
     {
       // Ignore blank characters:
       if(str[i] == ' ') continue;
@@ -499,7 +498,7 @@ void Cinder::DecayData(Kza parent) throw(ExDecayMode)
 
   try{
     // Check for spontaneous fission:
-    if(sfbr = atof( str.substr(59,FLOAT_DIGITS).c_str()))
+    if( (sfbr = atof( str.substr(59,FLOAT_DIGITS).c_str())) )
       Library.AddDecayMode(parent, SPONTANEOUS_FISSION, 0, sfbr);
   } catch(ExDecayMode& ex){
     throw;
@@ -538,7 +537,7 @@ void Cinder::DecayData(Kza parent) throw(ExDecayMode)
   getline(InFile,str,'\n');
   getline(InFile,str,'\n');
 
-  if(gamma_mult = atof( str.substr(51,FLOAT_DIGITS).c_str() ))
+  if( (gamma_mult = atof( str.substr(51,FLOAT_DIGITS).c_str() )) )
     {
       Spectrum spec;
 
