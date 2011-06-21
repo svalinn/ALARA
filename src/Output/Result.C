@@ -312,6 +312,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   Node dataAccess;
   char isoSym[15];
   int mode = NuclearData::getMode();
+  std::vector<std::string> coolTimesList;
   
   /* initialize the total array */
   total = new double[nResults];
@@ -455,9 +456,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
       /* write the formatted output for this isotope */
       cout << isoName(ptr->kza,isoSym) << "\t";
 
-      if (response == OUTFMT_SRC)
-	gammaSrc->writeIsoName(isoName(ptr->kza,isoSym));
-
+      coolList->getCoolTimesStrings(coolTimesList);
 
       for (resNum=0;resNum<nResults;resNum++)
 	{
@@ -466,7 +465,10 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 
 	  /* gamma source */
 	  if (response == OUTFMT_SRC)
-	    gammaSrc->writeIsotope(gammaMult,ptr->N[resNum]*multiplier/actMult);
+	    {
+	      gammaSrc->writeIsoName(isoName(ptr->kza,isoSym),coolTimesList[resNum]);
+	      gammaSrc->writeIsotope(gammaMult,ptr->N[resNum]*multiplier/actMult);
+	    }
 
 	  /* increment the total */
 	  total[resNum] += ptr->N[resNum]*multiplier;
@@ -481,7 +483,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   
   /* write the gamma source */
   if (response == OUTFMT_SRC)
-    gammaSrc->writeTotal(photonSrc,nResults);
+    gammaSrc->writeTotal(photonSrc,nResults,coolTimesList);
   
   /* write a separator for the table */
   coolList->writeSeparator();

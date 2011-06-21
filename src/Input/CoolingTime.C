@@ -148,6 +148,23 @@ void CoolingTime::writeHeader()
   writeSeparator();
 }
 
+void CoolingTime::getCoolTimesStrings(std::vector<std::string>& coolTimesList)
+{
+  coolTimesList.push_back("shutdown");
+  
+  CoolingTime *ptr = this;
+  char textBuf[16];
+
+  while (ptr->next != NULL)
+    {
+      ptr = ptr->next;
+      sprintf(textBuf,"%7g %c   ",ptr->coolingTime, ptr->units);
+      coolTimesList.push_back(textBuf);
+    }
+  
+  return;
+}
+
 /** There is a  column indicating the counter for the total in question,
     one column for @ shutdown results, and then one column for each of the
     after-shutdown cooling times. */

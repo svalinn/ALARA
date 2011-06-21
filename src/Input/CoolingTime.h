@@ -1,5 +1,7 @@
 /* $Id: CoolingTime.h,v 1.5 2003-01-13 04:34:55 fateneja Exp $ */
 #include "alara.h"
+#include <vector>
+#include <string>
 
 #ifndef COOLINGTIME_H
 #define COOLINGTIME_H
@@ -48,6 +50,9 @@ public:
 
   /// This function writes a header for the standard response table.
   void writeHeader();
+
+  /// This function returns a string containing the nth shutdown time
+  void getCoolTimesStrings(std::vector<std::string>&);
 
   /// This function writes a header for the table of totals. 
   void writeTotalHeader(const char*);

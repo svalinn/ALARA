@@ -693,21 +693,17 @@ double* GammaSrc::getGammaMult(int kza)
 
 }
 
-void GammaSrc::writeTotal(double *photonSrc,int nResults)
+void GammaSrc::writeTotal(double *photonSrc,int nResults,std::vector<std::string> coolTimesList)
 {
   int gNum, resNum;
 
-  gSrcFile << "TOTAL" << endl;
-
   for (resNum=0;resNum<nResults;resNum++)
     {
+      gSrcFile << "TOTAL" << "\t" << coolTimesList[resNum];
+
       for (gNum=0;gNum<nGroups;gNum++)
 	{
-	  gSrcFile << photonSrc[resNum*nGroups+gNum];
-	  if (gNum%6 == 5) 
-	    gSrcFile << endl;
-	  else
-	    gSrcFile << "\t";
+	  gSrcFile << "\t" << photonSrc[resNum*nGroups+gNum];
 	}
       gSrcFile << endl;
     }
@@ -717,17 +713,9 @@ void GammaSrc::writeIsotope(double *photonSrc, double N)
 {
   int gNum;
 
-  if (photonSrc == NULL)
-    return;
-
-  gSrcFile << "\t"; 
-
   for (gNum=0;gNum<nGroups;gNum++)
     {
-      gSrcFile << photonSrc[gNum]*N;
-      if (gNum%6 == 5)
-	gSrcFile << endl;
-      gSrcFile << "\t";
+      gSrcFile << "\t" << (NULL == photonSrc ? 0 : photonSrc[gNum]*N);
     }
   
   gSrcFile << endl;

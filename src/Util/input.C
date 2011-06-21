@@ -77,7 +77,7 @@ int tokenType(char* token)
   for (idx=0;idx<strlen(token);idx++)
     token[idx] = tolower(token[idx]);
 
-  char *tokenType = strstr(tokenList,token);
+  const char *tokenType = strstr(tokenList,token);
   if (tokenType != NULL)
     {
       /* debug(1,"token match made %s <=> %s",token,tokenType); */

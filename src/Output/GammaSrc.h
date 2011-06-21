@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <string>
 // NEED COMMENT there are no comments for this class
 
 /* ******* Class Description ************
@@ -61,10 +62,10 @@ public:
   char* getFileName()
     { return fileName; };
   void setData(int,int,int*,int*,int*,int**,int**,float**,float**,float**,float**);
-  void writeIsoName(char *isoName)
-    { gSrcFile << "\t" << isoName << endl;};
+  void writeIsoName(char *isoName, std::string coolTime)
+    { gSrcFile << isoName << "\t" << coolTime;};
   void writeIsotope(double*,double);
-  void writeTotal(double*,int);
+  void writeTotal(double*,int,std::vector<std::string>);
 
   double calcDoseConv(int,double*);
   double calcAdjDose(int,double*,double); 
