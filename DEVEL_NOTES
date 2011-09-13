@@ -28,7 +28,7 @@ bindir = ${exec_prefix}/bin
 %> aclocal
 %> autoheader
 %> autoconf
-%> automake
+%> automake--add-missing
 
 and every time you cahnge a Makefile.am, you need to 
 run automake again.
