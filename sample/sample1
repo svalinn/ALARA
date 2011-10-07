@@ -1,5 +1,5 @@
 # $Id: sample1,v 1.2 2004-07-23 19:26:04 wilsonp Exp $
 # convert EAF formatted FENDL2.0 libraries (excerpts) 
 # to ALARA formatted libraries
-convert_lib eaflib alaralib data/fendlg-2.0_175 data/fendld-2.0 data/fendl2bin
+convert_lib eaflib alaralib data/truncated_fendlg-2.0_175_for_samples_only data/truncated_fendld-2.0_for_samples_only data/truncated_fendl2bin
 

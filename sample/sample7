@@ -81,7 +81,7 @@ end
 
 ## We must use a different data library (fendl2adj) when 
 ## envoking "reverse mode" (see comment on "mixture" above)
-data_library adjlib data/fendl2adj
+data_library adjlib data/truncated_fendl2adj
 
 dump_file dump_files/sample5.dump
 

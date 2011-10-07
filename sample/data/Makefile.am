@@ -6,8 +6,8 @@ include $(top_srcdir)/Makefile.h
 # sample_DATA = ....
 
 dist_sampledata_DATA =  adjfile2.gam    \
-                    fendld-2.0      \
-                    fendlg-2.0_175  \
+                    truncated_fendld-2.0_for_samples_only      \
+                    truncated_fendlg-2.0_175_for_samples_only  \
                     fluxin1         \
                     fluxin2         \
                     fluxin3         \

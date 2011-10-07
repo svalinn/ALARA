@@ -51,7 +51,7 @@ end
 
 dump_file dump_files/sample2.dump
 
-data_library alaralib data/fendl2bin
+data_library alaralib data/truncated_fendl2bin
 
 cooling
 	1 s

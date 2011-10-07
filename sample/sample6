@@ -7,4 +7,4 @@
 # NOTE: you should run sample1 before any other samples to ensure
 # that the data is available
 #
-convert_lib alaralib adjlib data/fendl2bin data/fendl2adj
+convert_lib alaralib adjlib data/truncated_fendl2bin data/truncated_fendl2adj

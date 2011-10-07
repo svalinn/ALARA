@@ -22,6 +22,10 @@ B. There is currently no set of tests to be conducted with 'make
    output and the reference output with respect to the timing results
    and the directory locations of output files.
 
+   NOTE: the data in the sample folder is not suitable for real
+   calculations and is a truncated library just for the purpose of
+   these tests.
+
 ----
 
 In addition to building and installing the ALARA program, this package

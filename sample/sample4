@@ -35,7 +35,7 @@ element_lib data/myElelib
 ## The "90" means that we skip the first 90 values in the hohlflux data before reading it
 flux  target_flux  data/hohlflux  1e-10  90  default
 
-data_library alaralib data/fendl2bin
+data_library alaralib data/truncated_fendl2bin
 
 cooling
    1 s
