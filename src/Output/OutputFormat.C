@@ -47,7 +47,7 @@ OutputFormat::OutputFormat(int type)
   strcpy(actUnits,"Bq");
   actMult = 1;
 
-  normUnits = new char[4];
+  normUnits = new char[5];
   strcpy(normUnits,"/cm3");
   normType = 1;
 
@@ -72,8 +72,8 @@ OutputFormat::OutputFormat(const OutputFormat& o) :
   
 OutputFormat::~OutputFormat()
 {
-  delete actUnits;
-  delete normUnits;
+  delete[] actUnits;
+  delete[] normUnits;
   delete gammaSrc;
   delete contactDose;
   delete next;
@@ -141,13 +141,13 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	{
 	case OUTFMT_UNITS:
 	  next->outTypes |= 1<<type;
-	  delete next->actUnits;
+	  delete[] next->actUnits;
 	  input >> token;
 	  next->actUnits = new char[strlen(token)+1];
 	  strcpy(next->actUnits,token);
 	  next->actMult = (tolower(token[0]) == 'c'?BQ_CI:1);
 
-	  delete next->normUnits;
+	  delete[] next->normUnits;
 	  input >> token;
 	  next->normUnits = new char[strlen(token)+2];
 	  strcpy((next->normUnits)+1,token);

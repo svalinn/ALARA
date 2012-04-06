@@ -152,13 +152,13 @@ void ALARALib::readData(int findKza, NuclearData* data)
       
   for (rxnNum=0;rxnNum<nRxns;rxnNum++)
     {
-      delete xSection[rxnNum];
-      delete emitted[rxnNum];
+      delete[] xSection[rxnNum];
+      delete[] emitted[rxnNum];
     }
-  delete xSection;
-  delete emitted;
-  delete daugKza;
-  delete totalXSect;
+  delete[] xSection;
+  delete[] emitted;
+  delete[] daugKza;
+  delete[] totalXSect;
 
   xSection = NULL;
   emitted = NULL;
@@ -226,23 +226,23 @@ void ALARALib::readGammaData(int findKza, GammaSrc *gammaSrc)
 
   for (specNum=0;specNum<numSpec;specNum++)
     {
-      delete intRegB[specNum];
-      delete intRegT[specNum];
-      delete discGammaE[specNum];
-      delete discGammaI[specNum];
-      delete contX[specNum];
-      delete contY[specNum];
+      delete[] intRegB[specNum];
+      delete[] intRegT[specNum];
+      delete[] discGammaE[specNum];
+      delete[] discGammaI[specNum];
+      delete[] contX[specNum];
+      delete[] contY[specNum];
     }
 
-  delete numDisc;
-  delete numIntReg;
-  delete nPnts;
-  delete intRegB;
-  delete intRegT;
-  delete discGammaE;
-  delete discGammaI;
-  delete contX;
-  delete contY;
+  delete[] numDisc;
+  delete[] numIntReg;
+  delete[] nPnts;
+  delete[] intRegB;
+  delete[] intRegT;
+  delete[] discGammaE;
+  delete[] discGammaI;
+  delete[] contX;
+  delete[] contY;
 
 }
 

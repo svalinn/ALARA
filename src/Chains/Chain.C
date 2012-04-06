@@ -137,9 +137,9 @@ Chain::Chain(const Chain& c)
 
 Chain::~Chain()
 { 
-  delete loopRank;
-  delete rates; 
-  delete colRates; 
+  delete[] loopRank;
+  delete[] rates; 
+  delete[] colRates; 
   delete reference;
   root->cleanUp(); 
 }
@@ -162,8 +162,8 @@ Chain& Chain::operator=(const Chain& c)
   setRank = c.setRank;
   solvingRef = c.solvingRef;
 
-  delete loopRank;
-  delete rates;
+  delete[] loopRank;
+  delete[] rates;
   loopRank = NULL;
   rates = NULL;
 
@@ -177,7 +177,7 @@ Chain& Chain::operator=(const Chain& c)
   for (rank=0;rank<6*maxChainLength;rank++)
     rates[rank] = c.rates[rank];
   
-  delete colRates;
+  delete[] colRates;
   colRates = NULL;
   sliceSize = VolFlux::getNumFluxes()*chainLength;
   if (sliceSize > 0)
@@ -293,7 +293,7 @@ void Chain::setState(topSchedule* top)
 
   verbose(4,"Set truncation state: %d (%g)",state,relProd[0]);
 
-  delete relProd;
+  delete[] relProd;
 
 }
 
@@ -390,7 +390,7 @@ void Chain::setupColRates()
 
   int step = maxChainLength;
   
-  delete colRates;
+  delete[] colRates;
   colRates = NULL;
   if (sliceSize>0)
     {
@@ -528,7 +528,7 @@ void Chain::setDecay(Matrix& D, double time)
 	}
     }
 
-  delete D.data;
+  delete[] D.data;
   D.data = data;
   D.size = chainLength;
 
@@ -603,7 +603,7 @@ void Chain::fillTMat(Matrix& T,double time, int fluxNum)
   /* if (solvingRef)
     data[size-1] = 1; */
 
-  delete T.data;
+  delete[] T.data;
   T.data = data;
   T.size = chainLength;
 
@@ -652,7 +652,7 @@ void Chain::mult(Matrix &result, Matrix& A, Matrix& B)
       col++;
     }
 
-  delete result.data;
+  delete[] result.data;
   result.data = data;
   result.size = chainLength;
 }
@@ -686,8 +686,8 @@ void Chain::expandRates()
       newloopRank[rank] = -1;
     }
       
-  delete rates;
-  delete loopRank;
+  delete[] rates;
+  delete[] loopRank;
   rates = newRates;
   loopRank = newloopRank;
   maxChainLength *= 2;
@@ -710,8 +710,8 @@ void Chain::compressRates()
       newloopRank[idx] = loopRank[idx];
     }
 
-  delete rates;
-  delete loopRank;
+  delete[] rates;
+  delete[] loopRank;
   rates = newRates;
   loopRank = newloopRank;
   maxChainLength /= 2;

@@ -141,7 +141,7 @@ NuclearData::NuclearData(const NuclearData& n)
 NuclearData::~NuclearData()
 {
   cleanUp();
-  delete single;
+  delete[] single;
   single = NULL;
   P = NULL;
 }
@@ -158,7 +158,7 @@ NuclearData& NuclearData::operator=(const NuclearData& n)
   int rxnNum,gNum;
  
   cleanUp();
-  delete single;
+  delete[] single;
   single = NULL;
   P = NULL;
 
@@ -252,15 +252,15 @@ void NuclearData::cleanUp()
   if (nPaths>=0)
     {
       for (rxnNum=0;rxnNum<nPaths;rxnNum++)
-	{
-	  delete paths[rxnNum];
-	  delete emitted[rxnNum];
-	}
-      delete paths[rxnNum];
+    {
+      delete[] paths[rxnNum];
+      delete[] emitted[rxnNum];
     }
-  delete paths;
-  delete emitted;
-  delete relations;
+      delete[] paths[rxnNum];
+    }
+  delete[] paths;
+  delete[] emitted;
+  delete[] relations;
 
   paths = NULL;
   emitted = NULL;
@@ -363,7 +363,7 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
   /* if we are passed a total xsection (we must be in reverse mode) */
   if ( (NuclearData::mode == MODE_REVERSE) && (totalXSection != NULL) )
     {  
-      delete single;
+      delete[] single;
       single = NULL;
       P = NULL;
 
@@ -447,13 +447,13 @@ void NuclearData::setData(int numRxns, float* radE, int* daugKza,
 	D = paths[totalRxnNum];
 
       /* delete summation based total reaction rate */
-      delete paths[nPaths];
+      delete[] paths[nPaths];
 
       /* point nPaths to the totalRxnNum */
       paths[nPaths] = paths[totalRxnNum];
 
       /* delete the emitted entry for the total reaction rate */
-      delete emitted[totalRxnNum];
+      delete[] emitted[totalRxnNum];
 
       /* shift all channel reactions down by one */
       for (rxnNum=totalRxnNum;rxnNum<nPaths-1;rxnNum++)
@@ -562,16 +562,16 @@ int NuclearData::stripNonDecay()
 	  }
 	else
 	  {
-	    delete paths[rxnNum];
-	    delete emitted[rxnNum];
+	    delete[] paths[rxnNum];
+	    delete[] emitted[rxnNum];
 	  }
       
       /* always must copy total decay rate */
       newPaths[decayRxnNum] = paths[rxnNum];
 
-      delete relations;
-      delete emitted;
-      delete paths;
+      delete[] relations;
+      delete[] emitted;
+      delete[] paths;
       relations = newDaug;
       emitted = newEmitted;
       paths = newPaths;

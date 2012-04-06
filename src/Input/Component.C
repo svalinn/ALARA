@@ -72,7 +72,7 @@ Component& Component::operator=(const Component& comp)
   density = comp.density;
   volFraction = comp.volFraction;
 
-  delete compName;
+  delete[] compName;
   compName = NULL;
   if (comp.compName != NULL)
     {

@@ -232,7 +232,7 @@ void Flux::xRef(Volume *volList)
       volList->storeMatrix(FluxMatrix,ptr->scale);
     }
 
-  delete FluxMatrix;
+  delete[] FluxMatrix; // FIXME: internal arrays not deleted?
 
   verbose(3,"Assigned %d fluxes to each interval",count());
 

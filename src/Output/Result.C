@@ -104,7 +104,7 @@ Result& Result::operator=(const Result& r)
 
   kza = r.kza;
 
-  delete N;
+  delete[] N;
   N = NULL;
   if (nResults>0)
     {
@@ -174,7 +174,7 @@ void Result::tallySoln(Chain *chain, topScheduleT* schedT)
       head->find(setKza)->tally(Nlist);
 
       /* this is allocated in topScheduleT::results() */
-      delete Nlist;
+      delete[] Nlist;
 
       /* get next isotope */
       setKza = chain->getKza(++rank);
@@ -498,7 +498,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
     }
   cout << endl;
 
-  delete photonSrc;
+  delete[] photonSrc;
 }
 
 /*****************************

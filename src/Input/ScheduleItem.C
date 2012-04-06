@@ -155,7 +155,7 @@ void ScheduleItem::xCheck(Schedule* schedHead, Flux *fluxHead, History *histHead
 		break;
 	      default:
 		verbose(5,"Flux %s in single pulse item was found.",ptr->fluxName);
-		delete ptr->fluxName;
+		delete[] ptr->fluxName;
 		ptr->fluxNum = tmpFlux;
 	      }
 	    break;
@@ -173,7 +173,7 @@ void ScheduleItem::xCheck(Schedule* schedHead, Flux *fluxHead, History *histHead
 	    else 
 	      {
 		verbose(5,"Sub-schedule %s was found.",ptr->itemName);
-		delete ptr->itemName;
+		delete[] ptr->itemName;
 		ptr->subSched = tmpSched;
 	      }
 	    /* make note that this schedule is used as a sub-schedule */

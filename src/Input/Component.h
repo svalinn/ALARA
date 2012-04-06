@@ -90,7 +90,7 @@ public:
   /// Inline destructor destroys *entire* chain by deleting 'next'.
   /// Also deletes storage for 'compName'.
   ~Component()
-    { delete compName; delete next; };
+    { delete[] compName; delete next; };
   
   /// Overloaded assignment operator
   Component& operator=(const Component&);

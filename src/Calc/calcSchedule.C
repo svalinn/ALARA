@@ -126,7 +126,7 @@ calcSchedule::~calcSchedule()
     for (itemNum=0;itemNum<nItems;itemNum++)
       delete subSched[itemNum];
 
-  delete subSched;
+  delete[] subSched;
 }
 
 /** The correct implementation of this operator must ensure that
@@ -196,7 +196,7 @@ void calcSchedule::collapse()
       fluxCode = subSched[0]->fluxCode;
       calcSchedule **tmp = subSched;
       subSched = subSched[0]->subSched;
-      delete tmp;
+      delete[] tmp;
 
     }
 

@@ -187,7 +187,7 @@ VolFlux& VolFlux::operator=(const VolFlux& v)
   if (this == &v)
     return *this;
 
-  delete nflux;
+  delete[] nflux;
   nflux = NULL;
   
   if (nGroups>0)

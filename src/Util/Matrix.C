@@ -68,7 +68,7 @@ Matrix::Matrix(double *d, int sz, int ecol)
 
 Matrix::~Matrix()
 {
-  delete data;
+  delete[] data;
   data = NULL;
 }
 
@@ -107,7 +107,7 @@ Matrix& Matrix::operator*=(const Matrix& B)
 	  col++;
 	}
       
-      delete A_data;
+      delete[] A_data;
     }
 
   return *this;
@@ -167,7 +167,7 @@ void Matrix::square()
       col++;
     }
 
-  delete old_data;
+  delete[] old_data;
 }
 
 /* raise a matrix to a power */
@@ -204,7 +204,7 @@ Matrix& Matrix::operator=(const Matrix& m)
 
   size = m.size;
 
-  delete data;
+  delete[] data;
   data = NULL;
 
   if (size>0)
