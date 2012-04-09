@@ -340,6 +340,12 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   /* write a standard header for this table */
   coolList->writeHeader();
 
+  if (response == OUTFMT_SRC)
+    {
+      /* get cooling time strings for gamma source output */
+      coolList->getCoolTimesStrings(coolTimesList);
+    }
+
   if (mode == MODE_REVERSE)
     {
       /* query the data library through a dummy Node object
@@ -455,10 +461,8 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 
       /* write the formatted output for this isotope */
       cout << isoName(ptr->kza,isoSym) << "\t";
-
-      coolList->getCoolTimesStrings(coolTimesList);
-
-      for (resNum=0;resNum<nResults;resNum++)
+ 
+     for (resNum=0;resNum<nResults;resNum++)
 	{
 	  sprintf(isoSym,"%-11.4e ",ptr->N[resNum]*multiplier);
 	  cout << isoSym;
