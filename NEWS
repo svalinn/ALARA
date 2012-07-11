@@ -1,5 +1,15 @@
 $Id: NEWS,v 1.22 2008-08-06 17:38:09 phruksar Exp $
 
+Version 2.9.1
+
+BUGS FIXED 
+
+NEW FEATURES
+	* force photon source to output entry even when zero [PW] (7/11/12)
+
+CODE UPDATES
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
 Version 2.9.0
 
 BUGS FIXED 

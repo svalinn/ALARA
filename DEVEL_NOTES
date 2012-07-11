@@ -44,7 +44,7 @@ d. replace sample output
      i. run script to run samples into temporary directory
     ii. move old "ref_out" directory to "ref_old"
    iii. move temporary directory from (i) to "ref_out"
-    iv. move CVS directory from "ref_old" to "ref_out"
+    iv. move SVN directory from "ref_old" to "ref_out"
      v. check in new ref_out files with comments
 e. finish section in NEWS and check-in
 f. tag repository with new version string
