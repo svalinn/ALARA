@@ -456,8 +456,8 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
       /* if the multipier is 0 (e.g. stable isotope for activity based
 	 responses) skip this isotope */
 
-      if (multiplier == 0)
-	continue;
+      if (0 == multiplier && OUTFMT_SRC != response)
+	 continue;
 
       /* write the formatted output for this isotope */
       cout << isoName(ptr->kza,isoSym) << "\t";
