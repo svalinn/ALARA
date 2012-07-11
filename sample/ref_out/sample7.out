@@ -1,4 +1,4 @@
-ALARA 2.8.1
+ALARA 2.9.1rc
 Set verbose level to 3.
 Openned tree file ref_new/sample7.tree.
 	Openned sample7 for input.
@@ -62,15 +62,15 @@ Starting problem solution.
 		Solving Root #1: he-3 
 		   Maximum relative concentration: 0
 		      last Root: 111 nodes in 19 chains with maximum length 2.
-		                 in 0.020 s (5550.000 nodes/s)
+		                 in 0.010 s (11100.000 nodes/s)
 		   Total so far: 111 nodes in 19 chains with maximum length 2.
-		                 in 0.02 s (5550.000 nodes/s)
+		                 in 0.01 s (11100.000 nodes/s)
 		Solving Root #2: he-4 
 		   Maximum relative concentration: 0
-		      last Root: 1546 nodes in 481 chains with maximum length 5.
-		                 in 0.300 s (5153.333 nodes/s)
-		   Total so far: 1657 nodes in 500 chains with maximum length 5.
-		                 in 0.32 s (5178.125 nodes/s)
+		      last Root: 1563 nodes in 488 chains with maximum length 5.
+		                 in 0.170 s (9194.117 nodes/s)
+		   Total so far: 1674 nodes in 507 chains with maximum length 5.
+		                 in 0.18 s (9300.000 nodes/s)
 	Solved problem.
 	Reset binary dump with 2 results per isotope.
 		Tallying constituent results into total result lists.
@@ -136,9 +136,9 @@ isotope	 shutdown         1 s
 c-12 	1.1796e+18  1.1796e+18  
 c-13 	8.6427e+15  8.6427e+15  
 n-14 	2.9493e+15  2.9493e+15  
-n-15 	2.4393e+12  2.4393e+12  
-o-16 	2.1512e+19  2.1512e+19  
-o-17 	4.1268e+15  4.1268e+15  
+n-15 	2.4747e+12  2.4747e+12  
+o-16 	2.1514e+19  2.1514e+19  
+o-17 	4.1270e+15  4.1270e+15  
 o-18 	2.5062e+15  2.5062e+15  
 na-23 	4.2576e+16  4.2576e+16  
 mg-24 	2.5424e+17  2.5424e+17  
@@ -169,13 +169,13 @@ fe-56 	6.3928e+15  6.3928e+15
 fe-57 	1.4929e+14  1.4929e+14  
 fe-58 	9.1314e+12  9.1314e+12  
 ================================
-total	2.8158e+19  2.8158e+19  
+total	2.8160e+19  2.8160e+19  
 
 Totals for all zones.
 Number Density [atoms/cm3]
 zone	 shutdown         1 s   
 ================================
-1	2.8158e+19  2.8158e+19  	zone_1 (mix_1)
+1	2.8160e+19  2.8160e+19  	zone_1 (mix_1)
 ================================
 
 

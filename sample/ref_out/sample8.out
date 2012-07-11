@@ -1,4 +1,4 @@
-ALARA 2.8.1
+ALARA 2.9.1rc
 Set verbose level to 3.
 Openned tree file ref_new/sample8.tree.
 	Openned sample8 for input.
@@ -48,27 +48,27 @@ Starting problem solution.
 		Solving Root #1: fe-54 
 		   Maximum relative concentration: 0.059
 		      last Root: 833 nodes in 244 chains with maximum length 8.
-		                 in 0.110 s (7572.727 nodes/s)
+		                 in 0.060 s (13883.334 nodes/s)
 		   Total so far: 833 nodes in 244 chains with maximum length 8.
-		                 in 0.11 s (7572.727 nodes/s)
+		                 in 0.06 s (13883.334 nodes/s)
 		Solving Root #2: fe-56 
 		   Maximum relative concentration: 0.9172
 		      last Root: 475 nodes in 145 chains with maximum length 7.
-		                 in 0.070 s (6785.714 nodes/s)
+		                 in 0.040 s (11874.999 nodes/s)
 		   Total so far: 1308 nodes in 389 chains with maximum length 8.
-		                 in 0.18 s (7266.666 nodes/s)
+		                 in 0.10 s (13080.000 nodes/s)
 		Solving Root #3: fe-57 
 		   Maximum relative concentration: 0.021
 		      last Root: 522 nodes in 138 chains with maximum length 8.
-		                 in 0.080 s (6525.001 nodes/s)
+		                 in 0.030 s (17400.004 nodes/s)
 		   Total so far: 1830 nodes in 527 chains with maximum length 8.
-		                 in 0.26 s (7038.462 nodes/s)
+		                 in 0.13 s (14076.924 nodes/s)
 		Solving Root #4: fe-58 
 		   Maximum relative concentration: 0.0028
 		      last Root: 892 nodes in 213 chains with maximum length 9.
-		                 in 0.140 s (6371.428 nodes/s)
+		                 in 0.070 s (12742.855 nodes/s)
 		   Total so far: 2722 nodes in 740 chains with maximum length 9.
-		                 in 0.40 s (6805.000 nodes/s)
+		                 in 0.20 s (13610.000 nodes/s)
 	Solved problem.
 	Reset binary dump with 5 results per isotope.
 		Read dump file.
@@ -77,7 +77,7 @@ Interval output requested:
 	Response Units: Bq /cm3
 	Number Density [atoms/cm3]
 	Contact Dose [ Sv/hr] : data/ANS6_4_3
-	Folded (Adjoint/Biological) Dose [Sv/hr] : data/adjfile2.gam
+	Folded (Adjoint/Biological) Dose [units defined by adjoint flux] : data/adjfile2.gam
 
 
 *** Number Density [atoms/cm3] ***
@@ -439,7 +439,7 @@ interval shutdown         1 d       100 d         1 y       100 y
 
 
 
-*** Folded (Adjoint/Biological) Dose [Sv/hr] : data/adjfile2.gam ***
+*** Folded (Adjoint/Biological) Dose [units defined by adjoint flux] : data/adjfile2.gam ***
 
 Interval #1 (Zone: inner_zone) :
 	Relative Volume: 3.33333
@@ -448,7 +448,7 @@ Interval #1 (Zone: inner_zone) :
 Total (All constituents) 
 	COMPACTED
 	Volume Fraction: 1	Relative Volume: 3.33333
-Folded (Adjoint/Biological) Dose [Sv/hr] : data/adjfile2.gam
+Folded (Adjoint/Biological) Dose [units defined by adjoint flux] : data/adjfile2.gam
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
 sc-48 	4.1964e+04  2.8671e+04  1.1994e-12  0.0000e+00  0.0000e+00  
@@ -484,7 +484,7 @@ Interval #2 (Zone: inner_zone) :
 Total (All constituents) 
 	COMPACTED
 	Volume Fraction: 1	Relative Volume: 3.33333
-Folded (Adjoint/Biological) Dose [Sv/hr] : data/adjfile2.gam
+Folded (Adjoint/Biological) Dose [units defined by adjoint flux] : data/adjfile2.gam
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
 sc-48 	4.6195e+04  3.1561e+04  1.3204e-12  0.0000e+00  0.0000e+00  
@@ -520,7 +520,7 @@ Interval #3 (Zone: inner_zone) :
 Total (All constituents) 
 	COMPACTED
 	Volume Fraction: 1	Relative Volume: 3.33333
-Folded (Adjoint/Biological) Dose [Sv/hr] : data/adjfile2.gam
+Folded (Adjoint/Biological) Dose [units defined by adjoint flux] : data/adjfile2.gam
 isotope	 shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
 sc-48 	5.0842e+04  3.4736e+04  1.4532e-12  0.0000e+00  0.0000e+00  
@@ -554,7 +554,7 @@ Interval #4 (Zone: outer_zone) :
 
 
 Totals for all intervals.
-Folded (Adjoint/Biological) Dose [Sv/hr] : data/adjfile2.gam
+Folded (Adjoint/Biological) Dose [units defined by adjoint flux] : data/adjfile2.gam
 interval shutdown         1 d       100 d         1 y       100 y   
 ====================================================================
 1	2.5719e+09  4.9799e+08  3.7998e+08  2.0981e+08  6.0305e+00  
