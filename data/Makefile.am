@@ -40,6 +40,6 @@ install-data-hook:
 
 
 install-exec-hook:
-	mkdirhier $(xsdir)
+	mkdir -p $(xsdir)
 	cd $(xsdir); \
 	touch PlaceCrossSectionDataHere
