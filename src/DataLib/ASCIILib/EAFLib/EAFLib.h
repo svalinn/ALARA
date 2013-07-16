@@ -91,8 +91,8 @@ DATALIB_IEAF     6     ieaf     A data library with cross-section
 #define DATALIB_EAF 3
 
 #define MAXLINELENGTH 85
-#define MAXEAFRXNS 50
-#define MAXEAFDCYMODES 15
+#define MAXEAFRXNS 200
+#define MAXEAFDCYMODES 100
 
 #include "../ASCIILib.h"
 
