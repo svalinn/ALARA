@@ -3,6 +3,7 @@ $Id: NEWS,v 1.22 2008-08-06 17:38:09 phruksar Exp $
 Version 2.9.1
 
 BUGS FIXED 
+        * fix bug that assumed always 3 decay energies in decay library [PW] (7/16/13)
 
 NEW FEATURES
 	* force photon source to output entry even when zero [PW] (7/11/12)
