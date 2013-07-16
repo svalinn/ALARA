@@ -60,7 +60,6 @@ void EAFLib::extract(char* input, float* value)
 
   /* return the value */
   *value = Man*pow(10,Exp);
-
   return;
 }
 
@@ -523,7 +522,6 @@ int EAFLib::getDecayData()
       nDRxns++;
       nIons++;
     }
-  
   if (numSpec != 0)
     numSpec = getGammaData();
 
