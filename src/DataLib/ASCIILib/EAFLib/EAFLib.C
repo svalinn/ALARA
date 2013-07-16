@@ -412,7 +412,7 @@ int EAFLib::getDecayData()
   char buffer[MAXLINELENGTH];
   int MT, isoFlag, zak;
   float inFlt, rxnType;
-  int pFlag, aFlag, decyNum;
+  int pFlag, aFlag, decyNum, numDecayEnergies;
   float pBranch, aBranch, dIsoFlag;
   
 
@@ -447,7 +447,8 @@ int EAFLib::getDecayData()
   inDecay.getline(buffer,MAXLINELENGTH);
   /* extract data */
   extract(buffer,&thalf);
-  
+  numDecayEnergies=atoi(buffer+44)/2;
+
   /* read line */
   /* betaA --> gammaE --> alphaE */
   inDecay.getline(buffer,MAXLINELENGTH);
@@ -455,6 +456,14 @@ int EAFLib::getDecayData()
   extract(buffer,E);
   extract(buffer+22,E+1);
   extract(buffer+44,E+2);
+  if (numDecayEnergies > 3)
+    {
+      inDecay.getline(buffer,MAXLINELENGTH);
+      inDecay.getline(buffer,MAXLINELENGTH);
+      inDecay.getline(buffer,MAXLINELENGTH);
+      inDecay.getline(buffer,MAXLINELENGTH);
+      inDecay.getline(buffer,MAXLINELENGTH);
+    }
   
   /* read line */
   /* --> numDecyRxn */
