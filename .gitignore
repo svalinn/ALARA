@@ -1,0 +1,38 @@
+# Compiled Source #
+###################
+*.o
+*.a
+
+# Build files #
+###############
+Makefile
+Makefile.in
+.deps
+
+# Autotools #
+#############
+INSTALL
+aclocal.m4
+autom4te.cache
+config.h
+config.h.in
+config.log
+config.status
+configure
+depcomp
+install-sh
+missing
+stamp-h1
+
+src/Util/dflt_datadir.h
+src/alara
+tools/dant2alara
+tools/extract_pathways
+tools/summary
+developer-info/doxyalara
+
+
+sample/data/truncated_fendl2bin.gam
+sample/data/truncated_fendl2bin.gdx
+sample/data/truncated_fendl2bin.idx
+sample/data/truncated_fendl2bin.lib
