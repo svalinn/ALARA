@@ -8,7 +8,7 @@ Thank you for your interest in ALARA.
 The primary purpose of ALARA is to calculate the induced activation caused by neutron irradiation throughout a nuclear system (including fission reactors, fusion reactors, and accelerators). Some projects currently using ALARA include ARIES, IFMIF and the Z-Pinch Power Plant study.
 
 Build and Install
------------------
+.................
 Requirements
 ____________
 ALARA is written primarily in C++ with one or two FORTRAN77 routines. All development is done with the GNU C++ and FORTRAN compilers and it has been tested and is known to work on Linux and Solaris. Installing ALARA requires both a C++ and a FORTRAN compiler. 
@@ -18,31 +18,31 @@ _______
 1. Obtain the distribution from the appropriate source.
 2. Unpack the distribution.
 
-   %> gunzip -c alara-2.7.1.tar.gz | tar xf -
+	%> gunzip -c alara-2.7.1.tar.gz | tar xf -
 
 3. Go to newly created directory.
 
-   %> cd alara-2.7.1
+	%> cd alara-2.7.1
 
 4. Configure ALARA for your system
 
-   %> ./configure
+	%> ./configure
 
    See below for options that you can give to configure.
 
 5. Build the application
 
-   %> make
+	%> make
 
 6. Install the application
 
-   %> make install
+	%> make install
 
 Configuration Options
 ____________________
 The configure program provides a lot of options for customizing the compilation and installation of ALARA. To learn more about the full set of options, you should check the built-in help:
 
-%> ./configure --help
+	%> ./configure --help
 
 Some common options are listed here:
 
@@ -77,16 +77,16 @@ B. There is currently no set of tests to be conducted with 'make
    these tests.
 
 Building Documentation
-----------------------
+......................
 
 How to Use
-----------
+..........
 
 Contribute & Develop
---------------------
+....................
 
 Additional Notes
-----------------
+................
 
 In addition to building and installing the ALARA program, this package
 includes an accessory program, dant2alara, and a pair of Perl scripts
