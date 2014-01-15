@@ -99,9 +99,6 @@ B. There is currently no set of tests to be conducted with 'make
    calculations and is a truncated library just for the purpose of
    these tests.
 
-Building Documentation
-......................
-
 How to Use
 ..........
 Running alara can be done in one command line with various options.

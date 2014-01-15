@@ -1,3 +1,5 @@
+$Id: AUTHORS,v 1.3 2003-07-01 13:37:47 wilsonp Exp $
+
 Primary Developer
 -------------------
 Paul P.H. Wilson
