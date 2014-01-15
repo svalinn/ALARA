@@ -107,9 +107,6 @@ Running alara can be done in one command line with various options.
 
 Please reference the user guide for specific options and more information. http://alara.engr.wisc.edu/users.guide.html/
 
-Contribute & Develop
-....................
-
 Additional Notes
 ................
 
