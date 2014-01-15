@@ -1,13 +1,13 @@
 Primary Developer
 -------------------
 Paul P.H. Wilson
-  Assisstant Professor
-  Engineering Physics Dept
-  UW-Madison
-  1500 Engineering Dr
-  Madison, WI 53706
-  wilsonp@engr.wisc.edu
-  608/263-0807
+	Assisstant Professor
+	Engineering Physics Dept
+	UW-Madison
+	1500 Engineering Dr
+	Madison, WI 53706
+	wilsonp@engr.wisc.edu
+	608/263-0807
 
 Other Developers
 -------------------
