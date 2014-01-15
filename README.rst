@@ -69,6 +69,7 @@ The configure program provides a lot of options for customizing the compilation 
 Some common options are listed here:
 
 --prefix=/your/path/here
+
     This option allows you to change the default location for the installation of ALARA and its accompanying files. The next section describes the different files that are installed and the directories in which they are installed. More control over the specific directories is also possible - see the built-in help for more information.
 
 CXX=name_of_your_C++_compiler
