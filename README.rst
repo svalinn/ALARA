@@ -10,7 +10,7 @@ The primary purpose of ALARA is to calculate the induced activation caused by ne
 Special Features of ALARA
 .................
 
- ALARA takes full advantage of being a newly developed code by implementing the best features of the previous generation of activation codes and, at the same time, addressing their various weaknesses. Furthermore, an entirely new set of features has been implemented and continued development will allow it to respond to the evolving needs of the entire user community. ALARA's three main design principles are accuracy, speed, and usability. ALARA matches the previous generation of activation codes in accuracy and is much faster. This is achieved by adaptively choosing the mathematical method at the smallest resolution in order to optimize both speed and accuracy.
+ALARA takes full advantage of being a newly developed code by implementing the best features of the previous generation of activation codes and, at the same time, addressing their various weaknesses. Furthermore, an entirely new set of features has been implemented and continued development will allow it to respond to the evolving needs of the entire user community. ALARA's three main design principles are accuracy, speed, and usability. ALARA matches the previous generation of activation codes in accuracy and is much faster. This is achieved by adaptively choosing the mathematical method at the smallest resolution in order to optimize both speed and accuracy.
 
 ALARA distinguishes itself by including unique capabilities that are useful to engineers and designers:
 
@@ -104,10 +104,10 @@ Building Documentation
 How to Use
 ..........
 Running alara can be done in one command line with various options.
+
 	%> alara [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>]
 
-Please reference the 'user guide'_ for specific options and more information.
-.. _user guide: http://alara.engr.wisc.edu/users.guide.html/
+Please reference the user guide for specific options and more information. http://alara.engr.wisc.edu/users.guide.html/
 
 Contribute & Develop
 ....................
@@ -141,5 +141,4 @@ number. e.g. tritium is h-3.
 
 More Information
 ..............
-Please visit the 'ALARA homepage'_ for more information regarding all the above topics.
-.. _ALARA homepage: http://alara.engr.wisc.edu/
+Please visit the ALARA homepage for more information regarding all the above topics. http://alara.engr.wisc.edu/
