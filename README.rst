@@ -7,6 +7,28 @@ Thank you for your interest in ALARA.
 
 The primary purpose of ALARA is to calculate the induced activation caused by neutron irradiation throughout a nuclear system (including fission reactors, fusion reactors, and accelerators). Some projects currently using ALARA include ARIES, IFMIF and the Z-Pinch Power Plant study.
 
+Special Features of ALARA
+.................
+
+ ALARA takes full advantage of being a newly developed code by implementing the best features of the previous generation of activation codes and, at the same time, addressing their various weaknesses. Furthermore, an entirely new set of features has been implemented and continued development will allow it to respond to the evolving needs of the entire user community. ALARA's three main design principles are accuracy, speed, and usability. ALARA matches the previous generation of activation codes in accuracy and is much faster. This is achieved by adaptively choosing the mathematical method at the smallest resolution in order to optimize both speed and accuracy.
+
+ALARA distinguishes itself by including unique capabilities that are useful to engineers and designers:
+
+    unlimited number of reaction channels
+    exact modeling of hierarchical arbitrary irradiation schedules
+    reverse calculation mode 
+
+ALARA implements many of the standard features of activation codes including:
+
+    multi-point (3-D) solutions in a variety of geometries
+    accurate solution of loops in activation trees
+    exact modeling of multi-level pulsing irradiation histories
+    user-defined calculation precision/accuracy
+    tracking the accumulation of light ions
+    straightforward, user-friendly input file creation
+    full, easy-to-read activation tree output (not just pathway analysis)
+    flexible output options NOW including the direct calculation of waste disposal ratings and clearance indices. 
+
 Build and Install
 .................
 Requirements
@@ -81,6 +103,11 @@ Building Documentation
 
 How to Use
 ..........
+Running alara can be done in one command line with various options.
+	%> alara [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>]
+
+Please reference the 'user guide'_ for specific options and more information.
+.. _user guide: http://alara.engr.wisc.edu/users.guide.html/
 
 Contribute & Develop
 ....................
@@ -111,3 +138,8 @@ totals.  You can also extract results for a single specific isotopes
 by giving the argument "-iso" followed by the isotope in question
 written as a lower case atomic symbol hyphenated with the mass
 number. e.g. tritium is h-3.
+
+More Information
+..............
+Please visit the 'ALARA homepage'_ for more information regarding all the above topics.
+.. _ALARA homepage: http://alara.engr.wisc.edu/
