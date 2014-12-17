@@ -1,3 +1,9 @@
+#!/bin/env python
+# This script reads an ALARA elelib file and prints an new elelib file with all
+# the original entry plus one entry for each isotope of each element. The atomic
+# masses of the isotopes are acquired PyNE. Densities of isotopes are adjusted
+# from elemental densities.
+
 import argparse
 
 from pyne import data
@@ -36,13 +42,11 @@ def elelib_to_isolib(filename, outfile):
             
 def main():
 
-    parser = argparse.ArgumentParser(description=(
-             'Reads an MCNP meshtal file and creates an h5m mesh file '
-             'only works for Cartesian meshes.'))
-    parser.add_argument('filename', help='Name of the MCNP meshtal file.')
+    parser = argparse.ArgumentParser(description=
+             'Converts an ALARA element library to an isotope library')
+    parser.add_argument('filename', help='Name of the ALARA elelib file.')
     parser.add_argument('-o', dest='output', default="isolib",
-                        help=('Base name of the output files:  output files '
-                              'will be named <output>_tally_<tally_num>.h5m'))
+                        help='Name the isolib output file')
 
     args = parser.parse_args()
     elelib_to_isolib(args.filename, args.output)
