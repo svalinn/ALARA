@@ -1,14 +1,16 @@
 #!/bin/env python
+
 # This script reads an ALARA elelib file and prints an new elelib file with all
-# the original entry plus one entry for each isotope of each element. The atomic
-# masses of the isotopes are acquired PyNE. Densities of isotopes are adjusted
-# from elemental densities.
+# the original entry plus one entry for each isotope of each element. Then end
+# result is a single file (a 'nuclib') with entries for all elements and
+# nuclides. The atomic masses of the nuclides are acquired PyNE. Densities of
+# nuclides are adjusted from elemental densities.
 
 import argparse
 
 from pyne import data
 
-def elelib_to_isolib(filename, outfile):
+def elelib_to_nuclib(filename, outfile):
     output=""
     with open(filename, 'r') as f:
         line = f.readline()
@@ -45,11 +47,11 @@ def main():
     parser = argparse.ArgumentParser(description=
              'Converts an ALARA element library to an isotope library')
     parser.add_argument('filename', help='Name of the ALARA elelib file.')
-    parser.add_argument('-o', dest='output', default="isolib",
-                        help='Name the isolib output file')
+    parser.add_argument('-o', dest='output', default="nuclib",
+                        help='Name the nuclib output file')
 
     args = parser.parse_args()
-    elelib_to_isolib(args.filename, args.output)
+    elelib_to_nuclib(args.filename, args.output)
 
 if __name__ == '__main__':
     main()
