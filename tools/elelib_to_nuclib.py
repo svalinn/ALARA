@@ -34,8 +34,8 @@ def elelib_to_nuclib(filename, outfile):
                 elem_output += isoline
                 anum = int(isoline.split()[0])
                 atomic_mass = data.atomic_mass("{0}{1}".format(ll, anum))
-                iso_output += "{0}:{1} {2:13.5E} {3:3d} {4:13.5E} 1\n    1 100\n".format(
-                           ll, anum, atomic_mass, znum, rho*atomic_mass/elem_mass)
+                iso_output += "{0}:{1} {2:13.5E} {3:3d} {4:13.5E} 1\n    {5} 100\n".format(
+                           ll, anum, atomic_mass, znum, rho*atomic_mass/elem_mass, anum)
             line = f.readline()
             output += elem_output + iso_output
 
