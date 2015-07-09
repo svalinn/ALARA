@@ -4,7 +4,8 @@
 # the original entry plus one entry for each isotope of each element. Then end
 # result is a single file (a 'nuclib') with entries for all elements and
 # nuclides. The atomic masses of the nuclides are acquired PyNE. Densities of
-# nuclides are adjusted from elemental densities.
+# nuclides are adjusted from elemental densities. This script required the PyNE
+# library; more info at http://pyne.io.
 
 import argparse
 
