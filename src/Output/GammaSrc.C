@@ -561,7 +561,12 @@ void GammaSrc::setData(int kza, int numSpec,
 		case GAMMASRC_RAW_SRC:
 		case GAMMASRC_ADJOINT:
 		  /* increment bin */
-		  gammaMult[gNum] += discGammaI[specNum][gammaNum];
+                  if(false)
+		      gammaMult[gNum] += discGammaI[specNum][gammaNum];
+                  else{
+		      gammaMult[gNum] += discGammaI[specNum][gammaNum]*discGammaE[specNum][gammaNum]/
+                                         (0.5*(grpBnds[gNum+1] + grpBnds[gNum]));
+                  }
 		  break;
 		case GAMMASRC_CONTACT:     
 		  /* increment total contact dose */
