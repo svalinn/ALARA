@@ -1,0 +1,61 @@
+geometry rectangular
+
+volume
+    1.0 zone_0  
+end
+
+mat_loading
+     zone_0 mix_0
+end
+
+mixture mix_0
+     element mn:56 1.05739587555 1 # to give 8.609E22 atoms/cm3
+end
+
+element_lib data/myElelib
+data_library alaralib data/truncated_fendl2bin
+
+cooling
+    4380     s
+    6180     s
+    7488     s
+    11580    s
+    17280    s
+    24480    s
+    34080    s
+    45780    s
+    57240    s
+    72550    s
+    90720    s
+    132000    s
+    212400    s
+    345600    s
+    479300    s
+    708500    s
+    1050000    s
+    1670000    s
+    1710000    s
+end
+
+output zone
+       units Bq cm
+       number_density
+        photon_source  data/truncated_fendl2bin phtn_src 24 1.00E4 2.00E4 5.00E4 1.00E5 
+        2.00E5 3.00E5 4.00E5 6.00E5 8.00E5 1.00E6 1.22E6 1.44E6 1.66E6 
+        2.00E6 2.50E6 3.00E6 4.00E6 5.00E6 6.50E6 8.00E6 1.00E7 1.20E7
+        1.40E7 2.00E7
+end
+
+flux flux_1 data/fluxin_zeros 1 0 default
+
+schedule    total
+    0 s flux_1 mypulse 0 s
+end
+
+pulsehistory    mypulse
+    1    0.0    s
+end
+
+truncation    1e-12
+impurity    5e-6    1e-3
+dump_file dump_files/sample9.dump
