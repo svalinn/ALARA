@@ -43,3 +43,5 @@ echo sample7
 $alarabin -v 3 -t $outdir/sample7.tree sample7 > $outdir/sample7.out
 echo sample8
 $alarabin -v 3 -t $outdir/sample8.tree sample8 > $outdir/sample8.out
+echo sample9
+$alarabin -v 3 -t $outdir/sample9.tree sample9 > $outdir/sample8.out
