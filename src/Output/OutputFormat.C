@@ -348,15 +348,15 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
-		/* set gamma source to use for this */
-		Result::setGammaSrc(ptr->gammaSrc);
                 bool integrate_energy;
                 if(ptr->outTypes & OUTFMT_INT_ENG){
                   integrate_energy = true;
                   }
                 else
                   integrate_energy = false;
-                std::cout<<integrate_energy<<std::endl;
+		ptr->gammaSrc->setIntEng(integrate_energy);
+		/* set gamma source to use for this */
+		Result::setGammaSrc(ptr->gammaSrc);
 		break;
 	      case (OUTFMT_CDOSE) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
@@ -365,7 +365,6 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		ptr->contactDose->setGammaAttenCoef(mixList);
 		/* set gamma source to use for this */
 		Result::setGammaSrc(ptr->contactDose);
-		
 		break;
 	      case (OUTFMT_ADJ) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
