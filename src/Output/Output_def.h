@@ -17,6 +17,7 @@
 #define OUTFMT_EXP   2048
 #define OUTFMT_EXP_CYL_VOL 4096
 #define OUTFMT_WDR   8192
+#define OUTFMT_INT_ENG 16384
 
 #define OUTNORM_KG        -2
 #define OUTNORM_G         -1

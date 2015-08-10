@@ -40,6 +40,7 @@ end
 output zone
        units Bq cm
        number_density
+       integrate_energy
         photon_source  data/truncated_fendl2bin phtn_src 24 1.00E4 2.00E4 5.00E4 1.00E5 
         2.00E5 3.00E5 4.00E5 6.00E5 8.00E5 1.00E6 1.22E6 1.44E6 1.66E6 
         2.00E6 2.50E6 3.00E6 4.00E6 5.00E6 6.50E6 8.00E6 1.00E7 1.20E7
