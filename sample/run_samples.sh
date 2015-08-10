@@ -44,4 +44,7 @@ $alarabin -v 3 -t $outdir/sample7.tree sample7 > $outdir/sample7.out
 echo sample8
 $alarabin -v 3 -t $outdir/sample8.tree sample8 > $outdir/sample8.out
 echo sample9
-$alarabin -v 3 -t $outdir/sample9.tree sample9 > $outdir/sample8.out
+sed -e "s/\.\/sample9.photonSrc_int/$outdir\/sample9.photonSrc_int/" sample9 > sample9.tmp
+sed -i "s/\.\/sample9.photonSrc/$outdir\/sample9.photonSrc/" sample9.tmp
+$alarabin -v 3 -t $outdir/sample9.tree sample9.tmp > $outdir/sample9.out
+rm sample9.tmp
