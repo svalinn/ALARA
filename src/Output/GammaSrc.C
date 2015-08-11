@@ -515,7 +515,9 @@ double GammaSrc::subIntegral(int pntNum, int intTyp, float* x, float* y,
        default:
          I = 0;
        }
-  }
+     /* I is in units of power, divide by average energy to get intensity */
+     I /= ((x1 + x2)/2);
+     }
   else{
   /* based on interpolation type */
      switch (intTyp)

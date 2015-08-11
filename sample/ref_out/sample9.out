@@ -1,0 +1,160 @@
+ALARA 2.9.1rc
+Set verbose level to 3.
+Openned tree file out/sample9.tree.
+	Openned sample9.tmp for input.
+Starting problem input processing.
+	Reading input.
+		Set geometry type: rectangular.
+		Reading volumes and zone assignments of intervals.
+		Reading the material loading for this problem.
+		Reading constituent list for Mixture mix_0 with constituents:
+		Openned element library ./data/myElelib
+		Openning DataLib with type alaralib
+		Reading after-shutdown cooling times.
+		Added output at resolution 2 (zone)
+		Added output at resolution 2 (zone)
+		Added Flux flux_1 from file data/fluxin_zeros with normalization 1, format code 1, and skipping 0 entries.
+		Reading items for schedule total.
+		Reading pulsing levels for History mypulse:
+		Truncation parameters set at 1e-12 for truncation and 1e-14 for ignore.
+		Impurity defined as 5e-06 with truncation parameters set at 0.001 for truncation and 1e-05 for ignore.
+	Cross-checking input for completeness and self-consistency.
+		Checking for all internally referenced mixtures.
+		Checking for all mixtures referenced in material loading.
+		Checking for all zones referenced in interval definitions.
+		Checking for all sub-schedules, fluxes and pulsing histories referenced in schedules.
+
+
+***Please review this schedule hierarchy.!!!!!!!!!!
+
+Schedule 'total':
+	pulse: 0 s with 0 s delay pulsed with history mypulse
+
+***End of schedule hierarchy.
+
+
+	Preprocessing input.
+		Replacing all 'similar' constituents and removing unused mixtures.
+		Cross-referencing intervals with mixtures.
+		Assigning 1 fluxes to each interval
+		Making list of root isotopes.
+		Processing pulsing histories.
+		Processing schedule hierarchy.
+		Processing cooling times.
+		Collapsing schedules from top.
+		Making storage hierarchies in intervals.
+Starting problem solution.
+		Solving Root #1: mn-56 
+		   Maximum relative concentration: 1
+		      last Root: 2 nodes in 1 chains with maximum length 2.
+		                 in 0.000 s (inf nodes/s)
+		   Total so far: 2 nodes in 1 chains with maximum length 2.
+		                 in 0.00 s (inf nodes/s)
+	Solved problem.
+	Reset binary dump with 5 results per isotope.
+		Read dump file.
+		Tallying constituent results into total result lists.
+Zone output requested:
+	Response Units: Bq /cm
+	Number Density [atoms/cm]
+	Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc
+	    with Specific Activity [Bq/cm]
+
+
+*** Number Density [atoms/cm] ***
+
+Zone #1: zone_0
+	Relative Volume: 1
+	Containing mixture: mix_0
+
+Total (All constituents) 
+	COMPACTED
+	Volume Fraction: 1	Relative Volume: 1
+Number Density [atoms/cm]
+isotope	 shutdown      5000 s     10000 s     20000 s     50000 s   
+====================================================================
+mn-56 	8.6090e+22  5.9270e+22  4.0806e+22  1.9341e+22  2.0596e+21  
+fe-56 	0.0000e+00  2.6820e+22  4.5284e+22  6.6748e+22  8.4030e+22  
+====================================================================
+total	8.6090e+22  8.6090e+22  8.6090e+22  8.6090e+22  8.6090e+22  
+
+Totals for all zones.
+Number Density [atoms/cm]
+zone	 shutdown      5000 s     10000 s     20000 s     50000 s   
+====================================================================
+1	8.6090e+22  8.6090e+22  8.6090e+22  8.6090e+22  8.6090e+22  	zone_0 (mix_0)
+====================================================================
+
+
+
+
+
+*** Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc
+	    with Specific Activity [Bq/cm] ***
+
+Zone #1: zone_0
+	Relative Volume: 1
+	Containing mixture: mix_0
+
+Total (All constituents) 
+	COMPACTED
+	Volume Fraction: 1	Relative Volume: 1
+Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc
+	    with Specific Activity [Bq/cm]
+isotope	 shutdown      5000 s     10000 s     20000 s     50000 s   
+====================================================================
+mn-56 	6.4272e+18  4.4249e+18  3.0464e+18  1.4440e+18  1.5377e+17  
+fe-56 	0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+====================================================================
+total	6.4272e+18  4.4249e+18  3.0464e+18  1.4440e+18  1.5377e+17  
+
+Totals for all zones.
+Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc
+	    with Specific Activity [Bq/cm]
+zone	 shutdown      5000 s     10000 s     20000 s     50000 s   
+====================================================================
+1	6.4272e+18  4.4249e+18  3.0464e+18  1.4440e+18  1.5377e+17  	zone_0 (mix_0)
+====================================================================
+
+
+
+
+
+Zone output requested:
+	Response Units: Bq /cm
+	Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc_int
+	    with Specific Activity [Bq/cm]
+
+
+*** Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc_int
+	    with Specific Activity [Bq/cm] ***
+
+Zone #1: zone_0
+	Relative Volume: 1
+	Containing mixture: mix_0
+
+Total (All constituents) 
+	COMPACTED
+	Volume Fraction: 1	Relative Volume: 1
+Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc_int
+	    with Specific Activity [Bq/cm]
+isotope	 shutdown      5000 s     10000 s     20000 s     50000 s   
+====================================================================
+mn-56 	6.4272e+18  4.4249e+18  3.0464e+18  1.4440e+18  1.5377e+17  
+fe-56 	0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  
+====================================================================
+total	6.4272e+18  4.4249e+18  3.0464e+18  1.4440e+18  1.5377e+17  
+
+Totals for all zones.
+Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc_int
+	    with Specific Activity [Bq/cm]
+zone	 shutdown      5000 s     10000 s     20000 s     50000 s   
+====================================================================
+1	6.4272e+18  4.4249e+18  3.0464e+18  1.4440e+18  1.5377e+17  	zone_0 (mix_0)
+====================================================================
+
+
+
+
+
+Output.

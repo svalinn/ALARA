@@ -1,3 +1,57 @@
+###############################################################################
+# SAMPLE 9
+###############################################################################
+# 
+# In this problem, Mn-56 is decayed (with no irradiation) and the gamma source
+# intensity (q) is calculated in an energy group spanning from 0.8--1.0 MeV using
+# 2 different methods. The first method is the default method in ALARA and the
+# second method uses the "integrate_energy" modifier. In the first method, q is
+# calculated using the decay constant (lambda), number density (N), decay time
+# (t) and gamma yeild (Y) via the following expression (for discrete line
+# emission): 
+# 
+# q_method1 = lambda*N*exp(-lambda*t)*Y.
+# 
+# Note that Y is the number of gammas emmitted in the energy group of interest
+# per dintegration. The second method (i.e with the "integrate_energy" modifier)
+# calculates q by:
+# 
+# q_method2 = lambda*N*exp(-lambda*t)*Y*E/((E_hi + E_low)/2),
+# 
+# where E is the energy of the discrete line and E_hi and E_low are the energy
+# group upper and lower bounds, respectively.
+# 
+# In this problem a number density of 8.61E+022 (cm^-3) was used. Mn-56 has only
+# 1 gamma emmission in the 0.8--1.0 MeV energy group. The following nuclear data
+# applies [1]:
+# 
+# half-life (h): 2.57878
+# lambda (s): 7.46636E-5
+# gamma energy (eV): 8.467638E5 eV 
+# yeild (decays per disintegration): 0.9885 
+# 
+# Using this data the expected results at 4 decay times where obtained by hand
+# calculation, shown below.
+# 
+#             -----------------------------------------------
+#             |              Expected Results               |
+#             |---------------------------------------------|
+#             |                       gamma intensity       |
+#             |---------------------------------------------|
+#             | decay time  |    method 1         method 2  |
+#             |    (s)      |   (cm^-3 s^-1)    (cm^-3 s^-1)|
+#             | 5.0000E+03  |    4.3743E+18      4.1156E+18 |
+#             | 1.0000E+04  |    3.0115E+18      2.8333E+18 |
+#             | 2.0000E+04  |    1.4273E+18      1.3429E+18 |
+#             | 5.0000E+04  |    1.5196E+17      1.4297E+17 |
+#             -----------------------------------------------
+# 
+# [1] A. L. Nichols, BNM-LNHB - Table de Raionucleides, IAEA
+#     http://www.nucleide.org/DDEP_WG/Nuclides/Mn-56_tables.pdf
+# 
+###############################################################################
+###############################################################################
+###############################################################################
 geometry rectangular
 
 volume
@@ -16,25 +70,10 @@ element_lib data/myElelib
 data_library alaralib data/truncated_fendl2bin
 
 cooling
-    4380     s
-    6180     s
-    7488     s
-    11580    s
-    17280    s
-    24480    s
-    34080    s
-    45780    s
-    57240    s
-    72550    s
-    90720    s
-    132000    s
-    212400    s
-    345600    s
-    479300    s
-    708500    s
-    1050000    s
-    1670000    s
-    1710000    s
+    5E3 s
+    1E4 s
+    2E4 s
+    5E4 s
 end
 
 output zone
