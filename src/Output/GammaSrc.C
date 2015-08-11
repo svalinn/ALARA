@@ -481,34 +481,34 @@ double GammaSrc::subIntegral(int pntNum, int intTyp, float* x, float* y,
        {
        case 1: /* type 1: histogram */
          /* y = y1*x */
-         /* I = y1 * x^2/2 @ dx */
-         I = y1/2 *(xhi*xhi - xlo*xlo);
+         /* I = y1*x^2/2 @ dx */
+         I = y1/2*(xhi*xhi - xlo*xlo);
          break;
        case 2: /* type 2: linear */
-         /* y = m*x^2 + (y1-m*x1)*x */
-         /* I = m*x^3/3 + (y1-m*x1)*x^2/2 @ dx */
+         /* y = m*x^2 + (y1 - m*x1)*x */
+         /* I = m*x^3/3 + (y1 - m*x1)*x^2/2 @ dx */
          m =(y2-y1)/(x2-x1); 
          I = m/3*(pow(xhi, 3) - pow(xlo, 3)) + (y1-m*x1)/2*(xhi*xhi - xlo*xlo);
          break;
        case 3: /* type 3: linear-log */
-         /* y = m*ln(x)*x + y1*x -m*ln(x1)*x */
-         /* I = x^2/4 * [2*m*ln(x) - 2*m*ln(x1) - m - 2*y1] @ dx */
+         /* y = m*ln(x)*x + y1*x - m*ln(x1)*x */
+         /* I = x^2/4 * [2*m*ln(x) - 2*m*ln(x1) - m + 2*y1] @ dx */
          m =(y2-y1)/(x2-x1); 
-         I = (xhi*xhi/4 * (2*m*log(xhi) - 2*m*log(x1) - m - 2*y1)) - \
-             (xlo*xlo/4 * (2*m*log(xlo) - 2*m*log(x1) - m - 2*y1));
+         I = xhi*xhi/4*(2*m*log(xhi) - 2*m*log(x1) - m + 2*y1) - \
+             xlo*xlo/4*(2*m*log(xlo) - 2*m*log(x1) - m + 2*y1);
          break;
        case 4: /* type 4: log-linear */
-         /* y = y1*x*exp( m*(x-x1)) */
-         /* I = y1/m^2*(m*x -1)*exp(m*(x-x1)) @ dx for m != 0 */
+         /* y = y1*x*exp( m*(x - x1)) */
+         /* I = y1/m^2*(m*x - 1)*exp(m*(x - x1)) @ dx for m != 0 */
          m =(y2-y1)/(x2-x1); 
-         I = y1/(m*m)*expm1(-m*x1)*(expm1(xlo*m)*(xlo - 1) + expm1(xlo*m)*(1 - xhi*m));
+         I = y1/(m*m)*exp(-m*x1)*(exp(xhi*m)*(xhi - 1) + exp(xlo*m)*(1 - xlo*m));
          break;
        case 5:/* type 5: log-log */
          /* y = y1 * x* (x/x1)^m */
          /* I = x^2*y1/(m+2) * (x/x1)^m @ dx */
          m =(y2-y1)/(x2-x1); 
          if (m != -2)
-   	         I = y1/(m+2)/pow(x1, m)*(pow(xhi, 2 + m) - pow(xlo, 2+m));
+   	         I = y1/(m + 2)/pow(x1, m)*(pow(xhi, 2 + m) - pow(xlo, 2 + m));
          else
    	         I = x1*x1 * y1 * log(xhi/xlo);
          break;
