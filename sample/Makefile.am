@@ -13,6 +13,7 @@ dist_sample_DATA =  sample1              \
                     sample6              \
                     sample7              \
                     sample8              \
+                    sample9              \
                     run_samples.sh
 
 dist_check_DATA =        ref_out/sample1.bin \

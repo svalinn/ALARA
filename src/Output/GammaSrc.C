@@ -474,51 +474,96 @@ double GammaSrc::subIntegral(int pntNum, int intTyp, float* x, float* y,
   double x2 = x[pntNum+1];
   double y1 = y[pntNum];
   double y2 = y[pntNum+1];
-
+  
+  if(integrate_energy){
   /* based on interpolation type */
-  switch (intTyp)
-    {
-    case 1: /* type 1: histogram */
-      /* y = y1 */
-      /* I = y1*x @ dx */
-      I = (xhi-xlo)*y1;
-      break;
-    case 2: /* type 2: linear */
-      /* y = m*x + (y1-m*x1) */
-      /* I = 0.5*m*x^2 + (y1-m*x1)*x @ dx */
-      /* find m */
-      m =(y2-y1)/(x2-x1); 
-      /* area of trapezoid */
-      //I = (xhi-xlo)*(0.5*(xhi + xlo)*m + y1);
-      I = (xhi-xlo)*(0.5*(xhi + xlo)*m + y1-m*x1);
-      break;
-    case 3: /* type 3: linear-log */
-      /* y = m*ln(x) + y1 -m*ln(x1) */
-      /* I = m*(x*ln(x)-x) + (y1 - m*ln(x1))*x @ dx */
-      m = (y2-y1)/(log(x2)-log(x1));
-      I = m*( (xhi*log(xhi)-xhi) - (xlo*log(xlo)-xlo) ) 
-	+ ( y1-m*log(x1) ) * (xhi-xlo);
-      break;
-    case 4: /* type 4: log-linear */
-      /* y = y1*exp( m*(x-x1)) */
-      /* I = y1*exp( m*(x-x1))/m @ dx*/
-      m = (log(y2)-log(y1))/(x2-x1);
-      I = expm1( m*(xhi-x1) ) - expm1( m*(xlo-x1) );
-      I *= y1/m;
-      break;
-    case 5:/* type 5: log-log */
-      /* y = y1 * (x/x1)^m */
-      /* I = y1 * (x/x1)^m*x/(m+1) @ dx for m != -1 */
-      /*   = y1 * x1*ln(x)         @ dx for m == -1 */
-      m = ( log(y2) - log(y1) )/( log(x2) - log(x1) );
-      if (m != -1)
-	I = y1*( pow(xhi/x1,m)*xhi - pow(xlo/x1,m)*xlo )/(m+1);
-      else
-	I = y1*x1*log(xhi/xlo);
-      break;
-    default:
-      I = 0;
-    }
+     switch (intTyp)
+       {
+       case 1: /* type 1: histogram */
+         /* y = y1*x */
+         /* I = y1*x^2/2 @ dx */
+         I = y1/2*(xhi*xhi - xlo*xlo);
+         break;
+       case 2: /* type 2: linear */
+         /* y = m*x^2 + (y1 - m*x1)*x */
+         /* I = m*x^3/3 + (y1 - m*x1)*x^2/2 @ dx */
+         m =(y2-y1)/(x2-x1); 
+         I = m/3*(pow(xhi, 3) - pow(xlo, 3)) + (y1-m*x1)/2*(xhi*xhi - xlo*xlo);
+         break;
+       case 3: /* type 3: linear-log */
+         /* y = m*ln(x)*x + y1*x - m*ln(x1)*x */
+         /* I = x^2/4 * [2*m*ln(x) - 2*m*ln(x1) - m + 2*y1] @ dx */
+         m =(y2-y1)/(x2-x1); 
+         I = xhi*xhi/4*(2*m*log(xhi) - 2*m*log(x1) - m + 2*y1) - \
+             xlo*xlo/4*(2*m*log(xlo) - 2*m*log(x1) - m + 2*y1);
+         break;
+       case 4: /* type 4: log-linear */
+         /* y = y1*x*exp( m*(x - x1)) */
+         /* I = y1/m^2*(m*x - 1)*exp(m*(x - x1)) @ dx for m != 0 */
+         m =(y2-y1)/(x2-x1); 
+         I = y1/(m*m)*exp(-m*x1)*(exp(xhi*m)*(xhi - 1) + exp(xlo*m)*(1 - xlo*m));
+         break;
+       case 5:/* type 5: log-log */
+         /* y = y1 * x* (x/x1)^m */
+         /* I = x^2*y1/(m+2) * (x/x1)^m @ dx */
+         m =(y2-y1)/(x2-x1); 
+         if (m != -2)
+   	         I = y1/(m + 2)/pow(x1, m)*(pow(xhi, 2 + m) - pow(xlo, 2 + m));
+         else
+   	         I = x1*x1 * y1 * log(xhi/xlo);
+         break;
+       default:
+         I = 0;
+       }
+     /* I is in units of power, divide by average energy to get intensity */
+     I /= ((x1 + x2)/2);
+     }
+  else{
+  /* based on interpolation type */
+     switch (intTyp)
+       {
+       case 1: /* type 1: histogram */
+         /* y = y1 */
+         /* I = y1*x @ dx */
+         I = (xhi-xlo)*y1;
+         break;
+       case 2: /* type 2: linear */
+         /* y = m*x + (y1-m*x1) */
+         /* I = 0.5*m*x^2 + (y1-m*x1)*x @ dx */
+         /* find m */
+         m =(y2-y1)/(x2-x1); 
+         /* area of trapezoid */
+         //I = (xhi-xlo)*(0.5*(xhi + xlo)*m + y1);
+         I = (xhi-xlo)*(0.5*(xhi + xlo)*m + y1-m*x1);
+         break;
+       case 3: /* type 3: linear-log */
+         /* y = m*ln(x) + y1 -m*ln(x1) */
+         /* I = m*(x*ln(x)-x) + (y1 - m*ln(x1))*x @ dx */
+         m = (y2-y1)/(log(x2)-log(x1));
+         I = m*( (xhi*log(xhi)-xhi) - (xlo*log(xlo)-xlo) ) 
+             + ( y1-m*log(x1) ) * (xhi-xlo);
+         break;
+       case 4: /* type 4: log-linear */
+         /* y = y1*exp( m*(x-x1)) */
+         /* I = y1*exp( m*(x-x1))/m @ dx*/
+         m = (log(y2)-log(y1))/(x2-x1);
+         I = expm1( m*(xhi-x1) ) - expm1( m*(xlo-x1) );
+         I *= y1/m;
+         break;
+       case 5:/* type 5: log-log */
+         /* y = y1 * (x/x1)^m */
+         /* I = y1 * (x/x1)^m*x/(m+1) @ dx for m != -1 */
+         /*   = y1 * x1*ln(x)         @ dx for m == -1 */
+         m = ( log(y2) - log(y1) )/( log(x2) - log(x1) );
+         if (m != -1)
+   	I = y1*( pow(xhi/x1,m)*xhi - pow(xlo/x1,m)*xlo )/(m+1);
+         else
+   	I = y1*x1*log(xhi/xlo);
+         break;
+       default:
+         I = 0;
+       }
+  }
 
   return I;
 }
@@ -561,7 +606,12 @@ void GammaSrc::setData(int kza, int numSpec,
 		case GAMMASRC_RAW_SRC:
 		case GAMMASRC_ADJOINT:
 		  /* increment bin */
-		  gammaMult[gNum] += discGammaI[specNum][gammaNum];
+                  if(integrate_energy)
+		      gammaMult[gNum] += discGammaI[specNum][gammaNum]*discGammaE[specNum][gammaNum]/
+                                         (0.5*(grpBnds[gNum+1] + grpBnds[gNum]));
+                  else{
+		      gammaMult[gNum] += discGammaI[specNum][gammaNum];
+                  }
 		  break;
 		case GAMMASRC_CONTACT:     
 		  /* increment total contact dose */

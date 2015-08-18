@@ -11,6 +11,7 @@ dist_sampledata_DATA =  adjfile2.gam    \
                     fluxin1         \
                     fluxin2         \
                     fluxin3         \
+                    fluxin_zeros    \
                     hohlflux        \
                     myElelib        \
                     sampleMatlib    \

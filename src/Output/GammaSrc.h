@@ -52,6 +52,7 @@ protected:
   std::vector< double > gammaAbsAir; //Mass absorption attenuation in air
   float G_factor(float,float,float,float);
   void calcBuildupParameters(double, char, double&, double&, double&, double&);
+  bool integrate_energy;
 
 public:
 
@@ -79,6 +80,9 @@ public:
     { return gammaType; } ;
   int* getintervalptr()
     { return intervalptr; }; 
+
+  void setIntEng(bool int_eng)
+    {integrate_energy = int_eng; };
 
 };
 

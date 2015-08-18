@@ -935,6 +935,11 @@
             <td>gamma source distribution with user-defined group structure</td>
           </tr>
           <tr> 
+            <td>integrate_energy</td>
+            <td>[see below] </td>
+            <td>modifies how groupwise gamma source intensity is calculated</td>
+          </tr>
+          <tr> 
             <td>wdr </td>
             <td>[filename] </td>
             <td>waste disposal rating/clearance</td>
@@ -988,6 +993,14 @@
       of each gamma group (the lower bound of the lowest energy group is always 
       0) in<br>
       units of eV. </p>
+    <p> The integrate_energy modifier only applies when photon_source is requested. With <br> 
+        integrate_energy, groupwise gamma source intensity is calculated by calculating the <br> 
+        total power (e.g. Mev/s) produced within each energy group and dividing the the <br> 
+        average gamma energy within the group (i.e. the average of the lower and upper <br> 
+        energy bounds). Without the integrate_energy modifier, groupwise gamma source <br> 
+        intensity is calculated simply by multiplying activity of each nuclide by groupwise <br> 
+        gamma yeilds.
+    </p>
     <p> The wdr output modifier requires an additional text string parameter representing 
       the<br>
       filename to use for calculating the waste disposal rating<font size="-3"><a href="glossarytext.html#was">[G]</a></font> 

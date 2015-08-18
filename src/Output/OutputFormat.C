@@ -10,7 +10,7 @@
 
 #include "Chains/Node.h"
 
-const char *Out_Types = "ucnstabgpdflvw";
+const char *Out_Types = "ucnstabgpdflvwi";
 
 const int nOutTypes = 14;
 const int firstResponse = 2;
@@ -117,7 +117,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
   char token[64];
   char *fileNamePtr;
 
-  input >> token; 
+  input >> token;
   type = strchr(Out_Res,tolower(token[0]))-Out_Res;
 
   next = new OutputFormat(type);
@@ -223,7 +223,12 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  next->outTypes |= 1<<type;
 	  next->adjointDose = new GammaSrc(input,GAMMASRC_ADJOINT);
           break;	
-	
+
+	case OUTFMT_INT_ENG:
+	  verbose(4,"Calculating gamma source by preserving power.");
+	  next->outTypes |= 1<<type;
+        break;
+
 	default:
         /* use logical and to set the correct bit in the outTypes field */
 	   next->outTypes |= 1<<type;
@@ -343,6 +348,13 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
+                bool integrate_energy;
+                if(ptr->outTypes & OUTFMT_INT_ENG){
+                  integrate_energy = true;
+                  }
+                else
+                  integrate_energy = false;
+		ptr->gammaSrc->setIntEng(integrate_energy);
 		/* set gamma source to use for this */
 		Result::setGammaSrc(ptr->gammaSrc);
 		break;
@@ -353,7 +365,6 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		ptr->contactDose->setGammaAttenCoef(mixList);
 		/* set gamma source to use for this */
 		Result::setGammaSrc(ptr->contactDose);
-		
 		break;
 	      case (OUTFMT_ADJ) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
