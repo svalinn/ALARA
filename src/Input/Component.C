@@ -248,6 +248,7 @@ Root* Component::expandEle(Mixture* mix, Component* comp)
    * fabricated name.  e.g. enriched Li might be li:90 */
   eleNameLen = strchr(compName,':')-compName;
   if (eleNameLen <= 0) eleNameLen = strlen(compName);
+  if (eleNameLen > 2) eleNameLen = 2;
 
   /* search for this element */
   clearComment(eleLib);
