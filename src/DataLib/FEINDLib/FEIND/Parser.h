@@ -11,6 +11,7 @@
 class FEIND::Parser
 {
 public:
+  virtual ~Parser() { };
 
   /// Abstract function to load the contents of a library into the RamLib.
   virtual void LoadLibrary() = 0;

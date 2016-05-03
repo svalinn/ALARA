@@ -88,7 +88,7 @@ public:
   void write(int,int,CoolingTime*,int,int);
 
   /// Inline access to the 'next' pointer.  
-  Loading* advance() { return (this!= NULL)?next:(Loading*)NULL; };
+  Loading* advance() { return next; };
 
   /// Inline access to the descriptive name.
   char* getName() { return zoneName;};

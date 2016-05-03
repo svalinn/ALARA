@@ -71,7 +71,7 @@ public:
   
   /// Inline function provides ability to advance through list by
   /// returning 'next'.
-  Norm* advance() { return (this!=NULL)?next:(Norm*)NULL;};
+  Norm* advance() { return next;};
 };
 
 #endif
