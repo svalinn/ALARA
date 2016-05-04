@@ -36,17 +36,17 @@ ASCIILib::ASCIILib(int setType) : DataLib(setType)
   decayKza = NULL;
   thalf = 0;
   bRatio = NULL;
+  E[0] = 0;
   E[1] = 0;
   E[2] = 0;
-  E[3] = 0;
   
   kza = 0;
   nRxns = 0;
   daugKza = NULL;
   mThalf = 0;
+  mE[0] = 0;
   mE[1] = 0;
   mE[2] = 0;
-  mE[3] = 0;
   mXsection = NULL;
   mEmitted = NULL;
 

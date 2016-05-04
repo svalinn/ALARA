@@ -1107,7 +1107,7 @@ double Volume::getAdjDoseConv(int kza, GammaSrc *adjDose)
 {
 // adjDose or volume can be NULL if folded dose (bio dose) requested for unsupported resolution
 
-  if (adjDose == NULL || &volume == NULL)
+  if (adjDose == NULL || volume == VOL_HEAD)
   	error(9000, "Error in Volume::getAdjDoseConv()" ); 
   
   // check cache for data

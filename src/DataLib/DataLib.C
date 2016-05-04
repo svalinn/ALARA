@@ -63,7 +63,7 @@ const char *libTypeSuffix[] = {
     pointer to the newly created object. */
 DataLib* DataLib::newLib(char* libType, istream& input)
 {
-  DataLib *dl;
+  DataLib *dl = NULL;
   int type = convertLibType(libType);
   debug(4,"Data lib is type %d.",type);
 

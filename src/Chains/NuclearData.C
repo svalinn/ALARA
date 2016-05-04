@@ -133,7 +133,7 @@ NuclearData::NuclearData(const NuclearData& n)
   
   E[0] = n.E[0];
   E[1] = n.E[1];
-  E[3] = n.E[2];
+  E[2] = n.E[2];
   
 
 }  
@@ -235,7 +235,7 @@ NuclearData& NuclearData::operator=(const NuclearData& n)
   
   E[0] = n.E[0];
   E[1] = n.E[1];
-  E[3] = n.E[2];
+  E[2] = n.E[2];
 
   return *this;
 

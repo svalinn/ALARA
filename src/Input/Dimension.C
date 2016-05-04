@@ -85,7 +85,7 @@ Dimension& Dimension::operator=(const Dimension& d)
 Dimension* Dimension::getDimension(istream& input)
 {
   char token[64];
-  int dimType;
+  int dimType = DIM_HEAD;
   double zoneBound;
 
   input >> token;

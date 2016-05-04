@@ -125,7 +125,8 @@ Flux* Flux::getFlux(istream& input)
 {
   char flxName[256], fName[256], type[16];
   double inScale;
-  int inSkip, inFormat;
+  int inSkip;
+  int inFormat = FLUX_HEAD;
 
   input >>flxName >> fName >> inScale >> inSkip >> type;
   switch(tolower(type[0]))
@@ -310,7 +311,7 @@ void Flux::readRTFLUX(double *MatrixStorage,int numVols, int numGrps)
 	MatrixStorage[volNum*numGrps+gNum] = fluxIn[gNum*ninti+(volNum+skip)];
       }
 
-  delete fluxIn;
+  delete[] fluxIn;
 
   return;
 

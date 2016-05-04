@@ -130,7 +130,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
       cout << endl << endl << "  ";
     }
 
-  delete fluxIn;
+  delete[] fluxIn;
 
 
 }
