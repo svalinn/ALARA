@@ -18,7 +18,7 @@
  ********* Service *********
  **************************/
 
-Geometry::Geometry(char *token)
+Geometry::Geometry(const char *token)
 {
 
   rMin = -1;

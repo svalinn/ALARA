@@ -34,7 +34,7 @@ protected:
 public:
   /// Default constructor defaults to a point geometry if no argument 
   /// is given.
-  Geometry(char *token="p");
+  Geometry(const char *token="p");
 
   /// Default destructor
   ~Geometry() {};
