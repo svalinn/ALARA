@@ -55,7 +55,7 @@ Input::Input(char* inputFname)
     {
       debug(1,"Openning %s for input.",inputFname);
       input = openFile(inputFname);
-      if (*input == NULL)
+      if (!*input)
 	error(102,"Unable to open main input file: '%s'.",inputFname);
 
       verbose(1,"Openned %s for input.",inputFname);
@@ -529,7 +529,7 @@ void Input::clearIncludeComment()
 	     *  - library selection */
 	    input = openFile(searchNonXSPath(inFileName));
 
-	    if (*input == 0)
+	    if (!*input)
 	      error(101,"Unable to open included file: '%s'.",inFileName);
 
 	    verbose(2,"Reading included file: %s.",inFileName);
