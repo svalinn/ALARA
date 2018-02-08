@@ -48,6 +48,7 @@ _______
 
 4. Configure ALARA for your system
 
+    %> autoreconf -fi
 	%> ./configure
 
    See below for options that you can give to configure.
