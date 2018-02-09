@@ -23,6 +23,7 @@ depcomp
 install-sh
 missing
 stamp-h1
+compile
 
 src/Util/dflt_datadir.h
 src/alara
