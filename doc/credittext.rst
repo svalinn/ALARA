@@ -16,4 +16,5 @@ Credits:
 Funding:
 ========
 | U.S. Department of Energy
-| This work is supported in part by a grant from the ARIES Program of the Department of Energy's Office of Fusion Energy Sciences. 
+| This work is supported in part by a grant from the ARIES Program
+  of the Department of Energy's Office of Fusion Energy Sciences. 
