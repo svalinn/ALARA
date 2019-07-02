@@ -11,19 +11,21 @@ INTRODUCTION:
 =============
 
  The primary purpose of ALARA is to calculate the induced
- activation caused by neutron irradiation throughout a 
- nuclear system (including fission reactors, fusion reactors,
+ activation :doc:`[G] <glossarytext.rst>` caused by neutron
+ irradiation :doc:`[G] <glossarytext.rst>` throughout a nuclear
+ system (including fission reactors, fusion reactors,
  and accelerators). The usage of ALARA is fairly straightforward,
- requiring little knowledge of the code's inner workings. This
- Users' Guide, however does assume that the reader is familiar
- with the basic problem of induced activation. Background on
- induced activation, and details on ALARA's can be found in
- [ref. 1]. This reference will also help ensure that ALARA is
- well-suited to the problems that you are trying to solve.
+ requiring little knowledge of the code's inner workings.
+ This Users' Guide, however does assume that the reader is
+ familiar with the basic problem of induced activation
+ :doc:`[G] <glossarytext.rst>`. Background on induced activation, and
+ details on ALARA's can be found in [ref. 1]. This reference
+ will also help ensure that ALARA is well-suited to the
+ problems that you are trying to solve.
 
  This Users' Guide will describe the command-line options of
- ALARA, input file structure and the basic support files
- necessary to run ALARA.
+ ALARA, input file :doc:`[G] <glossarytext.rst>` structure
+ and the basic support files necessary to run ALARA.
 
 FEATURES:
 =========
@@ -47,7 +49,7 @@ FEATURES:
    * multi-point (3-D) solutions in a variety of geometries
    * accurate solution of loops in activation trees
    * exact modeling of multi-level pulsing irradiation
-     histories[G]
+     histories :doc:`[G] <glossarytext.rst>`
    * user-defined calculation precision/accuracy
    * tracking the accumulation of light ions     
 
@@ -59,8 +61,8 @@ FEATURES:
    * full, easy-to-read activation tree output (not just
      pathway analysis)
    * flexible output options NOW including the direct
-     calculation of waste disposal rating[G] and clearance
-     indices[G]. 
+     calculation of waste disposal rating :doc:`[G] <glossarytext.rst>`
+     and clearance indices :doc:`[G] <glossarytext.rst>`. 
 
  The following ADVANCED features are unique to ALARA
  and its development history: 
