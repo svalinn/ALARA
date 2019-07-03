@@ -22,18 +22,20 @@ Description:
 Format:
 =======
 
- As described in the section on command-line:doc:`[G] <glossarytext.rst>`
- arguments, various levels of output are available during
- the calculation. The first part of the output file will contain
- this verbose output, including confirmation of the input data
- and details of the cross-referencing and preprocessing of the input. 
+ As described in the section on :doc:`command-line <commandtext.rst>`
+ :doc:`[G] <glossarytext.rst>` arguments, various levels of output
+ are available during the calculation. The first part of the output
+ file will contain this verbose output, including confirmation
+ of the input data and details of the cross-referencing and
+ preprocessing of the input. 
 
  The second part of the output file shows details on the tree building
  process, ranging from a simple list of the root isotopes being solved
  and statistics on the size and speed of the solution, to details on
  the chain growth and truncation:doc:`[G] <glossarytext.rst>`
  calculations (depending on the verbosity:doc:`[G] <glossarytext.rst>`
- specified on the command-line:doc:`[G] <glossarytext.rst>`). 
+ specified on the
+ :doc:`command-line <commandtext.rst>`:doc:`[G] <glossarytext.rst>`). 
 
  The final part of the output file:doc:`[G] <glossarytext.rst>`
  are the results, as requested by the user in the input file. This
@@ -51,12 +53,13 @@ Format:
 |             Information about point (e.g. volume, loaded mixture, etc)| 
 |                 If constituent breakdown requested                    |
 |                 (Optional)                                            |
-|             Table type 1 for each constituent                         |
-|         Table type 1 of total response for this point                 |
-|     Table type 2 summarizing total responses for all points           |
+|             :ref:`Table type 1` for each constituent                  |
+|         :ref:`Table type 1` of total response for this point          |
+|     :ref:`Table type 2` summarizing total responses for all points    |
 +-----------------------------------------------------------------------+
 
-	**Table Type 1**
+Table Type 1
+============
 
 	The first type has a row for each isotope:doc:`[G] <glossarytext.rst>`
 	produced in the problem that has a non-zero response. If 
@@ -84,7 +87,8 @@ Format:
 	the results for a 100% dense sample made up of 
 	the same composition as the mixture. 
 
-	**Table Type 2**
+Table Type 2
+============
 
 	The second type of table has a row for each point in the 
 	requested resolution, giving the total response at that 
