@@ -70,7 +70,7 @@ Options
 			|	  |input/cross-checking input/preprocessing input ...)        |
 			+---------+-----------------------------------------------------------+
 			|    3    |**This is the recommended level.** Shows fine level        |
-                        |         |program phase, including basic echoing of input and basic  |
+			|         |program phase, including basic echoing of input and basic  |
 			|	  |statistics on the solution status.                         |
 			+---------+-----------------------------------------------------------+
 			|   4-6   |Increased verbosity:doc:`[G] <glossarytext.rst>' gives     |
