@@ -10,15 +10,15 @@ Error Messages
 Error Message Types
 ===================
 
-	Command-line Parsing
-	Input Phase
+	:ref:`Command-line Parsing`
+	:ref:`Input Phase`
 
-		Read Input File
-		Input Checking
-		Input Cross-referencing
+		:ref:`Read Input File`
+		:ref:`Input Checking`
+		:ref:`Input Cross-referencing`
 
-	Data Library Errors
-	Programming Errors
+	:ref:`Data Library Errors`
+	:ref:`Programming Errors`
 
 Example Error Message:
 ======================
@@ -27,7 +27,7 @@ Example Error Message:
 | Description:           The type of dimension:doc:`[G] <glossarytext.rst>`, string,
 		         declared in the dimension block is not supported.
 
-Command Line Parsing
+Command-line Parsing
 ====================
 
 **0: Option <string> is not implemented yet.**
