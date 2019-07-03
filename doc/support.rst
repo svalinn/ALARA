@@ -12,10 +12,10 @@ Introduction:
  This section discusses all the files which ALARA expects to
  find when running a problem:     
 
-| Element Library
-| Material Library
-| Waste Disposal/Clearance Index Limits
-| Binary Reaction Library
+| :ref:`Element Library`
+| :ref:`Material Library`
+| :ref:`Waste Disposal/Clearance Index Limits`
+| :ref:`Binary Reaction Library`
 
 ----------------------
 
