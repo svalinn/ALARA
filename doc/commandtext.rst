@@ -7,7 +7,7 @@ Command Line Options
 
 -------------------------
 
-**Syntax Options:** (Examples below)
+**Syntax Options:** (:ref:'Examples' below)
 ::
 
 	alara [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] 
@@ -35,9 +35,10 @@ Options
 			If, for example, the original ALARA run only gave results 
 			for the specific activity, and the user is now interested 
 			in results for decay heat and/or a consituent break-down. 
-			The user could change the output block of the input file 
-			(or add a new output block) to include the newly desired 
-			results and then rerun ALARA using this restart option. 
+			The user could change the output block of the
+			:doc:`input file <inputtext.rst>`(or add a new output
+			block) to include the newly desired results and then 
+			rerun ALARA using this restart option. 
 
  -t <tree_filename>	set the filename for the tree file
 
@@ -45,8 +46,8 @@ Options
 			file:doc:`[G] <glossarytext.rst>` to be generated during 
 			the ALARA run. If it already exists, this file will be 
 			overwritten. For more information on tree files, see the 
-			Users' Guide section devoted to output 
-			files:doc:`[G] <glossarytext.rst>`. 
+			Users' Guide section devoted to :doc:`output files <outputtext.rst>`
+			:doc:`[G] <glossarytext.rst>`. 
 
  -v			show version string 
 
@@ -81,11 +82,13 @@ Options
 			|	  |status and truncation status.                              |
 			+---------+-----------------------------------------------------------+
 
-<input_filename>	define the input file:doc:`[G] <glossarytext.rst>'
+<input_filename>	define the :doc:`input file <inputtext.rst>`:doc:`[G] <glossarytext.rst>'
 
-			This option defines which input file:doc:`[G] <glossarytext.rst>`
+			This option defines which :doc:`input file <inputtext.rst>`:doc:`[G] <glossarytext.rst>`
 			will be used. If not name is given, the input will be read from stdin. 
-						
+				
+.. _Examples:
+		
 Examples
 ========
 
