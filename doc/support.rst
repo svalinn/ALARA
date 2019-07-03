@@ -88,7 +88,7 @@ Description:
  Users are encouraged to develop their own material libraries,
  by adding material definitions to them as needed. Material
  libraries are all defined as lists of elemental definitions,
- each of which must occur in the element library.
+ each of which must occur in the :ref:`Element Library`.
 
 Format:
 =======
