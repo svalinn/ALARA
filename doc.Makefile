@@ -58,7 +58,7 @@ check_ready_for_publish:
 publish: 
 	git checkout $(GH_PUBLISH_BRANCH) && \
 	git rm -rf * && \
-	git checkout $(GH_SOURCE_BRANCH) -- $(GH_SOURCE_DIR) Makefile && \
+	git checkout $(GH_SOURCE_BRANCH) -- $(GH_SOURCE_DIR) doc.Makefile && \
 	git reset HEAD && \
 	make clean && \
 	make html && \
