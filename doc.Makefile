@@ -59,7 +59,7 @@ check_ready_for_publish:
 # publish: check_ready_for_publish
 publish: 
 	git checkout $(GH_PUBLISH_BRANCH) && \
-	git rm -rf * && \
+	rm -rf * && \
 	git checkout $(GH_SOURCE_BRANCH) -- $(GH_SOURCE_DIR) ${DOC_MAKEFILE} && \
 	git reset HEAD && \
 	make -f ${DOC_MAKEFILE} clean && \
