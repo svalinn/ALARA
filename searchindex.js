@@ -1,0 +1,1 @@
+Search.setIndex({docnames:["index"],envversion:53,filenames:["index.rst"],objects:{},objnames:{},objtypes:{},terms:{},titles:["Testing Sphinx in ALARA"],titleterms:{alara:0,sphinx:0,test:0}})
