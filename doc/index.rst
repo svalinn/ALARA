@@ -1,5 +1,14 @@
-Testing Sphinx in ALARA
-=======================
+ALARA: Analytic and Laplacian Adaptive Radioactivity Analysis
+=============================================================
 
-test 1 2 3 ....
+ The primary purpose of ALARA is to calculate the induced activation
+ caused by neutron irradiation throughout a nuclear system
+ (including fission reactors, fusion reactors, and accelerators).
+ Some projects currently using ALARA include ARIES, IFMIF and the
+ Z-Pinch Power Plant study.
 
+
+.. toctree::
+	:maxdepth: 2
+
+	usersguide/index
