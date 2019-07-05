@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<htmll>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/htmll; charset=iso-8859-1">
+</head>
+
+<body>
+<div align="center">
+  <p align="center">ALARA Users' Guide<br>
+    <font size="+3">Command Line Options</font></p>
+  <hr>
+  <p align="left">&nbsp; </p>
+  <p align="left" class="courier"><strong>Syntax Options:</strong></p>
+  <span class="courier"><font face="Courier New, Courier, mono">alara [-h] [-r] 
+  [-t &lt;tree_filename&gt;] [-V]&nbsp;&nbsp;&nbsp; [-v &lt;n&gt;] [&lt;input_filename&gt;]</font> 
+  </span> 
+  <p align="left"><strong>Example Command Line:</strong></p>
+  <p> <font face="Courier New, Courier, mono">alara -V </font></p>
+</div>
+<p><strong>Options:</strong><br>
+  <font size="3">Command: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Description<br>
+  <font face="Courier New, Courier, mono">-h: </font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  &nbsp;&nbsp;print a short help message describing the command-line</font><font size="-3"><a href="glossarytext.html#cl">[G]</a></font><font size="3"> 
+  usage <br>
+  <font face="Courier New, Courier, mono">-r:&nbsp;&nbsp;&nbsp;</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  operate in a post-processing mode</font><font size="-3"><a href="glossarytext.html#pp">[G]</a></font><font size="3"> 
+  </font></p>
+<blockquote> 
+  <blockquote> 
+    <blockquote> 
+      <p><font size="3">This option is used to redo the built-in post-processing 
+        stage of ALARA, possibly calculating different responses than in the original 
+        run. ALARA creates a dump file</font><font size="-3"><a href="glossarytext.html#ia">[G]</a></font><font size="3"> 
+        during operation which contains enough information to calculate different 
+        output responses for the same problem. This option can only be used after 
+        ALARA has already been successfully run. To use this option, you must 
+        use the same problem description (ie: the same input file) as the original 
+        run, and can only change the output blocks. <br>
+        If, for example, the original ALARA run only gave results for the specific 
+        activity, and the user is now interested in results for decay heat and/or 
+        a consituent break-down. The user could change the output block of the<a href="inputtext.html"> 
+        input file</a> (or add a new output block) to include the newly desired 
+        results and then rerun ALARA using this restart option. </font></p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+<p><font size="3" face="Courier New, Courier, mono">-t &lt;tree_filename&gt;:</font> 
+  <font size="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set the filename for the tree file 
+  </font></p>
+<blockquote> 
+  <blockquote> 
+    <blockquote> 
+      <p><font size="3">This option defines the name of the optional <a href="outputtext.html#tf">tree 
+        file</a></font><font size="-3"><a href="glossarytext.html#tree">[G]</a></font><font size="3"> 
+        to be generated during the ALARA run. If it already exists, this file 
+        will be overwritten. For more information on tree files, see the Users' 
+        Guide section devoted to <a href="outputtext.html">output files</a></font><font size="-3"><a href="glossarytext.html#of">[G]</a></font><font size="3">. 
+        </font></p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+<p><font size="3" face="Courier New, Courier, mono">-V: &nbsp;</font><font size="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;show 
+  version string </font></p>
+<blockquote> 
+  <blockquote> 
+    <blockquote> 
+      <p><font size="3">This option will show the current version string and stop! 
+        </font></p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+<p><font size="3" face="Courier New, Courier, mono">-v &lt;n&gt;:&nbsp;&nbsp;</font><font size="3">set 
+  the verbosity level of the output </font></p>
+<blockquote> 
+  <blockquote> 
+    <blockquote> 
+      <p><font size="3">This option is used to determine how much output is generated 
+        by ALARA. Normally, ALARA will only generate output for the results requested 
+        in an output block. Using this option, you can increase the level of output 
+        given during the calculation itself. The level is set using an interger 
+        argument, &lt;n&gt;: </font></p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+<p><font size="3">Verbosity Level Options:</font></p>
+<table width="75%" border="1">
+  <tr> 
+    <td width="9%"><font size="3">1</font></td>
+    <td width="91%"><font size="3"> Shows top-level program phase (e.g. input/solution/output)</font></td>
+  </tr>
+  <tr> 
+    <td><font size="3">2</font></td>
+    <td><font size="3">Shows second level program phase (e.g. reading input/cross-checking 
+      input/preprocessing input ...)</font></td>
+  </tr>
+  <tr> 
+    <td><font size="3">3</font></td>
+    <td><font size="3">This is the recommended level. Shows fine level program 
+      phase, including basic echoing of input and basic statistics on the solution 
+      status. </font></td>
+  </tr>
+  <tr> 
+    <td><font size="3">4-6</font></td>
+    <td><font size="3">Increased verbosity</font><font size="-3"><a href="glossarytext.html#ver">[G]</a></font><font size="3"> 
+      gives more information in input processing and more solution statistics. 
+      During input processing, this includes expansion of materials and calculation 
+      of interval volumes, and during the solution, this includes information 
+      about each node being added to the trees, their library status and truncation 
+      status.</font></td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<p><font size="3" face="Courier New, Courier, mono">&lt;input_filename&gt;:&nbsp;</font><font size="3"> 
+  define the <a href="inputtext.html">input file</a></font><font size="-3"><a href="glossarytext.html#if">[G]</a></font><font size="3"> 
+  </font></p>
+<blockquote> 
+  <blockquote> 
+    <blockquote> 
+      <p><font size="3">This option defines which<a href="inputtext.html"> input 
+        file</a></font><font size="-3"><a href="glossarytext.html#if">[G]</a></font><font size="3"> 
+        </font><font size="3"> will be used. If not name is given, the input will 
+        be read from stdin. <br>
+        </font></p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+</body>
+</htmll>
