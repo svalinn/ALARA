@@ -8,6 +8,8 @@ GH_SOURCE_BRANCH  = master
 GH_PUBLISH_BRANCH = gh-pages
 # Repository that contains the rendered HTML
 GH_UPSTREAM_URL   = https://github.com/svalinn/ALARA
+# Makefile for building documentation (may be standard may need to be custom)
+DOC_MAKEFILE      = doc.Makefile
 # Directory that contains the rendered HTML
 BUILDDIR          = gh-build
 # Sphinx executable
@@ -58,10 +60,10 @@ check_ready_for_publish:
 publish: 
 	git checkout $(GH_PUBLISH_BRANCH) && \
 	git rm -rf * && \
-	git checkout $(GH_SOURCE_BRANCH) -- $(GH_SOURCE_DIR) doc.Makefile && \
+	git checkout $(GH_SOURCE_BRANCH) -- $(GH_SOURCE_DIR) ${DOC_MAKEFILE} && \
 	git reset HEAD && \
-	make clean && \
-	make html && \
+	make -f ${DOC_MAKEFILE} clean && \
+	make -f ${DOC_MAKEFILE} html && \
 	rsync -a $(BUILDDIR)/* . && \
 	rsync -a $(BUILDDIR)/.* . && \
 	rm -rf $(GH_SOURCE_DIR) $(BUILDDIR) && \
