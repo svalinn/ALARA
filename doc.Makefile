@@ -7,7 +7,7 @@ GH_SOURCE_BRANCH  = add_gh_pages
 # Repository branch that contains the rendered HTML
 GH_PUBLISH_BRANCH = gh-pages
 # Repository that contains the rendered HTML
-GH_UPSTREAM_URL   = https://github.com/svalinn/ALARA
+GH_UPSTREAM_URL   = git@github.com:svalinn/ALARA
 # Makefile for building documentation (may be standard may need to be custom)
 DOC_MAKEFILE      = doc.Makefile
 # Directory that contains the rendered HTML
