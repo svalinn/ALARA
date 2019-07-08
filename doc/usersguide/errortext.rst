@@ -277,11 +277,11 @@ schedule must not used as a sub-schedule.**
     is not defined.
 
 **411: Bad flux file for flux <string> for simple pulse
- item of schedule <string>.**
+item of schedule <string>.**
 
-    The file for flux string1 required to calculate
-    the simple pulsing schedule item of schedule
-    string2 cannot be opened.
+    The file for flux <string1> required to calculate
+    the simple pulsing schedule item of
+    schedule <string2> cannot be opened.
 
 **412: Schedule recursion: <string>.**
 
@@ -299,9 +299,8 @@ schedule must not used as a sub-schedule.**
 **414: Pulse history <string1> for item of schedule 
 <string2> does not exist.**
 
-    The pulsing history string1 required to
-    calculate a schedule item of schedule
-    string2 has not been defined.
+    The pulsing history string1 required to calculate
+    a schedule item of schedule string2 has not been defined.
 
 **420: Zone:doc:`[G] <glossarytext.rst>` <string> specified in 
 interval volumes was not found in the material loading.**
@@ -412,8 +411,8 @@ Programming Errors
 
 **-1: Memory allocation error: <string>**
 
-    An error in the runtime allocation of memory
-    occured. ''<string>'' reports the function
-    and variable where the error occurred.
+    An error in the runtime allocation of memory occured.
+    '<string>' reports the function and variable
+    where the error occurred.
 
-**9000: Programming Error:... **
+**9000: Programming Error:...**

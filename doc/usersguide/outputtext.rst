@@ -47,14 +47,22 @@ Format:
 |**Output Block Diagram**                                               |
 |                                                                       |
 | For each output description                                           |
+|                                                                       |
 |     For each requested response                                       |
+|                                                                       |
 |         For each point = (interval|zone|mixture)                      |
-|             Information about point (e.g. volume, loaded mixture, etc)| 
+|                                                                       |
+|             Information about point (e.g. volume, loaded mixture, etc)|
+|                                                                       |
 |                 If constituent breakdown requested                    |
 |                 (Optional)                                            |
+|                                                                       |
 |             :ref:`Table type 1` for each constituent                  |
+|                                                                       |
 |         :ref:`Table type 1` of total response for this point          |
+|                                                                       |
 |     :ref:`Table type 2` summarizing total responses for all points    |
+|                                                                       |
 +-----------------------------------------------------------------------+
 
 Table Type 1
@@ -127,33 +135,37 @@ Format:
 	-(na)->h-3 - (0.00306937)
 
  The level of indentation indicates the rank of this
- isotope:doc:`[G] <glossarytext.rst>' in the tree. This can be
+ isotope:doc:`[G] <glossarytext.rst>` in the tree. This can be
  best seen by viewing the whole file and noting the line's
  relative indentation. The information given in such an
  entry is as follows: 
 
-	**reaction type: (na)** This indicates the reaction type(s). 
+  **reaction type: (na)**
 
-	If multiple reactions lead to this product, the reactions 
-	will be separated by commas. The information indicates the 
-	emitted particles only. Therefore, in this example, the 
-	reaction is an (n,na) reaction. Generally, standard symbols 
-	are used, such as 'n' for neutrons, 'a' for alpha particles, 
-	'p','d','t' for the three isotopes of hydrogen, respectively, 
-	and 'h' for helium-3. For all neutron reactions, an 
-	additional '*' is used to indicate that the product is in 
-	an excited isomeric state. Finally, for decay reactions 
-	the symbol '*D' is used.
+     This indicates the reaction type(s). 
 
-	**product nuclide: h-3** The product isotope's chemical 
-	symbol and atomic number. 
+     If multiple reactions lead to this product, the reactions 
+     will be separated by commas. The information
+     indicates the emitted particles only. Therefore, in this 
+     example, the reaction is an (n,na) reaction. Generally,
+     standard symbols are used, such as 'n' for neutrons, 'a'
+     for alpha particles, 'p','d','t' for the three
+     isotopes of hydrogen, respectively, 
+     and 'h' for helium-3. For all neutron reactions, an 
+     additional '*' is used to indicate that the product is in 
+     an excited isomeric state. Finally, for decay reactions 
+     the symbol '*D' is used.
 
-	In cases where the product is in an isomeric state, this 
-	will be followed by a letter (m,n,...) indicating which 
-	isomeric state.
+  **product nuclide: h-3**
 
-	**truncation mode: -** This single character indicates 
-	the result of the truncation calculation at this node.
+     The product isotope's chemical symbol and atomic number. 
+
+     In cases where the product is in an isomeric state, this 
+     will be followed by a letter (m,n,...) indicating which 
+     isomeric state.
+
+**truncation mode: -** This single character indicates 
+the result of the truncation calculation at this node.
 
 	There are four possible results as follows: 
 
