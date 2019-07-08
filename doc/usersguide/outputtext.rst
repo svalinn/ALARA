@@ -5,7 +5,6 @@ ALARA Users' Guide
 Output File Formats
 ===================
 
--------------------------
 
 ===============
 Standard Output

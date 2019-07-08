@@ -5,8 +5,6 @@ ALARA Users' Guide
 Manual Syntax
 =============
 
-----------------------------
-
  :doc:`[G] <glossarytext.rst>`             This icon indicates that a definition exists in the
 					   glossary for this term.
  :doc:`command line <commandtext.rst>`     An underlined term indicates that there is a

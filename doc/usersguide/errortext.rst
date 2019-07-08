@@ -5,7 +5,6 @@ ALARA Users' Guide
 Error Messages
 ==============
 
----------------------
 
 Error Message Types
 ===================
@@ -114,14 +113,14 @@ Read Input File
 **170: Material Loading is empty.**
 
     The mat_loading input block contains no information
-    before the end keyword:doc:'[G] <glossarytext.rst>`.
+    before the end keyword:doc:`[G] <glossarytext.rst>`.
 
 **180: Target materials for reverse calculations can only be 
 elements or isotopes and not '<string>'**
 
     The constituent type, string, given for this target
-    material is not supported. It must be either ``element''
-    or ``isostope:doc:`[G] <glossarytext.rst>`''.
+    material is not supported. It must be either ''element''
+    or ''isostope:doc:`[G] <glossarytext.rst>`''.
 
 **181: Invalid material constituent: <string>**
 
@@ -161,7 +160,7 @@ elements or isotopes and not '<string>'**
 
 **240: Unable to open dump file:doc:`[G] <glossarytext.rst>` <string>**
 
-    The output ``dump'' file could not be opened.
+    The output ''dump'' file could not be opened.
 
 Input Checking
 ==============
@@ -256,7 +255,7 @@ mixture: <string2>**
 **380: Constituent type 'l' of mixture <string1> references 
 a non-existent mixture: <string2>**
 
-    The mixture string2 specified in the ``similar''
+    The mixture string2 specified in the ''similar''
     constituent of mixture string1 is not defined
     in the input file. Either add a new mixture
     definition or change the name of the mixture 
@@ -414,7 +413,7 @@ Programming Errors
 **-1: Memory allocation error: <string>**
 
     An error in the runtime allocation of memory
-    occured. ``<string>'' reports the function
+    occured. ''<string>'' reports the function
     and variable where the error occurred.
 
 **9000: Programming Error:... **

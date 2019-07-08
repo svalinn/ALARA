@@ -5,7 +5,7 @@ ALARA Users Guide:
 Input File Syntax
 =================
 
----------------------
+
 
 Input File Description:
 =======================

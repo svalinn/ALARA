@@ -5,7 +5,6 @@ ALARA Users' Guide
 Support File Descriptions 
 =========================
 
------------------------
 
 Introduction:
 =============

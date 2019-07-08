@@ -5,7 +5,6 @@ ALARA Users' Guide
 Command Line Options
 ====================
 
--------------------------
 
 **Syntax Options:** (:ref:'Examples' below)
 ::
@@ -36,7 +35,7 @@ Options
 			for the specific activity, and the user is now interested 
 			in results for decay heat and/or a consituent break-down. 
 			The user could change the output block of the
-			:doc:`input file <inputtext.rst>`(or add a new output
+			:doc:`input file <inputtext.rst>` (or add a new output
 			block) to include the newly desired results and then 
 			rerun ALARA using this restart option. 
 
@@ -73,7 +72,7 @@ Options
 			|         |program phase, including basic echoing of input and basic  |
 			|	  |statistics on the solution status.                         |
 			+---------+-----------------------------------------------------------+
-			|   4-6   |Increased verbosity:doc:`[G] <glossarytext.rst>' gives     |
+			|   4-6   |Increased verbosity:doc:`[G] <glossarytext.rst>` gives     |
 			|	  |more information in input processing and more solution     |
 			|	  |statistics. During input processing, this includes         |
 			|	  |expansion of materials and calculation of interval volumes,|
@@ -82,9 +81,9 @@ Options
 			|	  |status and truncation status.                              |
 			+---------+-----------------------------------------------------------+
 
-<input_filename>	define the :doc:`input file <inputtext.rst>`:doc:`[G] <glossarytext.rst>'
+<input_filename>	define the :doc:`input file <inputtext.rst>` :doc:`[G] <glossarytext.rst>`
 
-			This option defines which :doc:`input file <inputtext.rst>`:doc:`[G] <glossarytext.rst>`
+			This option defines which :doc:`input file <inputtext.rst>` :doc:`[G] <glossarytext.rst>`
 			will be used. If not name is given, the input will be read from stdin. 
 				
 .. _Examples:
@@ -94,9 +93,11 @@ Examples
 
 
  To start alara with no tree file and no verbosity, with an input file names case1: 
-::
-     alara case1 
+
+	alara case1 
+
 
  To start alara with an input file named case2, moderate verbosoty and creating a tree file named tree2: 
-::
-     alara -t tree2 -v 3 case2 
+
+	alara -t tree2 -v 3 case2 
+

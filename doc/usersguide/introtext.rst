@@ -5,7 +5,6 @@ ALARA Users' Guide:
 Analytic and Laplacian Adaptive Radioactivity Analysis
 ======================================================
 
---------------
 
 INTRODUCTION:
 =============
