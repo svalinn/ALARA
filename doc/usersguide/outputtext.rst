@@ -144,17 +144,16 @@ Format:
 
      This indicates the reaction type(s). 
 
-     If multiple reactions lead to this product, the reactions 
-     will be separated by commas. The information
-     indicates the emitted particles only. Therefore, in this 
-     example, the reaction is an (n,na) reaction. Generally,
-     standard symbols are used, such as 'n' for neutrons, 'a'
-     for alpha particles, 'p','d','t' for the three
-     isotopes of hydrogen, respectively, 
-     and 'h' for helium-3. For all neutron reactions, an 
-     additional '*' is used to indicate that the product is in 
-     an excited isomeric state. Finally, for decay reactions 
-     the symbol '*D' is used.
+     If multiple reactions lead to this product, the reactions
+     will be separated by commas. The information indicates the
+     emitted particles only. Therefore, in this example, the
+     reaction is an (n,na) reaction. Generally, standard symbols
+     are used, such as 'n' for neutrons, 'a' for alpha particles,
+     'p','d','t' for the three isotopes of hydrogen, respectively,
+     and 'h' for helium-3. For all neutron reactions, an
+     additional '*' is used to indicate that the product is in
+     an excited isomeric state. Finally, for decay reactions
+     the symbol '*D' is used. 
 
   **product nuclide: h-3**
 

@@ -9,6 +9,6 @@ ALARA: Analytic and Laplacian Adaptive Radioactivity Analysis
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    usersguide/index
