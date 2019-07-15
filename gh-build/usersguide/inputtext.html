@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Input File Syntax &#8212; ALARA</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.9.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Output File Formats" href="outputtext.html" />
+    <link rel="prev" title="Command Line Options" href="commandtext.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../index.html"><img src="../_static/images/logo.png" alt="" height="50x" /><span>ALARA</span></a></h1>
+    <div id="tagline"><span>Adaptive Laplacian and Analytic Radioactivity Analysis</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../index.html">ALARA</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="commandtext.html" title="Command Line Options"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="outputtext.html" title="Output File Formats"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">ALARA Users’ Guide:</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Input File Syntax</a><ul>
+<li><a class="reference internal" href="#input-file-description">Input File Description:</a></li>
+<li><a class="reference internal" href="#general-information">General Information:</a></li>
+<li><a class="reference internal" href="#general-input-notes">General Input Notes:</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="input-file-syntax">
+<h1>Input File Syntax<a class="headerlink" href="#input-file-syntax" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="input-file-description">
+<h2>Input File Description:<a class="headerlink" href="#input-file-description" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>The input file for ALARA has been designed to ensure that
+the input information is easy to understand, edit and comment.
+This is possible by using a very free format permitting
+comments, blank lines, inclusion of other files, and
+arbitrary ordering of the input information. After reading
+the full input file, ALARA performs various cross-checks and
+cross-references to ensure that the input data is
+self-consistent. It then goes on to pre-process the data for
+the calculation. Every attempt has been made to give
+useful <a class="reference internal" href="errortext.html"><span class="doc">error messages</span></a> when the data
+is not consistent.</div></blockquote>
+</div>
+<div class="section" id="general-information">
+<h2>General Information:<a class="headerlink" href="#general-information" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>There are many possible input block types. These blocks
+can appear in any order and many blocks can occur more
+than once, if at all. Each of the input blocks includes a
+link to a sample block, as it exists in a complete
+sample input file.</p>
+<p>In the following list, input blocks indicated in bold
+are required at least once in every input
+file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="34%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="general-input-notes">
+<h2>General Input Notes:<a class="headerlink" href="#general-input-notes" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first"><strong>Dimension/Volume:</strong> If “[1]” follows an input
+block name, either the dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+or the volume is required, but it will generate an
+error if both are included.</p>
+</li>
+<li><p class="first"><strong>Input Blocks:</strong> Not all input blocks are required,
+with some being unnecessary for certain problems. Input
+blocks indicated in bold are required at least once in
+every input file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</p>
+<p>There are also some input blocks which are incompatible
+with each other. While superfluous input blocks may go
+unnoticed (there are occasional warnings), incompatible
+input blocks will create an error.</p>
+</li>
+<li><p class="first"><strong>Naming Input Data:</strong> Most input blocks allow the user
+to define their own symbolic names for cross-referencing
+the various input data. Any string of characters can be
+used as long as its does not contain any
+whitespace <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> (spaces, tabs,
+new-lines, etc.).</p>
+<p>It is considered dangerous, however, to use a
+keyword <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> as a symbolic name.
+If the input file is correct, it will function properly,
+but if there are errors in the input file, the usage of
+keywords as symbolic names may make the error message
+irrelevant. The keywords include those listed in the
+above list and the keyword “end”.</p>
+</li>
+<li><p class="first"><strong>Keyword “End”:</strong> While many input blocks of fixed
+length require nothing to indicate the end of the
+block, some blocks have a variable length and require
+the keyword “end” to terminate the block.</p>
+</li>
+<li><p class="first"><strong>Time Based Input:</strong> Some input elements represent
+times and can be defined in a number of different units.
+When this is the case, the floating point time value
+should be followed by a single character representing
+the following units:</p>
+<p>Sample Input:   10 d</p>
+<p>[s]econd
+[m]inute             60 seconds
+[h]our               60 minutes
+[d]ay                24 hours
+[w]eek               7 days
+[y]ear               52 weeks
+[c]entury            100 years</p>
+</li>
+<li><p class="first"><strong>Input File Inclusion:</strong> One input file can be
+included in another with the #include directive, similar
+to the C programming language. Any number of files can
+be included. Included files can also contain directives
+to include other files. The only restriction is that
+the inclusion must not occur within an input block!</p>
+</li>
+<li><p class="first"><strong>Commenting:</strong> All other lines in which the first
+non-space character is the pound sign (or number
+sign) (#) are considered as comments. Comments can
+also be used after any single word input (an input
+value with no whitespace <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>)
+by using the same comment character (#). Such
+comments extend to the end of the current line.
+Blank lines are permitted anywhere in the input
+file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</p>
+</li>
+<li><p class="first"><strong>Length Units:</strong> Centimeters should be used for all
+length units.</p>
+</li>
+</ol>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2019, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Jul 15, 2019.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      </p>
+    </div>
+  </body>
+</html>

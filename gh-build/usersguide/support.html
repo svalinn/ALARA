@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Support File Descriptions &#8212; ALARA</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.9.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Error Messages" href="errortext.html" />
+    <link rel="prev" title="Output File Formats" href="outputtext.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../index.html"><img src="../_static/images/logo.png" alt="" height="50x" /><span>ALARA</span></a></h1>
+    <div id="tagline"><span>Adaptive Laplacian and Analytic Radioactivity Analysis</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../index.html">ALARA</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="outputtext.html" title="Output File Formats"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="errortext.html" title="Error Messages"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">ALARA Users’ Guide:</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Support File Descriptions</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#element-library">Element Library</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#format">Format</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#naming-elemental-definitions">Naming Elemental Definitions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#material-library">Material Library</a><ul>
+<li><a class="reference internal" href="#id3">Description</a></li>
+<li><a class="reference internal" href="#id4">Format</a></li>
+<li><a class="reference internal" href="#id5">Example</a></li>
+<li><a class="reference internal" href="#naming-material-definitions">Naming Material Definitions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#waste-disposal-rating-clearance-index">Waste Disposal Rating/Clearance Index</a><ul>
+<li><a class="reference internal" href="#id6">Description</a></li>
+<li><a class="reference internal" href="#id7">Format</a></li>
+<li><a class="reference internal" href="#id8">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#binary-reaction-library">Binary Reaction Library</a><ul>
+<li><a class="reference internal" href="#id10">Description</a></li>
+<li><a class="reference internal" href="#note">Note</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="support-file-descriptions">
+<h1>Support File Descriptions<a class="headerlink" href="#support-file-descriptions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>This section discusses all the files which ALARA expects to
+find when running a problem:</div></blockquote>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#element-library"><span class="std std-ref">Element Library</span></a></div>
+<div class="line"><a class="reference internal" href="#material-library"><span class="std std-ref">Material Library</span></a></div>
+<div class="line"><a class="reference internal" href="#waste-disposal-clearance-index-limits"><span class="std std-ref">Waste Disposal Rating/Clearance Index</span></a></div>
+<div class="line"><a class="reference internal" href="#binary-reaction-library"><span class="std std-ref">Binary Reaction Library</span></a></div>
+</div>
+<hr class="docutils" />
+</div>
+</div>
+<div class="section" id="element-library">
+<span id="id1"></span><h1>Element Library<a class="headerlink" href="#element-library" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>The element library allows the user to define the
+isotopic <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> abundances
+to be used for each element. While this library
+should normally include a  definition of the natural
+abundances for each element, an extension is available
+for defining enriched or isotopically tailored elements.</div></blockquote>
+</div>
+<div class="section" id="format">
+<h2>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>An element library can contain an arbitrary
+number <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> of elemental
+definitions, each represented by a block with the following
+format. Every block must start with the following five entries:</p>
+<blockquote>
+<div><ul class="simple">
+<li>a string indicating the name/identifier,</li>
+<li>a floating point value <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> for the molar mass,</li>
+<li>an integer value for the atomic number <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>,</li>
+<li>a floating point value for the theoretical density, and</li>
+<li>an integer value defining the number of isotopes <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</li>
+</ul>
+</div></blockquote>
+<p>This is followed by two entries for each of these isotopes:</p>
+<blockquote>
+<div><ul class="simple">
+<li>an integer value for the mass number, and</li>
+<li>a floating point value for the atomic abundance, in %.</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="naming-elemental-definitions">
+<h2>Naming Elemental Definitions<a class="headerlink" href="#naming-elemental-definitions" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>The names/identifiers for all elemental definitions must
+be derived from the chemical symbol <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+for that element, using the format ZZ[:AAA…], where ZZ
+represents the chemcial symbol <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>,
+and [:AAA…] represents an optional modifier, separated by a
+colon, ‘:’, from the chemical symbol. By  convention, entries
+without modifiers are used to define the natural
+abundances <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> of isotopes. The
+modifier must be a character string containing no
+whitespace <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. [example: a
+definition for lithium enriched to 90% in the isotope
+6Li, might have the name ‘Li:90’.] These names/identifiers
+can be  used both in a mixture block of the input file
+(when defining a constituent of type element) and in the
+material library.</div></blockquote>
+<hr class="docutils" />
+</div>
+</div>
+<div class="section" id="material-library">
+<span id="id2"></span><h1>Material Library<a class="headerlink" href="#material-library" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id3">
+<h2>Description<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>The material library is a mechanism for allowing users to
+save and re-use the definitons of a set of materials.
+Users are encouraged to develop their own material libraries,
+by adding material definitions to them as needed. Material
+libraries are all defined as lists of elemental definitions,
+each of which must occur in the <a class="reference internal" href="#element-library"><span class="std std-ref">Element Library</span></a>.</div></blockquote>
+</div>
+<div class="section" id="id4">
+<h2>Format<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>A material library can contain an arbitrary number of
+material definitions, each represented by a block with the
+following format. Every block must start with the following
+three entries:</p>
+<blockquote>
+<div><ul class="simple">
+<li>a string indicating the name/identifier,</li>
+<li>a floating point value for the theoretical density, and</li>
+<li>an integer defining the number of elemental definitions.</li>
+</ul>
+</div></blockquote>
+<p>This is followed by three entries for each elemental definition:</p>
+<blockquote>
+<div><ul class="simple">
+<li>a string indicating the name/identifier,</li>
+<li>a floating point value for the weight fraction in %, and</li>
+<li>an integer for the atomic number <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="id5">
+<h2>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="naming-material-definitions">
+<h2>Naming Material Definitions<a class="headerlink" href="#naming-material-definitions" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>The name of a material definition must be a character string
+with no whitespace <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. The
+recommended practice is that material definitions never be
+deleted from a material library, ensuring the repeatability
+of results. It is expected, however, that many materials will
+undergo variations in their definition over time. It is
+therefore recommended that each material be named with a
+very specific identifier, perhaps containing dates, references,
+or project names. This will allow a single material library
+to be a growing and complete record of the material
+definitions used over time.</div></blockquote>
+<hr class="docutils" />
+</div>
+</div>
+<div class="section" id="waste-disposal-rating-clearance-index">
+<span id="waste-disposal-clearance-index-limits"></span><h1>Waste Disposal Rating/Clearance Index<a class="headerlink" href="#waste-disposal-rating-clearance-index" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id6">
+<h2>Description<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Waste disposal ratings <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> and
+clearance indices <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> are used to
+provide a single metric for classifying the level of control
+required when disposing of used material. Each metric is
+based on a (possibly) unique list of isotopes and the
+allowable specific activities for those isotopes.</div></blockquote>
+</div>
+<div class="section" id="id7">
+<h2>Format<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>The WDR/CI files contain the disposal limit expressed as
+either a volumetric or specific activity. These files are
+simple text files containing one pair for each isotope for
+which a limit exists. The first entry of each pair identifies
+the isotope using either the standard chemical
+symbol <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> notation CC-AAAM (CC is
+the chemical symbol, AAA is the mass number, and M is the
+isomeric state: ‘m’ for the first isomeric state, ‘n’ for
+the second, and so on), or ALARA’s kza notation ZZAAAM (ZZ
+is the atomic number <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> , AAA is
+the mass number, and M is the numerical isomeric state: ‘1’
+for the first state, ‘2’ for the second, etc). The second
+entry is a specific activity in any combination of units
+supported by ALARA. The user is responsible for ensuring
+that the units chose in the output block match the units
+in the waste disposal limit file(s) used in that same block.</div></blockquote>
+</div>
+<div class="section" id="id8">
+<h2>Example<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<hr class="docutils" />
+</div>
+</div>
+<div class="section" id="binary-reaction-library">
+<span id="id9"></span><h1>Binary Reaction Library<a class="headerlink" href="#binary-reaction-library" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id10">
+<h2>Description<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Because the reaction schemes/chains are created by a
+depth first search using the data from the transmutation
+and decay libraries, these libraries need to be accessed
+extensively and randomly. In the past, such random
+access was not possible due to limits on mass storage
+devices. Currently, in a text format, such random access
+would still be very tedious. To ensure that this random
+access does not create a drag on ALARA, it is necessary
+to either store the entire library in memory or use a
+binary file format. Because the libraries are often
+quite large (many MB) a simple binary format was designed.</div></blockquote>
+</div>
+<div class="section" id="note">
+<h2>Note<a class="headerlink" href="#note" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>For more information, see the section on binary reaction libraries in the Developers’ Guide.</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2019, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Jul 15, 2019.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      </p>
+    </div>
+  </body>
+</html>

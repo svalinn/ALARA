@@ -1,0 +1,476 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Error Messages &#8212; ALARA</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.9.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Credits &amp; Funding" href="credittext.html" />
+    <link rel="prev" title="Support File Descriptions" href="support.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../index.html"><img src="../_static/images/logo.png" alt="" height="50x" /><span>ALARA</span></a></h1>
+    <div id="tagline"><span>Adaptive Laplacian and Analytic Radioactivity Analysis</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../index.html">ALARA</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="support.html" title="Support File Descriptions"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="credittext.html" title="Credits &amp; Funding"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">ALARA Users’ Guide:</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Error Messages</a><ul>
+<li><a class="reference internal" href="#error-message-types">Error Message Types</a></li>
+<li><a class="reference internal" href="#example-error-message">Example Error Message:</a></li>
+<li><a class="reference internal" href="#command-line-parsing">Command-line Parsing</a></li>
+<li><a class="reference internal" href="#input-phase">Input Phase</a></li>
+<li><a class="reference internal" href="#read-input-file">Read Input File</a></li>
+<li><a class="reference internal" href="#input-checking">Input Checking</a></li>
+<li><a class="reference internal" href="#input-cross-referencing">Input Cross-referencing</a></li>
+<li><a class="reference internal" href="#data-library-errors">Data Library Errors</a></li>
+<li><a class="reference internal" href="#programming-errors">Programming Errors</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="error-messages">
+<h1>Error Messages<a class="headerlink" href="#error-messages" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="error-message-types">
+<h2>Error Message Types<a class="headerlink" href="#error-message-types" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#command-line-parsing"><span class="std std-ref">Command-line Parsing</span></a></div>
+<div class="line"><a class="reference internal" href="#input-phase"><span class="std std-ref">Input Phase</span></a></div>
+<div class="line"><br /></div>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#read-input-file"><span class="std std-ref">Read Input File</span></a></div>
+<div class="line"><a class="reference internal" href="#input-checking"><span class="std std-ref">Input Checking</span></a></div>
+<div class="line"><a class="reference internal" href="#input-cross-referencing"><span class="std std-ref">Input Cross-referencing</span></a></div>
+<div class="line"><br /></div>
+</div>
+<div class="line"><a class="reference internal" href="#data-library-errors"><span class="std std-ref">Data Library Errors</span></a></div>
+<div class="line"><a class="reference internal" href="#programming-errors"><span class="std std-ref">Programming Errors</span></a></div>
+</div>
+</div>
+<div class="section" id="example-error-message">
+<h2>Example Error Message:<a class="headerlink" href="#example-error-message" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">Error name/number:     130: Invalid dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> type: &lt;string&gt;</div>
+<div class="line">Description:           The type of dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>, string,
+declared in the dimension block is not supported.</div>
+</div>
+</div>
+<div class="section" id="command-line-parsing">
+<span id="id1"></span><h2>Command-line Parsing<a class="headerlink" href="#command-line-parsing" title="Permalink to this headline">¶</a></h2>
+<p><strong>0: Option &lt;string&gt; is not implemented yet.</strong></p>
+<blockquote>
+<div>An unsupported command-line option was specified: string.</div></blockquote>
+<p><strong>1: Only one input filename can be specified: &lt;string&gt;.</strong></p>
+<blockquote>
+<div>There appears to be more than one input filename on the
+command-line <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. This may be
+caused by an error in the other command line options,
+or a missing option.</div></blockquote>
+</div>
+<div class="section" id="input-phase">
+<span id="id2"></span><h2>Input Phase<a class="headerlink" href="#input-phase" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Note: All error messages which occur during the input phase
+may not report the accurate cause of the error. If there is
+an error in the input file, ALARA may not immediately
+recognize the error and then report an error during some
+later input block. This is particularly true during the
+first step, reading the input file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+itself.</div></blockquote>
+</div>
+<div class="section" id="read-input-file">
+<span id="id3"></span><h2>Read Input File<a class="headerlink" href="#read-input-file" title="Permalink to this headline">¶</a></h2>
+<p><strong>100: Invalid token in input file: &lt;string&gt;</strong></p>
+<blockquote>
+<div>There is an error in the input file causing it to read
+an invalid keyword <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</div></blockquote>
+<p><strong>101: Unable to open included file: ‘&lt;string&gt;’.</strong></p>
+<blockquote>
+<div>The file string included in one of the input files
+can not be opened.</div></blockquote>
+<p><strong>110: Unable to open material library: &lt;string&gt;</strong></p>
+<blockquote>
+<div>The file string specified in the material_lib input
+block cannot be opened.</div></blockquote>
+<p><strong>111: Unable to open element library: &lt;string&gt;</strong></p>
+<blockquote>
+<div>The file string specified in the element_lib input block
+cannot be opened.</div></blockquote>
+<p><strong>120: Invalid units in cooling time: &lt;time&gt; &lt;units&gt;</strong></p>
+<blockquote>
+<div>The specified cooling time <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+does not have one of the supported time units.</div></blockquote>
+<p><strong>121: No after-shutdown/cooling times were defined.</strong></p>
+<blockquote>
+<div>The cooling input block contains no information before
+the end keyword <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</div></blockquote>
+<p><strong>130: Invalid dimension type: &lt;string&gt;</strong></p>
+<blockquote>
+<div>The type of dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>, string,
+declared in the dimension block is not supported.</div></blockquote>
+<p><strong>131: Dimension has no boundaries</strong></p>
+<blockquote>
+<div>The dimension block has no zone boundary information
+before the end keyword.</div></blockquote>
+<p><strong>140: Invalid flux type: &lt;string&gt;</strong></p>
+<blockquote>
+<div>The flux type <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>, string, specified
+in the flux block in not supported.</div></blockquote>
+<p><strong>150: Invalid geometry type: &lt;string&gt;</strong></p>
+<blockquote>
+<div>The geometry type, string, specified in the geometry block
+is not supported.</div></blockquote>
+<p><strong>160: History &lt;string&gt; is empty</strong></p>
+<blockquote>
+<div>The history input block, string, contains no information
+before the end keyword <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</div></blockquote>
+<p><strong>170: Material Loading is empty.</strong></p>
+<blockquote>
+<div>The mat_loading input block contains no information
+before the end keyword <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</div></blockquote>
+<p><strong>180: Target materials for reverse calculations can only be
+elements or isotopes and not ‘&lt;string&gt;’</strong></p>
+<blockquote>
+<div>The constituent type, string, given for this target
+material is not supported. It must be either ‘’element’’
+or ‘’isostope <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>’‘.</div></blockquote>
+<p><strong>181: Invalid material constituent: &lt;string&gt;</strong></p>
+<blockquote>
+<div>The constituent type, string, specified for this
+mixture <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> constituent is not
+supported.</div></blockquote>
+<p><strong>182: Mixture &lt;string&gt; has no constituents</strong></p>
+<blockquote>
+<div>The mixture input block, string, contains no
+information before the end keyword.</div></blockquote>
+<p><strong>190: Invalid units in pulse level: &lt;time&gt; &lt;units&gt;</strong></p>
+<blockquote>
+<div>The specified pulse level decay time does not have
+one of the supported time units.</div></blockquote>
+<p><strong>200: Schedule &lt;string&gt; is empty</strong></p>
+<blockquote>
+<div>The schedule input block, string, contains no
+information before the end keyword.</div></blockquote>
+<p><strong>210: Invalid units in schedule item delay time: &lt;time&gt; &lt;units&gt;</strong></p>
+<blockquote>
+<div>The specified inter-schedule delay time does not
+have one of the supported time units.</div></blockquote>
+<p><strong>211: Invalid units in single pulse time: &lt;time&gt; &lt;units&gt;</strong></p>
+<blockquote>
+<div>The specified pulse length does not have one of
+the supported time units.</div></blockquote>
+<p><strong>230: Output type ‘&lt;string&gt;’ is not currently supported.</strong></p>
+<blockquote>
+<div>The output type, string, specified for this output
+format is not supported.</div></blockquote>
+<p><strong>240: Unable to open dump file :doc:`[G] &lt;glossarytext&gt;` &lt;string&gt;</strong></p>
+<blockquote>
+<div>The output ‘’dump’’ file could not be opened.</div></blockquote>
+</div>
+<div class="section" id="input-checking">
+<span id="id4"></span><h2>Input Checking<a class="headerlink" href="#input-checking" title="Permalink to this headline">¶</a></h2>
+<p><strong>300: Cannot define both zone dimensions and interval volumes.</strong></p>
+<blockquote>
+<div>ALARA does not permit the geometry to be defined with
+both the dimension input block and the volumes input
+block. This would result in redundant and possibly
+inconsistent input.</div></blockquote>
+<p><strong>301: A material loading is given for more zones
+(&lt;loaded_zones&gt;) than are defined by the zone dimensions
+(&lt;zone_dimensions&gt;). Those extra zones are being ignored.</strong></p>
+<blockquote>
+<div>The number of zones as defined by the mat_loading
+input block does is larger than the number defined by
+the dimension blocks. This is permissible, but may lead
+to dubious results. The extra zones from the
+mat_loading block will be ignored.</div></blockquote>
+<p><strong>302: Material loadings were not defined for as many
+zones (&lt;loaded_zones&gt;) as were defined by the zone
+dimensions (&lt;zone_dimensions&gt;).</strong></p>
+<blockquote>
+<div>The number of zones as defined by the mat_loading
+input block is smaller than the number defined by
+the dimension blocks. This is NOT permissible
+as it would leave some zones unfilled.</div></blockquote>
+<p><strong>303: Must define either zone dimensions or interval
+volumes for multi-point problems.</strong></p>
+<blockquote>
+<div>ALARA requires a definition of the geomery using
+either the dimension input block or the volumes
+input block for problems in more than 0 dimensions.</div></blockquote>
+<p><strong>310: Could not find element &lt;string&gt; in element library.</strong></p>
+<blockquote>
+<div>The element string was not found in the element
+library. This could be due to an error in the
+material library, incorrect user input, or an
+omission in the element library.</div></blockquote>
+<p><strong>311: Could not find material &lt;string&gt; in material library.</strong></p>
+<blockquote>
+<div>The material string was not found in the material
+library. This could be due to incorrect user
+input or an omission in the element library.</div></blockquote>
+<p><strong>330: Duplicate dimensions of type &lt;string&gt;.</strong></p>
+<blockquote>
+<div>The dimension string was defined more that
+once in the input file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</div></blockquote>
+<p>331: &lt;string1&gt; geometries don’t have dimensions of type &lt;string2&gt;.</p>
+<blockquote>
+<div>The dimension type string2 was defined for
+geometry type string1, which does not allow
+this kind of dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</div></blockquote>
+<p><strong>340: Unable to open flux file &lt;string1&gt; for flux &lt;string2&gt;.</strong></p>
+<blockquote>
+<div>In the flux <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> definition
+string2 the given flux file string1
+cannot be opened.</div></blockquote>
+<p><strong>350: Toroidal problems with zone dimensions require a major radius.</strong></p>
+<blockquote>
+<div>All problems defined as having toroidal
+geometries <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> must define
+a major radius <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> with
+the major_radius input block.</div></blockquote>
+<p><strong>351: Toroidal problems with zone dimensions require either
+a minor radius :doc:`[G] &lt;glossarytext&gt;` or a radius dimension.</strong></p>
+<blockquote>
+<div>All problems defined as having toroidal
+geometries <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> must define
+a minor radius with either a dimension block
+or the minor_radius input block.</div></blockquote>
+<p><strong>370: Zone &lt;string1&gt; is loaded with a non-existent
+mixture: &lt;string2&gt;</strong></p>
+<blockquote>
+<div>The mixture <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> string2
+specified to fill zone string1 in the mat_loading
+block is not defined in the input file. Either
+add a new mixture definition or change the name
+of the mixture to be used for this zone.</div></blockquote>
+<p><strong>380: Constituent type ‘l’ of mixture &lt;string1&gt; references
+a non-existent mixture: &lt;string2&gt;</strong></p>
+<blockquote>
+<div>The mixture string2 specified in the ‘’similar’’
+constituent of mixture string1 is not defined
+in the input file. Either add a new mixture
+definition or change the name of the mixture
+to be used for this definition.</div></blockquote>
+<p><strong>400: Unable to find top level schedule. A top level
+schedule must not used as a sub-schedule.</strong></p>
+<blockquote>
+<div>All of the defined schedules are referenced as
+sub-schedules of other schedules. This means that
+there is no top to the hierarchical schedule
+system, as required.</div></blockquote>
+<p><strong>410: Flux &lt;string1&gt; for simple pulse item of schedule
+&lt;string2&gt; does not exist.</strong></p>
+<blockquote>
+<div>The flux string1 required to calculate the simple
+pulsing schedule item of schedule string2
+is not defined.</div></blockquote>
+<p><strong>411: Bad flux file for flux &lt;string&gt; for simple pulse
+item of schedule &lt;string&gt;.</strong></p>
+<blockquote>
+<div>The file for flux &lt;string1&gt; required to calculate
+the simple pulsing schedule item of
+schedule &lt;string2&gt; cannot be opened.</div></blockquote>
+<p><strong>412: Schedule recursion: &lt;string&gt;.</strong></p>
+<blockquote>
+<div>There is a loop in the schedule hierarchy. This
+implies an infinitely long and infinitely
+complex total irradiation history, which is
+unphysical. Check the definition of the schedules.</div></blockquote>
+<p><strong>413: Schedule &lt;string1&gt; for subschedule item of schedule
+&lt;string2&gt; does not exist.</strong></p>
+<blockquote>
+<div>The sub-schedule string1 defined as a schedule
+item of schedule string2 has not been defined.</div></blockquote>
+<p><strong>414: Pulse history &lt;string1&gt; for item of schedule
+&lt;string2&gt; does not exist.</strong></p>
+<blockquote>
+<div>The pulsing history string1 required to calculate
+a schedule item of schedule string2 has not been defined.</div></blockquote>
+<p><strong>420: Zone :doc:`[G] &lt;glossarytext&gt;` &lt;string&gt; specified in
+interval volumes was not found in the material loading.</strong></p>
+<blockquote>
+<div>The zone string specified to contain one
+of the volumes in the volumes input block
+does not exist.</div></blockquote>
+<p><strong>440: ALARA now requires a binary dump file:doc:`[G] glossarytext&gt;`.
+Openning the default file ‘alara.dmp’.</strong></p>
+<blockquote>
+<div>ALARA uses a binary file to store intermediate
+results. You can set the name of this file
+using the dump_file input block. Otherwise,
+the default is used.</div></blockquote>
+</div>
+<div class="section" id="input-cross-referencing">
+<span id="id5"></span><h2>Input Cross-referencing<a class="headerlink" href="#input-cross-referencing" title="Permalink to this headline">¶</a></h2>
+<p><strong>580: Removing mixture &lt;string&gt; not used in any zones.</strong></p>
+<blockquote>
+<div>Mixture <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> string was
+defined in the input file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>,
+but is not used in any zones. It’s
+definition is being removed.</div></blockquote>
+<p><strong>620: You have specified too few normalizations. If you
+specifiy any normalizations, you must specify one for
+each interval.</strong></p>
+<blockquote>
+<div>The spatial_norm input block must contain
+an entry for each of the fine mesh
+intervals <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. It is
+not permissible to have too few.</div></blockquote>
+<p><strong>621: You have specified too many normalizations. Extra
+normalizations will be ignored.</strong></p>
+<blockquote>
+<div>It is permissible to define too many
+spatial normalizations, but the results
+may by dubious. The extra normalizations
+will be ignored.</div></blockquote>
+<p><strong>622: Flux file &lt;string&gt; does not contain enough data.</strong></p>
+<blockquote>
+<div>The flux file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> string
+does not contain enough data to provide a
+flux for each of the fine mesh
+intervals <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</div></blockquote>
+</div>
+<div class="section" id="data-library-errors">
+<span id="id6"></span><h2>Data Library Errors<a class="headerlink" href="#data-library-errors" title="Permalink to this headline">¶</a></h2>
+<p><strong>1000: Data library type &lt;string&gt; (&lt;type_code&gt;) is not yet supported.</strong></p>
+<blockquote>
+<div>The specified library type string is not supported.</div></blockquote>
+<p><strong>1001: Conversion from &lt;string1&gt; (&lt;type_code&gt;) to &lt;string2&gt;
+(&lt;type_code&gt;) is not yet supported.</strong></p>
+<blockquote>
+<div>Conversion between the specified library
+types string1 and string2 is not supported.</div></blockquote>
+<p><strong>1001: Conversion from &lt;string&gt; (&lt;type_code&gt;) to (&lt;type_code&gt;)
+is not yet supported.</strong></p>
+<blockquote>
+<div>Conversion between the specified library
+types string1 and &lt;type_code&gt;
+is not supported.</div></blockquote>
+<p><strong>1100: You have specified library type ‘alaralib’ but given
+the filename of an ‘adjlib’ libra</strong></p>
+<blockquote>
+<div>The type of library specified in the input
+block must match the internally recorded
+library type.</div></blockquote>
+<p><strong>1101: You have specified library type ‘alaralib’ but given
+the filename of an unidentified library.</strong></p>
+<blockquote>
+<div>The type of library specified in the input
+block must match the internally recorded
+library type.</div></blockquote>
+<p><strong>1102: You have specified library type ‘adjlib’ but given
+the filename of an ‘alaralib’ library.</strong></p>
+<blockquote>
+<div>The type of library specified in the input
+block must match the internally recorded
+library type.</div></blockquote>
+<p><strong>1103: You have specified library type ‘adjlib’ but given
+the filename of an unidentified library.</strong></p>
+<blockquote>
+<div>The type of library specified in the input
+block must match the internally recorded
+library type.</div></blockquote>
+</div>
+<div class="section" id="programming-errors">
+<span id="id7"></span><h2>Programming Errors<a class="headerlink" href="#programming-errors" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p><strong>Note:</strong></p>
+<blockquote>
+<div>In some places, if ALARA reaches that point
+in the program, it implies an error in the
+logic of the code. Please report such
+errors to the code author.</div></blockquote>
+</div></blockquote>
+<p><strong>-1: Memory allocation error: &lt;string&gt;</strong></p>
+<blockquote>
+<div>An error in the runtime allocation of memory occured.
+‘&lt;string&gt;’ reports the function and variable
+where the error occurred.</div></blockquote>
+<p><strong>9000: Programming Error:…</strong></p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2019, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Jul 15, 2019.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      </p>
+    </div>
+  </body>
+</html>

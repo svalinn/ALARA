@@ -1,0 +1,184 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>INTRODUCTION &#8212; ALARA</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.9.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Manual Syntax" href="Manual_syntax.html" />
+    <link rel="prev" title="ALARA Users’ Guide:" href="index.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../index.html"><img src="../_static/images/logo.png" alt="" height="50x" /><span>ALARA</span></a></h1>
+    <div id="tagline"><span>Adaptive Laplacian and Analytic Radioactivity Analysis</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../index.html">ALARA</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="index.html" title="ALARA Users’ Guide:"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="Manual_syntax.html" title="Manual Syntax"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">ALARA Users’ Guide:</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">INTRODUCTION</a><ul>
+<li><a class="reference internal" href="#features">FEATURES:</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="introduction">
+<h1>INTRODUCTION<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><p>The primary purpose of ALARA is to calculate the induced
+activation <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> caused by neutron
+irradiation <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> throughout a nuclear
+system (including fission reactors, fusion reactors,
+and accelerators). The usage of ALARA is fairly straightforward,
+requiring little knowledge of the code’s inner workings.
+This Users’ Guide, however does assume that the reader is
+familiar with the basic problem of induced activation
+<a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. Background on induced activation, and
+details on ALARA’s can be found in [ref. 1]. This reference
+will also help ensure that ALARA is well-suited to the
+problems that you are trying to solve.</p>
+<p>This Users’ Guide will describe the command-line options of
+ALARA, input file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> structure
+and the basic support files necessary to run ALARA.</p>
+</div></blockquote>
+<div class="section" id="features">
+<h2>FEATURES:<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>ALARA takes full advantage of being a newly developed code
+by implementing the best features of the previous
+generation of activation codes and, at the same time,
+addressing their various weaknesses. Furthermore, an entirely
+new set of features has been implemented and continued
+development will allow it to respond to the evolving needs
+of the entire user community. ALARA’s three main design
+principles are accuracy, speed, and usability. ALARA matches
+the previous generation of activation codes in accuracy
+and is much faster. This is achieved by adaptively
+choosing the mathematical method at the smallest resolution
+in order to optimize both speed and accuracy.</p>
+<p>The following features are found individually in other
+activation codes (primarily FISPACT, DKR and RACC):</p>
+<blockquote>
+<div><ul class="simple">
+<li>multi-point (3-D) solutions in a variety of geometries</li>
+<li>accurate solution of loops in activation trees</li>
+<li>exact modeling of multi-level pulsing irradiation
+histories <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a></li>
+<li>user-defined calculation precision/accuracy</li>
+<li>tracking the accumulation of light ions</li>
+</ul>
+</div></blockquote>
+<p>The following features are not found in other activation
+codes, but should be considered basic elements of any
+modern activation code:</p>
+<blockquote>
+<div><ul class="simple">
+<li>straightforward, user-friendly input file creation</li>
+<li>full, easy-to-read activation tree output (not just
+pathway analysis)</li>
+<li>flexible output options NOW including the direct
+calculation of waste disposal rating <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+and clearance indices <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</li>
+</ul>
+</div></blockquote>
+<p>The following ADVANCED features are unique to ALARA
+and its development history:</p>
+<blockquote>
+<div><ul class="simple">
+<li>unlimited number of reaction channels</li>
+<li>exact modeling of hierarchical arbitrary irradiation schedules</li>
+<li>reverse calculation mode</li>
+</ul>
+</div></blockquote>
+<p>Finally, ALARA is undergoing continuous development with
+many new features planned for implementation, both to
+increase the level of physical modeling, the range of
+problems which can be solved, and its ease of use. ALARA
+is a fully developed and validated alternative to the
+previous generation of activation codes.</p>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2019, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Jul 15, 2019.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      </p>
+    </div>
+  </body>
+</html>
