@@ -19,7 +19,7 @@ INTRODUCTION
  ALARA, input file :doc:`[G] <glossarytext>` structure
  and the basic support files necessary to run ALARA.
 
-FEATURES:
+FEATURES
 =========
 
  ALARA takes full advantage of being a newly developed code

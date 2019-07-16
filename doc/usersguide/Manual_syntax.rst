@@ -2,16 +2,22 @@
 Manual Syntax
 =============
 
- :doc:`[G] <glossarytext>`                 This icon indicates that a definition exists in the
-					   glossary for this term.
- :doc:`command line <commandtext>`         A term written in red text indicates that there is a
-					   section in the manual on this term.
- dimension                                 Text that is written in courier new indicates actual
-					   code syntax.
- <OPTION>                                  The term option in brackets indicates a choice in
-					   syntax. These choices are given in the option
-					   description section of the corresponding file description. 
-
++---------------------------------------+-----------------------------------------------------------+
+| :doc:`[G] <glossarytext>`		|This icon indicates that a definition exists in the        |
+|					|glossary for this term.                                    |
++---------------------------------------+-----------------------------------------------------------+
+| :doc:`command line <commandtext>`	|A term written in red text indicates that there is a       |
+|					|section in the manual on this term.                        |
++---------------------------------------+-----------------------------------------------------------+
+|::                                     |                                                           |
+|					|Text that is written in courier new indicates actual       |
+|	dimension			|code syntax.						    |
+|					|	                                                    |
++---------------------------------------+-----------------------------------------------------------+
+| <OPTION>				|The term option in brackets indicates a choice in          |
+|					|syntax. These choices are given in the option              |
+|					|description section of the corresponding file description. |
++---------------------------------------+-----------------------------------------------------------+
 
 Time Based Input
 ================

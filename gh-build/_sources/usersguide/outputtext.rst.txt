@@ -7,7 +7,7 @@ Output File Formats
 Standard Output
 ===============
 
-Description:
+Description
 ============
 
  ALARA output is always written to the standard output of the

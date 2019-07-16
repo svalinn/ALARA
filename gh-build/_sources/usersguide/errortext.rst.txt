@@ -9,9 +9,9 @@ Error Message Types
 |	:ref:`Command-line Parsing`
 |	:ref:`Input Phase`
 |
-|		:ref:`Read Input File`
-|		:ref:`Input Checking`
-|		:ref:`Input Cross-referencing`
+|	   :ref:`Read Input File`
+|	   :ref:`Input Checking`
+|	   :ref:`Input Cross-referencing`
 |
 |	:ref:`Data Library Errors`
 |	:ref:`Programming Errors`
