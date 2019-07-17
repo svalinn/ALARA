@@ -128,43 +128,44 @@ file <a class="reference internal" href="glossarytext.html"><span class="doc">[G
 <col width="33%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>&#160;</td>
-<td>&#160;</td>
+<tr class="row-odd"><td>Geometry &amp; Materials</td>
+<td>Flux Schedules &amp; Chain -
+Building</td>
+<td>Output &amp; Files</td>
+</tr>
+<tr class="row-even"><td>geometry</td>
+<td>flux</td>
+<td>cooling</td>
+</tr>
+<tr class="row-odd"><td>dimension[1]</td>
+<td>spatial_norm</td>
+<td>output</td>
+</tr>
+<tr class="row-even"><td>major_radius</td>
+<td>schedule</td>
+<td>material_lib</td>
+</tr>
+<tr class="row-odd"><td>minor radius</td>
+<td>pulsehistory</td>
+<td>element_lib</td>
+</tr>
+<tr class="row-even"><td>volumes[1]</td>
+<td>truncation</td>
+<td>dump_file</td>
+</tr>
+<tr class="row-odd"><td>mat_loading</td>
+<td>impurity</td>
+<td>data_library</td>
+</tr>
+<tr class="row-even"><td>mixture</td>
+<td>ignore</td>
+<td>convert_lib</td>
+</tr>
+<tr class="row-odd"><td>solve_zones</td>
+<td>ref_flux_type</td>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-</tr>
-<tr class="row-odd"><td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-</tr>
-<tr class="row-even"><td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-</tr>
-<tr class="row-odd"><td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-</tr>
-<tr class="row-even"><td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-</tr>
-<tr class="row-odd"><td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-</tr>
-<tr class="row-even"><td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-</tr>
-<tr class="row-odd"><td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-</tr>
-<tr class="row-even"><td>&#160;</td>
+<tr class="row-even"><td>skip_zones</td>
 <td>&#160;</td>
 <td>&#160;</td>
 </tr>
@@ -268,13 +269,17 @@ only occur once.</p>
 </pre></div>
 </div>
 <p><strong>Option Description:</strong></p>
+</div></blockquote>
+</div></blockquote>
+<div class="line-block">
+<div class="line">point <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
+<div class="line">rectangular <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
+<div class="line">cylindrical <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
+<div class="line">spherical <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
+<div class="line">torus <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
+</div>
 <blockquote>
-<div>point <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –
-rectangular <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –
-cylindrical <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –
-spherical <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –
-torus <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div></blockquote>
-<p><strong>Sample Input:</strong> geometry point</p>
+<div><p><strong>Sample Input:</strong> geometry point</p>
 <p><strong>Notes:</strong> This input block should not be terminated.
 If using the dimension input block to define the geometry
 and the type is torus <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> , the
@@ -282,7 +287,9 @@ major_radius <a class="reference internal" href="glossarytext.html"><span class=
 required and the minor_radius <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
 block may also be required.</p>
 </div></blockquote>
-<p><strong>Name:</strong> dimension (required [1]: once [1d], twice [2d], thrice [3d])</p>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> dimension (required [1]: once [1d], twice [2d], thrice [3d])</p>
 <blockquote>
 <div><p><strong>Description:</strong> This input block is used to define the
 geometry layout, and should be included once for each
@@ -331,7 +338,10 @@ zone membership and volume from the dimension data, it is
 incompatible with the volumes input block. Including
 both will generate an error message.</p>
 </div></blockquote>
-<p><strong>Name:</strong> major_radius and minor_radius (required once [each] for geometry torus)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> major_radius and minor_radius (required once [each] for geometry torus)</p>
 <blockquote>
 <div><p><strong>Description:</strong> These two input blocks are used to define
 the major and minor radii <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> of toroidal
@@ -345,13 +355,18 @@ size, with a single argument specifying the radius as
 a floating point number.</p>
 <p><strong>Syntax:</strong></p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>Major_radius &lt;value&gt;
-Sample Input:
-Major radius 1.25
-Notes:
 </pre></div>
 </div>
+<p><strong>Sample Input:</strong></p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>Major radius 1.25
+</pre></div>
+</div>
+<p><strong>Notes:</strong></p>
 </div></blockquote>
-<p><strong>Name:</strong> volumes (required [1] once)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> volumes (required [1] once)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This input block is used to define the
 fine mesh intervals’ <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> volumes
@@ -388,7 +403,10 @@ both are used, an error will result. This block
 should only occur once. Multiple occurrences will
 result in undefined behavior.</p>
 </div></blockquote>
-<p><strong>Name:</strong> mat_loading (required once)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> mat_loading (required once)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This input block is used to
 indicate which mixtures are contained in each
@@ -429,7 +447,10 @@ of the mixture definitions exactly, or be the
 keyword ‘void’, indicating that
 this zone is empty of material.</p>
 </div></blockquote>
-<p><strong>Name:</strong> mixture (required: once per defined mixture)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> mixture (required: once per defined mixture)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This kind of block is used to
 define the composition of a mixture. This block
@@ -540,7 +561,10 @@ it will cause the whole problem to be run as a reverse
 problem. There is therefore little purpose in having mixture
 definitions without targets (such as in this example).</p>
 </div></blockquote>
-<p><strong>Name:</strong> solve_zones (optional once)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> solve_zones (optional once)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This optional input block allows the
 user to limit which zones are being solved in a given
@@ -567,7 +591,10 @@ keyword end.</p>
 <p><strong>Sample Input:</strong></p>
 <p><strong>Notes:</strong></p>
 </div></blockquote>
-<p><strong>Name:</strong> skip_zones (optional once)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> skip_zones (optional once)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This optional input block allows
 the user to limit which zones are being solved in
@@ -659,7 +686,10 @@ flux spectra, this block may occur as many times as
 necessary to represent all the different necessary
 flux definitions.</p>
 </div></blockquote>
-<p><strong>Name:</strong> spatial_norm (optional once)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> spatial_norm (optional once)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This input block allows the user
 to specify a scalar flux normalization for each fine
@@ -683,7 +713,10 @@ is possible that many problems have the same
 spatial normalization. Put this data in a separate
 file and #include it when you need it.]</p>
 </div></blockquote>
-<p><strong>Name:</strong> schedule (required: once per defined schedule)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> schedule (required: once per defined schedule)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This kind of block is used to
 define a single schedule in the full
@@ -718,7 +751,10 @@ this block might occur many times. Since schedules
 can become complicated, a tutorial is available
 for forming complex schedules.</p>
 </div></blockquote>
-<p><strong>Name:</strong> pulsehistory (required: once per defined history)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> pulsehistory (required: once per defined history)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This kind of input block defines
 the multi-level pulsing histories referenced
@@ -746,7 +782,10 @@ different pulsing histories may be used throughout
 the hierarchy of schedules, this block may occur
 many times.</p>
 </div></blockquote>
-<p><strong>Name:</strong> truncation (required once)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> truncation (required once)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This fixed sized input block
 defines the primary parameter used in
@@ -770,7 +809,10 @@ higher than the truncation tolerance will
 result in continuing the tree while lower
 values will result in truncation.</p>
 </div></blockquote>
-<p><strong>Name:</strong> impurity (optional once)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> impurity (optional once)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This fixed sized input block
 defines the parameters used to treat initial
@@ -810,7 +852,10 @@ the value given for tolerance should be
 orders of magnitude larger than the value
 given in the truncation threshold.</p>
 </div></blockquote>
-<p><strong>Name:</strong> ignore (optional once)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> ignore (optional once)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This optional fixed sized input
 block defines an additional parameter used
@@ -841,7 +886,10 @@ tolerance of 10-2 is used - that is, a relative
 production 100 times lower than the truncation
 tolerance.</p>
 </div></blockquote>
-<p><strong>Name:</strong> ref_flux_type (optional once)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> ref_flux_type (optional once)</p>
 <blockquote>
 <div><p><strong>Description:</strong> This optional fixed sized
 input block defines the type of reference flux to use.</p>
@@ -909,7 +957,285 @@ end
 <blockquote>
 <div>Multiple occurrences will result in undefined behavior.</div></blockquote>
 </div></blockquote>
-<p><strong>Name:</strong> output (optional: once per required output definiton)</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> output (optional: once per required output definiton)</p>
+<blockquote>
+<div><p>This kind of input block allows the user to define the
+output’s resolution and format. The first element of
+an output format block indicates the resolution and
+should be one of:</p>
+<blockquote>
+<div>interval | zone | mixture</div></blockquote>
+<p>This is followed by a list of output types and
+modifiers described in the following table:</p>
+</div></blockquote>
+</div></blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="13%" />
+<col width="67%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>keyword</td>
+<td>value</td>
+<td>function</td>
+</tr>
+<tr class="row-even"><td>constituent</td>
+<td>–</td>
+<td>generate a constituent breakdown in addition to total
+response</td>
+</tr>
+<tr class="row-odd"><td>units</td>
+<td>[units]</td>
+<td>define the units to be used for this output block</td>
+</tr>
+<tr class="row-even"><td>number_density</td>
+<td>–</td>
+<td>number density result of all produced isotopes</td>
+</tr>
+<tr class="row-odd"><td>specific_activity</td>
+<td>–</td>
+<td>specific activity of all radioactive isotopes</td>
+</tr>
+<tr class="row-even"><td>total_heat</td>
+<td>–</td>
+<td>total decay heat</td>
+</tr>
+<tr class="row-odd"><td>alpha_heat</td>
+<td>–</td>
+<td>total alpha heating</td>
+</tr>
+<tr class="row-even"><td>beta_heat</td>
+<td>–</td>
+<td>total beta heating</td>
+</tr>
+<tr class="row-odd"><td>gamma_heat</td>
+<td>–</td>
+<td>total gamma heating</td>
+</tr>
+<tr class="row-even"><td>photon_source</td>
+<td>[see below]</td>
+<td>gamma source distribution with user-defined group
+structure</td>
+</tr>
+<tr class="row-odd"><td>folded_dose</td>
+<td>determined
+by dose
+response</td>
+<td>fold the gamma source with a known adjoint gamma flux
+response for a total dose</td>
+</tr>
+<tr class="row-even"><td>wdr</td>
+<td>[filename]</td>
+<td>waste disposal rating/clearance</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p>The units output modifier is used to perform unit
+conversion on the output and requires two additional
+text parameters. The first parameter is defines the
+units for specific activity and related output
+types and has two possibilities:</p>
+<blockquote>
+<div>Ci | Bq</div></blockquote>
+<p>representing “Curies” and “Bequerel” respectively.
+The second parameter defines the units for normalization
+(typically volumetric vs. mass). This parameter has
+five possibilities:</p>
+<blockquote>
+<div>cm3 | m3 | g | kg | volume_integrated</div></blockquote>
+<p>The first four of these are self-evident, giving
+different volumetric and mass normalizations. The
+fifth option allows the calculation of total volume
+integrated inventories, rather than volume/mass
+normalized results.</p>
+<p>The photon_src output modifier is used to generate a
+separate file with the gamma source distribution. For
+more information on gamma source files, see the Users’
+Guide section devoted to <a class="reference internal" href="outputtext.html"><span class="doc">output files</span></a>.
+The first additional parameter is a string representing
+the name of the ALARA v2.x binary gamma library. The
+extension “.gam” will be added to the path/filename
+given here. The next parameter is a string representing
+the the filename where the gamma source information
+should be stored. This is followed by an integer
+parameter representing the number of gamma groups to be
+used for this photon source. Finally, one floating
+point value should be given for the upper bound of
+each gamma group (the lower bound of the lowest energy
+group is always 0) in units of eV. These are given
+in order of INCREASING energy.</p>
+<p>The folded_dose output modifer requires the following paramters:</p>
+<ul class="simple">
+<li>the name of the ALARA v2.x gamma library</li>
+<li>the volume of the detector volume</li>
+<li>the name of the adjoint flux file</li>
+<li>the number of photon groups</li>
+<li>photon group boundaries from highest to lowest</li>
+</ul>
+<p>The number of groups and group boundary values must
+be consistent with the adjoint flux file. No automatic
+test for consistency is performed so inconsistent
+values will not be reported and erroneous results
+will occur.</p>
+<p>The wdr output modifier requires an additional text
+string parameter representing the filename to use for
+calculating the waste disposal rating <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+or clearance limits. A detailed description of the WDR
+file is available here. To calculate the WDR based on
+different standards, simply repeat this modifier within
+a single output block, using different WDR filenames
+each time. Be sure that the units modifier defines
+units that correspond to those in the WDR file.</p>
+<p>See the section on Output File Formats for detailed
+for information on interpreting the output files
+generated by ALARA.</p>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> material_lib and element_lib (required once [each])</p>
+<blockquote>
+<div><p><strong>Description:</strong> These two input blocks are used to specify
+the libraries to be used for looking up the definitions
+of materials and elements when they are given as
+mixture constituents.</p>
+<p><strong>Syntax:</strong> Each block has a single element consisting
+of the filename to be used in each case, including
+appropriate path information to find that file from
+the directory where ALARA is being run.</p>
+<p><strong>Sample Input:</strong></p>
+<p><strong>Notes:</strong></p>
+<p>For more information on the format of these libraries,
+see the section on <a class="reference internal" href="support.html"><span class="doc">Support Files</span></a>.</p>
+</div></blockquote>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> dump_file (optional once)</p>
+<blockquote>
+<div><p><strong>Description:</strong> This input block defines the filename
+to use for the binary data dump produced during a run
+of ALARA. This is currently used to store the
+intermediate results during the calculation, and will
+be extended in the future to allow sophisticated
+post-processing of the data. This filename should be
+a valid name for a new file, including path information
+appropriate for the directory where ALARA will be run.</p>
+<p><strong>Syntax:</strong></p>
+<p><strong>Sample Input:</strong></p>
+<p><strong>Notes:</strong></p>
+<p>If the dump file already exists, it will be overwritten
+with no warning. If this input block is omitted, the
+default name ‘alara.dump’ will be used.</p>
+</div></blockquote>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> data_library</p>
+<blockquote>
+<div><p><strong>Description:</strong> This input block is used to define
+the type and location of the nuclear data library.</p>
+<p><strong>Syntax:</strong></p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>data_library &lt;OPTION&gt;
+</pre></div>
+</div>
+<p>The first element of this block is a character string
+defining the type of library. The subsequent elements
+indicate the file’s location.</p>
+<p><strong>Option Description:</strong> Currently accepted library
+types are:</p>
+<blockquote>
+<div><p>alaralib - Standard ALARA v2.x binary library</p>
+<blockquote>
+<div>This library type requires a single filename
+indicating the library’s location.</div></blockquote>
+<p>adjlib - Standard ALARA v2.x reverse library</p>
+<blockquote>
+<div>This library type requires a single filename
+indicating the library’s location.</div></blockquote>
+<p>eaflib - Data library following EAF formatting
+conventions (ENDF/B).</p>
+<blockquote>
+<div>This library type requires two filenames, the
+transmutation library and the decay library,
+respectively. These libraries will be read and
+processed, creating an ALARA v2.x binary library
+with the name ‘alarabin’ for use in subsequent
+calculations. Alternatively, this library could
+be converted to an ALARA v2.x binary library
+as a separate process using the
+convert_lib function.</div></blockquote>
+</div></blockquote>
+<p><strong>Sample Input:</strong></p>
+<p><strong>Notes:</strong></p>
+<p>For both types of ALARA v2.x library, the extension “.lib”
+will be added to the filename indicated in this input
+block. Otherwise, all filenames should include
+appropriate path information to find the file from the
+directory in which ALARA will be run.</p>
+</div></blockquote>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>Name:</strong> convert_lib</p>
+<blockquote>
+<div><p>This input block is used to convert library formats. If
+this input block is included, ALARA will stop immediately
+after converting the library (ie. it should not be used
+as part of a normal ALARA input file).</p>
+<p>The first two elements of this input block indicated
+the original library format and the desired new
+format, respectively. The following values are allowable:</p>
+</div></blockquote>
+</div></blockquote>
+<div class="line-block">
+<div class="line">alaralib - Standard ALARA v2.x binary library</div>
+<div class="line">adjlib - Standard ALARA v2.x reverse library</div>
+<div class="line">eaflib - Data library following EAF formatting
+conventions (ENDF/B).</div>
+</div>
+<blockquote>
+<div><p>The number and nature of the subsequent elements depend
+on these first two elements, but are divided into two
+sections. The first section is dependent on the first
+element (the original library format) and the second
+section is dependent on the second element (the
+desired library format):</p>
+<p><em>alaralib</em></p>
+<p>This section has a single element, the base name of the
+ALARA v2.x libraries to be generated. Four (4) files
+will be created with the following extensions:</p>
+</div></blockquote>
+<div class="line-block">
+<div class="line">.lib - the binary reaction library</div>
+<div class="line">.idx - a copy of the reaction index which is included
+in the binary reaction library</div>
+<div class="line">.gam - the binary gamma source library (coming soon!)</div>
+<div class="line">.gdx - a copy of the gamma source index which is
+included in the binary gamma source library</div>
+</div>
+<blockquote>
+<div><p><em>adjlib</em></p>
+<p>This section has a single element, the base name of the
+ALARA v2.x reverse libraries to be generated. Two (2)
+files will be created with the following extensions:</p>
+</div></blockquote>
+<div class="line-block">
+<div class="line">.lib - the binary reverse reaction library</div>
+<div class="line">.idx - a copy of the reverse reaction index which is
+included in the binary reverse reaction library</div>
+</div>
+<blockquote>
+<div><p><em>eaflib</em></p>
+<p>This section requires two elements, the filenames of
+the multi-group cross-section library and the
+decay/gamma library, respectively.</p>
+<p>[Note: It current only supports the conversion from
+EAF formatted libraries to ALARA v2.x binary libraries.]</p>
 </div></blockquote>
 </div>
 </div>
@@ -925,7 +1251,7 @@ end
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 16, 2019.
+      Last updated on Jul 17, 2019.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.

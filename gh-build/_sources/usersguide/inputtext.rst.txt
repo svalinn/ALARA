@@ -31,26 +31,26 @@ General Information:
  file :doc:`[G] <glossarytext>`:
 
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
- |                          |                           |                          |
+ |Geometry & Materials      |Flux Schedules & Chain -   |Output & Files            |
+ |                          |Building                   |                          |
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
+ |geometry                  |flux                       |cooling                   |
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
+ |dimension[1]              |spatial_norm               |output                    |
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
+ |major_radius              |schedule                   |material_lib              |
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
+ |minor radius              |pulsehistory               |element_lib               |
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
+ |volumes[1]                |truncation                 |dump_file                 |
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
+ |mat_loading               |impurity                   |data_library              |
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
+ |mixture                   |ignore                     |convert_lib               |
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
+ |solve_zones               |ref_flux_type              |                          |
  +--------------------------+---------------------------+--------------------------+
- |                          |                           |                          |
+ |skip_zones                |                           |                          |
  +--------------------------+---------------------------+--------------------------+
 
 
@@ -154,11 +154,11 @@ Section I: Geometry & Materials
 
 		**Option Description:**
 
-			point :doc:`[G] <glossarytext>` --
-			rectangular :doc:`[G] <glossarytext>` --
-			cylindrical :doc:`[G] <glossarytext>` --
-			spherical :doc:`[G] <glossarytext>` --
-			torus :doc:`[G] <glossarytext>` --
+|			point :doc:`[G] <glossarytext>` --
+|			rectangular :doc:`[G] <glossarytext>` --
+|			cylindrical :doc:`[G] <glossarytext>` --
+|			spherical :doc:`[G] <glossarytext>` --
+|			torus :doc:`[G] <glossarytext>` --
 
 		**Sample Input:** geometry point
 
@@ -168,6 +168,8 @@ Section I: Geometry & Materials
 		major_radius :doc:`[G] <glossarytext>` input block is 
 		required and the minor_radius :doc:`[G] <glossarytext>`
 		block may also be required. 
+
+------------------
 
 	**Name:** dimension (required [1]: once [1d], twice [2d], thrice [3d])
 
@@ -222,6 +224,8 @@ Section I: Geometry & Materials
 		incompatible with the volumes input block. Including 
 		both will generate an error message.
 
+-------------------------
+
 	**Name:** major_radius and minor_radius (required once [each] for geometry torus) 
 
 		**Description:** These two input blocks are used to define 
@@ -239,9 +243,15 @@ Section I: Geometry & Materials
 		::
 
 			Major_radius <value>
-			Sample Input:
+			
+		**Sample Input:**
+		::
+
 			Major radius 1.25
-			Notes:
+			
+		**Notes:**
+
+-----------------------
 
 	**Name:** volumes (required [1] once) 
 
@@ -283,6 +293,8 @@ Section I: Geometry & Materials
 		both are used, an error will result. This block 
 		should only occur once. Multiple occurrences will 
 		result in undefined behavior.
+
+------------------
 
 	**Name:** mat_loading (required once) 
 
@@ -327,6 +339,8 @@ Section I: Geometry & Materials
 		of the mixture definitions exactly, or be the 
 		keyword 'void', indicating that 
 		this zone is empty of material. 
+
+------------------------
 
 	**Name:** mixture (required: once per defined mixture) 
 
@@ -451,6 +465,8 @@ Section I: Geometry & Materials
 		problem. There is therefore little purpose in having mixture 
 		definitions without targets (such as in this example). 
 
+-------------------
+
 	**Name:** solve_zones (optional once) 
 
 		**Description:** This optional input block allows the 
@@ -481,6 +497,8 @@ Section I: Geometry & Materials
 		**Sample Input:**
 
 		**Notes:**
+
+-----------------------
 
 	**Name:** skip_zones (optional once) 
 
@@ -587,6 +605,8 @@ Section II: Flux Schedules & Chain-building
 		necessary to represent all the different necessary 
 		flux definitions. 
 
+-----------------------
+
 	**Name:** spatial_norm (optional once) 
 
 		**Description:** This input block allows the user 
@@ -616,6 +636,8 @@ Section II: Flux Schedules & Chain-building
 		is possible that many problems have the same 
 		spatial normalization. Put this data in a separate 
 		file and #include it when you need it.] 
+
+-------------------------
 
 	**Name:** schedule (required: once per defined schedule) 
 
@@ -660,6 +682,8 @@ Section II: Flux Schedules & Chain-building
 		can become complicated, a tutorial is available 
 		for forming complex schedules. 
 
+----------------------------
+
 	**Name:** pulsehistory (required: once per defined history) 
 
 		**Description:** This kind of input block defines 
@@ -692,6 +716,8 @@ Section II: Flux Schedules & Chain-building
 		the hierarchy of schedules, this block may occur 
 		many times. 
 
+---------------------------
+
 	**Name:** truncation (required once) 
 
 		**Description:** This fixed sized input block 
@@ -720,6 +746,8 @@ Section II: Flux Schedules & Chain-building
 		higher than the truncation tolerance will 
 		result in continuing the tree while lower 
 		values will result in truncation. 
+
+-------------------------
 
 	**Name:** impurity (optional once) 
 
@@ -766,6 +794,8 @@ Section II: Flux Schedules & Chain-building
 		orders of magnitude larger than the value 
 		given in the truncation threshold. 
 
+------------------------
+
 	**Name:** ignore (optional once) 
 
 		**Description:** This optional fixed sized input 
@@ -801,6 +831,8 @@ Section II: Flux Schedules & Chain-building
 		tolerance of 10-2 is used - that is, a relative 
 		production 100 times lower than the truncation 
 		tolerance.
+
+------------------
 
 	**Name:** ref_flux_type (optional once) 
 
@@ -878,6 +910,267 @@ Section III: Output & Files
 
 		 Multiple occurrences will result in undefined behavior.
 
+-----------------
+
 	**Name:** output (optional: once per required output definiton) 
 
-		
+		This kind of input block allows the user to define the 
+		output's resolution and format. The first element of 
+		an output format block indicates the resolution and 
+		should be one of: 
+
+			interval | zone | mixture
+
+		This is followed by a list of output types and 
+		modifiers described in the following table:
+
+
++-----------------+-----------+---------------------------------------------------------+
+|keyword          |value      |function                                                 |
++-----------------+-----------+---------------------------------------------------------+
+|constituent      |--         |generate a constituent breakdown in addition to total    |
+|                 |           |response                                                 |
++-----------------+-----------+---------------------------------------------------------+
+|units            |[units]    |define the units to be used for this output block        |
++-----------------+-----------+---------------------------------------------------------+
+|number_density   |--         |number density result of all produced isotopes           |
++-----------------+-----------+---------------------------------------------------------+
+|specific_activity|--         |specific activity of all radioactive isotopes            |
++-----------------+-----------+---------------------------------------------------------+
+|total_heat       |--         |total decay heat                                         |
++-----------------+-----------+---------------------------------------------------------+
+|alpha_heat       |--         |total alpha heating                                      |
++-----------------+-----------+---------------------------------------------------------+
+|beta_heat        |--         |total beta heating                                       |
++-----------------+-----------+---------------------------------------------------------+
+|gamma_heat       |--         |total gamma heating                                      |
++-----------------+-----------+---------------------------------------------------------+
+|photon_source    |[see below]|gamma source distribution with user-defined group        |
+|                 |           |structure                                                |
++-----------------+-----------+---------------------------------------------------------+
+|folded_dose      |determined |fold the gamma source with a known adjoint gamma flux    |
+|                 |by dose    |response for a total dose                                |
+|                 |response   |                                                         |
++-----------------+-----------+---------------------------------------------------------+
+|wdr              |[filename] |waste disposal rating/clearance                          |
++-----------------+-----------+---------------------------------------------------------+
+
+
+		The units output modifier is used to perform unit 
+		conversion on the output and requires two additional 
+		text parameters. The first parameter is defines the 
+		units for specific activity and related output 
+		types and has two possibilities: 
+
+			Ci | Bq
+
+		representing "Curies" and "Bequerel" respectively. 
+		The second parameter defines the units for normalization 
+		(typically volumetric vs. mass). This parameter has 
+		five possibilities: 
+
+			cm3 | m3 | g | kg | volume_integrated
+
+		The first four of these are self-evident, giving 
+		different volumetric and mass normalizations. The 
+		fifth option allows the calculation of total volume 
+		integrated inventories, rather than volume/mass 
+		normalized results. 
+
+		The photon_src output modifier is used to generate a 
+		separate file with the gamma source distribution. For 
+		more information on gamma source files, see the Users' 
+		Guide section devoted to :doc:`output files <outputtext>`. 
+		The first additional parameter is a string representing 
+		the name of the ALARA v2.x binary gamma library. The 
+		extension ".gam" will be added to the path/filename 
+		given here. The next parameter is a string representing 
+		the the filename where the gamma source information 
+		should be stored. This is followed by an integer 
+		parameter representing the number of gamma groups to be 
+		used for this photon source. Finally, one floating 
+		point value should be given for the upper bound of 
+		each gamma group (the lower bound of the lowest energy 
+		group is always 0) in units of eV. These are given 
+		in order of INCREASING energy.
+
+		The folded_dose output modifer requires the following paramters: 
+
+		*  the name of the ALARA v2.x gamma library 
+		*  the volume of the detector volume 
+		*  the name of the adjoint flux file 
+		*  the number of photon groups 
+		*  photon group boundaries from highest to lowest 
+
+		The number of groups and group boundary values must 
+		be consistent with the adjoint flux file. No automatic 
+		test for consistency is performed so inconsistent 
+		values will not be reported and erroneous results 
+		will occur.
+
+		The wdr output modifier requires an additional text 
+		string parameter representing the filename to use for 
+		calculating the waste disposal rating :doc:`[G] <glossarytext>`
+		or clearance limits. A detailed description of the WDR 
+		file is available here. To calculate the WDR based on 
+		different standards, simply repeat this modifier within 
+		a single output block, using different WDR filenames 
+		each time. Be sure that the units modifier defines 
+		units that correspond to those in the WDR file. 
+
+		See the section on Output File Formats for detailed 
+		for information on interpreting the output files 
+		generated by ALARA. 
+
+-------------------
+
+	**Name:** material_lib and element_lib (required once [each]) 
+
+		**Description:** These two input blocks are used to specify 
+		the libraries to be used for looking up the definitions 
+		of materials and elements when they are given as 
+		mixture constituents.
+
+		**Syntax:** Each block has a single element consisting 
+		of the filename to be used in each case, including 
+		appropriate path information to find that file from 
+		the directory where ALARA is being run.
+
+		**Sample Input:**
+
+		**Notes:**
+
+		For more information on the format of these libraries, 
+		see the section on :doc:`Support Files <support>`. 
+
+---------------------
+
+	**Name:** dump_file (optional once) 
+
+		**Description:** This input block defines the filename 
+		to use for the binary data dump produced during a run 
+		of ALARA. This is currently used to store the 
+		intermediate results during the calculation, and will 
+		be extended in the future to allow sophisticated 
+		post-processing of the data. This filename should be 
+		a valid name for a new file, including path information 
+		appropriate for the directory where ALARA will be run. 
+
+		**Syntax:**
+
+		**Sample Input:**
+
+		**Notes:**
+
+		If the dump file already exists, it will be overwritten 
+		with no warning. If this input block is omitted, the 
+		default name 'alara.dump' will be used. 
+
+-----------------------
+
+	 **Name:** data_library 
+
+		**Description:** This input block is used to define 
+		the type and location of the nuclear data library. 
+
+		**Syntax:**
+		::
+
+			data_library <OPTION>
+
+		The first element of this block is a character string 
+		defining the type of library. The subsequent elements 
+		indicate the file's location. 
+
+		**Option Description:** Currently accepted library 
+		types are: 
+
+			alaralib - Standard ALARA v2.x binary library 
+
+				This library type requires a single filename 
+				indicating the library's location.
+
+			adjlib - Standard ALARA v2.x reverse library 
+
+				This library type requires a single filename 
+				indicating the library's location.
+
+			eaflib - Data library following EAF formatting 
+			conventions (ENDF/B). 
+
+				This library type requires two filenames, the 
+				transmutation library and the decay library, 
+				respectively. These libraries will be read and 
+				processed, creating an ALARA v2.x binary library 
+				with the name 'alarabin' for use in subsequent 
+				calculations. Alternatively, this library could 
+				be converted to an ALARA v2.x binary library 
+				as a separate process using the 
+				convert_lib function.
+
+		**Sample Input:**
+
+		**Notes:**
+
+		For both types of ALARA v2.x library, the extension ".lib" 
+		will be added to the filename indicated in this input 
+		block. Otherwise, all filenames should include 
+		appropriate path information to find the file from the 
+		directory in which ALARA will be run. 
+
+-------------------------
+
+	**Name:** convert_lib 
+
+		This input block is used to convert library formats. If 
+		this input block is included, ALARA will stop immediately 
+		after converting the library (ie. it should not be used 
+		as part of a normal ALARA input file). 
+
+		The first two elements of this input block indicated 
+		the original library format and the desired new 
+		format, respectively. The following values are allowable: 
+
+|		alaralib - Standard ALARA v2.x binary library 
+|		adjlib - Standard ALARA v2.x reverse library 
+|		eaflib - Data library following EAF formatting 
+		conventions (ENDF/B). 
+
+		The number and nature of the subsequent elements depend 
+		on these first two elements, but are divided into two 
+		sections. The first section is dependent on the first 
+		element (the original library format) and the second 
+		section is dependent on the second element (the 
+		desired library format): 
+
+		*alaralib*
+
+		This section has a single element, the base name of the 
+		ALARA v2.x libraries to be generated. Four (4) files 
+		will be created with the following extensions: 
+
+|		.lib - the binary reaction library 
+|		.idx - a copy of the reaction index which is included 
+		in the binary reaction library 
+|		.gam - the binary gamma source library (coming soon!) 
+|		.gdx - a copy of the gamma source index which is 
+		included in the binary gamma source library 
+
+		*adjlib*
+
+		This section has a single element, the base name of the 
+		ALARA v2.x reverse libraries to be generated. Two (2) 
+		files will be created with the following extensions: 
+
+|		.lib - the binary reverse reaction library 
+|		.idx - a copy of the reverse reaction index which is 
+		included in the binary reverse reaction library
+
+		*eaflib*
+
+		This section requires two elements, the filenames of 
+		the multi-group cross-section library and the 
+		decay/gamma library, respectively. 
+
+		[Note: It current only supports the conversion from 
+		EAF formatted libraries to ALARA v2.x binary libraries.]
