@@ -1,6 +1,6 @@
-===================
-ALARA Users' Guide:
-===================
+==================
+ALARA Users' Guide
+==================
 
 .. toctree::
    :maxdepth: 1
