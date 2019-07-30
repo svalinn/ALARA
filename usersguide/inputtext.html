@@ -75,16 +75,37 @@
   <div id="c_container"> 
 <div id="sidebar">
  <div id="sidebar_section"><ul>
-<li><a class="reference internal" href="#">Input File Syntax</a><ul>
-<li><a class="reference internal" href="#input-file-description">Input File Description:</a></li>
-<li><a class="reference internal" href="#general-information">General Information:</a></li>
-<li><a class="reference internal" href="#general-input-notes">General Input Notes</a></li>
+<li><a class="reference internal" href="#">Input File Syntax</a></li>
+<li><a class="reference internal" href="#input-block-types">Input Block Types</a></li>
+<li><a class="reference internal" href="#geometry-materials">Geometry &amp; Materials</a><ul>
+<li><a class="reference internal" href="#geometry">Geometry</a></li>
+<li><a class="reference internal" href="#dimension">Dimension</a></li>
+<li><a class="reference internal" href="#major-radius-and-minor-radius">Major Radius and Minor Radius</a></li>
+<li><a class="reference internal" href="#volumes">Volumes</a></li>
+<li><a class="reference internal" href="#mat-loading">mat_loading</a></li>
+<li><a class="reference internal" href="#mixture">Mixture</a></li>
+<li><a class="reference internal" href="#solve-zones">solve_zones</a></li>
+<li><a class="reference internal" href="#skip-zones">skip_zones</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#input-block-types">Input Block Types</a><ul>
-<li><a class="reference internal" href="#section-i-geometry-materials">Section I: Geometry &amp; Materials</a></li>
-<li><a class="reference internal" href="#section-ii-flux-schedules-chain-building">Section II: Flux Schedules &amp; Chain-building</a></li>
-<li><a class="reference internal" href="#section-iii-output-files">Section III: Output &amp; Files</a></li>
+<li><a class="reference internal" href="#flux-schedules-chain-building">Flux Schedules &amp; Chain-building</a><ul>
+<li><a class="reference internal" href="#flux">Flux</a></li>
+<li><a class="reference internal" href="#spatial-norm">spatial_norm</a></li>
+<li><a class="reference internal" href="#schedule">Schedule</a></li>
+<li><a class="reference internal" href="#pulse-history">Pulse History</a></li>
+<li><a class="reference internal" href="#truncation">Truncation</a></li>
+<li><a class="reference internal" href="#impurity">Impurity</a></li>
+<li><a class="reference internal" href="#ignore">Ignore</a></li>
+<li><a class="reference internal" href="#ref-flux-type">ref_flux_type</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#output-files">Output &amp; Files</a><ul>
+<li><a class="reference internal" href="#cooling">Cooling</a></li>
+<li><a class="reference internal" href="#output">Output</a></li>
+<li><a class="reference internal" href="#material-and-element-libraries">Material and Element Libraries</a></li>
+<li><a class="reference internal" href="#dump-file">dump_file</a></li>
+<li><a class="reference internal" href="#data-library">Data Library</a></li>
+<li><a class="reference internal" href="#convert-library">Convert Library</a></li>
 </ul>
 </li>
 </ul>
@@ -95,8 +116,7 @@
             
   <div class="section" id="input-file-syntax">
 <h1>Input File Syntax<a class="headerlink" href="#input-file-syntax" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="input-file-description">
-<h2>Input File Description:<a class="headerlink" href="#input-file-description" title="Permalink to this headline">¶</a></h2>
+<p><strong>Input File Description</strong></p>
 <blockquote>
 <div>The input file for ALARA has been designed to ensure that
 the input information is easy to understand, edit and comment.
@@ -109,9 +129,7 @@ self-consistent. It then goes on to pre-process the data for
 the calculation. Every attempt has been made to give
 useful <a class="reference internal" href="errortext.html"><span class="doc">error messages</span></a> when the data
 is not consistent.</div></blockquote>
-</div>
-<div class="section" id="general-information">
-<h2>General Information:<a class="headerlink" href="#general-information" title="Permalink to this headline">¶</a></h2>
+<p><strong>General Information</strong></p>
 <blockquote>
 <div><p>There are many possible input block types. These blocks
 can appear in any order and many blocks can occur more
@@ -123,58 +141,56 @@ are required at least once in every input
 file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="33%" />
 <col width="34%" />
 <col width="33%" />
+<col width="34%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>Geometry &amp; Materials</td>
-<td>Flux Schedules &amp; Chain -
-Building</td>
-<td>Output &amp; Files</td>
+<tr class="row-odd"><td><a class="reference internal" href="#geometry-materials">Geometry &amp; Materials</a></td>
+<td><a class="reference internal" href="#flux-schedules-chain-building">Flux Schedules &amp; Chain -
+Building</a></td>
+<td><a class="reference internal" href="#output-files">Output &amp; Files</a></td>
 </tr>
-<tr class="row-even"><td>geometry</td>
-<td>flux</td>
-<td>cooling</td>
+<tr class="row-even"><td><a class="reference internal" href="#geometry">geometry</a></td>
+<td><a class="reference internal" href="#flux">flux</a></td>
+<td><a class="reference internal" href="#cooling">cooling</a></td>
 </tr>
-<tr class="row-odd"><td>dimension[1]</td>
-<td>spatial_norm</td>
-<td>output</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dimension">dimension</a> [1]</td>
+<td><a class="reference internal" href="#spatial-norm">spatial_norm</a></td>
+<td><a class="reference internal" href="#output">output</a></td>
 </tr>
-<tr class="row-even"><td>major_radius</td>
-<td>schedule</td>
-<td>material_lib</td>
+<tr class="row-even"><td><a class="reference internal" href="#major-radius">major_radius</a></td>
+<td><a class="reference internal" href="#schedule">schedule</a></td>
+<td><a class="reference internal" href="#material-lib">material_lib</a></td>
 </tr>
-<tr class="row-odd"><td>minor radius</td>
-<td>pulsehistory</td>
-<td>element_lib</td>
+<tr class="row-odd"><td><a class="reference internal" href="#minor-radius">minor_radius</a></td>
+<td><a class="reference internal" href="#pulsehistory">pulsehistory</a></td>
+<td><a class="reference internal" href="#element-lib">element_lib</a></td>
 </tr>
-<tr class="row-even"><td>volumes[1]</td>
-<td>truncation</td>
-<td>dump_file</td>
+<tr class="row-even"><td><a class="reference internal" href="#volumes">volumes</a> [1]</td>
+<td><a class="reference internal" href="#truncation">truncation</a></td>
+<td><a class="reference internal" href="#dump-file">dump_file</a></td>
 </tr>
-<tr class="row-odd"><td>mat_loading</td>
-<td>impurity</td>
-<td>data_library</td>
+<tr class="row-odd"><td><a class="reference internal" href="#mat-loading">mat_loading</a></td>
+<td><a class="reference internal" href="#impurity">impurity</a></td>
+<td><a class="reference internal" href="#data-library">data_library</a></td>
 </tr>
-<tr class="row-even"><td>mixture</td>
-<td>ignore</td>
-<td>convert_lib</td>
+<tr class="row-even"><td><a class="reference internal" href="#mixture">mixture</a></td>
+<td><a class="reference internal" href="#ignore">ignore</a></td>
+<td><a class="reference internal" href="#convert-lib">convert_lib</a></td>
 </tr>
-<tr class="row-odd"><td>solve_zones</td>
-<td>ref_flux_type</td>
+<tr class="row-odd"><td><a class="reference internal" href="#solve-zones">solve_zones</a></td>
+<td><a class="reference internal" href="#ref-flux-type">ref_flux_type</a></td>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td>skip_zones</td>
+<tr class="row-even"><td><a class="reference internal" href="#skip-zones">skip_zones</a></td>
 <td>&#160;</td>
 <td>&#160;</td>
 </tr>
 </tbody>
 </table>
 </div></blockquote>
-</div>
-<div class="section" id="general-input-notes">
-<h2>General Input Notes<a class="headerlink" href="#general-input-notes" title="Permalink to this headline">¶</a></h2>
+<p><strong>General Input Notes</strong></p>
 <blockquote>
 <div><ol class="arabic">
 <li><p class="first"><strong>Dimension/Volume:</strong> If “[1]” follows an input
@@ -250,16 +266,17 @@ length units.</li>
 </ol>
 </div></blockquote>
 </div>
-</div>
 <hr class="docutils" />
 <div class="section" id="input-block-types">
 <h1>Input Block Types<a class="headerlink" href="#input-block-types" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="section-i-geometry-materials">
-<h2>Section I: Geometry &amp; Materials<a class="headerlink" href="#section-i-geometry-materials" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="geometry-materials">
+<span id="id1"></span><h1>Geometry &amp; Materials<a class="headerlink" href="#geometry-materials" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="geometry">
+<span id="id2"></span><h2>Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> geometry (required once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This required input block is
+<div><p>(required once)</p>
+<p><strong>Description:</strong> This required input block is
 only necessary when defining a geometry using
 the dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> input
 block, but may always be included. It should
@@ -269,7 +286,6 @@ only occur once.</p>
 </pre></div>
 </div>
 <p><strong>Option Description:</strong></p>
-</div></blockquote>
 </div></blockquote>
 <div class="line-block">
 <div class="line">point <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
@@ -288,10 +304,12 @@ required and the minor_radius <a class="reference internal" href="glossarytext.h
 block may also be required.</p>
 </div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="dimension">
+<span id="id3"></span><h2>Dimension<a class="headerlink" href="#dimension" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> dimension (required [1]: once [1d], twice [2d], thrice [3d])</p>
-<blockquote>
-<div><p><strong>Description:</strong> This input block is used to define the
+<div><p>(required [1]: once [1d], twice [2d], thrice [3d])</p>
+<p><strong>Description:</strong> This input block is used to define the
 geometry layout, and should be included once for each
 dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> needed in the problem.</p>
 <p><strong>Syntax:</strong></p>
@@ -338,12 +356,13 @@ zone membership and volume from the dimension data, it is
 incompatible with the volumes input block. Including
 both will generate an error message.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="major-radius-and-minor-radius">
+<span id="minor-radius"></span><span id="major-radius"></span><h2>Major Radius and Minor Radius<a class="headerlink" href="#major-radius-and-minor-radius" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> major_radius and minor_radius (required once [each] for geometry torus)</p>
-<blockquote>
-<div><p><strong>Description:</strong> These two input blocks are used to define
+<div><p>(required once [each] for geometry torus)</p>
+<p><strong>Description:</strong> These two input blocks are used to define
 the major and minor radii <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> of toroidal
 geometries. They are only needed in defining a
 toroidal <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> geometry with dimension
@@ -363,12 +382,13 @@ a floating point number.</p>
 </div>
 <p><strong>Notes:</strong></p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="volumes">
+<span id="id4"></span><h2>Volumes<a class="headerlink" href="#volumes" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> volumes (required [1] once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This input block is used to define the
+<div><p>(required [1] once)</p>
+<p><strong>Description:</strong> This input block is used to define the
 fine mesh intervals’ <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> volumes
 and zone membership.</p>
 <p><strong>Syntax:</strong></p>
@@ -403,12 +423,13 @@ both are used, an error will result. This block
 should only occur once. Multiple occurrences will
 result in undefined behavior.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="mat-loading">
+<span id="id5"></span><h2>mat_loading<a class="headerlink" href="#mat-loading" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> mat_loading (required once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This input block is used to
+<div><p>(required once)</p>
+<p><strong>Description:</strong> This input block is used to
 indicate which mixtures are contained in each
 zone <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. This block is
 a list with one pair of entries for every zone.
@@ -447,12 +468,13 @@ of the mixture definitions exactly, or be the
 keyword ‘void’, indicating that
 this zone is empty of material.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="mixture">
+<span id="id6"></span><h2>Mixture<a class="headerlink" href="#mixture" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> mixture (required: once per defined mixture)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This kind of block is used to
+<div><p>(required: once per defined mixture)</p>
+<p><strong>Description:</strong> This kind of block is used to
 define the composition of a mixture. This block
 can occur as many times as necessary to define
 all the mixture compositions in the problem.
@@ -561,12 +583,13 @@ it will cause the whole problem to be run as a reverse
 problem. There is therefore little purpose in having mixture
 definitions without targets (such as in this example).</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="solve-zones">
+<span id="id7"></span><h2>solve_zones<a class="headerlink" href="#solve-zones" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> solve_zones (optional once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This optional input block allows the
+<div><p>(optional once)</p>
+<p><strong>Description:</strong> This optional input block allows the
 user to limit which zones are being solved in a given
 calculation. It is common for a user to create a
 single complete input file describing the entire
@@ -591,12 +614,13 @@ keyword end.</p>
 <p><strong>Sample Input:</strong></p>
 <p><strong>Notes:</strong></p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="skip-zones">
+<span id="id8"></span><h2>skip_zones<a class="headerlink" href="#skip-zones" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> skip_zones (optional once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This optional input block allows
+<div><p>(optional once)</p>
+<p><strong>Description:</strong> This optional input block allows
 the user to limit which zones are being solved in
 a given calculation (see solve_zones). It is
 common for a user to create a single complete
@@ -623,15 +647,16 @@ terminated with the keyword end.</p>
 <p><strong>Sample Input:</strong></p>
 <p><strong>Notes:</strong></p>
 </div></blockquote>
-</div></blockquote>
-</div>
 <hr class="docutils" />
-<div class="section" id="section-ii-flux-schedules-chain-building">
-<h2>Section II: Flux Schedules &amp; Chain-building<a class="headerlink" href="#section-ii-flux-schedules-chain-building" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+<div class="section" id="flux-schedules-chain-building">
+<span id="id9"></span><h1>Flux Schedules &amp; Chain-building<a class="headerlink" href="#flux-schedules-chain-building" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="flux">
+<span id="id10"></span><h2>Flux<a class="headerlink" href="#flux" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> flux (required: once per defined flux)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This input block defines a set
+<div><p>(required: once per defined flux)</p>
+<p><strong>Description:</strong> This input block defines a set
 of flux spectra <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</p>
 <p><strong>Syntax:</strong></p>
 <p>The first element of this block is a symbolic name,
@@ -686,12 +711,13 @@ flux spectra, this block may occur as many times as
 necessary to represent all the different necessary
 flux definitions.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="spatial-norm">
+<span id="id11"></span><h2>spatial_norm<a class="headerlink" href="#spatial-norm" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> spatial_norm (optional once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This input block allows the user
+<div><p>(optional once)</p>
+<p><strong>Description:</strong> This input block allows the user
 to specify a scalar flux normalization for each fine
 mesh interval <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>, such as
 might be required to re-normalize the results of
@@ -713,12 +739,13 @@ is possible that many problems have the same
 spatial normalization. Put this data in a separate
 file and #include it when you need it.]</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="schedule">
+<span id="id12"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> schedule (required: once per defined schedule)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This kind of block is used to
+<div><p>(required: once per defined schedule)</p>
+<p><strong>Description:</strong> This kind of block is used to
 define a single schedule in the full
 irradiation history hierarchy.</p>
 <p><strong>Syntax:</strong></p>
@@ -751,12 +778,13 @@ this block might occur many times. Since schedules
 can become complicated, a tutorial is available
 for forming complex schedules.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="pulse-history">
+<span id="pulsehistory"></span><h2>Pulse History<a class="headerlink" href="#pulse-history" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> pulsehistory (required: once per defined history)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This kind of input block defines
+<div><p>(required: once per defined history)</p>
+<p><strong>Description:</strong> This kind of input block defines
 the multi-level pulsing histories referenced
 in the schedule definitions.</p>
 <p><strong>Syntax:</strong></p>
@@ -782,12 +810,13 @@ different pulsing histories may be used throughout
 the hierarchy of schedules, this block may occur
 many times.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="truncation">
+<span id="id13"></span><h2>Truncation<a class="headerlink" href="#truncation" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> truncation (required once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This fixed sized input block
+<div><p>(required once)</p>
+<p><strong>Description:</strong> This fixed sized input block
 defines the primary parameter used in
 truncating <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> the activation
 trees. See the ALARA Technical Manual for a
@@ -809,12 +838,13 @@ higher than the truncation tolerance will
 result in continuing the tree while lower
 values will result in truncation.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="impurity">
+<span id="id14"></span><h2>Impurity<a class="headerlink" href="#impurity" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> impurity (optional once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This fixed sized input block
+<div><p>(optional once)</p>
+<p><strong>Description:</strong> This fixed sized input block
 defines the parameters used to treat initial
 isotopes <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> as impurities.
 This feature allows the user to build shorter
@@ -852,12 +882,13 @@ the value given for tolerance should be
 orders of magnitude larger than the value
 given in the truncation threshold.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="ignore">
+<span id="id15"></span><h2>Ignore<a class="headerlink" href="#ignore" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> ignore (optional once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This optional fixed sized input
+<div><p>(optional once)</p>
+<p><strong>Description:</strong> This optional fixed sized input
 block defines an additional parameter used
 in truncating the activation trees.</p>
 <p><strong>Syntax:</strong></p>
@@ -886,12 +917,13 @@ tolerance of 10-2 is used - that is, a relative
 production 100 times lower than the truncation
 tolerance.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="ref-flux-type">
+<span id="id16"></span><h2>ref_flux_type<a class="headerlink" href="#ref-flux-type" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> ref_flux_type (optional once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This optional fixed sized
+<div><p>(optional once)</p>
+<p><strong>Description:</strong> This optional fixed sized
 input block defines the type of reference flux to use.</p>
 <p><strong>Syntax:</strong></p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>ref_flux_type &lt;OPTION&gt;
@@ -914,15 +946,16 @@ over all the intervals which contain a given root
 isotope <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>, not just over
 a single zone, component, or material loading.</p>
 </div></blockquote>
-</div></blockquote>
-</div>
 <hr class="docutils" />
-<div class="section" id="section-iii-output-files">
-<h2>Section III: Output &amp; Files<a class="headerlink" href="#section-iii-output-files" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+<div class="section" id="output-files">
+<span id="id17"></span><h1>Output &amp; Files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="cooling">
+<span id="id18"></span><h2>Cooling<a class="headerlink" href="#cooling" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> cooling (optional once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This input block is used to define the
+<div><p>(optional once)</p>
+<p><strong>Description:</strong> This input block is used to define the
 after-shutdown cooling times <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
 at which the problem will be solved.</p>
 <p><strong>Syntax:</strong></p>
@@ -957,12 +990,13 @@ end
 <blockquote>
 <div>Multiple occurrences will result in undefined behavior.</div></blockquote>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="output">
+<span id="id19"></span><h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> output (optional: once per required output definiton)</p>
-<blockquote>
-<div><p>This kind of input block allows the user to define the
+<div><p>(optional: once per required output definiton)</p>
+<p>This kind of input block allows the user to define the
 output’s resolution and format. The first element of
 an output format block indicates the resolution and
 should be one of:</p>
@@ -970,7 +1004,6 @@ should be one of:</p>
 <div>interval | zone | mixture</div></blockquote>
 <p>This is followed by a list of output types and
 modifiers described in the following table:</p>
-</div></blockquote>
 </div></blockquote>
 <table border="1" class="docutils">
 <colgroup>
@@ -1096,10 +1129,12 @@ for information on interpreting the output files
 generated by ALARA.</p>
 </div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="material-and-element-libraries">
+<span id="element-lib"></span><span id="material-lib"></span><h2>Material and Element Libraries<a class="headerlink" href="#material-and-element-libraries" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> material_lib and element_lib (required once [each])</p>
-<blockquote>
-<div><p><strong>Description:</strong> These two input blocks are used to specify
+<div><p>(required once [each])</p>
+<p><strong>Description:</strong> These two input blocks are used to specify
 the libraries to be used for looking up the definitions
 of materials and elements when they are given as
 mixture constituents.</p>
@@ -1112,12 +1147,13 @@ the directory where ALARA is being run.</p>
 <p>For more information on the format of these libraries,
 see the section on <a class="reference internal" href="support.html"><span class="doc">Support Files</span></a>.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
+</div>
+<div class="section" id="dump-file">
+<span id="id20"></span><h2>dump_file<a class="headerlink" href="#dump-file" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p><strong>Name:</strong> dump_file (optional once)</p>
-<blockquote>
-<div><p><strong>Description:</strong> This input block defines the filename
+<div><p>(optional once)</p>
+<p><strong>Description:</strong> This input block defines the filename
 to use for the binary data dump produced during a run
 of ALARA. This is currently used to store the
 intermediate results during the calculation, and will
@@ -1132,10 +1168,10 @@ appropriate for the directory where ALARA will be run.</p>
 with no warning. If this input block is omitted, the
 default name ‘alara.dump’ will be used.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
-<blockquote>
-<div><p><strong>Name:</strong> data_library</p>
+</div>
+<div class="section" id="data-library">
+<span id="id21"></span><h2>Data Library<a class="headerlink" href="#data-library" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><p><strong>Description:</strong> This input block is used to define
 the type and location of the nuclear data library.</p>
@@ -1178,10 +1214,10 @@ block. Otherwise, all filenames should include
 appropriate path information to find the file from the
 directory in which ALARA will be run.</p>
 </div></blockquote>
-</div></blockquote>
 <hr class="docutils" />
-<blockquote>
-<div><p><strong>Name:</strong> convert_lib</p>
+</div>
+<div class="section" id="convert-library">
+<span id="convert-lib"></span><h2>Convert Library<a class="headerlink" href="#convert-library" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><p>This input block is used to convert library formats. If
 this input block is included, ALARA will stop immediately
@@ -1190,7 +1226,6 @@ as part of a normal ALARA input file).</p>
 <p>The first two elements of this input block indicated
 the original library format and the desired new
 format, respectively. The following values are allowable:</p>
-</div></blockquote>
 </div></blockquote>
 <div class="line-block">
 <div class="line">alaralib - Standard ALARA v2.x binary library</div>
