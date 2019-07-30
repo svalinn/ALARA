@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; ALARA</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.9.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Features of ALARA" href="features.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="index.html"><img src="_static/images/logo.png" alt="" height="50x" /><span>ALARA</span></a></h1>
+    <div id="tagline"><span>Adaptive Laplacian and Analytic Radioactivity Analysis</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="index.html">ALARA</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="features.html" title="Features of ALARA"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul class="simple">
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <p>$Id: NEWS,v 1.4 2004/01/29 08:09:13 wilsonp Exp $</p>
+<p>Version 2.7.1</p>
+<dl class="docutils">
+<dt>BUGS FIXED</dt>
+<dd><ul class="first last simple">
+<li>Removed debugging output at response reminders</li>
+<li>Fixed ADJOINT libraries to work with v.2 binary libraries [PW] (10/20/2003)</li>
+</ul>
+</dd>
+<dt>NEW FEATURES</dt>
+<dd><ul class="first last simple">
+<li>Machine-dependent data files (binary ALARA libraries) are searched for in a path
+defined by ALARA_XSDIR environment variable and
+${exec_prefix}/lib/alara/$OSTYPE [PW] (10/27/2003)</li>
+</ul>
+</dd>
+</dl>
+<p>CODE UPDATES</p>
+<p>– – – – – – – – – – – – – – – – – – – –</p>
+<p>Version 2.7.0</p>
+<dl class="docutils">
+<dt>BUGS FIXED</dt>
+<dd><ul class="first last simple">
+<li>Fixed ADJOINT libraries to work with v.2 binary libraries [PW] (10/20/2003)</li>
+<li>Reversal of multiplication made on 6/03/03 undone; group order
+in GammaSrc and adjoint input file is the same [AV] (6/18/2003)</li>
+<li>Fixed indexing of average energy vector for decay types [PW] (06/10/2003)</li>
+<li>Multiplication of importance and gamma source for bio dose
+calculation is reversed to account for order of gp struc [AV] (6/03/03)</li>
+<li>Bio dose results are now divided by detector volume (hence
+new input parameter needed for bio dose request line) [AV] (6/03/03)</li>
+<li>Modified bio dose calculation to use volume instead
+of uservol [AV] (3/25/03)</li>
+<li>Change parameter passed to Result::write so that uservol is
+correctly processed [AV] (09/18/2002)</li>
+<li>Util/input.C:tokentype() - token conversion to lower case only
+changed first character [AV] (08/13/2002)</li>
+<li>Command-line argument handling: when extra argument expected (-v, -t)
+for last option but not given, casuses SEGFAULT (core dump).  Check
+for last command-line option and error. [AV] (09/09/2002)</li>
+<li>Fixed units for contact dose [PW] (01/13/2003)</li>
+</ul>
+</dd>
+<dt>NEW FEATURES</dt>
+<dd><ul class="first last simple">
+<li>Machine-dependent data files (binary ALARA libraries) are searched for in a path
+defined by ALARA_XSDIR environment variable and
+${exec_prefix}/lib/alara/$OSTYPE [PW] (10/27/2003)</li>
+<li>Response type reminders now appear above each and every table [PW] (6/12/2003)</li>
+<li>Machine-independent data files (WDR, ANS 6.4.3, etc) are searched for in a path
+defined by ALARA_DATADIR environment variable and ${prefix}/share/alara/data
+defined by configure [PW] (6/12/2003)</li>
+<li>Implemented Biological/Adjoint/Folded dose in Volumes [AV] (3/??/03)</li>
+<li>Direct reading of RTFLUX by ALARA [MF] (08/23/02)</li>
+<li>Read user-defined total volume in ‘loading’ input block. [AV] (09/09/2002)</li>
+<li>Use user-defined total volume with special ‘units’ entry of
+output block to give volume integrated results. [AV] (09/09/2002)</li>
+<li>Adjoint dose calculation for volume resolution [AV] (12/02/2002)</li>
+</ul>
+</dd>
+<dt>CODE UPDATES</dt>
+<dd><ul class="first last simple">
+<li>Update for addition of software for producing collaboration
+graphs in doxygen called ‘dot’  [PW] (08/11/2002)</li>
+<li>Changed code to use GNU autoconf/make, etc… [EK,PW] (01/06/2003)</li>
+</ul>
+</dd>
+</dl>
+<p>– – – – – – – – – – – – – – – – – – – –</p>
+<p>Version 2.6.0</p>
+<ul class="simple">
+<li>Start of ChangeLog (08/08/2002)</li>
+</ul>
+<p>BUGS FIXED</p>
+<dl class="docutils">
+<dt>NEW FEATURES</dt>
+<dd><ul class="first last simple">
+<li>Squeeze multiple zeros out of ALARALib [PW] (08/09/2002)
+THIS WILL REQUIRE CHANGE IN MINOR REVISION NUMBER</li>
+</ul>
+</dd>
+<dt>CODE UPDATES</dt>
+<dd><ul class="first last simple">
+<li>All class comments converted to Doxygen compliance</li>
+<li>Added target to Makefile to make documentation with Doxygen</li>
+<li>Improved C++ ISO standards compliance
+- use correct headers
+- completely specify entities from std namespace
+- import various stream entities from std namespace</li>
+<li>Added ChangeLog and TODO files</li>
+</ul>
+</dd>
+</dl>
+<p>– – – – – – – – – – – – – – – – – – – –</p>
+<p>Version 2.5.3</p>
+<dl class="docutils">
+<dt>BUGS FIXED</dt>
+<dd><ul class="first last simple">
+<li>ASCII IEAF library was not being read properly - missing extra
+line at end of each isotope’s data</li>
+</ul>
+</dd>
+<dt>NEW FEATURES</dt>
+<dd><ul class="first last simple">
+<li>NONE</li>
+</ul>
+</dd>
+<dt>CODE UPDATES</dt>
+<dd><ul class="first last simple">
+<li>NONE</li>
+</ul>
+</dd>
+</dl>
+<p>– – – – – – – – – – – – – – – – – – – –</p>
+<p>Version 2.5.2</p>
+<dl class="docutils">
+<dt>BUGS FIXED</dt>
+<dd><ul class="first last simple">
+<li>Atomic X-ray data was not being included in gamma library when
+translating from IEAF libarary</li>
+</ul>
+</dd>
+<dt>NEW FEATURES</dt>
+<dd><ul class="first last simple">
+<li>NONE</li>
+</ul>
+</dd>
+<dt>CODE UPDATES</dt>
+<dd><ul class="first last simple">
+<li>Added target to compile condor binary (at CAE)</li>
+</ul>
+</dd>
+</dl>
+<p>– – – – – – – – – – – – – – – – – – – –</p>
+<p>Version 2.5.1</p>
+<dl class="docutils">
+<dt>BUGS FIXED</dt>
+<dd><ul class="first last simple">
+<li>Atomic X-ray data was not being included in gamma library</li>
+<li>Incorrect results for schedules with varying fluxes.  Previous
+bug fix (v2.?.?) was incomplete.  Diagonal matrix element was
+not based on correct flux.</li>
+<li>Simplified/corrected interpolation/extrapolation for contact
+dose calculation.</li>
+</ul>
+</dd>
+<dt>NEW FEATURES</dt>
+<dd><ul class="first last simple">
+<li>Added mode to only build chains and solve without output.  This
+is designed to facilitate Condor operation that might have
+problems closing the binary file and immediately reopening it.</li>
+</ul>
+</dd>
+<dt>CODE UPDATES</dt>
+<dd><ul class="first last simple">
+<li>Began introducing namespace specifiers for included elements of
+std namespace.</li>
+</ul>
+</dd>
+</dl>
+<p>– – – – – – – – – – – – – – – – – – – –</p>
+<p>Version 2.5.0</p>
+<ul class="simple">
+<li>Minor version changed due to new features</li>
+</ul>
+<dl class="docutils">
+<dt>BUGS FIXED</dt>
+<dd><ul class="first last simple">
+<li>Core dump when invalid included input file. Check for NULL
+istream pointer.</li>
+</ul>
+</dd>
+<dt>NEW FEATURES</dt>
+<dd><ul class="first last simple">
+<li>Added contact dose output.</li>
+<li>Added binary tree file output</li>
+</ul>
+</dd>
+<dt>CODE UPDATES</dt>
+<dd><ul class="first last simple">
+<li>Added target to use makedepend for automatic dependency
+generation</li>
+</ul>
+</dd>
+</dl>
+<p>– – – – – – – – – – – – – – – – – – – –</p>
+<p>Version 2.4.6 Patches</p>
+<dl class="docutils">
+<dt>BUGS FIXED</dt>
+<dd><ul class="first last simple">
+<li>Total cross-section of IEAF library is incorrectly calculated by
+summing partial cross-sections.  This over counts the total
+transmutation cross-section.  Now correctly read and locate
+total cross section from library.</li>
+<li>Various memory leaks found and plugged.</li>
+</ul>
+</dd>
+</dl>
+<p>NEW FEATURES</p>
+<p>CODE UPDATES</p>
+<p>– – – – – – – – – – – – – – – – – – – –</p>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2019, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Jul 30, 2019.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.6.
+      </p>
+    </div>
+  </body>
+</html>

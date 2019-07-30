@@ -1,0 +1,235 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Installing ALARA &#8212; ALARA</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.9.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Acquiring and Installing Data for ALARA" href="aboutdata.html" />
+    <link rel="prev" title="Glossary" href="usersguide/glossarytext.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="index.html"><img src="_static/images/logo.png" alt="" height="50x" /><span>ALARA</span></a></h1>
+    <div id="tagline"><span>Adaptive Laplacian and Analytic Radioactivity Analysis</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="index.html">ALARA</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="usersguide/glossarytext.html" title="Glossary"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="aboutdata.html" title="Acquiring and Installing Data for ALARA"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Installing ALARA</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#installation-process">Installation Process</a></li>
+<li><a class="reference internal" href="#installation-options">Installation Options</a></li>
+<li><a class="reference internal" href="#intalled-files-and-directories">Intalled files and directories</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="installing-alara">
+<h1>Installing ALARA<a class="headerlink" href="#installing-alara" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>ALARA is written primarily in C++ with one or two
+FORTRAN77 routines. All development is done with the
+GNU C++ and FORTRAN compilers and it has been tested
+and is known to work on Linux and Solaris.
+Installing ALARA requires both a C++ and a FORTRAN
+compiler.</div></blockquote>
+</div>
+<div class="section" id="installation-process">
+<h2>Installation Process<a class="headerlink" href="#installation-process" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Obtain the distribution from the appropriate source.</p>
+</li>
+<li><p class="first">Unpack the distribution:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>gunzip -c alara-2.7.1.tar.gz | tar xf -
+</pre></div>
+</div>
+</li>
+<li><p class="first">Go to newly created directory:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>cd alara-2.7.1
+</pre></div>
+</div>
+</li>
+<li><p class="first">Configure ALARA for your system (See below for options
+that you can give to configure.):</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>./configure
+</pre></div>
+</div>
+</li>
+<li><p class="first">Build the application:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>make
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install the application:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>make install
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="installation-options">
+<h2>Installation Options<a class="headerlink" href="#installation-options" title="Permalink to this headline">¶</a></h2>
+<p>The configure program provides a lot of options for customizing
+the compilation and installation of ALARA. To learn more about
+the full set of options, you should check the built-in help:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>./configure --help
+</pre></div>
+</div>
+<p>Some common options are listed here:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>--prefix=/your/path/here
+</pre></div>
+</div>
+<p>This option allows you to change the default location for the
+installation of ALARA and its accompanying files. The next
+section describes the different files that are installed and
+the directories in which they are installed. More control
+over the specific directories is also possible - see the
+built-in help for more information.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>CXX=name_of_your_C++_compiler
+F77=name_of_your_F77_compiler
+</pre></div>
+</div>
+<p>This option allows you to explicitly specify which C++ (or
+FORTRAN) compiler you want to use to compile ALARA. If left
+out, configure will search for default compilers.</p>
+</div>
+<div class="section" id="intalled-files-and-directories">
+<h2>Intalled files and directories<a class="headerlink" href="#intalled-files-and-directories" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>When installing ALARA, a number of files and directories are
+installed in a number of different places. This section
+summarizes these directories which are all subdirectories of
+the “prefix” directory described above.</p>
+<blockquote>
+<div><p><strong>bindir</strong> - prefix/bin</p>
+<p>The following files are placed in this directory:</p>
+<ul class="simple">
+<li>alara - the main application</li>
+<li>dant2alara - a utility for converting DANTSYS
+rtflux/atflux files to a format suitable for ALARA</li>
+<li>summary - a Perl utility for extracting summaries
+of ALARA output files</li>
+<li>extract_pathways - a Perl utility for extracting
+pathways from ALARA tree files</li>
+</ul>
+<p><strong>datadir</strong> - prefix/share/alara/data</p>
+<p>This directory contains the following machine-independent
+files (generally ASCII text files).</p>
+<ul class="simple">
+<li>ANS6_4_3.txt - Data for implementing contact dose based
+on standard ANS6.4.3.</li>
+<li>IAEA.clearance.Bq_kg - Limits for determining the
+material clearance rating based on IAEA standards.</li>
+<li>FetterC_hi.Ci_m3.wdr (and FetterC_lo.Ci_m3.wdr) -
+Limits for determining the waste disposal rating based
+on the high (and low) values suggested by Fetter for
+each isotope.</li>
+<li>NRCA.Ci_m3.wdr (and NRCC.Ci_m3.wdr) - Limits for determining
+the waste disposal rating based on the class A (and class
+C) definitions provided by the U.S. Nuclear
+Regulator Comissions.</li>
+<li>elelib.std - A file in ALARA’s element library format
+describing the standard natural isotopic abundances
+of all elements.</li>
+<li>matlib.sample - A file in ALARA’s material library
+format to show samples of how materials can be
+defined and including some commong fusion materials.</li>
+</ul>
+<p><strong>xsdir</strong> - prefix/lib/alara/$OSTYPE</p>
+<p>This directory is created to store platform-dependent data,
+namely binary ALARA v.2 format library files. The name of
+this directory is based on the environment variable $OSTYPE
+and the full path is compiled into the alara application
+as a default location for finding cross-section data. No
+files are put into this directory since acquiring and
+installing data is a separate activity. (See the
+<a class="reference internal" href="aboutdata.html"><span class="doc">data guide</span></a> for more on nuclear data.)</p>
+</div></blockquote>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2019, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Jul 30, 2019.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.6.
+      </p>
+    </div>
+  </body>
+</html>

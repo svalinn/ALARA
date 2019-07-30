@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Acquiring and Installing Data for ALARA &#8212; ALARA</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.9.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Features of ALARA" href="features.html" />
+    <link rel="prev" title="Installing ALARA" href="installguide.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="index.html"><img src="_static/images/logo.png" alt="" height="50x" /><span>ALARA</span></a></h1>
+    <div id="tagline"><span>Adaptive Laplacian and Analytic Radioactivity Analysis</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="index.html">ALARA</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="installguide.html" title="Installing ALARA"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="features.html" title="Features of ALARA"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Acquiring and Installing Data for ALARA</a><ul>
+<li><a class="reference internal" href="#data-formats">Data Formats</a></li>
+<li><a class="reference internal" href="#format-conversion">Format Conversion</a></li>
+<li><a class="reference internal" href="#cross-section-installation">Cross-Section Installation</a></li>
+<li><a class="reference internal" href="#specific-data-packages">Specific Data Packages</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="acquiring-and-installing-data-for-alara">
+<h1>Acquiring and Installing Data for ALARA<a class="headerlink" href="#acquiring-and-installing-data-for-alara" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="data-formats">
+<h2>Data Formats<a class="headerlink" href="#data-formats" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>ALARA uses a native binary data format to accelerate data
+lookup and retreival. Obviously, data is not distributed
+in this format and needs to be converted, a process which
+is done by ALARA istelf. However, ALARA only supports
+specific native data formats for this conversion process.
+(If you would like to have support for a different data
+format, please contact the
+<cite>developers &lt;mailto:wilsonp&#64;engr.wisc.edu&gt;</cite>.)</p>
+<p>In summary, ALARA supports the <a class="reference internal" href="#eaf">EAF</a> (LIBOUT) and
+<a class="reference internal" href="#ieaf">IEAF</a> (GENDF) formats for transmutation data, and
+the <a class="reference internal" href="#endf">ENDF</a> format for decay and gamma source data.</p>
+</div></blockquote>
+<blockquote id="eaf">
+<div><p><strong>EAF Format</strong> (Transmutation Data [also called LIBOUT format])</p>
+<p>The first data format supported bu ALARA is the so-called
+EAF format. While EAF data itself can come in many
+formats, this format is meant to describe the multi-group
+cross-section format used by FISPACT. Here are the first
+30 lines of the FENDL 2.0 Activation library with a 175
+group vitamin-j structure in the EAF format.</p>
+</div></blockquote>
+<div class="highlight-none"><div class="highlight"><pre><span></span>*******************************************************************************
+*  FENDLA-2.0(0)175Gp THE FUSION EVALUATED NUCLEAR DATA LIBRARY   APR 1996    *
+*******************************************************************************
+  CULHAM COPY OF ACTIVATION AND TRANSMUTATION CROSS SECTION FILE FOR
+  FUSION REACTORS FOR USE BY EUROPEAN ACTIVATION SYSTEM (EASY)
+-------------------------------------------------------------------------------
+ ORIGINAL DATA SOURCE: EAF-4.1 FILE, PRODUCED BY J.KOPECKY AND D.NIEROP
+ STARTER FOR THIS VERSION IS EAF-4.1 (JAN 96) MAIN AREAS OF IMPROVEMENT ARE:
+ 1) UPDATE OF REACTIONS FOLLOWING THE LIST SELECTED AT THE DEL MAR AGM MEETING
+    DETAILED IN INDC(NDS)-352 WITH SOURCES DATA FROM:
+       EAF-4.1, ADL-3, FENDL/A-1.1, IRK, CRP, ADL-3/I, AND JENDL3.2/A
+ 2) ADDITIONAL TARGET HO-164 AND HO*-164
+ 3) 404 REACTIONS MERGED/REPLACED IN EAF-4.1 (STOP AT CM-248)
+ THESE GROUP CROSS SECTIONS HAVE BEEN CALCULATED AT CULHAM IN THE 175-GROUP
+ VITAMIN-J STRUCTURE AND WITH THE VITAMIN-E MICRO-FLUX WEIGHTING FUNCTION.
+###############################################################################
+  10010 1020  175   H   1  (N,G  )H   2                1.0000+00*
+ JEF-2.2
+
+2.67571E-05 2.74338E-05 2.77099E-05 2.82188E-05 2.89280E-05 2.92357E-05
+2.95285E-05 2.97939E-05 2.99368E-05 3.00611E-05 3.03956E-05 3.06170E-05
+3.11367E-05 3.15726E-05 3.19902E-05 3.23954E-05 3.27796E-05 3.31301E-05
+3.34419E-05 3.37059E-05 3.39940E-05 3.44710E-05 3.49471E-05 3.52980E-05
+3.54198E-05 3.55118E-05 3.56592E-05 3.58352E-05 3.60194E-05 3.61905E-05
+3.63575E-05 3.63948E-05 3.63581E-05 3.62999E-05 3.61767E-05 3.59677E-05
+3.58238E-05 3.57321E-05 3.55879E-05 3.53810E-05 3.51832E-05 3.49968E-05
+3.48454E-05 3.47706E-05 3.47426E-05 3.47031E-05 3.46198E-05 3.44854E-05
+3.43325E-05 3.42378E-05 3.42540E-05 3.42722E-05 3.42896E-05 3.43066E-05
+3.43285E-05 3.43475E-05 3.43785E-05 3.44599E-05 3.44539E-05 3.44157E-05
+3.44285E-05 3.44484E-05 3.44916E-05 3.45820E-05 3.46764E-05 3.47571E-05
+</pre></div>
+</div>
+<blockquote id="ieaf">
+<div><p><strong>IEAF Data</strong> (Transmutation data)</p>
+<p>Support was added for the IEAF 2001 data in order to permit
+modelling of applications with neutron energies up to 150
+MeV. In particular, this supports the GENDF formatted
+version of the IEAF data stored in file 3, section 5. The
+following shows two sections of the GENDF file for 1H.
+(Note that for processing, a single IEAF file should be
+created as an ordered concatenation of all the
+individual isotope files.</p>
+</div></blockquote>
+<p><strong>lines 1-10</strong></p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>1- H-  1 FZK,INPE                                                    1 0  0    0
+ 1.001000+4 9.991700-1          0          1         -1         17 101 1451    1
+ 3.000000+2  .000000+0        256          0        276          0 101 1451    2
+  .000000+0  .000000+0  .000000+0  .000000+0  .000000+0  .000000+0 101 1451    3
+  .000000+0  .000000+0  .000000+0  .000000+0  .000000+0  .000000+0 101 1451    4
+  .000000+0  .000000+0  .000000+0  .000000+0  .000000+0 1.00000+10 101 1451    5
+ 1.000000-5 1.000000-1 4.140000-1 5.316000-1 6.826000-1 8.764000-1 101 1451    6
+ 1.125000+0 1.445000+0 1.855000+0 2.382000+0 3.059000+0 3.928000+0 101 1451    7
+ 5.043000+0 6.476000+0 8.315000+0 1.068000+1 1.371000+1 1.760000+1 101 1451    8
+ 2.260000+1 2.902000+1 3.727000+1 4.785000+1 6.144000+1 7.889000+1 101 1451    9
+</pre></div>
+</div>
+<p><strong>lines 41-60</strong></p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>4.800000+7 4.900000+7 5.000000+7 5.200000+7 5.400000+7 5.600000+7 101 1451   40
+5.800000+7 6.000000+7 6.200000+7 6.400000+7 6.600000+7 6.800000+7 101 1451   41
+7.000000+7 7.200000+7 7.400000+7 7.600000+7 7.800000+7 8.000000+7 101 1451   42
+8.200000+7 8.400000+7 8.600000+7 8.800000+7 9.000000+7 9.200000+7 101 1451   43
+9.400000+7 9.600000+7 9.800000+7 1.000000+8 1.020000+8 1.040000+8 101 1451   44
+1.060000+8 1.080000+8 1.100000+8 1.120000+8 1.140000+8 1.160000+8 101 1451   45
+1.180000+8 1.200000+8 1.220000+8 1.240000+8 1.260000+8 1.280000+8 101 1451   46
+1.300000+8 1.320000+8 1.340000+8 1.360000+8 1.380000+8 1.400000+8 101 1451   47
+1.420000+8 1.440000+8 1.460000+8 1.480000+8 1.500000+8  .000000+0 101 1451   48
+                                                                  101 0  0   49
+1.001000+4  .000000+0          1          1          0        256 101 3  5   50
+3.000000+2  .000000+0          2          1          2          1 101 3  5   51
+9.999000-2 3.309216-1                                             101 3  5   52
+3.000000+2  .000000+0          2          1          2          2 101 3  5   53
+3.140000-1 1.101258-1                                             101 3  5   54
+3.000000+2  .000000+0          2          1          2          3 101 3  5   55
+1.176000-1 7.701200-2                                             101 3  5   56
+3.000000+2  .000000+0          2          1          2          4 101 3  5   57
+1.510000-1 6.797717-2                                             101 3  5   58
+3.000000+2  .000000+0          2          1          2          5 101 3  5   59
+</pre></div>
+</div>
+<blockquote id="endf">
+<div><p><strong>ENDF Format</strong> (Decay and Gamma Data)</p>
+<p>The only decay data format supported by ALARA is the raw
+ENDF-6 format. in File 8, section (MT) 457. The following
+shows two sections of the FENDL 2.0 Decay library in ENDF
+format.</p>
+</div></blockquote>
+<p><strong>lines 1-20</strong></p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>     1 FENDL/D-2.0
+ BASED ON EAF-4.1 DECAY DATA LIBRARY
+0.10010E+040.99141E+00          0          0          0          17500 1451    1
+0.00000E+000.00000E+00          0          0          0          07500 1451    2
+0.0        0.0                  0          0          6          17500 1451    3
+------------------------------------------------------------------7500 1451    4
+ 1-H -  1    DECAY DATA FOR GREAC LIBRARY  APRIL 1987.            7500 1451    5
+                   ## STABLE NUCLIDE ##                           7500 1451    6
+  FILE ONLY CONTAINS NEEDED DECAY DATA, OTHER VALUES SET TO ZERO. 7500 1451    7
+                   ## STABLE NUCLIDE ##                           7500 1451    8
+------------------------------------------------------------------7500 1451    9
+0.0        0.0                  1        451         10          17500 1451   10
+                                                                  7500 1  0   11
+                                                                  7500 0  0   12
+                                                                     0 0  0   13
+0.10020E+040.19828E+01          0          0          0          17501 1451    1
+0.00000E+000.00000E+00          0          0          0          07501 1451    2
+0.0        0.0                  0          0          6          17501 1451    3
+------------------------------------------------------------------7501 1451    4
+ 1-H -  2    DECAY DATA FOR GREAC LIBRARY  APRIL 1987.            7501 1451    5
+</pre></div>
+</div>
+<p><strong>lines 61-80</strong></p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>                                                                  131 1451   33
+  ENDF/B- V DATA PRODUCED BY COGEND (A.TOBIAS JAN-1984).          131 1451   34
+                                                                  131 1451   35
+***************************************************************** 131 1451   36
+                                                                  131 1451   37
+THE DATA WERE COMPILED AT THE NEA DATA BANK ON 20-JUL-93          131 1451   38
+USING THE CODE &quot;CORDECAY&quot; VERSION 1.2                             131 1451   39
+                                                                  131 1451   40
+***************************************************************** 131 1451   41
+                                                                  131 1451   42
+                               1        451         44          0 131 1451   43
+                               8        457          9          0 131 1451   44
+                                                                  131 1  0   45
+                                                                  131 0  0   46
+1.003000+3 2.990140+0          0          0          0          1 131 8457   47
+3.891050+8 6.311520+5          0          0          6          0 131 8457   48
+5.706600+3 1.843710+0 0.000000+0 0.000000+0 0.000000+0 0.000000+0 131 8457   49
+5.000000-1 1.000000+0          0          0          6          1 131 8457   50
+1.000000+0 0.000000+0 1.857100+4 6.000000+0 1.000000+0 0.000000+0 131 8457   51
+0.000000+0 1.000000+0          0          0          6          1 131 8457   52
+</pre></div>
+</div>
+</div>
+<div class="section" id="format-conversion">
+<h2>Format Conversion<a class="headerlink" href="#format-conversion" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>When looking up and retrieving data, ALARA uses its own
+binary data format exclusively. This requires coversion
+from the above native data formats to the ALARA v2
+format. Although a problem can be setup whereby ALARA
+is told to use data in a native format, the
+implementation of this simply performs the conversion at
+the beginning of the run and throws away the converted
+library at the end. It is best to use ALARA separately
+to quickly create an ALARA v2 binary library and then
+install that library for future direct use by ALARA.</p>
+<p>A library can be converted by simply running ALARA with
+an input file that contains only the
+<a class="reference internal" href="usersguide/inputtext.html"><span class="doc">convert_lib</span></a> input token.</p>
+</div></blockquote>
+</div>
+<div class="section" id="cross-section-installation">
+<h2>Cross-Section Installation<a class="headerlink" href="#cross-section-installation" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Once nuclear data has been processed into its ALARA v2
+binary form, it can be installed in the default location
+for access by alara: prefix/lib/alara/$OSTYPE. (See the
+<a class="reference internal" href="installguide.html"><span class="doc">installation guide</span></a> for more on
+the directory structure.) If not placed in this location,
+data is searched for either in the path defined by the
+environment variable $ALARA_XSDIR or in the current
+working directory.</div></blockquote>
+</div>
+<div class="section" id="specific-data-packages">
+<h2>Specific Data Packages<a class="headerlink" href="#specific-data-packages" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>The following links contain information for processing
+supported files from specific data packages avaiable
+through standard services, primarily
+<a class="reference external" href="https://rsicc.ornl.gov/">RSICC</a> and the NEA Databank.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>D00183 - FENDL 2.0</li>
+</ol>
+</div></blockquote>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2019, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Jul 30, 2019.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.6.
+      </p>
+    </div>
+  </body>
+</html>
