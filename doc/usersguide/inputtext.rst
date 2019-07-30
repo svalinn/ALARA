@@ -2,8 +2,7 @@
 Input File Syntax
 =================
 
-Input File Description:
-=======================
+**Input File Description**
 
  The input file for ALARA has been designed to ensure that
  the input information is easy to understand, edit and comment.
@@ -17,8 +16,7 @@ Input File Description:
  useful :doc:`error messages <errortext>` when the data
  is not consistent.
 
-General Information:
-====================
+**General Information**
 
  There are many possible input block types. These blocks
  can appear in any order and many blocks can occur more
@@ -30,32 +28,31 @@ General Information:
  are required at least once in every input
  file :doc:`[G] <glossarytext>`:
 
- +--------------------------+---------------------------+--------------------------+
- |Geometry & Materials      |Flux Schedules & Chain -   |Output & Files            |
- |                          |Building                   |                          |
- +--------------------------+---------------------------+--------------------------+
- |geometry                  |flux                       |cooling                   |
- +--------------------------+---------------------------+--------------------------+
- |dimension[1]              |spatial_norm               |output                    |
- +--------------------------+---------------------------+--------------------------+
- |major_radius              |schedule                   |material_lib              |
- +--------------------------+---------------------------+--------------------------+
- |minor radius              |pulsehistory               |element_lib               |
- +--------------------------+---------------------------+--------------------------+
- |volumes[1]                |truncation                 |dump_file                 |
- +--------------------------+---------------------------+--------------------------+
- |mat_loading               |impurity                   |data_library              |
- +--------------------------+---------------------------+--------------------------+
- |mixture                   |ignore                     |convert_lib               |
- +--------------------------+---------------------------+--------------------------+
- |solve_zones               |ref_flux_type              |                          |
- +--------------------------+---------------------------+--------------------------+
- |skip_zones                |                           |                          |
- +--------------------------+---------------------------+--------------------------+
+ +-----------------------------+----------------------------+-----------------------------+
+ |`Geometry & Materials`_      |`Flux Schedules & Chain -   |`Output & Files`_            |
+ |                             |Building`_                  |                             |
+ +-----------------------------+----------------------------+-----------------------------+
+ |`geometry`_                  |`flux`_                     |`cooling`_                   |
+ +-----------------------------+----------------------------+-----------------------------+
+ |`dimension`_ [1]             |`spatial_norm`_             |`output`_                    |
+ +-----------------------------+----------------------------+-----------------------------+
+ |`major_radius`_              |`schedule`_                 |`material_lib`_              |
+ +-----------------------------+----------------------------+-----------------------------+
+ |`minor_radius`_              |`pulsehistory`_             |`element_lib`_               |
+ +-----------------------------+----------------------------+-----------------------------+
+ |`volumes`_ [1]               |`truncation`_               |`dump_file`_                 |
+ +-----------------------------+----------------------------+-----------------------------+
+ |`mat_loading`_               |`impurity`_                 |`data_library`_              |
+ +-----------------------------+----------------------------+-----------------------------+
+ |`mixture`_                   |`ignore`_                   |`convert_lib`_               |
+ +-----------------------------+----------------------------+-----------------------------+
+ |`solve_zones`_               |`ref_flux_type`_            |                             |
+ +-----------------------------+----------------------------+-----------------------------+
+ |`skip_zones`_                |                            |                             |
+ +-----------------------------+----------------------------+-----------------------------+
 
 
-General Input Notes
-===================
+**General Input Notes**
 
  1. **Dimension/Volume:** If “[1]” follows an input
     block name, either the dimension :doc:`[G] <glossarytext>`
@@ -135,10 +132,18 @@ General Input Notes
 Input Block Types
 =================
 
-Section I: Geometry & Materials
-===============================
+.. _Geometry & Materials:
 
-	**Name:** geometry (required once) 
+====================
+Geometry & Materials
+====================
+
+.. _geometry:
+
+Geometry
+========
+
+		(required once)
 
 		**Description:** This required input block is
 		only necessary when defining a geometry using 
@@ -171,7 +176,12 @@ Section I: Geometry & Materials
 
 ------------------
 
-	**Name:** dimension (required [1]: once [1d], twice [2d], thrice [3d])
+.. _dimension:
+
+Dimension
+=========
+
+		(required [1]: once [1d], twice [2d], thrice [3d])
 
 		**Description:** This input block is used to define the 
 		geometry layout, and should be included once for each 
@@ -226,7 +236,14 @@ Section I: Geometry & Materials
 
 -------------------------
 
-	**Name:** major_radius and minor_radius (required once [each] for geometry torus) 
+.. _major_radius:
+
+.. _minor_radius:
+
+Major Radius and Minor Radius 
+=============================
+
+		(required once [each] for geometry torus) 
 
 		**Description:** These two input blocks are used to define 
 		the major and minor radii :doc:`[G] <glossarytext>` of toroidal 
@@ -253,7 +270,12 @@ Section I: Geometry & Materials
 
 -----------------------
 
-	**Name:** volumes (required [1] once) 
+.. _volumes:
+
+Volumes 
+=======
+
+		(required [1] once) 
 
 		**Description:** This input block is used to define the 
 		fine mesh intervals' :doc:`[G] <glossarytext>` volumes 
@@ -296,7 +318,12 @@ Section I: Geometry & Materials
 
 ------------------
 
-	**Name:** mat_loading (required once) 
+.. _mat_loading:
+
+mat_loading 
+===========
+
+		(required once) 
 
 		**Description:** This input block is used to 
 		indicate which mixtures are contained in each 
@@ -342,7 +369,12 @@ Section I: Geometry & Materials
 
 ------------------------
 
-	**Name:** mixture (required: once per defined mixture) 
+.. _mixture:
+
+Mixture 
+=======
+
+		(required: once per defined mixture) 
 
 		**Description:** This kind of block is used to 
 		define the composition of a mixture. This block 
@@ -467,7 +499,12 @@ Section I: Geometry & Materials
 
 -------------------
 
-	**Name:** solve_zones (optional once) 
+.. _solve_zones:
+
+solve_zones 
+===========
+
+		(optional once) 
 
 		**Description:** This optional input block allows the 
 		user to limit which zones are being solved in a given 
@@ -500,7 +537,12 @@ Section I: Geometry & Materials
 
 -----------------------
 
-	**Name:** skip_zones (optional once) 
+.. _skip_zones:
+
+skip_zones 
+==========
+
+		(optional once) 
 
 		**Description:** This optional input block allows 
 		the user to limit which zones are being solved in 
@@ -535,10 +577,18 @@ Section I: Geometry & Materials
 
 ------------------------------
 
-Section II: Flux Schedules & Chain-building
-===========================================
+.. _Flux Schedules & Chain - Building:
 
-	**Name:** flux (required: once per defined flux) 
+===============================
+Flux Schedules & Chain-building
+===============================
+
+.. _flux:
+
+Flux 
+====
+
+		(required: once per defined flux) 
 
 		**Description:** This input block defines a set 
 		of flux spectra :doc:`[G] <glossarytext>`. 
@@ -607,7 +657,12 @@ Section II: Flux Schedules & Chain-building
 
 -----------------------
 
-	**Name:** spatial_norm (optional once) 
+.. _spatial_norm:
+
+spatial_norm 
+============
+
+		(optional once) 
 
 		**Description:** This input block allows the user 
 		to specify a scalar flux normalization for each fine 
@@ -639,7 +694,12 @@ Section II: Flux Schedules & Chain-building
 
 -------------------------
 
-	**Name:** schedule (required: once per defined schedule) 
+.. _schedule:
+
+Schedule 
+========
+
+		(required: once per defined schedule) 
 
 		**Description:** This kind of block is used to 
 		define a single schedule in the full 
@@ -684,7 +744,12 @@ Section II: Flux Schedules & Chain-building
 
 ----------------------------
 
-	**Name:** pulsehistory (required: once per defined history) 
+.. _pulsehistory:
+
+Pulse History 
+=============
+
+		(required: once per defined history) 
 
 		**Description:** This kind of input block defines 
 		the multi-level pulsing histories referenced 
@@ -718,7 +783,12 @@ Section II: Flux Schedules & Chain-building
 
 ---------------------------
 
-	**Name:** truncation (required once) 
+.. _truncation:
+
+Truncation 
+==========
+
+		(required once) 
 
 		**Description:** This fixed sized input block 
 		defines the primary parameter used in 
@@ -749,7 +819,12 @@ Section II: Flux Schedules & Chain-building
 
 -------------------------
 
-	**Name:** impurity (optional once) 
+.. _impurity:
+
+Impurity 
+========
+
+		(optional once) 
 
 		**Description:** This fixed sized input block 
 		defines the parameters used to treat initial 
@@ -796,7 +871,12 @@ Section II: Flux Schedules & Chain-building
 
 ------------------------
 
-	**Name:** ignore (optional once) 
+.. _ignore:
+
+Ignore 
+======
+
+		(optional once) 
 
 		**Description:** This optional fixed sized input 
 		block defines an additional parameter used 
@@ -834,7 +914,12 @@ Section II: Flux Schedules & Chain-building
 
 ------------------
 
-	**Name:** ref_flux_type (optional once) 
+.. _ref_flux_type:
+
+ref_flux_type 
+=============
+
+		(optional once) 
 
 		**Description:** This optional fixed sized 
 		input block defines the type of reference flux to use. 
@@ -866,10 +951,18 @@ Section II: Flux Schedules & Chain-building
 
 --------------------------------------
 
-Section III: Output & Files
-===========================
+.. _Output & Files:
 
-	**Name:** cooling (optional once) 
+==============
+Output & Files
+==============
+
+.. _cooling:
+
+Cooling 
+=======
+
+		(optional once) 
 
 		**Description:** This input block is used to define the 
 		after-shutdown cooling times :doc:`[G] <glossarytext>` 
@@ -912,7 +1005,12 @@ Section III: Output & Files
 
 -----------------
 
-	**Name:** output (optional: once per required output definiton) 
+.. _output:
+
+Output 
+======
+
+		(optional: once per required output definiton) 
 
 		This kind of input block allows the user to define the 
 		output's resolution and format. The first element of 
@@ -1024,7 +1122,14 @@ Section III: Output & Files
 
 -------------------
 
-	**Name:** material_lib and element_lib (required once [each]) 
+.. _material_lib:
+
+.. _element_lib:
+
+Material and Element Libraries 
+==============================
+
+		(required once [each]) 
 
 		**Description:** These two input blocks are used to specify 
 		the libraries to be used for looking up the definitions 
@@ -1045,7 +1150,12 @@ Section III: Output & Files
 
 ---------------------
 
-	**Name:** dump_file (optional once) 
+.. _dump_file:
+
+dump_file 
+=========
+
+		(optional once) 
 
 		**Description:** This input block defines the filename 
 		to use for the binary data dump produced during a run 
@@ -1068,7 +1178,10 @@ Section III: Output & Files
 
 -----------------------
 
-	 **Name:** data_library 
+.. _data_library:
+
+Data Library 
+============
 
 		**Description:** This input block is used to define 
 		the type and location of the nuclear data library. 
@@ -1120,7 +1233,10 @@ Section III: Output & Files
 
 -------------------------
 
-	**Name:** convert_lib 
+.. _convert_lib:
+
+Convert Library
+=============== 
 
 		This input block is used to convert library formats. If 
 		this input block is included, ALARA will stop immediately 
