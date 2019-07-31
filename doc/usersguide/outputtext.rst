@@ -19,7 +19,7 @@ Format
 ======
 
  As described in the section on :doc:`command-line <commandtext>`
- :doc:`[G] <glossarytext>` arguments, various levels of output
+ arguments, various levels of output
  are available during the calculation. The first part of the output
  file will contain this verbose output, including confirmation
  of the input data and details of the cross-referencing and
@@ -28,12 +28,11 @@ Format
  The second part of the output file shows details on the tree building
  process, ranging from a simple list of the root isotopes being solved
  and statistics on the size and speed of the solution, to details on
- the chain growth and truncation :doc:`[G] <glossarytext>`
- calculations (depending on the verbosity :doc:`[G] <glossarytext>`
- specified on the
- :doc:`command-line <commandtext>`:doc:`[G] <glossarytext>`). 
+ the chain growth and :term:`truncation` [G]
+ calculations (depending on the :term:`verbosity` [G] specified on the
+ :doc:`command-line <commandtext>`). 
 
- The final part of the output file :doc:`[G] <glossarytext>`
+ The final part of the :term:`output files` [G]
  are the results, as requested by the user in the input file. This
  output will include one section for each output format description
  given by the user. Each of these sections will be divided into
@@ -67,12 +66,12 @@ Format
 Table Type 1
 ============
 
-	The first type has a row for each isotope :doc:`[G] <glossarytext>`
+	The first type has a row for each :term:`isotope` [G] 
 	produced in the problem that has a non-zero response. If 
-	the constituent keyword :doc:`[G] <glossarytext>` is 
+	the constituent :term:`keyword` [G] is 
 	given in the output block, there will be one table for 
 	each constituent, followed by a table for the total 
-	mixture :doc:`[G] <glossarytext>`. 
+	:term:`mixture` [G]. 
 
 	For the isotopic results of individual mixture constituents, 
 	all the values are normalized to the volume fraction of that 
@@ -82,7 +81,7 @@ Table Type 1
 	per unit volume (or mass) containing only that constituent. 
 
 	For most results, the table containing the total isotopic 
-	results for the interval, zone :doc:`[G] <glossarytext>`, 
+	results for the interval, :term:`zone <zones>` [G], 
 	or mixture, is not normalized, and these values represent 
 	the result for the mixture as described in the input, 
 	regardless of what volume fraction if filled. However, 
@@ -117,8 +116,8 @@ Tree File
 Description
 ===========
 
- ALARA also optionally produces a so-called tree
- file :doc:`[G] <glossarytext>` to allow some rudimentary
+ ALARA also optionally produces a so-called :term:`tree
+ file` [G] to allow some rudimentary
  pathway analysis. The tree file contains much information about
  the creation and truncation of the trees and chains used to
  calculate the transmutation and activation in the problem.
@@ -226,7 +225,7 @@ Format
 ======
 
  For each spatial region, there is a section for each isotope
- responsible for gamma emissions :doc:`[G] <glossarytext>` and a
+ responsible for :term:`gamma emissions` [G] and a
  section for the total gamma emissions. Each of these sections has
  a header line consisting of the isotope's identifier (chemical
  symbol and mass number) or the keyword "TOTAL", respectively.

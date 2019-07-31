@@ -2,21 +2,21 @@
 INTRODUCTION
 ============
 
- The primary purpose of ALARA is to calculate the induced
- activation :doc:`[G] <glossarytext>` caused by neutron
- irradiation :doc:`[G] <glossarytext>` throughout a nuclear
+ The primary purpose of ALARA is to calculate the :term:`induced
+ activation` [G] caused by :term:`neutron
+ irradiation` [G] throughout a nuclear
  system (including fission reactors, fusion reactors,
  and accelerators). The usage of ALARA is fairly straightforward,
  requiring little knowledge of the code's inner workings.
  This Users' Guide, however does assume that the reader is
- familiar with the basic problem of induced activation
- :doc:`[G] <glossarytext>`. Background on induced activation, and
+ familiar with the basic problem of :term:`induced activation`
+ [G]. Background on induced activation, and
  details on ALARA's can be found in [ref. 1]. This reference
  will also help ensure that ALARA is well-suited to the
  problems that you are trying to solve.
 
  This Users' Guide will describe the command-line options of
- ALARA, input file :doc:`[G] <glossarytext>` structure
+ ALARA, :term:`input file` [G] structure
  and the basic support files necessary to run ALARA.
 
 FEATURES
@@ -40,8 +40,8 @@ FEATURES
   
    * multi-point (3-D) solutions in a variety of geometries
    * accurate solution of loops in activation trees
-   * exact modeling of multi-level pulsing irradiation
-     histories :doc:`[G] <glossarytext>`
+   * exact modeling of multi-level pulsing :term:`irradiation
+     histories <irradiation history>` [G]
    * user-defined calculation precision/accuracy
    * tracking the accumulation of light ions     
 
@@ -53,8 +53,8 @@ FEATURES
    * full, easy-to-read activation tree output (not just
      pathway analysis)
    * flexible output options NOW including the direct
-     calculation of waste disposal rating :doc:`[G] <glossarytext>`
-     and clearance indices :doc:`[G] <glossarytext>`. 
+     calculation of :term:`waste disposal rating` [G]
+     and :term:`clearance indices` [G]. 
 
  The following ADVANCED features are unique to ALARA
  and its development history: 

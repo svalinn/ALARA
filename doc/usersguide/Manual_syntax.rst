@@ -3,7 +3,7 @@ Manual Syntax
 =============
 
 +---------------------------------------+-----------------------------------------------------------+
-| :doc:`[G] <glossarytext>`		|This icon indicates that a definition exists in the        |
+| [G]		                        |This icon indicates that a definition exists in the        |
 |					|glossary for this term.                                    |
 +---------------------------------------+-----------------------------------------------------------+
 | :doc:`command line <commandtext>`	|A term written in red text indicates that there is a       |
