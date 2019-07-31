@@ -3,9 +3,6 @@ Manual Syntax
 =============
 
 +---------------------------------------+-----------------------------------------------------------+
-| [G]		                        |This icon indicates that a definition exists in the        |
-|					|glossary for this term.                                    |
-+---------------------------------------+-----------------------------------------------------------+
 | :doc:`command line <commandtext>`	|A term written in red text indicates that there is a       |
 |					|section in the manual on this term.                        |
 +---------------------------------------+-----------------------------------------------------------+
