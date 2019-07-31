@@ -28,11 +28,11 @@ Format
  The second part of the output file shows details on the tree building
  process, ranging from a simple list of the root isotopes being solved
  and statistics on the size and speed of the solution, to details on
- the chain growth and :term:`truncation` [G]
- calculations (depending on the :term:`verbosity` [G] specified on the
+ the chain growth and :term:`truncation`
+ calculations (depending on the :term:`verbosity` specified on the
  :doc:`command-line <commandtext>`). 
 
- The final part of the :term:`output files` [G]
+ The final part of the :term:`output files`
  are the results, as requested by the user in the input file. This
  output will include one section for each output format description
  given by the user. Each of these sections will be divided into
@@ -66,12 +66,12 @@ Format
 Table Type 1
 ============
 
-	The first type has a row for each :term:`isotope` [G] 
+	The first type has a row for each :term:`isotope` 
 	produced in the problem that has a non-zero response. If 
-	the constituent :term:`keyword` [G] is 
+	the constituent :term:`keyword` is 
 	given in the output block, there will be one table for 
 	each constituent, followed by a table for the total 
-	:term:`mixture` [G]. 
+	:term:`mixture`. 
 
 	For the isotopic results of individual mixture constituents, 
 	all the values are normalized to the volume fraction of that 
@@ -81,7 +81,7 @@ Table Type 1
 	per unit volume (or mass) containing only that constituent. 
 
 	For most results, the table containing the total isotopic 
-	results for the interval, :term:`zone <zones>` [G], 
+	results for the interval, :term:`zone <zones>`, 
 	or mixture, is not normalized, and these values represent 
 	the result for the mixture as described in the input, 
 	regardless of what volume fraction if filled. However, 
@@ -117,7 +117,7 @@ Description
 ===========
 
  ALARA also optionally produces a so-called :term:`tree
- file` [G] to allow some rudimentary
+ file` to allow some rudimentary
  pathway analysis. The tree file contains much information about
  the creation and truncation of the trees and chains used to
  calculate the transmutation and activation in the problem.
@@ -225,7 +225,7 @@ Format
 ======
 
  For each spatial region, there is a section for each isotope
- responsible for :term:`gamma emissions` [G] and a
+ responsible for :term:`gamma emissions` and a
  section for the total gamma emissions. Each of these sections has
  a header line consisting of the isotope's identifier (chemical
  symbol and mass number) or the keyword "TOTAL", respectively.

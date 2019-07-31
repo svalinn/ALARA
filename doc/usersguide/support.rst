@@ -25,7 +25,7 @@ Description
 ===========
 
  The element library allows the user to define the
- :term:`isotopic abundances` [G]
+ :term:`isotopic abundances`
  to be used for each element. While this library
  should normally include a  definition of the natural
  abundances for each element, an extension is available
@@ -41,10 +41,10 @@ Format
  following five entries: 
 
    * a string indicating the name/identifier,
-   * a :term:`floating point value <floating point scalar normalization>` [G] for the molar mass,
-   * an integer value for the :term:`atomic number` [G],
+   * a :term:`floating point value <floating point scalar normalization>` for the molar mass,
+   * an integer value for the :term:`atomic number`,
    * a floating point value for the theoretical density, and
-   * an integer value defining the number of :term:`isotopes <isotope>` [G].
+   * an integer value defining the number of :term:`isotopes <isotope>`.
 
  This is followed by two entries for each of these isotopes: 
 
@@ -58,15 +58,15 @@ Naming Elemental Definitions
 ============================
 
  The names/identifiers for all elemental definitions must
- be derived from the :term:`chemical symbol` [G]
+ be derived from the :term:`chemical symbol`
  for that element, using the format ZZ[:AAA...], where ZZ
- represents the :term:`chemical symbol` [G],
+ represents the :term:`chemical symbol`,
  and [:AAA...] represents an optional modifier, separated by a
  colon, ':', from the chemical symbol. By  convention, entries
  without modifiers are used to define the :term:`natural
- abundances` [G] of isotopes. The
+ abundances` of isotopes. The
  modifier must be a character string containing no
- :term:`whitespace` [G]. [example: a
+ :term:`whitespace`. [example: a
  definition for lithium enriched to 90% in the isotope
  6Li, might have the name 'Li:90'.] These names/identifiers
  can be  used both in a mixture block of the input file
@@ -106,7 +106,7 @@ Format
 
    * a string indicating the name/identifier,
    * a floating point value for the weight fraction in %, and
-   * an integer for the :term:`atomic number` [G].
+   * an integer for the :term:`atomic number`.
 
 Example
 =======
@@ -115,7 +115,7 @@ Naming Material Definitions
 ===========================
 
  The name of a material definition must be a character string
- with no :term:`whitespace` [G]. The
+ with no :term:`whitespace`. The
  recommended practice is that material definitions never be
  deleted from a material library, ensuring the repeatability
  of results. It is expected, however, that many materials will
@@ -138,8 +138,8 @@ Waste Disposal Rating/Clearance Index
 Description
 ===========
 
- :term:`Waste disposal ratings <waste disposal rating>` [G] and
- :term:`clearance indices` [G] are used to
+ :term:`Waste disposal ratings <waste disposal rating>` and
+ :term:`clearance indices` are used to
  provide a single metric for classifying the level of control
  required when disposing of used material. Each metric is
  based on a (possibly) unique list of isotopes and the
@@ -153,11 +153,11 @@ Format
  simple text files containing one pair for each isotope for
  which a limit exists. The first entry of each pair identifies
  the isotope using either the standard :term:`chemical
- symbol` [G] notation CC-AAAM (CC is
+ symbol` notation CC-AAAM (CC is
  the chemical symbol, AAA is the mass number, and M is the
  isomeric state: 'm' for the first isomeric state, 'n' for
  the second, and so on), or ALARA's kza notation ZZAAAM (ZZ
- is the :term:`atomic number` [G], AAA is
+ is the :term:`atomic number`, AAA is
  the mass number, and M is the numerical isomeric state: '1'
  for the first state, '2' for the second, etc). The second
  entry is a specific activity in any combination of units

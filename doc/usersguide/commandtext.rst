@@ -15,12 +15,12 @@ Options
 
  -h				print a short help message describing the command-line
 
- -r				operate in a :term:`post-processing mode` [G]
+ -r				operate in a :term:`post-processing mode`
 			
 				This option is used to redo the built-in post-processing
 				stage of ALARA, possibly calculating different responses than
 				in the original run. ALARA creates a :term:`dump
-				file` [G] during operation
+				file` during operation
 				which contains enough information to calculate different 
 				output responses for the same problem. This option can 
 				only be used after ALARA has already been successfully 
@@ -39,11 +39,10 @@ Options
  -t <tree_filename>		set the filename for the tree file
 
 				This option defines the name of the optional :term:`tree 
-				file` [G] to be generated during 
+				file` to be generated during 
 				the ALARA run. If it already exists, this file will be 
 				overwritten. For more information on tree files, see the 
-				Users' Guide section devoted to :doc:`output files <outputtext>`
-				[G]. 
+				Users' Guide section devoted to :doc:`output files <outputtext>`. 
 
  -v				show version string 
 
@@ -69,7 +68,7 @@ Options
 				|         |program phase, including basic echoing of input and basic  |
 				|	  |statistics on the solution status.                         |
 				+---------+-----------------------------------------------------------+
-				|   4-6   |Increased :term:`verbosity` [G] gives                      |
+				|   4-6   |Increased :term:`verbosity` gives                          |
 				|	  |more information in input processing and more solution     |
 				|	  |statistics. During input processing, this includes         |
 				|	  |expansion of materials and calculation of interval volumes,|
@@ -78,9 +77,9 @@ Options
 				|	  |status and truncation status.                              |
 				+---------+-----------------------------------------------------------+
 
- <input_filename>		define the :doc:`input file <inputtext>` [G]
+ <input_filename>		define the :doc:`input file <inputtext>` 
 
-				This option defines which :doc:`input file <inputtext>` [G]
+				This option defines which :doc:`input file <inputtext>`
 				will be used. If not name is given, the input will be read from stdin. 
 			
 	

@@ -26,7 +26,7 @@ Input File Syntax
 
  In the following list, input blocks indicated in bold
  are required at least once in every :term:`input
- file` [G]:
+ file`:
 
  +-----------------------------+----------------------------+-----------------------------+
  |`Geometry & Materials`_      |`Flux Schedules & Chain -   |`Output & Files`_            |
@@ -55,14 +55,14 @@ Input File Syntax
 **General Input Notes**
 
  1. **Dimension/Volume:** If “[1]” follows an input
-    block name, either the :term:`dimension` [G]
+    block name, either the :term:`dimension`
     or the volume is required, but it will generate an
     error if both are included. 
 
  2. **Input Blocks:** Not all input blocks are required,
     with some being unnecessary for certain problems. Input
     blocks indicated in bold are required at least once in
-    every :term:`input file` [G].
+    every :term:`input file`.
 
     There are also some input blocks which are incompatible
     with each other. While superfluous input blocks may go
@@ -73,11 +73,11 @@ Input File Syntax
     to define their own symbolic names for cross-referencing
     the various input data. Any string of characters can be
     used as long as its does not contain any
-    :term:`whitespace` [G] (spaces, tabs,
+    :term:`whitespace` (spaces, tabs,
     new-lines, etc.).
 
     It is considered dangerous, however, to use a
-    :term:`keyword` [G] as a symbolic name.
+    :term:`keyword` as a symbolic name.
     If the input file is correct, it will function properly,
     but if there are errors in the input file, the usage of
     keywords as symbolic names may make the error message
@@ -117,11 +117,11 @@ Input File Syntax
     non-space character is the pound sign (or number
     sign) (#) are considered as comments. Comments can
     also be used after any single word input (an input
-    value with no :term:`whitespace` [G])
+    value with no :term:`whitespace`)
     by using the same comment character (#). Such
     comments extend to the end of the current line.
     Blank lines are permitted anywhere in the :term:`input
-    file` [G]. 
+    file`. 
 
  8. **Length Units:** Centimeters should be used for all
     length units.
@@ -147,7 +147,7 @@ Geometry
 
 		**Description:** This required input block is
 		only necessary when defining a geometry using 
-		the :term:`dimension` [G] input 
+		the :term:`dimension` input 
 		block, but may always be included. It should 
 		only occur once. 
 
@@ -159,21 +159,21 @@ Geometry
 
 		**Option Description:**
 
-|			:term:`point` [G] --
-|			:term:`rectangular` [G] --
-|			:term:`cylindrical` [G] --
-|			:term:`spherical` [G] --
-|			:term:`torus` [G] --
+|			:term:`point` --
+|			:term:`rectangular` --
+|			:term:`cylindrical` --
+|			:term:`spherical` --
+|			:term:`torus` --
 
 		**Sample Input:** geometry point
 
 		**Notes:** This input block should not be terminated. 
 		If using the dimension input block to define the geometry 
-		and the type is :term:`torus` [G], the 
+		and the type is :term:`torus`, the 
 		:term:`major_radius <major and minor radii of toroidal
-		geometries>` [G] input block is 
+		geometries>` input block is 
 		required and the :term:`minor_radius <major and minor 
-		radii of toroidal geometries>` [G] block may also 
+		radii of toroidal geometries>` block may also 
 		be required. 
 
 ------------------
@@ -187,7 +187,7 @@ Dimension
 
 		**Description:** This input block is used to define the 
 		geometry layout, and should be included once for each 
-		:term:`dimension` [G] needed in the problem. 
+		:term:`dimension` needed in the problem. 
 
 		**Syntax:** 
 		::
@@ -202,7 +202,7 @@ Dimension
 			end
 
 		**Option Description:** The dimension block's first element 
-		indicates which :term:`dimension` [G] is being 
+		indicates which :term:`dimension` is being 
 		defined and should be one of the following: 
 
 			x --
@@ -214,7 +214,7 @@ Dimension
 
 		**Sample Input:** The dimension block's next element is the 
 		first zone's lower boundary, expressed as a :term:`floating point 
-		number <floating point scalar normalization>` [G]. 
+		number <floating point scalar normalization>`. 
 		This is followed by a list of pairs, one pair for 
 		each zone: an integer specifying the number of 
 		intervals in this zone in this dimension and a 
@@ -230,9 +230,9 @@ Dimension
 
 		**Notes:** ALARA will check to ensure that only dimensions 
 		relevant to the defined geometry are included. For example, 
-		defining the 'x' dimension in a spherical :doc:`[G] <glossarytext>`
+		defining the 'x' dimension in a :term:`spherical`
 		problem will generate an error. Since this method of defining 
-		the geometry calculates the fine mesh intervals' :doc:`[G] <glossarytext>`
+		the geometry calculates the :term:`fine mesh intervals`
 		zone membership and volume from the dimension data, it is 
 		incompatible with the volumes input block. Including 
 		both will generate an error message.
@@ -250,8 +250,8 @@ Major Radius and Minor Radius
 
 		**Description:** These two input blocks are used to define 
 		the :term:`major and minor radii of toroidal 
-		geometries` [G]. They are only needed in defining a 
-		:term:`toroidal <torus>` [G] geometry with dimension 
+		geometries`. They are only needed in defining a 
+		:term:`toroidal <torus>` geometry with dimension 
 		input blocks, and each should only be included once. 
 		Furthermore, if the minor radius dimension is defined with 
 		a dimension block, the minor_radius input block is not 
@@ -281,7 +281,7 @@ Volumes
 		(required [1] once) 
 
 		**Description:** This input block is used to define the 
-		:term:`fine mesh intervals` [G] volumes 
+		:term:`fine mesh intervals` volumes 
 		and zone membership. 
 
 		**Syntax:**
@@ -296,13 +296,13 @@ Volumes
 
 		This input block should be a list of pairs, one pair 
 		for each interval. Each pair consists of a :term:`floating 
-		point value <floating point scalar normalization>` [G] for the volume 
+		point value <floating point scalar normalization>` for the volume 
 		of that interval and the symbolic name of the zone 
 		containing that interval. These symbolic names 
 		should correspond with the symbolic names given 
 		to the zones in the mat_loading input block. This 
 		list must be terminated with the 
-		:term:`keyword` [G] end. 
+		:term:`keyword` end. 
 
 		**Sample Input:**
 		::
@@ -330,11 +330,11 @@ mat_loading
 
 		**Description:** This input block is used to 
 		indicate which mixtures are contained in each 
-		:term:`zone <zones>` [G]. This block is 
+		:term:`zone <zones>`. This block is 
 		a list with one pair of entries for every zone. 
 		Each pair consists of a symbolic name for the 
 		zone and a symbolic name for the :term:`mixture` 
-		[G] contained in that 
+		contained in that 
 		zone. This list is terminated by the keyword 
 		end. This block should only occur once. 
 		Multiple occurrences will result in undefined 
@@ -360,7 +360,7 @@ mat_loading
 
 		**Notes:** If the geometry is defined using the 
 		dimension input blocks, the number of :term:`zones` 
-		[G] defined here must match 
+		defined here must match 
 		the number of zones defined in the dimension 
 		blocks exactly; if not, an error results. If 
 		the volumes method is used to define the geometry, 
@@ -422,7 +422,7 @@ Mixture
 			density of this material, based on the density 
 			given in the material library. The final 
 			element is a :term:`floating point <floating 
-			point scalar normalization>` [G]
+			point scalar normalization>`
 			value representing the volume fraction of 
 			this material in this mixture. Both of the 
 			last two values are typically between 0 and 1.
@@ -441,17 +441,17 @@ Mixture
 
 			This entry has three additional elements. The 
 			second element in this entry is the element's 
-			modified :term:`chemical symbol` [G]. 
+			modified :term:`chemical symbol`. 
 			This element will be expanded into a list of 
-			:term:`isotopes <isotope>` [G] using the 
+			:term:`isotopes <isotope>` using the 
 			abundances found in the element library for 
 			that modified chemcial symbol. A modified 
-			:term:`chemical symbol` [G] has 
+			:term:`chemical symbol` has 
 			the format ''ZZ:XXXXXX...'', where ZZ is the 
 			standard chemical symbol, and the string
 			XXXXXX... allows for :term:`isotopic 
-			abundances` [G] different 
-			from :term:`natural abundances` [G].
+			abundances` different 
+			from :term:`natural abundances`.
 
 		The final two elements of this section are identical to 
 		the final two elements of the material type entry, 
@@ -462,7 +462,7 @@ Mixture
 			This type of entry has two additional elements 
 			and is provided as a convenience and indicates 
 			that this constituent is like another user-defined 
-			:term:`mixture` [G], with a 
+			:term:`mixture`, with a 
 			potentially different density. The second element 
 			of this entry is the symbolic name of another 
 			mixture definition. If the other mixture 
@@ -479,7 +479,7 @@ Mixture
 
 			This type of entry is used to initiate a reverse 
 			calculation (see the ALARA Technical Manual) 
-			and define the target :term:`isotopes <isotope>` [G]
+			and define the target :term:`isotopes <isotope>`
 			for the reverse calculation. The user can 
 			define an arbitrary number of target isotopes. 
 			The second element of this entry is one of the 
@@ -487,7 +487,7 @@ Mixture
 			of target this is. The final element is the symbolic 
 			name of either the element or isotope. For isotopes, 
 			the symbolic name is in the format ZZ-AAA, where ZZ 
-			is the :term:`chemical symbol` [G] and 
+			is the :term:`chemical symbol` and 
 			AAA is the mass number. There are no elements 
 			representing relative densities or volume fractions. 
 			If a target is of type element, the element will be 
@@ -552,7 +552,7 @@ skip_zones
 		the user to limit which zones are being solved in 
 		a given calculation (see solve_zones). It is 
 		common for a user to create a single complete 
-		:term:`input file` [G] describing 
+		:term:`input file` describing 
 		the entire geometry/composition, and want to 
 		exclude certain parts of the geometry/composition 
 		for particular cases. 
@@ -595,15 +595,15 @@ Flux
 		(required: once per defined flux) 
 
 		**Description:** This input block defines a set 
-		of :term:`flux spectra` [G]. 
+		of :term:`flux spectra`. 
 
 		**Syntax:**
 
 		The first element of this block is a symbolic name, 
 		used to refer to this flux spectra definition. The 
 		other elements of this block are a filename, a 
-		:term:`floating point scalar normalization` 
-		[G], an integer skip value 
+		:term:`floating point scalar normalization`, 
+		an integer skip value 
 		(see below), and flux type indicator string, 
 		respectively. 
 
@@ -612,7 +612,7 @@ Flux
 		appropriate to find the file from the directory in 
 		which ALARA will be run. The flux file itself 
 		contains a simple list of group fluxes for each of 
-		the :term:`fine mesh intervals` [G] 
+		the :term:`fine mesh intervals` 
 		defined in the problem. The number of groups for 
 		each interval and the order of those groups is 
 		determined entirely by the data library being used. 
@@ -654,7 +654,7 @@ Flux
 		**Notes:**
 
 		Since different parts of the :term:`irradiation 
-		history` [G] can have different 
+		history` can have different 
 		flux spectra, this block may occur as many times as 
 		necessary to represent all the different necessary 
 		flux definitions. 
@@ -670,7 +670,7 @@ spatial_norm
 
 		**Description:** This input block allows the user 
 		to specify a scalar flux normalization for each :term:`fine 
-		mesh interval <fine mesh intervals>` [G], such as 
+		mesh interval <fine mesh intervals>`, such as 
 		might be required to re-normalize the results of 
 		a transport calculation on an approximated geometry.
 
@@ -796,7 +796,7 @@ Truncation
 
 		**Description:** This fixed sized input block 
 		defines the primary parameter used in 
-		:term:`truncating <truncation>` [G] the activation 
+		:term:`truncating <truncation>` the activation 
 		trees. See the ALARA Technical Manual for a 
 		detailed discussion of the tree truncation issue.
 
@@ -806,7 +806,7 @@ Truncation
 			truncation <tol_value>
 
 		The only element of this block is the :term:`truncation` 
-		[G] tolerance. 
+		tolerance. 
 
 		**Sample Input:**
 		::
@@ -832,7 +832,7 @@ Impurity
 
 		**Description:** This fixed sized input block 
 		defines the parameters used to treat initial 
-		:term:`isotopes <isotope>` [G] as impurities. 
+		:term:`isotopes <isotope>` as impurities. 
 		This feature allows the user to build shorter 
 		chains for impurities, since their contributions 
 		tend to be less significant. This can make 
@@ -950,7 +950,7 @@ ref_flux_type
 
 		In both cases, the comparison/averaging takes place 
 		over all the intervals which contain a given root 
-		:term:`isotope` [G], not just over 
+		:term:`isotope`, not just over 
 		a single zone, component, or material loading. 
 
 --------------------------------------
@@ -969,7 +969,7 @@ Cooling
 		(optional once) 
 
 		**Description:** This input block is used to define the 
-		after-shutdown :term:`cooling times <cooling time>` [G] 
+		after-shutdown :term:`cooling times <cooling time>` 
 		at which the problem will be solved. 
 
 		**Syntax:**
@@ -987,7 +987,7 @@ Cooling
 		This block is simply a list of times, where each time 
 		consists of a floating point time followed by a single 
 		character defining the time's units. Since an arbitrary 
-		number of :terms:cooling times` [G] can 
+		number of :terms:cooling times` can 
 		be solved, this list must be terminated with the 
 		keyword 'end'. 
 
@@ -1112,7 +1112,7 @@ Output
 
 		The wdr output modifier requires an additional text 
 		string parameter representing the filename to use for 
-		calculating the :term:`waste disposal rating` [G]
+		calculating the :term:`waste disposal rating`
 		or clearance limits. A detailed description of the WDR 
 		file is available here. To calculate the WDR based on 
 		different standards, simply repeat this modifier within 
