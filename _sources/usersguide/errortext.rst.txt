@@ -19,8 +19,8 @@ Error Message Types
 Example Error Message:
 ======================
 
-| Error name/number:     130: Invalid dimension :doc:`[G] <glossarytext>` type: <string> 
-| Description:           The type of dimension :doc:`[G] <glossarytext>`, string,
+| Error name/number:     130: Invalid :term:`dimension` type: <string> 
+| Description:           The type of :term:`dimension`, string,
 		         declared in the dimension block is not supported.
 
 .. _Command-line Parsing:
@@ -35,7 +35,7 @@ Command-line Parsing
 **1: Only one input filename can be specified: <string>.**
 
     There appears to be more than one input filename on the
-    command-line :doc:`[G] <glossarytext>`. This may be 
+    :term:`command-line`. This may be 
     caused by an error in the other command line options,
     or a missing option.
 
@@ -49,7 +49,7 @@ Input Phase
  an error in the input file, ALARA may not immediately
  recognize the error and then report an error during some
  later input block. This is particularly true during the
- first step, reading the input file :doc:`[G] <glossarytext>`
+ first step, reading the :term:`input file`
  itself.
 
 .. _Read Input File:
@@ -60,7 +60,7 @@ Read Input File
 **100: Invalid token in input file: <string>**
 
     There is an error in the input file causing it to read
-    an invalid keyword :doc:`[G] <glossarytext>`.
+    an invalid :term:`keyword`.
 
 **101: Unable to open included file: '<string>'.**
 
@@ -79,17 +79,17 @@ Read Input File
 
 **120: Invalid units in cooling time: <time> <units>**
 
-    The specified cooling time :doc:`[G] <glossarytext>` 
+    The specified :term:`cooling time`
     does not have one of the supported time units.
 
 **121: No after-shutdown/cooling times were defined.**
 
     The cooling input block contains no information before
-    the end keyword :doc:`[G] <glossarytext>`.
+    the end :term:`keyword`.
 
 **130: Invalid dimension type: <string>**
 
-    The type of dimension :doc:`[G] <glossarytext>`, string,
+    The type of :term:`dimension`, string,
     declared in the dimension block is not supported.
 
 **131: Dimension has no boundaries**
@@ -99,7 +99,7 @@ Read Input File
 
 **140: Invalid flux type: <string>**
 
-    The flux type :doc:`[G] <glossarytext>`, string, specified
+    The :term:`flux type<flux spectra>`, string, specified
     in the flux block in not supported.
 
 **150: Invalid geometry type: <string>**
@@ -110,24 +110,24 @@ Read Input File
 **160: History <string> is empty**
 
     The history input block, string, contains no information
-    before the end keyword :doc:`[G] <glossarytext>`.
+    before the end :term:`keyword`.
 
 **170: Material Loading is empty.**
 
     The mat_loading input block contains no information
-    before the end keyword :doc:`[G] <glossarytext>`.
+    before the end :term:`keyword`.
 
 **180: Target materials for reverse calculations can only be 
 elements or isotopes and not '<string>'**
 
     The constituent type, string, given for this target
     material is not supported. It must be either ''element''
-    or ''isostope :doc:`[G] <glossarytext>`''.
+    or '':term:`isotope`''.
 
 **181: Invalid material constituent: <string>**
 
     The constituent type, string, specified for this
-    mixture :doc:`[G] <glossarytext>` constituent is not
+    :term:`mixture` constituent is not
     supported.
 
 **182: Mixture <string> has no constituents**
@@ -160,9 +160,9 @@ elements or isotopes and not '<string>'**
     The output type, string, specified for this output
     format is not supported.
 
-**240: Unable to open dump file :doc:`[G] <glossarytext>` <string>**
+**240: Unable to open dump file <string>**
 
-    The output ''dump'' file could not be opened.
+    The output :term:`''dump'' file <dump file>` could not be opened.
 
 .. _Input Checking:
 
@@ -218,39 +218,41 @@ volumes for multi-point problems.**
 **330: Duplicate dimensions of type <string>.**
 
     The dimension string was defined more that
-    once in the input file :doc:`[G] <glossarytext>`.
+    once in the :term:`input file`.
 
 331: <string1> geometries don't have dimensions of type <string2>.
 
     The dimension type string2 was defined for
     geometry type string1, which does not allow
-    this kind of dimension :doc:`[G] <glossarytext>`.
+    this kind of :term:`dimension`.
 
 **340: Unable to open flux file <string1> for flux <string2>.**
 
-    In the flux :doc:`[G] <glossarytext>` definition
+    In the :term:`flux` definition
     string2 the given flux file string1
     cannot be opened.
 
 **350: Toroidal problems with zone dimensions require a major radius.**
 
-    All problems defined as having toroidal
-    geometries :doc:`[G] <glossarytext>` must define
-    a major radius :doc:`[G] <glossarytext>` with
-    the major_radius input block.
+    All problems defined as having :term:`toroidal
+    geometries <major and minor radii of toroidal 
+    geometries>` must define a :term:`major radius <major and 
+    minor radii of toroidal geometries>` 
+    with the major_radius input block.
 
 **351: Toroidal problems with zone dimensions require either
-a minor radius :doc:`[G] <glossarytext>` or a radius dimension.**
+a :term:`minor radius <major and minor radii of toroidal geometries>`
+or a radius dimension.**
 
-    All problems defined as having toroidal
-    geometries :doc:`[G] <glossarytext>` must define
+    All problems defined as having :term:`toroidal
+    geometries <major and minor radii of toroidal geometries>` must define
     a minor radius with either a dimension block
     or the minor_radius input block.
 
 **370: Zone <string1> is loaded with a non-existent 
 mixture: <string2>**
 
-    The mixture :doc:`[G] <glossarytext>` string2
+    The :term:`mixture` string2
     specified to fill zone string1 in the mat_loading
     block is not defined in the input file. Either
     add a new mixture definition or change the name
@@ -306,19 +308,19 @@ item of schedule <string>.**
     The pulsing history string1 required to calculate
     a schedule item of schedule string2 has not been defined.
 
-**420: Zone :doc:`[G] <glossarytext>` <string> specified in 
+**420: Zone <string> specified in 
 interval volumes was not found in the material loading.**
 
-    The zone string specified to contain one
+    The :term:`zone <zones>` string specified to contain one
     of the volumes in the volumes input block
     does not exist.
 
-**440: ALARA now requires a binary dump file:doc:`[G] glossarytext>`.
+**440: ALARA now requires a binary dump file.
 Openning the default file 'alara.dmp'.**
 
     ALARA uses a binary file to store intermediate
     results. You can set the name of this file
-    using the dump_file input block. Otherwise,
+    using the :term:`dump_file <dump file>` input block. Otherwise,
     the default is used.
 
 .. _Input Cross-referencing:
@@ -328,8 +330,8 @@ Input Cross-referencing
 
 **580: Removing mixture <string> not used in any zones.**
 
-    Mixture :doc:`[G] <glossarytext>` string was
-    defined in the input file :doc:`[G] <glossarytext>`,
+    :term:`Mixture` string was
+    defined in the :term:`input file`,
     but is not used in any zones. It's
     definition is being removed.
 
@@ -338,8 +340,8 @@ specifiy any normalizations, you must specify one for
 each interval.**
 
     The spatial_norm input block must contain
-    an entry for each of the fine mesh
-    intervals :doc:`[G] <glossarytext>`. It is
+    an entry for each of the :term:`fine mesh
+    intervals`. It is
     not permissible to have too few.
 
 **621: You have specified too many normalizations. Extra 
@@ -352,10 +354,10 @@ normalizations will be ignored.**
 
 **622: Flux file <string> does not contain enough data.**
 
-    The flux file :doc:`[G] <glossarytext>` string
+    The :term:`flux file <flux>` string
     does not contain enough data to provide a
-    flux for each of the fine mesh
-    intervals :doc:`[G] <glossarytext>`.
+    flux for each of the :term:`fine mesh
+    intervals`.
 
 .. _Data Library Errors:
 

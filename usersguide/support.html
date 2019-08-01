@@ -132,7 +132,7 @@ find when running a problem:</div></blockquote>
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div>The element library allows the user to define the
-isotopic <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> abundances
+<a class="reference internal" href="glossarytext.html#term-isotopic-abundances"><span class="xref std std-term">isotopic abundances</span></a>
 to be used for each element. While this library
 should normally include a  definition of the natural
 abundances for each element, an extension is available
@@ -142,16 +142,17 @@ for defining enriched or isotopically tailored elements.</div></blockquote>
 <h2>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><p>An element library can contain an arbitrary
-number <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> of elemental
-definitions, each represented by a block with the following
-format. Every block must start with the following five entries:</p>
+number of elemental definitions, each
+represented by a block with the following
+format. Every block must start with the
+following five entries:</p>
 <blockquote>
 <div><ul class="simple">
 <li>a string indicating the name/identifier,</li>
-<li>a floating point value <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> for the molar mass,</li>
-<li>an integer value for the atomic number <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>,</li>
+<li>a <a class="reference internal" href="glossarytext.html#term-floating-point-scalar-normalization"><span class="xref std std-term">floating point value</span></a> for the molar mass,</li>
+<li>an integer value for the <a class="reference internal" href="glossarytext.html#term-atomic-number"><span class="xref std std-term">atomic number</span></a>,</li>
 <li>a floating point value for the theoretical density, and</li>
-<li>an integer value defining the number of isotopes <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</li>
+<li>an integer value defining the number of <a class="reference internal" href="glossarytext.html#term-isotope"><span class="xref std std-term">isotopes</span></a>.</li>
 </ul>
 </div></blockquote>
 <p>This is followed by two entries for each of these isotopes:</p>
@@ -170,15 +171,15 @@ format. Every block must start with the following five entries:</p>
 <h2>Naming Elemental Definitions<a class="headerlink" href="#naming-elemental-definitions" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div>The names/identifiers for all elemental definitions must
-be derived from the chemical symbol <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+be derived from the <a class="reference internal" href="glossarytext.html#term-chemical-symbol"><span class="xref std std-term">chemical symbol</span></a>
 for that element, using the format ZZ[:AAA…], where ZZ
-represents the chemcial symbol <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>,
+represents the <a class="reference internal" href="glossarytext.html#term-chemical-symbol"><span class="xref std std-term">chemical symbol</span></a>,
 and [:AAA…] represents an optional modifier, separated by a
 colon, ‘:’, from the chemical symbol. By  convention, entries
-without modifiers are used to define the natural
-abundances <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> of isotopes. The
+without modifiers are used to define the <a class="reference internal" href="glossarytext.html#term-natural-abundances"><span class="xref std std-term">natural
+abundances</span></a> of isotopes. The
 modifier must be a character string containing no
-whitespace <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. [example: a
+<a class="reference internal" href="glossarytext.html#term-whitespace"><span class="xref std std-term">whitespace</span></a>. [example: a
 definition for lithium enriched to 90% in the isotope
 6Li, might have the name ‘Li:90’.] These names/identifiers
 can be  used both in a mixture block of the input file
@@ -218,7 +219,7 @@ three entries:</p>
 <div><ul class="simple">
 <li>a string indicating the name/identifier,</li>
 <li>a floating point value for the weight fraction in %, and</li>
-<li>an integer for the atomic number <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</li>
+<li>an integer for the <a class="reference internal" href="glossarytext.html#term-atomic-number"><span class="xref std std-term">atomic number</span></a>.</li>
 </ul>
 </div></blockquote>
 </div></blockquote>
@@ -230,7 +231,7 @@ three entries:</p>
 <h2>Naming Material Definitions<a class="headerlink" href="#naming-material-definitions" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div>The name of a material definition must be a character string
-with no whitespace <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. The
+with no <a class="reference internal" href="glossarytext.html#term-whitespace"><span class="xref std std-term">whitespace</span></a>. The
 recommended practice is that material definitions never be
 deleted from a material library, ensuring the repeatability
 of results. It is expected, however, that many materials will
@@ -248,8 +249,8 @@ definitions used over time.</div></blockquote>
 <div class="section" id="id6">
 <h2>Description<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div>Waste disposal ratings <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> and
-clearance indices <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> are used to
+<div><a class="reference internal" href="glossarytext.html#term-waste-disposal-rating"><span class="xref std std-term">Waste disposal ratings</span></a> and
+<a class="reference internal" href="glossarytext.html#term-clearance-indices"><span class="xref std std-term">clearance indices</span></a> are used to
 provide a single metric for classifying the level of control
 required when disposing of used material. Each metric is
 based on a (possibly) unique list of isotopes and the
@@ -262,12 +263,12 @@ allowable specific activities for those isotopes.</div></blockquote>
 either a volumetric or specific activity. These files are
 simple text files containing one pair for each isotope for
 which a limit exists. The first entry of each pair identifies
-the isotope using either the standard chemical
-symbol <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> notation CC-AAAM (CC is
+the isotope using either the standard <a class="reference internal" href="glossarytext.html#term-chemical-symbol"><span class="xref std std-term">chemical
+symbol</span></a> notation CC-AAAM (CC is
 the chemical symbol, AAA is the mass number, and M is the
 isomeric state: ‘m’ for the first isomeric state, ‘n’ for
 the second, and so on), or ALARA’s kza notation ZZAAAM (ZZ
-is the atomic number <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> , AAA is
+is the <a class="reference internal" href="glossarytext.html#term-atomic-number"><span class="xref std std-term">atomic number</span></a>, AAA is
 the mass number, and M is the numerical isomeric state: ‘1’
 for the first state, ‘2’ for the second, etc). The second
 entry is a specific activity in any combination of units
@@ -315,7 +316,7 @@ quite large (many MB) a simple binary format was designed.</div></blockquote>
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 30, 2019.
+      Last updated on Jul 31, 2019.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.6.

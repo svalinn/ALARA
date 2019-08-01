@@ -116,7 +116,7 @@ A sample output is available here.</div></blockquote>
 <h2>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><p>As described in the section on <a class="reference internal" href="commandtext.html"><span class="doc">command-line</span></a>
-<a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> arguments, various levels of output
+arguments, various levels of output
 are available during the calculation. The first part of the output
 file will contain this verbose output, including confirmation
 of the input data and details of the cross-referencing and
@@ -124,11 +124,10 @@ preprocessing of the input.</p>
 <p>The second part of the output file shows details on the tree building
 process, ranging from a simple list of the root isotopes being solved
 and statistics on the size and speed of the solution, to details on
-the chain growth and truncation <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
-calculations (depending on the verbosity <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
-specified on the
-<a class="reference internal" href="commandtext.html"><span class="doc">command-line</span></a><a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>).</p>
-<p>The final part of the output file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+the chain growth and <a class="reference internal" href="glossarytext.html#term-truncation"><span class="xref std std-term">truncation</span></a>
+calculations (depending on the <a class="reference internal" href="glossarytext.html#term-verbosity"><span class="xref std std-term">verbosity</span></a> specified on the
+<a class="reference internal" href="commandtext.html"><span class="doc">command-line</span></a>).</p>
+<p>The final part of the <a class="reference internal" href="glossarytext.html#term-output-files"><span class="xref std std-term">output files</span></a>
 are the results, as requested by the user in the input file. This
 output will include one section for each output format description
 given by the user. Each of these sections will be divided into
@@ -166,12 +165,12 @@ blocks as shown in the following block diagram.</p>
 <div class="section" id="table-type-1">
 <span id="id1"></span><h2>Table Type 1<a class="headerlink" href="#table-type-1" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><p>The first type has a row for each isotope <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+<div><p>The first type has a row for each <a class="reference internal" href="glossarytext.html#term-isotope"><span class="xref std std-term">isotope</span></a>
 produced in the problem that has a non-zero response. If
-the constituent keyword <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> is
+the constituent <a class="reference internal" href="glossarytext.html#term-keyword"><span class="xref std std-term">keyword</span></a> is
 given in the output block, there will be one table for
 each constituent, followed by a table for the total
-mixture <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</p>
+<a class="reference internal" href="glossarytext.html#term-mixture"><span class="xref std std-term">mixture</span></a>.</p>
 <p>For the isotopic results of individual mixture constituents,
 all the values are normalized to the volume fraction of that
 constituent. Therefore, the table represents the results
@@ -179,7 +178,7 @@ for a sample made up entirely of that constituent. Put
 another way, the table represents the results normalized
 per unit volume (or mass) containing only that constituent.</p>
 <p>For most results, the table containing the total isotopic
-results for the interval, zone <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>,
+results for the interval, <a class="reference internal" href="glossarytext.html#term-zones"><span class="xref std std-term">zone</span></a>,
 or mixture, is not normalized, and these values represent
 the result for the mixture as described in the input,
 regardless of what volume fraction if filled. However,
@@ -212,8 +211,8 @@ for each target isotope.</div></blockquote>
 <div class="section" id="id3">
 <h2>Description<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div>ALARA also optionally produces a so-called tree
-file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> to allow some rudimentary
+<div>ALARA also optionally produces a so-called <a class="reference internal" href="glossarytext.html#term-tree-file"><span class="xref std std-term">tree
+file</span></a> to allow some rudimentary
 pathway analysis. The tree file contains much information about
 the creation and truncation of the trees and chains used to
 calculate the transmutation and activation in the problem.</div></blockquote>
@@ -313,7 +312,7 @@ this file is that specified by the output block.</div></blockquote>
 <h2>Format<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div>For each spatial region, there is a section for each isotope
-responsible for gamma emissions <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> and a
+responsible for <a class="reference internal" href="glossarytext.html#term-gamma-emissions"><span class="xref std std-term">gamma emissions</span></a> and a
 section for the total gamma emissions. Each of these sections has
 a header line consisting of the isotope’s identifier (chemical
 symbol and mass number) or the keyword “TOTAL”, respectively.
@@ -336,7 +335,7 @@ arranged in lines of 6 values per line.</div></blockquote>
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 30, 2019.
+      Last updated on Jul 31, 2019.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.6.

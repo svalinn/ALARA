@@ -137,8 +137,8 @@ than once, if at all. Each of the input blocks includes a
 link to a sample block, as it exists in a complete
 sample input file.</p>
 <p>In the following list, input blocks indicated in bold
-are required at least once in every input
-file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>:</p>
+are required at least once in every <a class="reference internal" href="glossarytext.html#term-input-file"><span class="xref std std-term">input
+file</span></a>:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="34%" />
@@ -194,14 +194,14 @@ Building</a></td>
 <blockquote>
 <div><ol class="arabic">
 <li><p class="first"><strong>Dimension/Volume:</strong> If “[1]” follows an input
-block name, either the dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+block name, either the <a class="reference internal" href="glossarytext.html#term-dimension"><span class="xref std std-term">dimension</span></a>
 or the volume is required, but it will generate an
 error if both are included.</p>
 </li>
 <li><p class="first"><strong>Input Blocks:</strong> Not all input blocks are required,
 with some being unnecessary for certain problems. Input
 blocks indicated in bold are required at least once in
-every input file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</p>
+every <a class="reference internal" href="glossarytext.html#term-input-file"><span class="xref std std-term">input file</span></a>.</p>
 <p>There are also some input blocks which are incompatible
 with each other. While superfluous input blocks may go
 unnoticed (there are occasional warnings), incompatible
@@ -211,10 +211,10 @@ input blocks will create an error.</p>
 to define their own symbolic names for cross-referencing
 the various input data. Any string of characters can be
 used as long as its does not contain any
-whitespace <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> (spaces, tabs,
+<a class="reference internal" href="glossarytext.html#term-whitespace"><span class="xref std std-term">whitespace</span></a> (spaces, tabs,
 new-lines, etc.).</p>
 <p>It is considered dangerous, however, to use a
-keyword <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> as a symbolic name.
+<a class="reference internal" href="glossarytext.html#term-keyword"><span class="xref std std-term">keyword</span></a> as a symbolic name.
 If the input file is correct, it will function properly,
 but if there are errors in the input file, the usage of
 keywords as symbolic names may make the error message
@@ -256,11 +256,11 @@ the inclusion must not occur within an input block!</li>
 non-space character is the pound sign (or number
 sign) (#) are considered as comments. Comments can
 also be used after any single word input (an input
-value with no whitespace <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>)
+value with no <a class="reference internal" href="glossarytext.html#term-whitespace"><span class="xref std std-term">whitespace</span></a>)
 by using the same comment character (#). Such
 comments extend to the end of the current line.
-Blank lines are permitted anywhere in the input
-file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</li>
+Blank lines are permitted anywhere in the <a class="reference internal" href="glossarytext.html#term-input-file"><span class="xref std std-term">input
+file</span></a>.</li>
 <li><strong>Length Units:</strong> Centimeters should be used for all
 length units.</li>
 </ol>
@@ -278,7 +278,7 @@ length units.</li>
 <div><p>(required once)</p>
 <p><strong>Description:</strong> This required input block is
 only necessary when defining a geometry using
-the dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> input
+the <a class="reference internal" href="glossarytext.html#term-dimension"><span class="xref std std-term">dimension</span></a> input
 block, but may always be included. It should
 only occur once.</p>
 <p><strong>Syntax:</strong></p>
@@ -288,20 +288,20 @@ only occur once.</p>
 <p><strong>Option Description:</strong></p>
 </div></blockquote>
 <div class="line-block">
-<div class="line">point <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
-<div class="line">rectangular <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
-<div class="line">cylindrical <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
-<div class="line">spherical <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
-<div class="line">torus <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> –</div>
+<div class="line"><a class="reference internal" href="glossarytext.html#term-point"><span class="xref std std-term">point</span></a> –</div>
+<div class="line"><a class="reference internal" href="glossarytext.html#term-rectangular"><span class="xref std std-term">rectangular</span></a> –</div>
+<div class="line"><a class="reference internal" href="glossarytext.html#term-cylindrical"><span class="xref std std-term">cylindrical</span></a> –</div>
+<div class="line"><a class="reference internal" href="glossarytext.html#term-spherical"><span class="xref std std-term">spherical</span></a> –</div>
+<div class="line"><a class="reference internal" href="glossarytext.html#term-torus"><span class="xref std std-term">torus</span></a> –</div>
 </div>
 <blockquote>
 <div><p><strong>Sample Input:</strong> geometry point</p>
 <p><strong>Notes:</strong> This input block should not be terminated.
 If using the dimension input block to define the geometry
-and the type is torus <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> , the
-major_radius <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> input block is
-required and the minor_radius <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
-block may also be required.</p>
+and the type is <a class="reference internal" href="glossarytext.html#term-torus"><span class="xref std std-term">torus</span></a>, the
+<a class="reference internal" href="glossarytext.html#term-major-and-minor-radii-of-toroidal-geometries"><span class="xref std std-term">major_radius</span></a> input block is
+required and the <a class="reference internal" href="glossarytext.html#term-major-and-minor-radii-of-toroidal-geometries"><span class="xref std std-term">minor_radius</span></a> block may also
+be required.</p>
 </div></blockquote>
 <hr class="docutils" />
 </div>
@@ -311,7 +311,7 @@ block may also be required.</p>
 <div><p>(required [1]: once [1d], twice [2d], thrice [3d])</p>
 <p><strong>Description:</strong> This input block is used to define the
 geometry layout, and should be included once for each
-dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> needed in the problem.</p>
+<a class="reference internal" href="glossarytext.html#term-dimension"><span class="xref std std-term">dimension</span></a> needed in the problem.</p>
 <p><strong>Syntax:</strong></p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>dimension &lt;OPTION&gt; &lt;LOC0&gt;
 &lt;#INTS1&gt; &lt;LOC1&gt;
@@ -324,7 +324,7 @@ end
 </pre></div>
 </div>
 <p><strong>Option Description:</strong> The dimension block’s first element
-indicates which dimension <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> is being
+indicates which <a class="reference internal" href="glossarytext.html#term-dimension"><span class="xref std std-term">dimension</span></a> is being
 defined and should be one of the following:</p>
 <blockquote>
 <div>x –
@@ -334,10 +334,11 @@ r –
 theta –
 phi –</div></blockquote>
 <p><strong>Sample Input:</strong> The dimension block’s next element is the
-first zone’s lower boundary, expressed as a floating point
-number <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. This is followed by a list
-of pairs, one pair for each zone: an integer specifying the
-number of intervals in this zone in this dimension and a
+first zone’s lower boundary, expressed as a <a class="reference internal" href="glossarytext.html#term-floating-point-scalar-normalization"><span class="xref std std-term">floating point
+number</span></a>.
+This is followed by a list of pairs, one pair for
+each zone: an integer specifying the number of
+intervals in this zone in this dimension and a
 floating point number indicating the zone’s upper boundary.
 This list is terminated with the end keyword.</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>dimension x 0.0
@@ -349,9 +350,9 @@ end
 </div>
 <p><strong>Notes:</strong> ALARA will check to ensure that only dimensions
 relevant to the defined geometry are included. For example,
-defining the ‘x’ dimension in a spherical <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+defining the ‘x’ dimension in a <a class="reference internal" href="glossarytext.html#term-spherical"><span class="xref std std-term">spherical</span></a>
 problem will generate an error. Since this method of defining
-the geometry calculates the fine mesh intervals’ <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+the geometry calculates the <a class="reference internal" href="glossarytext.html#term-fine-mesh-intervals"><span class="xref std std-term">fine mesh intervals</span></a>
 zone membership and volume from the dimension data, it is
 incompatible with the volumes input block. Including
 both will generate an error message.</p>
@@ -363,9 +364,9 @@ both will generate an error message.</p>
 <blockquote>
 <div><p>(required once [each] for geometry torus)</p>
 <p><strong>Description:</strong> These two input blocks are used to define
-the major and minor radii <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> of toroidal
-geometries. They are only needed in defining a
-toroidal <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> geometry with dimension
+the <a class="reference internal" href="glossarytext.html#term-major-and-minor-radii-of-toroidal-geometries"><span class="xref std std-term">major and minor radii of toroidal
+geometries</span></a>. They are only needed in defining a
+<a class="reference internal" href="glossarytext.html#term-torus"><span class="xref std std-term">toroidal</span></a> geometry with dimension
 input blocks, and each should only be included once.
 Furthermore, if the minor radius dimension is defined with
 a dimension block, the minor_radius input block is not
@@ -389,7 +390,7 @@ a floating point number.</p>
 <blockquote>
 <div><p>(required [1] once)</p>
 <p><strong>Description:</strong> This input block is used to define the
-fine mesh intervals’ <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> volumes
+<a class="reference internal" href="glossarytext.html#term-fine-mesh-intervals"><span class="xref std std-term">fine mesh intervals</span></a> volumes
 and zone membership.</p>
 <p><strong>Syntax:</strong></p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>Volumes
@@ -401,14 +402,14 @@ end
 </pre></div>
 </div>
 <p>This input block should be a list of pairs, one pair
-for each interval. Each pair consists of a floating
-point <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> value for the volume
+for each interval. Each pair consists of a <a class="reference internal" href="glossarytext.html#term-floating-point-scalar-normalization"><span class="xref std std-term">floating
+point value</span></a> for the volume
 of that interval and the symbolic name of the zone
 containing that interval. These symbolic names
 should correspond with the symbolic names given
 to the zones in the mat_loading input block. This
 list must be terminated with the
-keyword <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> end.</p>
+<a class="reference internal" href="glossarytext.html#term-keyword"><span class="xref std std-term">keyword</span></a> end.</p>
 <p><strong>Sample Input:</strong></p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>volumes
 0.5 first_wall
@@ -431,11 +432,11 @@ result in undefined behavior.</p>
 <div><p>(required once)</p>
 <p><strong>Description:</strong> This input block is used to
 indicate which mixtures are contained in each
-zone <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>. This block is
+<a class="reference internal" href="glossarytext.html#term-zones"><span class="xref std std-term">zone</span></a>. This block is
 a list with one pair of entries for every zone.
 Each pair consists of a symbolic name for the
-zone and a symbolic name for the mixture
-<a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> contained in that
+zone and a symbolic name for the <a class="reference internal" href="glossarytext.html#term-mixture"><span class="xref std std-term">mixture</span></a>
+contained in that
 zone. This list is terminated by the keyword
 end. This block should only occur once.
 Multiple occurrences will result in undefined
@@ -457,8 +458,8 @@ end
 </pre></div>
 </div>
 <p><strong>Notes:</strong> If the geometry is defined using the
-dimension input blocks, the number of zones
-<a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> defined here must match
+dimension input blocks, the number of <a class="reference internal" href="glossarytext.html#term-zones"><span class="xref std std-term">zones</span></a>
+defined here must match
 the number of zones defined in the dimension
 blocks exactly; if not, an error results. If
 the volumes method is used to define the geometry,
@@ -511,7 +512,7 @@ the material library. The third element is a
 floating point value representing the relative
 density of this material, based on the density
 given in the material library. The final
-element is a floating point <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+element is a <a class="reference internal" href="glossarytext.html#term-floating-point-scalar-normalization"><span class="xref std std-term">floating point</span></a>
 value representing the volume fraction of
 this material in this mixture. Both of the
 last two values are typically between 0 and 1.</p>
@@ -527,17 +528,17 @@ the volume fraction element should be 0.50.</p>
 <p><strong>element</strong></p>
 <p>This entry has three additional elements. The
 second element in this entry is the element’s
-modified chemical symbol <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.
+modified <a class="reference internal" href="glossarytext.html#term-chemical-symbol"><span class="xref std std-term">chemical symbol</span></a>.
 This element will be expanded into a list of
-isotopes <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> using the
+<a class="reference internal" href="glossarytext.html#term-isotope"><span class="xref std std-term">isotopes</span></a> using the
 abundances found in the element library for
 that modified chemcial symbol. A modified
-chemical symbol <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> has
+<a class="reference internal" href="glossarytext.html#term-chemical-symbol"><span class="xref std std-term">chemical symbol</span></a> has
 the format ‘’ZZ:XXXXXX…’‘, where ZZ is the
 standard chemical symbol, and the string
-XXXXXX… allows for isotopic
-abundances <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> different
-from natural abundances <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</p>
+XXXXXX… allows for <a class="reference internal" href="glossarytext.html#term-isotopic-abundances"><span class="xref std std-term">isotopic
+abundances</span></a> different
+from <a class="reference internal" href="glossarytext.html#term-natural-abundances"><span class="xref std std-term">natural abundances</span></a>.</p>
 </div></blockquote>
 <p>The final two elements of this section are identical to
 the final two elements of the material type entry,
@@ -547,7 +548,7 @@ and should be interpreted in the same way.</p>
 <p>This type of entry has two additional elements
 and is provided as a convenience and indicates
 that this constituent is like another user-defined
-mixture <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>, with a
+<a class="reference internal" href="glossarytext.html#term-mixture"><span class="xref std std-term">mixture</span></a>, with a
 potentially different density. The second element
 of this entry is the symbolic name of another
 mixture definition. If the other mixture
@@ -562,7 +563,7 @@ but only used as part of another mixture.]</p>
 <p><strong>target</strong></p>
 <p>This type of entry is used to initiate a reverse
 calculation (see the ALARA Technical Manual)
-and define the target isotopes <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+and define the target <a class="reference internal" href="glossarytext.html#term-isotope"><span class="xref std std-term">isotopes</span></a>
 for the reverse calculation. The user can
 define an arbitrary number of target isotopes.
 The second element of this entry is one of the
@@ -570,7 +571,7 @@ keywords element or isotope, indicating what kind
 of target this is. The final element is the symbolic
 name of either the element or isotope. For isotopes,
 the symbolic name is in the format ZZ-AAA, where ZZ
-is the chemical symbol <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> and
+is the <a class="reference internal" href="glossarytext.html#term-chemical-symbol"><span class="xref std std-term">chemical symbol</span></a> and
 AAA is the mass number. There are no elements
 representing relative densities or volume fractions.
 If a target is of type element, the element will be
@@ -624,7 +625,7 @@ keyword end.</p>
 the user to limit which zones are being solved in
 a given calculation (see solve_zones). It is
 common for a user to create a single complete
-input file <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> describing
+<a class="reference internal" href="glossarytext.html#term-input-file"><span class="xref std std-term">input file</span></a> describing
 the entire geometry/composition, and want to
 exclude certain parts of the geometry/composition
 for particular cases.</p>
@@ -657,13 +658,13 @@ terminated with the keyword end.</p>
 <blockquote>
 <div><p>(required: once per defined flux)</p>
 <p><strong>Description:</strong> This input block defines a set
-of flux spectra <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>.</p>
+of <a class="reference internal" href="glossarytext.html#term-flux-spectra"><span class="xref std std-term">flux spectra</span></a>.</p>
 <p><strong>Syntax:</strong></p>
 <p>The first element of this block is a symbolic name,
 used to refer to this flux spectra definition. The
 other elements of this block are a filename, a
-floating point scalar normalization
-<a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>, an integer skip value
+<a class="reference internal" href="glossarytext.html#term-floating-point-scalar-normalization"><span class="xref std std-term">floating point scalar normalization</span></a>,
+an integer skip value
 (see below), and flux type indicator string,
 respectively.</p>
 <p>The flux filename should indicate which file contains
@@ -671,7 +672,7 @@ this flux information, including path information
 appropriate to find the file from the directory in
 which ALARA will be run. The flux file itself
 contains a simple list of group fluxes for each of
-the fine mesh intervals <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+the <a class="reference internal" href="glossarytext.html#term-fine-mesh-intervals"><span class="xref std std-term">fine mesh intervals</span></a>
 defined in the problem. The number of groups for
 each interval and the order of those groups is
 determined entirely by the data library being used.
@@ -705,8 +706,8 @@ the same flux values (same flux file and skip value)
 but a different scaling value.]</p>
 <p><strong>Sample Input:</strong></p>
 <p><strong>Notes:</strong></p>
-<p>Since different parts of the irradiation
-history <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> can have different
+<p>Since different parts of the <a class="reference internal" href="glossarytext.html#term-irradiation-history"><span class="xref std std-term">irradiation
+history</span></a> can have different
 flux spectra, this block may occur as many times as
 necessary to represent all the different necessary
 flux definitions.</p>
@@ -718,8 +719,8 @@ flux definitions.</p>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This input block allows the user
-to specify a scalar flux normalization for each fine
-mesh interval <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>, such as
+to specify a scalar flux normalization for each <a class="reference internal" href="glossarytext.html#term-fine-mesh-intervals"><span class="xref std std-term">fine
+mesh interval</span></a>, such as
 might be required to re-normalize the results of
 a transport calculation on an approximated geometry.</p>
 <p><strong>Syntax:</strong></p>
@@ -818,15 +819,15 @@ many times.</p>
 <div><p>(required once)</p>
 <p><strong>Description:</strong> This fixed sized input block
 defines the primary parameter used in
-truncating <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> the activation
+<a class="reference internal" href="glossarytext.html#term-truncation"><span class="xref std std-term">truncating</span></a> the activation
 trees. See the ALARA Technical Manual for a
 detailed discussion of the tree truncation issue.</p>
 <p><strong>Syntax:</strong></p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>truncation &lt;tol_value&gt;
 </pre></div>
 </div>
-<p>The only element of this block is the truncation
-<a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> tolerance.</p>
+<p>The only element of this block is the <a class="reference internal" href="glossarytext.html#term-truncation"><span class="xref std std-term">truncation</span></a>
+tolerance.</p>
 <p><strong>Sample Input:</strong></p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>truncation .001
 </pre></div>
@@ -846,7 +847,7 @@ values will result in truncation.</p>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This fixed sized input block
 defines the parameters used to treat initial
-isotopes <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> as impurities.
+<a class="reference internal" href="glossarytext.html#term-isotope"><span class="xref std std-term">isotopes</span></a> as impurities.
 This feature allows the user to build shorter
 chains for impurities, since their contributions
 tend to be less significant. This can make
@@ -943,7 +944,7 @@ which must be one of the following:</p>
 <p><strong>Notes:</strong></p>
 <p>In both cases, the comparison/averaging takes place
 over all the intervals which contain a given root
-isotope <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>, not just over
+<a class="reference internal" href="glossarytext.html#term-isotope"><span class="xref std std-term">isotope</span></a>, not just over
 a single zone, component, or material loading.</p>
 </div></blockquote>
 <hr class="docutils" />
@@ -956,7 +957,7 @@ a single zone, component, or material loading.</p>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This input block is used to define the
-after-shutdown cooling times <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+after-shutdown <a class="reference internal" href="glossarytext.html#term-cooling-time"><span class="xref std std-term">cooling times</span></a>
 at which the problem will be solved.</p>
 <p><strong>Syntax:</strong></p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>cooling
@@ -972,7 +973,7 @@ end
 <p>This block is simply a list of times, where each time
 consists of a floating point time followed by a single
 character defining the time’s units. Since an arbitrary
-number of cooling times <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a> can
+number of :terms:cooling times` can
 be solved, this list must be terminated with the
 keyword ‘end’.</p>
 <p><strong>Sample Input:</strong></p>
@@ -1117,7 +1118,7 @@ values will not be reported and erroneous results
 will occur.</p>
 <p>The wdr output modifier requires an additional text
 string parameter representing the filename to use for
-calculating the waste disposal rating <a class="reference internal" href="glossarytext.html"><span class="doc">[G]</span></a>
+calculating the <a class="reference internal" href="glossarytext.html#term-waste-disposal-rating"><span class="xref std std-term">waste disposal rating</span></a>
 or clearance limits. A detailed description of the WDR
 file is available here. To calculate the WDR based on
 different standards, simply repeat this modifier within
@@ -1286,7 +1287,7 @@ EAF formatted libraries to ALARA v2.x binary libraries.]</p>
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 30, 2019.
+      Last updated on Jul 31, 2019.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.6.
