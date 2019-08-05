@@ -1,3 +1,7 @@
+==========
+Change Log
+==========
+
 $Id: NEWS,v 1.4 2004/01/29 08:09:13 wilsonp Exp $
 
 Version 2.7.1
