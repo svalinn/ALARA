@@ -15,7 +15,7 @@ Requirements
 Installation Process
 ====================
 
-1.  Obtain the distribution from the appropriate source.
+1.  Obtain the distribution from the appropriate `source <https://github.com/svalinn/ALARA.git>`_.
 
 2.  Unpack the distribution::
 
@@ -83,12 +83,12 @@ Intalled files and directories
 
 	The following files are placed in this directory: 
 
-	* alara - the main application 
-	* dant2alara - a utility for converting DANTSYS 
+	* `alara` - the main application 
+	* `dant2alara` - a utility for converting DANTSYS 
 	  rtflux/atflux files to a format suitable for ALARA 
-	* summary - a Perl utility for extracting summaries 
+	* `summary` - a Perl utility for extracting summaries 
 	  of ALARA output files 
-	* extract_pathways - a Perl utility for extracting 
+	* `extract_pathways` - a Perl utility for extracting 
 	  pathways from ALARA tree files 
 
 	**datadir** - prefix/share/alara/data 
@@ -96,22 +96,26 @@ Intalled files and directories
 	This directory contains the following machine-independent 
 	files (generally ASCII text files). 
 
-	* ANS6_4_3.txt - Data for implementing contact dose based 
-	  on standard ANS6.4.3. 
-	* IAEA.clearance.Bq_kg - Limits for determining the 
-	  material clearance rating based on IAEA standards. 
-	* FetterC_hi.Ci_m3.wdr (and FetterC_lo.Ci_m3.wdr) - 
+	* `ANS6_4_3.txt <https://raw.githubusercontent.com/svalinn/ALARA/master/data/ANS6_4_3.txt>`_ 
+	  - Data for implementing contact dose based on standard ANS6.4.3. 
+	* `IAEA.clearance.2004.Bq_kg <https://raw.githubusercontent.com/svalinn/ALARA/master/data/IAEA.clearance.2004.Bq_kg>`_
+	  - Limits for determining the material clearance rating based on IAEA standards. 
+	* `FetterC_hi.Ci_m3.wdr <https://raw.githubusercontent.com/svalinn/ALARA/master/data/FetterC_hi.Ci_m3.wdr>`_ 
+	  (and `FetterC_lo.Ci_m3.wdr <https://raw.githubusercontent.com/svalinn/ALARA/master/data/FetterC_lo.Ci_m3.wdr>`_ ) - 
 	  Limits for determining the waste disposal rating based 
 	  on the high (and low) values suggested by Fetter for 
 	  each isotope. 
-	* NRCA.Ci_m3.wdr (and NRCC.Ci_m3.wdr) - Limits for determining 
-	  the waste disposal rating based on the class A (and class 
-	  C) definitions provided by the U.S. Nuclear 
+	* `NRCA.Ci_m3.wdr <https://raw.githubusercontent.com/svalinn/ALARA/master/data/NRCA.Ci_m3.wdr>`_ 
+	  (and `NRCC.Ci_m3.wdr <https://raw.githubusercontent.com/svalinn/ALARA/master/data/NRCC.Ci_m3.wdr>`_ )
+	  - Limits for determining the waste disposal rating based on the 
+	  class A (and class C) definitions provided by the U.S. Nuclear 
 	  Regulator Comissions. 
-	* elelib.std - A file in ALARA's element library format 
+	* `elelib.std <https://raw.githubusercontent.com/svalinn/ALARA/master/data/elelib.std>`_ 
+	  - A file in ALARA's element library format 
 	  describing the standard natural isotopic abundances 
 	  of all elements. 
-	* matlib.sample - A file in ALARA's material library 
+	* `matlib.sample <https://raw.githubusercontent.com/svalinn/ALARA/master/data/matlib.sample>`_ 
+	  - A file in ALARA's material library 
 	  format to show samples of how materials can be 
 	  defined and including some commong fusion materials. 
 

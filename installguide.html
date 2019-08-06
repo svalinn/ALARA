@@ -102,7 +102,7 @@ compiler.</div></blockquote>
 <div class="section" id="installation-process">
 <h2>Installation Process<a class="headerlink" href="#installation-process" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
-<li><p class="first">Obtain the distribution from the appropriate source.</p>
+<li><p class="first">Obtain the distribution from the appropriate <a class="reference external" href="https://github.com/svalinn/ALARA.git">source</a>.</p>
 </li>
 <li><p class="first">Unpack the distribution:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>gunzip -c alara-2.7.1.tar.gz | tar xf -
@@ -169,34 +169,38 @@ the “prefix” directory described above.</p>
 <div><p><strong>bindir</strong> - prefix/bin</p>
 <p>The following files are placed in this directory:</p>
 <ul class="simple">
-<li>alara - the main application</li>
-<li>dant2alara - a utility for converting DANTSYS
+<li><cite>alara</cite> - the main application</li>
+<li><cite>dant2alara</cite> - a utility for converting DANTSYS
 rtflux/atflux files to a format suitable for ALARA</li>
-<li>summary - a Perl utility for extracting summaries
+<li><cite>summary</cite> - a Perl utility for extracting summaries
 of ALARA output files</li>
-<li>extract_pathways - a Perl utility for extracting
+<li><cite>extract_pathways</cite> - a Perl utility for extracting
 pathways from ALARA tree files</li>
 </ul>
 <p><strong>datadir</strong> - prefix/share/alara/data</p>
 <p>This directory contains the following machine-independent
 files (generally ASCII text files).</p>
 <ul class="simple">
-<li>ANS6_4_3.txt - Data for implementing contact dose based
-on standard ANS6.4.3.</li>
-<li>IAEA.clearance.Bq_kg - Limits for determining the
-material clearance rating based on IAEA standards.</li>
-<li>FetterC_hi.Ci_m3.wdr (and FetterC_lo.Ci_m3.wdr) -
+<li><a class="reference external" href="https://raw.githubusercontent.com/svalinn/ALARA/master/data/ANS6_4_3.txt">ANS6_4_3.txt</a>
+- Data for implementing contact dose based on standard ANS6.4.3.</li>
+<li><a class="reference external" href="https://raw.githubusercontent.com/svalinn/ALARA/master/data/IAEA.clearance.2004.Bq_kg">IAEA.clearance.2004.Bq_kg</a>
+- Limits for determining the material clearance rating based on IAEA standards.</li>
+<li><a class="reference external" href="https://raw.githubusercontent.com/svalinn/ALARA/master/data/FetterC_hi.Ci_m3.wdr">FetterC_hi.Ci_m3.wdr</a>
+(and <a class="reference external" href="https://raw.githubusercontent.com/svalinn/ALARA/master/data/FetterC_lo.Ci_m3.wdr">FetterC_lo.Ci_m3.wdr</a> ) -
 Limits for determining the waste disposal rating based
 on the high (and low) values suggested by Fetter for
 each isotope.</li>
-<li>NRCA.Ci_m3.wdr (and NRCC.Ci_m3.wdr) - Limits for determining
-the waste disposal rating based on the class A (and class
-C) definitions provided by the U.S. Nuclear
+<li><a class="reference external" href="https://raw.githubusercontent.com/svalinn/ALARA/master/data/NRCA.Ci_m3.wdr">NRCA.Ci_m3.wdr</a>
+(and <a class="reference external" href="https://raw.githubusercontent.com/svalinn/ALARA/master/data/NRCC.Ci_m3.wdr">NRCC.Ci_m3.wdr</a> )
+- Limits for determining the waste disposal rating based on the
+class A (and class C) definitions provided by the U.S. Nuclear
 Regulator Comissions.</li>
-<li>elelib.std - A file in ALARA’s element library format
+<li><a class="reference external" href="https://raw.githubusercontent.com/svalinn/ALARA/master/data/elelib.std">elelib.std</a>
+- A file in ALARA’s element library format
 describing the standard natural isotopic abundances
 of all elements.</li>
-<li>matlib.sample - A file in ALARA’s material library
+<li><a class="reference external" href="https://raw.githubusercontent.com/svalinn/ALARA/master/data/matlib.sample">matlib.sample</a>
+- A file in ALARA’s material library
 format to show samples of how materials can be
 defined and including some commong fusion materials.</li>
 </ul>
@@ -225,7 +229,7 @@ installing data is a separate activity. (See the
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 31, 2019.
+      Last updated on Aug 06, 2019.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.6.

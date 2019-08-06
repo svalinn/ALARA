@@ -11,17 +11,11 @@ Z-Pinch Power Plant study.
 .. toctree::
    :maxdepth: 1
 
-   whatsnew
+   features
    usersguide/index
    installguide
    aboutdata
-   features
-
-.. toctree::
-   :hidden:
- 
    NEWS
-
 
 This work is supported in part by a grant from the ARIES Program 
 of the `Department of Energy <https://www.energy.gov/>`_'s 
