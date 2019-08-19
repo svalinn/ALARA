@@ -134,14 +134,12 @@ Input Block Types
 
 .. _Geometry & Materials:
 
-====================
 Geometry & Materials
 ====================
 
 .. _geometry:
 
-Geometry
-========
+**Geometry**
 
 		(required once)
 
@@ -180,8 +178,7 @@ Geometry
 
 .. _dimension:
 
-Dimension
-=========
+**Dimension**
 
 		(required [1]: once [1d], twice [2d], thrice [3d])
 
@@ -243,8 +240,8 @@ Dimension
 
 .. _minor_radius:
 
-Major Radius and Minor Radius 
-=============================
+**Major Radius and Minor Radius**
+
 
 		(required once [each] for geometry torus) 
 
@@ -275,8 +272,8 @@ Major Radius and Minor Radius
 
 .. _volumes:
 
-Volumes 
-=======
+**Volumes**
+
 
 		(required [1] once) 
 
@@ -323,8 +320,8 @@ Volumes
 
 .. _mat_loading:
 
-mat_loading 
-===========
+**mat_loading**
+
 
 		(required once) 
 
@@ -374,8 +371,8 @@ mat_loading
 
 .. _mixture:
 
-Mixture 
-=======
+**Mixture**
+
 
 		(required: once per defined mixture) 
 
@@ -505,8 +502,7 @@ Mixture
 
 .. _solve_zones:
 
-solve_zones 
-===========
+**solve_zones**
 
 		(optional once) 
 
@@ -543,8 +539,8 @@ solve_zones
 
 .. _skip_zones:
 
-skip_zones 
-==========
+**skip_zones**
+
 
 		(optional once) 
 
@@ -583,14 +579,13 @@ skip_zones
 
 .. _Flux Schedules & Chain - Building:
 
-===============================
 Flux Schedules & Chain-building
 ===============================
 
 .. _flux:
 
-Flux 
-====
+**Flux**
+
 
 		(required: once per defined flux) 
 
@@ -663,8 +658,8 @@ Flux
 
 .. _spatial_norm:
 
-spatial_norm 
-============
+**spatial_norm**
+
 
 		(optional once) 
 
@@ -700,8 +695,8 @@ spatial_norm
 
 .. _schedule:
 
-Schedule 
-========
+**Schedule**
+
 
 		(required: once per defined schedule) 
 
@@ -750,8 +745,7 @@ Schedule
 
 .. _pulsehistory:
 
-Pulse History 
-=============
+**Pulse History**
 
 		(required: once per defined history) 
 
@@ -789,8 +783,7 @@ Pulse History
 
 .. _truncation:
 
-Truncation 
-==========
+**Truncation**
 
 		(required once) 
 
@@ -825,8 +818,7 @@ Truncation
 
 .. _impurity:
 
-Impurity 
-========
+**Impurity**
 
 		(optional once) 
 
@@ -877,8 +869,7 @@ Impurity
 
 .. _ignore:
 
-Ignore 
-======
+**Ignore**
 
 		(optional once) 
 
@@ -920,8 +911,7 @@ Ignore
 
 .. _ref_flux_type:
 
-ref_flux_type 
-=============
+**ref_flux_type**
 
 		(optional once) 
 
@@ -957,14 +947,12 @@ ref_flux_type
 
 .. _Output & Files:
 
-==============
 Output & Files
 ==============
 
 .. _cooling:
 
-Cooling 
-=======
+**Cooling**
 
 		(optional once) 
 
@@ -1011,8 +999,7 @@ Cooling
 
 .. _output:
 
-Output 
-======
+**Output**
 
 		(optional: once per required output definiton) 
 
@@ -1130,8 +1117,8 @@ Output
 
 .. _element_lib:
 
-Material and Element Libraries 
-==============================
+**Material and Element Libraries**
+
 
 		(required once [each]) 
 
@@ -1156,8 +1143,7 @@ Material and Element Libraries
 
 .. _dump_file:
 
-dump_file 
-=========
+**dump_file**
 
 		(optional once) 
 
@@ -1184,8 +1170,7 @@ dump_file
 
 .. _data_library:
 
-Data Library 
-============
+**Data Library**
 
 		**Description:** This input block is used to define 
 		the type and location of the nuclear data library. 
@@ -1239,8 +1224,7 @@ Data Library
 
 .. _convert_lib:
 
-Convert Library
-=============== 
+**Convert Library**
 
 		This input block is used to convert library formats. If 
 		this input block is included, ALARA will stop immediately 

@@ -16,8 +16,7 @@ Manual Syntax
 |					|description section of the corresponding file description. |
 +---------------------------------------+-----------------------------------------------------------+
 
-Time Based Input
-================
+**Time Based Input**
 
  Some input elements represent times and can be defined in a number of
  different units. When this is the case, the floating point time value
@@ -37,7 +36,6 @@ Time Based Input
        * 240 h
        * 14400
 
-Length Units
-============
+**Length Units**
 
  Centimeters should be used for all length units. 

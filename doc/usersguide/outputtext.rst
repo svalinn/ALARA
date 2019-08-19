@@ -2,21 +2,17 @@
 Output File Formats
 ===================
 
-
-===============
 Standard Output
 ===============
 
-Description
-============
+**Description**
 
  ALARA output is always written to the standard output of the
  system in question. The standard methods of your system
  should be used to capture this output to a file, if desired.
  A sample output is available here.
 
-Format
-======
+**Format**
 
  As described in the section on :doc:`command-line <commandtext>`
  arguments, various levels of output
@@ -109,12 +105,10 @@ Table Type 2
 
 -------------------------------
 
-=========
 Tree File
 =========
 
-Description
-===========
+**Description**
 
  ALARA also optionally produces a so-called :term:`tree
  file` to allow some rudimentary
@@ -122,8 +116,7 @@ Description
  the creation and truncation of the trees and chains used to
  calculate the transmutation and activation in the problem.
 
-Format
-======
+**Format**
 
  One tree will be created for each initial isotope. All the
  information given for this isotope is based on the flux chosen
@@ -208,12 +201,10 @@ the result of the truncation calculation at this node.
 	
 -------------------------------------
 
-=================
 Gamma Source File
 =================
 
-Description
-===========
+**Description**
 
  The gamma source files created by ALARA currently has a very simple
  (if not unweildy) format. This file is only created if the
@@ -221,8 +212,7 @@ Description
  file where the filename is also given. The spatial resolution of
  this file is that specified by the output block.
 
-Format
-======
+**Format**
 
  For each spatial region, there is a section for each isotope
  responsible for :term:`gamma emissions` and a

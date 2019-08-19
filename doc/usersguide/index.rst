@@ -3,7 +3,7 @@ ALARA Users' Guide
 ==================
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    introtext
    Manual_syntax
