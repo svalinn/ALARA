@@ -2,7 +2,8 @@
 Input File Syntax
 =================
 
-**Input File Description**
+Input File Description
+======================
 
  The input file for ALARA has been designed to ensure that
  the input information is easy to understand, edit and comment.
@@ -16,7 +17,8 @@ Input File Syntax
  useful :doc:`error messages <errortext>` when the data
  is not consistent.
 
-**General Information**
+General Information
+===================
 
  There are many possible input block types. These blocks
  can appear in any order and many blocks can occur more
@@ -52,7 +54,8 @@ Input File Syntax
  +-----------------------------+----------------------------+-----------------------------+
 
 
-**General Input Notes**
+General Input Notes
+===================
 
  1. **Dimension/Volume:** If “[1]” follows an input
     block name, either the :term:`dimension`
@@ -139,7 +142,8 @@ Geometry & Materials
 
 .. _geometry:
 
-**Geometry**
+Geometry
+--------
 
 		(required once)
 
@@ -178,7 +182,8 @@ Geometry & Materials
 
 .. _dimension:
 
-**Dimension**
+Dimension
+---------
 
 		(required [1]: once [1d], twice [2d], thrice [3d])
 
@@ -240,8 +245,8 @@ Geometry & Materials
 
 .. _minor_radius:
 
-**Major Radius and Minor Radius**
-
+Major Radius and Minor Radius
+-----------------------------
 
 		(required once [each] for geometry torus) 
 
@@ -272,8 +277,8 @@ Geometry & Materials
 
 .. _volumes:
 
-**Volumes**
-
+Volumes
+-------
 
 		(required [1] once) 
 
@@ -320,8 +325,8 @@ Geometry & Materials
 
 .. _mat_loading:
 
-**mat_loading**
-
+mat_loading
+-----------
 
 		(required once) 
 
@@ -371,8 +376,8 @@ Geometry & Materials
 
 .. _mixture:
 
-**Mixture**
-
+Mixture
+-------
 
 		(required: once per defined mixture) 
 
@@ -502,7 +507,8 @@ Geometry & Materials
 
 .. _solve_zones:
 
-**solve_zones**
+solve_zones
+-----------
 
 		(optional once) 
 
@@ -539,8 +545,8 @@ Geometry & Materials
 
 .. _skip_zones:
 
-**skip_zones**
-
+skip_zones
+----------
 
 		(optional once) 
 
@@ -584,8 +590,8 @@ Flux Schedules & Chain-building
 
 .. _flux:
 
-**Flux**
-
+Flux
+----
 
 		(required: once per defined flux) 
 
@@ -658,8 +664,8 @@ Flux Schedules & Chain-building
 
 .. _spatial_norm:
 
-**spatial_norm**
-
+spatial_norm
+------------
 
 		(optional once) 
 
@@ -695,8 +701,8 @@ Flux Schedules & Chain-building
 
 .. _schedule:
 
-**Schedule**
-
+Schedule
+--------
 
 		(required: once per defined schedule) 
 
@@ -745,7 +751,8 @@ Flux Schedules & Chain-building
 
 .. _pulsehistory:
 
-**Pulse History**
+Pulse History
+-------------
 
 		(required: once per defined history) 
 
@@ -783,7 +790,8 @@ Flux Schedules & Chain-building
 
 .. _truncation:
 
-**Truncation**
+Truncation
+----------
 
 		(required once) 
 
@@ -818,7 +826,8 @@ Flux Schedules & Chain-building
 
 .. _impurity:
 
-**Impurity**
+Impurity
+--------
 
 		(optional once) 
 
@@ -869,7 +878,8 @@ Flux Schedules & Chain-building
 
 .. _ignore:
 
-**Ignore**
+Ignore
+------
 
 		(optional once) 
 
@@ -911,7 +921,8 @@ Flux Schedules & Chain-building
 
 .. _ref_flux_type:
 
-**ref_flux_type**
+ref_flux_type
+-------------
 
 		(optional once) 
 
@@ -952,7 +963,8 @@ Output & Files
 
 .. _cooling:
 
-**Cooling**
+Cooling
+-------
 
 		(optional once) 
 
@@ -999,7 +1011,8 @@ Output & Files
 
 .. _output:
 
-**Output**
+Output
+------
 
 		(optional: once per required output definiton) 
 
@@ -1117,8 +1130,8 @@ Output & Files
 
 .. _element_lib:
 
-**Material and Element Libraries**
-
+Material and Element Libraries
+------------------------------
 
 		(required once [each]) 
 
@@ -1170,7 +1183,8 @@ Output & Files
 
 .. _data_library:
 
-**Data Library**
+Data Library
+------------
 
 		**Description:** This input block is used to define 
 		the type and location of the nuclear data library. 
@@ -1224,7 +1238,8 @@ Output & Files
 
 .. _convert_lib:
 
-**Convert Library**
+Convert Library
+---------------
 
 		This input block is used to convert library formats. If 
 		this input block is included, ALARA will stop immediately 

@@ -3,7 +3,8 @@ Credits & Funding
 =================
 
 
-**Credits**
+Credits
+=======
 
 | Paul Wilson:
 | Bldg/Office #: ERB419
@@ -13,7 +14,8 @@ Credits & Funding
 | Fax: 608/263-4499
 | Email: wilsonp@engr.wisc.edu
 
-**Funding**
+Funding
+=======
 
 | U.S. Department of Energy
 | This work is supported in part by a grant from the ARIES Program
