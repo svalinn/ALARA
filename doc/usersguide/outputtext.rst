@@ -2,13 +2,11 @@
 Output File Formats
 ===================
 
-
-===============
 Standard Output
 ===============
 
 Description
-============
+-----------
 
  ALARA output is always written to the standard output of the
  system in question. The standard methods of your system
@@ -16,7 +14,7 @@ Description
  A sample output is available here.
 
 Format
-======
+------
 
  As described in the section on :doc:`command-line <commandtext>`
  arguments, various levels of output
@@ -64,7 +62,7 @@ Format
 .. _Table type 1:
 
 Table Type 1
-============
+------------
 
 	The first type has a row for each :term:`isotope` 
 	produced in the problem that has a non-zero response. If 
@@ -95,7 +93,7 @@ Table Type 1
 .. _Table type 2:
 
 Table Type 2
-============
+------------
 
 	The second type of table has a row for each point in the 
 	requested resolution, giving the total response at that 
@@ -109,12 +107,11 @@ Table Type 2
 
 -------------------------------
 
-=========
 Tree File
 =========
 
 Description
-===========
+-----------
 
  ALARA also optionally produces a so-called :term:`tree
  file` to allow some rudimentary
@@ -123,7 +120,7 @@ Description
  calculate the transmutation and activation in the problem.
 
 Format
-======
+------
 
  One tree will be created for each initial isotope. All the
  information given for this isotope is based on the flux chosen
@@ -163,8 +160,8 @@ Format
      will be followed by a letter (m,n,...) indicating which 
      isomeric state.
 
-**truncation mode: -** This single character indicates 
-the result of the truncation calculation at this node.
+  **truncation mode: -** This single character indicates 
+  the result of the truncation calculation at this node.
 
 	There are four possible results as follows: 
 
@@ -208,12 +205,11 @@ the result of the truncation calculation at this node.
 	
 -------------------------------------
 
-=================
 Gamma Source File
 =================
 
 Description
-===========
+-----------
 
  The gamma source files created by ALARA currently has a very simple
  (if not unweildy) format. This file is only created if the
@@ -222,7 +218,7 @@ Description
  this file is that specified by the output block.
 
 Format
-======
+------
 
  For each spatial region, there is a section for each isotope
  responsible for :term:`gamma emissions` and a

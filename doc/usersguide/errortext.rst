@@ -16,8 +16,7 @@ Error Message Types
 |	:ref:`Data Library Errors`
 |	:ref:`Programming Errors`
 
-Example Error Message:
-======================
+**Example Error Message**
 
 | Error name/number:     130: Invalid :term:`dimension` type: <string> 
 | Description:           The type of :term:`dimension`, string,

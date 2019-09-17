@@ -3,8 +3,8 @@ Support File Descriptions
 =========================
 
 
-Introduction
-============
+**Introduction**
+
  This section discusses all the files which ALARA expects to
  find when running a problem:     
 
@@ -17,12 +17,11 @@ Introduction
 
 .. _Element Library:
 
-===============
 Element Library
 ===============
 
 Description
-===========
+-----------
 
  The element library allows the user to define the
  :term:`isotopic abundances`
@@ -32,7 +31,7 @@ Description
  for defining enriched or isotopically tailored elements.
 
 Format
-======
+------
 
  An element library can contain an arbitrary
  number of elemental definitions, each 
@@ -52,10 +51,10 @@ Format
    * a floating point value for the atomic abundance, in %.
 
 Example
-=======
+-------
 
 Naming Elemental Definitions
-============================
+----------------------------
 
  The names/identifiers for all elemental definitions must
  be derived from the :term:`chemical symbol`
@@ -77,12 +76,11 @@ Naming Elemental Definitions
 
 .. _Material Library:
 
-================
 Material Library
 ================
 
 Description
-===========
+-----------
 
  The material library is a mechanism for allowing users to
  save and re-use the definitons of a set of materials.
@@ -92,7 +90,8 @@ Description
  each of which must occur in the :ref:`Element Library`.
 
 Format
-======
+------
+
  A material library can contain an arbitrary number of
  material definitions, each represented by a block with the
  following format. Every block must start with the following
@@ -109,10 +108,10 @@ Format
    * an integer for the :term:`atomic number`.
 
 Example
-=======
+-------
 
-Naming Material Definitions 
-===========================
+Naming Material Definitions
+---------------------------
 
  The name of a material definition must be a character string
  with no :term:`whitespace`. The
@@ -130,13 +129,11 @@ Naming Material Definitions
 
 .. _Waste Disposal/Clearance Index Limits:
 
-
-=====================================
 Waste Disposal Rating/Clearance Index
 =====================================
 
 Description
-===========
+-----------
 
  :term:`Waste disposal ratings <waste disposal rating>` and
  :term:`clearance indices` are used to
@@ -146,7 +143,7 @@ Description
  allowable specific activities for those isotopes.
 
 Format
-======
+------
 
  The WDR/CI files contain the disposal limit expressed as
  either a volumetric or specific activity. These files are
@@ -166,18 +163,17 @@ Format
  in the waste disposal limit file(s) used in that same block.
 
 Example
-=======
+-------
 
 ------------------------------
 
 .. _Binary Reaction Library:
 
-=======================
 Binary Reaction Library
 =======================
 
 Description
-===========
+-----------
 
  Because the reaction schemes/chains are created by a
  depth first search using the data from the transmutation
@@ -192,6 +188,6 @@ Description
  quite large (many MB) a simple binary format was designed.
 
 Note
-====
+----
 
  For more information, see the section on binary reaction libraries in the Developers' Guide. 

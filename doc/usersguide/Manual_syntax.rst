@@ -17,7 +17,7 @@ Manual Syntax
 +---------------------------------------+-----------------------------------------------------------+
 
 Time Based Input
-================
+----------------
 
  Some input elements represent times and can be defined in a number of
  different units. When this is the case, the floating point time value
@@ -38,6 +38,6 @@ Time Based Input
        * 14400
 
 Length Units
-============
+------------
 
  Centimeters should be used for all length units. 
