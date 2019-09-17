@@ -25,7 +25,7 @@ Error Message Types
 .. _Command-line Parsing:
 
 Command-line Parsing
-====================
+--------------------
 
 **0: Option <string> is not implemented yet.**
 	
@@ -41,7 +41,7 @@ Command-line Parsing
 .. _Input Phase:
 
 Input Phase
-===========
+-----------
 
  Note: All error messages which occur during the input phase
  may not report the accurate cause of the error. If there is
@@ -54,7 +54,7 @@ Input Phase
 .. _Read Input File:
 
 Read Input File
-===============
+---------------
 
 **100: Invalid token in input file: <string>**
 
@@ -166,7 +166,7 @@ elements or isotopes and not '<string>'**
 .. _Input Checking:
 
 Input Checking
-==============
+--------------
 
 **300: Cannot define both zone dimensions and interval volumes.**
 
@@ -325,7 +325,7 @@ Openning the default file 'alara.dmp'.**
 .. _Input Cross-referencing:
 
 Input Cross-referencing
-=======================
+-----------------------
 
 **580: Removing mixture <string> not used in any zones.**
 
@@ -361,7 +361,7 @@ normalizations will be ignored.**
 .. _Data Library Errors:
 
 Data Library Errors
-===================
+-------------------
 
 **1000: Data library type <string> (<type_code>) is not yet supported.**
 
@@ -411,7 +411,7 @@ the filename of an unidentified library.**
 .. _Programming Errors:
 
 Programming Errors
-==================
+------------------
 
     **Note:**
 

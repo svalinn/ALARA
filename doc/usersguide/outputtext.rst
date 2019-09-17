@@ -62,7 +62,7 @@ Format
 .. _Table type 1:
 
 Table Type 1
-------------
+++++++++++++
 
 	The first type has a row for each :term:`isotope` 
 	produced in the problem that has a non-zero response. If 
@@ -93,7 +93,7 @@ Table Type 1
 .. _Table type 2:
 
 Table Type 2
-------------
+++++++++++++
 
 	The second type of table has a row for each point in the 
 	requested resolution, giving the total response at that 
@@ -101,7 +101,7 @@ Table Type 2
 	previous paragraph (ie. only the waste disposal rating 
 	results are normalized). 
 
-		**Note:** Note: For reverse calculations, the
+		**Note:** For reverse calculations, the
 		entire structure defined above will be repeated 
 		for each target isotope. 
 
