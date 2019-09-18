@@ -142,7 +142,7 @@ Geometry & Materials
 
 .. _geometry:
 
-Geometry
+geometry
 --------
 
 		(required once)
@@ -182,7 +182,7 @@ Geometry
 
 .. _dimension:
 
-Dimension
+dimension
 ---------
 
 		(required [1]: once [1d], twice [2d], thrice [3d])
@@ -245,7 +245,7 @@ Dimension
 
 .. _minor_radius:
 
-Major Radius and Minor Radius
+major_radius and minor_radius
 -----------------------------
 
 		(required once [each] for geometry torus) 
@@ -277,7 +277,7 @@ Major Radius and Minor Radius
 
 .. _volumes:
 
-Volumes
+volumes
 -------
 
 		(required [1] once) 
@@ -376,7 +376,7 @@ mat_loading
 
 .. _mixture:
 
-Mixture
+mixture
 -------
 
 		(required: once per defined mixture) 
@@ -590,7 +590,7 @@ Flux Schedules & Chain-building
 
 .. _flux:
 
-Flux
+flux
 ----
 
 		(required: once per defined flux) 
@@ -701,7 +701,7 @@ spatial_norm
 
 .. _schedule:
 
-Schedule
+schedule
 --------
 
 		(required: once per defined schedule) 
@@ -751,7 +751,7 @@ Schedule
 
 .. _pulsehistory:
 
-Pulse History
+pulsehistory
 -------------
 
 		(required: once per defined history) 
@@ -790,7 +790,7 @@ Pulse History
 
 .. _truncation:
 
-Truncation
+truncation
 ----------
 
 		(required once) 
@@ -826,7 +826,7 @@ Truncation
 
 .. _impurity:
 
-Impurity
+impurity
 --------
 
 		(optional once) 
@@ -878,7 +878,7 @@ Impurity
 
 .. _ignore:
 
-Ignore
+ignore
 ------
 
 		(optional once) 
@@ -963,7 +963,7 @@ Output & Files
 
 .. _cooling:
 
-Cooling
+cooling
 -------
 
 		(optional once) 
@@ -1011,7 +1011,7 @@ Cooling
 
 .. _output:
 
-Output
+output
 ------
 
 		(optional: once per required output definiton) 
@@ -1130,8 +1130,8 @@ Output
 
 .. _element_lib:
 
-Material and Element Libraries
-------------------------------
+material_lib and element_lib
+----------------------------
 
 		(required once [each]) 
 
@@ -1184,7 +1184,7 @@ dump_file
 
 .. _data_library:
 
-Data Library
+data_library
 ------------
 
 		**Description:** This input block is used to define 
@@ -1239,8 +1239,8 @@ Data Library
 
 .. _convert_lib:
 
-Convert Library
----------------
+convert_lib
+-----------
 
 		This input block is used to convert library formats. If 
 		this input block is included, ALARA will stop immediately 
