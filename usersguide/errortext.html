@@ -76,8 +76,7 @@
 <div id="sidebar">
  <div id="sidebar_section"><ul>
 <li><a class="reference internal" href="#">Error Messages</a><ul>
-<li><a class="reference internal" href="#error-message-types">Error Message Types</a></li>
-<li><a class="reference internal" href="#example-error-message">Example Error Message:</a></li>
+<li><a class="reference internal" href="#error-message-types">Error Message Types</a><ul>
 <li><a class="reference internal" href="#command-line-parsing">Command-line Parsing</a></li>
 <li><a class="reference internal" href="#input-phase">Input Phase</a></li>
 <li><a class="reference internal" href="#read-input-file">Read Input File</a></li>
@@ -85,6 +84,8 @@
 <li><a class="reference internal" href="#input-cross-referencing">Input Cross-referencing</a></li>
 <li><a class="reference internal" href="#data-library-errors">Data Library Errors</a></li>
 <li><a class="reference internal" href="#programming-errors">Programming Errors</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -110,17 +111,14 @@
 <div class="line"><a class="reference internal" href="#data-library-errors"><span class="std std-ref">Data Library Errors</span></a></div>
 <div class="line"><a class="reference internal" href="#programming-errors"><span class="std std-ref">Programming Errors</span></a></div>
 </div>
-</div>
-<div class="section" id="example-error-message">
-<h2>Example Error Message:<a class="headerlink" href="#example-error-message" title="Permalink to this headline">¶</a></h2>
+<p><strong>Example Error Message</strong></p>
 <div class="line-block">
 <div class="line">Error name/number:     130: Invalid <a class="reference internal" href="glossarytext.html#term-dimension"><span class="xref std std-term">dimension</span></a> type: &lt;string&gt;</div>
 <div class="line">Description:           The type of <a class="reference internal" href="glossarytext.html#term-dimension"><span class="xref std std-term">dimension</span></a>, string,
 declared in the dimension block is not supported.</div>
 </div>
-</div>
 <div class="section" id="command-line-parsing">
-<span id="id1"></span><h2>Command-line Parsing<a class="headerlink" href="#command-line-parsing" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h3>Command-line Parsing<a class="headerlink" href="#command-line-parsing" title="Permalink to this headline">¶</a></h3>
 <p><strong>0: Option &lt;string&gt; is not implemented yet.</strong></p>
 <blockquote>
 <div>An unsupported command-line option was specified: string.</div></blockquote>
@@ -132,7 +130,7 @@ caused by an error in the other command line options,
 or a missing option.</div></blockquote>
 </div>
 <div class="section" id="input-phase">
-<span id="id2"></span><h2>Input Phase<a class="headerlink" href="#input-phase" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h3>Input Phase<a class="headerlink" href="#input-phase" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div>Note: All error messages which occur during the input phase
 may not report the accurate cause of the error. If there is
@@ -143,7 +141,7 @@ first step, reading the <a class="reference internal" href="glossarytext.html#te
 itself.</div></blockquote>
 </div>
 <div class="section" id="read-input-file">
-<span id="id3"></span><h2>Read Input File<a class="headerlink" href="#read-input-file" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h3>Read Input File<a class="headerlink" href="#read-input-file" title="Permalink to this headline">¶</a></h3>
 <p><strong>100: Invalid token in input file: &lt;string&gt;</strong></p>
 <blockquote>
 <div>There is an error in the input file causing it to read
@@ -232,7 +230,7 @@ format is not supported.</div></blockquote>
 <div>The output <a class="reference internal" href="glossarytext.html#term-dump-file"><span class="xref std std-term">‘’dump’’ file</span></a> could not be opened.</div></blockquote>
 </div>
 <div class="section" id="input-checking">
-<span id="id4"></span><h2>Input Checking<a class="headerlink" href="#input-checking" title="Permalink to this headline">¶</a></h2>
+<span id="id4"></span><h3>Input Checking<a class="headerlink" href="#input-checking" title="Permalink to this headline">¶</a></h3>
 <p><strong>300: Cannot define both zone dimensions and interval volumes.</strong></p>
 <blockquote>
 <div>ALARA does not permit the geometry to be defined with
@@ -366,7 +364,7 @@ using the <a class="reference internal" href="glossarytext.html#term-dump-file">
 the default is used.</div></blockquote>
 </div>
 <div class="section" id="input-cross-referencing">
-<span id="id5"></span><h2>Input Cross-referencing<a class="headerlink" href="#input-cross-referencing" title="Permalink to this headline">¶</a></h2>
+<span id="id5"></span><h3>Input Cross-referencing<a class="headerlink" href="#input-cross-referencing" title="Permalink to this headline">¶</a></h3>
 <p><strong>580: Removing mixture &lt;string&gt; not used in any zones.</strong></p>
 <blockquote>
 <div><a class="reference internal" href="glossarytext.html#term-mixture"><span class="xref std std-term">Mixture</span></a> string was
@@ -396,7 +394,7 @@ flux for each of the <a class="reference internal" href="glossarytext.html#term-
 intervals</span></a>.</div></blockquote>
 </div>
 <div class="section" id="data-library-errors">
-<span id="id6"></span><h2>Data Library Errors<a class="headerlink" href="#data-library-errors" title="Permalink to this headline">¶</a></h2>
+<span id="id6"></span><h3>Data Library Errors<a class="headerlink" href="#data-library-errors" title="Permalink to this headline">¶</a></h3>
 <p><strong>1000: Data library type &lt;string&gt; (&lt;type_code&gt;) is not yet supported.</strong></p>
 <blockquote>
 <div>The specified library type string is not supported.</div></blockquote>
@@ -437,7 +435,7 @@ block must match the internally recorded
 library type.</div></blockquote>
 </div>
 <div class="section" id="programming-errors">
-<span id="id7"></span><h2>Programming Errors<a class="headerlink" href="#programming-errors" title="Permalink to this headline">¶</a></h2>
+<span id="id7"></span><h3>Programming Errors<a class="headerlink" href="#programming-errors" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p><strong>Note:</strong></p>
 <blockquote>
@@ -454,6 +452,7 @@ where the error occurred.</div></blockquote>
 <p><strong>9000: Programming Error:…</strong></p>
 </div>
 </div>
+</div>
 
 
           </div>
@@ -466,7 +465,7 @@ where the error occurred.</div></blockquote>
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Aug 06, 2019.
+      Last updated on Sep 17, 2019.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.6.

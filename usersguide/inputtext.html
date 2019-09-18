@@ -75,37 +75,44 @@
   <div id="c_container"> 
 <div id="sidebar">
  <div id="sidebar_section"><ul>
-<li><a class="reference internal" href="#">Input File Syntax</a></li>
-<li><a class="reference internal" href="#input-block-types">Input Block Types</a></li>
+<li><a class="reference internal" href="#">Input File Syntax</a><ul>
+<li><a class="reference internal" href="#input-file-description">Input File Description</a></li>
+<li><a class="reference internal" href="#general-information">General Information</a></li>
+<li><a class="reference internal" href="#general-input-notes">General Input Notes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#input-block-types">Input Block Types</a><ul>
 <li><a class="reference internal" href="#geometry-materials">Geometry &amp; Materials</a><ul>
-<li><a class="reference internal" href="#geometry">Geometry</a></li>
-<li><a class="reference internal" href="#dimension">Dimension</a></li>
-<li><a class="reference internal" href="#major-radius-and-minor-radius">Major Radius and Minor Radius</a></li>
-<li><a class="reference internal" href="#volumes">Volumes</a></li>
+<li><a class="reference internal" href="#geometry">geometry</a></li>
+<li><a class="reference internal" href="#dimension">dimension</a></li>
+<li><a class="reference internal" href="#major-radius-and-minor-radius">major_radius and minor_radius</a></li>
+<li><a class="reference internal" href="#volumes">volumes</a></li>
 <li><a class="reference internal" href="#mat-loading">mat_loading</a></li>
-<li><a class="reference internal" href="#mixture">Mixture</a></li>
+<li><a class="reference internal" href="#mixture">mixture</a></li>
 <li><a class="reference internal" href="#solve-zones">solve_zones</a></li>
 <li><a class="reference internal" href="#skip-zones">skip_zones</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#flux-schedules-chain-building">Flux Schedules &amp; Chain-building</a><ul>
-<li><a class="reference internal" href="#flux">Flux</a></li>
+<li><a class="reference internal" href="#flux">flux</a></li>
 <li><a class="reference internal" href="#spatial-norm">spatial_norm</a></li>
-<li><a class="reference internal" href="#schedule">Schedule</a></li>
-<li><a class="reference internal" href="#pulse-history">Pulse History</a></li>
-<li><a class="reference internal" href="#truncation">Truncation</a></li>
-<li><a class="reference internal" href="#impurity">Impurity</a></li>
-<li><a class="reference internal" href="#ignore">Ignore</a></li>
+<li><a class="reference internal" href="#schedule">schedule</a></li>
+<li><a class="reference internal" href="#pulsehistory">pulsehistory</a></li>
+<li><a class="reference internal" href="#truncation">truncation</a></li>
+<li><a class="reference internal" href="#impurity">impurity</a></li>
+<li><a class="reference internal" href="#ignore">ignore</a></li>
 <li><a class="reference internal" href="#ref-flux-type">ref_flux_type</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#output-files">Output &amp; Files</a><ul>
-<li><a class="reference internal" href="#cooling">Cooling</a></li>
-<li><a class="reference internal" href="#output">Output</a></li>
-<li><a class="reference internal" href="#material-and-element-libraries">Material and Element Libraries</a></li>
+<li><a class="reference internal" href="#cooling">cooling</a></li>
+<li><a class="reference internal" href="#output">output</a></li>
+<li><a class="reference internal" href="#material-lib-and-element-lib">material_lib and element_lib</a></li>
 <li><a class="reference internal" href="#dump-file">dump_file</a></li>
-<li><a class="reference internal" href="#data-library">Data Library</a></li>
-<li><a class="reference internal" href="#convert-library">Convert Library</a></li>
+<li><a class="reference internal" href="#data-library">data_library</a></li>
+<li><a class="reference internal" href="#convert-lib">convert_lib</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -116,7 +123,8 @@
             
   <div class="section" id="input-file-syntax">
 <h1>Input File Syntax<a class="headerlink" href="#input-file-syntax" title="Permalink to this headline">¶</a></h1>
-<p><strong>Input File Description</strong></p>
+<div class="section" id="input-file-description">
+<h2>Input File Description<a class="headerlink" href="#input-file-description" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div>The input file for ALARA has been designed to ensure that
 the input information is easy to understand, edit and comment.
@@ -129,7 +137,9 @@ self-consistent. It then goes on to pre-process the data for
 the calculation. Every attempt has been made to give
 useful <a class="reference internal" href="errortext.html"><span class="doc">error messages</span></a> when the data
 is not consistent.</div></blockquote>
-<p><strong>General Information</strong></p>
+</div>
+<div class="section" id="general-information">
+<h2>General Information<a class="headerlink" href="#general-information" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><p>There are many possible input block types. These blocks
 can appear in any order and many blocks can occur more
@@ -190,7 +200,9 @@ Building</a></td>
 </tbody>
 </table>
 </div></blockquote>
-<p><strong>General Input Notes</strong></p>
+</div>
+<div class="section" id="general-input-notes">
+<h2>General Input Notes<a class="headerlink" href="#general-input-notes" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><ol class="arabic">
 <li><p class="first"><strong>Dimension/Volume:</strong> If “[1]” follows an input
@@ -266,14 +278,14 @@ length units.</li>
 </ol>
 </div></blockquote>
 </div>
+</div>
 <hr class="docutils" />
 <div class="section" id="input-block-types">
 <h1>Input Block Types<a class="headerlink" href="#input-block-types" title="Permalink to this headline">¶</a></h1>
-</div>
 <div class="section" id="geometry-materials">
-<span id="id1"></span><h1>Geometry &amp; Materials<a class="headerlink" href="#geometry-materials" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h2>Geometry &amp; Materials<a class="headerlink" href="#geometry-materials" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="geometry">
-<span id="id2"></span><h2>Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h3>geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required once)</p>
 <p><strong>Description:</strong> This required input block is
@@ -306,7 +318,7 @@ be required.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="dimension">
-<span id="id3"></span><h2>Dimension<a class="headerlink" href="#dimension" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h3>dimension<a class="headerlink" href="#dimension" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required [1]: once [1d], twice [2d], thrice [3d])</p>
 <p><strong>Description:</strong> This input block is used to define the
@@ -360,7 +372,7 @@ both will generate an error message.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="major-radius-and-minor-radius">
-<span id="minor-radius"></span><span id="major-radius"></span><h2>Major Radius and Minor Radius<a class="headerlink" href="#major-radius-and-minor-radius" title="Permalink to this headline">¶</a></h2>
+<span id="minor-radius"></span><span id="major-radius"></span><h3>major_radius and minor_radius<a class="headerlink" href="#major-radius-and-minor-radius" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required once [each] for geometry torus)</p>
 <p><strong>Description:</strong> These two input blocks are used to define
@@ -386,7 +398,7 @@ a floating point number.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="volumes">
-<span id="id4"></span><h2>Volumes<a class="headerlink" href="#volumes" title="Permalink to this headline">¶</a></h2>
+<span id="id4"></span><h3>volumes<a class="headerlink" href="#volumes" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required [1] once)</p>
 <p><strong>Description:</strong> This input block is used to define the
@@ -427,7 +439,7 @@ result in undefined behavior.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="mat-loading">
-<span id="id5"></span><h2>mat_loading<a class="headerlink" href="#mat-loading" title="Permalink to this headline">¶</a></h2>
+<span id="id5"></span><h3>mat_loading<a class="headerlink" href="#mat-loading" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required once)</p>
 <p><strong>Description:</strong> This input block is used to
@@ -472,7 +484,7 @@ this zone is empty of material.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="mixture">
-<span id="id6"></span><h2>Mixture<a class="headerlink" href="#mixture" title="Permalink to this headline">¶</a></h2>
+<span id="id6"></span><h3>mixture<a class="headerlink" href="#mixture" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required: once per defined mixture)</p>
 <p><strong>Description:</strong> This kind of block is used to
@@ -587,7 +599,7 @@ definitions without targets (such as in this example).</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="solve-zones">
-<span id="id7"></span><h2>solve_zones<a class="headerlink" href="#solve-zones" title="Permalink to this headline">¶</a></h2>
+<span id="id7"></span><h3>solve_zones<a class="headerlink" href="#solve-zones" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This optional input block allows the
@@ -618,7 +630,7 @@ keyword end.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="skip-zones">
-<span id="id8"></span><h2>skip_zones<a class="headerlink" href="#skip-zones" title="Permalink to this headline">¶</a></h2>
+<span id="id8"></span><h3>skip_zones<a class="headerlink" href="#skip-zones" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This optional input block allows
@@ -652,9 +664,9 @@ terminated with the keyword end.</p>
 </div>
 </div>
 <div class="section" id="flux-schedules-chain-building">
-<span id="id9"></span><h1>Flux Schedules &amp; Chain-building<a class="headerlink" href="#flux-schedules-chain-building" title="Permalink to this headline">¶</a></h1>
+<span id="id9"></span><h2>Flux Schedules &amp; Chain-building<a class="headerlink" href="#flux-schedules-chain-building" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="flux">
-<span id="id10"></span><h2>Flux<a class="headerlink" href="#flux" title="Permalink to this headline">¶</a></h2>
+<span id="id10"></span><h3>flux<a class="headerlink" href="#flux" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required: once per defined flux)</p>
 <p><strong>Description:</strong> This input block defines a set
@@ -715,7 +727,7 @@ flux definitions.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="spatial-norm">
-<span id="id11"></span><h2>spatial_norm<a class="headerlink" href="#spatial-norm" title="Permalink to this headline">¶</a></h2>
+<span id="id11"></span><h3>spatial_norm<a class="headerlink" href="#spatial-norm" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This input block allows the user
@@ -743,7 +755,7 @@ file and #include it when you need it.]</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="schedule">
-<span id="id12"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<span id="id12"></span><h3>schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required: once per defined schedule)</p>
 <p><strong>Description:</strong> This kind of block is used to
@@ -781,8 +793,8 @@ for forming complex schedules.</p>
 </div></blockquote>
 <hr class="docutils" />
 </div>
-<div class="section" id="pulse-history">
-<span id="pulsehistory"></span><h2>Pulse History<a class="headerlink" href="#pulse-history" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pulsehistory">
+<span id="id13"></span><h3>pulsehistory<a class="headerlink" href="#pulsehistory" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required: once per defined history)</p>
 <p><strong>Description:</strong> This kind of input block defines
@@ -814,7 +826,7 @@ many times.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="truncation">
-<span id="id13"></span><h2>Truncation<a class="headerlink" href="#truncation" title="Permalink to this headline">¶</a></h2>
+<span id="id14"></span><h3>truncation<a class="headerlink" href="#truncation" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required once)</p>
 <p><strong>Description:</strong> This fixed sized input block
@@ -842,7 +854,7 @@ values will result in truncation.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="impurity">
-<span id="id14"></span><h2>Impurity<a class="headerlink" href="#impurity" title="Permalink to this headline">¶</a></h2>
+<span id="id15"></span><h3>impurity<a class="headerlink" href="#impurity" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This fixed sized input block
@@ -886,7 +898,7 @@ given in the truncation threshold.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="ignore">
-<span id="id15"></span><h2>Ignore<a class="headerlink" href="#ignore" title="Permalink to this headline">¶</a></h2>
+<span id="id16"></span><h3>ignore<a class="headerlink" href="#ignore" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This optional fixed sized input
@@ -921,7 +933,7 @@ tolerance.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="ref-flux-type">
-<span id="id16"></span><h2>ref_flux_type<a class="headerlink" href="#ref-flux-type" title="Permalink to this headline">¶</a></h2>
+<span id="id17"></span><h3>ref_flux_type<a class="headerlink" href="#ref-flux-type" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This optional fixed sized
@@ -951,9 +963,9 @@ a single zone, component, or material loading.</p>
 </div>
 </div>
 <div class="section" id="output-files">
-<span id="id17"></span><h1>Output &amp; Files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h1>
+<span id="id18"></span><h2>Output &amp; Files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="cooling">
-<span id="id18"></span><h2>Cooling<a class="headerlink" href="#cooling" title="Permalink to this headline">¶</a></h2>
+<span id="id19"></span><h3>cooling<a class="headerlink" href="#cooling" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This input block is used to define the
@@ -994,7 +1006,7 @@ end
 <hr class="docutils" />
 </div>
 <div class="section" id="output">
-<span id="id19"></span><h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
+<span id="id20"></span><h3>output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(optional: once per required output definiton)</p>
 <p>This kind of input block allows the user to define the
@@ -1131,8 +1143,8 @@ generated by ALARA.</p>
 </div></blockquote>
 <hr class="docutils" />
 </div>
-<div class="section" id="material-and-element-libraries">
-<span id="element-lib"></span><span id="material-lib"></span><h2>Material and Element Libraries<a class="headerlink" href="#material-and-element-libraries" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="material-lib-and-element-lib">
+<span id="element-lib"></span><span id="material-lib"></span><h3>material_lib and element_lib<a class="headerlink" href="#material-lib-and-element-lib" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(required once [each])</p>
 <p><strong>Description:</strong> These two input blocks are used to specify
@@ -1151,7 +1163,7 @@ see the section on <a class="reference internal" href="support.html"><span class
 <hr class="docutils" />
 </div>
 <div class="section" id="dump-file">
-<span id="id20"></span><h2>dump_file<a class="headerlink" href="#dump-file" title="Permalink to this headline">¶</a></h2>
+<span id="id21"></span><h3>dump_file<a class="headerlink" href="#dump-file" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>(optional once)</p>
 <p><strong>Description:</strong> This input block defines the filename
@@ -1172,7 +1184,7 @@ default name ‘alara.dump’ will be used.</p>
 <hr class="docutils" />
 </div>
 <div class="section" id="data-library">
-<span id="id21"></span><h2>Data Library<a class="headerlink" href="#data-library" title="Permalink to this headline">¶</a></h2>
+<span id="id22"></span><h3>data_library<a class="headerlink" href="#data-library" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p><strong>Description:</strong> This input block is used to define
 the type and location of the nuclear data library.</p>
@@ -1217,8 +1229,8 @@ directory in which ALARA will be run.</p>
 </div></blockquote>
 <hr class="docutils" />
 </div>
-<div class="section" id="convert-library">
-<span id="convert-lib"></span><h2>Convert Library<a class="headerlink" href="#convert-library" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="convert-lib">
+<span id="id23"></span><h3>convert_lib<a class="headerlink" href="#convert-lib" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>This input block is used to convert library formats. If
 this input block is included, ALARA will stop immediately
@@ -1275,6 +1287,7 @@ EAF formatted libraries to ALARA v2.x binary libraries.]</p>
 </div></blockquote>
 </div>
 </div>
+</div>
 
 
           </div>
@@ -1287,7 +1300,7 @@ EAF formatted libraries to ALARA v2.x binary libraries.]</p>
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Aug 06, 2019.
+      Last updated on Sep 17, 2019.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.6.
