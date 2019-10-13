@@ -3,8 +3,19 @@
 include $(top_srcdir)/Makefile.h
 
 # list html files
-dist_doc_DATA = ALARA_Intro.html commandtext.html glossarytext.html		\
-	outputtext.html support.html Introset.html credittext.html	\
-	inputtext.html side.html Manual_syntax.html errortext.html	\
-	introtext.html sidebar.html
+dist_doc_DATA = NEWS.rst \
+	index.rst \
+	aboutdata.rst \
+	features.rst \
+	usersguide/commandtext.rst \
+	usersguide/introtext.rst \
+	usersguide/index.rst \
+	usersguide/errortext.rst \
+	usersguide/inputtext.rst \
+	usersguide/Manual_syntax.rst \
+	usersguide/outputtext.rst \
+	usersguide/support.rst \
+	usersguide/glossarytext.rst \
+	usersguide/credittext.rst \
+	installguide.rst
 
