@@ -3,7 +3,7 @@
 include $(top_srcdir)/Makefile.h
 
 # list RST files
-dist_doc_DATA = commandtext.rst \
+dist_ug_DATA = commandtext.rst \
 	introtext.rst \
 	index.rst \
 	errortext.rst \

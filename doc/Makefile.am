@@ -4,7 +4,7 @@ include $(top_srcdir)/Makefile.h
 
 SUBDIRS = usersguide
 
-# list html files
+# list RST files
 dist_doc_DATA = NEWS.rst \
 	index.rst \
 	aboutdata.rst \

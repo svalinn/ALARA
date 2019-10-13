@@ -69,6 +69,7 @@ AC_CONFIG_FILES([Makefile
 		 tools/extract_pathways
 		 tools/summary
 		 doc/Makefile
+		 doc/usersguide/Makefile
 		 data/Makefile
 		 sample/Makefile
 		 sample/data/Makefile

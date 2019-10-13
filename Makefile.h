@@ -3,6 +3,7 @@
 
 # where to put documentation, data and sample input/output
 docdir = $(prefix)/doc
+ugdir = $(docdir)/usersguide
 nonxsdir = $(prefix)/data
 xsdir = $(prefix)/data
 sampledir = $(prefix)/sample
