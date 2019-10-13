@@ -2,20 +2,12 @@
 
 include $(top_srcdir)/Makefile.h
 
+SUBDIRS = usersguide
+
 # list html files
 dist_doc_DATA = NEWS.rst \
 	index.rst \
 	aboutdata.rst \
 	features.rst \
-	usersguide/commandtext.rst \
-	usersguide/introtext.rst \
-	usersguide/index.rst \
-	usersguide/errortext.rst \
-	usersguide/inputtext.rst \
-	usersguide/Manual_syntax.rst \
-	usersguide/outputtext.rst \
-	usersguide/support.rst \
-	usersguide/glossarytext.rst \
-	usersguide/credittext.rst \
 	installguide.rst
 
