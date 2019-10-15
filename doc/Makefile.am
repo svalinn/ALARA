@@ -2,9 +2,12 @@
 
 include $(top_srcdir)/Makefile.h
 
-# list html files
-dist_doc_DATA = ALARA_Intro.html commandtext.html glossarytext.html		\
-	outputtext.html support.html Introset.html credittext.html	\
-	inputtext.html side.html Manual_syntax.html errortext.html	\
-	introtext.html sidebar.html
+SUBDIRS = usersguide
+
+# list RST files
+dist_doc_DATA = NEWS.rst \
+	index.rst \
+	aboutdata.rst \
+	features.rst \
+	installguide.rst
 
