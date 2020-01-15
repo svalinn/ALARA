@@ -11,5 +11,38 @@ LDADD = Chains/libChains.a \
 	DataLib/ASCIILib/libASCIILib.a DataLib/ALARALib/libALARALib.a DataLib/FEINDLib/libFEINDLib.a DataLib/FEINDLib/FEIND/libFEIND.a \
 	Input/libInput.a Output/libOutput.a Util/libUtil.a Calc/libCalc.a 
 
-SUBDIRS =  Calc Chains DataLib Input Output Util 
+SUBDIRS =  DataLib
 
+noinst_LIBRARIES = libCalc.a libChains.a libINput.a libOutput.a libUtil.a
+
+libCalc_a_SOURCES = PulseHistory.C RateCache.C VolFlux.C        \
+        calcSchedule.C calcScheduleT.C topSchedule.C topScheduleT.C
+
+libChains_a_SOURCES = Chain.C  MixCompRef.C  Node.C  NuclearData.C  Root.C  TreeInfo.C
+
+libInput_a_SOURCES = Component.C Dimension.C Geometry.C Input.C         \
+        Mixture.C PulseLevel.C ScheduleItem.C Zone.C CoolingTime.C      \
+        Flux.C History.C Loading.C Norm.C Schedule.C Volume.C           \
+        istreamStack.C # rt2al.F
+
+libOutput_a_SOURCES = GammaSrc.C  OutputFormat.C  Result.C
+
+
+libUtil_a_SOURCES = Matrix.C  Statistics.C  debug.C  input.C  math.C  output.C  stub.C
+
+noinst_HEADERS = PulseHistory.h RateCache.h VolFlux.h calcSchedule.h    \
+        calcScheduleT.h topSchedule.h topScheduleT.h Chain.h  Node.h	\
+	NuclearData.h  Root.h  TreeInfo.h  truncate.h Component.h 	\
+	Dimension.h Geometry.h Input.h Loading.h Norm.h Schedule.h 	\
+	Volume.h CoolingTime.h Flux.h History.h Input_def.h Mixture.h 	\
+	PulseLevel.h ScheduleItem.h Zone.h GammaSrc.h  OutputFormat.h  	\
+	Output_def.h  Result.h Matrix.h  Statistics.h  classes.h  	\
+	debug.h  functions.h  input_tokens.h dflt_datadir.h
+
+# Set the installation data directory
+DISTCLEANFILES = dflt_datadir.h
+BUILT_SOURCES = dflt_datadir.h
+dflt_datadir.h: Makefile
+	rm -f $@
+	echo '#define DFLT_DATADIR "$(nonxsdir)"' > $@
+	echo '#define DFLT_XSDIR   "$(xsdir)"' >> $@
