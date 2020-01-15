@@ -13,7 +13,7 @@ LDADD = Chains/libChains.a \
 
 SUBDIRS =  DataLib
 
-noinst_LIBRARIES = libCalc.a libChains.a libINput.a libOutput.a libUtil.a
+noinst_LIBRARIES = libCalc.a libChains.a libInput.a libOutput.a libUtil.a
 
 libCalc_a_SOURCES = PulseHistory.C RateCache.C VolFlux.C        \
         calcSchedule.C calcScheduleT.C topSchedule.C topScheduleT.C

@@ -52,8 +52,6 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([pow strchr strcspn strstr])
 
 AC_CONFIG_FILES([Makefile
-                 src/Calc/Makefile
-                 src/Chains/Makefile
                  src/DataLib/ALARALib/Makefile
                  src/DataLib/FEINDLib/FEIND/Makefile
                  src/DataLib/FEINDLib/Makefile
@@ -61,10 +59,7 @@ AC_CONFIG_FILES([Makefile
                  src/DataLib/ASCIILib/IEAFLib/Makefile
                  src/DataLib/ASCIILib/Makefile
                  src/DataLib/Makefile
-                 src/Input/Makefile
                  src/Makefile
-                 src/Output/Makefile
-                 src/Util/Makefile
                  tools/Makefile
 		 tools/extract_pathways
 		 tools/summary
