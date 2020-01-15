@@ -9,11 +9,11 @@
 #include "Root.h"
 #include "Chain.h"
 
-#include "Input/Mixture.h"
+#include "Mixture.h"
 
-#include "Calc/topSchedule.h"
+#include "topSchedule.h"
 
-#include "Output/Result.h"
+#include "Result.h"
 
 /****************************
  ********* Service **********

@@ -7,7 +7,7 @@
 /* fineMP volume head */
 #define VOL_HEAD -1
 
-#include "Output/Result.h"
+#include "Result.h"
 
 /** \brief This class is invoked as a linked list and describes the 
  *         various geometrical intervals of the problem.  

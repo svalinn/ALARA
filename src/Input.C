@@ -24,17 +24,17 @@
 #include "Schedule.h"
 #include "Volume.h"
 
-#include "Chains/NuclearData.h"
-#include "Chains/Chain.h"
-#include "Chains/Root.h"
+#include "NuclearData.h"
+#include "Chain.h"
+#include "Root.h"
 
-#include "Calc/topSchedule.h"
-#include "Calc/VolFlux.h"
+#include "topSchedule.h"
+#include "VolFlux.h"
 
-#include "Util/input_tokens.h"
+#include "input_tokens.h"
 
-#include "Output/OutputFormat.h"
-#include "Output/Result.h"
+#include "OutputFormat.h"
+#include "Result.h"
 
 #include "DataLib/DataLib.h"
 

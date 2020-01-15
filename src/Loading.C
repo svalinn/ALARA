@@ -15,10 +15,10 @@
 #include "Component.h"
 #include "CoolingTime.h"
 
-#include "Calc/topScheduleT.h"
+#include "topScheduleT.h"
 
-#include "Output/Result.h"
-#include "Output/Output_def.h"
+#include "Result.h"
+#include "Output_def.h"
 
 /***************************
  ********* Service *********

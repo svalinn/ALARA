@@ -10,14 +10,14 @@
 #include "GammaSrc.h"
 #include "Output_def.h"
 
-#include "Input/CoolingTime.h"
-#include "Input/Mixture.h"
-#include "Input/Volume.h"
+#include "CoolingTime.h"
+#include "Mixture.h"
+#include "Volume.h"
 
-#include "Chains/Chain.h"
-#include "Chains/Node.h"
+#include "Chain.h"
+#include "Node.h"
 
-#include "Calc/topScheduleT.h"
+#include "topScheduleT.h"
 
 
 

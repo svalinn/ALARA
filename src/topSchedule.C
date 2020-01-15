@@ -10,11 +10,11 @@
 #include "topScheduleT.h"
 #include "PulseHistory.h"
 
-#include "Input/CoolingTime.h"
+#include "CoolingTime.h"
 
-#include "Chains/Chain.h"
+#include "Chain.h"
 
-#include "Output/Result.h"
+#include "Result.h"
 
 /****************************
  ********* Service **********

@@ -2,8 +2,8 @@
 #include "GammaSrc.h"
 
 #include "DataLib/DataLib.h"
-#include "Input/Mixture.h"
-#include "Input/Volume.h"
+#include "Mixture.h"
+#include "Volume.h"
 #include <math.h>
 using namespace std;
 /***************************

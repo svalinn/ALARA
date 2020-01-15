@@ -10,14 +10,14 @@
 #include "Chain.h"
 #include "Root.h"
 
-#include "Input/Volume.h"
+#include "Volume.h"
 
-#include "Calc/VolFlux.h"
-#include "Calc/topSchedule.h"
-#include "Calc/topScheduleT.h"
+#include "VolFlux.h"
+#include "topSchedule.h"
+#include "topScheduleT.h"
 
 #include "truncate.h"
-#include "Util/Matrix.h"
+#include "Matrix.h"
 
 /****************************
  ********* Service **********

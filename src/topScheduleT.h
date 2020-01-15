@@ -5,7 +5,7 @@
 #define TOPSCHEDULET_H
 
 #include "calcScheduleT.h"
-#include "Util/Matrix.h"
+#include "Matrix.h"
 
 /** \brief This class is the head of a linked hierarchy of storage for
  *         the transfer matrices throughout the schedule.

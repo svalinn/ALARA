@@ -10,7 +10,7 @@
 #include "NuclearData.h"
 #include "truncate.h"
 
-#include "Calc/VolFlux.h"
+#include "VolFlux.h"
 
 #include "DataLib/DataLib.h"
 

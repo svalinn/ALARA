@@ -14,7 +14,7 @@
 
 #include "NuclearData.h"
 #include "TreeInfo.h"
-#include "Util/Statistics.h"
+#include "Statistics.h"
 
 #define WDR_KZAMODE 0
 #define WDR_SYMMODE 1

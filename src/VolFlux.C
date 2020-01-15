@@ -8,7 +8,7 @@
 
 #include "VolFlux.h"
 
-#include "Chains/Node.h"
+#include "Node.h"
 
 /****************************
  ********* Service **********

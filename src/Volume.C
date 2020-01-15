@@ -5,18 +5,18 @@
 #include "Mixture.h"
 #include "Component.h"
 #include "CoolingTime.h"
-#include "Output/GammaSrc.h"
+#include "GammaSrc.h"
 #include "Norm.h"
 
-#include "Chains/Chain.h"
-#include "Chains/Root.h"
+#include "Chain.h"
+#include "Root.h"
 
-#include "Calc/VolFlux.h"
-#include "Calc/topSchedule.h"
-#include "Calc/topScheduleT.h"
+#include "VolFlux.h"
+#include "topSchedule.h"
+#include "topScheduleT.h"
 
-#include "Output/Result.h"
-#include "Output/Output_def.h"
+#include "Result.h"
+#include "Output_def.h"
 
 // Declare Static Members
 TempLibType Volume::specLib;

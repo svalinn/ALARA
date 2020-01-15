@@ -14,7 +14,7 @@
 #include "PulseLevel.h"
 #include "Input_def.h"
 
-#include "Calc/PulseHistory.h"
+#include "PulseHistory.h"
 
 /***************************
  ********* Service *********

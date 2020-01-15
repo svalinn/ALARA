@@ -12,7 +12,7 @@
 #include "calcScheduleT.h"
 #include "PulseHistory.h"
 
-#include "Input/History.h"
+#include "History.h"
 
 
 /***************************

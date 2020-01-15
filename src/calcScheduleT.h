@@ -4,7 +4,7 @@
 #ifndef CALCSCHEDULET_H
 #define CALCSCHEDULET_H
 
-#include "Util/Matrix.h"
+#include "Matrix.h"
 
 /** \brief This class is used to create a linked hierarchy of storage 
  *         for the transfer matrices throughout the schedule.

@@ -4,7 +4,7 @@
 #ifndef CALCSCHEDULE_H
 #define CALCSCHEDULE_H
 
-#include "Util/Matrix.h"
+#include "Matrix.h"
 
 /** \brief This class is used to create a linked hierarchy of schedule
  *         information.  Each calcSchedule object represents a portion 

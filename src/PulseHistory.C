@@ -8,7 +8,7 @@
 
 #include "PulseHistory.h"
 
-#include "Chains/Chain.h"
+#include "Chain.h"
 
 /****************************
  ********* Service **********

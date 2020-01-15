@@ -3,12 +3,12 @@
 
 #include "GammaSrc.h"
 
-#include "Input/CoolingTime.h"
-#include "Input/Volume.h"
-#include "Input/Mixture.h"
-#include "Input/Loading.h"
+#include "CoolingTime.h"
+#include "Volume.h"
+#include "Mixture.h"
+#include "Loading.h"
 
-#include "Chains/Node.h"
+#include "Node.h"
 
 const char *Out_Types = "ucnstabgpdflvwi";
 

@@ -16,14 +16,14 @@
 #include "Volume.h"
 #include "CoolingTime.h"
 
-#include "Chains/Root.h"
+#include "Root.h"
 
-#include "Calc/topScheduleT.h"
+#include "topScheduleT.h"
 
-#include "Output/Result.h"
-#include "Output/Output_def.h"
-#include "Output/GammaSrc.h" 
-#include "Calc/VolFlux.h"
+#include "Result.h"
+#include "Output_def.h"
+#include "GammaSrc.h" 
+#include "VolFlux.h"
 
 /***************************
  ********* Service *********

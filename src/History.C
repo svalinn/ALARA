@@ -14,7 +14,7 @@
 #include "PulseLevel.h"
 #include "Schedule.h"
 
-#include "Calc/PulseHistory.h"
+#include "PulseHistory.h"
 
 /***************************
  ********* Service *********

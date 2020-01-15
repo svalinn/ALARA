@@ -1,3 +1,4 @@
+
 /* $Id: Node.C,v 1.31 2007-04-18 14:21:29 wilsonp Exp $ */
 /* File sections:
  * Service: constructors, destructors
@@ -13,9 +14,9 @@
 
 #include "truncate.h"
 
-#include "Util/Statistics.h"
+#include "Statistics.h"
 
-#include "Calc/VolFlux.h"
+#include "VolFlux.h"
 
 /****************************
  ********* Service **********

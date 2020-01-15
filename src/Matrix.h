@@ -4,7 +4,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "Chains/Chain.h"
+#include "Chain.h"
 
 // NEED COMMENT This class has no comments
 

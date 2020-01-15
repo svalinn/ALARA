@@ -19,7 +19,7 @@
 #define FIX_FLOAT(x) FIX_LONG(x)
 
 #include "Volume.h"
-#include "Calc/VolFlux.h"
+#include "VolFlux.h"
 
 /***************************
  ********* Service *********

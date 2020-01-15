@@ -3,9 +3,9 @@
 
 #include <unistd.h>
 #include <sys/times.h>
-#include<stdio.h>
+#include <stdio.h>
 
-#include "Chains/truncate.h"
+#include "truncate.h"
 
 ofstream Statistics::treeFile;
 FILE * Statistics::binFile;

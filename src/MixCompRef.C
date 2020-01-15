@@ -8,7 +8,7 @@
  */
 
 #include "Root.h"
-#include "Input/Mixture.h"
+#include "Mixture.h"
 
 /****************************
  ********* Service **********

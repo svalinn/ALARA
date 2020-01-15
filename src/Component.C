@@ -14,7 +14,7 @@
 #include "Component.h"
 #include "Mixture.h"
 
-#include "Chains/Root.h"
+#include "Root.h"
 
 ifstream Component::matLib;
 ifstream Component::eleLib;

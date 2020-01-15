@@ -4,7 +4,7 @@
 #ifndef PULSEHISTORY_H
 #define PULSEHISTORY_H
 
-#include "Util/Matrix.h"
+#include "Matrix.h"
 
 /** \brief This class stores the information about a pulsing history 
  *         in the problem.
