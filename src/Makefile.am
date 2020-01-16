@@ -4,31 +4,22 @@ include $(top_srcdir)/Makefile.h
 
 bin_PROGRAMS = alara
 
-alara_SOURCES = alara.C alara.h
-LDADD = Chains/libChains.a \
-	DataLib/libDataLib.a \
-	DataLib/ASCIILib/EAFLib/libEAFLib.a DataLib/ASCIILib/IEAFLib/libIEAFLib.a \
-	DataLib/ASCIILib/libASCIILib.a DataLib/ALARALib/libALARALib.a DataLib/FEINDLib/libFEINDLib.a DataLib/FEINDLib/FEIND/libFEIND.a \
-	Input/libInput.a Output/libOutput.a Util/libUtil.a Calc/libCalc.a 
-
-SUBDIRS =  DataLib
-
-noinst_LIBRARIES = libCalc.a libChains.a libInput.a libOutput.a libUtil.a
-
-libCalc_a_SOURCES = PulseHistory.C RateCache.C VolFlux.C        \
-        calcSchedule.C calcScheduleT.C topSchedule.C topScheduleT.C
-
-libChains_a_SOURCES = Chain.C  MixCompRef.C  Node.C  NuclearData.C  Root.C  TreeInfo.C
-
-libInput_a_SOURCES = Component.C Dimension.C Geometry.C Input.C         \
+alara_SOURCES = alara.C alara.h PulseHistory.C RateCache.C VolFlux.C	\
+        calcSchedule.C calcScheduleT.C topSchedule.C topScheduleT.C 	\
+	Chain.C  MixCompRef.C  Node.C  NuclearData.C  Root.C  		\
+	TreeInfo.C Component.C Dimension.C Geometry.C Input.C		\
         Mixture.C PulseLevel.C ScheduleItem.C Zone.C CoolingTime.C      \
         Flux.C History.C Loading.C Norm.C Schedule.C Volume.C           \
-        istreamStack.C # rt2al.F
+        istreamStack.C GammaSrc.C  OutputFormat.C  Result.C Matrix.C	\
+	Statistics.C  debug.C  input.C  math.C  output.C  stub.C 	\
+	#rt2al.F
 
-libOutput_a_SOURCES = GammaSrc.C  OutputFormat.C  Result.C
+LDADD = DataLib/libDataLib.a \
+	DataLib/ASCIILib/EAFLib/libEAFLib.a DataLib/ASCIILib/IEAFLib/libIEAFLib.a 	\
+	DataLib/ASCIILib/libASCIILib.a DataLib/ALARALib/libALARALib.a 		\
+	DataLib/FEINDLib/libFEINDLib.a DataLib/FEINDLib/FEIND/libFEIND.a
 
-
-libUtil_a_SOURCES = Matrix.C  Statistics.C  debug.C  input.C  math.C  output.C  stub.C
+SUBDIRS =  DataLib
 
 noinst_HEADERS = PulseHistory.h RateCache.h VolFlux.h calcSchedule.h    \
         calcScheduleT.h topSchedule.h topScheduleT.h Chain.h  Node.h	\
