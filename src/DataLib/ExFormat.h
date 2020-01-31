@@ -1,7 +1,7 @@
 #ifndef EXFORMAT_H
 #define EXFORMAT_H
 
-#include "../FeindNs.h"
+#include "FeindNs.h"
 #include "Exception.h"
 
 #include <string>

@@ -1,7 +1,7 @@
 #ifndef EXDECAYMODE_H
 #define EXDECAYMODE_H
 
-#include "../FeindNs.h"
+#include "FeindNs.h"
 #include "Exception.h"
 
 #include <string>

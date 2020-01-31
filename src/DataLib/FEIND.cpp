@@ -18,7 +18,7 @@ using namespace std;
 using namespace FEIND;
 
 #include "Elements.h"
-#include "exception/ExInclude.h"
+#include "ExInclude.h"
 
 RamLib FEIND::Library;
 FissionType FEIND::DefaultFT = NO_FISSION;

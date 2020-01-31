@@ -7,7 +7,7 @@
 #include <string>
 
 #include "FeindNs.h"
-#include "exception/ExInclude.h"
+#include "ExInclude.h"
 #include "Parser.h"
 
 /// The FEIND parser for CINDER format files

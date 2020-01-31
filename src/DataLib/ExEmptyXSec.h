@@ -1,7 +1,7 @@
 #ifndef EXEMPTYXSEC_H
 #define EXEMPTYXSEC_H
 
-#include "../FeindNs.h"
+#include "FeindNs.h"
 #include "Exception.h"
 
 #include <string>

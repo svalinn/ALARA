@@ -7,7 +7,7 @@
 
 #include "FeindNs.h"
 #include "Parent.h"
-#include "exception/ExInclude.h"
+#include "ExInclude.h"
 
 class FEIND::RamLib
 {

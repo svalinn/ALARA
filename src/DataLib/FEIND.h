@@ -14,7 +14,7 @@
 #include "LibDefine.h"
 #include "RamLib.h"
 #include "XSec.h"
-#include "exception/ExInclude.h"
+#include "ExInclude.h"
 
 /** \mainpage
  *  \page mainpage FEIND - The Fast Easy Interface to Nuclear Data

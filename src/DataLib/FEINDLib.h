@@ -3,8 +3,8 @@
 
 #define DATALIB_FEIND 7
 
-#include "../DataLib.h"
-#include "FEIND/FEIND.h"
+#include "DataLib.h"
+#include "FEIND.h"
 #include <vector>
 
 using namespace std;

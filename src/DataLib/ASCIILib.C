@@ -8,7 +8,7 @@
 
 #include "ASCIILib.h"
 
-#include "DataLib/ALARALib/ALARALib.h"
+#include "DataLib/ALARALib.h"
 
 /****************************
  ********* Service **********

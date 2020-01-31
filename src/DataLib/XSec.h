@@ -2,7 +2,7 @@
 #define XSEC_H
 
 #include "FeindNs.h"
-#include "exception/ExInclude.h"
+#include "ExInclude.h"
 
 #include <vector>
 

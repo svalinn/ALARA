@@ -13,11 +13,11 @@
 using namespace std;
 
 /* possible library sub-types */
-#include "ASCIILib/EAFLib/EAFLib.h"
-#include "ASCIILib/IEAFLib/IEAFLib.h"
-#include "ALARALib/ALARALib.h"
-#include "ALARALib/ADJLib.h"
-#include "FEINDLib/FEINDLib.h"
+#include "EAFLib.h"
+#include "IEAFLib.h"
+#include "ALARALib.h"
+#include "ADJLib.h"
+#include "FEINDLib.h"
 
 const char *libTypes =  "\
 null  \

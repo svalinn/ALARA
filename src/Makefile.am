@@ -14,10 +14,7 @@ alara_SOURCES = alara.C alara.h PulseHistory.C RateCache.C VolFlux.C	\
 	Statistics.C  debug.C  input.C  math.C  output.C  stub.C 	\
 	#rt2al.F
 
-LDADD = DataLib/libDataLib.a \
-	DataLib/ASCIILib/EAFLib/libEAFLib.a DataLib/ASCIILib/IEAFLib/libIEAFLib.a 	\
-	DataLib/ASCIILib/libASCIILib.a DataLib/ALARALib/libALARALib.a 		\
-	DataLib/FEINDLib/libFEINDLib.a DataLib/FEINDLib/FEIND/libFEIND.a
+LDADD = DataLib/libDataLib.a
 
 SUBDIRS =  DataLib
 

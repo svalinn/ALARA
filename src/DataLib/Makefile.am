@@ -18,7 +18,3 @@ noinst_HEADERS = DataLib.h ADJLib.h  ALARALib.h  ALARALib_def.h ASCIILib.h	\
         Typedefs.h Cinder.h DecayEndf6.h Eaf41.h EndfIeaf.h             \
         Exception.h    ExEmptyXSec.h  ExFormat.h   ExInvalidOption.h    \
         ExDecayMode.h  ExFileOpen.h   ExInclude.h  ExXsecSize.h
-
-
-SUBDIRS = swig
-

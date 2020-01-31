@@ -1,7 +1,7 @@
 #ifndef EXXSECSIZE_H
 #define EXXSECSIZE_H
 
-#include "../FeindNs.h"
+#include "FeindNs.h"
 #include "Exception.h"
 
 #include <string>

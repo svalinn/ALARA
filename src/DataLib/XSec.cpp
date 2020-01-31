@@ -1,5 +1,5 @@
 #include "XSec.h"
-#include "exception/ExInclude.h"
+#include "ExInclude.h"
 
 #include <iostream>
 #include <cassert>

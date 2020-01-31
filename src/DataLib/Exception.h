@@ -1,8 +1,8 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
-#include "../FeindNs.h"
-#include "../Consts.h"
+#include "FeindNs.h"
+#include "Consts.h"
 
 #include <iostream>
 #include <sstream>

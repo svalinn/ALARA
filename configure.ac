@@ -52,12 +52,6 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([pow strchr strcspn strstr])
 
 AC_CONFIG_FILES([Makefile
-                 src/DataLib/ALARALib/Makefile
-                 src/DataLib/FEINDLib/FEIND/Makefile
-                 src/DataLib/FEINDLib/Makefile
-                 src/DataLib/ASCIILib/EAFLib/Makefile
-                 src/DataLib/ASCIILib/IEAFLib/Makefile
-                 src/DataLib/ASCIILib/Makefile
                  src/DataLib/Makefile
                  src/Makefile
                  tools/Makefile

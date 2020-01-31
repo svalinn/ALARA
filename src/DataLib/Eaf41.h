@@ -6,7 +6,7 @@
 
 #include "FeindNs.h"
 #include "Parent.h"
-#include "exception/ExInclude.h"
+#include "ExInclude.h"
 #include "Parser.h"
 
 /// The parser for the EAF 4.1 data format

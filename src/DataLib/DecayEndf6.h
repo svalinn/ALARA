@@ -9,7 +9,7 @@
 
 #include "FeindNs.h"
 #include "Parent.h"
-#include "exception/ExInclude.h"
+#include "ExInclude.h"
 #include "Parser.h"
 
 /// Parser for loading decay data from ENDF-VI files

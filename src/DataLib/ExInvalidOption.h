@@ -1,7 +1,7 @@
 #ifndef EXINVALIDOPTION_H
 #define EXINVALIDOPTION_H
 
-#include "../FeindNs.h"
+#include "FeindNs.h"
 #include "Exception.h"
 
 #include <string>

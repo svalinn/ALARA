@@ -1,6 +1,6 @@
 /* $Id: EAFLib.C,v 1.12 2003-10-28 22:11:36 wilsonp Exp $ */
 #include "EAFLib.h"
-#include "DataLib/ALARALib/ALARALib_def.h"
+#include "DataLib/ALARALib_def.h"
 
 EAFLib::EAFLib(const char *transFname, const char *decayFname, const char *alaraFname) 
   : ASCIILib(DATALIB_EAF)

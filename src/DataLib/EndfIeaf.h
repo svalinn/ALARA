@@ -7,7 +7,7 @@
 
 #include "FeindNs.h"
 #include "Parser.h"
-#include "exception/Exception.h"
+#include "Exception.h"
 
 /// Parser for loading cross-sections from ENDF-VI files
 class FEIND::EndfIeaf : public Parser
