@@ -70,13 +70,13 @@ public:
 #define MODE_FORWARD 1
 #define MODE_REVERSE 0
 
-#include "Util/classes.h"
+#include "classes.h"
 
-#include "Util/debug.h"
+#include "debug.h"
 
-#include "Util/functions.h"
+#include "functions.h"
 
-#include "Util/Statistics.h"
+#include "Statistics.h"
 
 extern int chainCode;
 extern const char* SYMBOLS;

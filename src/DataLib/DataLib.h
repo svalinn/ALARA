@@ -49,8 +49,8 @@
 #define IEAF2ALARA 601
 #define ALARA2ADJ 104
 
-#include "Chains/NuclearData.h"
-#include "Output/GammaSrc.h"
+#include "NuclearData.h"
+#include "GammaSrc.h"
 
 extern const char *libTypes;
 extern const int libTypeLength;

@@ -1,10 +1,10 @@
 /* $Id: alara.C,v 1.20 2004-07-29 19:24:10 wilsonp Exp $ */
 #include "alara.h"
 
-#include "Input/Input.h"
-#include "Chains/Root.h"
-#include "Util/Statistics.h"
-#include "Output/Result.h"
+#include "Input.h"
+#include "Root.h"
+#include "Statistics.h"
+#include "Result.h"
 
 int chainCode = 0;
 
