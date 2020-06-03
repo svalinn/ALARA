@@ -10,7 +10,7 @@ project(ALARA VERSION 2.7.1)
 # add_subdirectory(data)
 # add_subdirectory(developer-info)
 # add_subdirectory(doc)
-add_subdirectory(sample)
+# add_subdirectory(sample)
 add_subdirectory(src)
 # add_subdirectory(tools)
 
