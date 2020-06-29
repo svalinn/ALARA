@@ -1,0 +1,17 @@
+# src directory CMake file
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+configure_file(config.h.in "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
+
+FILE(GLOB c_files "${CMAKE_CURRENT_SOURCE_DIR}/*.C")
+SET(SOURCE_FILES ${c_files})
+
+# Add the Data Library
+add_subdirectory(DataLib)
+
+# Add all source files
+add_executable(alara ${SOURCE_FILES})
+
+# Set direcotry variable names
+set(DFLT_XSDIR ${xsdir})
+set(DFLT_DATADIR ${nonxsdir})
