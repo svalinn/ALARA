@@ -12,3 +12,6 @@ add_subdirectory(DataLib)
 # Add all source files
 add_executable(alara ${SOURCE_FILES})
 
+# Set direcotry variable names
+set(DFLT_XSDIR ${xsdir})
+set(DFLT_DATADIR ${nonxsdir})
