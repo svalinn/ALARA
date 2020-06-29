@@ -1,7 +1,6 @@
 /* $Id: input.C,v 1.14 2007-12-20 22:03:56 wilsonp Exp $ */
 #include "alara.h"
 #include "input_tokens.h"
-//#include "dflt_datadir.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 
