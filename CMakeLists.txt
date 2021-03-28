@@ -18,6 +18,9 @@ set(DFLT_XSDIR   ${CMAKE_INSTALL_PREFIX}/data)
 # Build ALARA executable
 add_subdirectory(src)
 
+# Build other ALARA tools
+add_subdirectory(tools)
+
 # Install data files
 add_subdirectory(data)
 

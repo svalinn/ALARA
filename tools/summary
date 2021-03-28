@@ -1,4 +1,4 @@
-#!@PERLPATH@
+#!/usr/bin/perl
 #$Id: summary.in,v 1.4 2003-08-21 15:49:47 wilsonp Exp $
 $keep = 0;
 
@@ -12,30 +12,30 @@ print STDERR "Looking for $isoMatch\n";
 
 while (<STDIN>) {
     if (/^Zone output requested/) {
-	$keep = 1;
-	print "\n";
+        $keep = 1;
+        print "\n";
     }
     if (/^Zone #/) {
-	$keep = 1;
-	print "\n";
+        $keep = 1;
+        print "\n";
     }
     if  (/^Constituent/) {
-	$keep = 1;
+        $keep = 1;
     }
     if (/^total\s/i) {
-	$keep = 1;
+        $keep = 1;
     }
 
     if ($keep) {
-	print $_;
+        print $_;
     }
 
     if (/^isotope/) {
-	$keep = 0;
+        $keep = 0;
     }
 
     if (/$isoMatch/) {
-	print $_;
+        print $_;
     }
 
 }
