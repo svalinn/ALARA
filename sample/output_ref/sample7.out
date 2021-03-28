@@ -1,38 +1,10 @@
-ALARA 2.9.1rc
-Set verbose level to 3.
-Openned tree file ref_new/sample7.tree.
-	Openned sample7 for input.
+ALARA 2.9.2
+Set verbose level to 2.
+Opened tree file output/sample7.tree.
+	Opened sample7 for input.
 Starting problem input processing.
 	Reading input.
-		Set geometry type: torus.
-		Reading zone boundaries for Dimension r:
-		Reading zone boundaries for Dimension theta:
-		Set torus major radius = 30
-		Reading the material loading for this problem.
-		Openned material library ./data/sampleMatlib
-		Openned element library ./data/myElelib
-		Reading constituent list for Mixture mix_1 with constituents:
-		Added Flux flux_1 from file data/fluxin1 with normalization 1, format code 1, and skipping 0 entries.
-		Added Flux flux_2 from file data/fluxin2 with normalization 1, format code 1, and skipping 0 entries.
-		Added Flux flux_3 from file data/fluxin3 with normalization 1, format code 1, and skipping 0 entries.
-		Reading items for schedule sub_1.
-		Reading items for schedule myschedule.
-		Reading pulsing levels for History single_pulse:
-		Reading pulsing levels for History double_pulse:
-		Reading pulsing levels for History triple_pulse:
-		Reading after-shutdown cooling times.
-		Openning DataLib with type adjlib
-		Added output at resolution 2 (zone)
-		Truncation parameters set at 1e-06 for truncation and 1e-08 for ignore.
-		Impurity defined as 1e-05 with truncation parameters set at 0.01 for truncation and 0.0001 for ignore.
 	Cross-checking input for completeness and self-consistency.
-		Checking for all internally referenced mixtures.
-		Checking for all mixtures referenced in material loading.
-		Checking that dimension types match geometry type: Toroidal.
-		Found major radius for torroidal geometry.
-		Found minor radius for torroidal geometry.
-		Number of zones defined by zone dimensions (1) matches number of material loadings defined.(1)
-		Checking for all sub-schedules, fluxes and pulsing histories referenced in schedules.
 
 
 ***Please review this schedule hierarchy.!!!!!!!!!!
@@ -48,32 +20,9 @@ Schedule 'myschedule':
 
 
 	Preprocessing input.
-		Replacing all 'similar' constituents and removing unused mixtures.
-		Converting zone boundaries into list of intervals.
-		Cross-referencing intervals with mixtures.
-		Assigning 3 fluxes to each interval
-		Making list of root isotopes.
-		Processing pulsing histories.
-		Processing schedule hierarchy.
-		Processing cooling times.
-		Collapsing schedules from top.
-		Making storage hierarchies in intervals.
 Starting problem solution.
-		Solving Root #1: he-3 
-		   Maximum relative concentration: 0
-		      last Root: 111 nodes in 19 chains with maximum length 2.
-		                 in 0.010 s (11100.000 nodes/s)
-		   Total so far: 111 nodes in 19 chains with maximum length 2.
-		                 in 0.01 s (11100.000 nodes/s)
-		Solving Root #2: he-4 
-		   Maximum relative concentration: 0
-		      last Root: 1563 nodes in 488 chains with maximum length 5.
-		                 in 0.170 s (9194.117 nodes/s)
-		   Total so far: 1674 nodes in 507 chains with maximum length 5.
-		                 in 0.18 s (9300.000 nodes/s)
 	Solved problem.
 	Reset binary dump with 2 results per isotope.
-		Tallying constituent results into total result lists.
 
 ****** TARGET ****** he-3  ****** TARGET ****** he-3  ****** TARGET ****** 
 
@@ -112,7 +61,6 @@ zone	 shutdown         1 s
 
 
 
-		Tallying constituent results into total result lists.
 
 ****** TARGET ****** he-4  ****** TARGET ****** he-4  ****** TARGET ****** 
 
