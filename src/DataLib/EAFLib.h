@@ -80,7 +80,7 @@ DATALIB_IEAF     6     ieaf     A data library with cross-section
     ASCIILib class, passing the DATALIB_EAF definition as its
     argument.  If either of the arguments are not given to this
     constructor, nothing more is done.  Otherwise, the two non-binary
-    libraries are openned with file streams and a binary library is
+    libraries are opened with file streams and a binary library is
     created using the inherited ASCIILib::makeBinLib().
  
  */

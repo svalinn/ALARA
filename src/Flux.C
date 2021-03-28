@@ -351,7 +351,7 @@ int Flux::checkFname()
 
   if (textFile != NULL)
     {
-      verbose(5,"Openned flux file %s.",fileName);
+      verbose(5,"Opened flux file %s.",fileName);
       fclose(textFile);
       return TRUE;
     }

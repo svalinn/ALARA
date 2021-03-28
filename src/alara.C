@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 	      if (argNum<argc-1)
               {
                  Statistics::initTree(argv[argNum+1]);
-	         verbose(0,"Openned tree file %s.",argv[argNum+1]);
+	         verbose(0,"Opened tree file %s.",argv[argNum+1]);
 	         argNum+=2;
 	      }
 	      else
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 	  else
 	    {
 	      Statistics::initTree(argv[argNum]+1);
-	      verbose(0,"Openned tree file %s.",argv[argNum]+1);
+	      verbose(0,"Opened tree file %s.",argv[argNum]+1);
 	      argNum++;
 	    }
 	  break;

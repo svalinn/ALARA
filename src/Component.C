@@ -128,7 +128,7 @@ void Component::getMatLib(istream& input)
   if (!matLib)
     error(110,"Unable to open material library: %s",fname);
 
-  verbose(2,"Openned material library %s",searchNonXSPath(fname));
+  verbose(2,"Opened material library %s",searchNonXSPath(fname));
 }
 
 void Component::getEleLib(istream& input)
@@ -140,7 +140,7 @@ void Component::getEleLib(istream& input)
   if (!eleLib)
     error(111,"Unable to open element library: %s",fname);
 
-  verbose(2,"Openned element library %s",searchNonXSPath(fname));
+  verbose(2,"Opened element library %s",searchNonXSPath(fname));
 }
 
 /****************************
