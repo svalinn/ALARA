@@ -1,10 +1,28 @@
 ALARA 2.9.2
-Set verbose level to 2.
+Set verbose level to 3.
 Opened tree file output/sample9.tree.
 	Opened sample9 for input.
 Starting problem input processing.
 	Reading input.
+		Set geometry type: rectangular.
+		Reading volumes and zone assignments of intervals.
+		Reading the material loading for this problem.
+		Reading constituent list for Mixture mix_0 with constituents:
+		Opened element library ./data/myElelib
+		Openning DataLib with type alaralib
+		Reading after-shutdown cooling times.
+		Added output at resolution 2 (zone)
+		Added output at resolution 2 (zone)
+		Added Flux flux_1 from file data/fluxin_zeros with normalization 1, format code 1, and skipping 0 entries.
+		Reading items for schedule total.
+		Reading pulsing levels for History mypulse:
+		Truncation parameters set at 1e-12 for truncation and 1e-14 for ignore.
+		Impurity defined as 5e-06 with truncation parameters set at 0.001 for truncation and 1e-05 for ignore.
 	Cross-checking input for completeness and self-consistency.
+		Checking for all internally referenced mixtures.
+		Checking for all mixtures referenced in material loading.
+		Checking for all zones referenced in interval definitions.
+		Checking for all sub-schedules, fluxes and pulsing histories referenced in schedules.
 
 
 ***Please review this schedule hierarchy.!!!!!!!!!!
@@ -16,9 +34,24 @@ Schedule 'total':
 
 
 	Preprocessing input.
+		Replacing all 'similar' constituents and removing unused mixtures.
+		Cross-referencing intervals with mixtures.
+		Assigning 1 fluxes to each interval
+		Making list of root isotopes.
+		Processing pulsing histories.
+		Processing schedule hierarchy.
+		Processing cooling times.
+		Collapsing schedules from top.
+		Making storage hierarchies in intervals.
 Starting problem solution.
+		Solving Root #1: mn-56 
+		   Maximum relative concentration: 1
+		      last Root: 2 nodes in 1 chains with maximum length 2.
+		   Total so far: 2 nodes in 1 chains with maximum length 2.
 	Solved problem.
 	Reset binary dump with 5 results per isotope.
+		Read dump file.
+		Tallying constituent results into total result lists.
 Zone output requested:
 	Response Units: Bq /cm
 	Number Density [atoms/cm]

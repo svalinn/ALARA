@@ -1,10 +1,29 @@
 ALARA 2.9.2
-Set verbose level to 2.
+Set verbose level to 3.
 Opened tree file output/sample2.tree.
 	Opened sample2 for input.
 Starting problem input processing.
 	Reading input.
+		Set geometry type: rectangular.
+		Reading zone boundaries for Dimension x:
+		Reading the material loading for this problem.
+		Opened material library ./data/sampleMatlib
+		Opened element library ./data/myElelib
+		Reading constituent list for Mixture inner_mix with constituents:
+		Reading constituent list for Mixture outer_mix with constituents:
+		Added Flux flux_1 from file data/fluxin1 with normalization 1, format code 1, and skipping 1 entries.
+		Reading items for schedule 1_year.
+		Reading pulsing levels for History steady_state:
+		Openning DataLib with type alaralib
+		Reading after-shutdown cooling times.
+		Added output at resolution 1 (interval)
+		Truncation parameters set at 1e-07 for truncation and 1e-09 for ignore.
 	Cross-checking input for completeness and self-consistency.
+		Checking for all internally referenced mixtures.
+		Checking for all mixtures referenced in material loading.
+		Checking that dimension types match geometry type: Rectangular.
+		Number of zones defined by zone dimensions (2) matches number of material loadings defined.(2)
+		Checking for all sub-schedules, fluxes and pulsing histories referenced in schedules.
 
 
 ***Please review this schedule hierarchy.!!!!!!!!!!
@@ -16,9 +35,209 @@ Schedule '1_year':
 
 
 	Preprocessing input.
+		Replacing all 'similar' constituents and removing unused mixtures.
+		Converting zone boundaries into list of intervals.
+		Cross-referencing intervals with mixtures.
+		Assigning 1 fluxes to each interval
+		Making list of root isotopes.
+		Processing pulsing histories.
+		Processing schedule hierarchy.
+		Processing cooling times.
+		Collapsing schedules from top.
+		Making storage hierarchies in intervals.
 Starting problem solution.
+		Solving Root #1: h-1 
+		   Maximum relative concentration: 0.566769
+		      last Root: 5 nodes in 2 chains with maximum length 3.
+		   Total so far: 5 nodes in 2 chains with maximum length 3.
+		Solving Root #2: h-2 
+		   Maximum relative concentration: 8.50281e-05
+		      last Root: 8 nodes in 3 chains with maximum length 3.
+		   Total so far: 13 nodes in 5 chains with maximum length 3.
+		Solving Root #3: li-6 
+		   Maximum relative concentration: 0.0559935
+		      last Root: 79 nodes in 36 chains with maximum length 9.
+		   Total so far: 92 nodes in 41 chains with maximum length 9.
+		Solving Root #4: li-7 
+		   Maximum relative concentration: 0.688601
+		      last Root: 72 nodes in 37 chains with maximum length 7.
+		   Total so far: 164 nodes in 78 chains with maximum length 9.
+		Solving Root #5: be-9 
+		   Maximum relative concentration: 0.0298501
+		      last Root: 61 nodes in 27 chains with maximum length 7.
+		   Total so far: 225 nodes in 105 chains with maximum length 9.
+		Solving Root #6: c-12 
+		   Maximum relative concentration: 0.00134292
+		      last Root: 36 nodes in 13 chains with maximum length 4.
+		   Total so far: 261 nodes in 118 chains with maximum length 9.
+		Solving Root #7: c-13 
+		   Maximum relative concentration: 1.50463e-05
+		      last Root: 110 nodes in 30 chains with maximum length 5.
+		   Total so far: 371 nodes in 148 chains with maximum length 9.
+		Solving Root #8: n-14 
+		   Maximum relative concentration: 1.83998e-05
+		      last Root: 177 nodes in 68 chains with maximum length 5.
+		   Total so far: 548 nodes in 216 chains with maximum length 9.
+		Solving Root #9: n-15 
+		   Maximum relative concentration: 6.75907e-08
+		      last Root: 139 nodes in 52 chains with maximum length 5.
+		   Total so far: 687 nodes in 268 chains with maximum length 9.
+		Solving Root #10: o-16 
+		   Maximum relative concentration: 0.284991
+		      last Root: 113 nodes in 43 chains with maximum length 5.
+		   Total so far: 800 nodes in 311 chains with maximum length 9.
+		Solving Root #11: o-17 
+		   Maximum relative concentration: 0.000105702
+		      last Root: 148 nodes in 59 chains with maximum length 5.
+		   Total so far: 948 nodes in 370 chains with maximum length 9.
+		Solving Root #12: o-18 
+		   Maximum relative concentration: 0.000582787
+		      last Root: 134 nodes in 38 chains with maximum length 5.
+		   Total so far: 1082 nodes in 408 chains with maximum length 9.
+		Solving Root #13: f-19 
+		   Maximum relative concentration: 0.085374
+		      last Root: 196 nodes in 83 chains with maximum length 7.
+		   Total so far: 1278 nodes in 491 chains with maximum length 9.
+		Solving Root #14: na-23 
+		   Maximum relative concentration: 6.75084e-05
+		      last Root: 382 nodes in 111 chains with maximum length 7.
+		   Total so far: 1660 nodes in 602 chains with maximum length 9.
+		Solving Root #15: si-28 
+		   Maximum relative concentration: 0.000669528
+		      last Root: 270 nodes in 72 chains with maximum length 6.
+		   Total so far: 1930 nodes in 674 chains with maximum length 9.
+		Solving Root #16: si-29 
+		   Maximum relative concentration: 3.39011e-05
+		      last Root: 296 nodes in 66 chains with maximum length 6.
+		   Total so far: 2226 nodes in 740 chains with maximum length 9.
+		Solving Root #17: si-30 
+		   Maximum relative concentration: 2.25039e-05
+		      last Root: 229 nodes in 63 chains with maximum length 6.
+		   Total so far: 2455 nodes in 803 chains with maximum length 9.
+		Solving Root #18: s-32 
+		   Maximum relative concentration: 3.06657e-07
+		      last Root: 547 nodes in 116 chains with maximum length 6.
+		   Total so far: 3002 nodes in 919 chains with maximum length 9.
+		Solving Root #19: s-33 
+		   Maximum relative concentration: 2.42047e-09
+		      last Root: 613 nodes in 126 chains with maximum length 6.
+		   Total so far: 3615 nodes in 1045 chains with maximum length 9.
+		Solving Root #20: s-34 
+		   Maximum relative concentration: 1.35869e-08
+		      last Root: 379 nodes in 101 chains with maximum length 6.
+		   Total so far: 3994 nodes in 1146 chains with maximum length 9.
+		Solving Root #21: s-36 
+		   Maximum relative concentration: 6.45458e-11
+		      last Root: 346 nodes in 85 chains with maximum length 7.
+		   Total so far: 4340 nodes in 1231 chains with maximum length 9.
+		Solving Root #22: cl-35 
+		   Maximum relative concentration: 4.42258e-06
+		      last Root: 606 nodes in 165 chains with maximum length 6.
+		   Total so far: 4946 nodes in 1396 chains with maximum length 9.
+		Solving Root #23: cl-37 
+		   Maximum relative concentration: 1.41427e-06
+		      last Root: 452 nodes in 119 chains with maximum length 7.
+		   Total so far: 5398 nodes in 1515 chains with maximum length 9.
+		Solving Root #24: k-39 
+		   Maximum relative concentration: 2.46791e-05
+		      last Root: 704 nodes in 150 chains with maximum length 6.
+		   Total so far: 6102 nodes in 1665 chains with maximum length 9.
+		Solving Root #25: k-41 
+		   Maximum relative concentration: 1.78363e-06
+		      last Root: 639 nodes in 143 chains with maximum length 7.
+		   Total so far: 6741 nodes in 1808 chains with maximum length 9.
+		Solving Root #26: ca-40 
+		   Maximum relative concentration: 3.75381e-05
+		      last Root: 682 nodes in 158 chains with maximum length 6.
+		   Total so far: 7423 nodes in 1966 chains with maximum length 9.
+		Solving Root #27: ca-42 
+		   Maximum relative concentration: 2.50536e-07
+		      last Root: 604 nodes in 139 chains with maximum length 6.
+		   Total so far: 8027 nodes in 2105 chains with maximum length 9.
+		Solving Root #28: ca-43 
+		   Maximum relative concentration: 5.22756e-08
+		      last Root: 513 nodes in 117 chains with maximum length 7.
+		   Total so far: 8540 nodes in 2222 chains with maximum length 9.
+		Solving Root #29: ca-44 
+		   Maximum relative concentration: 8.07755e-07
+		      last Root: 476 nodes in 106 chains with maximum length 8.
+		   Total so far: 9016 nodes in 2328 chains with maximum length 9.
+		Solving Root #30: ca-46 
+		   Maximum relative concentration: 1.54891e-09
+		      last Root: 459 nodes in 101 chains with maximum length 8.
+		   Total so far: 9475 nodes in 2429 chains with maximum length 9.
+		Solving Root #31: ca-48 
+		   Maximum relative concentration: 7.24114e-08
+		      last Root: 313 nodes in 61 chains with maximum length 7.
+		   Total so far: 9788 nodes in 2490 chains with maximum length 9.
+		Solving Root #32: v-50 
+		   Maximum relative concentration: 7.6166e-10
+		      last Root: 443 nodes in 111 chains with maximum length 6.
+		   Total so far: 10231 nodes in 2601 chains with maximum length 9.
+		Solving Root #33: v-51 
+		   Maximum relative concentration: 3.03902e-07
+		      last Root: 395 nodes in 92 chains with maximum length 7.
+		   Total so far: 10626 nodes in 2693 chains with maximum length 9.
+		Solving Root #34: cr-50 
+		   Maximum relative concentration: 3.28553e-08
+		      last Root: 593 nodes in 144 chains with maximum length 7.
+		   Total so far: 11219 nodes in 2837 chains with maximum length 9.
+		Solving Root #35: cr-52 
+		   Maximum relative concentration: 6.33589e-07
+		      last Root: 347 nodes in 84 chains with maximum length 6.
+		   Total so far: 11566 nodes in 2921 chains with maximum length 9.
+		Solving Root #36: cr-53 
+		   Maximum relative concentration: 7.18355e-08
+		      last Root: 347 nodes in 92 chains with maximum length 6.
+		   Total so far: 11913 nodes in 3013 chains with maximum length 9.
+		Solving Root #37: cr-54 
+		   Maximum relative concentration: 1.78833e-08
+		      last Root: 248 nodes in 69 chains with maximum length 7.
+		   Total so far: 12161 nodes in 3082 chains with maximum length 9.
+		Solving Root #38: mn-55 
+		   Maximum relative concentration: 0.000668003
+		      last Root: 415 nodes in 116 chains with maximum length 7.
+		   Total so far: 12576 nodes in 3198 chains with maximum length 9.
+		Solving Root #39: fe-54 
+		   Maximum relative concentration: 0.00853816
+		      last Root: 610 nodes in 157 chains with maximum length 7.
+		   Total so far: 13186 nodes in 3355 chains with maximum length 9.
+		Solving Root #40: fe-56 
+		   Maximum relative concentration: 0.132732
+		      last Root: 356 nodes in 94 chains with maximum length 6.
+		   Total so far: 13542 nodes in 3449 chains with maximum length 9.
+		Solving Root #41: fe-57 
+		   Maximum relative concentration: 0.00303901
+		      last Root: 342 nodes in 84 chains with maximum length 7.
+		   Total so far: 13884 nodes in 3533 chains with maximum length 9.
+		Solving Root #42: fe-58 
+		   Maximum relative concentration: 0.000405201
+		      last Root: 544 nodes in 118 chains with maximum length 9.
+		   Total so far: 14428 nodes in 3651 chains with maximum length 9.
+		Solving Root #43: ni-58 
+		   Maximum relative concentration: 6.25744e-07
+		      last Root: 1555 nodes in 381 chains with maximum length 9.
+		   Total so far: 15983 nodes in 4032 chains with maximum length 9.
+		Solving Root #44: ni-60 
+		   Maximum relative concentration: 2.39226e-07
+		      last Root: 745 nodes in 184 chains with maximum length 7.
+		   Total so far: 16728 nodes in 4216 chains with maximum length 9.
+		Solving Root #45: ni-61 
+		   Maximum relative concentration: 1.03573e-08
+		      last Root: 659 nodes in 155 chains with maximum length 7.
+		   Total so far: 17387 nodes in 4371 chains with maximum length 9.
+		Solving Root #46: ni-62 
+		   Maximum relative concentration: 3.2905e-08
+		      last Root: 581 nodes in 141 chains with maximum length 6.
+		   Total so far: 17968 nodes in 4512 chains with maximum length 9.
+		Solving Root #47: ni-64 
+		   Maximum relative concentration: 8.34081e-09
+		      last Root: 341 nodes in 78 chains with maximum length 7.
+		   Total so far: 18309 nodes in 4590 chains with maximum length 9.
 	Solved problem.
 	Reset binary dump with 5 results per isotope.
+		Read dump file.
+		Tallying constituent results into total result lists.
 Interval output requested:
 	Response Units: Bq /cm3
 	Number Density [atoms/cm3]
