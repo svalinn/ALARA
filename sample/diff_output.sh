@@ -1,11 +1,13 @@
 #!/bin/bash
 
-for f in output/*; do
-  diffs=$(diff $f output_ref/$(basename $f))
+files_ref=output_ref/*
+for f_ref in $files_ref; do
+  f=output/$(basename ${f_ref})
+  diffs=$(diff ${f} ${f_ref})
   if [ -z "${diffs}" ]; then
-    echo "No diffs for $(basename $f)"
+    echo "No diffs for ${f}"
   else
-    echo "Diffs for $(basename $f):"
+    echo "Diffs for ${f}:"
     echo ${diffs}
   fi
 done

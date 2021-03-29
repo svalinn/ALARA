@@ -17,5 +17,5 @@ mkdir -p output dump_files
 samples=sample?
 for sample in ${samples}; do
   echo ${sample}
-  ${ALARA} -v 2 -t output/${sample}.tree ${sample} > output/${sample}.out
+  ${ALARA} -v 3 -t output/${sample}.tree ${sample} > output/${sample}.out
 done

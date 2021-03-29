@@ -66,7 +66,7 @@ Here are some commands that can be used to run these sample problems.
 ::
 
     $ cd ../sample
-    $ bash run_samples.sh
+    $ ./run_samples.sh
 
 If the sample problems run without errors, the following output should appear on the command line.
 ::
@@ -85,7 +85,7 @@ If the sample problems run without errors, the following output should appear on
 Output files from the sample problems can be checked against known correct output files by running the diff script.
 ::
 
-    $ bash diff_output.sh
+    $ ./diff_output.sh
 
 Any diffs between the files will be shown as output on the command line.
 
