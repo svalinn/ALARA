@@ -79,13 +79,13 @@ end
 output zone
        units Bq cm
        number_density
-       photon_source  data/truncated_fendl2bin ./sample9.photonSrc 3 8E5 1E6 2E6
+       photon_source  data/truncated_fendl2bin output/sample9.photonSrc 3 8E5 1E6 2E6
 end
 
 output zone
        units Bq cm
        integrate_energy
-       photon_source  data/truncated_fendl2bin ./sample9.photonSrc_int 3 8E5 1E6 2E6
+       photon_source  data/truncated_fendl2bin output/sample9.photonSrc_int 3 8E5 1E6 2E6
 end
 
 

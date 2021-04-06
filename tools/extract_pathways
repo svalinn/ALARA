@@ -1,4 +1,4 @@
-#!@PERLPATH@
+#!/usr/bin/perl
 # $Id: extract_pathways.in,v 1.3 2003-08-21 15:49:46 wilsonp Exp $
 
 $usage = "usage: $^X <iso_symbol> [chains]
@@ -21,19 +21,17 @@ while (<STDIN>) {
     $rank = pos();
     #print "$rank\n";
     if ($rank < $lastRank) {
-	$lastRank = $rank;
+        $lastRank = $rank;
     }
     $line[$rank] = $_;
 
 #    $line[$rank] =~ s/\t\|/\t/g;
-    
+
     /([a-z][a-z]?-[0-9]{1,3}[mn]?)/;
     if ($1 eq $target && substr($line[$rank],-2,1) ne "<") {
-	for ($prRank=$lastRank*$mode;$prRank<=$rank;$prRank++) {
-	    print $line[$prRank];
-	}
-	$lastRank = $rank+1;
+        for ($prRank=$lastRank*$mode;$prRank<=$rank;$prRank++) {
+            print $line[$prRank];
+        }
+        $lastRank = $rank+1;
     }
 }
-
-

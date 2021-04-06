@@ -1,0 +1,2 @@
+#define DFLT_DATADIR "${DFLT_DATADIR}"
+#define DFLT_XSDIR   "${DFLT_XSDIR}"

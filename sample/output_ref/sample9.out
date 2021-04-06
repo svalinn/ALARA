@@ -1,14 +1,14 @@
-ALARA 2.9.1rc
+ALARA 2.9.2
 Set verbose level to 3.
-Openned tree file out/sample9.tree.
-	Openned sample9.tmp for input.
+Opened tree file output/sample9.tree.
+	Opened sample9 for input.
 Starting problem input processing.
 	Reading input.
 		Set geometry type: rectangular.
 		Reading volumes and zone assignments of intervals.
 		Reading the material loading for this problem.
 		Reading constituent list for Mixture mix_0 with constituents:
-		Openned element library ./data/myElelib
+		Opened element library ./data/myElelib
 		Openning DataLib with type alaralib
 		Reading after-shutdown cooling times.
 		Added output at resolution 2 (zone)
@@ -47,9 +47,7 @@ Starting problem solution.
 		Solving Root #1: mn-56 
 		   Maximum relative concentration: 1
 		      last Root: 2 nodes in 1 chains with maximum length 2.
-		                 in 0.000 s (inf nodes/s)
 		   Total so far: 2 nodes in 1 chains with maximum length 2.
-		                 in 0.00 s (inf nodes/s)
 	Solved problem.
 	Reset binary dump with 5 results per isotope.
 		Read dump file.
@@ -57,7 +55,7 @@ Starting problem solution.
 Zone output requested:
 	Response Units: Bq /cm
 	Number Density [atoms/cm]
-	Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc
+	Photon Source Distribution [gammas/s/cm] : output/sample9.photonSrc
 	    with Specific Activity [Bq/cm]
 
 
@@ -89,7 +87,7 @@ zone	 shutdown      5000 s     10000 s     20000 s     50000 s
 
 
 
-*** Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc
+*** Photon Source Distribution [gammas/s/cm] : output/sample9.photonSrc
 	    with Specific Activity [Bq/cm] ***
 
 Zone #1: zone_0
@@ -99,7 +97,7 @@ Zone #1: zone_0
 Total (All constituents) 
 	COMPACTED
 	Volume Fraction: 1	Relative Volume: 1
-Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc
+Photon Source Distribution [gammas/s/cm] : output/sample9.photonSrc
 	    with Specific Activity [Bq/cm]
 isotope	 shutdown      5000 s     10000 s     20000 s     50000 s   
 ====================================================================
@@ -109,7 +107,7 @@ fe-56 	0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00
 total	6.4272e+18  4.4249e+18  3.0464e+18  1.4440e+18  1.5377e+17  
 
 Totals for all zones.
-Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc
+Photon Source Distribution [gammas/s/cm] : output/sample9.photonSrc
 	    with Specific Activity [Bq/cm]
 zone	 shutdown      5000 s     10000 s     20000 s     50000 s   
 ====================================================================
@@ -122,11 +120,11 @@ zone	 shutdown      5000 s     10000 s     20000 s     50000 s
 
 Zone output requested:
 	Response Units: Bq /cm
-	Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc_int
+	Photon Source Distribution [gammas/s/cm] : output/sample9.photonSrc_int
 	    with Specific Activity [Bq/cm]
 
 
-*** Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc_int
+*** Photon Source Distribution [gammas/s/cm] : output/sample9.photonSrc_int
 	    with Specific Activity [Bq/cm] ***
 
 Zone #1: zone_0
@@ -136,7 +134,7 @@ Zone #1: zone_0
 Total (All constituents) 
 	COMPACTED
 	Volume Fraction: 1	Relative Volume: 1
-Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc_int
+Photon Source Distribution [gammas/s/cm] : output/sample9.photonSrc_int
 	    with Specific Activity [Bq/cm]
 isotope	 shutdown      5000 s     10000 s     20000 s     50000 s   
 ====================================================================
@@ -146,7 +144,7 @@ fe-56 	0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00
 total	6.4272e+18  4.4249e+18  3.0464e+18  1.4440e+18  1.5377e+17  
 
 Totals for all zones.
-Photon Source Distribution [gammas/s/cm] : out/sample9.photonSrc_int
+Photon Source Distribution [gammas/s/cm] : output/sample9.photonSrc_int
 	    with Specific Activity [Bq/cm]
 zone	 shutdown      5000 s     10000 s     20000 s     50000 s   
 ====================================================================

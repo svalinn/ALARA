@@ -1,14 +1,14 @@
-ALARA 2.9.1rc
+ALARA 2.9.2
 Set verbose level to 3.
-Openned tree file ref_new/sample8.tree.
-	Openned sample8 for input.
+Opened tree file output/sample8.tree.
+	Opened sample8 for input.
 Starting problem input processing.
 	Reading input.
 		Set geometry type: rectangular.
 		Reading zone boundaries for Dimension x:
 		Reading the material loading for this problem.
-		Openned material library ./data/sampleMatlib
-		Openned element library ./data/myElelib
+		Opened material library ./data/sampleMatlib
+		Opened element library ./data/myElelib
 		Reading constituent list for Mixture inner_mix with constituents:
 		Added Flux flux_1 from file data/fluxin1 with normalization 1, format code 1, and skipping 1 entries.
 		Reading items for schedule 1_year.
@@ -48,27 +48,19 @@ Starting problem solution.
 		Solving Root #1: fe-54 
 		   Maximum relative concentration: 0.059
 		      last Root: 833 nodes in 244 chains with maximum length 8.
-		                 in 0.060 s (13883.334 nodes/s)
 		   Total so far: 833 nodes in 244 chains with maximum length 8.
-		                 in 0.06 s (13883.334 nodes/s)
 		Solving Root #2: fe-56 
 		   Maximum relative concentration: 0.9172
 		      last Root: 475 nodes in 145 chains with maximum length 7.
-		                 in 0.040 s (11874.999 nodes/s)
 		   Total so far: 1308 nodes in 389 chains with maximum length 8.
-		                 in 0.10 s (13080.000 nodes/s)
 		Solving Root #3: fe-57 
 		   Maximum relative concentration: 0.021
 		      last Root: 522 nodes in 138 chains with maximum length 8.
-		                 in 0.030 s (17400.004 nodes/s)
 		   Total so far: 1830 nodes in 527 chains with maximum length 8.
-		                 in 0.13 s (14076.924 nodes/s)
 		Solving Root #4: fe-58 
 		   Maximum relative concentration: 0.0028
 		      last Root: 892 nodes in 213 chains with maximum length 9.
-		                 in 0.070 s (12742.855 nodes/s)
 		   Total so far: 2722 nodes in 740 chains with maximum length 9.
-		                 in 0.20 s (13610.000 nodes/s)
 	Solved problem.
 	Reset binary dump with 5 results per isotope.
 		Read dump file.

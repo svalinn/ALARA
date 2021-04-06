@@ -58,7 +58,7 @@ Input::Input(char* inputFname)
       if (!*input)
 	error(102,"Unable to open main input file: '%s'.",inputFname);
 
-      verbose(1,"Openned %s for input.",inputFname);
+      verbose(1,"Opened %s for input.",inputFname);
     }
   else
     {

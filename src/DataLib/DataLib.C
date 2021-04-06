@@ -78,7 +78,7 @@ DataLib* DataLib::newLib(char* libType, istream& input)
       char alaraLibName[256];
       input >> alaraLibName;
       dl = new ALARALib(alaraLibName,type);
-      verbose(3,"Openned binary library with %d parents and %d groups.",
+      verbose(3,"Opened binary library with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
       break;
     case DATALIB_FEIND:
@@ -87,21 +87,21 @@ DataLib* DataLib::newLib(char* libType, istream& input)
       char arg2[256];
       input >> arg0 >> arg1 >> arg2;
       dl = new FEINDLib(arg0,arg1,arg2, type);
-      verbose(3,"Openned FEIND library with %d parents and %d groups.",
+      verbose(3,"Opened FEIND library with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);      
       break;
     case DATALIB_ADJOINT:
       char adjointLibName[256];
       input >> adjointLibName;
       dl = new ADJLib(adjointLibName,type);
-      verbose(3,"Openned adjoint library with %d parents and %d groups.",
+      verbose(3,"Opened adjoint library with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
       break;
     case DATALIB_GAMMA:
       char gammaLibName[256];
       input >> gammaLibName;
       dl = new ALARALib(gammaLibName,type);
-      verbose(3,"Openned binary gamma library.");
+      verbose(3,"Opened binary gamma library.");
       break;
     default:
       error(1000,"Data library type %s (%d) is not yet supported.",

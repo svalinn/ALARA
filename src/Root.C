@@ -112,11 +112,11 @@ void Root::solve(topSchedule *schedule)
       verbose(2,"      last Root: %d nodes in %d chains with maximum length %d.",
 	      lastNode-firstNode, totalChainCtr-oldChainCtr, 
 	      Statistics::accountMaxRank());
-      verbose(2,"                 in %0.3f s (%0.3f nodes/s)",incrTime,
+      verbose(3,"                 in %0.3f s (%0.3f nodes/s)",incrTime,
 	      (lastNode-firstNode)/incrTime);
       verbose(2,"   Total so far: %d nodes in %d chains with maximum length %d.",
 	      lastNode,totalChainCtr,Statistics::maxRank());
-      verbose(2,"                 in %0.2f s (%0.3f nodes/s)",
+      verbose(3,"                 in %0.2f s (%0.3f nodes/s)",
 	      totalTime,lastNode/totalTime);
       oldChainCtr = totalChainCtr;
 

@@ -1,7 +1,7 @@
-ALARA 2.9.1rc
+ALARA 2.9.2
 Set verbose level to 3.
-Openned tree file ref_new/sample1.tree.
-	Openned sample1 for input.
+Opened tree file output/sample1.tree.
+	Opened sample1 for input.
 Starting problem input processing.
 	Reading input.
 		Writing entry for 10010 (28)

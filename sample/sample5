@@ -72,7 +72,7 @@ dump_file dump_files/sample4.dump
 output zone
    units Bq cm3
    total_heat
-   photon_source data/truncated_fendl2bin ./sample5.photonSrc 5 1e3 1e4 1e5 1e6 1e7
+   photon_source data/truncated_fendl2bin output/sample5.photonSrc 5 1e3 1e4 1e5 1e6 1e7
 end
 
 truncation 1e-6 
