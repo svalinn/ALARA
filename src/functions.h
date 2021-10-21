@@ -1,5 +1,5 @@
 /* $Id: functions.h,v 1.8 2003-10-28 22:11:39 wilsonp Exp $ */
-/* input.C */
+/* input_file_utils.C */
 istream* openFile(const char*);
 void clearComment(istream& input);
 int tokenType(char*);
