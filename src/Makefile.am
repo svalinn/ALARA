@@ -11,7 +11,8 @@ alara_SOURCES = alara.C alara.h PulseHistory.C RateCache.C VolFlux.C	\
         Mixture.C PulseLevel.C ScheduleItem.C Zone.C CoolingTime.C      \
         Flux.C History.C Loading.C Norm.C Schedule.C Volume.C           \
         istreamStack.C GammaSrc.C  OutputFormat.C  Result.C Matrix.C	\
-	Statistics.C  debug.C  input.C  math.C  output.C  stub.C 	\
+	Statistics.C  debug.C  input_file_utils.C  math.C  output.C     \
+	stub.C 	\
 	#rt2al.F
 
 LDADD = DataLib/libDataLib.a
