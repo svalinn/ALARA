@@ -29,24 +29,18 @@ def tendl_download(element, A, filetype, save_path = None):
     # Define general URL format for files in the TENDL database
     tendl_gen_url = 'https://tendl.web.psi.ch/tendl_2017/neutron_file/'
 
-    # Construct the filetype-specific URl for the data file
-    if filetype == 'endf' or filetype == 'ENDF':
-        # Construct the URL of the ENDF file to be downloaded
-        download_url = tendl_gen_url + f'{element}/{element}{A}/lib/endf/n-{element}{A}.tendl'
+    # Create a dictionary to generalize formatting for both ENDF and PENDF files
+    file_handling = {'endf' : {'ext': 'tendl', 'tape_num': 20},
+                     'pendf' : {'ext': 'pendf', 'tape_num': 21}}
+    
+    # Construct the filetype and isotope specific URL
+    isotope_component = f'{element}/{element}{A}/lib/endf/n-{element}{A}.'
+    ext = file_handling[filetype.lower()]['ext']
+    download_url = tendl_gen_url + isotope_component + ext
 
-        # Define a save path for the ENDF file if there is not one already specified
-        if save_path is None:
-            #save_path = f'tendl_2017_{element}{A}_{filetype}.endf'
-            save_path = 'tape20'
-
-    elif filetype == 'pendf' or filetype == 'PENDF':
-        # Construct the URL of the PENDF file to be downloaded
-        download_url = tendl_gen_url + f'{element}/{element}{A}/lib/endf/n-{element}{A}.pendf'
-
-        # Define a save path for the PENDF file if there is not one already specified
-        if save_path is None:
-            #save_path = f'tendl_2017_{element}{A}_{filetype}.pendf'
-            save_path = 'tape21'
+    # Define a save path for the file if there is not one already specified
+    if save_path is None:
+        save_path = f'tape{file_handling[filetype.lower()]["tape_num"]}'
 
     # Check if the file exists
     response = requests.head(download_url)
