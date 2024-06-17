@@ -1,7 +1,6 @@
 # Import packages
 import ENDFtk
 import urllib
-import contextlib
 import subprocess
 import pandas as pd
 
@@ -84,10 +83,9 @@ def endf_specs(endf_path):
 def format_card(card_name, card_content, MTs):
     card_str = ''
     gen_str = ' ' + ' '.join(map(str, card_content))
-    if card_name == 'Card 9':
-        for line in card_content:
-            card_str += f' {line}/\n'
-    elif card_name == 'Card 4':
+    if card_name == 9:
+        card_str = ' ' + '/\n '.join(card_content) + '/\n'
+    elif card_name == 4:
         card_str += gen_str + '\n'
     else:
         card_str += gen_str + '/\n'
@@ -98,13 +96,15 @@ def groupr_input(matb, MTs, element, A, mt_table):
     
     # INPUT PARAMETERS
 
+    cards = {}
+
     # Set Card 1
     nendf = 20 # unit for endf tape
     npend = 21 # unit for pendf tape
     ngout1 = 0 # unit for input gout tape (default=0)
     ngout2 = 31 # unit for output gout tape (default=0)
 
-    card1 = [nendf, npend, ngout1, ngout2]
+    cards[1] = [nendf, npend, ngout1, ngout2]
 
     # Set Card 2
     # matb -- (already defined) -- material to be processed
@@ -117,55 +117,53 @@ def groupr_input(matb, MTs, element, A, mt_table):
     iprint = 1 # long print option (0/1=minimum/maximum) -- (default=1)
     ismooth = 1 # swith on/off smoother operation (1/0, default=1=on)
 
-    card2 = [matb, ign, igg, iwt, lord, ntemp, nsigz, iprint]
+    cards[2] = [matb, ign, igg, iwt, lord, ntemp, nsigz, iprint]
 
     # Set Card 3
     Z = str(elements.index(element) + 1).zfill(2)
     title = f'"{Z}-{element}-{A} for TENDL 2017"'
-    card3 = [title]
+    cards[3] = [title]
 
     # Set Card 4
     temp = 293.16 # temperature in Kelvin
-    card4 = [temp]
+    cards[4] = [temp]
 
     # Set Card 5
     sigz = 0 # sigma zero values (including infinity)
-    card5 = [sigz]
+    cards[5] = [sigz]
 
     # Set Card 9
     mfd = 3 # file to be processed
     mtd = MTs # sections to be processed
-    card9 = []
+    cards[9] = []
     for mt in MTs:
         mtname = mt_table[mt_table['MT'] == mt]['Reaction'].values[0] # description of section to be processed
         card9_line = f'{mfd} {mt} "{mtname}"'
-        card9.append(card9_line)
+        cards[9].append(card9_line)
 
     # Set Card 10
     matd = 0 # next mat number to be processed
-    card10 = [matd]
-
-    # Create a card deck
-    deck = [card1, card2, card3, card4, card5, card9, card10]
-    deck_names = ['Card 1', 'Card 2', 'Card 3', 'Card 4', 'Card 5', 'Card 9', 'Card 10']
-    deck_df = pd.DataFrame({
-        'Card' : deck_names,
-        'Contents' : deck
-    })
+    cards[10] = [matd]
 
     # WRITE INPUT FILE FROM CARDS
 
     # Write the input deck to the groupr.inp file
     with open('groupr.inp', 'w') as f:
         f.write('groupr\n')
-        for card_name, card_content in zip(deck_names, deck):
-            f.write(format_card(card_name, card_content, MTs))
+        #for card_name, card_content in zip(deck_names, deck):
+        #    f.write(format_card(card_name, card_content, MTs))
+        max_card_index = 10
+        for i in range(max_card_index + 1):
+            try:
+                f.write(format_card(i, cards[i], MTs))
+            except KeyError:
+                continue
         f.write(' 0/\nstop')
 
-    return deck_df
+    return cards
 
 # Define a function to execute NJOY bash script
-def run_njoy(card_deck, element, A):
+def run_njoy(cards, element, A):
     # Define the input files
     INPUT = 'groupr.inp'
     OUTPUT = 'groupr.out'
@@ -178,7 +176,7 @@ def run_njoy(card_deck, element, A):
     # If the run is successful, print out the output and make a copy of the file as a .GENDF file
     if result.stderr == '':
         output = subprocess.run(['cat', 'output'], capture_output=True, text = True)
-        title = card_deck[card_deck['Card'] == 'Card 3']['Contents'].values[0][0][1:-1]
+        title = cards[3][0][1:-1]
         title_index = output.stdout.find(title)
         print(output.stdout[:title_index + len(title)])
 
