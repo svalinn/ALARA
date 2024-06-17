@@ -193,33 +193,18 @@ def groupr_input(matb, MTs, element, A, mt_table):
     return deck_df
 
 # Define a function to execute NJOY bash script
-def run_njoy(endf_path, pendf_path, card_deck, element, A):
-    # Read the template file
-    try:
-        with open('run_njoy_template.sh', 'r') as f:
-            script_content = f.read()
-    except:
-        with open('./GROUPR/run_njoy_template.sh', 'r') as f:
-            script_content = f.read()
+def run_njoy(card_deck, element, A):
+    # Define the input files
+    INPUT = 'groupr.inp'
+    OUTPUT = 'groupr.out'
 
-    # Replace placeholders with actual file paths
-    script_content = script_content.replace('<ENDF_PATH>', endf_path)
-    script_content = script_content.replace('<PENDF_PATH>', pendf_path)
-
-    # Write modified script content to run_njoy.sh file
-    with open('run_njoy.sh', 'w') as f:
-        f.write(script_content)
-    
-    # Make the script executable
-    subprocess.run(["chmod", "+x", "run_njoy.sh"])
-
-    # Execute the modified script
-    njoy_run_message = subprocess.run(["./run_njoy.sh"], capture_output=True, text=True)
-    print(njoy_run_message.stdout)
-    print(njoy_run_message.stderr)
+    # Run NJOY
+    result = subprocess.run(['njoy'], input=open(INPUT).read(), text=  True, capture_output=True)
+    with open(OUTPUT, 'w') as output_file:
+        output_file.write(result.stdout)
 
     # If the run is successful, print out the output and make a copy of the file as a .GENDF file
-    if njoy_run_message.stderr == '':
+    if result.stderr == '':
         output = subprocess.run(['cat', 'output'], capture_output=True, text = True)
         title = card_deck[card_deck['Card'] == 'Card 3']['Contents'].values[0][0][1:-1]
         title_index = output.stdout.find(title)

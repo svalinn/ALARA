@@ -37,7 +37,7 @@ elif usr_selection == 'D':
         card_deck = GRPRtk.groupr_input(matb, MTs, element, A, mt_table)
 
         # Run NJOY with GROUPR to create a GENDF file for the isomer
-        gendf_path = GRPRtk.run_njoy(endf_path, pendf_path, card_deck, element, A)
+        gendf_path = GRPRtk.run_njoy(card_deck, element, A)
 
         # Save pKZA value
         pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = 1)
