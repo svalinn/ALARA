@@ -2,7 +2,6 @@
 import ENDFtk
 import urllib
 import subprocess
-import pandas as pd
 
 # List of elements in the Periodic Table
 elements = [
