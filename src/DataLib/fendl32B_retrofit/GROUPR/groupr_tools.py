@@ -1,6 +1,5 @@
 # Import packages
 import ENDFtk
-import os
 import requests
 import contextlib
 import subprocess
@@ -59,22 +58,6 @@ def tendl_download(element, A, filetype, save_path = None):
     subprocess.run(['wget', download_url, '-O', save_path])
 
     return save_path
-
-@contextlib.contextmanager
-def suppress_output():
-    """Suppress all output to stdout and stderr."""
-    with open(os.devnull, 'w') as fnull:
-        old_stdout = os.dup(1)
-        old_stderr = os.dup(2)
-        os.dup2(fnull.fileno(), 1)
-        os.dup2(fnull.fileno(), 2)
-        try:
-            yield
-        finally:
-            os.dup2(old_stdout, 1)
-            os.dup2(old_stderr, 2)
-            os.close(old_stdout)
-            os.close(old_stderr)
 
 # Define a function to extract MT and MAT data from an ENDF file
 def endf_specs(endf_path):
