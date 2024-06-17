@@ -25,12 +25,7 @@ elements = [
 # Define a function to download the .tendl file given specific user inputs to for element and mass number
 def tendl_download(element, A, filetype, save_path = None):
     # Ensure that A is properly formatted
-    A = str(A)
-    if 'm' in A:
-        m_index = A.find('m')
-        A = A[:m_index].zfill(3) + 'm'
-    else:
-        A = A.zfill(3)
+    A = str(A).zfill(3 + ('m' in A))
 
     # Define general URL format for files in the TENDL database
     tendl_gen_url = 'https://tendl.web.psi.ch/tendl_2017/neutron_file/'
