@@ -1,6 +1,6 @@
 # Import packages
 import ENDFtk
-import requests
+import urllib
 import contextlib
 import subprocess
 import pandas as pd
@@ -43,13 +43,20 @@ def tendl_download(element, A, filetype, save_path = None):
         save_path = f'tape{file_handling[filetype.lower()]["tape_num"]}'
 
     # Check if the file exists
-    response = requests.head(download_url)
-    if response.status_code == 404:
-        # Raise FileNotFoundError if file not found
-        raise FileNotFoundError(f'{download_url} not found')
+    try:
+        urllib.request.urlopen(download_url)
+    except urllib.error.URLError as e:
+        file_not_found_code = 404
+        if str(file_not_found_code) in str(e):
+            raise FileNotFoundError()
 
-    # Download the file using wget
-    subprocess.run(['wget', download_url, '-O', save_path])
+    # Download the file using urllib
+    with urllib.request.urlopen(download_url) as f:
+        temp_file = f.read().decode('utf-8')
+    
+    # Write out the file to the save_path
+    with open(save_path, 'w') as f:
+        f.write(temp_file)
 
     return save_path
 
