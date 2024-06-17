@@ -89,17 +89,10 @@ def endf_specs(endf_path):
     xs_MF = 3
 
     # Extract out the file
-    file = tape.material(matb).file(xs_MF)
+    file = tape.material(matb).file(xs_MF).parse()
 
     # Extract the MT numbers that are present in the file
-    MTs = []
-    for i in range(1000):
-        with suppress_output():
-            try:
-                file.section(i)
-                MTs.append(i)
-            except:
-                continue
+    MTs = [MT.MT for MT in file.sections.to_list()]
 
     return matb, MTs
 
