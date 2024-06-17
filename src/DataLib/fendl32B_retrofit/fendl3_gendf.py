@@ -34,7 +34,8 @@ elif usr_selection == 'D':
         matb, MTs = GRPRtk.endf_specs(endf_path)
         
         # Write out the GROUPR input file
-        card_deck = GRPRtk.groupr_input(matb, MTs, element, A, mt_table)
+        card_deck = GRPRtk.groupr_input_file_format(matb, MTs, element, A, mt_table)
+        GRPRtk.groupr_input_file_writer(card_deck, MTs)
 
         # Run NJOY with GROUPR to create a GENDF file for the isomer
         gendf_path = GRPRtk.run_njoy(card_deck, element, A)

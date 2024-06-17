@@ -92,9 +92,7 @@ def format_card(card_name, card_content, MTs):
     return card_str
 
 # Define a function to create the GROUPR input file
-def groupr_input(matb, MTs, element, A, mt_table):
-    
-    # INPUT PARAMETERS
+def groupr_input_file_format(matb, MTs, element, A, mt_table):
 
     cards = {}
 
@@ -145,13 +143,13 @@ def groupr_input(matb, MTs, element, A, mt_table):
     matd = 0 # next mat number to be processed
     cards[10] = [matd]
 
-    # WRITE INPUT FILE FROM CARDS
+    return cards
 
+# Define a function to write out the GROUPR input file
+def groupr_input_file_writer(cards, MTs):
     # Write the input deck to the groupr.inp file
     with open('groupr.inp', 'w') as f:
         f.write('groupr\n')
-        #for card_name, card_content in zip(deck_names, deck):
-        #    f.write(format_card(card_name, card_content, MTs))
         max_card_index = 10
         for i in range(max_card_index + 1):
             try:
@@ -159,8 +157,6 @@ def groupr_input(matb, MTs, element, A, mt_table):
             except KeyError:
                 continue
         f.write(' 0/\nstop')
-
-    return cards
 
 # Define a function to execute NJOY bash script
 def run_njoy(cards, element, A):
