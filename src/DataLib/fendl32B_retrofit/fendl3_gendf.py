@@ -59,15 +59,8 @@ mat = mat_ids[0]
 xs_MF = 3
 file = tape.material(mat).file(xs_MF)
 
-# Extract MT values
-MTs = []
-for i in range(1000):
-    with GENDFtk.suppress_output():
-        try:
-            file.section(i)
-            MTs.append(i)
-        except:
-            continue
+# Extract the MT numbers that are present in the file
+MTs = [MT.MT for MT in file.sections.to_list()]
 
 # Initialize lists
 cross_sections_by_MT = []

@@ -1,8 +1,6 @@
 # Import packages
 import subprocess
 import requests
-import os
-import contextlib
 import sys
 sys.path.append('./GROUPR')
 from groupr_tools import elements
@@ -31,22 +29,6 @@ def gendf_download(element, A, M=None, save_path=None):
     pKZA = int(Z + A + M)
     print(f"Downloaded file saved to: {save_path}, pKZA: {pKZA}")
     return save_path, pKZA
-
-# Suppress unnecessary warnings from ENDFtk
-@contextlib.contextmanager
-def suppress_output():
-    with open(os.devnull, 'w') as fnull:
-        old_stdout = os.dup(1)
-        old_stderr = os.dup(2)
-        os.dup2(fnull.fileno(), 1)
-        os.dup2(fnull.fileno(), 2)
-        try:
-            yield
-        finally:
-            os.dup2(old_stdout, 1)
-            os.dup2(old_stderr, 2)
-            os.close(old_stdout)
-            os.close(old_stderr)
 
 # Extract pKZA data from a GENDF file
 def gendf_pkza_extract(gendf_path, M=None):
