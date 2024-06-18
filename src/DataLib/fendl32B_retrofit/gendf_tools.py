@@ -17,10 +17,10 @@ def fendl_args():
                           required=True,
                           help='Path to the local GENDF file.')
     parser_D = subparsers.add_parser('D', help='Download GENDF file')
-    parser_D.add_argument('--element',
+    parser_D.add_argument('--element', '-e',
                           required=True,
                           help= 'Chemical symbol for selected element (i.e. Ti).')
-    parser_D.add_argument('--A',
+    parser_D.add_argument('--A', '-a',
                           required=True,
                           help='Mass number for selected isotope (i.e. 48). If the target is an isomer, "m" after the mass number (i.e. 48m)')
 
