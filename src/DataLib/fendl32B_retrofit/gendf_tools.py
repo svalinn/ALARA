@@ -1,9 +1,31 @@
 # Import packages
+import argparse
 import csv
 import requests
 import sys
 sys.path.append('./GROUPR')
 from groupr_tools import elements
+
+# Define an argument parser
+def fendl_args():
+    parser = argparse.ArgumentParser()
+
+    # Subparsers for 'I' and 'D'
+    subparsers = parser.add_subparsers(dest='method', required=True)
+    parser_I = subparsers.add_parser('I', help='Local file input')
+    parser_I.add_argument('--local-path',
+                          required=True,
+                          help='Path to the local GENDF file.')
+    parser_D = subparsers.add_parser('D', help='Download GENDF file')
+    parser_D.add_argument('--element',
+                          required=True,
+                          help= 'Chemical symbol for selected element (i.e. Ti).')
+    parser_D.add_argument('--A',
+                          required=True,
+                          help='Mass number for selected isotope (i.e. 48). If the target is an isomer, "m" after the mass number (i.e. 48m)')
+
+    args = parser.parse_args()
+    return args
 
 # Define a function to read CSV files
 def read_csv(csv_path):
@@ -69,7 +91,7 @@ def gendf_pkza_extract(gendf_path, M=None):
     if 'm' in A:
         m_index = A.find('m')
         A = A[:m_index]
-    M = str(M) or '0'
+    M = str(str(M).count('m')) or '0'
     pKZA = int(Z + A + M)
     print(f"Extracted pKZA: {pKZA}")
     return pKZA

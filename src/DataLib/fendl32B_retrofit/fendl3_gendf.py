@@ -10,45 +10,55 @@ import subprocess
 # https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf
 mt_table = GENDFtk.read_csv('mt_table.csv')
 
-# Set user parameters
-print('Input GENDF file or download from FENDL 3.2b')
-usr_selection = input('For local input, type I. For download, type D. (I, D): ')
-if usr_selection == 'I':
-    gendf_path = input('Type in path of GENDF file: ')
-    pKZA = GENDFtk.gendf_pkza_extract(gendf_path)
-elif usr_selection == 'D':
-    element = input('Select target element: ')
-    A = input('Select mass number (A): ')
-    # Check isomeric state
-    if 'm' not in A:
-        gendf_path, pKZA = GENDFtk.gendf_download(element, A)
-    else:
-        # Use NJOY GROUPR to convert the isomer's TENDL 2017 data to a GENDF file
-        sys.path.append('./GROUPR')
-        import groupr_tools as GRPRtk
+def main():
+    # Parse command line arguments
+    args = GENDFtk.fendl_args()
+    
+    # Set conditionals for local file input 
+    if args.method == 'I':
+        gendf_path = args.local_path
+        pKZA = GENDFtk.gendf_pkza_extract(gendf_path)
+    
+    # Set conditionals for file download
+    elif args.method == 'D':
+        element = args.element
+        A = args.A
+        # Check isomeric state
+        if 'm' not in A:
+            gendf_path, pKZA = GENDFtk.gendf_download(element, A)
+        else:
+            # Use NJOY GROUPR to convert the isomer's TENDL 2017 data to a GENDF file
+            sys.path.append('./GROUPR')
+            import groupr_tools as GRPRtk
 
-        # Download ENDF and PENDF files for the isomer
-        endf_path = GRPRtk.tendl_download(element, A, 'endf')
-        pendf_path = GRPRtk.tendl_download(element, A, 'pendf')
+            # Download ENDF and PENDF files for the isomer
+            endf_path = GRPRtk.tendl_download(element, A, 'endf')
+            pendf_path = GRPRtk.tendl_download(element, A, 'pendf')
 
-        # Extract necessary MT and MAT data from the ENDF file
-        matb, MTs = GRPRtk.endf_specs(endf_path)
-        
-        # Write out the GROUPR input file
-        card_deck = GRPRtk.groupr_input_file_format(matb, MTs, element, A, mt_table)
-        GRPRtk.groupr_input_file_writer(card_deck, MTs)
+            # Extract necessary MT and MAT data from the ENDF file
+            matb, MTs = GRPRtk.endf_specs(endf_path)
+            
+            # Write out the GROUPR input file
+            card_deck = GRPRtk.groupr_input_file_format(matb, MTs, element, A, mt_table)
+            GRPRtk.groupr_input_file_writer(card_deck, MTs)
 
-        # Run NJOY with GROUPR to create a GENDF file for the isomer
-        gendf_path = GRPRtk.run_njoy(card_deck, element, A)
+            # Run NJOY with GROUPR to create a GENDF file for the isomer
+            gendf_path = GRPRtk.run_njoy(card_deck, element, A)
 
-        # Save pKZA value
-        pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = 1)
+            # Save pKZA value
+            pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = 1)
 
-        # Clean up repository from unnecessary intermediate files from GROUPR run
-        groupr_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21',
-                        'tape31', f'fendl3_{element}{A[:-1]}']
-        for file in groupr_files:
-            subprocess.run(['rm', file])
+            # Clean up repository from unnecessary intermediate files from GROUPR run
+            groupr_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21',
+                            'tape31', f'fendl3_{element}{A[:-1]}']
+            for file in groupr_files:
+                subprocess.run(['rm', file])
+
+    return gendf_path, pKZA
+
+# Execute main() function based on arguments
+if __name__ == '__main__':
+    gendf_path, pKZA = main()
 
 print(f"GENDF file path: {gendf_path}")
 print(f"Parent KZA (pKZA): {pKZA}")
