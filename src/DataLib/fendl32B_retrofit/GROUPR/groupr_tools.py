@@ -149,12 +149,8 @@ def groupr_input_file_writer(cards, MTs):
     # Write the input deck to the groupr.inp file
     with open('groupr.inp', 'w') as f:
         f.write('groupr\n')
-        max_card_index = 10
-        for i in range(max_card_index + 1):
-            try:
-                f.write(format_card(i, cards[i], MTs))
-            except KeyError:
-                continue
+        for card_num, card in cards.items():
+            f.write(format_card(i, cards[i], MTs))
         f.write(' 0/\nstop')
 
 # Define a function to execute NJOY bash script
