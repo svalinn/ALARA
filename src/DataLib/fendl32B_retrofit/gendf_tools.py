@@ -1,9 +1,30 @@
 # Import packages
-import subprocess
+import csv
 import requests
 import sys
 sys.path.append('./GROUPR')
 from groupr_tools import elements
+
+# Define a function to read CSV files
+def read_csv(csv_path):
+    
+    # Initialize an empty dictionary
+    data_dict = {}
+
+    # Open the CSV file
+    with open(csv_path, mode='r') as file:
+        # Create a CSV reader object
+        csv_reader = csv.DictReader(file)
+
+        # Initialize the dictionary keys with empty lists
+        for column in csv_reader.fieldnames:
+            data_dict[column] = []
+
+        # Populate the dictionary with the CSV data
+        for row in csv_reader:
+            for column in csv_reader.fieldnames:
+                data_dict[column].append(row[column])
+    return data_dict
 
 # Define a function to download the GENDF file from nds.iaea.org
 def gendf_download(element, A, M=None, save_path=None):
@@ -95,7 +116,8 @@ def reaction_calculator(MT, mt_table, pKZA):
     try:
         nucleus_protons = int(str(pKZA)[:2])
         A = int(str(pKZA)[2:5])
-        reaction = mt_table[mt_table['MT'] == MT]['Reaction'].values[0]
+        index = mt_table['MT'].index(str(MT))
+        reaction = mt_table['Reaction'][index]
         emitted_particles = reaction.split(',')[1][:-1]
         particle_types = ['n', 'd', 'alpha', 'p', 't', '3He']
         emission_tuples = [(emitted_particle_count(p, emitted_particles), p) for p in particle_types if emitted_particle_count(p, emitted_particles)]

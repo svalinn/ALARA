@@ -1,3 +1,4 @@
+# Import packages
 import ENDFtk
 import gendf_tools as GENDFtk
 import pandas as pd
@@ -7,7 +8,7 @@ import subprocess
 # Load MT table
 # Data for MT table collected from 
 # https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf
-mt_table = pd.read_csv('mt_table.csv')
+mt_table = GENDFtk.read_csv('mt_table.csv')
 
 # Set user parameters
 print('Input GENDF file or download from FENDL 3.2b')
@@ -44,8 +45,8 @@ elif usr_selection == 'D':
         pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = 1)
 
         # Clean up repository from unnecessary intermediate files from GROUPR run
-        groupr_files = ['groupr.inp', 'groupr.out', 'run_njoy.sh', 'tape20',  
-                        'tape21', 'tape31', f'fendl3_{element}{A[:-1]}']
+        groupr_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21',
+                        'tape31', f'fendl3_{element}{A[:-1]}']
         for file in groupr_files:
             subprocess.run(['rm', file])
 

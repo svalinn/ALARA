@@ -135,7 +135,8 @@ def groupr_input_file_format(matb, MTs, element, A, mt_table):
     mtd = MTs # sections to be processed
     cards[9] = []
     for mt in MTs:
-        mtname = mt_table[mt_table['MT'] == mt]['Reaction'].values[0] # description of section to be processed
+        index = mt_table['MT'].index(str(mt))
+        mtname = mt_table['Reaction'][index] # description of section to be processed
         card9_line = f'{mfd} {mt} "{mtname}"'
         cards[9].append(card9_line)
 
