@@ -5,9 +5,10 @@ import sys
 sys.path.append('./GROUPR')
 from groupr_tools import elements
 
-# Download the GENDF file
+# Define a function to download the GENDF file from nds.iaea.org
 def gendf_download(element, A, M=None, save_path=None):
-    Z = elements[element]
+    # Initialize parameters
+    Z = str(elements[element])
     A = str(A).zfill(3)
     gendf_gen_url = 'https://www-nds.iaea.org/fendl/data/neutron/group/'
     download_url = f'{gendf_gen_url}{Z}{element}_{A}.g'
@@ -15,6 +16,7 @@ def gendf_download(element, A, M=None, save_path=None):
 
     print(f"Downloading GENDF file from: {download_url}")
 
+    # Check to see if the URL is valid
     response = requests.head(download_url)
     if response.status_code == 404:
         raise FileNotFoundError(f'{download_url} not found')
@@ -23,11 +25,17 @@ def gendf_download(element, A, M=None, save_path=None):
 
     print(f"Final download URL: {download_url}")
 
-    subprocess.run(['wget', download_url, '-O', save_path])
+    # Download the file from the URL
+    response = requests.get(download_url, stream=True)
+    with open(save_path, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=1024):
+            f.write(chunk)
 
+    # Write out the pKZA
     M = M or '0'
     pKZA = int(Z + A + M)
     print(f"Downloaded file saved to: {save_path}, pKZA: {pKZA}")
+
     return save_path, pKZA
 
 # Extract pKZA data from a GENDF file
