@@ -3,7 +3,7 @@ import ENDFtk
 import urllib
 import subprocess
 
-# List of elements in the Periodic Table
+# Dictionary of elements in the Periodic Table
 elements = [
     'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
     'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca',
@@ -18,6 +18,7 @@ elements = [
     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
     'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og'
 ]
+elements = dict(zip(elements, range(1, len(elements)+1)))
 
 # Define a function to download the .tendl file given specific user inputs to for element and mass number
 def tendl_download(element, A, filetype, save_path = None):
@@ -117,7 +118,7 @@ def groupr_input_file_format(matb, MTs, element, A, mt_table):
     cards[2] = [matb, ign, igg, iwt, lord, ntemp, nsigz, iprint]
 
     # Set Card 3
-    Z = str(elements.index(element) + 1).zfill(2)
+    Z = str(elements[element]).zfill(2)
     title = f'"{Z}-{element}-{A} for TENDL 2017"'
     cards[3] = [title]
 
