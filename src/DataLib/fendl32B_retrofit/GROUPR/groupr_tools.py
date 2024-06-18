@@ -150,7 +150,7 @@ def groupr_input_file_writer(cards, MTs):
     with open('groupr.inp', 'w') as f:
         f.write('groupr\n')
         for card_num, card in cards.items():
-            f.write(format_card(i, cards[i], MTs))
+            f.write(format_card(card_num, card, MTs))
         f.write(' 0/\nstop')
 
 # Define a function to execute NJOY bash script
