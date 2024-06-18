@@ -5,6 +5,7 @@ import requests
 import sys
 sys.path.append('./GROUPR')
 from groupr_tools import elements
+from logging_config import logger
 
 # Define an argument parser
 def fendl_args():
@@ -51,13 +52,11 @@ def read_csv(csv_path):
 # Define a function to download the GENDF file from nds.iaea.org
 def gendf_download(element, A, M=None, save_path=None):
     # Initialize parameters
-    Z = str(elements[element])
+    Z = str(elements[element]).zfill(2)
     A = str(A).zfill(3)
     gendf_gen_url = 'https://www-nds.iaea.org/fendl/data/neutron/group/'
     download_url = f'{gendf_gen_url}{Z}{element}_{A}.g'
     save_path = save_path or f'./fendl3_{element}{A}'
-
-    print(f"Downloading GENDF file from: {download_url}")
 
     # Check to see if the URL is valid
     response = requests.head(download_url)
@@ -66,18 +65,16 @@ def gendf_download(element, A, M=None, save_path=None):
     elif response.status_code == 301:
         download_url = f'{gendf_gen_url}{Z}{element}{A}.g'
 
-    print(f"Final download URL: {download_url}")
-
     # Download the file from the URL
+    logger.info(f'Downloading file from: {download_url}')
     response = requests.get(download_url, stream=True)
-    with open(save_path, 'wb') as f:
-        for chunk in response.iter_content(chunk_size=1024):
-            f.write(chunk)
+    with open(save_path, 'w') as f:
+        f.write(response.content.decode('utf-8'))
+    logger.info(f'Downloaded file saved to: {save_path}')
 
     # Write out the pKZA
     M = M or '0'
     pKZA = int(Z + A + M)
-    print(f"Downloaded file saved to: {save_path}, pKZA: {pKZA}")
 
     return save_path, pKZA
 
@@ -85,7 +82,7 @@ def gendf_download(element, A, M=None, save_path=None):
 def gendf_pkza_extract(gendf_path, M=None):
     with open(gendf_path, 'r') as f:
         first_line = f.readline()
-    print(f"First line of GENDF file: {first_line}")
+    logger.info(f"First line of GENDF file: {first_line}")
     Z, element, A = first_line.split('-')[:3]
     A = A.split(' ')[0]
     if 'm' in A:
@@ -93,7 +90,6 @@ def gendf_pkza_extract(gendf_path, M=None):
         A = A[:m_index]
     M = str(str(M).count('m')) or '0'
     pKZA = int(Z + A + M)
-    print(f"Extracted pKZA: {pKZA}")
     return pKZA
 
 # Extract cross-section data for a given MT
@@ -109,7 +105,7 @@ def extract_cross_sections(file, MT):
             sigma_list.append(float(mantissa) * (10 ** (sign * int(exponent))))
         return sigma_list
     except Exception as e:
-        print(f"Error extracting cross sections for MT {MT}: {e}")
+        logger.error(f"Error extracting cross sections for MT {MT}: {e}")
         return []
 
 # Count emitted particles
@@ -159,5 +155,5 @@ def reaction_calculator(MT, mt_table, pKZA):
         dKZA = int(f"{str(nucleus_protons)}{residual_A}{str(M)}")
         return dKZA, emitted_particles
     except Exception as e:
-        print(f"Error in reaction calculation for MT {MT}: {e}")
+        logger.error(f"Error in reaction calculation for MT {MT}: {e}")
         return None, None

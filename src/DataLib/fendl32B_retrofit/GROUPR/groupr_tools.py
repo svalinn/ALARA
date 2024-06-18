@@ -2,6 +2,9 @@
 import ENDFtk
 import urllib
 import subprocess
+import sys
+sys.path.append('../')
+from logging_config import logger
 
 # Dictionary of elements in the Periodic Table
 elements = [
@@ -166,12 +169,12 @@ def run_njoy(cards, element, A):
     with open(OUTPUT, 'w') as output_file:
         output_file.write(result.stdout)
 
-    # If the run is successful, print out the output and make a copy of the file as a .GENDF file
+    # If the run is successful, log out the output and make a copy of the file as a .GENDF file
     if result.stderr == '':
         output = subprocess.run(['cat', 'output'], capture_output=True, text = True)
         title = cards[3][0][1:-1]
         title_index = output.stdout.find(title)
-        print(output.stdout[:title_index + len(title)])
+        logger.info(output.stdout[:title_index + len(title)])
 
         gendf_path = f'tendl_2017_{element}{A}.gendf'
         subprocess.run(['cp', 'tape31', gendf_path])

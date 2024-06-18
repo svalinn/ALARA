@@ -4,6 +4,7 @@ import gendf_tools as GENDFtk
 import pandas as pd
 import sys
 import subprocess
+from logging_config import logger
 
 # Load MT table
 # Data for MT table collected from 
@@ -11,9 +12,10 @@ import subprocess
 mt_table = GENDFtk.read_csv('mt_table.csv')
 
 def main():
+    
     # Parse command line arguments
     args = GENDFtk.fendl_args()
-    
+
     # Set conditionals for local file input 
     if args.method == 'I':
         gendf_path = args.local_path
@@ -60,8 +62,8 @@ def main():
 if __name__ == '__main__':
     gendf_path, pKZA = main()
 
-print(f"GENDF file path: {gendf_path}")
-print(f"Parent KZA (pKZA): {pKZA}")
+logger.info(f"GENDF file path: {gendf_path}")
+logger.info(f"Parent KZA (pKZA): {pKZA}")
 
 # Read in data with ENDFtk
 tape = ENDFtk.tree.Tape.from_file(gendf_path)
@@ -91,7 +93,7 @@ for MT in MTs:
         dKZAs.append(dKZA)
         emitted_particles_list.append(emitted_particles)
     except Exception as e:
-        print(f"Error processing MT {MT}: {e}")
+        logger.error(f"Error processing MT {MT}: {e}")
         continue
 
 # Store data in a Pandas DataFrame
@@ -104,5 +106,5 @@ gendf_data = pd.DataFrame({
 
 # Save to CSV
 gendf_data.to_csv('gendf_data.csv', index=False)
-print("Saved gendf_data.csv")
-print(gendf_data.head())
+logger.info("Saved gendf_data.csv")
+logger.info(gendf_data.head())
