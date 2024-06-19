@@ -51,8 +51,7 @@ def main():
             pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = 1)
 
             # Clean up repository from unnecessary intermediate files from GROUPR run
-            groupr_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21',
-                            'tape31', f'fendl3_{element}{A[:-1]}']
+            groupr_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21', 'tape31']
             for file in groupr_files:
                 subprocess.run(['rm', file])
 
