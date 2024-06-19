@@ -174,7 +174,7 @@ def run_njoy(cards, element, A):
         output = subprocess.run(['cat', 'output'], capture_output=True, text = True)
         title = cards[3][0][1:-1]
         title_index = output.stdout.find(title)
-        logger.info(output.stdout[:title_index + len(title)])
+        logger.info(f'\n{output.stdout[:title_index + len(title)]}\n')
 
         gendf_path = f'tendl_2017_{element}{A}.gendf'
         subprocess.run(['cp', 'tape31', gendf_path])
