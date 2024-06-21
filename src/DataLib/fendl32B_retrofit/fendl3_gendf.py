@@ -54,56 +54,54 @@ def main():
             for file in groupr_files:
                 subprocess.run(['rm', file])
 
-    return gendf_path, pKZA
+    logger.info(f"GENDF file path: {gendf_path}")
+    logger.info(f"Parent KZA (pKZA): {pKZA}")
+
+    # Read in data with ENDFtk
+    with GRPRtk.redirect_ENDFtk_output():
+        tape = ENDFtk.tree.Tape.from_file(gendf_path)
+        mat_ids = tape.material_numbers
+        mat = mat_ids[0]
+        xs_MF = 3
+        file = tape.material(mat).file(xs_MF)
+
+        # Extract the MT numbers that are present in the file
+        MTs = [MT.MT for MT in file.sections.to_list()]
+
+    # Initialize lists
+    cross_sections_by_MT = []
+    emitted_particles_list = []
+    dKZAs = []
+
+    # Extract data for each MT
+    for MT in MTs:
+        try:
+            sigma_list = GENDFtk.extract_cross_sections(file, MT)
+            if not sigma_list:
+                continue
+            dKZA, emitted_particles = GENDFtk.reaction_calculator(MT, mt_table, pKZA)
+            if dKZA is None:
+                continue
+            cross_sections_by_MT.append(sigma_list)
+            dKZAs.append(dKZA)
+            emitted_particles_list.append(emitted_particles)
+        except Exception as e:
+            logger.error(f"Error processing MT {MT}: {e}")
+            continue
+
+    # Store data in a Pandas DataFrame
+    gendf_data = pd.DataFrame({
+        'Parent KZA': [pKZA] * len(dKZAs),
+        'Daughter KZA': dKZAs,
+        'Emitted Particles': emitted_particles_list,
+        'Cross Sections': cross_sections_by_MT
+    })
+
+    # Save to CSV
+    gendf_data.to_csv('gendf_data.csv', index=False)
+    logger.info("Saved gendf_data.csv")
+    logger.info(gendf_data.head())
 
 # Execute main() function based on arguments
 if __name__ == '__main__':
-    gendf_path, pKZA = main()
-
-logger.info(f"GENDF file path: {gendf_path}")
-logger.info(f"Parent KZA (pKZA): {pKZA}")
-
-# Read in data with ENDFtk
-with GRPRtk.redirect_ENDFtk_output():
-    tape = ENDFtk.tree.Tape.from_file(gendf_path)
-    mat_ids = tape.material_numbers
-    mat = mat_ids[0]
-    xs_MF = 3
-    file = tape.material(mat).file(xs_MF)
-
-    # Extract the MT numbers that are present in the file
-    MTs = [MT.MT for MT in file.sections.to_list()]
-
-# Initialize lists
-cross_sections_by_MT = []
-emitted_particles_list = []
-dKZAs = []
-
-# Extract data for each MT
-for MT in MTs:
-    try:
-        sigma_list = GENDFtk.extract_cross_sections(file, MT)
-        if not sigma_list:
-            continue
-        dKZA, emitted_particles = GENDFtk.reaction_calculator(MT, mt_table, pKZA)
-        if dKZA is None:
-            continue
-        cross_sections_by_MT.append(sigma_list)
-        dKZAs.append(dKZA)
-        emitted_particles_list.append(emitted_particles)
-    except Exception as e:
-        logger.error(f"Error processing MT {MT}: {e}")
-        continue
-
-# Store data in a Pandas DataFrame
-gendf_data = pd.DataFrame({
-    'Parent KZA': [pKZA] * len(dKZAs),
-    'Daughter KZA': dKZAs,
-    'Emitted Particles': emitted_particles_list,
-    'Cross Sections': cross_sections_by_MT
-})
-
-# Save to CSV
-gendf_data.to_csv('gendf_data.csv', index=False)
-logger.info("Saved gendf_data.csv")
-logger.info(gendf_data.head())
+    main()
