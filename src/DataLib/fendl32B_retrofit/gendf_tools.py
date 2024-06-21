@@ -9,24 +9,38 @@ from logging_config import logger
 
 # Define an argument parser
 def fendl_args():
-    parser = argparse.ArgumentParser()
+    # Temporarily reset stdout and stderr to the defaults
+    # so that arg messages (i.e. --help) print out to terminal
+    original_stdout = sys.stdout
+    original_stderr = sys.stderr
 
-    # Subparsers for 'I' and 'D'
-    subparsers = parser.add_subparsers(dest='method', required=True)
-    parser_I = subparsers.add_parser('I', help='Local file input')
-    parser_I.add_argument('--local-path',
-                          required=True,
-                          help='Path to the local GENDF file.')
-    parser_D = subparsers.add_parser('D', help='Download GENDF file')
-    parser_D.add_argument('--element', '-e',
-                          required=True,
-                          help= 'Chemical symbol for selected element (i.e. Ti).')
-    parser_D.add_argument('--A', '-a',
-                          required=True,
-                          help='Mass number for selected isotope (i.e. 48). If the target is an isomer, "m" after the mass number (i.e. 48m)')
+    try:
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
 
-    args = parser.parse_args()
-    return args
+        parser = argparse.ArgumentParser()
+
+        # Subparsers for 'I' and 'D'
+        subparsers = parser.add_subparsers(dest='method', required=True)
+        parser_I = subparsers.add_parser('I', help='Local file input')
+        parser_I.add_argument('--local-path',
+                            required=True,
+                            help='Path to the local GENDF file.')
+        parser_D = subparsers.add_parser('D', help='Download GENDF file')
+        parser_D.add_argument('--element', '-e',
+                            required=True,
+                            help= 'Chemical symbol for selected element (i.e. Ti).')
+        parser_D.add_argument('--A', '-a',
+                            required=True,
+                            help='Mass number for selected isotope (i.e. 48). If the target is an isomer, "m" after the mass number (i.e. 48m)')
+
+        args = parser.parse_args()
+        return args
+    
+    finally:
+        # Restore stdout and stderr to the logger
+        sys.stdout = original_stdout
+        sys.stderr = original_stderr
 
 # Define a function to read CSV files
 def read_csv(csv_path):

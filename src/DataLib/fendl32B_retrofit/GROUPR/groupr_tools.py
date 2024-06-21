@@ -4,7 +4,9 @@ import urllib
 import subprocess
 import sys
 sys.path.append('../')
-from logging_config import logger
+from logging_config import logger, LoggerWriter
+import contextlib
+import os
 
 # Dictionary of elements in the Periodic Table
 elements = [
@@ -62,23 +64,50 @@ def tendl_download(element, A, filetype, save_path = None):
 
     return save_path
 
+# Define a function to redirect special ENDFtk output to logger
+@contextlib.contextmanager
+def redirect_ENDFtk_output():
+    # Redirect stdout and stderr to logger
+    logger_stdout = LoggerWriter(logger.info)
+    logger_stderr = LoggerWriter(logger.error)
+
+    with open(os.devnull, 'w') as fnull:
+        old_stdout = os.dup(1)
+        old_stderr = os.dup(2)
+        # Suppress terminal stdout readout
+        os.dup2(fnull.fileno(), 1)
+
+        sys.stdout = logger_stdout
+        sys.stderr = logger_stderr
+        try:
+            yield
+        finally:
+            os.dup2(old_stdout, 1)
+            os.dup2(old_stderr, 2)
+            os.close(old_stdout)
+            os.close(old_stderr)
+            # Reset stdout and stderr to default
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
 # Define a function to extract MT and MAT data from an ENDF file
 def endf_specs(endf_path):
-    # Read in ENDF tape using ENDFtk
-    tape = ENDFtk.tree.Tape.from_file(endf_path)
+    with redirect_ENDFtk_output():
+        # Read in ENDF tape using ENDFtk
+        tape = ENDFtk.tree.Tape.from_file(endf_path)
 
-    # Determine the material ID
-    mat_ids = tape.material_numbers
-    matb = mat_ids[0]
+        # Determine the material ID
+        mat_ids = tape.material_numbers
+        matb = mat_ids[0]
 
-    # Set MF for cross sections
-    xs_MF = 3
+        # Set MF for cross sections
+        xs_MF = 3
 
-    # Extract out the file
-    file = tape.material(matb).file(xs_MF).parse()
+        # Extract out the file
+        file = tape.material(matb).file(xs_MF).parse()
 
-    # Extract the MT numbers that are present in the file
-    MTs = [MT.MT for MT in file.sections.to_list()]
+        # Extract the MT numbers that are present in the file
+        MTs = [MT.MT for MT in file.sections.to_list()]
 
     return matb, MTs
 

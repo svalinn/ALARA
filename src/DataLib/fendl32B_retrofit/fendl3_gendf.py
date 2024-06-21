@@ -5,6 +5,8 @@ import pandas as pd
 import sys
 import subprocess
 from logging_config import logger
+sys.path.append('./GROUPR')
+import groupr_tools as GRPRtk
 
 # Load MT table
 # Data for MT table collected from 
@@ -30,8 +32,6 @@ def main():
             gendf_path, pKZA = GENDFtk.gendf_download(element, A)
         else:
             # Use NJOY GROUPR to convert the isomer's TENDL 2017 data to a GENDF file
-            sys.path.append('./GROUPR')
-            import groupr_tools as GRPRtk
 
             # Download ENDF and PENDF files for the isomer
             endf_path = GRPRtk.tendl_download(element, A, 'endf')
@@ -65,14 +65,15 @@ logger.info(f"GENDF file path: {gendf_path}")
 logger.info(f"Parent KZA (pKZA): {pKZA}")
 
 # Read in data with ENDFtk
-tape = ENDFtk.tree.Tape.from_file(gendf_path)
-mat_ids = tape.material_numbers
-mat = mat_ids[0]
-xs_MF = 3
-file = tape.material(mat).file(xs_MF)
+with GRPRtk.redirect_ENDFtk_output():
+    tape = ENDFtk.tree.Tape.from_file(gendf_path)
+    mat_ids = tape.material_numbers
+    mat = mat_ids[0]
+    xs_MF = 3
+    file = tape.material(mat).file(xs_MF)
 
-# Extract the MT numbers that are present in the file
-MTs = [MT.MT for MT in file.sections.to_list()]
+    # Extract the MT numbers that are present in the file
+    MTs = [MT.MT for MT in file.sections.to_list()]
 
 # Initialize lists
 cross_sections_by_MT = []
