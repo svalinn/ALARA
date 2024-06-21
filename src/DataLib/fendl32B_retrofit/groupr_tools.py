@@ -3,6 +3,7 @@ import ENDFtk
 import urllib
 import subprocess
 import sys
+sys.path.append('../')
 from logging_config import logger, LoggerWriter
 import contextlib
 import os
