@@ -7,12 +7,11 @@ import subprocess
 from logging_config import logger
 import groupr_tools as GRPRtk
 
-# Load MT table
-# Data for MT table collected from 
-# https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf
-mt_table = GENDFtk.read_csv('mt_table.csv')
-
 def main():
+    # Load MT table
+    # Data for MT table collected from 
+    # https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf
+    mt_table = GENDFtk.read_csv('mt_table.csv')
     
     # Parse command line arguments
     args = GENDFtk.fendl_args()
