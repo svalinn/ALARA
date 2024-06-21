@@ -3,7 +3,6 @@ import argparse
 import csv
 import requests
 import sys
-sys.path.append('./GROUPR')
 from groupr_tools import elements
 from logging_config import logger
 

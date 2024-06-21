@@ -5,7 +5,6 @@ import pandas as pd
 import sys
 import subprocess
 from logging_config import logger
-sys.path.append('./GROUPR')
 import groupr_tools as GRPRtk
 
 # Load MT table
