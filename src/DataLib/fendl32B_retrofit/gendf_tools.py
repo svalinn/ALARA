@@ -4,7 +4,10 @@ import csv
 import requests
 import sys
 from groupr_tools import elements
-from logging_config import logger
+from logging_config import logger, LoggerWriter
+import ENDFtk
+import contextlib
+import os
 
 # Define an argument parser
 def fendl_args():
@@ -25,6 +28,10 @@ def fendl_args():
         parser_I.add_argument('--local-path',
                             required=True,
                             help='Path to the local GENDF file.')
+        parser_I.add_argument('--isomer', '-m',
+                              required=False,
+                              default=None,
+                              help = 'Isomeric state of the element')
         parser_D = subparsers.add_parser('D', help='Download GENDF file')
         parser_D.add_argument('--element', '-e',
                             required=True,
@@ -101,9 +108,61 @@ def gendf_pkza_extract(gendf_path, M=None):
     if 'm' in A:
         m_index = A.find('m')
         A = A[:m_index]
-    M = str(str(M).count('m')) or '0'
+    M = str(str(M).count('M')) or '0'
     pKZA = int(Z + A + M)
     return pKZA
+
+# Define a function to redirect special ENDFtk output to logger
+@contextlib.contextmanager
+def redirect_ENDFtk_output():
+    # Redirect stdout and stderr to logger
+    logger_stdout = LoggerWriter(logger.info)
+    logger_stderr = LoggerWriter(logger.error)
+
+    with open(os.devnull, 'w') as fnull:
+        old_stdout = os.dup(1)
+        old_stderr = os.dup(2)
+        # Suppress terminal stdout readout
+        os.dup2(fnull.fileno(), 1)
+
+        sys.stdout = logger_stdout
+        sys.stderr = logger_stderr
+        try:
+            yield
+        finally:
+            os.dup2(old_stdout, 1)
+            os.dup2(old_stderr, 2)
+            os.close(old_stdout)
+            os.close(old_stderr)
+            # Reset stdout and stderr to default
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
+# Define a function to extract MT and MAT data from an ENDF file
+def endf_specs(path, filetype):
+    with redirect_ENDFtk_output():
+        # Read in ENDF tape using ENDFtk
+        tape = ENDFtk.tree.Tape.from_file(path)
+
+        # Determine the material ID
+        mat_ids = tape.material_numbers
+        matb = mat_ids[0]
+
+        # Set MF for cross sections
+        xs_MF = 3
+
+        # Extract out the file
+        file = tape.material(matb).file(xs_MF)
+
+        # Extract the MT numbers that are present in the file
+        MTs = [MT.MT for MT in file.sections.to_list()]
+
+    filetype = filetype.lower()
+    return_values = {
+        'endf': (matb, MTs),
+        'gendf': (matb, MTs, file)
+    }
+    return return_values.get(filetype)
 
 # Extract cross-section data for a given MT
 def extract_cross_sections(file, MT):

@@ -19,53 +19,47 @@ def main():
     # Set conditionals for local file input 
     if args.method == 'I':
         gendf_path = args.local_path
-        pKZA = GENDFtk.gendf_pkza_extract(gendf_path)
+        M = args.isomer
+        pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = M.upper())
+        matb, MTs, file_obj = GENDFtk.endf_specs(gendf_path, 'gendf')
     
     # Set conditionals for file download
     elif args.method == 'D':
         element = args.element
         A = args.A
-        # Check isomeric state
-        if 'm' not in A:
-            gendf_path, pKZA = GENDFtk.gendf_download(element, A)
-        else:
-            # Use NJOY GROUPR to convert the isomer's TENDL 2017 data to a GENDF file
+        # Use NJOY GROUPR to convert the isomer's TENDL 2017 data to a GENDF file
 
-            # Download ENDF and PENDF files for the isomer
-            endf_path = GRPRtk.tendl_download(element, A, 'endf')
-            pendf_path = GRPRtk.tendl_download(element, A, 'pendf')
+        # Download ENDF and PENDF files for the isomer
+        endf_path = GRPRtk.tendl_download(element, A, 'endf')
+        pendf_path = GRPRtk.tendl_download(element, A, 'pendf')
 
-            # Extract necessary MT and MAT data from the ENDF file
-            matb, MTs = GRPRtk.endf_specs(endf_path)
-            
-            # Write out the GROUPR input file
-            card_deck = GRPRtk.groupr_input_file_format(matb, MTs, element, A, mt_table)
-            GRPRtk.groupr_input_file_writer(card_deck, MTs)
+        # Extract necessary MT and MAT data from the ENDF file
+        matb, MTs = GENDFtk.endf_specs(endf_path, 'endf')
+        
+        # Write out the GROUPR input file
+        card_deck = GRPRtk.groupr_input_file_format(matb, MTs, element, A, mt_table)
+        GRPRtk.groupr_input_file_writer(card_deck, MTs)
 
-            # Run NJOY with GROUPR to create a GENDF file for the isomer
-            gendf_path = GRPRtk.run_njoy(card_deck, element, A)
+        # Run NJOY with GROUPR to create a GENDF file for the isomer
+        gendf_path = GRPRtk.run_njoy(card_deck, element, A)
 
-            # Save pKZA value
-            pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = 1)
+        # Save pKZA value
+        M = 'M' if 'm' in A else None
+        pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = M)
 
-            # Clean up repository from unnecessary intermediate files from GROUPR run
-            groupr_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21', 'tape31']
-            for file in groupr_files:
-                subprocess.run(['rm', file])
+        # Recalibrate MT list after GENDF conversion
+        matb, MTs, file_obj = GENDFtk.endf_specs(gendf_path, 'gendf')
+
+        # Clean up repository from unnecessary intermediate files from GROUPR run
+        groupr_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21',
+                        'tape31', f'tendl_2017_{element}{A}.gendf']
+        for file in groupr_files:
+            subprocess.run(['rm', file])
+        subprocess.run(['mv', 'output', 'njoy_output'])
 
     logger.info(f"GENDF file path: {gendf_path}")
     logger.info(f"Parent KZA (pKZA): {pKZA}")
-
-    # Read in data with ENDFtk
-    with GRPRtk.redirect_ENDFtk_output():
-        tape = ENDFtk.tree.Tape.from_file(gendf_path)
-        mat_ids = tape.material_numbers
-        mat = mat_ids[0]
-        xs_MF = 3
-        file = tape.material(mat).file(xs_MF)
-
-        # Extract the MT numbers that are present in the file
-        MTs = [MT.MT for MT in file.sections.to_list()]
+    logger.info(f'MTs: {MTs}')
 
     # Initialize lists
     cross_sections_by_MT = []
@@ -75,7 +69,7 @@ def main():
     # Extract data for each MT
     for MT in MTs:
         try:
-            sigma_list = GENDFtk.extract_cross_sections(file, MT)
+            sigma_list = GENDFtk.extract_cross_sections(file_obj, MT)
             if not sigma_list:
                 continue
             dKZA, emitted_particles = GENDFtk.reaction_calculator(MT, mt_table, pKZA)
