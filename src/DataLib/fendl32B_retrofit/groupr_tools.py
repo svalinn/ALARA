@@ -3,6 +3,24 @@ import urllib
 import subprocess
 from logging_config import logger, LoggerWriter
 
+# Define constants
+NENDF = 20 # unit for endf tape
+NPEND = 21 # unit for pendf tape
+NGOUT1 = 0 # unit for input gout tape (default=0)
+NGOUT2 = 31 # unit for output gout tape (default=0)
+IGN = 17 # neutron group structure option (corresponding to Vitamin J)
+IGG = 0 # gamma group structure option
+IWT = 11 # weight function option (corresponding to Vitamin E)
+LORD = 0 # Legendre order
+NTEMP = 1 # number of temperatures (default=1)
+NSIGZ = 1 # number of sigma zeroes (default=1)
+IPRINT = 1 # long print option (0/1=minimum/maximum) --(default=1)
+ISMOOTH = 1 # switch on/off smoother operation (1/0, default=1=on)
+TEMP = 293.16 # temperature in Kelvin
+SIGZ = 0 # sigma zero values (including infinity)
+MFD = 3 # file to be processed
+MATD = 0 # next mat number to be processed
+
 # Dictionary of elements in the Periodic Table
 elements = [
     'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
@@ -60,12 +78,12 @@ def tendl_download(element, A, filetype, save_path = None):
     return save_path
 
 # Define a function to format GROUPR input cards
-def format_card(card_name, card_content, MTs):
+def format_card(card_number, card_content, MTs):
     card_str = ''
     gen_str = ' ' + ' '.join(map(str, card_content))
-    if card_name == 9:
+    if card_number == 9:
         card_str = ' ' + '/\n '.join(card_content) + '/\n'
-    elif card_name == 4:
+    elif card_number == 4:
         card_str += gen_str + '\n'
     else:
         card_str += gen_str + '/\n'
@@ -77,25 +95,11 @@ def groupr_input_file_format(matb, MTs, element, A, mt_table):
     cards = {}
 
     # Set Card 1
-    nendf = 20 # unit for endf tape
-    npend = 21 # unit for pendf tape
-    ngout1 = 0 # unit for input gout tape (default=0)
-    ngout2 = 31 # unit for output gout tape (default=0)
-
-    cards[1] = [nendf, npend, ngout1, ngout2]
+    cards[1] = [NENDF, NPEND, NGOUT1, NGOUT2]
 
     # Set Card 2
     # matb -- (already defined) -- material to be processed
-    ign = 17 # neutron group structure option
-    igg = 0 # gamma group structure option
-    iwt = 11 # weight function option
-    lord = 0 # Legendgre order
-    ntemp = 1 # number of temperatures (default = 1)
-    nsigz = 1 # number of sigma zeroes (default = 1)
-    iprint = 1 # long print option (0/1=minimum/maximum) -- (default=1)
-    ismooth = 1 # swith on/off smoother operation (1/0, default=1=on)
-
-    cards[2] = [matb, ign, igg, iwt, lord, ntemp, nsigz, iprint]
+    cards[2] = [matb, IGN, IGG, IWT, LORD, NTEMP, NSIGZ, IPRINT]
 
     # Set Card 3
     Z = str(elements[element]).zfill(2)
@@ -103,26 +107,22 @@ def groupr_input_file_format(matb, MTs, element, A, mt_table):
     cards[3] = [title]
 
     # Set Card 4
-    temp = 293.16 # temperature in Kelvin
-    cards[4] = [temp]
+    cards[4] = [TEMP]
 
     # Set Card 5
-    sigz = 0 # sigma zero values (including infinity)
-    cards[5] = [sigz]
+    cards[5] = [SIGZ]
 
     # Set Card 9
-    mfd = 3 # file to be processed
     mtd = MTs # sections to be processed
     cards[9] = []
     for mt in MTs:
         index = mt_table['MT'].index(str(mt))
         mtname = mt_table['Reaction'][index] # description of section to be processed
-        card9_line = f'{mfd} {mt} "{mtname}"'
+        card9_line = f'{MFD} {mt} "{mtname}"'
         cards[9].append(card9_line)
 
     # Set Card 10
-    matd = 0 # next mat number to be processed
-    cards[10] = [matd]
+    cards[10] = [MATD]
 
     return cards
 
