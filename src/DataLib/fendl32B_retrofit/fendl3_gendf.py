@@ -1,8 +1,6 @@
 # Import packages
-import ENDFtk
 import gendf_tools as GENDFtk
 import pandas as pd
-import sys
 import subprocess
 from logging_config import logger
 import groupr_tools as GRPRtk
