@@ -156,3 +156,5 @@ def run_njoy(cards, element, A):
         gendf_path = f'tendl_2017_{element}{A}.gendf'
         subprocess.run(['cp', 'tape31', gendf_path])
         return gendf_path
+    else:
+        logger.error(result.stderr)
