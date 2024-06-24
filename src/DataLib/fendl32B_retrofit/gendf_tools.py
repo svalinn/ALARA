@@ -69,35 +69,6 @@ def read_csv(csv_path):
                 data_dict[column].append(row[column])
     return data_dict
 
-# Define a function to download the GENDF file from nds.iaea.org
-def gendf_download(element, A, M=None, save_path=None):
-    # Initialize parameters
-    Z = str(elements[element]).zfill(2)
-    A = str(A).zfill(3)
-    gendf_gen_url = 'https://www-nds.iaea.org/fendl/data/neutron/group/'
-    download_url = f'{gendf_gen_url}{Z}{element}_{A}.g'
-    save_path = save_path or f'./fendl3_{element}{A}'
-
-    # Check to see if the URL is valid
-    response = requests.head(download_url)
-    if response.status_code == 404:
-        raise FileNotFoundError(f'{download_url} not found')
-    elif response.status_code == 301:
-        download_url = f'{gendf_gen_url}{Z}{element}{A}.g'
-
-    # Download the file from the URL
-    logger.info(f'Downloading file from: {download_url}')
-    response = requests.get(download_url, stream=True)
-    with open(save_path, 'w') as f:
-        f.write(response.content.decode('utf-8'))
-    logger.info(f'Downloaded file saved to: {save_path}')
-
-    # Write out the pKZA
-    M = M or '0'
-    pKZA = int(Z + A + M)
-
-    return save_path, pKZA
-
 # Extract pKZA data from a GENDF file
 def gendf_pkza_extract(gendf_path, M=None):
     with open(gendf_path, 'r') as f:
