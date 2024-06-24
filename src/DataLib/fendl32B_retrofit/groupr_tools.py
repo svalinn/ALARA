@@ -1,5 +1,6 @@
 # Import packages
-import urllib
+import urllib.error
+import urllib.request
 import subprocess
 from logging_config import logger, LoggerWriter
 

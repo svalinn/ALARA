@@ -1,9 +1,7 @@
 # Import packages
 import argparse
 import csv
-import requests
 import sys
-from groupr_tools import elements
 from logging_config import logger, LoggerWriter
 import ENDFtk
 import contextlib
