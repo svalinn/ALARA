@@ -49,8 +49,7 @@ def main():
         matb, MTs, file_obj = GENDFtk.endf_specs(gendf_path, 'gendf')
 
         # Clean up repository from unnecessary intermediate files from GROUPR run
-        groupr_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21',
-                        'tape31', f'tendl_2017_{element}{A}.gendf']
+        groupr_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21', 'tape31']
         for file in groupr_files:
             subprocess.run(['rm', file])
         subprocess.run(['mv', 'output', 'njoy_output'])
@@ -91,7 +90,6 @@ def main():
     # Save to CSV
     gendf_data.to_csv('gendf_data.csv', index=False)
     logger.info("Saved gendf_data.csv")
-    logger.info(gendf_data.head())
 
 # Execute main() function based on arguments
 if __name__ == '__main__':

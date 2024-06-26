@@ -78,7 +78,7 @@ def gendf_pkza_extract(gendf_path, M=None):
         m_index = A.find('m')
         A = A[:m_index]
     M = str(str(M).count('M')) or '0'
-    pKZA = int(Z + A + M)
+    pKZA = Z.zfill(2) + A.zfill(3) + M
     return pKZA
 
 # Define a function to redirect special ENDFtk output to logger
@@ -189,6 +189,7 @@ def reaction_calculator(MT, mt_table, pKZA):
                 nucleus_protons -= num_particle
 
         residual_A = str(nucleus_neutrons + nucleus_protons).zfill(3)
+        nucleus_protons = str(nucleus_protons).zfill(2)
         M = isomer_check(emitted_particles)
         if M != 0:
             emitted_particles = emitted_particles[:-len(str(M))]

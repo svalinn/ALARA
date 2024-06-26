@@ -55,6 +55,7 @@ def tendl_download(element, A, filetype, save_path = None):
     isotope_component = f'{element}/{element}{A}/lib/endf/n-{element}{A}.'
     ext = file_handling[filetype.lower()]['ext']
     download_url = tendl_gen_url + isotope_component + ext
+    logger.info(f'{filetype.upper()} URL: {download_url}')
 
     # Define a save path for the file if there is not one already specified
     if save_path is None:
@@ -66,7 +67,7 @@ def tendl_download(element, A, filetype, save_path = None):
     except urllib.error.URLError as e:
         file_not_found_code = 404
         if str(file_not_found_code) in str(e):
-            raise FileNotFoundError()
+            raise FileNotFoundError(f'{filetype.upper()} file does not exist at {download_url}')
 
     # Download the file using urllib
     with urllib.request.urlopen(download_url) as f:
