@@ -22,13 +22,12 @@ def read_csv(csv_path):
 
     with open(csv_path, 'r') as f:
         csv_reader = csv.DictReader(f)
-        
         for row in csv_reader:
             mt_dict[row['MT']] = row['Reaction']
 
     return mt_dict
 
-def gendf_pkza_extract(gendf_path, M=None):
+def extract_gendf_pkza(gendf_path, M=None):
     """
     Read in and parse the contents of a GENDF file to construct the parent KZA.
         KZA values are defined as ZZAAAM, where ZZ is the isotope's atomic number,
@@ -94,7 +93,7 @@ def redirect_ENDFtk_output():
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
 
-def endf_specs(path, filetype):
+def extract_endf_specs(path, filetype):
     """
     Extract the material ID and MT numbers from an ENDF or GENDF file.
 
@@ -165,7 +164,7 @@ def extract_cross_sections(file, MT):
         logger.error(f"Error extracting cross sections for MT {MT}: {e}")
         return []
 
-def emitted_particle_count(particle, emitted_particle_string):
+def count_emitted_particles(particle, emitted_particle_string):
     """
     Count emitted particles from a reaction given a target particle
         and the particles produced in a neutron activation reaction.
@@ -199,7 +198,6 @@ def emitted_particle_count(particle, emitted_particle_string):
     
     return number_str
 
-# Check for isomers
 def isomer_check(emitted_particle_string):
     """
     Check the isomeric status of a neutron-activated nucleus.
@@ -225,7 +223,6 @@ def isomer_check(emitted_particle_string):
     isomeric_value = int(last_digits_str) if last_digits_str else 0
     return isomeric_value
 
-# Nuclear transmutation function
 def nuclear_decay(A, nucleus_protons, emission_tuples):
     """
     Reconfigure nucleus for nuclear decay during neutron activation
@@ -269,7 +266,6 @@ def nuclear_decay(A, nucleus_protons, emission_tuples):
 
     return nucleus_neutrons, nucleus_protons
 
-# Calculate reaction
 def reaction_calculator(MT, mt_dict, pKZA):
     """
     Calculate the products of a neutron activation reaction given
@@ -308,11 +304,11 @@ def reaction_calculator(MT, mt_dict, pKZA):
         particle_types = ['n', 'd', 'α', 'p', 't', '3He', 'gamma']
         emission_tuples = [
             (
-                emitted_particle_count(particle, emitted_particles),
+                count_emitted_particles(particle, emitted_particles),
                 particle
             )
             for particle in particle_types
-            if emitted_particle_count(particle, emitted_particles)
+            if count_emitted_particles(particle, emitted_particles)
         ]
 
         # Reconfigure nucleus to account for changing nucleon counts

@@ -61,7 +61,7 @@ def fendl_args():
         sys.stdout = original_stdout
         sys.stderr = original_stderr
 
-def main():
+def fendl3_2b_retrofit():
     """
     Main method when run as a command line script.
     """
@@ -77,8 +77,8 @@ def main():
     if args.method == 'I':
         gendf_path = args.local_path
         M = args.isomer
-        pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = M.upper())
-        matb, MTs, file_obj = GENDFtk.endf_specs(gendf_path, 'gendf')
+        pKZA = GENDFtk.extract_gendf_pkza(gendf_path, M = M.upper())
+        matb, MTs, file_obj = GENDFtk.extract_endf_specs(gendf_path, 'gendf')
     
     # Set conditionals for file download
     elif args.method == 'D':
@@ -87,11 +87,11 @@ def main():
         # Use NJOY GROUPR to convert the isomer's TENDL 2017 data to a GENDF file
 
         # Download ENDF and PENDF files for the isomer
-        endf_path = GRPRtk.tendl_download(element, A, 'endf')
-        pendf_path = GRPRtk.tendl_download(element, A, 'pendf')
+        endf_path = GRPRtk.download_tendl(element, A, 'endf')
+        pendf_path = GRPRtk.download_tendl(element, A, 'pendf')
 
         # Extract necessary MT and MAT data from the ENDF file
-        matb, MTs = GENDFtk.endf_specs(endf_path, 'endf')
+        matb, MTs = GENDFtk.extract_endf_specs(endf_path, 'endf')
         
         # Write out the GROUPR input file
         card_deck = GRPRtk.groupr_input_file_format(matb, MTs, element, A, mt_dict)
@@ -102,10 +102,10 @@ def main():
 
         # Save pKZA value
         M = 'M' if 'm' in A else None
-        pKZA = GENDFtk.gendf_pkza_extract(gendf_path, M = M)
+        pKZA = GENDFtk.extract_gendf_pkza(gendf_path, M = M)
 
         # Recalibrate MT list after GENDF conversion
-        matb, MTs, file_obj = GENDFtk.endf_specs(gendf_path, 'gendf')
+        matb, MTs, file_obj = GENDFtk.extract_endf_specs(gendf_path, 'gendf')
 
         # Clean up repository from unnecessary intermediate files from GROUPR run
         GRPRtk.njoy_file_cleanup()
@@ -123,4 +123,4 @@ def main():
 
 # Execute main() function based on arguments
 if __name__ == '__main__':
-    main()
+    fendl3_2b_retrofit()

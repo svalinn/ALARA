@@ -5,6 +5,7 @@ import subprocess
 from logging_config import logger, LoggerWriter
 
 # Define constants
+TENDL_GEN_URL = 'https://tendl.web.psi.ch/tendl_2017/neutron_file/'
 NENDF = 20 # unit for endf tape
 NPEND = 21 # unit for pendf tape
 NGOUT1 = 0 # unit for input gout tape (default=0)
@@ -39,7 +40,27 @@ elements = [
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
-def tendl_download(element, A, filetype, save_path = None):
+def urllib_download(download_url, filetype):
+    """
+    Use the urllib Request and Error packages to download the contents of
+        a webpage, if it exists
+    
+    Arguments:
+        download_url (str): Link to the webpage to download the desired file.
+        filetype (str): Either "ENDF" or "PENDF" filetypes to be downloaded
+            (case insensitive).
+    """
+
+    try:
+        with urllib.request.urlopen(download_url) as f:
+            temp_file = f.read().decode('utf-8')
+    except urllib.error.URLError as e:
+        if e.code == 404:
+            temp_file = None
+            raise FileNotFoundError(f'{filetype.upper()} file does not exist at {download_url}')
+    return temp_file
+
+def download_tendl(element, A, filetype, save_path = None):
     """
     Download ENDF/PENDF files from the TENDL 2017 database for specific isotopes.
 
@@ -62,9 +83,6 @@ def tendl_download(element, A, filetype, save_path = None):
     if 'm' in A:
         A += 'm'
 
-    # Define general URL format for files in the TENDL database
-    tendl_gen_url = 'https://tendl.web.psi.ch/tendl_2017/neutron_file/'
-
     # Create a dictionary to generalize formatting for both ENDF and PENDF files
     file_handling = {'endf' : {'ext': 'tendl', 'tape_num': 20},
                      'pendf' : {'ext': 'pendf', 'tape_num': 21}}
@@ -72,24 +90,15 @@ def tendl_download(element, A, filetype, save_path = None):
     # Construct the filetype and isotope specific URL
     isotope_component = f'{element}/{element}{A}/lib/endf/n-{element}{A}.'
     ext = file_handling[filetype.lower()]['ext']
-    download_url = tendl_gen_url + isotope_component + ext
+    download_url = TENDL_GEN_URL + isotope_component + ext
     logger.info(f'{filetype.upper()} URL: {download_url}')
 
     # Define a save path for the file if there is not one already specified
     if save_path is None:
         save_path = f'tape{file_handling[filetype.lower()]["tape_num"]}'
 
-    # Check if the file exists
-    try:
-        urllib.request.urlopen(download_url)
-    except urllib.error.URLError as e:
-        file_not_found_code = 404
-        if str(file_not_found_code) in str(e):
-            raise FileNotFoundError(f'{filetype.upper()} file does not exist at {download_url}')
-
-    # Download the file using urllib
-    with urllib.request.urlopen(download_url) as f:
-        temp_file = f.read().decode('utf-8')
+    # Conditionally download
+    temp_file = urllib_download(download_url, filetype)
     
     # Write out the file to the save_path
     with open(save_path, 'w') as f:
@@ -153,34 +162,21 @@ def groupr_input_file_format(matb, MTs, element, A, mt_dict):
     """
 
     cards = {}
-
-    # Set Card 1
+    
     cards[1] = [NENDF, NPEND, NGOUT1, NGOUT2]
-
-    # Set Card 2
     # matb -- (already defined) -- material to be processed
     cards[2] = [matb, IGN, IGG, IWT, LORD, NTEMP, NSIGZ, IPRINT]
-
-    # Set Card 3
     Z = str(elements[element]).zfill(2)
     title = f'"{Z}-{element}-{A} for TENDL 2017"'
     cards[3] = [title]
-
-    # Set Card 4
     cards[4] = [TEMP]
-
-    # Set Card 5
     cards[5] = [SIGZ]
-
-    # Set Card 9
     mtd = MTs # sections to be processed
     cards[9] = []
     for MT in MTs:
         mtname = mt_dict[str(MT)] # description of section to be processed
         card9_line = f'{MFD} {MT} "{mtname}"'
         cards[9].append(card9_line)
-
-    # Set Card 10
     cards[10] = [MATD]
 
     return cards
