@@ -83,22 +83,30 @@ def nuclear_decay(A, nucleus_protons, emission_tuples):
         nucleus_neutrons (int): Updated count of neutrons in the residual nucleus.
         nucleus_protons (int): Updated count of protons in the residual nucleus.
     """
-
+    
+    # Neutron capture
     nucleus_neutrons = A - nucleus_protons + 1
+
     for num_particle, particle in emission_tuples:
+        # Neutron emission
         if particle == 'n':
             nucleus_neutrons -= num_particle
+        # Proton emission
         if particle == 'p':
             nucleus_protons -= num_particle
+        # Deuteron (1 proton, 1 neutron) emission
         if particle == 'd':
             nucleus_neutrons -= num_particle
             nucleus_protons -= num_particle
+        # Triton (1 proton, 2 neutrons) emission
         if particle == 't':
             nucleus_neutrons -= 2 * num_particle
             nucleus_protons -= num_particle
+        # Helium-3 (2 protons, 1 neutron) emission
         if particle == '3He':
             nucleus_neutrons -= num_particle
             nucleus_protons -= 2 * num_particle
+        # Alpha particle (2 protons, 2 neutrons) emission
         if particle == 'α':
             nucleus_neutrons -= 2 * num_particle
             nucleus_protons -= 2 * num_particle
