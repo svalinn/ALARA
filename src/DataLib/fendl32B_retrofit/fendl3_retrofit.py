@@ -50,7 +50,9 @@ def fendl_args():
                             help= 'Chemical symbol for selected element (i.e. Ti).')
         parser_D.add_argument('--A', '-a',
                             required=True,
-                            help='Mass number for selected isotope (i.e. 48). If the target is an isomer, "m" after the mass number (i.e. 48m).')
+                            help= '''Mass number for selected isotope (i.e. 48).
+                                        If the target is an isomer,
+                                        "m" after the mass number (i.e. 48m).''')
 
         args = parser.parse_args()
         return args
@@ -87,7 +89,8 @@ def fendl3_2b_retrofit():
 
         material_id, MTs = tpp.extract_endf_specs(endf_path, 'endf')
         
-        card_deck = groupr_tools.groupr_input_file_format(material_id, MTs, element, A, mt_dict)
+        card_deck = groupr_tools.groupr_input_file_format(material_id, MTs,
+                                                          element, A, mt_dict)
         groupr_tools.groupr_input_file_writer(card_deck, MTs)
 
         gendf_path = groupr_tools.run_njoy(card_deck, element, A)
