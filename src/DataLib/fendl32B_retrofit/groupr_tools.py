@@ -39,10 +39,28 @@ elements = [
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
-# Define a function to download the .tendl file given specific user inputs to for element and mass number
 def tendl_download(element, A, filetype, save_path = None):
+    """
+    Download ENDF/PENDF files from the TENDL 2017 database for specific isotopes.
+
+    Arguments:
+        element (str): Chemical symbol for element of interest (i.e. Ti).
+        A (str or int): Mass number for selected isotope (i.e. 48).
+            If the target is an isomer, "m" after the mass number (i.e. 48m),
+            so A must be input as a string.
+        filetype (str): Either "ENDF" or "PENDF" filetypes to be downloaded
+            (case insensitive).
+        save_path (str, optional): User-defined file path for the downloaded file.
+            Defaults to None and will be otherwise defined internally.
+    
+    Returns:
+        save_path (str): File path for the file downloaded file.
+    """
+
     # Ensure that A is properly formatted
-    A = str(A).zfill(3 + ('m' in A))
+    A = str(A).zfill(3)
+    if 'm' in A:
+        A += 'm'
 
     # Define general URL format for files in the TENDL database
     tendl_gen_url = 'https://tendl.web.psi.ch/tendl_2017/neutron_file/'
@@ -79,8 +97,22 @@ def tendl_download(element, A, filetype, save_path = None):
 
     return save_path
 
-# Define a function to format GROUPR input cards
 def format_card(card_number, card_content, MTs):
+    """
+    Format individual "cards" for the NJOY input cards to run with GROUPR.
+        Formatting and terminology based on the NJOY user manual:
+        (https://github.com/njoy/NJOY2016-manual/raw/master/njoy16.pdf)
+
+    Arguments:
+        card_number (int): Individual identifier of "card" in input "deck".
+        card_content (list): Values to be written on each individual "card".
+        MTs (list): List of reaction types (MT's) present in the ENDF/PENDF files.
+    
+    Returns:
+        card_str (str): Concatenated string of an individual "card's" contents. 
+    """
+    
+    # Initialize string and concatenate contents of the card with it
     card_str = ''
     gen_str = ' ' + ' '.join(map(str, card_content))
     if card_number == 9:
@@ -91,8 +123,34 @@ def format_card(card_number, card_content, MTs):
         card_str += gen_str + '/\n'
     return card_str
 
-# Define a function to create the GROUPR input file
-def groupr_input_file_format(matb, MTs, element, A, mt_table):
+def groupr_input_file_format(matb, MTs, element, A, mt_dict):
+
+    """"
+    Format the input "deck" to run NJOY from individually formatted cards.
+        Most parameters are predefined as constants, as necessary for a GROUPR run
+        to write a group-wise file (GENDF) based on the ENDF and PENDF files
+        with a Vitamin-J 175 group structure and a Vitamin-E weighting function.
+        Other parameters are isotope specific, such as "matb", which corresponds
+        to the NJOY naming convention for the material ID, which are separately
+        extracted from the ENDF file to be referenced.
+
+        Formatting and terminology based on the NJOY user manual:
+        (https://github.com/njoy/NJOY2016-manual/raw/master/njoy16.pdf)
+
+    Arguments:
+        matb (int): Unique material ID extracted from the ENDF base file.
+        MTs (list): List of reaction types (MT's) present in the ENDF/PENDF files.
+        element (str): Chemical symbol for element of interest.
+        A (str or int): Mass number for selected isotope.
+            If the target is an isomer, "m" after the mass number,
+            so A must be input as a string.
+        mt_dict (dict): Reference dictionary containing reaction information
+            for each MT number pre-defined in the ENDF manual.
+            (https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf)
+    
+    Returns:
+        cards (dict): Dictionary containing each "card" identified by its card number.
+    """
 
     cards = {}
 
@@ -117,10 +175,9 @@ def groupr_input_file_format(matb, MTs, element, A, mt_table):
     # Set Card 9
     mtd = MTs # sections to be processed
     cards[9] = []
-    for mt in MTs:
-        index = mt_table['MT'].index(str(mt))
-        mtname = mt_table['Reaction'][index] # description of section to be processed
-        card9_line = f'{MFD} {mt} "{mtname}"'
+    for MT in MTs:
+        mtname = mt_dict[str(MT)] # description of section to be processed
+        card9_line = f'{MFD} {MT} "{mtname}"'
         cards[9].append(card9_line)
 
     # Set Card 10
@@ -128,8 +185,18 @@ def groupr_input_file_format(matb, MTs, element, A, mt_table):
 
     return cards
 
-# Define a function to write out the GROUPR input file
 def groupr_input_file_writer(cards, MTs):
+    """"
+    Write out the NJOY GROUPR input card by formatting each card line by line.
+
+    Arguments:
+        cards (dict): Dictionary containing each "card" identified by its card number.
+        MTs (list): List of reaction types (MT's) present in the ENDF/PENDF files.
+    
+    Returns:
+        None
+    """
+
     # Write the input deck to the groupr.inp file
     with open('groupr.inp', 'w') as f:
         f.write('groupr\n')
@@ -137,8 +204,22 @@ def groupr_input_file_writer(cards, MTs):
             f.write(format_card(card_num, card, MTs))
         f.write(' 0/\nstop')
 
-# Define a function to execute NJOY bash script
 def run_njoy(cards, element, A):
+    """
+    Use subprocess to run NJOY given a pre-written input card to convert a pair
+        of ENDF and PENDF files to a GENDF file and save it locally.
+    
+    Arguments:
+        cards (dict): Dictionary containing each "card" identified by its card number.
+        element (str): Chemical symbol for element of interest.
+        A (str or int): Mass number for selected isotope.
+            If the target is an isomer, "m" after the mass number,
+            so A must be input as a string.
+    
+    Returns:
+        gendf_path (str): File path to the newly created GENDF file. 
+    """
+
     # Define the input files
     INPUT = 'groupr.inp'
     OUTPUT = 'groupr.out'
@@ -160,3 +241,21 @@ def run_njoy(cards, element, A):
         return gendf_path
     else:
         logger.error(result.stderr)
+
+def njoy_file_cleanup(output_path = 'njoy_ouput'):
+    """
+    Clean up repository from unnecessary intermediate files from NJOY run.
+
+    Arguments:
+        output_path (str): The path where the automated NJOY output will be saved.
+            Defaults to 'njoy_output'.
+    
+    Returns:
+        None
+    """
+
+    njoy_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21', 'tape31']
+    for file in njoy_files:
+        subprocess.run(['rm', file])
+    subprocess.run(['mv', 'output', output_path])
+    logger.info(f'Full NJOY output file readout can be found at {output_path}')
