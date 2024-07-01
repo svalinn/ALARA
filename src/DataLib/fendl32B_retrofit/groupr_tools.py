@@ -1,11 +1,8 @@
 # Import packages
-import urllib.error
-import urllib.request
 import subprocess
 from logging_config import logger, LoggerWriter
 
 # Define constants
-TENDL_GEN_URL = 'https://tendl.web.psi.ch/tendl_2017/neutron_file/'
 NENDF = 20 # unit for endf tape
 NPEND = 21 # unit for pendf tape
 NGOUT1 = 0 # unit for input gout tape (default=0)
@@ -39,72 +36,6 @@ elements = [
     'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og'
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
-
-def urllib_download(download_url, filetype):
-    """
-    Use the urllib Request and Error packages to download the contents of
-        a webpage, if it exists
-    
-    Arguments:
-        download_url (str): Link to the webpage to download the desired file.
-        filetype (str): Either "ENDF" or "PENDF" filetypes to be downloaded
-            (case insensitive).
-    """
-
-    try:
-        with urllib.request.urlopen(download_url) as f:
-            temp_file = f.read().decode('utf-8')
-    except urllib.error.URLError as e:
-        if e.code == 404:
-            temp_file = None
-            raise FileNotFoundError(f'{filetype.upper()} file does not exist at {download_url}')
-    return temp_file
-
-def download_tendl(element, A, filetype, save_path = None):
-    """
-    Download ENDF/PENDF files from the TENDL 2017 database for specific isotopes.
-
-    Arguments:
-        element (str): Chemical symbol for element of interest (i.e. Ti).
-        A (str or int): Mass number for selected isotope (i.e. 48).
-            If the target is an isomer, "m" after the mass number (i.e. 48m),
-            so A must be input as a string.
-        filetype (str): Either "ENDF" or "PENDF" filetypes to be downloaded
-            (case insensitive).
-        save_path (str, optional): User-defined file path for the downloaded file.
-            Defaults to None and will be otherwise defined internally.
-    
-    Returns:
-        save_path (str): File path for the file downloaded file.
-    """
-
-    # Ensure that A is properly formatted
-    A = str(A).zfill(3)
-    if 'm' in A:
-        A += 'm'
-
-    # Create a dictionary to generalize formatting for both ENDF and PENDF files
-    file_handling = {'endf' : {'ext': 'tendl', 'tape_num': 20},
-                     'pendf' : {'ext': 'pendf', 'tape_num': 21}}
-    
-    # Construct the filetype and isotope specific URL
-    isotope_component = f'{element}/{element}{A}/lib/endf/n-{element}{A}.'
-    ext = file_handling[filetype.lower()]['ext']
-    download_url = TENDL_GEN_URL + isotope_component + ext
-    logger.info(f'{filetype.upper()} URL: {download_url}')
-
-    # Define a save path for the file if there is not one already specified
-    if save_path is None:
-        save_path = f'tape{file_handling[filetype.lower()]["tape_num"]}'
-
-    # Conditionally download
-    temp_file = urllib_download(download_url, filetype)
-    
-    # Write out the file to the save_path
-    with open(save_path, 'w') as f:
-        f.write(temp_file)
-
-    return save_path
 
 def format_card(card_number, card_content, MTs):
     """

@@ -6,7 +6,7 @@ import sys
 logging.basicConfig(
     level= 'INFO',
     format= '%(asctime)s - %(levelname)s - %(message)s',
-    filename= 'fendl3_gendf.log',
+    filename= 'fendl3_retrofit.log',
     filemode= 'w'
 )
 

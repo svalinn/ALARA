@@ -1,12 +1,11 @@
 # Import packages
-import gendf_tools as GENDFtk
-import pandas as pd
+import tendl_preprocessing as tpp
+import activation_analysis
 from logging_config import logger
-import groupr_tools as GRPRtk
+import groupr_tools
 import sys
 import argparse
 
-# Define an argument parser
 def fendl_args():
     """
     Configure Argument Parser for the FENDL 3.2-b/TENDL 2017 retroffiting,
@@ -65,57 +64,48 @@ def fendl3_2b_retrofit():
     """
     Main method when run as a command line script.
     """
-    # Load MT table
-    # Data for MT table collected from 
-    # https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf
-    mt_dict = GENDFtk.read_csv('mt_table.csv')
     
-    # Parse command line arguments
     args = fendl_args()
+
+    # Load MT table
+    mt_dict = tpp.read_csv('mt_table.csv')
 
     # Set conditionals for local file input 
     if args.method == 'I':
         gendf_path = args.local_path
         M = args.isomer
-        pKZA = GENDFtk.extract_gendf_pkza(gendf_path, M = M.upper())
-        matb, MTs, file_obj = GENDFtk.extract_endf_specs(gendf_path, 'gendf')
+        pKZA = tpp.extract_gendf_pkza(gendf_path, M = M.upper())
+        matb, MTs, file_obj = tpp.extract_endf_specs(gendf_path, 'gendf')
     
     # Set conditionals for file download
     elif args.method == 'D':
         element = args.element
         A = args.A
-        # Use NJOY GROUPR to convert the isomer's TENDL 2017 data to a GENDF file
 
-        # Download ENDF and PENDF files for the isomer
-        endf_path = GRPRtk.download_tendl(element, A, 'endf')
-        pendf_path = GRPRtk.download_tendl(element, A, 'pendf')
+        endf_path = tpp.download_tendl(element, A, 'endf')
+        pendf_path = tpp.download_tendl(element, A, 'pendf')
 
-        # Extract necessary MT and MAT data from the ENDF file
-        matb, MTs = GENDFtk.extract_endf_specs(endf_path, 'endf')
+        material_id, MTs = tpp.extract_endf_specs(endf_path, 'endf')
         
-        # Write out the GROUPR input file
-        card_deck = GRPRtk.groupr_input_file_format(matb, MTs, element, A, mt_dict)
-        GRPRtk.groupr_input_file_writer(card_deck, MTs)
+        card_deck = groupr_tools.groupr_input_file_format(material_id, MTs, element, A, mt_dict)
+        groupr_tools.groupr_input_file_writer(card_deck, MTs)
 
-        # Run NJOY with GROUPR to create a GENDF file for the isomer
-        gendf_path = GRPRtk.run_njoy(card_deck, element, A)
+        gendf_path = groupr_tools.run_njoy(card_deck, element, A)
 
-        # Save pKZA value
         M = 'M' if 'm' in A else None
-        pKZA = GENDFtk.extract_gendf_pkza(gendf_path, M = M)
+        pKZA = tpp.extract_gendf_pkza(gendf_path, M = M)
 
         # Recalibrate MT list after GENDF conversion
-        matb, MTs, file_obj = GENDFtk.extract_endf_specs(gendf_path, 'gendf')
+        matb, MTs, file_obj = tpp.extract_endf_specs(gendf_path, 'gendf')
 
-        # Clean up repository from unnecessary intermediate files from GROUPR run
-        GRPRtk.njoy_file_cleanup()
+        groupr_tools.njoy_file_cleanup()
 
     logger.info(f"GENDF file path: {gendf_path}")
     logger.info(f"Parent KZA (pKZA): {pKZA}")
     logger.info(f'MTs: {MTs}')
 
     # Extract and save data for each MT
-    gendf_data = GENDFtk.iterate_MTs(MTs, file_obj, mt_dict, pKZA)
+    gendf_data = activation_analysis.iterate_MTs(MTs, file_obj, mt_dict, pKZA)
 
     # Save to CSV
     gendf_data.to_csv('gendf_data.csv', index=False)
