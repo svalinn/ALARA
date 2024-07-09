@@ -163,7 +163,7 @@ def run_njoy(cards, element, A):
         title_index = output.stdout.find(title)
         logger.info(f'\n{output.stdout[:title_index + len(title)]}\n')
 
-        gendf_path = f'tendl_2017_{element}{A}.gendf'
+        gendf_path = f'./gendf_files/tendl_2017_{element}{A}.gendf'
         subprocess.run(['cp', 'tape31', gendf_path])
         return gendf_path
     else:
@@ -183,6 +183,11 @@ def njoy_file_cleanup(output_path = 'njoy_ouput'):
 
     njoy_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21', 'tape31']
     for file in njoy_files:
+        if file == 'groupr.out':
+            with open(file, 'r') as f:
+                groupr_out = f.read()
+            logger.info(groupr_out)
+            
         subprocess.run(['rm', file])
     subprocess.run(['mv', 'output', output_path])
     logger.info(f'Full NJOY output file readout can be found at {output_path}')

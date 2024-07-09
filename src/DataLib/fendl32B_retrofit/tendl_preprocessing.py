@@ -1,5 +1,8 @@
 # Import packages
 import csv
+import aiohttp
+import asyncio
+import time
 import urllib.error
 import urllib.request
 import sys
@@ -11,9 +14,9 @@ import os
 # Define constant(s)
 TENDL_GEN_URL = 'https://tendl.web.psi.ch/tendl_2017/neutron_file/'
 
-def read_csv(csv_path):
+def load_csv(csv_path):
     """
-    Read in the mt_table.csv file and store it in a dictionary.
+    Load in the mt_table.csv file and store it in a dictionary.
     
     Arguments:
         csv_path (str): File path to mt_table.csv
@@ -30,6 +33,91 @@ def read_csv(csv_path):
             mt_dict[row['MT']] = row['Reaction']
 
     return mt_dict
+
+async def fetch(session, url):
+    """
+    Asynchronously fetch the content from the URL using the provided session.
+
+    Arguments:
+        session (aiohttp.client.ClientSession): Aiohttp session to use for making
+            the request.
+        url (str): The URL from which to fetch content.
+    
+    Returns:
+        str or None: The content of the URL as a string if the request is successful,
+            signified by status code 200. Returns None if the request is unsuccessful
+            or an error occurs.
+    """
+
+    try:
+        async with session.get(url) as response:
+            if response.status == 200:
+                return await response.text()
+            else:
+                return None
+    except aiohttp.ClientError:
+        return None
+
+async def fetch_with_sem(semaphore, session, url):
+    """
+    Use an asyncio semaphore to call the fetch() function for a specific URL.
+
+    Arguments:
+        semaphore (asyncio.locks.Semaphore): A semaphore to limit the number of
+            concurrent requests.
+        session (aiohttp.client.ClientSession): Aiohttp session to use for making
+            the request.
+        url (str): The URL from which to fetch content.
+    
+    Returns:
+        str or None: The content of the URL as a string if the request is successful,
+            signified by status code 200. Returns None if the request is unsuccessful
+            or an error occurs.
+    """
+
+    async with semaphore:
+        return await fetch(session, url)
+
+async def identify_tendl_isotopes(element, concurrency_limit = 50):
+    """
+    Use asyncio and aiohttp to iterate over all possible mass numbers for a given
+        element to identify all of its isotopes and isomers in the TENDL database.
+    
+    Arguments:
+        element (str): Chemical symbol for element of interest (i.e. Ti).
+        concurrency_limit (int, optional): The maximum number of concurrent
+            processes or sessions that can be handled at once.
+    """
+    
+    A_vals = []
+    semaphore = asyncio.Semaphore(concurrency_limit)
+
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        # Iterate over all mass numbers possible in the TENDL database
+        for A in range(1, 292):
+            # Iterate over each number twice to check for isomers
+            for i in range(2):
+                A_str = str(A).zfill(3)
+                if i == 1:
+                    A_str += 'm'
+
+                isotope_component = f'{element}/{element}{A_str}/lib/endf/n-{element}{A_str}.'
+                tendl_url = TENDL_GEN_URL + isotope_component + 'tendl'
+                pendf_url = TENDL_GEN_URL + isotope_component + 'pendf'
+
+                tendl_task = fetch_with_sem(semaphore, session, tendl_url)
+                pendf_task = fetch_with_sem(semaphore, session, pendf_url)
+
+                tasks.append((tendl_task, pendf_task, tendl_url, pendf_url, A_str))
+
+        results = await asyncio.gather(*[asyncio.gather(tendl_task, pendf_task) for tendl_task, pendf_task, _, _, _ in tasks])
+
+        for (tendl_result, pendf_result), (tendl_task, pendf_task, tendl_url, pendf_url, A_str) in zip(results, tasks):
+            if tendl_result and pendf_result:
+                A_vals.append(A_str)
+
+    return A_vals
 
 def urllib_download(download_url, filetype):
     """
@@ -70,9 +158,7 @@ def download_tendl(element, A, filetype, save_path = None):
     """
 
     # Ensure that A is properly formatted
-    A = str(A).zfill(3)
-    if 'm' in A:
-        A += 'm'
+    A = A.zfill(4) if 'm' in A else str(A).zfill(3)
 
     # Create a dictionary to generalize formatting for both ENDF and PENDF files
     file_handling = {'endf' : {'ext': 'tendl', 'tape_num': 20},
@@ -88,10 +174,9 @@ def download_tendl(element, A, filetype, save_path = None):
     if save_path is None:
         save_path = f'tape{file_handling[filetype.lower()]["tape_num"]}'
 
-    # Conditionally download
+    # Conditionally downloa
     temp_file = urllib_download(download_url, filetype)
-    
-    # Write out the file to the save_path
+
     with open(save_path, 'w') as f:
         f.write(temp_file)
 
