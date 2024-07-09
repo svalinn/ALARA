@@ -23,7 +23,7 @@ def load_csv(csv_path):
             This should be in the same repository.
     
     Returns:
-        data_dict (dict): Dictionary formatted data structure for mt_table.csv
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv
     """
     mt_dict = {}
 
