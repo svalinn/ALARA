@@ -2,7 +2,6 @@
 import csv
 import aiohttp
 import asyncio
-import time
 import urllib.error
 import urllib.request
 import sys

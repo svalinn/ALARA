@@ -1,6 +1,7 @@
 # Import packages
 import subprocess
 from logging_config import logger, LoggerWriter
+import os
 
 # Define constants
 NENDF = 20 # unit for endf tape
@@ -131,6 +132,26 @@ def groupr_input_file_writer(cards, MTs):
             f.write(format_card(card_num, card, MTs))
         f.write(' 0/\nstop')
 
+def set_gendf_saving(save_directory, element, A):
+    """
+    Establish the save path for the GENDF file in the desired directory.
+
+    Arguments:
+        save_directory (str): Folder in which to save the GENDF file.
+        element (str): Chemical symbol for element of interest.
+        A (str or int): Mass number for selected isotope.
+    
+    Returns:
+        gendf_path (str): File path to the newly created GENDF file.
+    """
+
+    # Create save_directory if it does not already exist
+    if not os.path.exists(save_directory):
+        os.makedirs(save_directory)
+
+    gendf_path = f'{save_directory}/tendl_2017_{element}{A}.gendf'
+    return gendf_path
+    
 def run_njoy(cards, element, A):
     """
     Use subprocess to run NJOY given a pre-written input card to convert a pair
@@ -163,7 +184,8 @@ def run_njoy(cards, element, A):
         title_index = output.stdout.find(title)
         logger.info(f'\n{output.stdout[:title_index + len(title)]}\n')
 
-        gendf_path = f'./gendf_files/tendl_2017_{element}{A}.gendf'
+        save_directory = './gendf_files'
+        gendf_path = set_gendf_saving(save_directory, element, A)
         subprocess.run(['cp', 'tape31', gendf_path])
         return gendf_path
     else:
