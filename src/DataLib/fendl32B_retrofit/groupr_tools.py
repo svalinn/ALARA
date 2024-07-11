@@ -106,7 +106,7 @@ def groupr_input_file_format(matb, MTs, element, A, mt_dict):
     mtd = MTs # sections to be processed
     cards[9] = []
     for MT in MTs:
-        mtname = mt_dict[str(MT)] # description of section to be processed
+        mtname = mt_dict[str(MT)]['Reaction'] # description of section to be processed
         card9_line = f'{MFD} {MT} "{mtname}"'
         cards[9].append(card9_line)
     cards[10] = [MATD]
@@ -151,8 +151,52 @@ def set_gendf_saving(save_directory, element, A):
 
     gendf_path = f'{save_directory}/tendl_2017_{element}{A}.gendf'
     return gendf_path
-    
-def run_njoy(cards, element, A):
+
+def text_insertion(string, identifier, new_text, file_lines):
+    index = string.rfind(identifier)
+    line_number = string[:index].count('\n')
+    file_lines.insert(line_number + 1, new_text)
+    return file_lines
+
+def ensure_gendf_markers(gendf_path, matb):
+    """
+    Edit the GENDF files produced from an NJOY GROUPR run to include file and
+    section records that are not automatically written out to the file by
+    NJOY. Missing these records will not cause errors, but will raise
+    messages when they are read by ENDFtk, which expects these markers, so
+    this method ensures that they are present.
+    """
+
+    # In ENDF-6 formatted files, there are 66 lines of whitespace before
+    # the values in record-keeping lines
+    whitespace = ' ' * 66
+
+    # Define identifiers and corresponding new lines
+    mf1_identifier = f'{matb} 1451   '
+    mf3_identifier = f'{matb} 3  099999'
+    mf1_SEND_RECORD = f'{whitespace}{matb} 1  099999'
+    mf3_FEND_RECORD = f'{whitespace}{matb} 0  0    0'
+
+    with open(gendf_path, 'r') as gendf_file:
+        file_str = gendf_file.read()
+    file_lines = file_str.splitlines()
+
+    updates = [
+        (mf3_identifier, mf3_FEND_RECORD),
+        (mf1_identifier, mf1_SEND_RECORD)
+    ]
+
+    for identifier, new_line in updates:
+        last_line_index = file_str.rfind(identifier)
+        line_number = file_str[:last_line_index].count('\n')
+        file_lines.insert(line_number + 1, new_line)
+
+    new_file_str = '\n'.join(file_lines) + '\n'
+
+    with open(gendf_path, 'w') as gendf_file:
+        gendf_file.write(new_file_str)
+
+def run_njoy(cards, element, A, matb):
     """
     Use subprocess to run NJOY given a pre-written input card to convert a pair
         of ENDF and PENDF files to a GENDF file and save it locally.
@@ -163,6 +207,7 @@ def run_njoy(cards, element, A):
         A (str or int): Mass number for selected isotope.
             If the target is an isomer, "m" after the mass number,
             so A must be input as a string.
+        matb (int): Unique material ID for the material in the files.
     
     Returns:
         gendf_path (str): File path to the newly created GENDF file. 
@@ -187,6 +232,8 @@ def run_njoy(cards, element, A):
         save_directory = './gendf_files'
         gendf_path = set_gendf_saving(save_directory, element, A)
         subprocess.run(['cp', 'tape31', gendf_path])
+        ensure_gendf_markers(gendf_path, matb)
+
         return gendf_path
     else:
         logger.error(result.stderr)

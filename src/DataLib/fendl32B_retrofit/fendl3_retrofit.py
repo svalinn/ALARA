@@ -7,7 +7,7 @@ import sys
 import argparse
 import asyncio
 import pandas as pd
-import time
+import reaction_data as rxd
 
 def fendl_args():
     """
@@ -42,19 +42,17 @@ def fendl_args():
         # Subparsers for 'I' and 'D'
         subparsers = parser.add_subparsers(dest='method', required=True)
         parser_I = subparsers.add_parser('I', help='''Local file input.
-                                         Note: This option should only be selected
-                                         if the user already has properly formatted
-                                         GENDF activation files that have been
-                                         processed using the NJOY GROUPR module for
-                                         a Vitmain-J group structure with a Vitamin-E
-                                         weight function.''')
-        parser_I.add_argument('--path', '-p',
+                                         Note: This option should only be 
+                                         selected if the user already has
+                                         properly formatted GENDF activation 
+                                         files that have been processed using 
+                                         the NJOY GROUPR module for a
+                                        Vitmain-J group structure with a
+                                         Vitamin-E weight function.''')
+        parser_I.add_argument('--paths', '-p',
                             required=True,
+                            nargs= '+',
                             help='Path to the local GENDF file.')
-        parser_I.add_argument('--isomer', '-m',
-                              required=False,
-                              default=None,
-                              help = 'Isomeric state of the element.')
         parser_D = subparsers.add_parser('D', help='''Download TENDL/PENDF files
                                          from the TENDL 2017 neutron activation
                                          database.''')
@@ -68,7 +66,8 @@ def fendl_args():
                                         "m" after the mass number (i.e. 48m).
                                         To automatically iterate over all of
                                         the isotopes for the target element,
-                                        select "all" as the option for --A.''')
+                                        select "all" as the option for --A.
+                                        ''')
 
         args = parser.parse_args()
         return args
@@ -78,26 +77,8 @@ def fendl_args():
         sys.stdout = original_stdout
         sys.stderr = original_stderr
 
-def initialize_dataframe():
-    """
-    Initialize an empty Pandas DataFrame in which to store extracted data from
-        TENDL 2017 files.
-    
-    Arguments:
-        None
-    
-    Returns:
-        None
-    """
-    return pd.DataFrame({
-        'Parent KZA'        : [],
-        'Daughter KZA'      : [],
-        'Emitted Particles' : [],
-        'Non-Zero Groups'   : [],
-        'Cross Sections'    : []
-    })
 
-def handle_local_file_input(args, mt_dict):
+def handle_local_file_input(mt_dict, cumulative_data, gendf_paths = None, args = None):
     """
     Method for extracting and analyzing data from preprocessed GENDF files
         that the user already has saved locally. Called when the argument
@@ -109,23 +90,27 @@ def handle_local_file_input(args, mt_dict):
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv 
     """
 
-    # Establish parameters from the user arguments
-    gendf_path = args.path
-    M = args.isomer.upper() if args.isomer else None
+    # Format gendf_paths parameter
+    if gendf_paths is None:
+        gendf_paths = args.paths
+    elif type(gendf_paths) is not list:
+        gendf_paths = [gendf_paths]
 
-    # Extract fundamental data from the GENDF file
-    pKZA = tpp.extract_gendf_pkza(gendf_path, M = M)
-    matb, MTs, file_obj = tpp.extract_endf_specs(gendf_path, 'gendf')
+    for gendf_path in gendf_paths:
+        # Extract fundamental data from the GENDF file
+        pKZA = tpp.extract_gendf_pkza(gendf_path)
+        matb, MTs, file_obj = tpp.extract_endf_specs(gendf_path, 'gendf')
 
-    logger.info(f"GENDF file path: {gendf_path}")
-    logger.info(f"Parent KZA (pKZA): {pKZA}")
-    logger.info(f'MTs: {MTs}')
+        logger.info(f"GENDF file path: {gendf_path}")
+        logger.info(f"Parent KZA (pKZA): {pKZA}")
+        logger.info(f'MTs: {MTs}')
 
-    # Extract and save specific data for each MT
-    gendf_data = activation_analysis.iterate_MTs(MTs, file_obj, mt_dict, pKZA)
-    return gendf_data
+        # Extract and save specific data for each MT
+        gendf_data = activation_analysis.iterate_MTs(MTs, file_obj, mt_dict, pKZA)
+        cumulative_data = pd.concat([cumulative_data, gendf_data], ignore_index= True)
+    return cumulative_data
 
-def handle_download_file(args, mt_dict):
+def handle_download_file(args, mt_dict, cumulative_df):
     """
     Method for downloading ENDF/PENDF files from the TENDL 2017 database,
         using the NJOY GROUPR module to convert these to a group-wise file,
@@ -149,39 +134,24 @@ def handle_download_file(args, mt_dict):
         A_vals = [A]
 
     # Iterate over all isotopes/isomers, as specified by arguments
+    gendf_paths = []
     for A in A_vals:
-        try:
-            endf_path = tpp.download_tendl(element, A, 'endf')
-            pendf_path = tpp.download_tendl(element, A, 'pendf')
+        endf_path = tpp.download_tendl(element, A, 'endf')
+        pendf_path = tpp.download_tendl(element, A, 'pendf')
 
-            material_id, MTs = tpp.extract_endf_specs(endf_path, 'endf')
-            
-            card_deck = groupr_tools.groupr_input_file_format(material_id, MTs,
-                                                            element, A, mt_dict)
-            groupr_tools.groupr_input_file_writer(card_deck, MTs)
+        material_id, MTs = tpp.extract_endf_specs(endf_path, 'endf')
+        
+        card_deck = groupr_tools.groupr_input_file_format(material_id, MTs,
+                                                        element, A, mt_dict)
+        groupr_tools.groupr_input_file_writer(card_deck, MTs)
 
-            gendf_path = groupr_tools.run_njoy(card_deck, element, A)
-
-            M = 'M' if 'm' in A else None
-            pKZA = tpp.extract_gendf_pkza(gendf_path, M = M)
-
-            # Recalibrate MT list after GENDF conversion
-            matb, MTs, file_obj = tpp.extract_endf_specs(gendf_path, 'gendf')
-
-            groupr_tools.njoy_file_cleanup()
-
-            logger.info(f"GENDF file path: {gendf_path}")
-            logger.info(f"Parent KZA (pKZA): {pKZA}")
-            logger.info(f'MTs: {MTs}')
-
-            # Extract and save specific data for each MT
-            gendf_data = activation_analysis.iterate_MTs(MTs, file_obj, mt_dict, pKZA)
-
-            logger.info(f'Finished iterating for {element}-{A}')
-        except Exception as e:
-            logger.error(e)
+        gendf_path = groupr_tools.run_njoy(card_deck, element, A, material_id)
+        gendf_paths.append(gendf_path)
+        
+        groupr_tools.njoy_file_cleanup()
+        logger.info(f'Finished iterating for {element}-{A} \n \n')
     
-    return gendf_data
+    return gendf_paths
 
 def fendl3_2b_retrofit():
     """
@@ -190,21 +160,22 @@ def fendl3_2b_retrofit():
 
     # Initialize arguments, DataFrame to store data, and load in MT reference
     args = fendl_args()
-    cumulative_df = initialize_dataframe()
-    mt_dict = tpp.load_csv('mt_table.csv')
+    gendf_paths = []
+    cumulative_data = rxd.initialize_dataframe()
+    mt_dict = rxd.process_mt_table('mt_table.csv')
 
-    # Set conditionals for local file input 
-    if args.method == 'I':
-        gendf_data = handle_local_file_input(args, mt_dict)
-        cumulative_df = pd.concat([cumulative_df, gendf_data], ignore_index=True)
-    
-    # Set conditionals for file download
-    elif args.method == 'D':
-        gendf_data = handle_download_file(args, mt_dict)
-        cumulative_df = pd.concat([cumulative_df, gendf_data], ignore_index=True)
-
+    # Execute file handling
+    if args.method == 'D':
+        gendf_paths = handle_download_file(args, mt_dict, cumulative_data)
+        print(gendf_paths)
+        args = None
+    cumulative_data = handle_local_file_input(mt_dict,
+                                              cumulative_data,
+                                              gendf_paths = gendf_paths,
+                                              args = args)
+        
     # Save to CSV
-    cumulative_df.to_csv(f'gendf_data.csv', index=False)
+    cumulative_data.to_csv('gendf_data.csv', index=False)
     logger.info("Saved gendf_data.csv")
 
 # Execute main() function based on arguments
