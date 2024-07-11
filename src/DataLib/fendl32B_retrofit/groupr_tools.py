@@ -164,7 +164,17 @@ def ensure_gendf_markers(gendf_path, matb):
     section records that are not automatically written out to the file by
     NJOY. Missing these records will not cause errors, but will raise
     messages when they are read by ENDFtk, which expects these markers, so
-    this method ensures that they are present.
+    this method ensures that they are present. Edits will only be made if
+    the SEND record for MF1 or the FEND record for MF3 are not present.
+    The formatting for these records can be found at:
+    https://t2.lanl.gov/nis/endf/intro06.html
+
+    Arguments:
+        gendf_path (str): File path to the newly created GENDF file.
+        matb (int): Unique material ID for the material in the GENDF file.
+    
+    Returns:
+        None
     """
 
     # In ENDF-6 formatted files, there are 66 lines of whitespace before
