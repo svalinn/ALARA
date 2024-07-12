@@ -4,7 +4,7 @@ import asyncio
 from bs4 import BeautifulSoup
 import urllib.error
 import urllib.request
-from logging_config import logger, LoggerWriter
+from logging_config import logger
 import ENDFtk
 
 
@@ -70,7 +70,6 @@ async def identify_tendl_isotopes(element):
 
             if tendl_url in nav_urls and pendf_url in nav_urls:
                 A_vals.append(A_str)
-                print(A_str)
 
     return A_vals
 

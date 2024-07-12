@@ -28,55 +28,40 @@ def fendl_args():
             specified arguments for executing the program.
     """
 
-    # Temporarily reset stdout and stderr to the defaults
-    # so that arg messages (i.e. --help) print out to terminal
-    original_stdout = sys.stdout
-    original_stderr = sys.stderr
+    parser = argparse.ArgumentParser()
 
-    try:
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
+    # Subparsers for 'I' and 'D'
+    subparsers = parser.add_subparsers(dest='method', required=True)
+    parser_I = subparsers.add_parser('I', help='''Local file input.
+                                        Note: This option should only be 
+                                        selected if the user already has
+                                        properly formatted GENDF activation 
+                                        files that have been processed using 
+                                        the NJOY GROUPR module for a
+                                    Vitmain-J group structure with a
+                                        Vitamin-E weight function.''')
+    parser_I.add_argument('--paths', '-p',
+                        required=True,
+                        nargs= '+',
+                        help='Path to the local GENDF file.')
+    parser_D = subparsers.add_parser('D', help='''Download TENDL/PENDF files
+                                        from the TENDL 2017 neutron activation
+                                        database.''')
+    parser_D.add_argument('--element', '-e',
+                        required=True,
+                        help= 'Chemical symbol for selected element (i.e. Ti).')
+    parser_D.add_argument('--A', '-a',
+                        required=True,
+                        help= '''Mass number for selected isotope (i.e. 48).
+                                    If the target is an isomer, type
+                                    "m" after the mass number (i.e. 48m).
+                                    To automatically iterate over all of
+                                    the isotopes for the target element,
+                                    select "all" as the option for --A.
+                                    ''')
 
-        parser = argparse.ArgumentParser()
-
-        # Subparsers for 'I' and 'D'
-        subparsers = parser.add_subparsers(dest='method', required=True)
-        parser_I = subparsers.add_parser('I', help='''Local file input.
-                                         Note: This option should only be 
-                                         selected if the user already has
-                                         properly formatted GENDF activation 
-                                         files that have been processed using 
-                                         the NJOY GROUPR module for a
-                                        Vitmain-J group structure with a
-                                         Vitamin-E weight function.''')
-        parser_I.add_argument('--paths', '-p',
-                            required=True,
-                            nargs= '+',
-                            help='Path to the local GENDF file.')
-        parser_D = subparsers.add_parser('D', help='''Download TENDL/PENDF files
-                                         from the TENDL 2017 neutron activation
-                                         database.''')
-        parser_D.add_argument('--element', '-e',
-                            required=True,
-                            help= 'Chemical symbol for selected element (i.e. Ti).')
-        parser_D.add_argument('--A', '-a',
-                            required=True,
-                            help= '''Mass number for selected isotope (i.e. 48).
-                                        If the target is an isomer, type
-                                        "m" after the mass number (i.e. 48m).
-                                        To automatically iterate over all of
-                                        the isotopes for the target element,
-                                        select "all" as the option for --A.
-                                        ''')
-
-        args = parser.parse_args()
-        return args
-    
-    finally:
-        # Restore stdout and stderr to the logger
-        sys.stdout = original_stdout
-        sys.stderr = original_stderr
-
+    args = parser.parse_args()
+    return args
 
 def handle_local_file_input(mt_dict, cumulative_data, gendf_paths = None, args = None):
     """
@@ -129,7 +114,9 @@ def handle_download_file(args, mt_dict, cumulative_df):
     A = args.A
     if A == 'all':
         A_vals = asyncio.run(tpp.identify_tendl_isotopes(element))
-        logger.info(f'All isotopes of {element} (by mass number) in the TENDL database: {A_vals}')
+        logger.info(
+            f'All isotopes of {element} in the TENDL database: {A_vals}'
+        )
     else:
         A_vals = [A]
 
@@ -153,6 +140,8 @@ def handle_download_file(args, mt_dict, cumulative_df):
     
     return gendf_paths
 
+##############################################################################
+
 def fendl3_2b_retrofit():
     """
     Main method when run as a command line script.
@@ -167,7 +156,6 @@ def fendl3_2b_retrofit():
     # Execute file handling
     if args.method == 'D':
         gendf_paths = handle_download_file(args, mt_dict, cumulative_data)
-        print(gendf_paths)
         args = None
     cumulative_data = handle_local_file_input(mt_dict,
                                               cumulative_data,
@@ -178,6 +166,7 @@ def fendl3_2b_retrofit():
     cumulative_data.to_csv('gendf_data.csv', index=False)
     logger.info("Saved gendf_data.csv")
 
-# Execute main() function based on arguments
+##############################################################################
+
 if __name__ == '__main__':
     fendl3_2b_retrofit()

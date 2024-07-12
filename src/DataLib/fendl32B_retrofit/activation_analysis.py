@@ -1,5 +1,4 @@
 # Import packages
-from logging_config import logger, LoggerWriter
 import pandas as pd
 from tendl_preprocessing import extract_cross_sections
 

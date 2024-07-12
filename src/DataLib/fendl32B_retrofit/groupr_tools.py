@@ -1,6 +1,6 @@
 # Import packages
 import subprocess
-from logging_config import logger, LoggerWriter
+from logging_config import logger
 import os
 
 # Define constants
