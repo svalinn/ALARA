@@ -129,7 +129,7 @@ def handle_download_file(args, mt_dict, cumulative_df):
     A = args.A
     if A == 'all':
         A_vals = asyncio.run(tpp.identify_tendl_isotopes(element))
-        logger.info(f'All isotopes of {element} (by mass number): {A_vals}')
+        logger.info(f'All isotopes of {element} (by mass number) in the TENDL database: {A_vals}')
     else:
         A_vals = [A]
 
@@ -147,7 +147,7 @@ def handle_download_file(args, mt_dict, cumulative_df):
 
         gendf_path = groupr_tools.run_njoy(card_deck, element, A, material_id)
         gendf_paths.append(gendf_path)
-        
+
         groupr_tools.njoy_file_cleanup()
         logger.info(f'Finished iterating for {element}-{A} \n \n')
     

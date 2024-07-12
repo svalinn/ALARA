@@ -184,6 +184,7 @@ def ensure_gendf_markers(gendf_path, matb):
     # Define identifiers and corresponding new lines
     mf1_identifier = f'{matb} 1451   '
     mf3_identifier = f'{matb} 3  099999'
+    matb = str(matb).zfill(4)
     mf1_SEND_RECORD = f'{whitespace}{matb} 1  099999'
     mf3_FEND_RECORD = f'{whitespace}{matb} 0  0    0'
 

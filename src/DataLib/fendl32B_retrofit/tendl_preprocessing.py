@@ -3,11 +3,8 @@ import aiohttp
 import asyncio
 import urllib.error
 import urllib.request
-import sys
 from logging_config import logger, LoggerWriter
 import ENDFtk
-import contextlib
-import os
 
 # Define constant(s)
 TENDL_GEN_URL = 'https://tendl.web.psi.ch/tendl_2017/neutron_file/'
