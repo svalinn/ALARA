@@ -1,15 +1,17 @@
 # Import packages
 import aiohttp
 import asyncio
+from bs4 import BeautifulSoup
 import urllib.error
 import urllib.request
 from logging_config import logger, LoggerWriter
 import ENDFtk
 
-# Define constant(s)
-TENDL_GEN_URL = 'https://tendl.web.psi.ch/tendl_2017/neutron_file/'
 
-async def fetch(session, url):
+# Define constant(s)
+TENDL_GEN_URL = 'https://tendl.web.psi.ch/tendl_2017'
+
+async def fetch_and_parse_html(session, url):
     """
     Asynchronously fetch the content from the URL using the provided session.
 
@@ -23,37 +25,15 @@ async def fetch(session, url):
             signified by status code 200. Returns None if the request is unsuccessful
             or an error occurs.
     """
+    async with session.get(url) as response:
+        if response.status == 200:
+            html = await response.text()
+            soup = BeautifulSoup(html, 'html.parser')
+            links = soup.find_all('a')
+            return [link.get('href') for link in links if link.get('href')]
+        return []
 
-    try:
-        async with session.get(url) as response:
-            if response.status == 200:
-                return await response.text()
-            else:
-                return None
-    except aiohttp.ClientError:
-        return None
-
-async def fetch_with_sem(semaphore, session, url):
-    """
-    Use an asyncio semaphore to call the fetch() function for a specific URL.
-
-    Arguments:
-        semaphore (asyncio.locks.Semaphore): A semaphore to limit the number of
-            concurrent requests.
-        session (aiohttp.client.ClientSession): Aiohttp session to use for making
-            the request.
-        url (str): The URL from which to fetch content.
-    
-    Returns:
-        str or None: The content of the URL as a string if the request is successful,
-            signified by status code 200. Returns None if the request is unsuccessful
-            or an error occurs.
-    """
-
-    async with semaphore:
-        return await fetch(session, url)
-
-async def identify_tendl_isotopes(element, concurrency_limit = 50):
+async def identify_tendl_isotopes(element):
     """
     Use asyncio and aiohttp to iterate over all possible mass numbers for a given
         element to identify all of its isotopes and isomers in the TENDL database.
@@ -62,38 +42,35 @@ async def identify_tendl_isotopes(element, concurrency_limit = 50):
         element (str): Chemical symbol for element of interest (i.e. Ti).
         concurrency_limit (int, optional): The maximum number of concurrent
             processes or sessions that can be handled at once.
-    """
-    
-    A_vals = []
-    semaphore = asyncio.Semaphore(concurrency_limit)
 
+    Returns:
+        A_vals (list): List of all of the mass numbers of isotopes that have
+            data stored in both ENDF (TENDL) and PENDF files in the TENDL 2017
+            nuclear database.
+    """
+    A_vals = []
     async with aiohttp.ClientSession() as session:
         tasks = []
-        # Iterate over all mass numbers possible in the TENDL database
         for A in range(1, 292):
-            # Iterate over each number twice to check for isomers
             for i in range(2):
                 A_str = str(A).zfill(3)
                 if i == 1:
                     A_str += 'm'
 
-                isotope_component = f'{element}/{element}{A_str}/lib/endf/n-{element}{A_str}.'
+                navigation_page_url = f'{TENDL_GEN_URL}/neutron_html/{element}/Neutron{element}{str(A).zfill(2)}.html'
+                isotope_component = f'/neutron_file/{element}/{element}{A_str}/lib/endf/n-{element}{A_str}.'
                 tendl_url = TENDL_GEN_URL + isotope_component + 'tendl'
                 pendf_url = TENDL_GEN_URL + isotope_component + 'pendf'
 
-                tendl_task = fetch_with_sem(semaphore, session, tendl_url)
-                pendf_task = fetch_with_sem(semaphore, session, pendf_url)
+                tasks.append((navigation_page_url, tendl_url, pendf_url, A_str))
 
-                tasks.append((tendl_task, pendf_task,
-                              tendl_url, pendf_url, A_str))
+        # Execute tasks and gather results
+        for navigation_page_url, tendl_url, pendf_url, A_str in tasks:
+            nav_urls = await fetch_and_parse_html(session, navigation_page_url)
 
-        results = await asyncio.gather(*[asyncio.gather(tendl_task,
-                                                        pendf_task)
-                                                        for tendl_task, pendf_task, _, _, _ in tasks])
-
-        for (tendl_result, pendf_result), (tendl_task, pendf_task, tendl_url, pendf_url, A_str) in zip(results, tasks):
-            if tendl_result and pendf_result:
+            if tendl_url in nav_urls and pendf_url in nav_urls:
                 A_vals.append(A_str)
+                print(A_str)
 
     return A_vals
 
@@ -142,7 +119,7 @@ def download_tendl(element, A, filetype, save_path = None):
                      'pendf' : {'ext': 'pendf', 'tape_num': 21}}
     
     # Construct the filetype and isotope specific URL
-    isotope_component = f'{element}/{element}{A}/lib/endf/n-{element}{A}.'
+    isotope_component = f'/neutron_file/{element}/{element}{A}/lib/endf/n-{element}{A}.'
     ext = file_handling[filetype.lower()]['ext']
     download_url = TENDL_GEN_URL + isotope_component + ext
     logger.info(f'{filetype.upper()} URL: {download_url}')
@@ -170,7 +147,7 @@ def extract_gendf_pkza(gendf_path):
             Defaults to None and will be otherwise defined internally.
     
     Returns:
-        pKZA (str): Parent KZA identifier.
+        pKZA (int): Parent KZA identifier.
     """
 
     with open(gendf_path, 'r') as f:
