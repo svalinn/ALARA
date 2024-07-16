@@ -162,7 +162,7 @@ def warn_missing_file(error, element, A):
     else:
         raise
 
-def search_gendf_files_for_element(args, gendf_dir, element):
+def search_files_for_element(args, gendf_dir, element):
     """
     Generate and iterate through the GENDF file search commands produced from
         prepare_ls_commands() to either store the file paths in a cumulative
@@ -229,9 +229,9 @@ def search_gendf_directory(args, gendf_dir=None, gendf_paths_from_arg=None):
     all_gendf_paths = []
 
     for element in elements:
-        element_gendf_paths, warnings = search_gendf_files_for_element(args,
-                                                                       gendf_dir,
-                                                                       element)
+        element_gendf_paths, warnings = search_files_for_element(args,
+                                                                 gendf_dir,
+                                                                 element)
 
         if warnings == len(prepare_ls_commands(args, gendf_dir, element)):
             logger.error(f'No GENDF files found for {element}.')
@@ -240,7 +240,9 @@ def search_gendf_directory(args, gendf_dir=None, gendf_paths_from_arg=None):
         all_gendf_paths.extend(element_gendf_paths)
 
     if missing_elements == len(elements):
-        raise Exception('No GENDF files found for any of the selected elements.')
+        raise Exception(
+            'No GENDF files found for any of the selected elements.'
+        )
     else:
         logger.info(f'All files: \n {", ".join(all_gendf_paths)}')
 
