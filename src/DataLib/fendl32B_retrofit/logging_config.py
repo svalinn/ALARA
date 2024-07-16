@@ -1,6 +1,7 @@
 # Import packages
 import logging
 import textwrap
+from reaction_data import establish_directory
 
 class CustomFormatter(logging.Formatter):
     """
@@ -64,7 +65,9 @@ class CustomFilter(logging.Filter):
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-file_handler = logging.FileHandler('fendl3_retrofit.log', mode='w')
+# Ensure that logger is saved in the same directory as the mt_table.csv file
+dir = establish_directory()
+file_handler = logging.FileHandler(f'{dir}/fendl3_retrofit.log', mode='w')
 file_handler.setLevel(logging.INFO)
 
 formatter = CustomFormatter('%(asctime)s - %(levelname)s')

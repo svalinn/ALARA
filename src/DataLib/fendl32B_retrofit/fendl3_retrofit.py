@@ -395,6 +395,7 @@ def handle_TENDL_downloads(args, mt_dict):
 
             gendf_path, gendf_dir = groupr_tools.run_njoy(card_deck, element,
                                                           A, material_id)
+            print(type(gendf_dir))
             gendf_paths.extend(gendf_path)
 
             groupr_tools.njoy_file_cleanup()
@@ -403,7 +404,7 @@ def handle_TENDL_downloads(args, mt_dict):
 
 ##############################################################################
 
-def fendl3_2b_retrofit(gendf_paths = [], gendf_dir = None):
+def fendl3_2b_retrofit():
     """
     Main method when run as a command line script.
     """
@@ -411,7 +412,9 @@ def fendl3_2b_retrofit(gendf_paths = [], gendf_dir = None):
     # Initialize arguments, DataFrame to store data, and load in MT reference
     args = fendl_args()
     cumulative_data = rxd.initialize_dataframe()
-    mt_dict = rxd.process_mt_table('mt_table.csv')
+    gendf_paths = []
+    gendf_dir = None
+    mt_dict, dir = rxd.process_mt_table('mt_table.csv')
 
     # Conditionally download and process files from the TENDL 2017 database
     if not args.paths:
@@ -425,7 +428,7 @@ def fendl3_2b_retrofit(gendf_paths = [], gendf_dir = None):
                                               args = args)
         
     # Save to CSV
-    cumulative_data.to_csv('gendf_data.csv', index=False)
+    cumulative_data.to_csv(f'{dir}/gendf_data.csv', index=False)
     logger.info('Saved extracted GENDF data to gendf_data.csv')
 
 ##############################################################################

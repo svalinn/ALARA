@@ -2,6 +2,7 @@
 import subprocess
 from logging_config import logger
 from pathlib import Path
+from reaction_data import establish_directory
 
 # Define constants
 NENDF = 20 # unit for endf tape
@@ -20,6 +21,7 @@ TEMP = 293.16 # temperature in Kelvin
 SIGZ = 0 # sigma zero values (including infinity)
 MFD = 3 # file to be processed
 MATD = 0 # next mat number to be processed
+DIR = establish_directory()
 
 # Dictionary of elements in the Periodic Table
 elements = [
@@ -133,7 +135,7 @@ def groupr_input_file_writer(cards, MTs):
     """
 
     # Write the input deck to the groupr.inp file
-    with open('groupr.inp', 'w') as f:
+    with open(f'{DIR}/groupr.inp', 'w') as f:
         f.write('groupr\n')
         for card_num, card in cards.items():
             f.write(format_card(card_num, card, MTs))
@@ -234,8 +236,8 @@ def run_njoy(cards, element, A, matb):
     """
 
     # Define the input files
-    INPUT = 'groupr.inp'
-    OUTPUT = 'groupr.out'
+    INPUT = f'{DIR}/groupr.inp'
+    OUTPUT = f'{DIR}/groupr.out'
 
     # Run NJOY
     result = subprocess.run(['njoy'], input=open(INPUT).read(),
@@ -246,7 +248,7 @@ def run_njoy(cards, element, A, matb):
     # If the run is successful, log out the output
     # and make a copy of the file as a .GENDF file
     if result.stderr == '':
-        output = subprocess.run(['cat', 'output'],
+        output = subprocess.run(['cat', f'{DIR}/output'],
                                 capture_output=True, text = True)
         title = cards[3][0][1:-1]
         title_index = output.stdout.find(title)
@@ -255,7 +257,7 @@ def run_njoy(cards, element, A, matb):
             f'\n{output.stdout[:title_index + len(title)]}\n'
         )
 
-        save_directory = './gendf_files'
+        save_directory = f'{DIR}/gendf_files'
         gendf_path = set_gendf_saving(save_directory, element, A)
         subprocess.run(['cp', 'tape31', gendf_path])
         ensure_gendf_markers(gendf_path, matb)
@@ -276,9 +278,10 @@ def njoy_file_cleanup(output_path = 'njoy_ouput'):
         None
     """
 
-    njoy_files = ['groupr.inp', 'groupr.out', 'tape20', 'tape21', 'tape31']
+    njoy_files = [f'{DIR}/groupr.inp', f'{DIR}/groupr.out',
+                  'tape20', 'tape21', 'tape31']
     for file in njoy_files:
-        if file == 'groupr.out':
+        if file == f'{DIR}/groupr.out':
             with open(file, 'r') as f:
                 groupr_out = f.read()
             logger.info(

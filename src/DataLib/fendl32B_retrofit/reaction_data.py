@@ -1,6 +1,7 @@
 import csv
 from numpy import array
 import pandas as pd
+from pathlib import Path
 
 # Define a dictionary containing all of the pathways for neutron and proton
 # changes in a nucleus following neutron activation
@@ -146,6 +147,33 @@ def nucleon_changes(emission_dict):
         
     return NP_change
 
+def establish_directory(file_path = 'mt_table.csv'):
+    """
+    Determine if the target file is in the current working directory or if it
+        is in a daughter directory. This is used to allow for
+        fendl3_retrofit.py to be executed either from its own directory or its
+        parent directory, while always ensuring the files it produces to be
+        saved in the directory fendl32B_retrofit.
+
+    Arguments:
+        file_path (str, optional): Path to the target file.
+            Defaults to "mt_table.csv" so that files get saved in the same
+            directory as the input table necessary to run the main program.
+    
+    Returns:
+        dir (str): Directory signifier, either "." if the main program is run
+            in the same directory as the file associated with file_path or
+            "fendl32B_retrofit", where the reference file would otherwise be
+            located if this is being run from the parent directory.
+    """
+
+    if Path.exists(Path(file_path)):
+        dir = '.'
+    else:
+        dir = 'fendl32B_retrofit'
+
+    return dir
+
 def process_mt_table(csv_path):
     """
     Load in the mt_table.csv file which contains Table B.1 -
@@ -168,7 +196,8 @@ def process_mt_table(csv_path):
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv,
             along with changes in KZA and emitted_particles.
     """
-
+    dir = establish_directory(csv_path)
+    csv_path = f'{dir}/{csv_path}'
     mt_dict = {}
 
     with open(csv_path, 'r') as f:
@@ -184,4 +213,4 @@ def process_mt_table(csv_path):
                 'Emitted Particles' : emitted_particles
             }
 
-    return mt_dict
+    return mt_dict, dir
