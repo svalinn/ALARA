@@ -413,8 +413,7 @@ def fendl3_2b_retrofit(gendf_paths = [], gendf_dir = None):
 
     # Conditionally download and process files from the TENDL 2017 database
     if not args.paths:
-        gendf_paths, gendf_dir = handle_TENDL_downloads(args, mt_dict,
-                                                        cumulative_data)
+        gendf_paths, gendf_dir = handle_TENDL_downloads(args, mt_dict)
 
     # Extract and store data from GENDF files
     cumulative_data = handle_local_file_input(mt_dict,
