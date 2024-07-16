@@ -15,14 +15,14 @@ async def fetch_and_parse_html(session, url):
     Asynchronously fetch the content from the URL using the provided session.
 
     Arguments:
-        session (aiohttp.client.ClientSession): Aiohttp session to use for making
-            the request.
+        session (aiohttp.client.ClientSession): Aiohttp session to use for
+            making the request.
         url (str): The URL from which to fetch content.
     
     Returns:
-        str or None: The content of the URL as a string if the request is successful,
-            signified by status code 200. Returns None if the request is unsuccessful
-            or an error occurs.
+        str or None: The content of the URL as a string if the request is
+            successful, signified by status code 200. Returns None if the
+            request is unsuccessful or an error occurs.
     """
 
     async with session.get(url) as response:
@@ -35,8 +35,9 @@ async def fetch_and_parse_html(session, url):
 
 async def identify_tendl_isotopes(element):
     """
-    Use asyncio and aiohttp to iterate over all possible mass numbers for a given
-        element to identify all of its isotopes and isomers in the TENDL database.
+    Use asyncio and aiohttp to iterate over all possible mass numbers for a
+        given element to identify all of its isotopes and isomers in the TENDL
+        database.
     
     Arguments:
         element (str): Chemical symbol for element of interest (i.e. Ti).
@@ -44,9 +45,9 @@ async def identify_tendl_isotopes(element):
             processes or sessions that can be handled at once.
 
     Returns:
-        A_vals (list): List of all of the mass numbers of isotopes that have
-            data stored in both ENDF (TENDL) and PENDF files in the TENDL 2017
-            nuclear database.
+        A_vals (list of str): List of all of the mass numbers of isotopes that
+            have data stored in both ENDF (TENDL) and PENDF files in the TENDL
+            2017 nuclear database.
     """
 
     A_vals = []
@@ -58,16 +59,24 @@ async def identify_tendl_isotopes(element):
                 if i == 1:
                     A_str += 'm'
 
-                navigation_page_url = f'{TENDL_GEN_URL}/neutron_html/{element}/Neutron{element}{str(A).zfill(2)}.html'
-                isotope_component = f'/neutron_file/{element}/{element}{A_str}/lib/endf/n-{element}{A_str}.'
+                navigation_page_url = (
+                    f'{TENDL_GEN_URL}/neutron_html/{element}/'
+                    f'Neutron{element}{str(A).zfill(2)}.html'
+                )
+                isotope_component = (
+                    f'/neutron_file/{element}/{element}{A_str}/'
+                    f'lib/endf/n-{element}{A_str}.'
+                )
                 tendl_url = TENDL_GEN_URL + isotope_component + 'tendl'
                 pendf_url = TENDL_GEN_URL + isotope_component + 'pendf'
 
-                tasks.append((navigation_page_url, tendl_url, pendf_url, A_str))
+                tasks.append((navigation_page_url, tendl_url,
+                              pendf_url, A_str))
 
         # Execute tasks and gather results
         for navigation_page_url, tendl_url, pendf_url, A_str in tasks:
-            nav_urls = await fetch_and_parse_html(session, navigation_page_url)
+            nav_urls = await fetch_and_parse_html(session,
+                                                  navigation_page_url)
 
             if tendl_url in nav_urls and pendf_url in nav_urls:
                 A_vals.append(A_str)
@@ -91,7 +100,9 @@ def urllib_download(download_url, filetype):
     except urllib.error.URLError as e:
         if e.code == 404:
             temp_file = None
-            raise FileNotFoundError(f'{filetype.upper()} file does not exist at {download_url}')
+            raise FileNotFoundError(
+                f'{filetype.upper()} file does not exist at {download_url}'
+            )
     
     return temp_file
 
@@ -106,7 +117,9 @@ def download_tendl(element, A, filetype, save_path = None):
             so A must be input as a string.
         filetype (str): Either "ENDF" or "PENDF" filetypes to be downloaded
             (case insensitive).
-        save_path (str, optional): User-defined file path for the downloaded file.
+        save_path (str, optional): User-defined file path for the
+            downloaded file.
+
             Defaults to None and will be otherwise defined internally.
     
     Returns:
@@ -120,7 +133,9 @@ def download_tendl(element, A, filetype, save_path = None):
                      'pendf' : {'ext': 'pendf', 'tape_num': 21}}
     
     # Construct the filetype and isotope specific URL
-    isotope_component = f'/neutron_file/{element}/{element}{A}/lib/endf/n-{element}{A}.'
+    isotope_component = (
+        f'/neutron_file/{element}/{element}{A}/lib/endf/n-{element}{A}.'
+    )
     ext = file_handling[filetype.lower()]['ext']
     download_url = TENDL_GEN_URL + isotope_component + ext
     logger.info(f'{filetype.upper()} URL: {download_url}')
@@ -137,14 +152,16 @@ def download_tendl(element, A, filetype, save_path = None):
 
 def extract_gendf_pkza(gendf_path):
     """
-    Read in and parse the contents of a GENDF file to construct the parent KZA.
-        KZA values are defined as ZZAAAM, where ZZ is the isotope's atomic number,
-        AAA is the mass number, and M is the isomeric state (0 if non-isomeric).
+    Read in and parse the contents of a GENDF file to construct the parent
+        KZA. KZA values are defined as ZZAAAM, where ZZ is the isotope's
+        atomic number, AAA is the mass number, and M is the isomeric state
+        (0 if non-isomeric).
     
     Arguments:
         gendf_path (str): File path to the GENDF file being analyzed.
-        M (str, optional): Identifier of isomer, signified by the letter "M" at the end
-            of the mass number string.
+        M (str, optional): Identifier of isomer, signified by the letter "M"
+            at the end of the mass number string.
+
             Defaults to None and will be otherwise defined internally.
     
     Returns:
@@ -155,7 +172,6 @@ def extract_gendf_pkza(gendf_path):
 
     with open(gendf_path, 'r') as f:
         first_line = f.readline()
-    logger.info(f"First line of GENDF file: {first_line}")
     Z, element, A = first_line.split('-')[:3]
     
     Z = int(Z)
@@ -197,14 +213,14 @@ def extract_endf_specs(path, filetype):
 
 def extract_cross_sections(file, MT):
     """
-    Parse through the contents of a GENDF file section to extract the cross-section
-        data for a specific reaction type (MT).
+    Parse through the contents of a GENDF file section to extract the
+        cross-section data for a specific reaction type (MT).
     
     Arguments:
-        file (ENDFtk.tree.File): ENDFtk file object containing a specific material's
-            cross-section data.
-        MT (int): Numerical identifier for the reaction type corresponding to the
-            file's sectional organization.
+        file (ENDFtk.tree.File): ENDFtk file object containing a specific
+            material's cross-section data.
+        MT (int): Numerical identifier for the reaction type corresponding to
+            the file's sectional organization.
     
     Returns:
         sigma_list (list): All of the cross-sections for a given reaction type

@@ -342,7 +342,7 @@ def handle_local_file_input(mt_dict, cumulative_data,
                                     ignore_index= True)
 
         logger.info(
-            f'Finished iterating for {element}-{A} \n \n {"-"*50} \n \n'
+            f'Finished iterating for {element}-{A}{" "*20}{"-"*49}'
         )
 
     return cumulative_data
@@ -426,7 +426,7 @@ def fendl3_2b_retrofit(gendf_paths = [], gendf_dir = None):
         
     # Save to CSV
     cumulative_data.to_csv('gendf_data.csv', index=False)
-    logger.info("Saved gendf_data.csv")
+    logger.info('Saved extracted GENDF data to gendf_data.csv')
 
 ##############################################################################
 
