@@ -1,6 +1,5 @@
 # Import packages
 import aiohttp
-import asyncio
 from bs4 import BeautifulSoup
 import urllib.error
 import urllib.request
@@ -25,6 +24,7 @@ async def fetch_and_parse_html(session, url):
             signified by status code 200. Returns None if the request is unsuccessful
             or an error occurs.
     """
+
     async with session.get(url) as response:
         if response.status == 200:
             html = await response.text()
@@ -48,6 +48,7 @@ async def identify_tendl_isotopes(element):
             data stored in both ENDF (TENDL) and PENDF files in the TENDL 2017
             nuclear database.
     """
+
     A_vals = []
     async with aiohttp.ClientSession() as session:
         tasks = []
@@ -91,6 +92,7 @@ def urllib_download(download_url, filetype):
         if e.code == 404:
             temp_file = None
             raise FileNotFoundError(f'{filetype.upper()} file does not exist at {download_url}')
+    
     return temp_file
 
 def download_tendl(element, A, filetype, save_path = None):
@@ -147,6 +149,8 @@ def extract_gendf_pkza(gendf_path):
     
     Returns:
         pKZA (int): Parent KZA identifier.
+        A (int): Mass number of the parent nucleus.
+        element (str): Chemical name of the parent.
     """
 
     with open(gendf_path, 'r') as f:
@@ -158,7 +162,7 @@ def extract_gendf_pkza(gendf_path):
     M = 1 if 'm' in A.lower() else 0
     A = int(A.lower().split(' ')[0].split('m')[0])
     pKZA = (Z * 1000 + A) * 10 + M
-    return pKZA
+    return pKZA, A, element
 
 def extract_endf_specs(path, filetype):
     """
@@ -170,11 +174,11 @@ def extract_endf_specs(path, filetype):
     
     Returns:
         endf_specs (list): List containing the following values from the file:
-            matb (int): Unique material ID extracted from the file.
-            MTs (list): List of reaction types (MT's) present in the file.
-            file (ENDFtk.tree.File or None): ENDFtk file object containing the
-                contents for a specific material's cross-section data.
-                Only returns the file for GENDF filetypes.
+        matb (int): Unique material ID extracted from the file.
+        MTs (list): List of reaction types (MT's) present in the file.
+        file (ENDFtk.tree.File or None): ENDFtk file object containing the
+            contents for a specific material's cross-section data.
+            Only returns the file for GENDF filetypes.
     """
 
     tape = ENDFtk.tree.Tape.from_file(path)

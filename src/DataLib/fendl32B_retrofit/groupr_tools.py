@@ -1,7 +1,7 @@
 # Import packages
 import subprocess
 from logging_config import logger
-import os
+from pathlib import Path
 
 # Define constants
 NENDF = 20 # unit for endf tape
@@ -47,7 +47,8 @@ def format_card(card_number, card_content, MTs):
     Arguments:
         card_number (int): Individual identifier of "card" in input "deck".
         card_content (list): Values to be written on each individual "card".
-        MTs (list): List of reaction types (MT's) present in the ENDF/PENDF files.
+        MTs (list of int): List of reaction types (MT's) present in the
+            ENDF/PENDF files.
     
     Returns:
         card_str (str): Concatenated string of an individual "card's" contents. 
@@ -146,10 +147,11 @@ def set_gendf_saving(save_directory, element, A):
     """
 
     # Create save_directory if it does not already exist
-    if not os.path.exists(save_directory):
-        os.makedirs(save_directory)
+    save_directory = Path(save_directory)
+    if not save_directory.exists():
+        save_directory.mkdir(parents = True)
 
-    gendf_path = f'{save_directory}/tendl_2017_{element}{A}.gendf'
+    gendf_path = f'{save_directory}/tendl_2017_{element}{A.zfill(3)}.gendf'
     return gendf_path
 
 def text_insertion(string, identifier, new_text, file_lines):
@@ -177,8 +179,8 @@ def ensure_gendf_markers(gendf_path, matb):
         None
     """
 
-    # In ENDF-6 formatted files, there are 66 lines of whitespace before
-    # the values in record-keeping lines
+    # In ENDF-6 formatted files, there are 66 characters/columns of whitespace
+    # before the values in record-keeping lines
     whitespace = ' ' * 66
 
     # Define identifiers and corresponding new lines
@@ -238,14 +240,17 @@ def run_njoy(cards, element, A, matb):
         output = subprocess.run(['cat', 'output'], capture_output=True, text = True)
         title = cards[3][0][1:-1]
         title_index = output.stdout.find(title)
-        logger.info(f'\n{output.stdout[:title_index + len(title)]}\n')
+        logger.info(
+            'Selected output of the latest NJOY run: \n'
+            f'\n{output.stdout[:title_index + len(title)]}\n'
+        )
 
         save_directory = './gendf_files'
         gendf_path = set_gendf_saving(save_directory, element, A)
         subprocess.run(['cp', 'tape31', gendf_path])
         ensure_gendf_markers(gendf_path, matb)
 
-        return gendf_path
+        return gendf_path, save_directory
     else:
         logger.error(result.stderr)
 
@@ -266,7 +271,9 @@ def njoy_file_cleanup(output_path = 'njoy_ouput'):
         if file == 'groupr.out':
             with open(file, 'r') as f:
                 groupr_out = f.read()
-            logger.info(groupr_out)
+            logger.info(
+                f'GROUPR run-specific analytics: \n {groupr_out}'
+            )
             
         subprocess.run(['rm', file])
     subprocess.run(['mv', 'output', output_path])

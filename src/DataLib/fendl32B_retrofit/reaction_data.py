@@ -2,6 +2,19 @@ import csv
 from numpy import array
 import pandas as pd
 
+# Define a dictionary containing all of the pathways for neutron and proton
+# changes in a nucleus following neutron activation
+
+#             emitted         delta N       delta P
+NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
+             'p'     : array([ 0      ,     -1      ]), # proton emission
+             'd'     : array([-1      ,     -1      ]), # deuteron emission
+             't'     : array([-2      ,     -1      ]), # triton emission
+             '3He'   : array([-1      ,     -2      ]), # helium-3 emission
+             'α'     : array([-2      ,     -2      ]), # alpha emission
+             'γ'     : array([ 0      ,      0      ])  # gamma emission
+}
+
 def initialize_dataframe():
     """
     Initialize an empty Pandas DataFrame in which to store extracted data from
@@ -29,13 +42,15 @@ def count_emitted_particles(particle, emitted_particle_string):
     Arguments:
         particle (str): Name of the target particle produced in the reaction.
             Options include n, p, alpha, d, t, and 3He, corresponding to
-            neutrons, protons, alpha particles, deuterons, tritons, and helium-3 nuclides.
-        emitted_particle_string (str): Particle product(s) of the neutron activation,
-            of the format 'p' for a single proton for example or '2n' for two neutrons etc.
+            neutrons, protons, alpha particles, deuterons, tritons,
+            and helium-3 nuclides.
+        emitted_particle_string (str): Particle product(s) of the neutron
+            activation, of the format 'p' for a single proton for example or
+            '2n' for two neutrons etc.
 
     Returns:
-        number_str (int or None): Count of the target particle present in the product.
-            For particles not present, returns None rather than 0.
+        particle_count (int or None): Count of the target particle present in
+            the product. If particles not present, returns None rather than 0.
     """
 
     particle_index = emitted_particle_string.find(particle)
@@ -47,13 +62,13 @@ def count_emitted_particles(particle, emitted_particle_string):
             break
 
     if number_str:
-        number_str = int(number_str)
+        particle_count = int(number_str)
     elif particle in emitted_particle_string:
-        number_str = 1
+        particle_count = 1
     else:
-        number_str = None
+        particle_count = None
     
-    return number_str
+    return particle_count
 
 def isomer_check(emitted_particle_string):
     """
@@ -64,11 +79,12 @@ def isomer_check(emitted_particle_string):
         this function looks for and stores these values.
 
     Arguments:
-        emitted_particle_string (str): Particle product(s) of the neutron activation.
+        emitted_particle_string (str): Particle product(s) of the neutron
+            activation.
     
     Returns:
-        isomeric_state (int): Nuclear excitation level of the activated nucleus.
-            For a nucleus in the ground state, isomeric_state = 0.
+        isomeric_value (int): Nuclear excitation level of the activated
+            nucleus. For a nucleus in the ground state, isomeric_state = 0.
     """
 
     last_digits_str = ''
@@ -97,10 +113,9 @@ def emission_breakdown(emitted_particles):
             read out as {'n': 1, 'p': 1}.
     """
 
-    particle_types = ['n', 'd', 'α', 'p', 't', '3He', 'gamma']
     emission_dict = {
         particle : count_emitted_particles(particle, emitted_particles)
-        for particle in particle_types
+        for particle in NP_dict.keys()
         if particle in emitted_particles
     }
     return emission_dict
@@ -123,15 +138,8 @@ def nucleon_changes(emission_dict):
             array([neutron_change, proton_change]).
     """
 
-    #             emitted         delta N       delta P
-    NP_change =            array([ 1      ,      0      ])  # neutron activation
-    NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
-                 'p'     : array([ 0      ,     -1      ]), # proton emission
-                 'd'     : array([-1      ,     -1      ]), # deuteron emission
-                 't'     : array([-2      ,     -1      ]), # triton emission
-                 '3He'   : array([-1      ,     -2      ]), # helium-3 emission
-                 'α'     : array([-2      ,     -2      ]), # alpha emission
-    }
+    #                  delta N        delta P
+    NP_change = array([1       ,      0      ])  # neutron activation
 
     for particle, count in emission_dict.items():
         NP_change += count * NP_dict[particle]
