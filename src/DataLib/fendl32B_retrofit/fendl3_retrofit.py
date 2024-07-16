@@ -32,17 +32,28 @@ def fendl_args():
 
     parser.add_argument(
         '--paths', '-p', required = False, nargs='*',
-        help= '''Path to the local GENDF file(s) or the repository in which
-                 they are located.''')
+        help= '''
+            Path(s) to the local GENDF file(s) or the repository in which
+            they are located.
+                
+            If left empty, then corresponding ENDF and
+            PENDF files will be downloaded and processed into properly
+            formatted GENDF files.
+            ''')
     parser.add_argument(
-        '--element', '-e', required=False, nargs='+',
-        help= 'Chemical symbol for selected element (i.e. Ti).')
+        '--element', '-e', required=False, nargs='*',
+        help= '''
+            Chemical symbol(s) for selected element(s) (i.e. Ti).
+
+            To iterate over all elements, either type "all" or leave empty.
+            ''')
     parser.add_argument(
         '--mass_number', '-a', required= False, nargs = '*',
         help= '''Mass number for selected isotope (i.e. 48). If the target is
                  an isomer, type "m" after the mass number (i.e. 48m).
+                 
                  To automatically iterate over all of the isotopes for the
-                 target element, select "all" as the option for --mass_number.
+                 target element, type "all" or leave empty.
               ''')
 
     args = parser.parse_args()
@@ -211,7 +222,8 @@ def search_gendf_directory(args, gendf_dir=None, gendf_paths_from_arg=None):
     """
 
     gendf_dir = gendf_dir or gendf_paths_from_arg[0]
-    elements = args.element
+    elements = groupr_tools.elements.keys(
+    ) if args.element == ['all'] or not args.element else args.element
     missing_elements = 0
 
     all_gendf_paths = []
@@ -352,9 +364,9 @@ def handle_TENDL_downloads(args, mt_dict):
         
     """
 
-    elements = args.element
-    if elements == ['all']:
-        elements = groupr_tools.elements.keys()
+    elements = groupr_tools.elements.keys(
+    ) if args.element == ['all'] or not args.element else args.element
+
     A_vals = args.mass_number
 
     gendf_paths = []
