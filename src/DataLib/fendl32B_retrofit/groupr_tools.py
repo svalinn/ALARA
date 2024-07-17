@@ -248,7 +248,7 @@ def run_njoy(cards, element, A, matb):
     # If the run is successful, log out the output
     # and make a copy of the file as a .GENDF file
     if result.stderr == '':
-        output = subprocess.run(['cat', f'{DIR}/output'],
+        output = subprocess.run(['cat', 'output'],
                                 capture_output=True, text = True)
         title = cards[3][0][1:-1]
         title_index = output.stdout.find(title)
@@ -266,13 +266,14 @@ def run_njoy(cards, element, A, matb):
     else:
         logger.error(result.stderr)
 
-def njoy_file_cleanup(output_path = 'njoy_ouput'):
+def njoy_file_cleanup(output_path = f'{DIR}/njoy_ouput'):
     """
     Clean up repository from unnecessary intermediate files from NJOY run.
 
     Arguments:
         output_path (str, optional): The save path for the NJOY output.
-            Defaults to 'njoy_output'.
+            Defaults to f'{DIR}/njoy_output', which will save the file in the
+            same directory as all other saved files from the script run.
     
     Returns:
         None
