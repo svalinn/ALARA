@@ -244,7 +244,9 @@ def search_gendf_directory(args, gendf_dir=None, gendf_paths_from_arg=None):
             'No GENDF files found for any of the selected elements.'
         )
     else:
-        logger.info(f'All files: \n {", ".join(all_gendf_paths)}')
+        logger.info(
+            f'All files to be processed: {", ".join(all_gendf_paths)}'
+        )
 
     return all_gendf_paths
 
@@ -395,7 +397,7 @@ def handle_TENDL_downloads(args, mt_dict):
 
             gendf_path, gendf_dir = groupr_tools.run_njoy(card_deck, element,
                                                           A, material_id)
-            print(type(gendf_dir))
+
             gendf_paths.extend(gendf_path)
 
             groupr_tools.njoy_file_cleanup()
