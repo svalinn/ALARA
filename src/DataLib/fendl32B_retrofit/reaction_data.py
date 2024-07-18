@@ -35,9 +35,12 @@ def count_emitted_particles(particle, emitted_particle_string):
 
     num_str = ''
     particle_count_index = emitted_particle_string.find(particle) - 1
-    while emitted_particle_string[particle_count_index].isdigit():
-        num_str = emitted_particle_string[particle_count_index] + num_str
-        particle_count_index -= 1
+    if particle_count_index < 0:
+        particle_count = 0
+    else:
+        while emitted_particle_string[particle_count_index].isdigit():
+            num_str = emitted_particle_string[particle_count_index] + num_str
+            particle_count_index -= 1
 
     if num_str:
         particle_count = int(num_str)
