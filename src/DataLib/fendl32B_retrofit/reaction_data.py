@@ -197,7 +197,7 @@ def process_mt_data(mt_dict):
         M = check_for_isomer(emitted_particles)
 
         # Conditionally remove isomer tags from emitted particle strings
-        if emitted_particles.rfind(str(M)) > 0:
+        if M > 0:
             emitted_particles = emitted_particles[:-len(str(M))]
         
         if change_N is not None and change_P is not None:
