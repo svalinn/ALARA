@@ -29,24 +29,22 @@ def count_emitted_particles(particle, emitted_particle_string):
             '2n' for two neutrons etc.
 
     Returns:
-        particle_count (int or None): Count of the target particle present in
-            the product. If particles not present, returns None rather than 0.
+        particle_count (int): Count of the target particle present in
+            the product.
     """
 
-    particle_index = emitted_particle_string.find(particle)
-    number_str = ''
-    for i in range(particle_index - 1, -1, -1):
-        if emitted_particle_string[i].isdigit():
-            number_str = emitted_particle_string[i] + number_str
-        else:
-            break
+    num_str = ''
+    particle_count_index = emitted_particle_string.find(particle) - 1
+    while emitted_particle_string[particle_count_index].isdigit():
+        num_str = emitted_particle_string[particle_count_index] + num_str
+        particle_count_index -= 1
 
-    if number_str:
-        particle_count = int(number_str)
+    if num_str:
+        particle_count = int(num_str)
     elif particle in emitted_particle_string:
         particle_count = 1
     else:
-        particle_count = None
+        particle_count = 0
     
     return particle_count
 
@@ -127,4 +125,3 @@ def load_mt_table(csv_path):
             mt_dict[row['MT']] = {'Reaction' : row['Reaction']}
 
     return mt_dict
-
