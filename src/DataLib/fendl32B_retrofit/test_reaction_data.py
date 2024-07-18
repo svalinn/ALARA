@@ -6,7 +6,7 @@ import reaction_data as rxd
 @pytest.mark.parametrize(
         "(particle, emitted_particle_string, exp)",
     [
-         ('n'     , 'np'                   , 1  ) ,
+        ('n'      , 'np'                   , 1  ) ,
         ('p'      , 'np'                   , 1  ) ,
         ('t'      , 'np'                   , 0  ) ,
         ('n'      , '357n14d'              , 357) ,
