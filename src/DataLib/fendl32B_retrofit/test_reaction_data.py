@@ -1,45 +1,21 @@
-import reaction_data
 
-def test_count_emitted_particles():
+# Import packages
+import pytest
+import reaction_data as rxd
 
-    emitted_particle_string = "np"
-
-    particle = 'n'
-    exp = 1
-    obs = reaction_data.count_emitted_particles(particle, emitted_particle_string)
-
+@pytest.mark.parametrize(
+    "particle, emitted_particle_string, exp",
+    [
+        ('n', 'np', 1),
+        ('p', 'np', 1),
+        ('t', 'np', 0),
+        ('n', '357n14d', 357),
+        ('p', '357n14d', 0),
+        ('d', '357n14d', 14),
+        ('3He', '3He8α', 1),
+        ('α', '3He8α', 8)
+    ]
+)
+def test_count_emitted_particles(particle, emitted_particle_string, exp):
+    obs = rxd.count_emitted_particles(particle, emitted_particle_string)
     assert obs == exp
-
-    particle = 'p'
-    exp = 1
-    obs = reaction_data.count_emitted_particles(particle, emitted_particle_string)
-
-    assert obs == exp
-
-    particle = 't'
-    exp = 0
-    obs = reaction_data.count_emitted_particles(particle, emitted_particle_string)
-
-    assert obs == exp
-
-
-    emitted_particle_string = "357n14d"
-
-    particle = 'n'
-    exp = 357
-    obs = reaction_data.count_emitted_particles(particle, emitted_particle_string)
-
-    assert obs == exp
-
-    particle = 'p'
-    exp = 0
-    obs = reaction_data.count_emitted_particles(particle, emitted_particle_string)
-
-    assert obs == exp
-    
-    particle = 'd'
-    exp = 14
-    obs = reaction_data.count_emitted_particles(particle, emitted_particle_string)
-
-    assert obs == exp
-    
