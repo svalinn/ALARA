@@ -28,11 +28,11 @@ def initialize_dataframe():
         None
     """
     return pd.DataFrame({
-        'Parent KZA'        : [],
-        'Daughter KZA'      : [],
-        'Emitted Particles' : [],
-        'Non-Zero Groups'   : [],
-        'Cross Sections'    : []
+        'Parent KZA'            :       [],
+        'Daughter KZA'          :       [],
+        'Emitted Particles'     :       [],
+        'Non-Zero Groups'       :       [],
+        'Cross Sections'        :       []
     })
 
 def count_emitted_particles(particle, emitted_particle_string):

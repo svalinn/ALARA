@@ -163,6 +163,10 @@ def set_gendf_saving(save_directory, element, A):
     return gendf_path
 
 def text_insertion(string, identifier, new_text, file_lines):
+    """
+    (Add docstring)
+    """
+
     index = string.rfind(identifier)
     line_number = string[:index].count('\n')
     file_lines.insert(line_number + 1, new_text)

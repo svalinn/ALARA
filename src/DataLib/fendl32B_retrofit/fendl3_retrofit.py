@@ -269,10 +269,10 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
             structure, and the cross-section values for those groups.
     """
 
-    cross_sections_by_MT = []
-    emitted_particles_list = []
-    dKZAs = []
-    groups = []
+    cross_sections_by_MT =      []
+    emitted_particles_list =    []
+    dKZAs =                     []
+    groups =                    []
 
     for MT in MTs:
         sigma_list = tpp.extract_cross_sections(file_obj, MT)
@@ -284,11 +284,11 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
         groups.append(len(sigma_list))
 
     gendf_data = pd.DataFrame({
-        'Parent KZA': [pKZA] * len(dKZAs),
-        'Daughter KZA': dKZAs,
-        'Emitted Particles': emitted_particles_list,
-        'Non-Zero Groups' : groups,
-        'Cross Sections': cross_sections_by_MT
+        'Parent KZA'            :       [pKZA] * len(dKZAs),
+        'Daughter KZA'          :       dKZAs,
+        'Emitted Particles'     :       emitted_particles_list,
+        'Non-Zero Groups'       :       groups,
+        'Cross Sections'        :       cross_sections_by_MT
     })
 
     return gendf_data
