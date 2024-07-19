@@ -17,7 +17,7 @@ NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
     'total', 'z0', 'nonelas.', 'anything', 'contin.',
-    'fission', 'f', 'RES', 'X', 'disap', 'abs', 'c'
+    'fission', 'f', 'RES', 'X', 'disap', 'abs',
     ]
 
 def count_emitted_particles(particle, emitted_particle_string):
