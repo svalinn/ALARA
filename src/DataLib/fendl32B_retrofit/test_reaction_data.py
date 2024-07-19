@@ -22,6 +22,7 @@ def test_count_emitted_particles(particle, emitted_particle_string, exp):
     assert obs == exp
 
 @pytest.mark.parametrize(
+<<<<<<< HEAD
          "emitted_particles  , exp"                          ,
     [
         ('np'                ,            {'n' : 1, 'p' : 1}),
@@ -54,6 +55,9 @@ def test_nucleon_changes(emission_dict, exp):
 
 @pytest.mark.parametrize(
     "mt_data_csv, exp",
+=======
+    "(mt_data_csv, exp)",
+>>>>>>> e9e449c4ee17d3a199dac79bdd3456ffa76d219f
     [
         ('mt_test1.csv', {'11'                 : 
                           {'Reaction'          :   '(z,2nd)'   ,
@@ -82,12 +86,21 @@ def test_nucleon_changes(emission_dict, exp):
                           }})                                  ,
         ('mt_test6.csv', {'700'                :
                           {'Reaction'          :    '(z,t1)'   ,
+<<<<<<< HEAD
                            'delKZA'            :      -10019   ,
                            'Emitted Particles' :         't'
+=======
+                           'delKZA'            :      -20019   ,
+                           'Emitted Particles' :          't'
+>>>>>>> e9e449c4ee17d3a199dac79bdd3456ffa76d219f
                            }})
     ]
 )
 def test_process_mt_data(mt_data_csv, exp):
     dir = './files_for_tests'
     obs = rxd.process_mt_data(rxd.load_mt_table(f'{dir}/{mt_data_csv}'))
+<<<<<<< HEAD
     assert obs == exp
+=======
+    assert obs == exp
+>>>>>>> e9e449c4ee17d3a199dac79bdd3456ffa76d219f
