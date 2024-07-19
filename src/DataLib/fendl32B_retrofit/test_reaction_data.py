@@ -37,7 +37,7 @@ def test_emission_breakdown(emitted_particles, exp):
 
 
 @pytest.mark.parametrize(
-          "emission_dict                 , exp",
+          "emission_dict                 , exp"              ,
     [
         ({'n' : 1 , 'p' : 1}             , array([ 0 , -1])) ,
         ({'t' : 2 , 'n' : 1 , '3He' : 3} , array([-7 , -8])) ,
