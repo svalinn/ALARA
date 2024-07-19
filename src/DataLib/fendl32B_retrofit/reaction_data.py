@@ -14,6 +14,12 @@ NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
              'γ'     : array([ 0      ,      0      ])  # gamma emission
 }
 
+# Track edge cases of unquantifiable MT reaction types
+spec_reactions = [
+    'total', 'z0', 'nonelas.', 'anything', 'contin.',
+    'fission', 'f', 'RES', 'X', 'disap', 'abs', 'c'
+    ]
+
 def count_emitted_particles(particle, emitted_particle_string):
     """
     Count emitted particles from a reaction given a target particle
@@ -67,9 +73,11 @@ def emission_breakdown(emitted_particles):
     """
 
     emission_dict = {
-        particle : count_emitted_particles(particle, emitted_particles)
+        particle: count_emitted_particles(particle, emitted_particles)
         for particle in NP_dict.keys()
-        if particle in emitted_particles
+        if particle in emitted_particles and all(
+            spec_case not in emitted_particles for spec_case in spec_reactions
+        )
     }
     
     return emission_dict
@@ -91,12 +99,14 @@ def nucleon_changes(emission_dict):
             activation and subsequent decay. The array is in the format of
             array([neutron_change, proton_change]).
     """
+    
+    NP_change = array([None , None])
+    if emission_dict:
+        #                  delta N        delta P
+        NP_change = array([1       ,      0      ])  # neutron activation
 
-    #                  delta N        delta P
-    NP_change = array([1       ,      0      ])  # neutron activation
-
-    for particle, count in emission_dict.items():
-        NP_change += count * NP_dict[particle]
+        for particle, count in emission_dict.items():
+            NP_change += count * NP_dict[particle]
         
     return NP_change
 
