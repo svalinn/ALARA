@@ -1,5 +1,5 @@
 MT,Reaction,Description
-1,"(n, total)",Neutron total cross sections.
+1,"(n,total)",Neutron total cross sections.
 2,"(z,z0)",Elastic scattering cross section for incident particles.
 3,"(z, nonelas.)",Nonelastic neutron cross section.
 4,"(z,n)",Production of one neutron in the exit channel.

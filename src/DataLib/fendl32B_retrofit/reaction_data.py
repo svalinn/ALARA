@@ -17,7 +17,7 @@ NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
     'total', 'z0', 'nonelas.', 'anything', 'contin.',
-    'fission', 'f', 'RES', 'X', 'disap', 'abs',
+    'fission', 'f', 'RES', 'X', 'disap', 'abs'
     ]
 
 def count_emitted_particles(particle, emitted_particle_string):
@@ -99,11 +99,9 @@ def nucleon_changes(emission_dict):
             activation and subsequent decay. The array is in the format of
             array([neutron_change, proton_change]).
     """
-    
-    NP_change = array([None , None])
-    if emission_dict:
-        #                  delta N        delta P
-        NP_change = array([1       ,      0      ])  # neutron activation
+
+    #                  delta N        delta P
+    NP_change = array([1       ,      0      ])  # neutron activation
 
         for particle, count in emission_dict.items():
             NP_change += count * NP_dict[particle]
@@ -135,4 +133,49 @@ def load_mt_table(csv_path):
         for row in csv_reader:
             mt_dict[row['MT']] = {'Reaction' : row['Reaction']}
 
+    return mt_dict
+
+def check_for_isomer(emitted_particle_string):
+    """
+    Check the isomeric status of a neutron-activated nucleus.
+        By the formatting conventions of ENDF reaction types,
+        if the string of a reaction product ends with a digit,
+        that signifies the excitation state of the nucleus, so 
+        this function looks for and stores these values.
+
+    Arguments:
+        emitted_particle_string (str): Particle product(s) of the neutron
+            activation.
+    
+    Returns:
+        isomeric_value (int): Nuclear excitation level of the activated
+            nucleus. For a nucleus in the ground state, isomeric_state = 0.
+    """
+
+    last_digits_str = ''
+    for char in reversed(emitted_particle_string):
+        if char.isdigit():
+            last_digits_str = char + last_digits_str
+        else:
+            break
+    isomeric_value = int(last_digits_str) if last_digits_str else 0
+    return isomeric_value
+
+def process_mt_data(mt_dict):
+    for MT, data in mt_dict.items():
+        emitted_particles = data['Reaction'].split(',')[1][:-1]
+        emission_dict = emission_breakdown(emitted_particles)
+        change_N, change_P = nucleon_changes(emission_dict)
+        M = check_for_isomer(emitted_particles)
+
+        # Conditionally remove isomer tags from emitted particle strings
+        if emitted_particles.rfind(str(M)) > 0:
+            emitted_particles = emitted_particles[:-len(str(M))]
+        
+        if change_N and change_P:
+            data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
+        else:
+            data['delKZA'] = 'N/A'
+        data['Emitted Particles'] = emitted_particles
+    
     return mt_dict
