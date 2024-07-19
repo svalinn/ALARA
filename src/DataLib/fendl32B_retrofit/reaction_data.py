@@ -60,6 +60,8 @@ def emission_breakdown(emitted_particles):
     Identify the particles and their respective counts from a particular
         nuclear decay in response to neutron activation. These tallies are
         saved in a dictionary with the name of the particles as the keys.
+        The tallying additionally works around a number of special particle
+        tags to skip past them.
 
     Arguments:
         emitted_particles (str): Particle product(s) of a neutron activation
@@ -98,6 +100,9 @@ def nucleon_changes(emission_dict):
             change in neutrons and protons in a nucleus as a result of neutron
             activation and subsequent decay. The array is in the format of
             array([neutron_change, proton_change]).
+
+            If emission_dict is empty, NP_change will be returned as an array
+            of None values, in the format array([None, None]).
     """
     
     NP_change = array([None, None])
@@ -161,9 +166,32 @@ def check_for_isomer(emitted_particle_string):
         else:
             break
     isomeric_value = int(last_digits_str) if last_digits_str else 0
+
     return isomeric_value
 
 def process_mt_data(mt_dict):
+    """
+    Read in the dictionary containing the data from mt_table.csv that is
+        imported using load_mt_data() and process the reaction data to 
+        tally the emitted particles by their respective types and calculate
+        the change in KZA associated with each reaction. Write out these
+        reaction-specific values to new keys in the dictionary.
+    
+    Arguments:
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv,
+            with the general format: {'MT' : {'Reaction' : (z , emission)}}.
+    
+    Returns:
+        mt_dict (dict): Processed dictionary containing the original data from
+            the dictionary formatted mt_table.csv, with additional information
+            on changes in KZA and emitted particles. The returned format is:
+            {'MT' : 
+                    {'Reaction'         :               (z, emission)},
+                    {'delKZA'           :       integer change in KZA},
+                    {'Emitted Particles : string of emitted particles}
+            }
+    """
+
     for MT, data in mt_dict.items():
         emitted_particles = data['Reaction'].split(',')[1][:-1]
         emission_dict = emission_breakdown(emitted_particles)
