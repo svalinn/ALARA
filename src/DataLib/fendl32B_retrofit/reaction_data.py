@@ -99,9 +99,11 @@ def nucleon_changes(emission_dict):
             activation and subsequent decay. The array is in the format of
             array([neutron_change, proton_change]).
     """
-
-    #                  delta N        delta P
-    NP_change = array([1       ,      0      ])  # neutron activation
+    
+    NP_change = array([None, None])
+    if emission_dict:
+        #                  delta N        delta P
+        NP_change = array([1       ,      0      ])  # neutron activation
 
         for particle, count in emission_dict.items():
             NP_change += count * NP_dict[particle]
@@ -172,7 +174,7 @@ def process_mt_data(mt_dict):
         if emitted_particles.rfind(str(M)) > 0:
             emitted_particles = emitted_particles[:-len(str(M))]
         
-        if change_N and change_P:
+        if change_N is not None and change_P is not None:
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
         else:
             data['delKZA'] = 'N/A'
