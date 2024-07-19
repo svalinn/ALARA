@@ -17,11 +17,7 @@ NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
     'total', 'z0', 'nonelas.', 'anything', 'contin.',
-<<<<<<< HEAD
     'fission', 'f', 'RES', 'X', 'disap', 'abs'
-=======
-    'fission', 'f', 'RES', 'X', 'disap', 'abs', 'c'
->>>>>>> e9e449c (First commit for MT data preprocessing with tests.)
     ]
 
 def count_emitted_particles(particle, emitted_particle_string):
@@ -79,8 +75,8 @@ def emission_breakdown(emitted_particles):
     emission_dict = {
         particle: count_emitted_particles(particle, emitted_particles)
         for particle in NP_dict.keys()
-        if particle in emitted_particles and all(
-            spec_case not in emitted_particles for spec_case in spec_reactions
+        if particle in emitted_particles and not any(
+            spec_case in emitted_particles for spec_case in spec_reactions
         )
     }
     
@@ -102,17 +98,14 @@ def nucleon_changes(emission_dict):
             change in neutrons and protons in a nucleus as a result of neutron
             activation and subsequent decay. The array is in the format of
             array([neutron_change, proton_change]).
+
+            If emission_dict is empty, NP_change will be returned as an array
+            of None values, in the format array([None, None]).
     """
-<<<<<<< HEAD
     
     NP_change = array([None, None])
     if emission_dict:
         #                  delta N        delta P
-=======
-    NP_change = array([None , None])
-    if emission_dict:
-        #                   delta N        delta P
->>>>>>> e9e449c (First commit for MT data preprocessing with tests.)
         NP_change = array([1       ,      0      ])  # neutron activation
 
         for particle, count in emission_dict.items():
@@ -154,7 +147,6 @@ def check_for_isomer(emitted_particle_string):
         if the string of a reaction product ends with a digit,
         that signifies the excitation state of the nucleus, so 
         this function looks for and stores these values.
-
     Arguments:
         emitted_particle_string (str): Particle product(s) of the neutron
             activation.
@@ -171,9 +163,32 @@ def check_for_isomer(emitted_particle_string):
         else:
             break
     isomeric_value = int(last_digits_str) if last_digits_str else 0
+
     return isomeric_value
 
 def process_mt_data(mt_dict):
+    """
+    Read in the dictionary containing the data from mt_table.csv that is
+        imported using load_mt_data() and process the reaction data to 
+        tally the emitted particles by their respective types and calculate
+        the change in KZA associated with each reaction. Write out these
+        reaction-specific values to new keys in the dictionary.
+    
+    Arguments:
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv,
+            with the general format: {'MT' : {'Reaction' : (z , emission)}}.
+    
+    Returns:
+        mt_dict (dict): Processed dictionary containing the original data from
+            the dictionary formatted mt_table.csv, with additional information
+            on changes in KZA and emitted particles. The returned format is:
+            {'MT' : 
+                    {'Reaction'         :               (z, emission)},
+                    {'delKZA'           :       integer change in KZA},
+                    {'Emitted Particles : string of emitted particles}
+            }
+    """
+
     for MT, data in mt_dict.items():
         emitted_particles = data['Reaction'].split(',')[1][:-1]
         emission_dict = emission_breakdown(emitted_particles)
@@ -183,15 +198,11 @@ def process_mt_data(mt_dict):
         # Conditionally remove isomer tags from emitted particle strings
         if emitted_particles.rfind(str(M)) > 0:
             emitted_particles = emitted_particles[:-len(str(M))]
-        
-<<<<<<< HEAD
+
         if change_N is not None and change_P is not None:
-=======
-        if change_N and change_P:
->>>>>>> e9e449c (First commit for MT data preprocessing with tests.)
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
         else:
             data['delKZA'] = 'N/A'
         data['Emitted Particles'] = emitted_particles
-    
+
     return mt_dict
