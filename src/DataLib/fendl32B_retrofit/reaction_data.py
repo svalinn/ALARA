@@ -14,6 +14,74 @@ NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
              'γ'     : array([ 0      ,      0      ])  # gamma emission
 }
 
+# Track edge cases of unquantifiable MT reaction types
+spec_reactions = [
+    'total', 'z0', 'nonelas.', 'anything', 'contin.',
+    'fission', 'f', 'RES', 'X', 'disap', 'abs',
+    ]
+
+def count_emitted_particles(particle, emitted_particle_string):
+    """
+    Count emitted particles from a reaction given a target particle
+        and the particles produced in a neutron activation reaction.
+
+    Arguments:
+        particle (str): Name of the target particle produced in the reaction.
+            Options include n, p, alpha, d, t, and 3He, corresponding to
+            neutrons, protons, alpha particles, deuterons, tritons,
+            and helium-3 nuclides.
+        emitted_particle_string (str): Particle product(s) of the neutron
+            activation, of the format 'p' for a single proton for example or
+            '2n' for two neutrons etc.
+
+    Returns:
+        particle_count (int): Count of the target particle present in
+            the product.
+    """
+
+    num_str = ''
+    particle_count_index = emitted_particle_string.find(particle) - 1
+    while (particle_count_index >=0 and
+           emitted_particle_string[particle_count_index].isdigit()):
+            num_str = emitted_particle_string[particle_count_index] + num_str
+            particle_count_index -= 1
+
+    if num_str:
+        particle_count = int(num_str)
+    elif particle in emitted_particle_string:
+        particle_count = 1
+    else:
+        particle_count = 0
+    
+    return particle_count
+
+def emission_breakdown(emitted_particles):
+    """
+    Identify the particles and their respective counts from a particular
+        nuclear decay in response to neutron activation. These tallies are
+        saved in a dictionary with the name of the particles as the keys.
+
+    Arguments:
+        emitted_particles (str): Particle product(s) of a neutron activation
+            reaction formatted in a singular string (i.e. np for a 
+            (neutron, proton) emission.
+
+    Returns:
+        emission_dict (dict): Dictionary containing each individual particle
+            type and their respetive counts. For an np emission, this would
+            read out as {'n': 1, 'p': 1}.
+    """
+
+    emission_dict = {
+        particle: count_emitted_particles(particle, emitted_particles)
+        for particle in NP_dict.keys()
+        if particle in emitted_particles and not any(
+            spec_case in emitted_particles for spec_case in spec_reactions
+        )
+    }
+    
+    return emission_dict
+
 def nucleon_changes(emission_dict):
     """
     Calculate the change in neutrons and protons in a nucleus in response to
@@ -31,12 +99,14 @@ def nucleon_changes(emission_dict):
             activation and subsequent decay. The array is in the format of
             array([neutron_change, proton_change]).
     """
+    
+    NP_change = array([None , None])
+    if emission_dict:
+        #                  delta N        delta P
+        NP_change = array([1       ,      0      ])  # neutron activation
 
-    #                  delta N        delta P
-    NP_change = array([1       ,      0      ])  # neutron activation
-
-    for particle, count in emission_dict.items():
-        NP_change += count * NP_dict[particle]
+        for particle, count in emission_dict.items():
+            NP_change += count * NP_dict[particle]
         
     return NP_change
 
@@ -66,4 +136,3 @@ def load_mt_table(csv_path):
             mt_dict[row['MT']] = {'Reaction' : row['Reaction']}
 
     return mt_dict
-
