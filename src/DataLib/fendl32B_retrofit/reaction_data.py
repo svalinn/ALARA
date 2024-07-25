@@ -60,8 +60,6 @@ def emission_breakdown(emitted_particles):
     Identify the particles and their respective counts from a particular
         nuclear decay in response to neutron activation. These tallies are
         saved in a dictionary with the name of the particles as the keys.
-        The tallying additionally works around a number of special particle
-        tags to skip past them.
 
     Arguments:
         emitted_particles (str): Particle product(s) of a neutron activation
@@ -77,8 +75,8 @@ def emission_breakdown(emitted_particles):
     emission_dict = {
         particle: count_emitted_particles(particle, emitted_particles)
         for particle in NP_dict.keys()
-        if particle in emitted_particles and all(
-            spec_case not in emitted_particles for spec_case in spec_reactions
+        if particle in emitted_particles and not any(
+            spec_case in emitted_particles for spec_case in spec_reactions
         )
     }
     
