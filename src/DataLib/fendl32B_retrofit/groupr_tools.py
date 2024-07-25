@@ -1,3 +1,6 @@
+# Import packages
+from string import Template
+
 # Define constants
 NENDF = 20 # unit for endf tape
 NPEND = 21 # unit for pendf tape
@@ -16,7 +19,46 @@ SIGZ = 0 # sigma zero values (including infinity)
 MFD = 3 # file to be processed
 MATD = 0 # next mat number to be processed
 
-def groupr_static_template():
+# Define a dictionary template for GROUPR
+cards = {
+    1  :                         [NENDF, NPEND, NGOUT1, NGOUT2],
+    2  : ['$mat_id', IGN, IGG, IWT, LORD, NTEMP, NSIGZ, IPRINT],
+    3  :                                             ['$title'],
+    4  :                                                 [TEMP],
+    5  :                                                 [SIGZ], 
+    9  :                                         ['$reactions'],
+    10 :                                                 [MATD]
+}
+
+def format_card(card_number, card_content):
+    """
+    Format individual "cards" for the NJOY input cards to run with GROUPR.
+        Formatting and terminology based on the NJOY user manual:
+        (https://github.com/njoy/NJOY2016-manual/raw/master/njoy16.pdf)
+
+    Arguments:
+        card_number (int): Individual identifier of "card" in input "deck".
+        card_content (list): Values to be written on each individual "card".
+        MTs (list of int): List of reaction types (MT's) present in the
+            ENDF/PENDF files.
+    
+    Returns:
+        card_str (str): Concatenated string of an individual "card's"
+            contents. 
+    """
+    
+    # Initialize string and concatenate contents of the card with it
+    card_str = ''
+    gen_str = ' ' + ' '.join(map(str, card_content))
+    if card_number == 9:
+        card_str = ' ' + '/\n '.join(card_content) + '/\n'
+    elif card_number == 4:
+        card_str += gen_str + '\n'
+    else:
+        card_str += gen_str + '/\n'
+    return card_str
+
+def establish_static_template():
 
     """
     Formulate a static string that serves as a template for an NJOY input file
@@ -24,30 +66,22 @@ def groupr_static_template():
         constants, as are necessary for a GROUPR run to write a group-wise 
         nuclear data file (GENDF) based on the ENDF and PENDF files with a 
         Vitamin-J 175 groupr structure and a Vitamin-E weighting function.
-        There are certain components that need to be added separately to the
-        formattted string, including the material ID, as the 0th element of
-        Card 2, the title for Card 3, and the reaction data for Card 9. These
-        values are isotope and file specific, so are not included in this
-        general template.
+        There are certain variable components whose values can be substituted
+        in for the current fillers using the string.substitute() method.
 
     Arguments:
         None
     Returns:
-        cards (dict): Dictionary containing each "card" identified by its card
-            number, containing the static input data.
-    """
+        input_template (string.Template): A static string template containing
+            the general structure of the NJOY input file to run GROUPR,
+            $identifiers for substitutable items
+            (https://docs.python.org/3.4/library/string.html#template-strings)
+        """
 
-    cards = {}
-    
-    cards[1] = [NENDF, NPEND, NGOUT1, NGOUT2]
-    # Need to add mat_id as 0th element
-    cards[2] = [IGN, IGG, IWT, LORD, NTEMP, NSIGZ, IPRINT]
-    # Need to add title
-    cards[3] = []
-    cards[4] = [TEMP]
-    cards[5] = [SIGZ]
-    # Need to add specific reactions
-    cards[9] = []
-    cards[10] = [MATD]
+    input_string = 'groupr\n'
+    for card_num, card in cards.items():
+        input_string += format_card(card_num, card)
+    input_string += ' 0/\nstop'
+    input_template = Template(input_string)
 
-    return cards
+    return input_template
