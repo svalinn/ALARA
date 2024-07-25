@@ -17,7 +17,11 @@ NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
     'total', 'z0', 'nonelas.', 'anything', 'contin.',
+<<<<<<< HEAD
     'fission', 'f', 'RES', 'X', 'disap', 'abs'
+=======
+    'fission', 'f', 'RES', 'X', 'disap', 'abs', 'c'
+>>>>>>> e9e449c (First commit for MT data preprocessing with tests.)
     ]
 
 def count_emitted_particles(particle, emitted_particle_string):
@@ -99,10 +103,16 @@ def nucleon_changes(emission_dict):
             activation and subsequent decay. The array is in the format of
             array([neutron_change, proton_change]).
     """
+<<<<<<< HEAD
     
     NP_change = array([None, None])
     if emission_dict:
         #                  delta N        delta P
+=======
+    NP_change = array([None , None])
+    if emission_dict:
+        #                   delta N        delta P
+>>>>>>> e9e449c (First commit for MT data preprocessing with tests.)
         NP_change = array([1       ,      0      ])  # neutron activation
 
         for particle, count in emission_dict.items():
@@ -174,7 +184,11 @@ def process_mt_data(mt_dict):
         if emitted_particles.rfind(str(M)) > 0:
             emitted_particles = emitted_particles[:-len(str(M))]
         
+<<<<<<< HEAD
         if change_N is not None and change_P is not None:
+=======
+        if change_N and change_P:
+>>>>>>> e9e449c (First commit for MT data preprocessing with tests.)
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
         else:
             data['delKZA'] = 'N/A'
