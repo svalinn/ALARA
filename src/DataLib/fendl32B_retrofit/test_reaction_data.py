@@ -91,4 +91,3 @@ def test_process_mt_data(mt_data_csv, exp):
     dir = './files_for_tests'
     obs = rxd.process_mt_data(rxd.load_mt_table(f'{dir}/{mt_data_csv}'))
     assert obs == exp
-
