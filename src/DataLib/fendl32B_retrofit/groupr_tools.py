@@ -136,7 +136,7 @@ def fill_input_template(material_id, MTs, element, A, mt_dict, template):
     card9_lines = []
     for i, MT in enumerate(MTs):
         mtname = mt_dict[str(MT)]['Reaction']
-        card9_line = f'3 {MT} "{mtname}" '
+        card9_line = f'{MFD} {MT} "{mtname}" '
         
         # Include a "/" at the end of each line except for the last line,
         # which will already have one automatically from the template
