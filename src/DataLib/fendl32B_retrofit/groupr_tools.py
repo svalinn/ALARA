@@ -20,7 +20,7 @@ MFD = 3                                                # file to be processed
 MATD = 0                                    # next mat number to be processed
 
 # Create input file general template
-njoy_input = Template(
+njoy_template = Template(
     """
     groupr/
      $NENDF $NPEND $NGOUT1 $NGOUT2/
@@ -52,7 +52,7 @@ elements = [
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
-def fill_input_template(material_id, MTs, element, A, mt_dict, template): 
+def fill_input_template(material_id, MTs, element, A, mt_dict): 
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
         into the template for the NJOY input card. These values are the
@@ -91,7 +91,7 @@ def fill_input_template(material_id, MTs, element, A, mt_dict, template):
         card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
     card9 = '\n '.join(card9_lines)
     
-    return template.substitute(
+    return njoy_template.substitute(
         NENDF=NENDF, NPEND=NPEND, NGOUT1=NGOUT1, NGOUT2=NGOUT2, # Card 1
         mat_id=material_id, IGN=IGN, IGG=IGG, IWT=IWT,          # Card 2
         LORD=LORD, NTEMP=NTEMP, NSIGZ=NSIGZ, IPRINT=IPRINT,     # Card 2 cont.
