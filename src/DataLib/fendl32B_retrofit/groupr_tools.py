@@ -88,20 +88,13 @@ def fill_input_template(material_id, MTs, element, A, mt_dict, template):
     card9_lines = []
     for i, MT in enumerate(MTs):
         mtname = mt_dict[str(MT)]['Reaction']
-        card9_line = f'{MFD} {MT} "{mtname}" '
-        
-        # Include a "/" at the end of each line except for the last line,
-        # which will already have one automatically from the template
-        if i != len(MTs) - 1:
-            card9_line += '/'
-        card9_lines.append(card9_line)
-    
+        card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
     card9 = '\n '.join(card9_lines)
     
     return template.substitute(
         NENDF=NENDF, NPEND=NPEND, NGOUT1=NGOUT1, NGOUT2=NGOUT2, # Card 1
         mat_id=material_id, IGN=IGN, IGG=IGG, IWT=IWT,          # Card 2
-        LORD=LORD, NTEMP=NTEMP, NSIGZ=NSIGZ, IPRINT=IPRINT,     # Card 2
+        LORD=LORD, NTEMP=NTEMP, NSIGZ=NSIGZ, IPRINT=IPRINT,     # Card 2 cont.
         title=title,                                            # Card 3
         TEMP=TEMP,                                              # Card 4
         SIGZ=SIGZ,                                              # Card 5
