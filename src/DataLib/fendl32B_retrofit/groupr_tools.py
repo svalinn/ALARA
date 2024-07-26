@@ -85,6 +85,7 @@ def establish_static_template():
 
     Arguments:
         None
+
     Returns:
         input_template (string.Template): A static string template containing
             the general structure of the NJOY input file to run GROUPR,
@@ -151,3 +152,17 @@ def fill_input_template(material_id, MTs, element, A, mt_dict, template):
         title = title,
         reactions = card9
     )
+
+def write_njoy_input_file(template):
+    """
+    Write out the NJOY GROUPR input card from the prefilled template.
+
+    Arguments:
+        template (string.Template): A filled template containing all of the
+            parameters to be written out to the NJOY input card.
+    Returns:
+        None
+    """
+
+    with open('groupr.inp', 'w') as f:
+        f.write(template)
