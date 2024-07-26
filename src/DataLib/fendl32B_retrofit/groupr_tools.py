@@ -217,7 +217,7 @@ def ensure_gendf_markers(gendf_path, matb):
     with open(gendf_path, 'w') as gendf_file:
         gendf_file.write(new_file_str)
 
-def run_njoy(element, A, matb, title):
+def run_njoy(element, A, matb):
     """
     Use subprocess to run NJOY given a pre-written input card to convert a
         pair of ENDF and PENDF files to a GENDF file and save it locally.
