@@ -21,13 +21,13 @@ MATD = 0                                    # next mat number to be processed
 
 # Define a dictionary template for GROUPR
 cards = {
-    1  :                         [NENDF, NPEND, NGOUT1, NGOUT2],
-    2  : ['$mat_id', IGN, IGG, IWT, LORD, NTEMP, NSIGZ, IPRINT],
-    3  :                                             ['$title'],
-    4  :                                                 [TEMP],
-    5  :                                                 [SIGZ], 
-    9  :                                         ['$reactions'],
-    10 :                                                 [MATD]
+    1                :                         [NENDF, NPEND, NGOUT1, NGOUT2],
+    2                : ['$mat_id', IGN, IGG, IWT, LORD, NTEMP, NSIGZ, IPRINT],
+    3                :                                             ['$title'],
+    4                :                                                 [TEMP],
+    5                :                                                 [SIGZ], 
+    9                :                                         ['$reactions'],
+    10               :                                                 [MATD]
 }
 
 # Dictionary of elements in the Periodic Table
