@@ -137,8 +137,10 @@ def load_mt_table(csv_path):
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             mt_dict[row['MT']] = {'Reaction' : row['Reaction']}
-
-    return mt_dict
+    if mt_dict:
+        return mt_dict
+    else:
+        raise Exception('CSV file is empty or missing.')
 
 def check_for_isomer(emitted_particle_string):
     """
@@ -193,14 +195,15 @@ def process_mt_data(mt_dict):
     for MT, data in mt_dict.items():
         emitted_particles = data['Reaction'].split(',')[1][:-1]
         emission_dict = emission_breakdown(emitted_particles)
-        change_N, change_P = nucleon_changes(emission_dict)
+        change_NP = list(nucleon_changes(emission_dict))
         M = check_for_isomer(emitted_particles)
 
         # Conditionally remove isomer tags from emitted particle strings
         if emitted_particles.rfind(str(M)) > 0:
             emitted_particles = emitted_particles[:-len(str(M))]
         
-        if change_N is not None and change_P is not None:
+        if change_NP != [None, None]:
+            change_N, change_P = change_NP
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
         else:
             data['delKZA'] = 'N/A'
