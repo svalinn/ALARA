@@ -20,7 +20,7 @@ MFD = 3 # file to be processed
 MATD = 0 # next mat number to be processed
 
 # Create input file general template
-njoy_input = Template(
+njoy_input = Template(Template(
     """
     groupr/
      $NENDF $NPEND $NGOUT1 $NGOUT2/
@@ -33,4 +33,11 @@ njoy_input = Template(
      0/
     stop
     """
-)
+).safe_substitute(
+    NENDF = NENDF, NPEND = NPEND, NGOUT1 = NGOUT1, NGOUT2 = NGOUT2, # Card 1
+    IGN = IGN, IGG = IGG, IWT = IWT, LORD = LORD,                   # Card 2
+    NTEMP = NTEMP, NSIGZ = NSIGZ, IPRINT = IPRINT,                  # Card 2
+    TEMP = TEMP,                                                    # Card 4
+    SIGZ = SIGZ,                                                    # Card 5
+    MATD = MATD                                                     # Card 10
+))
