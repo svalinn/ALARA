@@ -35,6 +35,7 @@ njoy_template = Template(
     """
 )
 
+
 # Dictionary of elements in the Periodic Table
 elements = [
     'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
