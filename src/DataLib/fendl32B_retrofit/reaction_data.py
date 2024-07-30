@@ -103,7 +103,7 @@ def nucleon_changes(emission_dict):
             of None values, in the format array([None, None]).
     """
     
-    NP_change = array([None, None])
+    NP_change = None
     if emission_dict:
         #                  delta N        delta P
         NP_change = array([1       ,      0      ])  # neutron activation
@@ -195,14 +195,14 @@ def process_mt_data(mt_dict):
     for MT, data in mt_dict.items():
         emitted_particles = data['Reaction'].split(',')[1][:-1]
         emission_dict = emission_breakdown(emitted_particles)
-        change_NP = list(nucleon_changes(emission_dict))
+        change_NP = nucleon_changes(emission_dict)
         M = check_for_isomer(emitted_particles)
 
         # Conditionally remove isomer tags from emitted particle strings
-        if emitted_particles.rfind(str(M)) > 0:
+        if M > 0:
             emitted_particles = emitted_particles[:-len(str(M))]
         
-        if change_NP != [None, None]:
+        if change_NP is not None:
             change_N, change_P = change_NP
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
         else:
