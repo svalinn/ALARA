@@ -14,10 +14,7 @@ def main():
     pendf_path = 'files_for_tests/pendf_test1.pendf'
 
     material_id, MTs = tpp.extract_endf_specs(endf_path)
-    njoy_template = groupr_tools.establish_static_template()
-    njoy_template = groupr_tools.fill_input_template(material_id, MTs, 'Fe', 56, mt_dict, njoy_template)
-    groupr_tools.write_njoy_input_file(njoy_template)
-    groupr_tools.run_njoy('Fe', 56, material_id)
+    njoy_input = groupr_tools.fill_input_template(material_id, MTs, 'Fe', 56, mt_dict)
 
 if __name__ == '__main__':
     main()

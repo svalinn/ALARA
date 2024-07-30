@@ -136,7 +136,7 @@ def load_mt_table(csv_path):
     with open(csv_path, 'r') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
-            mt_dict[row['MT']] = {'Reaction' : row['Reaction']}
+            mt_dict[int(row['MT'])] = {'Reaction' : row['Reaction']}
     if mt_dict:
         return mt_dict
     else:
