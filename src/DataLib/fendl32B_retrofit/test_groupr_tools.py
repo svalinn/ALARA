@@ -17,8 +17,7 @@ mt_dict = rxd.process_mt_data(rxd.load_mt_table('mt_table.csv'))
             'Fe',
             56,
             mt_dict,
-            '''
-groupr/
+            '''groupr/
  20 21 0 31/
  2631 17 0 11 0 1 1 1/
  "26-Fe-56 for TENDL 2017"/
