@@ -200,3 +200,21 @@ def run_njoy(element, A, matb):
         ensure_gendf_markers(gendf_path, matb)
 
         return gendf_path
+    
+def cleanup_njoy_files(output_path = 'njoy_ouput'):
+    """
+    Clean up repository from unnecessary intermediate files from NJOY run.
+
+    Arguments:
+        output_path (str, optional): The save path for the NJOY output.
+            Defaults to 'njoy_output', which will save the file in the
+            same directory as all other saved files from the script run.
+    
+    Returns:
+        None
+    """
+
+    njoy_files = [f'groupr.inp', 'tape20', 'tape21', 'tape31']
+    for file in njoy_files:
+        subprocess.run(['rm', file])
+    subprocess.run(['mv', 'output', output_path])
