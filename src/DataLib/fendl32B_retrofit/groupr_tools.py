@@ -3,8 +3,7 @@ from string import Template
 
 # Create input file general template
 njoy_input = Template(Template(
-"""
-groupr/
+"""groupr/
  $NENDF $NPEND $NGOUT1 $NGOUT2/
  $mat_id $IGN $IGG $IWT $LORD $NTEMP $NSIGZ $IPRINT/
  $title/
@@ -100,7 +99,7 @@ def write_njoy_input_file(template):
     Write out the NJOY GROUPR input card from the prefilled template.
 
     Arguments:
-        template (str): A filled template containing all of the
+        template (str): A filled template string containing all of the
             parameters to be written out to the NJOY input card.
     Returns:
         None
