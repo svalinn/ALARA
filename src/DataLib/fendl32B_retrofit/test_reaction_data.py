@@ -53,34 +53,34 @@ def test_nucleon_changes(emission_dict, exp):
     "mt_data_csv, exp",
     [
         ('mt_test1.csv', {
-            '11': {
+            11: {
                 'Reaction': '(z,2nd)',
                 'delKZA': -10030,
                 'Emitted Particles': '2nd'
             }
         }),
         ('mt_test2.csv', {
-            '1': {
+            1: {
                 'Reaction': '(n,total)',
                 'delKZA': 'N/A',
                 'Emitted Particles': 'total'
             },
-            '30': {
+            30: {
                 'Reaction': '(z,2n2α)',
                 'delKZA': -40090,
                 'Emitted Particles': '2n2α'
             },
-            '106': {
+            106: {
                 'Reaction': '(z,3He)',
                 'delKZA': -20020,
                 'Emitted Particles': '3He'
             },
-            '207': {
+            207: {
                 'Reaction': '(z,Xα)',
                 'delKZA': 'N/A',
                 'Emitted Particles': 'Xα'
             },
-            '700': {
+            700: {
                 'Reaction': '(z,t1)',
                 'delKZA': -10019,
                 'Emitted Particles': 't'
