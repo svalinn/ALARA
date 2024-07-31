@@ -75,8 +75,9 @@ def fill_input_template(material_id, MTs, element, A, mt_dict):
             establish_static_template().
     
     Returns:
-        template (string.Template): Modified template with the material-
-            specific information substituted in for the $identifiers.
+        template (str): Modified template with the material-
+            specific information substituted in for the $identifiers,
+            converted to a string.
     """
 
     Z = str(elements[element]).zfill(2)
