@@ -100,7 +100,7 @@ def write_njoy_input_file(template):
     Write out the NJOY GROUPR input card from the prefilled template.
 
     Arguments:
-        template (string.Template): A filled template containing all of the
+        template (str): A filled template containing all of the
             parameters to be written out to the NJOY input card.
     Returns:
         None

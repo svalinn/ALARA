@@ -15,6 +15,7 @@ def main():
 
     material_id, MTs = tpp.extract_endf_specs(endf_path)
     njoy_input = groupr_tools.fill_input_template(material_id, MTs, 'Fe', 56, mt_dict)
+    groupr_tools.write_njoy_input_file(njoy_input)
 
 if __name__ == '__main__':
     main()
