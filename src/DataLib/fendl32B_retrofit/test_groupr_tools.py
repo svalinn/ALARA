@@ -2,7 +2,6 @@
 import pytest
 import groupr_tools
 import reaction_data as rxd
-from string import Template
 
 mt_dict = rxd.process_mt_data(rxd.load_mt_table('mt_table.csv'))
 
