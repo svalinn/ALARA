@@ -3,12 +3,9 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
-<<<<<<< HEAD
-=======
 
 # Define constant(s)
 INPUT = 'groupr.inp'
->>>>>>> upstream/main
 
 # Create input file general template
 njoy_input = Template(Template(
@@ -118,27 +115,15 @@ def write_njoy_input_file(template):
     with open(INPUT, 'w') as f:
         f.write(template)
 
-<<<<<<< HEAD
 def insert_after_identifier(file_str, identifier, new_line):
     """
     Insert a new line immediately after the last occurrence of a line
     containing the specified identifier in the file string.
-=======
-def insert_after_identifier(file_str, identifier, record_for_insertion):
-    """
-    Insert a new line immediately after the last occurrence of a line
-        containing the specified identifier in the file string.
->>>>>>> upstream/main
 
     Arguments:
         file_str (str): The content of the GENDF file as a string.
         identifier (str): The identifier to search for in the file content.
-<<<<<<< HEAD
         new_line (str): The new line to insert after the identified line.
-=======
-        record_for_insertion (str): The content to insert after the identified
-            line.
->>>>>>> upstream/main
 
     Returns:
         file_str (str): The (potentially) updated content of the GENDF file.
@@ -147,18 +132,37 @@ def insert_after_identifier(file_str, identifier, record_for_insertion):
     pattern = f'({re.escape(identifier)}.*?\n)'
     matches = list(re.finditer(pattern, file_str))
     if matches:
-<<<<<<< HEAD
         last_match = matches[-1]
         insert_position = last_match.end()
         file_str = (
             file_str[:insert_position] + new_line
             + '\n' + file_str[insert_position:]
-=======
+        )
+
+    return file_str
+
+def insert_after_identifier(file_str, identifier, record_for_insertion):
+    """
+    Insert a new line immediately after the last occurrence of a line
+        containing the specified identifier in the file string.
+
+    Arguments:
+        file_str (str): The content of the GENDF file as a string.
+        identifier (str): The identifier to search for in the file content.
+        record_for_insertion (str): The content to insert after the identified
+            line.
+
+    Returns:
+        file_str (str): The (potentially) updated content of the GENDF file.
+    """
+
+    pattern = f'({re.escape(identifier)}.*?\n)'
+    matches = list(re.finditer(pattern, file_str))
+    if matches:
         insert_position = matches[-1].end()
         file_str = (
             file_str[:insert_position] + record_for_insertion
             + file_str[insert_position:]
->>>>>>> upstream/main
         )
 
     return file_str
@@ -205,13 +209,10 @@ def ensure_gendf_markers(gendf_path, matb):
     mf1_identifier = f'{matb} 1451   '
     mf3_identifier = f'{matb} 3  099999'
     matb = str(matb).zfill(4)
-<<<<<<< HEAD
     mf1_SEND_RECORD = f'{whitespace}{matb} 1  099999'
     mf3_FEND_RECORD = f'{whitespace}{matb} 0  0    0'
-=======
     mf1_SEND_RECORD = f'{whitespace}{matb} 1  099999 \n'
     mf3_FEND_RECORD = f'{whitespace}{matb} 0  0    0 \n'
->>>>>>> upstream/main
 
     updates = [
         (mf3_identifier, mf3_FEND_RECORD),
@@ -221,14 +222,14 @@ def ensure_gendf_markers(gendf_path, matb):
     with open(gendf_path, 'r') as gendf_file:
         file_str = gendf_file.read()
 
-<<<<<<< HEAD
     for identifier, new_line in updates:
         file_str = insert_after_identifier(file_str, identifier, new_line)
-=======
+    with open(gendf_path, 'r') as gendf_file:
+        file_str = gendf_file.read()
+
     for identifier, record_for_insertion in updates:
         file_str = insert_after_identifier(file_str, identifier,
                                            record_for_insertion)
->>>>>>> upstream/main
 
     with open(gendf_path, 'w') as gendf_file:
         gendf_file.write(file_str)
@@ -253,15 +254,16 @@ def run_njoy(element, A, matb):
         gendf_path (str): File path to the newly created GENDF file. 
     """
 
+    # Define the input files
+    INPUT = 'groupr.inp'
+    OUTPUT = 'groupr.out'
+
     # Run NJOY
-<<<<<<< HEAD
     with open(OUTPUT, 'w') as output_file:
         result = subprocess.run(['njoy'], input=open(INPUT).read(),
                             text=True, stdout=output_file)
-=======
     result = subprocess.run(['njoy'], input=open(INPUT).read(),
                         text=True, capture_output=True)
->>>>>>> upstream/main
 
     # If the run is successful, log out the output
     # and make a copy of the file as a .GENDF file
