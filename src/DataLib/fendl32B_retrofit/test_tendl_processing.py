@@ -1,6 +1,6 @@
 # Import packages
 import pytest
-import tendl_preprocessing as tpp
+import tendl_processing as tp
 
 dir = './files_for_tests'
 
@@ -16,9 +16,19 @@ dir = './files_for_tests'
     ]
 )
 def test_extract_endf_specs(endf_file, exp):
-    obs = tpp.extract_endf_specs(f'{dir}/{endf_file}')
+    obs = tp.extract_endf_specs(f'{dir}/{endf_file}')
     assert obs == exp
 
 def test_extract_endf_specs_empty_endf():
     with pytest.raises(Exception, match='std::exception'):
-        tpp.extract_endf_specs(f'{dir}/endf_test2.tendl')
+        tp.extract_endf_specs(f'{dir}/endf_test2.tendl')
+
+@pytest.mark.parametrize(
+    "gendf_file, exp",
+    [
+        ('gendf_test1.gendf', 260560)
+    ]
+)
+def test_extract_gendf_pkza(gendf_file, exp):
+    obs = tp.extract_gendf_pkza(f'{dir}/{gendf_file}')
+    assert obs == exp
