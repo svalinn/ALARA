@@ -1,6 +1,8 @@
 # Import packages
 from string import Template
 import subprocess
+from pathlib import Path
+import re
 
 # Create input file general template
 njoy_input = Template(Template(
@@ -11,7 +13,7 @@ njoy_input = Template(Template(
  $TEMP
  $SIGZ/
  $reactions
- $MATD
+ $MATD/
  0/
 stop
 """
@@ -110,16 +112,57 @@ def write_njoy_input_file(template):
     with open('groupr.inp', 'w') as f:
         f.write(template)
 
+def insert_after_identifier(file_str, identifier, new_line):
+    """
+    Insert a new line immediately after the last occurrence of a line
+    containing the specified identifier in the file string.
+
+    Arguments:
+        file_str (str): The content of the GENDF file as a string.
+        identifier (str): The identifier to search for in the file content.
+        new_line (str): The new line to insert after the identified line.
+
+    Returns:
+        file_str (str): The (potentially) updated content of the GENDF file.
+    """
+
+    pattern = f'({re.escape(identifier)}.*?\n)'
+    matches = list(re.finditer(pattern, file_str))
+    if matches:
+        last_match = matches[-1]
+        insert_position = last_match.end()
+        file_str = (
+            file_str[:insert_position] + new_line
+            + '\n' + file_str[insert_position:]
+        )
+
+    return file_str
+
 def ensure_gendf_markers(gendf_path, matb):
     """
     Edit the GENDF files produced from an NJOY GROUPR run to include file and
-    section records that are not automatically written out to the file by
-    NJOY. Missing these records will not cause errors, but will raise
-    messages when they are read by ENDFtk, which expects these markers, so
-    this method ensures that they are present. Edits will only be made if
-    the SEND record for MF1 or the FEND record for MF3 are not present.
-    The formatting for these records can be found at:
-    https://t2.lanl.gov/nis/endf/intro06.html
+        section records that are not automatically written out to the file by
+        NJOY. Missing these records will not cause errors, but will raise
+        messages when they are read by ENDFtk, which expects these markers, so
+        this method ensures that they are present. Edits will only be made if
+        the SEND record for MF1 or the FEND record for MF3 are not present.
+        
+
+        In ENDF-6 formatting, the SEND record signifies the end of a section
+        and the FEND record signifies the end of a "file". Note that the use
+        of the term "file" here refers to ENDF-6 specific terminology
+        referring to a hierarchy of files within a "tape", which in more
+        common terminology would be the ENDF, PENDF, or GENDF file itself.
+        
+
+        If missing, the MF1 SEND record will be inserted at the last line of 
+        the first section of the first "file" within the GENDF "tape".
+        Separately, if missing, the MF 3 FEND record will be inserted at the
+        end of the third "file", which will be three lines before the end of
+        the tape itself.
+
+        The formatting for these records can be found at:
+        https://t2.lanl.gov/nis/endf/intro06.html
 
     Arguments:
         gendf_path (str): File path to the newly created GENDF file.
@@ -140,24 +183,19 @@ def ensure_gendf_markers(gendf_path, matb):
     mf1_SEND_RECORD = f'{whitespace}{matb} 1  099999'
     mf3_FEND_RECORD = f'{whitespace}{matb} 0  0    0'
 
-    with open(gendf_path, 'r') as gendf_file:
-        file_str = gendf_file.read()
-    file_lines = file_str.splitlines()
-
     updates = [
         (mf3_identifier, mf3_FEND_RECORD),
         (mf1_identifier, mf1_SEND_RECORD)
     ]
 
-    for identifier, new_line in updates:
-        last_line_index = file_str.rfind(identifier)
-        line_number = file_str[:last_line_index].count('\n')
-        file_lines.insert(line_number + 1, new_line)
+    with open(gendf_path, 'r') as gendf_file:
+        file_str = gendf_file.read()
 
-    new_file_str = '\n'.join(file_lines) + '\n'
+    for identifier, new_line in updates:
+        file_str = insert_after_identifier(file_str, identifier, new_line)
 
     with open(gendf_path, 'w') as gendf_file:
-        gendf_file.write(new_file_str)
+        gendf_file.write(file_str)
 
 def run_njoy(element, A, matb):
     """
@@ -184,19 +222,15 @@ def run_njoy(element, A, matb):
     OUTPUT = 'groupr.out'
 
     # Run NJOY
-    result = subprocess.run(['njoy'], input=open(INPUT).read(),
-                            text=  True, capture_output=True)
     with open(OUTPUT, 'w') as output_file:
-        output_file.write(result.stdout)
+        result = subprocess.run(['njoy'], input=open(INPUT).read(),
+                            text=True, stdout=output_file)
 
     # If the run is successful, log out the output
     # and make a copy of the file as a .GENDF file
     if not result.stderr:
-        output = subprocess.run(['cat', 'output'],
-                                capture_output=True, text = True)
-
         gendf_path = f'tendl_2017_{element}{str(A).zfill(3)}.gendf'
-        subprocess.run(['cp', 'tape31', gendf_path])
+        Path('tape31').rename(Path(gendf_path))
         ensure_gendf_markers(gendf_path, matb)
 
         return gendf_path
@@ -204,7 +238,7 @@ def run_njoy(element, A, matb):
 def cleanup_njoy_files(output_path = 'njoy_ouput'):
     """
     Clean up repository from unnecessary intermediate files from NJOY run.
-
+    
     Arguments:
         output_path (str, optional): The save path for the NJOY output.
             Defaults to 'njoy_output', which will save the file in the
@@ -214,7 +248,7 @@ def cleanup_njoy_files(output_path = 'njoy_ouput'):
         None
     """
 
-    njoy_files = [f'groupr.inp', 'tape20', 'tape21', 'tape31']
+    njoy_files = ['groupr.inp', 'tape20', 'tape21']
     for file in njoy_files:
-        subprocess.run(['rm', file])
-    subprocess.run(['mv', 'output', output_path])
+        Path.unlink(Path(file))
+    Path('output').rename(Path(output_path))
