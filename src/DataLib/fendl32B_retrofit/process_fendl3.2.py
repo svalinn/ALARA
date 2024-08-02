@@ -17,6 +17,7 @@ def main():
     njoy_input = groupr_tools.fill_input_template(material_id, MTs, 'Fe', 56, mt_dict)
     groupr_tools.write_njoy_input_file(njoy_input)
     groupr_tools.run_njoy('Fe', 56, material_id)
+    groupr_tools.cleanup_njoy_files()
 
 if __name__ == '__main__':
     main()
