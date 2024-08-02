@@ -16,10 +16,8 @@ def main():
     material_id, MTs = tp.extract_endf_specs(endf_path)
     njoy_input = groupr_tools.fill_input_template(material_id, MTs, 'Fe', 56, mt_dict)
     groupr_tools.write_njoy_input_file(njoy_input)
-    gendf_path = groupr_tools.run_njoy('Fe', 56, material_id)
+    groupr_tools.run_njoy('Fe', 56, material_id)
     groupr_tools.cleanup_njoy_files()
-
-    pKZA = tp.extract_gendf_pkza(gendf_path)
 
 if __name__ == '__main__':
     main()
