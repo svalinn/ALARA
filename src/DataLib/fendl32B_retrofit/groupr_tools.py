@@ -247,7 +247,7 @@ def cleanup_njoy_files(output_path = 'njoy_ouput'):
         None
     """
 
-    njoy_files = ['groupr.inp', 'tape20', 'tape21']
+    njoy_files = [INPUT, 'tape20', 'tape21']
     for file in njoy_files:
         Path.unlink(Path(file))
     Path('output').rename(Path(output_path))
