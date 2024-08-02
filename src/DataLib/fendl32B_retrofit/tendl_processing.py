@@ -32,8 +32,6 @@ def extract_endf_specs(path, filetype = 'ENDF'):
     else:
         return matb, MTs
 
-    return (endf_specs)
-
 def extract_gendf_pkza(gendf_path):
     """
     Read in and parse the contents of a GENDF file to construct the parent
