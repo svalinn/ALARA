@@ -1,7 +1,7 @@
 MT,Reaction,Description
-1,"(n, total)",Neutron total cross sections.
+1,"(n,total)",Neutron total cross sections.
 2,"(z,z0)",Elastic scattering cross section for incident particles.
-3,"(z, nonelas.)",Nonelastic neutron cross section.
+3,"(z,nonelas.)",Nonelastic neutron cross section.
 4,"(z,n)",Production of one neutron in the exit channel.
 5,"(z,anything)",Sum of all reactions not given explicitly in another MT number. This is a partial reaction to be added to obtain MT=1
 10,"(z,contin.)",Total continuum reaction; includes all continuum reactions and excludes all discrete reactions.
@@ -21,7 +21,7 @@ MT,Reaction,Description
 29,"(z,n2α)","Production of a neutron and two alpha particles, plus a residual."
 30,"(z,2n2α)","Production of two neutrons and two alpha particles, plus a residual."
 32,"(z,nd)","Production of a neutron and a deuteron, plus a residual."
-33,"(z,nt) ","Production of a neutron and a triton, plus a residual."
+33,"(z,nt)","Production of a neutron and a triton, plus a residual."
 34,"(z,n3He)","Production of a neutron and a 3He particle, plus a residual."
 35,"(z,nd2α)","Production of a neutron, a deuteron, and 2 alpha particles, plus a residual."
 36,"(z,nt2α)","Production of a neutron, a triton, and 2 alpha particles, plus a residual."
