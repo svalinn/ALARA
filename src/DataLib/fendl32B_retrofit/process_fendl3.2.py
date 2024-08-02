@@ -20,6 +20,10 @@ def main():
     groupr_tools.cleanup_njoy_files()
 
     pKZA = tp.extract_gendf_pkza(gendf_path)
+    # Extract MT values again from GENDF file as there may be some difference
+    # from the original MT values in the ENDF/PENDF files
+    endftk_file_obj, MTs = tp.extract_endf_specs(gendf_path, 'GENDF')
+    gendf_data = tp.iterate_MTs(MTs, endftk_file_obj, mt_dict, pKZA)
 
 if __name__ == '__main__':
     main()
