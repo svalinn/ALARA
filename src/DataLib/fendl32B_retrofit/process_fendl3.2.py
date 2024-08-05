@@ -24,7 +24,7 @@ def main():
         pendf_path.rename(TAPE21)
 
         material_id, MTs, endftk_file_obj = tp.extract_endf_specs(TAPE20)
-        MTs = list(set(MTs).intersection(mt_dict.keys()))
+        MTs = set(MTs).intersection(mt_dict.keys())
         njoy_input = groupr_tools.fill_input_template(material_id, MTs,
                                                       element, A, mt_dict)
         groupr_tools.write_njoy_input_file(njoy_input)
