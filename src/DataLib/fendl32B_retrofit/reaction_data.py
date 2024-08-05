@@ -192,7 +192,7 @@ def process_mt_data(mt_dict):
             }
     """
 
-    for MT, data in mt_dict.items():
+    for MT, data in list(mt_dict.items()):
         emitted_particles = data['Reaction'].split(',')[1][:-1]
         emission_dict = emission_breakdown(emitted_particles)
         change_NP = nucleon_changes(emission_dict)
@@ -205,8 +205,8 @@ def process_mt_data(mt_dict):
         if change_NP is not None:
             change_N, change_P = change_NP
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
+            data['Emitted Particles'] = emitted_particles
         else:
-            data['delKZA'] = 'N/A'
-        data['Emitted Particles'] = emitted_particles
-    
+            del mt_dict[MT]
+
     return mt_dict
