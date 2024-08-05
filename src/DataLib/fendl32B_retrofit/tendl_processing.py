@@ -2,14 +2,12 @@
 import ENDFtk
 import pandas as pd
 
-def extract_endf_specs(path, filetype = 'ENDF'):
+def extract_endf_specs(path):
     """
     Extract the material ID and MT numbers from an ENDF file.
 
     Arguments:
         path (str): File path to the selected ENDF file.
-        filetype (str, optional): Either ENDF or GENDF (case insensitive).
-            Defaults to 'ENDF'.
     
     Returns:
         matb (int): Unique material ID extracted from the file.
@@ -27,10 +25,7 @@ def extract_endf_specs(path, filetype = 'ENDF'):
     # Extract the MT numbers that are present in the file
     MTs = [MT.MT for MT in file.sections.to_list()]
     
-    if filetype.lower() == 'gendf':
-        return file, MTs
-    else:
-        return matb, MTs
+    return (matb, MTs, file)
 
 def extract_gendf_pkza(gendf_path):
     """
@@ -81,7 +76,7 @@ def extract_cross_sections(file, MT):
 
     # Only every 2nd line starting at the 3rd line has cross-section data.
     lines = section.split('\n')[2:-2:2]
-
+    
     # Extract the 3rd token and convert to more conventional string
     # representation of a float
     sigma_list = [
