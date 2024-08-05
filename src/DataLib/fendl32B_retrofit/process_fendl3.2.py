@@ -14,6 +14,7 @@ def main():
     pendf_path = 'tape21'
 
     material_id, MTs, endftk_file_obj = tp.extract_endf_specs(endf_path)
+    MTs = list(set(MTs).intersection(mt_dict.keys()))
     njoy_input = groupr_tools.fill_input_template(material_id, MTs, 'Fe', 56, mt_dict)
     groupr_tools.write_njoy_input_file(njoy_input)
     gendf_path = groupr_tools.run_njoy('Fe', 56, material_id)
