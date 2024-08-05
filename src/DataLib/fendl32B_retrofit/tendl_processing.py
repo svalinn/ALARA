@@ -112,12 +112,10 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
 
     for MT in MTs:
         sigma_list = extract_cross_sections(file_obj, MT)
-        if mt_dict[MT]['delKZA'] == 'N/A':
-            dKZA = 'N/A'
-        else:
-            dKZA = pKZA - mt_dict[MT]['delKZA']
+        dKZA = pKZA + mt_dict[MT]['delKZA']
         emitted_particles = mt_dict[MT]['Emitted Particles']
         cross_sections_by_MT.append(sigma_list)
+        
         dKZAs.append(dKZA)
         emitted_particles_list.append(emitted_particles)
         groups.append(len(sigma_list))
