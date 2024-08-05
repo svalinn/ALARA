@@ -22,7 +22,7 @@ def get_isotope(stem):
     numbers = [str(char) for char in stem if char.isdigit()]
 
     if len(lower_case_letters) == 0:
-        lower_case_letters = ''
+        lower_case_letters = ['']
     elif len(lower_case_letters) > 1:
         isomer_id = lower_case_letters[-1]
         lower_case_letters = lower_case_letters[:-1]
