@@ -27,7 +27,7 @@ def get_isotope(stem):
         isomer_id = lower_case_letters[-1]
         lower_case_letters = lower_case_letters[:-1]
     
-    element = f'{upper_case_letters[0]}{lower_case_letters[0]}'
+    element = upper_case_letters[0] + lower_case_letters[0]
     A = ''.join(numbers) + isomer_id
 
     return element, A
