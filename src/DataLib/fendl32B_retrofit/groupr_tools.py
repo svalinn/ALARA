@@ -90,11 +90,10 @@ def fill_input_template(material_id, MTs, element, A, mt_dict):
     title = f'"{Z}-{element}-{A} for TENDL 2017"'
 
     card9_lines = []
-    for MT in MTs:
-        if MT in mt_dict.keys():
-            mtname = mt_dict[MT]['Reaction']
-            MFD = 3 # ENDF file tag for cross-section data
-            card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
+    MFD = 3 # ENDF file tag for cross-section data
+    for MT in MTs & mt_dict.keys():
+        mtname = mt_dict[MT]['Reaction']
+        card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
     card9 = '\n '.join(card9_lines)
     return njoy_input.substitute(
         mat_id=material_id,
