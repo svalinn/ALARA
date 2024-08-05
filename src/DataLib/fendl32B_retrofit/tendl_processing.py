@@ -2,6 +2,15 @@
 import ENDFtk
 import pandas as pd
 
+# Initialize Data Frame in which to store all extracted data
+cumulative_data = pd.DataFrame({
+    'Parent KZA'            :       [],
+    'Daughter KZA'          :       [],
+    'Emitted Particles'     :       [],
+    'Non-Zero Groups'       :       [],
+    'Cross Sections'        :       []
+    })
+
 def extract_endf_specs(path):
     """
     Extract the material ID and MT numbers from an ENDF file.
