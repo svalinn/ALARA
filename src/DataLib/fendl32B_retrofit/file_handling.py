@@ -57,16 +57,14 @@ def search_for_files(directory = '.'):
 
     file_info = {}
     for file in directory.iterdir():
-        if file.is_file():
-            if file.suffix == '.endf' or file.suffix == '.tendl':
-                endf_file = file
-                pendf_file = Path(f'{endf_file.stem}.pendf')
-                if pendf_file.is_file():
-                    element, A = get_isotope(file.stem)
-                    file_info[f'{element}{A}'] = {
-                        'Element'       :                 element,
-                        'Mass Number'   :                       A,
-                        'File Paths'    : (endf_file, pendf_file)
-                        }
-                    
+        if file.is_file() and file.suffix in ('.endf', '.tendl'):
+            pendf_file = file.with_suffix('.pendf')
+            if pendf_file.is_file():
+                element, A = get_isotope(file.stem)
+                file_info[f'{element}{A}'] = {
+                    'Element'       :            element,
+                    'Mass Number'   :                  A,
+                    'File Paths'    : (file, pendf_file)
+                }
+
     return file_info
