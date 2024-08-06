@@ -1,6 +1,65 @@
 # Import packages
 import ENDFtk
-import pandas as pd
+from pathlib import Path
+
+def get_isotope(stem):
+    """
+    Extract the element name and mass number from a given filename.
+
+    Arguments:
+        stem (str): Stem of a an ENDF (TENDL) and/or PENDF file, formatted
+            as f'{element}{mass_number}.ext'
+    Returns:
+        element (str): Chemical symbol of the isotope whose data is contained
+            in the file.
+        A (str): Mass number of the isotope, potentially including the letter
+            "m" at the end if the isotope is in a metastable state.
+    """
+
+    for i, char in enumerate(stem):
+        if char.isdigit():
+            break
+    
+    element = stem[:i]
+    A = stem[i:]       
+    
+    return element, A
+
+def search_for_files(dir = '.'):
+    """
+    Search through a directory for all pairs of ENDF (TENDL) and PENDF files
+        that have matching stems. If so, save the paths and the isotopic
+        information to a dictionary.
+    
+    Arguments:
+        directory (str, optional): Path to the directory in which to search
+            for ENDF and PENDF files.
+            Defaults to the present working directory (".").
+    Returns:
+        file_info (dict): Dictionary containing the chemical symbol, mass
+            number, and paths to the ENDF and PENDF files for a given isotope.
+            The dictionary is formatted as such:
+            {f'{element}{mass_number}' :
+                                    {'Element'} : Isotope's chemical symbol,
+                                    {'Mass Number'} : Isotope's mass number,
+                                    {'File Paths'} : (endf_path, pendf_path)
+            }
+    """
+
+    dir = Path(dir)
+
+    file_info = {}
+    for suffix in ['tendl', 'endf']:
+        for file in dir.glob(f'*.{suffix}'):
+            if file.with_suffix('.pendf').is_file():
+                element, A = get_isotope(file.stem)
+                file_info[f'{element}{A}'] = {
+                    'Element'       :                             element,
+                    'Mass Number'   :                                   A,
+                    'File Paths'    :  (file, file.with_suffix('.pendf'))
+                }
+
+    return file_info
 
 def extract_endf_specs(path):
     """
@@ -99,33 +158,23 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
         pKZA (int): Parent KZA identifier.
 
     Returns:
-        gendf_data (pandas.core.frame.DataFrame): Pandas DataFrame containing
-            parent KZA values, daughter KZA values, emitted particles,
-            counts of the number of non-zero groups in the Vitamin-J groupwise
-            structure, and the cross-section values for those groups.
+        gendf_data (list of dict): List of dictionaries containing parent KZA
+            daughter KZA values, emitted particles, counts of the number of
+            non-zero groups in the Vitamin-J groupwise structure, and the
+            cross-section values for those groups, organized by MT number.
     """
 
-    cross_sections_by_MT    =    []
-    emitted_particles_list  =    []
-    dKZAs                   =    []
-    groups                  =    []
-
+    gendf_data = []
     for MT in MTs:
         sigma_list = extract_cross_sections(file_obj, MT)
-        dKZA = pKZA + mt_dict[MT]['delKZA']
-        emitted_particles = mt_dict[MT]['Emitted Particles']
-        cross_sections_by_MT.append(sigma_list)
-        
-        dKZAs.append(dKZA)
-        emitted_particles_list.append(emitted_particles)
-        groups.append(len(sigma_list))
-
-    gendf_data = pd.DataFrame({
-        'Parent KZA'            :       [pKZA] * len(dKZAs),
-        'Daughter KZA'          :       dKZAs,
-        'Emitted Particles'     :       emitted_particles_list,
-        'Non-Zero Groups'       :       groups,
-        'Cross Sections'        :       cross_sections_by_MT
-    })
+        gendf_data.append(
+            {
+                'Parent KZA'            :                                pKZA,
+                'Daughter KZA'          :        pKZA + mt_dict[MT]['delKZA'],
+                'Emitted Particles'     :    mt_dict[MT]['Emitted Particles'],
+                'Non-Zero Groups'       :                     len(sigma_list),
+                'Cross Sections'        :                          sigma_list
+            }
+        )
 
     return gendf_data
