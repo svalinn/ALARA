@@ -50,14 +50,14 @@ def search_for_files(dir = '.'):
 
     file_info = {}
     for suffix in ['tendl', 'endf']:
-            for file in dir.glob(f'*.{suffix}'):
-                if file.with_suffix('.pendf').is_file():
-                    element, A = get_isotope(file.stem)
-                    file_info[f'{element}{A}'] = {
-                        'Element'       :                             element,
-                        'Mass Number'   :                                   A,
-                        'File Paths'    :  (file, file.with_suffix('.pendf'))
-                    }
+        for file in dir.glob(f'*.{suffix}'):
+            if file.with_suffix('.pendf').is_file():
+                element, A = get_isotope(file.stem)
+                file_info[f'{element}{A}'] = {
+                    'Element'       :                             element,
+                    'Mass Number'   :                                   A,
+                    'File Paths'    :  (file, file.with_suffix('.pendf'))
+                }
 
     return file_info
 
