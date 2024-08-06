@@ -169,7 +169,7 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
         sigma_list = extract_cross_sections(file_obj, MT)
         gendf_data.append(
             {
-                'Parent KZA'           :                                 pKZA,
+                'Parent KZA'            :                                pKZA,
                 'Daughter KZA'          :        pKZA + mt_dict[MT]['delKZA'],
                 'Emitted Particles'     :    mt_dict[MT]['Emitted Particles'],
                 'Non-Zero Groups'       :                     len(sigma_list),
