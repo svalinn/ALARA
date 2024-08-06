@@ -1,8 +1,8 @@
 # Import packages
-import shutil
 import reaction_data as rxd
 import tendl_processing as tp
 import groupr_tools
+from pathlib import Path
 from pandas import DataFrame
 
 def main():
@@ -20,8 +20,8 @@ def main():
         element = file_properties['Element']
         A = file_properties['Mass Number']
         endf_path, pendf_path = file_properties['File Paths']
-        shutil.copy(endf_path, TAPE20)
-        shutil.copy(pendf_path, TAPE21)
+        Path(TAPE20).write_bytes(endf_path.read_bytes())
+        Path(TAPE21).write_bytes(pendf_path.read_bytes())
 
         material_id, MTs, endftk_file_obj = tp.extract_endf_specs(TAPE20)
         MTs = set(MTs).intersection(mt_dict.keys())
