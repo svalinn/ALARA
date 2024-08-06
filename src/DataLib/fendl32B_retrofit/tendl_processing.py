@@ -1,16 +1,6 @@
 # Import packages
 import ENDFtk
-import pandas as pd
 from pathlib import Path
-
-# Initialize Data Frame in which to store all extracted data
-cumulative_data = pd.DataFrame({
-    'Parent KZA'            :       [],
-    'Daughter KZA'          :       [],
-    'Emitted Particles'     :       [],
-    'Non-Zero Groups'       :       [],
-    'Cross Sections'        :       []
-    })
 
 def get_isotope(stem):
     """
