@@ -143,7 +143,7 @@ def extract_cross_sections(file, MT):
         for line in lines
     ]
 
-    return sigma_list
+    return sigma_list[::-1]
 
 def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
     """
