@@ -73,9 +73,9 @@ def args():
    
    return parser.parse_args()
 
-def prepend_with_zeros(cross_sections):
+def append_with_zeros(cross_sections):
    """
-   Include zeroes into the beginning of a list such that the total length of
+   Include zeroes into the end of a list such that the total length of
       of the list is 175, corresponding to the Vitamin-J group structure.
    
    Arguments:
@@ -84,13 +84,12 @@ def prepend_with_zeros(cross_sections):
    
    Returns:
       cross_sections (list): Potentially modified list of cross sections, with
-         zeroes prepended to bring the length of the list to 175.
+         zeroes appended to bring the length of the list to 175.
    """
    
    current_length = len(cross_sections)
    zeros_needed = 175 - current_length
-   cross_sections = [0] * zeros_needed + cross_sections
-
+   cross_sections = cross_sections + [0] * zeros_needed
    return cross_sections
 
 
@@ -126,7 +125,7 @@ def fendl3_cross_sections(gendf_data_csv, element, A, emitted_particles):
    single_isotope_reaction = single_isotope_data[
       single_isotope_data['Emitted Particles'] == emitted_particles
    ]
-   cross_sections = prepend_with_zeros(list(
+   cross_sections = append_with_zeros(list(
       single_isotope_reaction['Cross Sections'].apply(literal_eval)
    )[0])
    
@@ -162,7 +161,7 @@ def fendl2_cross_sections(element, A, emitted_particles, dir = '.'):
          if value:
             cross_sections.append(float(value))
     
-   return np.array(prepend_with_zeros(cross_sections))
+   return np.array(append_with_zeros(cross_sections))
 
 def replace_with_greek(emitted_particles):
    """
