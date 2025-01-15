@@ -250,7 +250,7 @@
       problem will generate an error. <br>
       Since this method of defining the geometry calculates the fine mesh intervals'<font size="-3"><a href="glossarytext.html#fmi">[G]</a></font> 
       zone membership and volume from the <a href="#dim">dimension</a> data, it 
-      is incompatible with the <a href="#vol">volumes</a> input block. Including 
+      is <b>incompatible</b> with the <a href="#vol">volumes</a> input block. Including 
       both will generate an error message.</p>
   </blockquote>
 </blockquote>
@@ -355,17 +355,17 @@
     <p><strong>Notes:</strong><br>
       If the geometry is defined using the <a href="#dim">dimension</a> input 
       blocks, the number of zones<font size="-3"><a href="glossarytext.html#zo">[G]</a></font> 
-      defined here must match the number of zones defined in the <a href="#dim">dimension</a> 
+      defined here <b>must</b> match the number of zones defined in the <a href="#dim">dimension</a> 
       blocks exactly; if not, an error results. <br>
       If the <a href="#vol">volumes</a> method is used to define the geometry, 
       this block uniquely determines the number of zones. <br>
-      The symbolic name for the mixture must match one of the<a href="#mix"> mixture</a> 
+      The symbolic name for the mixture <b>must</b> match one of the<a href="#mix"> mixture</a> 
       definitions exactly, or be the keyword 'void', indicating that this zone 
       is empty of material. </p>
   </blockquote>
 </blockquote>
 <p></p>
-<p><strong><a name="mix"></a>Name:</strong> mixture (required: once per defined 
+<p><strong><a name="mix"></a>Name:</strong> mixture (required once per defined 
   mixture) </p>
 <blockquote> 
   <blockquote> 
@@ -389,7 +389,7 @@
     </blockquote>
     <p>The first element of a mixture block is the symbolic name used to refer 
       to this mixture elsewhere in the input file. Following this is a list of 
-      entries with one entry for each mixture constituent. The list must be terminated 
+      entries with one entry for each mixture constituent. The list <b>must</b> be terminated 
       with the keyword 'end'. The first element of each entry describes the type 
       of that constituent and should be one of: </p>
     <p><strong>Option Description:</strong></p>
@@ -549,7 +549,7 @@
 <p></p>
 <p align="center"> <strong><a name="fc"></a>Section II: Flux Schedules &amp; Chain-building</strong></p>
 <p></p>
-<p><strong><a name="flu"></a>Name:</strong> flux (required: once per defined flux) 
+<p><strong><a name="flu"></a>Name:</strong> flux (required once per defined flux) 
 </p>
 <blockquote> 
   <blockquote> 
@@ -622,7 +622,7 @@
   </blockquote>
 </blockquote>
 <p></p>
-<p><strong><a name="sch"></a>Name:</strong> schedule (required: once per defined 
+<p><strong><a name="sch"></a>Name:</strong> schedule (required once per defined 
   schedule) </p>
 <blockquote> 
   <blockquote> 
@@ -655,7 +655,7 @@
 <p></p>
 <p></p>
 <p><br>
-  <strong><a name="pul"></a>Name:</strong> pulsehistory (required: once per defined 
+  <strong><a name="pul"></a>Name:</strong> pulsehistory (required once per defined 
   history) </p>
 <blockquote> 
   <blockquote> 
@@ -797,7 +797,7 @@
       </blockquote>
     </blockquote>
     <p><strong>Option Description:</strong><br>
-      This input block takes a single argument, which must be one of the following: 
+      This input block takes as the argument exactly one of the following: 
     </p>
     <blockquote> 
       <blockquote> 
