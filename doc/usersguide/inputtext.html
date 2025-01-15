@@ -190,17 +190,14 @@
       </blockquote>
     </blockquote>
     <p><strong>Sample Input:</strong> geometry point</p>
-    <p><strong>Notes: </strong>This input block should not be terminated. If using 
-      the <a href="#dim">dimension</a> input block to define the geometry and 
-      the type is torus<font size="-3"><a href="glossarytext.html#ia">[G]</a></font>, 
-      the <a href="#rad">major_radius</a><font size="-3"><a href="glossarytext.html#mm">[G]</a></font> 
+    <p><strong>Notes: </strong>This input block should NOT be terminated. If the geometry type torus<font size="-3"><a href="glossarytext.html#ia">[G]</a></font>
+      is defined using the <a href="#dim">dimension</a> input block, the <a href="#rad">major_radius</a><font size="-3"><a href="glossarytext.html#mm">[G]</a></font> 
       input block is required and the <a href="#rad">minor_radius</a><font size="-3"><a href="glossarytext.html#mm">[G]</a></font> 
       block may also be required. </p>
     </blockquote>
 </blockquote>
 <p><br>
-  <strong><a name="dim"></a>Name</strong>: dimension (required [<a href="#1">1</a>]: 
-  once [1d], twice [2d], thrice [3d]) </p>
+  <strong><a name="dim"></a>Name</strong>: dimension (required [<a href="#1">1</a>] once per dimension) </p>
 <blockquote> 
   <blockquote> 
     <p><strong>Description</strong>: This input block is used to define the geometry 
