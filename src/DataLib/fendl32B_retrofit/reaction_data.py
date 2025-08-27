@@ -17,7 +17,7 @@ NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
     'total', 'z0', 'nonelas.', 'anything', 'contin.',
-    'fission', 'f', 'RES', 'X', 'disap', 'abs',
+    'fission', 'f', 'RES', 'X', 'disap', 'abs'
     ]
 
 def count_emitted_particles(particle, emitted_particle_string):
@@ -98,9 +98,12 @@ def nucleon_changes(emission_dict):
             change in neutrons and protons in a nucleus as a result of neutron
             activation and subsequent decay. The array is in the format of
             array([neutron_change, proton_change]).
+
+            If emission_dict is empty, NP_change will be returned as an array
+            of None values, in the format array([None, None]).
     """
     
-    NP_change = array([None , None])
+    NP_change = None
     if emission_dict:
         #                  delta N        delta P
         NP_change = array([1       ,      0      ])  # neutron activation
@@ -133,6 +136,77 @@ def load_mt_table(csv_path):
     with open(csv_path, 'r') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
-            mt_dict[row['MT']] = {'Reaction' : row['Reaction']}
+            mt_dict[int(row['MT'])] = {'Reaction' : row['Reaction']}
+    if mt_dict:
+        return mt_dict
+    else:
+        raise Exception('CSV file is empty or missing.')
+
+def check_for_isomer(emitted_particle_string):
+    """
+    Check the isomeric status of a neutron-activated nucleus.
+        By the formatting conventions of ENDF reaction types,
+        if the string of a reaction product ends with a digit,
+        that signifies the excitation state of the nucleus, so 
+        this function looks for and stores these values.
+
+    Arguments:
+        emitted_particle_string (str): Particle product(s) of the neutron
+            activation.
+    
+    Returns:
+        isomeric_value (int): Nuclear excitation level of the activated
+            nucleus. For a nucleus in the ground state, isomeric_state = 0.
+    """
+
+    last_digits_str = ''
+    for char in reversed(emitted_particle_string):
+        if char.isdigit():
+            last_digits_str = char + last_digits_str
+        else:
+            break
+    isomeric_value = int(last_digits_str) if last_digits_str else 0
+
+    return isomeric_value
+
+def process_mt_data(mt_dict):
+    """
+    Read in the dictionary containing the data from mt_table.csv that is
+        imported using load_mt_data() and process the reaction data to 
+        tally the emitted particles by their respective types and calculate
+        the change in KZA associated with each reaction. Write out these
+        reaction-specific values to new keys in the dictionary.
+    
+    Arguments:
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv,
+            with the general format: {'MT' : {'Reaction' : (z , emission)}}.
+    
+    Returns:
+        mt_dict (dict): Processed dictionary containing the original data from
+            the dictionary formatted mt_table.csv, with additional information
+            on changes in KZA and emitted particles. The returned format is:
+            {'MT' : 
+                    {'Reaction'         :               (z, emission)},
+                    {'delKZA'           :       integer change in KZA},
+                    {'Emitted Particles : string of emitted particles}
+            }
+    """
+
+    for MT, data in list(mt_dict.items()):
+        emitted_particles = data['Reaction'].split(',')[1][:-1]
+        emission_dict = emission_breakdown(emitted_particles)
+        change_NP = nucleon_changes(emission_dict)
+        M = check_for_isomer(emitted_particles)
+
+        # Conditionally remove isomer tags from emitted particle strings
+        if M > 0:
+            emitted_particles = emitted_particles[:-len(str(M))]
+        
+        if change_NP is not None:
+            change_N, change_P = change_NP
+            data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
+            data['Emitted Particles'] = emitted_particles
+        else:
+            del mt_dict[MT]
 
     return mt_dict

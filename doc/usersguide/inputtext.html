@@ -154,7 +154,7 @@
     Blank lines are permitted anywhere in the input file<font size="-3"><a href="glossarytext.html#if">[G]</a></font>. 
     <br>
   </li>
-  <li> <strong>Length Units</strong>: Centimeters should be used for all length 
+  <li> <strong>Length Units</strong>: Centimeters [cm] should be used for all length 
     units.</li>
 </ol>
 <p align="left"><font face="Arial, Helvetica, sans-serif"><strong>Input Block 
@@ -190,17 +190,14 @@
       </blockquote>
     </blockquote>
     <p><strong>Sample Input:</strong> geometry point</p>
-    <p><strong>Notes: </strong>This input block should not be terminated. If using 
-      the <a href="#dim">dimension</a> input block to define the geometry and 
-      the type is torus<font size="-3"><a href="glossarytext.html#ia">[G]</a></font>, 
-      the <a href="#rad">major_radius</a><font size="-3"><a href="glossarytext.html#mm">[G]</a></font> 
+    <p><strong>Notes: </strong>This input block should NOT be terminated. If the geometry type torus<font size="-3"><a href="glossarytext.html#ia">[G]</a></font>
+      is defined using the <a href="#dim">dimension</a> input block, the <a href="#rad">major_radius</a><font size="-3"><a href="glossarytext.html#mm">[G]</a></font> 
       input block is required and the <a href="#rad">minor_radius</a><font size="-3"><a href="glossarytext.html#mm">[G]</a></font> 
       block may also be required. </p>
     </blockquote>
 </blockquote>
 <p><br>
-  <strong><a name="dim"></a>Name</strong>: dimension (required [<a href="#1">1</a>]: 
-  once [1d], twice [2d], thrice [3d]) </p>
+  <strong><a name="dim"></a>Name</strong>: dimension (required [<a href="#1">1</a>] once per dimension) </p>
 <blockquote> 
   <blockquote> 
     <p><strong>Description</strong>: This input block is used to define the geometry 
@@ -253,7 +250,7 @@
       problem will generate an error. <br>
       Since this method of defining the geometry calculates the fine mesh intervals'<font size="-3"><a href="glossarytext.html#fmi">[G]</a></font> 
       zone membership and volume from the <a href="#dim">dimension</a> data, it 
-      is incompatible with the <a href="#vol">volumes</a> input block. Including 
+      is <b>incompatible</b> with the <a href="#vol">volumes</a> input block. Including 
       both will generate an error message.</p>
   </blockquote>
 </blockquote>
@@ -304,7 +301,7 @@
       value for the volume of that interval and the symbolic name of the zone 
       containing that interval. These symbolic names should correspond with the 
       symbolic names given to the zones in the <a href="#mat">mat_loading</a> 
-      input block. This list must be terminated with the keyword<font size="-3"><a href="glossarytext.html#key">[G]</a></font> 
+      input block. This list <b>must</b> be terminated with the keyword<font size="-3"><a href="glossarytext.html#key">[G]</a></font> 
       end. </p>
     <p><strong>Sample Input:</strong></p>
     <blockquote> 
@@ -358,17 +355,17 @@
     <p><strong>Notes:</strong><br>
       If the geometry is defined using the <a href="#dim">dimension</a> input 
       blocks, the number of zones<font size="-3"><a href="glossarytext.html#zo">[G]</a></font> 
-      defined here must match the number of zones defined in the <a href="#dim">dimension</a> 
+      defined here <b>must</b> match the number of zones defined in the <a href="#dim">dimension</a> 
       blocks exactly; if not, an error results. <br>
       If the <a href="#vol">volumes</a> method is used to define the geometry, 
       this block uniquely determines the number of zones. <br>
-      The symbolic name for the mixture must match one of the<a href="#mix"> mixture</a> 
+      The symbolic name for the mixture <b>must</b> match one of the<a href="#mix"> mixture</a> 
       definitions exactly, or be the keyword 'void', indicating that this zone 
       is empty of material. </p>
   </blockquote>
 </blockquote>
 <p></p>
-<p><strong><a name="mix"></a>Name:</strong> mixture (required: once per defined 
+<p><strong><a name="mix"></a>Name:</strong> mixture (required once per defined 
   mixture) </p>
 <blockquote> 
   <blockquote> 
@@ -392,7 +389,7 @@
     </blockquote>
     <p>The first element of a mixture block is the symbolic name used to refer 
       to this mixture elsewhere in the input file. Following this is a list of 
-      entries with one entry for each mixture constituent. The list must be terminated 
+      entries with one entry for each mixture constituent. The list <b>must</b> be terminated 
       with the keyword 'end'. The first element of each entry describes the type 
       of that constituent and should be one of: </p>
     <p><strong>Option Description:</strong></p>
@@ -514,7 +511,7 @@
     <p>This input consists of a list of symbolic names of the zones that are to 
       be solved in this case. These symbolic names should correspond with the 
       symbolic names given to the zones in the <a href="#mat">mat_loading</a> 
-      input block. This list must be terminated with the keyword end. <br>
+      input block. This list <b>must</b> be terminated with the keyword end. <br>
       Sample Input:<br>
       Notes:</p>
   </blockquote>
@@ -543,7 +540,7 @@
     <p>This input consists of a list of symbolic names of the zones that are NOT 
       to be solved in this case. These symbolic names should correspond with the 
       symbolic names given to the zones in the <a href="#mat">mat_loading </a>input 
-      block. This list must be terminated with the keyword end. </p>
+      block. This list <b>must</b> be terminated with the keyword end. </p>
     <p><strong>Sample Input:</strong></p>
     <p><strong>Notes:</strong></p>
   </blockquote>
@@ -552,7 +549,7 @@
 <p></p>
 <p align="center"> <strong><a name="fc"></a>Section II: Flux Schedules &amp; Chain-building</strong></p>
 <p></p>
-<p><strong><a name="flu"></a>Name:</strong> flux (required: once per defined flux) 
+<p><strong><a name="flu"></a>Name:</strong> flux (required once per defined flux) 
 </p>
 <blockquote> 
   <blockquote> 
@@ -625,7 +622,7 @@
   </blockquote>
 </blockquote>
 <p></p>
-<p><strong><a name="sch"></a>Name:</strong> schedule (required: once per defined 
+<p><strong><a name="sch"></a>Name:</strong> schedule (required once per defined 
   schedule) </p>
 <blockquote> 
   <blockquote> 
@@ -635,7 +632,7 @@
       name by which this schedule can be referred to. Following this is a list 
       of items occurring in this schedule. There are two possible types for each 
       item, and their may be an arbitrary list of items in a schedule. This list 
-      must be terminated with the keyword 'end'.<br>
+      <b>must</b> be terminated with the keyword 'end'.<br>
       The first type of item is a simple pulse and the entries for this kind of 
       item are a floating point operating time, a single character defining the 
       units of that operating time, a symbolic flux name, a symbolic pulsing definition 
@@ -658,7 +655,7 @@
 <p></p>
 <p></p>
 <p><br>
-  <strong><a name="pul"></a>Name:</strong> pulsehistory (required: once per defined 
+  <strong><a name="pul"></a>Name:</strong> pulsehistory (required once per defined 
   history) </p>
 <blockquote> 
   <blockquote> 
@@ -678,7 +675,7 @@
       each consisting of an integer number of pulses, a floating point delay time 
       between pulses, and a single character defining the units of that delay 
       time. Since an arbitrary number of pulsing levels is allowed, this list 
-      must be terminated with the keyword 'end'. </p>
+      <b>must</b> be terminated with the keyword 'end'. </p>
     <p><strong>Notes: </strong><br>
       The tutorial on forming complex schedules includes more details on pulsing 
       histories.<br>
@@ -800,7 +797,7 @@
       </blockquote>
     </blockquote>
     <p><strong>Option Description:</strong><br>
-      This input block takes a single argument, which must be one of the following: 
+      This input block takes as the argument exactly one of the following: 
     </p>
     <blockquote> 
       <blockquote> 
@@ -846,7 +843,7 @@
     <p>This block is simply a list of times, where each time consists of a floating 
       point time followed by a single character defining the time's units. Since 
       an arbitrary number of cooling times<font size="-3"><a href="glossarytext.html#ia">[G]</a></font> 
-      can be solved, this list must be terminated with the keyword 'end'. </p>
+      can be solved, this list <b>must</b> be terminated with the keyword 'end'. </p>
     <p><strong>Sample Input:</strong></p>
     <blockquote> 
       <blockquote>
@@ -984,7 +981,7 @@
       will be<br>
       added to the path/filename given here. The next parameter is a string representing 
       the<br>
-      the filename where the gamma source information should be stored. This is 
+      filename where the gamma source information should be stored. This is 
       followed<br>
       by an integer parameter representing the number of gamma groups to be used 
       for this<br>
@@ -995,7 +992,7 @@
       units of eV. </p>
     <p> The integrate_energy modifier only applies when photon_source is requested. With <br> 
         integrate_energy, groupwise gamma source intensity is calculated by calculating the <br> 
-        total power (e.g. Mev/s) produced within each energy group and dividing the the <br> 
+        total power (e.g. Mev/s) produced within each energy group and dividing the <br> 
         average gamma energy within the group (i.e. the average of the lower and upper <br> 
         energy bounds). Without the integrate_energy modifier, groupwise gamma source <br> 
         intensity is calculated simply by multiplying activity of each nuclide by groupwise <br> 
