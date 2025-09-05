@@ -44,7 +44,7 @@ DATALIB_FENDL3   7     fendl    A data library following the formatting
 #ifndef FENDL3_H
 #define FENDL3_H
 
-#define DATALIB_FENDL3 7
+#define DATALIB_FENDL3 8
 
 #define MAXFENDL3RXNS 350
 

@@ -1,4 +1,4 @@
-#include "Fendl3.h"
+#include "FENDL3.h"
 #include "DataLib/ALARALib_def.h"
 #include <fstream>
 #include <sstream>
@@ -49,19 +49,15 @@ static CSVRow parseCSVRow(const std::string& line)
     // Column 0: Index (skip)
     std::getline(ss, item, ',');
 
-    // Column 1: Parent KZA
     std::getline(ss, item, ',');
     row.parentKZA = std::stoi(item);
 
-    // Column 2: Daughter KZA
     std::getline(ss, item, ',');
     row.daughterKZA = std::stoi(item);
 
-    // Column 3: Emitted Particles
     std::getline(ss, item, ',');
     row.emittedParticles = item;
 
-    // Column 4: Non-Zero Groups
     std::getline(ss, item, ',');
     row.nonZeroGroups = std::stoi(item);
 
