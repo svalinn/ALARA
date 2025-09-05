@@ -3,9 +3,30 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
+from os import getcwd
+
+def set_directory():
+    '''
+    Establish the location of the current working directory to ensure that if
+        process_fendl3.2.py is called from ALARA/src/DataLib, FENDL3.2b
+        preprocessing files can be properly located, created, and modified.
+
+    Arguments:
+        None
+    Returns:
+        dir (str): Path to the current working directory (CWD) from which the
+            command was called.
+    '''
+
+    dir = getcwd()
+    fendl_dir = 'fendl32B_retrofit'
+    if fendl_dir not in dir:
+        dir += f'/{fendl_dir}' # Should only be called from one directory up
+    return dir
 
 # Define constant(s)
-INPUT = 'groupr.inp'
+dir = set_directory()
+INPUT = dir + '/groupr.inp'
 
 # Create input file general template
 njoy_input = Template(Template(
@@ -228,19 +249,20 @@ def run_njoy(element, A, matb):
     # If the run is successful, log out the output
     # and make a copy of the file as a .GENDF file
     if not result.stderr:
-        gendf_path = f'tendl_2017_{element}{str(A).zfill(3)}.gendf'
+        gendf_path = dir + f'/tendl_2017_{element}{str(A).zfill(3)}.gendf'
         Path('tape31').rename(Path(gendf_path))
         ensure_gendf_markers(gendf_path, matb)
 
         return gendf_path
 
-def cleanup_njoy_files(output_path = 'njoy_ouput'):
+
+def cleanup_njoy_files(output_path = dir + '/njoy_ouput'):
     """
     Clean up repository from unnecessary intermediate files from NJOY run.
     
     Arguments:
         output_path (str, optional): The save path for the NJOY output.
-            Defaults to 'njoy_output', which will save the file in the
+            Defaults to f'{CWD}/njoy_output', which will save the file in the
             same directory as all other saved files from the script run.
     
     Returns:
