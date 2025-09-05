@@ -18,6 +18,7 @@ using namespace std;
 #include "ALARALib.h"
 #include "ADJLib.h"
 #include "FEINDLib.h"
+#include "FENDL3.h"
 
 const char *libTypes =  "\
 null  \
@@ -27,7 +28,8 @@ eaf   \
 adj   \
 gamma \
 ieaf  \
-feind ";
+feind \
+fendl3 ";
 
 const int libTypeLength = 6;
 
@@ -39,7 +41,8 @@ const char *libTypeStr[] = {
   "an 'adjlib' ALARA",
   "a 'gammalib' ALARA",
   "an IEAF library",
-  "a FEIND library"};
+  "a FEIND library",
+  "a FENDL3.2b library"};
 
 const char *libTypeSuffix[] = {
   ".null",
@@ -49,7 +52,8 @@ const char *libTypeSuffix[] = {
   ".lib",
   ".gam",
   ".ieaf",
-  ".feind"};
+  ".feind",
+  ".fendl3"};
 
 
 /****************************
@@ -134,6 +138,13 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
       dl = new IEAFLib(transFname,decayFname,ALARAFNAME);
       delete dl;
       break;
+    case FENDL32ALARA:
+        input >> transFname >> decayFname;
+        verbose(3,"Openning FENDL3 formatted libraries %s, %s for conversion",
+        transFname,decayFname);
+        dl = new FENDL3LIB(transFname,decayFname,ALARAFNAME);
+        delete dl;
+        break;
     default:
       error(1001,"Conversion from %s (%d) to (%d) is not yet supported.",
 	    fromTypeStr, fromType, toType);
@@ -179,6 +190,15 @@ void DataLib::convertLib(istream& input)
       input >> alaraFname >> adjointLibName;
       dl = new ADJLib(alaraFname,adjointLibName);
       delete dl;
+      break;
+    case FENDL32ALARA:
+      input >> transFname >> decayFname >> alaraFname;
+      verbose(3,"Openning FENDL3.2b formatted libraries %s, %s for conversion into ALARA library %s",
+	      transFname,decayFname,alaraFname);
+      dl = new FENDL3LIB(transFname,decayFname,alaraFname);
+      delete dl;
+      verbose(3,"Converted libraries with %d parents and %d groups.",
+	      dl->nParents,dl->nGroups);
       break;
     default:
       error(1001,"Conversion from %s (%d) to %s (%d) is not yet supported.",

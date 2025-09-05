@@ -35,7 +35,11 @@
     decay/gamma libraries following the 
     formatting definition of the EAF library 
     (roughly ENDF/B-6) 
-    DATALIB_FEIND   7      feind    A FEIND library
+    DATALIB_FEIND    7     feind    A FEIND library
+    DATALIB_FENDL3   8     fendl    A data library following the formatting
+                                    definition of the FENDL 3.2b (TENDL 2017)
+                                    library (TENDL and PENDF format, converted
+                                    by preprocessor to GNENDF format).   
     -------------------------------------------------------------------
     */
     
@@ -48,6 +52,7 @@
 #define EAF2ALARA 301
 #define IEAF2ALARA 601
 #define ALARA2ADJ 104
+#define FENDL32ALARA 801
 
 #include "NuclearData.h"
 #include "GammaSrc.h"

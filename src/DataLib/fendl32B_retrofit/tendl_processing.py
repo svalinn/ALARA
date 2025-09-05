@@ -95,15 +95,13 @@ def extract_gendf_pkza(gendf_path):
     
     Arguments:
         gendf_path (str): File path to the GENDF file being analyzed.
-        M (str, optional): Identifier of isomer, signified by the letter "M"
-            at the end of the mass number string.
-
-            Defaults to None and will be otherwise defined internally.
+        dir (str): String identifying the directory from which the function is
+            being called.
     
     Returns:
         pKZA (int): Parent KZA identifier.
     """
-
+    
     with open(gendf_path, 'r') as f:
         first_line = f.readline()
     Z, element, A = first_line.split('-')[:3]
