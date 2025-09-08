@@ -53,7 +53,7 @@
 #define EAF2ALARA 301
 #define IEAF2ALARA 601
 #define ALARA2ADJ 104
-#define FENDL32ALARA 801
+#define ALARAJOY2ALARA 801
 
 #include "NuclearData.h"
 #include "GammaSrc.h"

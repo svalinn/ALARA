@@ -18,7 +18,7 @@ using namespace std;
 #include "ALARALib.h"
 #include "ADJLib.h"
 #include "FEINDLib.h"
-#include "FENDL3.h"
+#include "ALARAJOY.h"
 
 const char *libTypes =  "\
 null  \
@@ -29,7 +29,7 @@ adj   \
 gamma \
 ieaf  \
 feind \
-fendl3 ";
+ajoy ";
 
 const int libTypeLength = 6;
 
@@ -53,7 +53,7 @@ const char *libTypeSuffix[] = {
   ".gam",
   ".ieaf",
   ".feind",
-  ".fendl3"};
+  ".ajoy"};
 
 
 /****************************
@@ -138,11 +138,11 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
       dl = new IEAFLib(transFname,decayFname,ALARAFNAME);
       delete dl;
       break;
-    case FENDL32ALARA:
+    case ALARAJOY2ALARA:
         input >> transFname >> decayFname;
         verbose(3,"Openning FENDL3 formatted libraries %s, %s for conversion",
         transFname,decayFname);
-        dl = new FENDL3LIB(transFname,decayFname,ALARAFNAME);
+        dl = new ALARAJOYLIB(transFname,decayFname,ALARAFNAME);
         delete dl;
         break;
     default:
@@ -191,11 +191,11 @@ void DataLib::convertLib(istream& input)
       dl = new ADJLib(alaraFname,adjointLibName);
       delete dl;
       break;
-    case FENDL32ALARA:
+    case ALARAJOY2ALARA:
       input >> transFname >> decayFname >> alaraFname;
       verbose(3,"Openning FENDL3.2b formatted libraries %s, %s for conversion into ALARA library %s",
 	      transFname,decayFname,alaraFname);
-      dl = new FENDL3LIB(transFname,decayFname,alaraFname);
+      dl = new ALARAJOYLIB(transFname,decayFname,alaraFname);
       delete dl;
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
