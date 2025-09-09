@@ -527,7 +527,9 @@ void Input::clearIncludeComment()
 	     * Examples: 
 	     *  - "steady_state"  pulse history
 	     *  - library selection */
-	    input = openFile(searchNonXSPath(inFileName));
+		char* inputFilePath = searchNonXSPath(inFileName);
+	    input = openFile(inputFilePath);
+		free(inputFilePath);
 
 	    if (!*input)
 	      error(101,"Unable to open included file: '%s'.",inFileName);

@@ -7,8 +7,12 @@ EAFLib::EAFLib(const char *transFname, const char *decayFname, const char *alara
 {
   if (transFname != NULL && decayFname != NULL)
     {
-      inTrans.open(searchNonXSPath(transFname), ios::in);
-      inDecay.open(searchNonXSPath(decayFname), ios::in);
+      char* transFilePath = searchNonXSPath(transFname);
+      char* decayFilePath = searchNonXSPath(decayFname);
+      inTrans.open(transFilePath, ios::in);
+      inDecay.open(decayFilePath, ios::in);
+      free(transFilePath);
+      free(decayFilePath);
 
       makeBinLib(alaraFname);
     }

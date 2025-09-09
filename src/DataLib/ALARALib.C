@@ -37,7 +37,9 @@ ALARALib::ALARALib(const char* fname,int setType)
   strcpy(fnameStr,fname);
   strcat(fnameStr,libTypeSuffix[type]);
 
-  binLib = fopen(searchXSPath(fnameStr),"rb");
+  char *filepath = searchXSPath(fnameStr);
+  binLib = fopen(filepath,"rb");
+  free(filepath);
   if (binLib == NULL)
     error(1104,
 	  "The specified library with filename %s could not be accessed. Please check the path/filename.",

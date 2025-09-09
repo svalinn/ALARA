@@ -5,9 +5,9 @@ void clearComment(istream& input);
 int tokenType(char*);
 double convertTime(double,char);
 
-const char* searchNonXSPath(const char* filename);
-const char* searchXSPath(const char* filename);
-const char* searchPath(const char* filename, const char* envPathVar, const char* builtinPathVar);
+char* searchNonXSPath(const char* filename);
+char* searchXSPath(const char* filename);
+char* searchPath(const char* filename, const char* envPathVar, const char* builtinPathVar);
 
 
 /* math.C */
