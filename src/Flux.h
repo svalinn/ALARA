@@ -66,7 +66,7 @@ public:
   /** Deletes storage for the flux identifier and the flux file name.
       The whole list is destroyed by deleting the next pointer. */
   ~Flux()
-    { delete fileName; delete fluxName; delete next; };
+    { delete[] fileName; delete[] fluxName; delete next; };
 
   /// Overloaded assignment operator
   Flux& operator=(const Flux&);

@@ -97,9 +97,9 @@ Loading::Loading(const Loading &l)
 
 Loading::~Loading()
 { 
-  delete mixName; 
-  delete zoneName; 
-  delete [] outputList; 
+  delete[] mixName; 
+  delete[] zoneName; 
+  delete[] outputList; 
   delete next; 
 }
 

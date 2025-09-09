@@ -69,7 +69,7 @@ Schedule::Schedule(const Schedule &s)
     and then destroys list of Schedules by deleting 'next'. */
 Schedule::~Schedule()
 {
-  delete schedName; 
+  delete[] schedName; 
   delete itemListHead; 
   delete next; 
 }

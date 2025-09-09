@@ -68,7 +68,7 @@ History::History(const History& h)
     by deleting 'next'. */
 History::~History()
 { 
-  delete histName; 
+  delete[] histName; 
   delete pulseLevelHead; 
   delete next;
 }  

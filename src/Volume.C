@@ -54,8 +54,8 @@ void Volume::init()
 
 void Volume::deinit()
 {
-  delete intervalptr; 
-  delete zoneName; 
+  delete[] intervalptr; 
+  delete[] zoneName; 
   delete fluxHead; 
   delete schedT; 
   delete adjConv;

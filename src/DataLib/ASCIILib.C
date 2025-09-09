@@ -124,7 +124,7 @@ void ASCIILib::trans2merge()
 				  strlen(emitted[rxnNum])+2];
 	      memCheck(tmp,"ASCIILib::trans2merge(...): tmp -> mEmitted[n]");
 	      sprintf(tmp,"%s,%s",mEmitted[unique],emitted[rxnNum]);
-	      delete mEmitted[unique];
+	      delete[] mEmitted[unique];
 	      mEmitted[unique] =tmp;
 	      
 	      /* end for loop AND use as flag below */
@@ -188,7 +188,7 @@ void ASCIILib::decay2merge()
 	      memCheck(tmp,"ASCIILib::decay2merge(...): tmp -> mEmitted[n]");
 	      sprintf(tmp,"%s,*%c",mEmitted[unique],
 		      (nDRxns-rxnNum>nIons?'D':'X'));
-	      delete mEmitted[unique];
+	      delete[] mEmitted[unique];
 	      mEmitted[unique] =tmp;
 	      
 	      /* end for loop AND use as flag below */
@@ -256,7 +256,7 @@ void ASCIILib::merge()
 				  strlen(emitted[rxnNum])+2];
 	      memCheck(tmp,"ASCIILib::trans2merge(...): tmp -> mEmitted[n]");
 	      sprintf(tmp,"%s,%s",mEmitted[unique],emitted[rxnNum]);
-	      delete mEmitted[unique];
+	      delete[] mEmitted[unique];
 	      mEmitted[unique] =tmp;
 	      
 	      /* end for loop AND use as flag below */
@@ -300,7 +300,7 @@ void ASCIILib::merge()
 	      memCheck(tmp,"ASCIILib::trans2merge(...): tmp -> mEmitted[n]");
 	      sprintf(tmp,"%s,*%c",mEmitted[unique],
 		      (nDRxns-rxnNum>nIons?'D':'X'));
-	      delete mEmitted[unique];
+	      delete[] mEmitted[unique];
 	      mEmitted[unique] =tmp;
 	      
 	      /* end for loop AND use as flag below */

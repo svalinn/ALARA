@@ -23,15 +23,15 @@ EAFLib::~EAFLib()
 
   for (rxnNum=0;rxnNum<MAXEAFRXNS;rxnNum++)
     {
-      delete xSection[rxnNum];
-      delete emitted[rxnNum];
+      delete[] xSection[rxnNum];
+      delete[] emitted[rxnNum];
     }
-  delete xSection;
-  delete emitted;
-  delete transKza;
+  delete[] xSection;
+  delete[] emitted;
+  delete[] transKza;
 
-  delete decayKza;
-  delete bRatio;
+  delete[] decayKza;
+  delete[] bRatio;
 
   inTrans.close();
   inDecay.close();
@@ -820,15 +820,15 @@ int EAFLib::getGammaData()
 
   if (numGSpec == 0)
     {
-      delete numDisc;
-      delete nIntReg;
-      delete nPnts;
-      delete discGammaE;
-      delete discGammaI;
-      delete intRegB;
-      delete intRegT;
-      delete contX;
-      delete contY;
+      delete[] numDisc;
+      delete[] nIntReg;
+      delete[] nPnts;
+      delete[] discGammaE;
+      delete[] discGammaI;
+      delete[] intRegB;
+      delete[] intRegT;
+      delete[] contX;
+      delete[] contY;
     }
 
 

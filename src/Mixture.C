@@ -100,7 +100,7 @@ Mixture::Mixture(const Mixture &m)
     rest of the mixture list by deleting 'next'. */
 Mixture::~Mixture()
 { 
-  delete mixName; 
+  delete[] mixName; 
   delete compListHead; 
   delete targetCompListHead;
   delete rootList;

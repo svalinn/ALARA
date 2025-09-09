@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
   Result::closeBinDump();
 
   delete rootList;
-  delete inFname;
+  delete[] inFname;
 
   return 0;
 }
