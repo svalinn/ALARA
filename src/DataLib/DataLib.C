@@ -29,7 +29,7 @@ adj   \
 gamma \
 ieaf  \
 feind \
-ajoy ";
+ajoy  ";
 
 const int libTypeLength = 6;
 
@@ -75,6 +75,7 @@ DataLib* DataLib::newLib(char* libType, istream& input)
     {
     case DATALIB_EAF:
     case DATALIB_IEAF:
+    case DATALIB_ALARAJOY:
       convertLib(libType,DATALIB_ALARA,input);
       dl = new ALARALib(ALARAFNAME);
       break;

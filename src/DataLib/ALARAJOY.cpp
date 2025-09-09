@@ -128,20 +128,20 @@ ALARAJOYLIB::~ALARAJOYLIB()
     // Clean up allocated arrays (if they exist)
     if (xSection != NULL) {
         for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++) {
-            delete xSection[rxnNum];
+            delete[] xSection[rxnNum];
         }
-        delete xSection;
+        delete[] xSection;
     }
 
     if (emitted != NULL) {
         for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++) {
-            delete emitted[rxnNum];
+            delete[] emitted[rxnNum];
         }
-        delete emitted;
+        delete[] emitted;
     }
 
     if (transKza != NULL) {
-        delete transKza;
+        delete[] transKza;
     }
 }
 
