@@ -157,7 +157,9 @@ Volume::Volume(Root *rootPtr,topSchedule* top)
 Volume::~Volume() 
 {
   deinit();
+  delete [] total;
   delete next; 
+  next = NULL;
 }
 
 /** This assignment operator first calls deinit() and init() to

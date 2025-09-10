@@ -59,6 +59,7 @@ ASCIILib::~ASCIILib()
   delete grpWeights;
 
   delete binLib;
+  delete gammaLib;
 }
 
 /****************************
