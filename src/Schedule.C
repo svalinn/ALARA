@@ -72,6 +72,7 @@ Schedule::~Schedule()
   delete[] schedName; 
   delete itemListHead; 
   delete next; 
+  delete calcSched;
 }
 
 
