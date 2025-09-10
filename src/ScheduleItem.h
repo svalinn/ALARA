@@ -85,8 +85,8 @@ public:
   /// Inline destructor destroys whole list by deleting next - NOT!.
   ~ScheduleItem()
     { 
-      delete pulseName; 
       delete next; 
+      next = NULL;
     };
 
   /// This function reads a sub-schedule type schedule item from the
