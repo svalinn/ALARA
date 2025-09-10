@@ -81,35 +81,38 @@ static CSVRow parseCSVRow(const std::string& line)
 }
 
 // Free helper: Running the Python preprocessor and storing data path
-std::string pythonPreprocess() {
+std::string pythonPreprocess(const char* transDname) {
 
   char buffer[256];
   std::string result;
 
-  FILE* pipe = popen("python ./ALARAJOY_wrapper/preprocess_fendl3.py 2>&1", "r");
+    std::string cmd = "python ./ALARAJOY_wrapper/preprocess_fendl3.py -t " + std::string(transDname) + " 2>&1";
+    FILE* pipe = popen(cmd.c_str(), "r");
+    std::cout << "Python processed.";
 
-  if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+    if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
     result = buffer;
-  }
+    }
 
-  int ret = pclose(pipe);
+    int ret = pclose(pipe);
 
-  // Remove trailing newline
-  if (!result.empty() && result.back() == '\n') {
+    // Remove trailing newline
+    if (!result.empty() && result.back() == '\n') {
     result.pop_back();
-  }
+    }
 
-  return result;
+    return result;
 
 }
 
 // Constructor
 ALARAJOYLIB::ALARAJOYLIB(
-    const char *transFname, const char *decayFname, const char *alaraFname
+//    const char *transFname, const char *decayFname, const char *alaraFname
+    const char *transDname, const char *alaraFname
 ) : ASCIILib(DATALIB_ALARAJOY)
 {
     // Run Python preprocessing to get CSV Path
-    std::string csvPath = pythonPreprocess();
+    std::string csvPath = pythonPreprocess(transDname);
     
     // Open the CSV file
     inTrans.open(csvPath, ios::in);
@@ -176,6 +179,7 @@ void ALARAJOYLIB::getTransInfo()
 {
     // Fixed for Vitamin J energy group structure
     nGroups = 75;
+    nParents = 0;
 
     // Allocate arrays for maximum reactions
     transKza = new int[MAXALARAJOYRXNS];

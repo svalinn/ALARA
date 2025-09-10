@@ -2,8 +2,16 @@
 import reaction_data as rxd
 import tendl_processing as tp
 import groupr_tools
+import argparse
 from pathlib import Path
 from pandas import DataFrame
+
+def args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--transFname', '-t', required=False, nargs=1
+    )
+    return parser.parse_args()
 
 def main():
     """
@@ -11,6 +19,15 @@ def main():
     """
 
     dir = groupr_tools.set_directory()
+#    print(dir)
+
+#    if args().transFname:
+#        search_dir = args().transFname
+#    else:
+#        search_dir = dir
+
+#    print(search_dir)
+    search_dir =dir
     
     TAPE20 = 'tape20'
     TAPE21 = 'tape21'
@@ -18,7 +35,7 @@ def main():
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(f'{dir}/mt_table.csv'))
 
     cumulative_data = []
-    for isotope, file_properties in tp.search_for_files(dir).items():
+    for isotope, file_properties in tp.search_for_files(search_dir).items():
         element = file_properties['Element']
         A = file_properties['Mass Number']
         endf_path, pendf_path = file_properties['File Paths']

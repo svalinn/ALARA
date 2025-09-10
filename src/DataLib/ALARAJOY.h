@@ -69,7 +69,11 @@ class ALARAJOYLIB : public ASCIILib
     
     public:
         /* Constructor, & Destructor */
-        ALARAJOYLIB(const char* transFname, const char* decayFname, const char* alaraFname);
+        /* Note: Usage of transDname instead of transFname convention to 
+           indicate location of files for conversion contained in a particular
+           directory containing both TENDL and PENDF files, which are needed
+           together for GENDF conversion with NJOY GROUPR*/
+        ALARAJOYLIB(const char* transDname, const char* alaraFname);
         ~ALARAJOYLIB();
 };
 

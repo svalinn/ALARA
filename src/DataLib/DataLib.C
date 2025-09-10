@@ -121,7 +121,7 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
   DataLib *dl;
 
   int fromType = convertLibType(fromTypeStr);
-  char transFname[256], decayFname[256];
+  char transFname[256], decayFname[256], transDname[256]; // "D" option for dir containing TENDL/PENDF files together
 
   switch (fromType*100+toType)
     {
@@ -140,10 +140,10 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
       delete dl;
       break;
     case ALARAJOY2ALARA:
-        input >> transFname >> decayFname;
-        verbose(3,"Openning FENDL3 formatted libraries %s, %s for conversion",
-        transFname,decayFname);
-        dl = new ALARAJOYLIB(transFname,decayFname,ALARAFNAME);
+        input >> transDname;
+        verbose(3,"Openning FENDL3 formatted libraries %s for conversion",
+        transDname);
+        dl = new ALARAJOYLIB(transDname, ALARAFNAME);
         delete dl;
         break;
     default:
@@ -159,7 +159,7 @@ void DataLib::convertLib(istream& input)
   char fromTypeStr[16], toTypeStr[16];
   int fromType, toType;
   char alaraFname[256];
-  char transFname[256], decayFname[256];
+  char transFname[256], decayFname[256], transDname[256];
 
   input >> fromTypeStr >> toTypeStr;
   fromType = convertLibType(fromTypeStr);
@@ -193,10 +193,10 @@ void DataLib::convertLib(istream& input)
       delete dl;
       break;
     case ALARAJOY2ALARA:
-      input >> transFname >> decayFname >> alaraFname;
-      verbose(3,"Openning FENDL3.2b formatted libraries %s, %s for conversion into ALARA library %s",
-	      transFname,decayFname,alaraFname);
-      dl = new ALARAJOYLIB(transFname,decayFname,alaraFname);
+      input >> transDname >> alaraFname;
+      verbose(3,"Openning FENDL3 formatted libraries %s for conversion into ALARA library %s",
+	      transFname,alaraFname);
+      dl = new ALARAJOYLIB(transDname,alaraFname);
       delete dl;
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
