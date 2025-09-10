@@ -122,6 +122,7 @@ PulseHistory::PulseHistory(PulseHistory* hist1, double delay,
       memCheck(D,"PulseHistory::PulseHistory(...) 'merge' constructor: D");
     }      
     
+  setCode = hist1->setCode;
 }
 
 /** The correct implementation of this operator must ensure

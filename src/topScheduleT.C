@@ -108,6 +108,11 @@ topScheduleT& topScheduleT::operator=(const topScheduleT &t)
 
 }
 
+topScheduleT::~topScheduleT()
+{
+  delete[] coolT;
+}
+
 /****************************
  ********** Tally ***********
  ***************************/

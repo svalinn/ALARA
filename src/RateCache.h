@@ -69,7 +69,7 @@ class RateCache
 
       /// Default destructor deletes the whole linked list by deleting
       /// 'next'.
-      ~CacheData() { delete next; delete[] cache;};
+      ~CacheData() { delete[] cache; delete next; next=NULL; };
 
     }
   /// This points to the least recently used data.  

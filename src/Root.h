@@ -66,7 +66,7 @@ protected:
       MixCompRef(MixCompRef*, MixCompRef*);
 
       /// Inline destructor destroys whole list by deleting 'next'.
-      ~MixCompRef() { delete next; };
+      ~MixCompRef() { delete next; next=NULL; };
 
       /// Overloaded assignment operator
       MixCompRef& operator=(const MixCompRef&);
@@ -133,7 +133,7 @@ public:
   /// Inline destructor 
   /** Has no special actions. It does NOT delete the list of Root isotopes. */
   ~Root() 
-    { delete mixList; delete nextRoot; };
+    { delete mixList; delete nextRoot; nextRoot=NULL;};
 
   /// This inline function helps establish the reference flux by passing
   /// this Volume through 'mixList' to the list of intervals which contain

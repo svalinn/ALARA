@@ -54,8 +54,8 @@ void Volume::init()
 
 void Volume::deinit()
 {
-  delete intervalptr; 
-  delete zoneName; 
+  delete[] intervalptr; 
+  delete[] zoneName; 
   delete fluxHead; 
   delete schedT; 
   delete adjConv;
@@ -157,7 +157,9 @@ Volume::Volume(Root *rootPtr,topSchedule* top)
 Volume::~Volume() 
 {
   deinit();
+  delete [] total;
   delete next; 
+  next = NULL;
 }
 
 /** This assignment operator first calls deinit() and init() to
