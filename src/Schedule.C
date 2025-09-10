@@ -24,7 +24,7 @@
     blank list head.  Otherwise, it creates and fills the storage for
     'schedName', initializes 'usedAsSub' to FALSE, creates a blank
     list of ScheduleItems, and initializes 'next' to NULL. */
-Schedule::Schedule(const char* name)
+Schedule::Schedule(const char* name) : calcSched(NULL)
 {
   schedName = NULL;
   if (name != NULL)
