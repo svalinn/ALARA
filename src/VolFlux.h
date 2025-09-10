@@ -120,9 +120,10 @@ public:
   ~VolFlux()
     { 
       delete[] nflux; 
-      delete next;
       delete[] CPfluxStorage;
       delete[] CPflux;
+      delete next;
+      next = NULL;
     };
 
   /// Overloaded assignment operator

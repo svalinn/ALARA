@@ -71,8 +71,9 @@ Schedule::~Schedule()
 {
   delete[] schedName; 
   delete itemListHead; 
-  delete next; 
   delete calcSched;
+  delete next; 
+  next = NULL;
 }
 
 

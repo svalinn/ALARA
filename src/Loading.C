@@ -102,6 +102,7 @@ Loading::~Loading()
   delete[] outputList; 
   delete[] total;
   delete next; 
+  next = NULL;
 }
 
 /** This assignment operator behaves similarly to the copy

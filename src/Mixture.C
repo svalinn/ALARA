@@ -108,6 +108,7 @@ Mixture::~Mixture()
   delete volList;
   delete [] outputList;
   delete next;
+  next = NULL;
 }
 
 /** This assignment operator behaves similarly to the copy
