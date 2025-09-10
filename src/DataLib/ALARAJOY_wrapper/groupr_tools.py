@@ -254,7 +254,8 @@ def run_njoy(element, A, matb):
         ensure_gendf_markers(gendf_path, matb)
 
         return gendf_path
-
+    else:
+        print(result.stderr)
 
 def cleanup_njoy_files(output_path = dir + '/njoy_ouput'):
     """

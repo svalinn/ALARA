@@ -19,15 +19,7 @@ def main():
     """
 
     dir = groupr_tools.set_directory()
-#    print(dir)
-
-#    if args().transFname:
-#        search_dir = args().transFname
-#    else:
-#        search_dir = dir
-
-#    print(search_dir)
-    search_dir =dir
+    search_dir = args().transFname[0] if args().transFname else dir
     
     TAPE20 = 'tape20'
     TAPE21 = 'tape21'
