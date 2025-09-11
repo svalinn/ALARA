@@ -68,11 +68,11 @@ class ALARAJOYLIB : public ASCIILib
         void loadCSVData();
     
     public:
-        /* Constructor, & Destructor */
-        /* Note: Usage of transDname instead of transFname convention to 
-           indicate location of files for conversion contained in a particular
-           directory containing both TENDL and PENDF files, which are needed
-           together for GENDF conversion with NJOY GROUPR*/
+        /* Constructor, & Destructor
+            Note: Usage of transDname instead of transFname convention to 
+            indicate location of files for conversion contained in a particular
+            directory containing both TENDL and PENDF files, which are needed
+            together for GENDF conversion with NJOY GROUPR*/
         ALARAJOYLIB(const char* transDname, const char* alaraFname);
         ~ALARAJOYLIB();
 };

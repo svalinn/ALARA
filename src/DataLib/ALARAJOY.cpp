@@ -72,8 +72,10 @@ static CSVRow parseCSVRow(const std::string& line)
     else rest = rest.substr(l, r - l + 1);
 
     // Strip optional surrounding quotes
-    if (!rest.empty() && (rest.front()=='\"' || rest.front()=='\'')) rest.erase(rest.begin());
-    if (!rest.empty() && (rest.back()=='\"'  || rest.back()=='\''))  rest.pop_back();
+    if (!rest.empty() && (rest.front()=='\"' || 
+        rest.front()=='\'')) rest.erase(rest.begin());
+    if (!rest.empty() && (rest.back()=='\"'  || 
+        rest.back()=='\''))  rest.pop_back();
 
     row.crossSections = parseXSectionArray(rest);
     
@@ -86,9 +88,12 @@ std::string pythonPreprocess(const char* transDname) {
   char buffer[256];
   std::string result;
 
-    std::string cmd = "python ./ALARAJOY_wrapper/preprocess_fendl3.py -t " + std::string(transDname) + " 2>&1";
+    // Right now, this only allows for this to be called from DataLib
+    // trying to figure out how to expand to be able to call from anywhere
+    // without hardcoding Python path
+    std::string cmd = "python ./ALARAJOY_wrapper/preprocess_fendl3.py -t " 
+                    + std::string(transDname) + " 2>&1";
     FILE* pipe = popen(cmd.c_str(), "r");
-    std::cout << "Python processed.";
 
     if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
     result = buffer;
@@ -107,7 +112,6 @@ std::string pythonPreprocess(const char* transDname) {
 
 // Constructor
 ALARAJOYLIB::ALARAJOYLIB(
-//    const char *transFname, const char *decayFname, const char *alaraFname
     const char *transDname, const char *alaraFname
 ) : ASCIILib(DATALIB_ALARAJOY)
 {
@@ -216,7 +220,8 @@ int ALARAJOYLIB::getTransData()
         // Fill cross sections (75 groups total)
         for (int g = 0; g < nGroups; g++)
         {
-            xSection[rxnNum][g] = (g < row.nonZeroGroups) ? row.crossSections[g] : 0.0;
+            xSection[rxnNum][g] = 
+            (g < row.nonZeroGroups) ? row.crossSections[g] : 0.0;
         }
 
         rxnNum++;
