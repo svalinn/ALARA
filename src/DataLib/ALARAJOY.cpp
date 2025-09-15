@@ -91,7 +91,7 @@ std::string pythonPreprocess(const char* transDname) {
     // Right now, this only allows for this to be called from DataLib
     // trying to figure out how to expand to be able to call from anywhere
     // without hardcoding Python path
-    std::string cmd = "python ./ALARAJOY_wrapper/preprocess_fendl3.py -t " 
+    std::string cmd = "python ~/ALARA/src/DataLib/ALARAJOY_wrapper/preprocess_fendl3.py -t " 
                     + std::string(transDname) + " 2>&1";
     FILE* pipe = popen(cmd.c_str(), "r");
 
@@ -112,12 +112,16 @@ std::string pythonPreprocess(const char* transDname) {
 
 // Constructor
 ALARAJOYLIB::ALARAJOYLIB(
-    const char *transDname, const char *alaraFname
+    const char* transDname, const char* decayFname, const char* alaraFname
 ) : ASCIILib(DATALIB_ALARAJOY)
 {
+    if (decayFname != NULL && strlen(decayFname) > 0) {
+        decayProvider = new EAFLib(decayFname, true);
+    }
+
     // Run Python preprocessing to get CSV Path
     std::string csvPath = pythonPreprocess(transDname);
-    
+
     // Open the CSV file
     inTrans.open(csvPath, ios::in);
     if (inTrans.is_open()) {
@@ -149,6 +153,21 @@ ALARAJOYLIB::~ALARAJOYLIB()
 
     if (transKza != NULL) {
         delete[] transKza;
+    }
+
+    if (decayKza != NULL) {
+        delete[] decayKza;
+        decayKza = nullptr;
+    }
+
+    if (bRatio != NULL) {
+        delete[] bRatio;
+        bRatio = nullptr;
+    }
+
+    if (decayProvider != nullptr) {
+        delete decayProvider;
+        decayProvider = nullptr;
     }
 }
 
@@ -243,11 +262,54 @@ int ALARAJOYLIB::getTransData()
 
 // Stub implementations for decay data
 void ALARAJOYLIB::getDecayInfo()
-{
-  // No decay data needed for ALARAJOY
+{   std::cout << "Processing Decay.\n";
+    if (!decayProvider) {
+        decayKza = nullptr;
+        bRatio = nullptr;
+        numSpec = 0;
+        nDRxns = 0;
+        std::cout << "FAILURE!";
+        return;
+    }
+
+    // Ask EAFLib to prepare its decay-internal structures
+    decayProvider->getDecayInfo();
+    std::cout << "Decay info extracted from EAFLib.\n";
+
+    decayKza =      new int[MAXEAFDCYMODES];
+    bRatio   =      new float[MAXEAFDCYMODES]; 
 }
 
 int ALARAJOYLIB::getDecayData()
 {
-  return LASTISO;  // No decay data
+  if (!decayProvider) return LASTISO;
+
+  // Call EAFLib's parser which will read the next decay block
+  int zak = decayProvider->getDecayData();
+  if (zak == LASTISO) return LASTISO;
+
+  int nd = decayProvider->getNDRxns();
+  const int* srcKza = decayProvider->getDecayKzaPtr();
+  const float* srcBR = decayProvider->getBRatioPtr();
+
+  memcpy(decayKza, srcKza, nd * sizeof(int));
+  memcpy(bRatio, srcBR, nd * sizeof(float));
+  thalf = decayProvider->getThalf();
+  const float* srcE = decayProvider->getEPtr();
+  for (int i = 0; i < 3; ++i) {
+    E[i] = srcE[i];
+  }
+  nDRxns = nd;
+  nIons = decayProvider->getNIons();
+  numSpec = decayProvider->getNumSpec();
+
+  decayProvider->getGammaData();
+
+  return zak;
+}
+
+void ALARAJOYLIB::getGammaInfo()
+{
+    if (!decayProvider) return;
+    decayProvider->getGammaData();
 }

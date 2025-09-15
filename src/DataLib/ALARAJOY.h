@@ -34,11 +34,12 @@ DATALIB_IEAF     6     ieaf     A data library with cross-section
                                 formatting definition of the EAF library 
                                 (roughly ENDF/B-6).
 DATALIB_FEIND    7     feind    A FEIND library
-DATALIB_ALARAJOY 8     ajoy     A data library following the formatting
+DATALIB_ALARAJOY 8     ajoy     A hybrid data library following the formatting
                                 definition of the FENDL 3.2b (TENDL 2017)
                                 library (TENDL and PENDF format, converted
                                 to GENDF format by an NJOY wrapped Python 
-                                preprocessor).    
+                                preprocessor) for transmutation and the EAF
+                                library for decay.    
 -------------------------------------------------------------------
 
 */
@@ -51,6 +52,7 @@ DATALIB_ALARAJOY 8     ajoy     A data library following the formatting
 #define MAXALARAJOYRXNS 350
 
 #include "ASCIILib.h"
+#include "EAFLib.h"
 
 class ALARAJOYLIB : public ASCIILib
 {
@@ -61,9 +63,9 @@ class ALARAJOYLIB : public ASCIILib
         /* Interface from ASCIILib */
         void getTransInfo();
         void getDecayInfo();
+        void getGammaInfo();
         int getTransData();
         int getDecayData();
-
         /* Internal helpers */
         void loadCSVData();
     
@@ -72,9 +74,26 @@ class ALARAJOYLIB : public ASCIILib
             Note: Usage of transDname instead of transFname convention to 
             indicate location of files for conversion contained in a particular
             directory containing both TENDL and PENDF files, which are needed
-            together for GENDF conversion with NJOY GROUPR*/
-        ALARAJOYLIB(const char* transDname, const char* alaraFname);
+            together for GENDF conversion with NJOY GROUPR.
+            Additionally, decay data is not accessed through FENDL3, but
+            rather in conjunction with EAF data, accessing EAFLib decay
+            methods in conjunction with ALARAJOY-specific transmutation*/
+//        ALARAJOYLIB(const char* transDname, const char* alaraFname);
+        ALARAJOYLIB(const char* transDname, const char* decayFname, const char* alaraFname);
         ~ALARAJOYLIB();
+
+    private:
+
+        // Decay provider and buffers
+        EAFLib*     decayProvider = nullptr;
+        int*        decayKza = nullptr;
+        float*      bRatio = nullptr;
+        float       thalf = 0.0f;
+        float       E[3] = {0.0f, 0.0f, 0.0f};
+        int         nDRxns = 0;
+        int         nIons = 0;
+        int         numSpec = 0;
+        int*        GammaData = nullptr;
 };
 
 #endif

@@ -140,10 +140,10 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
       delete dl;
       break;
     case ALARAJOY2ALARA:
-        input >> transDname;
-        verbose(3,"Openning FENDL3 formatted libraries %s for conversion",
-        transDname);
-        dl = new ALARAJOYLIB(transDname, ALARAFNAME);
+        input >> transDname >> decayFname;
+        verbose(3,"Openning FENDL3 formatted libraries %s, %s for conversion",
+        transDname, decayFname);
+        dl = new ALARAJOYLIB(transDname, decayFname, ALARAFNAME);
         delete dl;
         break;
     default:
@@ -193,10 +193,10 @@ void DataLib::convertLib(istream& input)
       delete dl;
       break;
     case ALARAJOY2ALARA:
-      input >> transDname >> alaraFname;
-      verbose(3,"Openning FENDL3 formatted libraries %s for conversion into ALARA library %s",
-	      transFname,alaraFname);
-      dl = new ALARAJOYLIB(transDname,alaraFname);
+      input >> transDname >> decayFname >>alaraFname;
+      verbose(3,"Openning FENDL3 formatted libraries %s, %s for conversion into ALARA library %s",
+	      transFname,decayFname,alaraFname);
+      dl = new ALARAJOYLIB(transDname,decayFname,alaraFname);
       delete dl;
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);

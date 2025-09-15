@@ -15,31 +15,57 @@ EAFLib::EAFLib(const char *transFname, const char *decayFname, const char *alara
 
 }
 
+// Decay-only constructor
+EAFLib::EAFLib(const char* decayFname, bool decayOnly) : ASCIILib(DATALIB_EAF)
+{
+  // Only open the decay stream -- do not call makeBinLib here
+  if (decayFname !=NULL)
+  {
+    inDecay.open(searchNonXSPath(decayFname), ios::in);
+    if (!inDecay.is_open())
+      error(1002, "EAFLib(decay-only): failed to open decay file %s", decayFname);
+  }
+}
+
 EAFLib::~EAFLib()
 {
   /* delete arrays here that were dimensioned with
    * EAF relevant constants */
   int rxnNum;
 
-  for (rxnNum=0;rxnNum<MAXEAFRXNS;rxnNum++)
-    {
-      delete xSection[rxnNum];
-      delete emitted[rxnNum];
+    if (xSection) {
+        for (int rxnNum = 0; rxnNum < MAXEAFRXNS; rxnNum++) {
+            if (xSection[rxnNum]) {
+                delete[] xSection[rxnNum];
+                xSection[rxnNum] = nullptr;
+            }
+        }
+        delete[] xSection;
+        xSection = nullptr;
     }
-  delete xSection;
-  delete emitted;
-  delete transKza;
 
-  delete decayKza;
-  delete bRatio;
+    if (emitted) {
+        for (int rxnNum = 0; rxnNum < MAXEAFRXNS; rxnNum++) {
+            if (emitted[rxnNum]) {
+                delete[] emitted[rxnNum];
+                emitted[rxnNum] = nullptr;
+            }
+        }
+        delete[] emitted;
+        emitted = nullptr;
+    }
 
-  inTrans.close();
-  inDecay.close();
+    delete[] transKza;
+    delete[] decayKza;
+    delete[] bRatio;
+
+    inTrans.close();
+    inDecay.close();
 }
 
 void EAFLib::extract(char* input, float* value)
 {
-  char section[32];
+  char section[128];
 
   /* find beginning of exponent */
   int expStart = strcspn(input,"+-");
@@ -820,15 +846,15 @@ int EAFLib::getGammaData()
 
   if (numGSpec == 0)
     {
-      delete numDisc;
-      delete nIntReg;
-      delete nPnts;
-      delete discGammaE;
-      delete discGammaI;
-      delete intRegB;
-      delete intRegT;
-      delete contX;
-      delete contY;
+      delete[] numDisc;
+      delete[] nIntReg;
+      delete[] nPnts;
+      delete[] discGammaE;
+      delete[] discGammaI;
+      delete[] intRegB;
+      delete[] intRegT;
+      delete[] contX;
+      delete[] contY;
     }
 
 
