@@ -71,15 +71,18 @@ class ALARAJOYLIB : public ASCIILib
     
     public:
         /* Constructor, & Destructor
-            Note: Usage of transDname instead of transFname convention to 
-            indicate location of files for conversion contained in a particular
-            directory containing both TENDL and PENDF files, which are needed
-            together for GENDF conversion with NJOY GROUPR.
+            Note: tranFname refers to a CSV of preprocessed FENDL3 data from
+            an external Python script that converts TENDL/PENDF pairs to GENDF
+            data using the NJOY GROUPR module and writes it out to a CSV. If
+            CSV has not yet been processed, run 
+            ./ALARAJOY_wrapper/preprocess_fendl3.py, following
+            ./ALARAJOY_wrapper/README.md instructions for usage prior to running
+            ALARA convert_lib with ALARAJOY.
+
             Additionally, decay data is not accessed through FENDL3, but
             rather in conjunction with EAF data, accessing EAFLib decay
             methods in conjunction with ALARAJOY-specific transmutation*/
-//        ALARAJOYLIB(const char* transDname, const char* alaraFname);
-        ALARAJOYLIB(const char* transDname, const char* decayFname, const char* alaraFname);
+        ALARAJOYLIB(const char* transFname, const char* decayFname, const char* alaraFname);
         ~ALARAJOYLIB();
 
     private:

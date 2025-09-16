@@ -82,48 +82,17 @@ static CSVRow parseCSVRow(const std::string& line)
     return row;
 }
 
-// Free helper: Running the Python preprocessor and storing data path
-std::string pythonPreprocess(const char* transDname) {
-
-  char buffer[256];
-  std::string result;
-
-    // Right now, this only allows for this to be called from DataLib
-    // trying to figure out how to expand to be able to call from anywhere
-    // without hardcoding Python path
-    std::string cmd = "python ~/ALARA/src/DataLib/ALARAJOY_wrapper/preprocess_fendl3.py -t " 
-                    + std::string(transDname) + " 2>&1";
-    FILE* pipe = popen(cmd.c_str(), "r");
-
-    if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-    result = buffer;
-    }
-
-    int ret = pclose(pipe);
-
-    // Remove trailing newline
-    if (!result.empty() && result.back() == '\n') {
-    result.pop_back();
-    }
-
-    return result;
-
-}
-
 // Constructor
 ALARAJOYLIB::ALARAJOYLIB(
-    const char* transDname, const char* decayFname, const char* alaraFname
+    const char* transFname, const char* decayFname, const char* alaraFname
 ) : ASCIILib(DATALIB_ALARAJOY)
 {
     if (decayFname != NULL && strlen(decayFname) > 0) {
         decayProvider = new EAFLib(decayFname, true);
     }
 
-    // Run Python preprocessing to get CSV Path
-    std::string csvPath = pythonPreprocess(transDname);
-
     // Open the CSV file
-    inTrans.open(csvPath, ios::in);
+    inTrans.open(transFname, ios::in);
     if (inTrans.is_open()) {
         loadCSVData(); // Pre-load entire CSV
         makeBinLib(alaraFname);
