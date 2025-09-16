@@ -3,7 +3,7 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
-from os import getcwd
+import os
 
 def set_directory():
     '''
@@ -18,7 +18,7 @@ def set_directory():
             command was called.
     '''
 
-    dir = getcwd()
+    dir = os.getcwd()
     fendl_dir = 'ALARAJOY_wrapper'
     if fendl_dir not in dir:
         dir += f'/{fendl_dir}' # Should only be called from one directory up
@@ -249,7 +249,10 @@ def run_njoy(element, A, matb):
     # If the run is successful, log out the output
     # and make a copy of the file as a .GENDF file
     if not result.stderr:
-        gendf_path = dir + f'/tendl_2017_{element}{str(A).zfill(3)}.gendf'
+        gendf_dir = 'gendf_files'
+        if not os.path.isdir(f'{dir}/{gendf_dir}'):
+            os.mkdir(f'{dir}/{gendf_dir}')
+        gendf_path = f'{dir}/{gendf_dir}/tendl_2017_{element}{str(A).zfill(3)}.gendf'
         Path('tape31').rename(Path(gendf_path))
         ensure_gendf_markers(gendf_path, matb)
 

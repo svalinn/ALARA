@@ -30,6 +30,7 @@ def main():
     for isotope, file_properties in tp.search_for_files(search_dir).items():
         element = file_properties['Element']
         A = file_properties['Mass Number']
+        print(f"Processing {element}{A}")
         endf_path, pendf_path = file_properties['File Paths']
         Path(TAPE20).write_bytes(endf_path.read_bytes())
         Path(TAPE21).write_bytes(pendf_path.read_bytes())
