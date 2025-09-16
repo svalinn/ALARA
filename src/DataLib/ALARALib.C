@@ -317,14 +317,14 @@ void ALARALib::writeData(int kza, int nRxns, float thalf, float *E,
       offset+=fwrite((*(xSection+unique))+nGroups,SFLOAT,1,binLib)*SFLOAT;
 
       /* delete used info */
-      delete emitted[unique];
-      delete xSection[unique];
+      delete[] emitted[unique];
+      delete[] xSection[unique];
     }
 
   /* delete used info */
-  delete emitted;
-  delete xSection;
-  delete daugKza;
+  delete[] emitted;
+  delete[] xSection;
+  delete[] daugKza;
       
 }
 

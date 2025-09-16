@@ -124,7 +124,7 @@ void ASCIILib::trans2merge()
 				  strlen(emitted[rxnNum])+2];
 	      memCheck(tmp,"ASCIILib::trans2merge(...): tmp -> mEmitted[n]");
 	      sprintf(tmp,"%s,%s",mEmitted[unique],emitted[rxnNum]);
-	      delete mEmitted[unique];
+	      delete[] mEmitted[unique];
 	      mEmitted[unique] =tmp;
 	      
 	      /* end for loop AND use as flag below */

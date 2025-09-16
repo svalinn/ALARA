@@ -8,3 +8,10 @@ configure
 depcomp
 install-sh
 missing
+*.pendf
+*.tendl
+*.gendf
+*.idx
+*.gdx
+*.gam
+*.lib
