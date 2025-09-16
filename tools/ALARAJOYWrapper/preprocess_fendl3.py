@@ -55,6 +55,13 @@ def write_dsv(dsv_path, cumulative_data):
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv_file.write(str(-1))
 
+def args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--fendlFileDir', '-f', required=False, nargs=1
+    )
+    return parser.parse_args()
+
 def main():
     """
     Main method when run as a command line script.
@@ -71,7 +78,7 @@ def main():
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
 
     cumulative_data = []
-    for isotope, file_properties in tp.search_for_files().items():
+    for isotope, file_properties in tp.search_for_files(search_dir).items():
         element = file_properties['Element']
         A = file_properties['Mass Number']
         endf_path = file_properties['TENDL File Path']
