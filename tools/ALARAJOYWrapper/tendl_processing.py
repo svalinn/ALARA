@@ -105,8 +105,9 @@ def extract_gendf_pkza(gendf_path):
     Z, element, A = first_line.split('-')[:3]
 
     Z = int(Z)
+    isomer_tag = 'm' if 'm' in A.lower() else 'n'
     M = 2 if 'n' in A.lower() else 1 if 'm' in A.lower() else 0
-    A = int(A.lower().split(' ')[0].split('m')[0])
+    A = int(A.lower().split(' ')[0].split(isomer_tag)[0])
     pKZA = (Z * 1000 + A) * 10 + M
     return pKZA
 
