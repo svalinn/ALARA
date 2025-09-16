@@ -2,23 +2,35 @@
 import reaction_data as rxd
 import tendl_processing as tp
 import groupr_tools
+import argparse
 from pathlib import Path
 from pandas import DataFrame
+
+def args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--fendlFileDir', '-f', required=False, nargs=1
+    )
+    return parser.parse_args()
 
 def main():
     """
     Main method when run as a command line script.
     """
 
+    dir = groupr_tools.set_directory()
+    search_dir = args().fendlFileDir[0] if args().fendlFileDir else dir
+
     TAPE20 = 'tape20'
     TAPE21 = 'tape21'
 
-    mt_dict = rxd.process_mt_data(rxd.load_mt_table('mt_table.csv'))
+    mt_dict = rxd.process_mt_data(rxd.load_mt_table(f'{dir}/mt_table.csv'))
 
     cumulative_data = []
-    for isotope, file_properties in tp.search_for_files().items():
+    for isotope, file_properties in tp.search_for_files(search_dir).items():
         element = file_properties['Element']
         A = file_properties['Mass Number']
+        print(f"Processing {element}{A}")
         endf_path, pendf_path = file_properties['File Paths']
         Path(TAPE20).write_bytes(endf_path.read_bytes())
         Path(TAPE21).write_bytes(pendf_path.read_bytes())
@@ -38,7 +50,10 @@ def main():
         cumulative_data.extend(gendf_data)
         groupr_tools.cleanup_njoy_files()
 
-    DataFrame(cumulative_data).to_csv('cumulative_gendf_data.csv')
+    csv_path = dir + '/cumulative_gendf_data.csv'
+    DataFrame(cumulative_data).to_csv(csv_path)
+
+    print(csv_path)
 
 if __name__ == '__main__':
     main()
