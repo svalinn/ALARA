@@ -71,7 +71,7 @@ def main():
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
 
     cumulative_data = []
-    for isotope, file_properties in tp.search_for_files(search_dir).items():
+    for isotope, file_properties in tp.search_for_files().items():
         element = file_properties['Element']
         A = file_properties['Mass Number']
         endf_path = file_properties['TENDL File Path']
