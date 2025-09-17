@@ -19,6 +19,7 @@ using namespace std;
 #include "ADJLib.h"
 #include "FEINDLib.h"
 #include "ALARAJOY.h"
+#include "ALARAJOY.h"
 
 const char *libTypes =  "\
 null  \
@@ -28,6 +29,8 @@ eaf   \
 adj   \
 gamma \
 ieaf  \
+feind \
+ajoy  ";
 feind \
 ajoy  ";
 
@@ -75,6 +78,7 @@ DataLib* DataLib::newLib(char* libType, istream& input)
     {
     case DATALIB_EAF:
     case DATALIB_IEAF:
+    case DATALIB_ALARAJOY:
     case DATALIB_ALARAJOY:
       convertLib(libType,DATALIB_ALARA,input);
       dl = new ALARALib(ALARAFNAME);
