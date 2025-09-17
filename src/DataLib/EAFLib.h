@@ -119,17 +119,29 @@ protected:
   void skipContGammas(char*);
   void readDiscreteGammas(int, int, float, char*);
   void readContGammas(int, float, char*);
-  int getGammaData();
+
+public:
 
   /* Interface from ASCIILib */
   void getTransInfo();
   void getDecayInfo();
   int getTransData();
   int getDecayData();
+  int getGammaData();
 
-public:
+  /* Decay-specific functions called by ALARAJOY */
+  const int*      getDecayKzaPtr() const { return decayKza; }
+  const float*    getBRatioPtr() const { return bRatio; }
+  int             getNDRxns() const { return nDRxns; }
+  int             getNIons() const { return nIons; }
+  float           getThalf() const { return thalf; }
+  const float*    getEPtr() const { return E; }
+  int             getNumSpec() const { return numSpec; }  
+
   /* Service */
   EAFLib(const char*, const char*, const char*);
+  // Decay-only constructor for ALARAJOYLib (no makeBinLib calling)
+  EAFLib(const char* decayFname, bool decayOnly);
   ~EAFLib();
 
 };

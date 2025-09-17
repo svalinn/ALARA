@@ -15,6 +15,18 @@ EAFLib::EAFLib(const char *transFname, const char *decayFname, const char *alara
 
 }
 
+// Decay-only constructor (for use in ALARAJOY)
+EAFLib::EAFLib(const char* decayFname, bool decayOnly) : ASCIILib(DATALIB_EAF)
+{
+  // Only open the decay stream -- do not call makeBinLib here
+  if (decayFname !=NULL)
+  {
+    inDecay.open(searchNonXSPath(decayFname), ios::in);
+    if (!inDecay.is_open())
+      error(1002, "EAFLib(decay-only): failed to open decay file %s", decayFname);
+  }
+}
+
 EAFLib::~EAFLib()
 {
   /* delete arrays here that were dimensioned with
@@ -39,7 +51,7 @@ EAFLib::~EAFLib()
 
 void EAFLib::extract(char* input, float* value)
 {
-  char section[32];
+  char section[128];
 
   /* find beginning of exponent */
   int expStart = strcspn(input,"+-");
