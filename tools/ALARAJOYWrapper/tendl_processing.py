@@ -5,7 +5,6 @@ from pathlib import Path
 def get_isotope(stem):
     """
     Extract the element name and mass number from a given filename.
-
     Arguments:
         stem (str): Stem of a an ENDF (TENDL) and/or PENDF file, formatted
             as f'{element}{mass_number}.ext'
@@ -19,10 +18,10 @@ def get_isotope(stem):
     for i, char in enumerate(stem):
         if char.isdigit():
             break
-    
+
     element = stem[:i]
     A = stem[i:]       
-    
+
     return element, A
 
 def search_for_files(dir = '.'):
@@ -56,7 +55,7 @@ def search_for_files(dir = '.'):
                 file_info[f'{element}{A}'] = {
                     'Element'       :                             element,
                     'Mass Number'   :                                   A,
-                    'File Paths'    :  (file, file.with_suffix('.pendf'))
+                    'File Paths'    :   (file, file.with_suffix('.pendf'))
                 }
 
     return file_info
@@ -64,7 +63,6 @@ def search_for_files(dir = '.'):
 def extract_endf_specs(path):
     """
     Extract the material ID and MT numbers from an ENDF file.
-
     Arguments:
         path (str): File path to the selected ENDF file.
     
@@ -83,7 +81,7 @@ def extract_endf_specs(path):
     file = tape.material(matb).file(xs_MF)
     # Extract the MT numbers that are present in the file
     MTs = [MT.MT for MT in file.sections.to_list()]
-    
+
     return (matb, MTs, file)
 
 def extract_gendf_pkza(gendf_path):
@@ -95,10 +93,8 @@ def extract_gendf_pkza(gendf_path):
     
     Arguments:
         gendf_path (str): File path to the GENDF file being analyzed.
-        M (str, optional): Identifier of isomer, signified by the letter "M"
-            at the end of the mass number string.
-
-            Defaults to None and will be otherwise defined internally.
+        dir (str): String identifying the directory from which the function is
+            being called.
     
     Returns:
         pKZA (int): Parent KZA identifier.
@@ -107,10 +103,11 @@ def extract_gendf_pkza(gendf_path):
     with open(gendf_path, 'r') as f:
         first_line = f.readline()
     Z, element, A = first_line.split('-')[:3]
-    
+
     Z = int(Z)
-    M = 1 if 'm' in A.lower() else 0
-    A = int(A.lower().split(' ')[0].split('m')[0])
+    isomer_tag = 'm' if 'm' in A.lower() else 'n'
+    M = 2 if 'n' in A.lower() else 1 if 'm' in A.lower() else 0
+    A = int(A.lower().split(' ')[0].split(isomer_tag)[0])
     pKZA = (Z * 1000 + A) * 10 + M
     return pKZA
 
@@ -135,7 +132,7 @@ def extract_cross_sections(file, MT):
 
     # Only every 2nd line starting at the 3rd line has cross-section data.
     lines = section.split('\n')[2:-2:2]
-    
+
     # Extract the 3rd token and convert to more conventional string
     # representation of a float
     sigma_list = [
@@ -156,7 +153,6 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
             contents for a specific material's cross-section data.
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv
         pKZA (int): Parent KZA identifier.
-
     Returns:
         gendf_data (list of dict): List of dictionaries containing parent KZA
             daughter KZA values, emitted particles, counts of the number of
