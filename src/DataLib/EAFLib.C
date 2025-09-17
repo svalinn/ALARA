@@ -25,15 +25,29 @@ EAFLib::~EAFLib()
    * EAF relevant constants */
   int rxnNum;
 
-  for (rxnNum=0;rxnNum<MAXEAFRXNS;rxnNum++)
-    {
-      delete[] xSection[rxnNum];
-      delete[] emitted[rxnNum];
+    if (xSection) {
+        for (int rxnNum = 0; rxnNum < MAXEAFRXNS; rxnNum++) {
+            if (xSection[rxnNum]) {
+                delete[] xSection[rxnNum];
+                xSection[rxnNum] = nullptr;
+            }
+        }
+        delete[] xSection;
+        xSection = nullptr;
     }
-  delete[] xSection;
-  delete[] emitted;
-  delete[] transKza;
 
+    if (emitted) {
+        for (int rxnNum = 0; rxnNum < MAXEAFRXNS; rxnNum++) {
+            if (emitted[rxnNum]) {
+                delete[] emitted[rxnNum];
+                emitted[rxnNum] = nullptr;
+            }
+        }
+        delete[] emitted;
+        emitted = nullptr;
+      }
+
+  delete[] transKza;
   delete[] decayKza;
   delete[] bRatio;
 
