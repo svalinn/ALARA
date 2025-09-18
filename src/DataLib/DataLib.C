@@ -143,7 +143,7 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
         input >> transFname >> decayFname;
         verbose(3,"Openning ALARAJOY formatted libraries %s, %s for conversion",
         transFname, decayFname);  
-        dl = new ALARAJOYLIB(transFname, decayFname, ALARAFNAME);
+        dl = new ALARAJOYLib(transFname, decayFname, ALARAFNAME);
         delete dl;
         break;
     default:
@@ -196,7 +196,7 @@ void DataLib::convertLib(istream& input)
       input >> transFname >> decayFname >> alaraFname;  
       verbose(3,"Openning ALARAJOY formatted libraries %s, %s for conversion into ALARA library %s",
       transFname,decayFname,alaraFname);  
-      dl = new ALARAJOYLIB(transFname,decayFname,alaraFname);
+      dl = new ALARAJOYLib(transFname,decayFname,alaraFname);
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
       delete dl;
