@@ -60,10 +60,15 @@ class ALARAJOYLib : public EAFLib
 {
     protected:
         ifstream inTrans;
+<<<<<<< HEAD
+=======
+        void loadCSVData();
+>>>>>>> 8fda0fb (Streamlining EAF Decay linking)
     
     public:
 
         /* Service */
+<<<<<<< HEAD
         ALARAJOYLib(
             const char* transFname,
             const char* decayFname,
@@ -71,11 +76,18 @@ class ALARAJOYLib : public EAFLib
         );
 
         /* Override transmutation methods with DSV implementation */
+=======
+        ALARAJOYLib(const char* transFname, const char* decayFname, const char* alaraFname);
+        ~ALARAJOYLib();
+
+        /* Override transmutation methods with CSV implementation */
+>>>>>>> 8fda0fb (Streamlining EAF Decay linking)
         void getTransInfo() override;
         int getTransData() override;
 
     private:
 
+<<<<<<< HEAD
         // Variables to hold pre-loaded space-delimter DSV transmutation data
         static std::vector<DSVRow> dsvData;
         size_t currentRowIndex;
@@ -83,6 +95,13 @@ class ALARAJOYLib : public EAFLib
 
         void loadDSVData();
         
+=======
+        // Variables to hold pre-loaded CSV transmutation data
+        static std::vector<CSVRow> csvData;
+        size_t currentRowIndex;
+        int currentParent;
+
+>>>>>>> 8fda0fb (Streamlining EAF Decay linking)
 };
 
 #endif
