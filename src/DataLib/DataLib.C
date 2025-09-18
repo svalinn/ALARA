@@ -42,7 +42,7 @@ const char *libTypeStr[] = {
   "a 'gammalib' ALARA",
   "an IEAF library",
   "a FEIND library",
-  "a FENDL3.2b library"};
+  "an ALARAJOY library"};
 
 const char *libTypeSuffix[] = {
   ".null",
@@ -141,7 +141,7 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
       break;
     case ALARAJOY2ALARA:
         input >> transFname >> decayFname;
-        verbose(3,"Openning FENDL3 formatted libraries %s, %s for conversion",
+        verbose(3,"Openning ALARAJOY formatted libraries %s, %s for conversion",
         transFname, decayFname);  
         dl = new ALARAJOYLIB(transFname, decayFname, ALARAFNAME);
         delete dl;
@@ -194,7 +194,7 @@ void DataLib::convertLib(istream& input)
       break;
     case ALARAJOY2ALARA:
       input >> transFname >> decayFname >> alaraFname;  
-      verbose(3,"Openning FENDL3 formatted libraries %s, %s for conversion into ALARA library %s",
+      verbose(3,"Openning ALARAJOY formatted libraries %s, %s for conversion into ALARA library %s",
       transFname,decayFname,alaraFname);  
       dl = new ALARAJOYLIB(transFname,decayFname,alaraFname);
       delete dl;
