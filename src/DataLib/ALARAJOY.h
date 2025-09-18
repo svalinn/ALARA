@@ -49,6 +49,14 @@ DATALIB_ALARAJOY 8     ajoy     A hybrid data library following the formatting
 #include "ASCIILib.h"
 #include "EAFLib.h"
 
+struct CSVRow {
+    int parentKZA;
+    int daughterKZA;
+    std::string emittedParticles;
+    int nonZeroGroups;
+    std::vector<float> crossSections;
+};
+
 class ALARAJOYLIB : public ASCIILib
 {
     protected:
@@ -80,6 +88,10 @@ class ALARAJOYLIB : public ASCIILib
         ~ALARAJOYLIB();
 
     private:
+        // Variables to hold pre-loaded CSV transmutation data
+        static std::vector<CSVRow> csvData;
+        size_t currentRowIndex;
+        int currentParent;
 
         // Decay provider and buffers
         EAFLib*     decayProvider = nullptr;
