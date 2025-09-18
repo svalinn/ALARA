@@ -110,17 +110,13 @@ def extract_gendf_pkza(gendf_path):
     # Metastable states classified by TENDL as m = 1, n = 2, etc.
     # (Generally expecting only m, occasionally n, but physically,
     # values could go higher, so isomeric_states goes up to z = 14)
-    isomeric_states = [
-        'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-    ]
-    isomeric_states = dict(
-        zip(isomeric_states, range(1, len(isomeric_states)+1))
-    )
+    M = 0
+    isomeric_states = 'mnopqrstuvwxyz'
     isomer_tag = next(
         (tag for tag in isomeric_states if tag in A.lower()), None
     )
-    # If no isomeric tag found, then the excitation level is 0
-    M = isomeric_states.get(isomer_tag, 0)
+    if isomer_tag:
+        M = isomeric_states.find(isomer_tag) + 1
     if M > 2:
         warnings.warn(
             f'Isomeric state greater than 2. Unexpected case for TENDL2017.',
