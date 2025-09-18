@@ -1,4 +1,5 @@
 #include "alara.h"
+#include "EAFLib.h"
 
 /* ******* Class Description ************
 This class provides an interface to non-binary cross-section libraries 
@@ -45,9 +46,6 @@ DATALIB_ALARAJOY 8     ajoy     A hybrid data library following the formatting
 #define DATALIB_ALARAJOY 8
 
 #define MAXALARAJOYRXNS 350
-
-#include "ASCIILib.h"
-#include "EAFLib.h"
 
 struct CSVRow {
     int parentKZA;
