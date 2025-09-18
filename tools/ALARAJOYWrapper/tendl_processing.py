@@ -1,6 +1,7 @@
 # Import packages
 import ENDFtk
 from pathlib import Path
+import warnings
 
 def get_isotope(stem):
     """
@@ -105,8 +106,26 @@ def extract_gendf_pkza(gendf_path):
     Z, element, A = first_line.split('-')[:3]
 
     Z = int(Z)
-    isomer_tag = 'm' if 'm' in A.lower() else 'n'
-    M = 2 if 'n' in A.lower() else 1 if 'm' in A.lower() else 0
+
+    # Metastable states classified by TENDL as m = 1, n = 2, etc.
+    # (Generally expecting only m, occasionally n, but physically,
+    # values could go higher, so isomeric_states goes up to z = 14)
+    isomeric_states = [
+        'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+    ]
+    isomeric_states = dict(
+        zip(isomeric_states, range(1, len(isomeric_states)+1))
+    )
+    isomer_tag = next(
+        (tag for tag in isomeric_states if tag in A.lower()), None
+    )
+    # If no isomeric tag found, then the excitation level is 0
+    M = isomeric_states.get(isomer_tag, 0)
+    if M > 2:
+        warnings.warn(
+            f'Isomeric state greater than 2. Unexpected case for TENDL2017.',
+            UserWarning
+        )
     A = int(A.lower().split(' ')[0].split(isomer_tag)[0])
     pKZA = (Z * 1000 + A) * 10 + M
     return pKZA
