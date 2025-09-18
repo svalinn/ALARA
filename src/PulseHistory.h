@@ -54,7 +54,10 @@ public:
   /// Inline destructor simply deletes all storage for objects of 
   /// class PulseHistory.
   ~PulseHistory ()
-    { delete td; delete nPulse; delete [] D; };
+    { 
+      delete [] td; 
+      delete [] nPulse; 
+      delete [] D; };
 
   /// Overloaded assignment operator
   PulseHistory& operator=(const PulseHistory&);

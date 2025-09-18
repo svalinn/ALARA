@@ -161,18 +161,18 @@ void DataLib::convertLib(istream& input)
       verbose(3,"Openning EAF formatted libraries %s, %s for conversion into ALARA library %s",
 	      transFname,decayFname,alaraFname);
       dl = new EAFLib(transFname,decayFname,alaraFname);
-      delete dl;
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
+      delete dl;
       break;
     case IEAF2ALARA:
       input >> transFname >> decayFname >> alaraFname;
       verbose(3,"Openning IEAF formatted libraries %s, %s for conversion into ALARA library %s",
 	      transFname,decayFname,alaraFname);
       dl = new IEAFLib(transFname,decayFname,alaraFname);
-      delete dl;
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
+      delete dl;
       break;
     case ALARA2ADJ:
       char adjointLibName[256];
