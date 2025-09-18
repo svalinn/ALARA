@@ -57,52 +57,29 @@ struct CSVRow {
     std::vector<float> crossSections;
 };
 
-class ALARAJOYLIB : public ASCIILib
+class ALARAJOYLib : public EAFLib
 {
     protected:
-
         ifstream inTrans;
-
-        /* Interface from ASCIILib */
-        void getTransInfo();
-        void getDecayInfo();
-        void getGammaInfo();
-        int getTransData();
-        int getDecayData();
-        /* Internal helpers */
         void loadCSVData();
-
+    
     public:
-        /* Constructor, & Destructor
-            Note: tranFname refers to a CSV of preprocessed data from
-            an external Python script that converts TENDL/PENDF pairs to GENDF
-            data using the NJOY GROUPR module and writes it out to a CSV. If
-            CSV has not yet been processed, run 
-            ./ALARAJOY_wrapper/preprocess_fendl3.py, following
-            ./ALARAJOY_wrapper/README.md instructions for usage prior to running
-            ALARA convert_lib with ALARAJOY.
-            Additionally, decay data is not accessed through FENDL3, but
-            rather in conjunction with EAF data, accessing EAFLib decay
-            methods in conjunction with ALARAJOY-specific transmutation*/
-        ALARAJOYLIB(const char* transFname, const char* decayFname, const char* alaraFname);
-        ~ALARAJOYLIB();
+
+        /* Service */
+        ALARAJOYLib(const char* transFname, const char* decayFname, const char* alaraFname);
+        ~ALARAJOYLib();
+
+        /* Override transmutation methods with CSV implementation */
+        void getTransInfo() override;
+        int getTransData() override;
 
     private:
+
         // Variables to hold pre-loaded CSV transmutation data
         static std::vector<CSVRow> csvData;
         size_t currentRowIndex;
         int currentParent;
 
-        // Decay provider and buffers
-        EAFLib*     decayProvider = nullptr;
-        int*        decayKza = nullptr;
-        float*      bRatio = nullptr;
-        float       thalf = 0.0f;
-        float       E[3] = {0.0f, 0.0f, 0.0f};
-        int         nDRxns = 0;
-        int         nIons = 0;
-        int         numSpec = 0;
-        int*        GammaData = nullptr;
 };
 
 #endif
