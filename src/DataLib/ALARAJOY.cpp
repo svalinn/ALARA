@@ -8,7 +8,7 @@
 #include <cstdio>
 
 // Define static member
-std::vector<CSVRow> ALARAJOYLIB::csvData;
+std::vector<CSVRow> ALARAJOYLib::csvData;
 
 // Free helper: Parse cross section array from Python list (of floats) format
 static std::vector<float> parseXSectionArray(const std::string& arrayStr) {
@@ -72,16 +72,12 @@ static CSVRow parseCSVRow(const std::string& line)
 }
 
 // Constructor
-ALARAJOYLIB::ALARAJOYLIB(
+ALARAJOYLib::ALARAJOYLib(
     const char* transFname, const char* decayFname, const char* alaraFname
-) : ASCIILib(DATALIB_ALARAJOY),
+) : EAFLib(decayFname, true),
     currentRowIndex(0),
     currentParent(-1)
 {
-    if (decayFname != NULL && strlen(decayFname) > 0) {
-        decayProvider = new EAFLib(decayFname, true);
-    }
-
     // Open the CSV file
     inTrans.open(transFname, ios::in);
     if (inTrans.is_open()) {
@@ -90,49 +86,13 @@ ALARAJOYLIB::ALARAJOYLIB(
     }
 }
 
-// Destructor
-ALARAJOYLIB::~ALARAJOYLIB()
-{
-    if (inTrans.is_open())
-        inTrans.close();
-
-    // Clean up allocated arrays (if they exist)
-    if (xSection != NULL) {
-        for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++) {
-            delete[] xSection[rxnNum];
-        }
-        delete[] xSection;
-    }
-
-    if (emitted != NULL) {
-        for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++) {
-            delete[] emitted[rxnNum];
-        }
-        delete[] emitted;
-    }
-
-    if (transKza != NULL) {
-        delete[] transKza;
-    }
-
-    if (decayKza != NULL) {
-        delete[] decayKza;
-        decayKza = nullptr;
-    }
-
-    if (bRatio != NULL) {
-        delete[] bRatio;
-        bRatio = nullptr;
-    }
-
-    if (decayProvider != nullptr) {
-        delete decayProvider;
-        decayProvider = nullptr;
-    }
-}
+/* Empty Destructor
+   (by linking decay methods through EAFLib,
+   destruction is automaticaly handled by ~EAFLib() ) */
+ALARAJOYLib::~ALARAJOYLib(){}
 
 // Pre-load entire CSV into memory
-void ALARAJOYLIB::loadCSVData()
+void ALARAJOYLib::loadCSVData()
 {
     csvData.clear();
     currentRowIndex = 0;
@@ -158,7 +118,7 @@ void ALARAJOYLIB::loadCSVData()
 }
 
 // Read library header information
-void ALARAJOYLIB::getTransInfo()
+void ALARAJOYLib::getTransInfo()
 {
     // Fixed for Vitamin J energy group structure
     nGroups = 75;
@@ -177,7 +137,7 @@ void ALARAJOYLIB::getTransInfo()
 }
 
 // Read transmutation data for next parent isotope
-int ALARAJOYLIB::getTransData()
+int ALARAJOYLib::getTransData()
 {
     if (currentRowIndex >= csvData.size()) {
         return LASTISO; // end of data
@@ -218,58 +178,4 @@ int ALARAJOYLIB::getTransData()
     }
 
     return parentKZA;
-}
-
-// Stub implementations for decay data
-void ALARAJOYLIB::getDecayInfo()
-{   std::cout << "Processing Decay.\n";
-    if (!decayProvider) {
-        decayKza = nullptr;
-        bRatio = nullptr;
-        numSpec = 0;
-        nDRxns = 0;
-        std::cout << "FAILURE!";
-        return;
-    }
-
-    // Ask EAFLib to prepare its decay-internal structures
-    decayProvider->getDecayInfo();
-    std::cout << "Decay info extracted from EAFLib.\n";
-
-    decayKza =      new int[MAXEAFDCYMODES];
-    bRatio   =      new float[MAXEAFDCYMODES]; 
-}
-
-int ALARAJOYLIB::getDecayData()
-{
-  if (!decayProvider) return LASTISO;
-
-  // Call EAFLib's parser which will read the next decay block
-  int zak = decayProvider->getDecayData();
-  if (zak == LASTISO) return LASTISO;
-
-  int nd = decayProvider->getNDRxns();
-  const int* srcKza = decayProvider->getDecayKzaPtr();
-  const float* srcBR = decayProvider->getBRatioPtr();
-
-  memcpy(decayKza, srcKza, nd * sizeof(int));
-  memcpy(bRatio, srcBR, nd * sizeof(float));
-  thalf = decayProvider->getThalf();
-  const float* srcE = decayProvider->getEPtr();
-  for (int i = 0; i < 3; ++i) {
-    E[i] = srcE[i];
-  }
-  nDRxns = nd;
-  nIons = decayProvider->getNIons();
-  numSpec = decayProvider->getNumSpec();
-
-  decayProvider->getGammaData();
-
-  return zak;
-}
-
-void ALARAJOYLIB::getGammaInfo()
-{
-    if (!decayProvider) return;
-    decayProvider->getGammaData();
 }
