@@ -66,7 +66,7 @@ class ALARAJOYLIB : public ASCIILib
 
     public:
         /* Constructor, & Destructor
-            Note: tranFname refers to a CSV of preprocessed FENDL3 data from
+            Note: tranFname refers to a CSV of preprocessed data from
             an external Python script that converts TENDL/PENDF pairs to GENDF
             data using the NJOY GROUPR module and writes it out to a CSV. If
             CSV has not yet been processed, run 

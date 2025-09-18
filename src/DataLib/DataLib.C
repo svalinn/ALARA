@@ -197,9 +197,9 @@ void DataLib::convertLib(istream& input)
       verbose(3,"Openning ALARAJOY formatted libraries %s, %s for conversion into ALARA library %s",
       transFname,decayFname,alaraFname);  
       dl = new ALARAJOYLIB(transFname,decayFname,alaraFname);
-      delete dl;
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
+      delete dl;
       break;
     default:
       error(1001,"Conversion from %s (%d) to %s (%d) is not yet supported.",
