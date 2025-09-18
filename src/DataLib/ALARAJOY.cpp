@@ -7,21 +7,10 @@
 #include <cstring>
 #include <cstdio>
 
-// Data structure to hold CSV rows
-struct CSVRow {
-    int parentKZA;
-    int daughterKZA;
-    std::string emittedParticles;
-    int nonZeroGroups;
-    std::vector<float> crossSections;
-};
+// Define static member
+std::vector<CSVRow> ALARAJOYLIB::csvData;
 
-// Global variables to hold pre-loaded CSV data
-static std::vector<CSVRow> csvData;
-static size_t currentRowIndex = 0;
-static int currentParent = -1;
-
-/// Free helper: Parse cross section array from Python list (of floats) format
+// Free helper: Parse cross section array from Python list (of floats) format
 static std::vector<float> parseXSectionArray(const std::string& arrayStr) {
     std::vector<float> xs;
     if (arrayStr.size() < 2) return xs;
@@ -85,7 +74,9 @@ static CSVRow parseCSVRow(const std::string& line)
 // Constructor
 ALARAJOYLIB::ALARAJOYLIB(
     const char* transFname, const char* decayFname, const char* alaraFname
-) : ASCIILib(DATALIB_ALARAJOY)
+) : ASCIILib(DATALIB_ALARAJOY),
+    currentRowIndex(0),
+    currentParent(-1)
 {
     if (decayFname != NULL && strlen(decayFname) > 0) {
         decayProvider = new EAFLib(decayFname, true);
