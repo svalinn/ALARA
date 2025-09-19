@@ -7,8 +7,76 @@
 #include <cstring>
 #include <cstdio>
 
+<<<<<<< HEAD
 // Define DSV row parsing structure
 std::vector<DSVRow> ALARAJOYLib::dsvData;
+=======
+// Define static member
+std::vector<CSVRow> ALARAJOYLib::csvData;
+
+// Parse cross section array from Python list (of floats) format
+std::vector<float> ALARAJOYLib::parseXSectionArray(
+    const std::string& arrayStr
+) {
+    std::vector<float> xs;
+    if (arrayStr.size() < 2) return xs;
+
+    std::string clean = arrayStr.substr(1, arrayStr.size()-2);
+    std::stringstream ss(clean);
+    std::string item;
+
+    while (std::getline(ss, item, ',')) {
+        size_t a = item.find_first_not_of(" \t");
+        size_t b = item.find_last_not_of(" \t");
+        if (a == std::string::npos) continue;
+        xs.push_back(std::stof(item.substr(a, b - a + 1)));
+    }
+    return xs;
+}
+
+// Free helper: Parse a single CSV row
+static CSVRow parseCSVRow(const std::string& line)
+{
+    CSVRow row;
+    std::stringstream ss(line);
+    std::string item;
+
+    // Column 0: Index (skip)
+    std::getline(ss, item, ',');
+
+    std::getline(ss, item, ',');
+    row.parentKZA = std::stoi(item);
+
+    std::getline(ss, item, ',');
+    row.daughterKZA = std::stoi(item);
+
+    std::getline(ss, item, ',');
+    row.emittedParticles = item;
+
+    std::getline(ss, item, ',');
+    row.nonZeroGroups = std::stoi(item);
+
+    // Column 5: Cross Sections
+    std::string rest;
+    std::getline(ss, rest);
+
+    // Trim surrounding whitespace
+    auto l = rest.find_first_not_of(" \t");
+    auto r = rest.find_last_not_of(" \t");
+    if (l == std::string::npos) rest.clear();
+    else rest = rest.substr(l, r - l + 1);
+
+    // Strip optional surrounding quotes
+    if (!rest.empty() && (rest.front()=='\"' || 
+        rest.front()=='\'')) rest.erase(rest.begin());
+    if (!rest.empty() && (rest.back()=='\"'  || 
+        rest.back()=='\''))  rest.pop_back();
+
+    row.crossSections = parseXSectionArray(rest);
+
+    return row;
+}
+>>>>>>> 20646b5 (Fixing formatting issues.)
 
 // Constructor
 ALARAJOYLib::ALARAJOYLib(
