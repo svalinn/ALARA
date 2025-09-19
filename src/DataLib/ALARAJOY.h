@@ -64,7 +64,11 @@ class ALARAJOYLib : public EAFLib
     public:
 
         /* Service */
-        ALARAJOYLib(const char* transFname, const char* decayFname, const char* alaraFname);
+        ALARAJOYLib(
+            const char* transFname,
+            const char* decayFname,
+            const char* alaraFname
+        );
         ~ALARAJOYLib();
 
         /* Override transmutation methods with CSV implementation */

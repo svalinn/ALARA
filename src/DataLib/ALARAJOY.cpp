@@ -10,8 +10,10 @@
 // Define static member
 std::vector<CSVRow> ALARAJOYLib::csvData;
 
-// Free helper: Parse cross section array from Python list (of floats) format
-static std::vector<float> parseXSectionArray(const std::string& arrayStr) {
+// Parse cross section array from Python list (of floats) format
+std::vector<float> ALARAJOYLib::parseXSectionArray(
+    const std::string& arrayStr
+) {
     std::vector<float> xs;
     if (arrayStr.size() < 2) return xs;
 
