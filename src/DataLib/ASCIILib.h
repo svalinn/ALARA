@@ -34,7 +34,14 @@ DATALIB_IEAF     6     ieaf     A data library with cross-section
                                 libraries following the GENDF format and 
                                 decay/gamma libraries following the 
                                 formatting definition of the EAF library 
-                                (roughly ENDF/B-6) 
+                                (roughly ENDF/B-6)
+DATALIB_FEIND    7     feind    A FEIND library
+DATALIB_ALARAJOY 8     ajoy     A hybrid data library following the formatting
+                                definition of the FENDL 3.2b (TENDL 2017)
+                                library (TENDL and PENDF format, converted
+                                to GENDF format by an NJOY wrapped Python 
+                                preprocessor) for transmutation and the EAF
+                                library for decay.     
 -------------------------------------------------------------------
 
  *** Class Members ***
