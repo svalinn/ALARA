@@ -50,10 +50,10 @@ def main():
         cumulative_data.extend(gendf_data)
         groupr_tools.cleanup_njoy_files()
 
-    csv_path = dir + '/cumulative_gendf_data.csv'
-    DataFrame(cumulative_data).to_csv(csv_path)
+    dsv_path = dir + '/cumulative_gendf_data.dsv'
+    DataFrame(cumulative_data).to_csv(dsv_path, sep=' ')
 
-    print(csv_path)
+    print(dsv_path)
 
 if __name__ == '__main__':
     main()
