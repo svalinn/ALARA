@@ -38,7 +38,14 @@ def main():
         cumulative_data.extend(gendf_data)
         groupr_tools.cleanup_njoy_files()
 
+<<<<<<< HEAD:src/DataLib/fendl32B_retrofit/process_fendl3.2.py
     DataFrame(cumulative_data).to_csv('cumulative_gendf_data.csv')
+=======
+    dsv_path = dir + '/cumulative_gendf_data.dsv'
+    DataFrame(cumulative_data).to_csv(dsv_path, sep=' ')
+
+    print(dsv_path)
+>>>>>>> 5de9652 (Moving over to space-delimited data, simplifying DSV parsing and class membership.):tools/ALARAJOYWrapper/preprocess_fendl3.py
 
 if __name__ == '__main__':
     main()
