@@ -81,12 +81,12 @@ class ALARAJOYLib : public EAFLib
         size_t currentRowIndex;
         int currentParent;
 
-        // DSVRow functions
+        // DSV functions
         DSVRow parseDSVRow(const std::string& line);
         std::string cleanXSectionString(std::stringstream& ss);
         std::vector<float> parseXSectionArray(const std::string& arrayStr);
         void loadDSVData();
-
+        
 };
 
 #endif

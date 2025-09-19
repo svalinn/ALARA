@@ -116,8 +116,7 @@ void ALARAJOYLib::loadDSVData()
 // Read library header information
 void ALARAJOYLib::getTransInfo()
 {
-    // Fixed for Vitamin J energy group structure
-    nGroups = 175;
+
     nParents = 0;
 
     // Allocate arrays for maximum reactions
@@ -127,7 +126,7 @@ void ALARAJOYLib::getTransInfo()
 
     for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++)
     {
-        xSection[rxnNum] = new float[nGroups];
+//        xSection[rxnNum] = new float[nGroups];
         emitted[rxnNum]  =        new char[6];
     }
 }
@@ -141,6 +140,23 @@ int ALARAJOYLib::getTransData()
 
     int rxnNum = 0;
     int parentKZA = currentParent;
+
+    // Find maximum nonZeroGroups for this parent
+    int maxGroups = 0;
+    size_t scanIndex = currentRowIndex;
+    while (scanIndex < dsvData.size() &&
+        dsvData[scanIndex].parentKZA == currentParent) {
+            if (dsvData[scanIndex].nonZeroGroups > maxGroups)
+                maxGroups = dsvData[scanIndex].nonZeroGroups;
+            scanIndex++;
+        }
+    nGroups = maxGroups;
+
+    // Reallocate xSection arrays for this parent
+    for (int rxn = 0; rxn < MAXALARAJOYRXNS; rxn++) {
+        delete [] xSection[rxn];
+        xSection[rxn] = new float[nGroups];
+    }
 
     // Read all reactions for current parent
     while (currentRowIndex < dsvData.size() && 
