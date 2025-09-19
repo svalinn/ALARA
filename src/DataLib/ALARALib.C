@@ -37,7 +37,9 @@ ALARALib::ALARALib(const char* fname,int setType)
   strcpy(fnameStr,fname);
   strcat(fnameStr,libTypeSuffix[type]);
 
-  binLib = fopen(searchXSPath(fnameStr),"rb");
+  char *filepath = searchXSPath(fnameStr);
+  binLib = fopen(filepath,"rb");
+  free(filepath);
   if (binLib == NULL)
     error(1104,
 	  "The specified library with filename %s could not be accessed. Please check the path/filename.",
@@ -317,14 +319,14 @@ void ALARALib::writeData(int kza, int nRxns, float thalf, float *E,
       offset+=fwrite((*(xSection+unique))+nGroups,SFLOAT,1,binLib)*SFLOAT;
 
       /* delete used info */
-      delete emitted[unique];
-      delete xSection[unique];
+      delete[] emitted[unique];
+      delete[] xSection[unique];
     }
 
   /* delete used info */
-  delete emitted;
-  delete xSection;
-  delete daugKza;
+  delete[] emitted;
+  delete[] xSection;
+  delete[] daugKza;
       
 }
 
@@ -359,33 +361,33 @@ void ALARALib::writeGammaData(int kza, int numSpec, int *numDisc, int *nIntReg,
       
       /* gamma Energies */
       offset+=fwrite(discGammaE[specNum],SFLOAT,numDisc[specNum],binLib)*SFLOAT;
-      delete discGammaE[specNum];
+      delete[] discGammaE[specNum];
       /* gamma Intensities */
       offset+=fwrite(discGammaI[specNum],SFLOAT,numDisc[specNum],binLib)*SFLOAT;
-      delete discGammaI[specNum];
+      delete[] discGammaI[specNum];
       /* interpolation region boundaries */
       offset+=fwrite(intRegB[specNum],SINT,nIntReg[specNum],binLib)*SINT;
-      delete intRegB[specNum];
+      delete[] intRegB[specNum];
       /* interpolation region types */
       offset+=fwrite(intRegT[specNum],SINT,nIntReg[specNum],binLib)*SINT;
-      delete intRegT[specNum];
+      delete[] intRegT[specNum];
       /* interpolation gamma Energies */
       offset+=fwrite(contX[specNum],SFLOAT,nPnts[specNum],binLib)*SFLOAT;
-      delete contX[specNum];
+      delete[] contX[specNum];
       /* interpolation gamma Intensities */
       offset+=fwrite(contY[specNum],SFLOAT,nPnts[specNum],binLib)*SFLOAT;
-      delete contY[specNum];
+      delete[] contY[specNum];
     }
   
-  delete numDisc;
-  delete nIntReg;
-  delete nPnts;
-  delete discGammaE;
-  delete discGammaI;
-  delete intRegB;
-  delete intRegT;
-  delete contX;
-  delete contY;
+  delete[] numDisc;
+  delete[] nIntReg;
+  delete[] nPnts;
+  delete[] discGammaE;
+  delete[] discGammaI;
+  delete[] intRegB;
+  delete[] intRegT;
+  delete[] contX;
+  delete[] contY;
   
 }
 
