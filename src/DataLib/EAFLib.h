@@ -112,17 +112,20 @@ protected:
   void skipContGammas(char*);
   void readDiscreteGammas(int, int, float, char*);
   void readContGammas(int, float, char*);
-  int getGammaData();
+
+public:
 
   /* Interface from ASCIILib */
   void getTransInfo();
   void getDecayInfo();
   int getTransData();
   int getDecayData();
+  int getGammaData();
 
-public:
   /* Service */
   EAFLib(const char*, const char*, const char*);
+  // Decay-only constructor for ALARAJOYLib (no makeBinLib calling)
+  EAFLib(const char* decayFname, bool decayOnly);
   ~EAFLib();
 
 };

@@ -48,6 +48,7 @@ class DataLib;
 class ALARALib;
 class ASCIILib;
 class EAFLib;
+class ALARAJOYLib;
 
 /* Utility */
 class Matrix;
