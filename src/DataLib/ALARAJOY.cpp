@@ -8,10 +8,10 @@
 #include <cstdio>
 
 // Define static member
-std::vector<CSVRow> ALARAJOYLib::csvData;
+std::vector<DSVRow> ALARAJOYLib::dsvData;
 
-// Free helper: Parse cross section array from Python list (of floats) format
-static std::vector<float> parseXSectionArray(const std::string& arrayStr) {
+// Parse cross section array from Python list (of floats) format
+std::vector<float> ALARAJOYLib::parseXSectionArray(const std::string& arrayStr) {
     std::vector<float> xs;
     if (arrayStr.size() < 2) return xs;
 
@@ -28,45 +28,39 @@ static std::vector<float> parseXSectionArray(const std::string& arrayStr) {
     return xs;
 }
 
-// Free helper: Parse a single CSV row
-static CSVRow parseCSVRow(const std::string& line)
+// Clean out quotes and whitespaces from cross section list
+std::string ALARAJOYLib::cleanXSectionString(std::stringstream& ss)
 {
-    CSVRow row;
-    std::stringstream ss(line);
-    std::string item;
-
-    // Column 0: Index (skip)
-    std::getline(ss, item, ',');
-
-    std::getline(ss, item, ',');
-    row.parentKZA = std::stoi(item);
-
-    std::getline(ss, item, ',');
-    row.daughterKZA = std::stoi(item);
-
-    std::getline(ss, item, ',');
-    row.emittedParticles = item;
-
-    std::getline(ss, item, ',');
-    row.nonZeroGroups = std::stoi(item);
-
-    // Column 5: Cross Sections
-    std::string rest;
-    std::getline(ss, rest);
+    std::string pyList;
+    std::getline(ss, pyList);
 
     // Trim surrounding whitespace
-    auto l = rest.find_first_not_of(" \t");
-    auto r = rest.find_last_not_of(" \t");
-    if (l == std::string::npos) rest.clear();
-    else rest = rest.substr(l, r - l + 1);
+    auto l = pyList.find_first_not_of(" \t");
+    auto r = pyList.find_last_not_of(" \t");
+    if (l == std::string::npos) pyList.clear();
+    else pyList = pyList.substr(l, r - l + 1);
 
     // Strip optional surrounding quotes
-    if (!rest.empty() && (rest.front()=='\"' || 
-        rest.front()=='\'')) rest.erase(rest.begin());
-    if (!rest.empty() && (rest.back()=='\"'  || 
-        rest.back()=='\''))  rest.pop_back();
+    if (!pyList.empty() && (pyList.front()=='\"' || 
+        pyList.front()=='\'')) pyList.erase(pyList.begin());
+    if (!pyList.empty() && (pyList.back()=='\"'  || 
+        pyList.back()=='\''))  pyList.pop_back();
+    
+    return pyList;
+}
 
-    row.crossSections = parseXSectionArray(rest);
+DSVRow ALARAJOYLib::parseDSVRow(const std::string& line)
+{
+    DSVRow row;
+    std::stringstream ss(line);
+    int index;
+
+    ss >> index; 
+    ss >> row.parentKZA >> row.daughterKZA;
+    ss >> row.emittedParticles >> row.nonZeroGroups;
+
+    std::string pyList = cleanXSectionString(ss);
+    row.crossSections = parseXSectionArray(pyList);
 
     return row;
 }
@@ -78,10 +72,10 @@ ALARAJOYLib::ALARAJOYLib(
     currentRowIndex(0),
     currentParent(-1)
 {
-    // Open the CSV file
+    // Open the DSV file
     inTrans.open(transFname, ios::in);
     if (inTrans.is_open()) {
-        loadCSVData(); // Pre-load entire CSV
+        loadDSVData(); // Pre-load entire DSV
         makeBinLib(alaraFname);
     }
 }
@@ -91,10 +85,10 @@ ALARAJOYLib::ALARAJOYLib(
    destruction is automaticaly handled by ~EAFLib() ) */
 ALARAJOYLib::~ALARAJOYLib(){}
 
-// Pre-load entire CSV into memory
-void ALARAJOYLib::loadCSVData()
+// Pre-load entire DSV into memory
+void ALARAJOYLib::loadDSVData()
 {
-    csvData.clear();
+    dsvData.clear();
     currentRowIndex = 0;
     currentParent = -1;
     std::string line;
@@ -107,13 +101,13 @@ void ALARAJOYLib::loadCSVData()
     {
         if (line.empty()) continue; // Skip empty lines
 
-        CSVRow row = parseCSVRow(line);
-        csvData.push_back(row);
+        DSVRow row = parseDSVRow(line);
+        dsvData.push_back(row);
     }
 
     // Set initial parent
-    if (!csvData.empty()) {
-        currentParent = csvData[0].parentKZA;
+    if (!dsvData.empty()) {
+        currentParent = dsvData[0].parentKZA;
     }
 }
 
@@ -121,7 +115,7 @@ void ALARAJOYLib::loadCSVData()
 void ALARAJOYLib::getTransInfo()
 {
     // Fixed for Vitamin J energy group structure
-    nGroups = 75;
+    nGroups = 175;
     nParents = 0;
 
     // Allocate arrays for maximum reactions
@@ -139,7 +133,7 @@ void ALARAJOYLib::getTransInfo()
 // Read transmutation data for next parent isotope
 int ALARAJOYLib::getTransData()
 {
-    if (currentRowIndex >= csvData.size()) {
+    if (currentRowIndex >= dsvData.size()) {
         return LASTISO; // end of data
     }
 
@@ -147,20 +141,20 @@ int ALARAJOYLib::getTransData()
     int parentKZA = currentParent;
 
     // Read all reactions for current parent
-    while (currentRowIndex < csvData.size() && 
-    csvData[currentRowIndex].parentKZA == currentParent)
+    while (currentRowIndex < dsvData.size() && 
+        dsvData[currentRowIndex].parentKZA == currentParent)
     {
-        const CSVRow& row = csvData[currentRowIndex];
+        const DSVRow& row = dsvData[currentRowIndex];
 
         // Store reaction data
         transKza[rxnNum] = row.daughterKZA;
         strcpy(emitted[rxnNum], row.emittedParticles.c_str());
 
-        // Fill cross sections (75 groups total)
+        // Fill cross sections
         for (int g = 0; g < nGroups; g++)
         {
             xSection[rxnNum][g] = 
-            (g < row.nonZeroGroups) ? row.crossSections[g] : 0.0;
+                (g < row.nonZeroGroups) ? row.crossSections[g] : 0.0;
         }
 
         rxnNum++;
@@ -171,8 +165,8 @@ int ALARAJOYLib::getTransData()
     nTRxns = rxnNum;
 
     // Move to next parent for next call
-    if (currentRowIndex < csvData.size()) {
-        currentParent  = csvData[currentRowIndex].parentKZA;
+    if (currentRowIndex < dsvData.size()) {
+        currentParent  = dsvData[currentRowIndex].parentKZA;
     } else {
         currentParent = -1; // End of data
     }
