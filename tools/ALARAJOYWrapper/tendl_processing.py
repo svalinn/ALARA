@@ -106,6 +106,7 @@ def extract_gendf_pkza(gendf_path):
     Z, element, A = first_line.split('-')[:3]
 
     Z = int(Z)
+    A = A.split(' ')[0]
 
     # Metastable states classified by TENDL as m = 1, n = 2, etc.
     # (Generally expecting only m, occasionally n, but physically,

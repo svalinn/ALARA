@@ -26,7 +26,9 @@ def test_extract_endf_specs_empty_endf():
 @pytest.mark.parametrize(
     "gendf_file, exp",
     [
-        ('gendf_test1.gendf', 260560)
+        ('gendf_test1.gendf', 260560),
+        ('gendf_test2.gendf', 471161),
+        ('gendf_test3.gendf', 471162)
     ]
 )
 def test_extract_gendf_pkza(gendf_file, exp):
