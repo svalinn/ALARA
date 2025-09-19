@@ -25,9 +25,9 @@ This preprocessor uses the [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear
 
 
 ## Usage
-This preprocessor can and should be used independently of any ALARA run. While the data format produced from ALARAJOYWrapper is necessary to run `convert_lib` on ALARA to convert TENDL/PENDF data to an ALARA binary, once the user has a CSV file produced from this preprocessor, usage of this preprocessor is not strictly necessary for the particular isotopes processed by the user.
+This preprocessor can and should be used independently of any ALARA run. While the data format produced from ALARAJOYWrapper is necessary to run `convert_lib` on ALARA to convert TENDL/PENDF data to an ALARA binary, once the user has a space-delimited DSV file produced from this preprocessor, usage of this preprocessor is not strictly necessary for the particular isotopes processed by the user.
 
-ALARAJOYWrapper is designed to produce a CSV containing data that can be directly read by the ALARA data library, ALARAJOY, without any further processing.
+ALARAJOYWrapper is designed to produce a space-delimited DSV containing data that can be directly read by the ALARA data library, ALARAJOY, without any further processing.
 
 To run this preprocessor, the user must first have acquired matching TENDL/PENDF file pairs for each isotope to be processed from [TENDL 2017](https://tendl.web.psi.ch/tendl_2017/tendl2017.html), which is the source for FENDL3.2x neutron activation data. All TENDL/PENDF file pairs to be processed must be in the same directory as each other to be properly identified by ALARAJOYWrapper.
 
@@ -38,7 +38,7 @@ Running ALARAJOYWrapper can be done with one Python command:
 This command only takes one argument, `-f`, which directs the program to the directory containing the TENDL/PENDF file pairs. This argument is optional, and if left blank, will default to the current working directory.
 
 ## Data Output
-Running `preprocess_fendl3.py` will return the file path to the resultant CSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). Each row in the CSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
+Running `preprocess_fendl3.py` will return the file path to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
 
 - Parent KZA: Unique isotope identifier for the parent isotope in the format **ZZAAAM**, where ZZ is the isotope's atomic number, AAA is the mass number, and M is the isomeric state (0 if non-excited).
 - Daughter KZA: Unique isotope identifier of the daughter isotope produced from a particular transmutation reaction in the format **ZZAAAM**.
@@ -58,12 +58,12 @@ Running `preprocess_fendl3.py` will return the file path to the resultant CSV fi
 - Cross Sections: List of all non-zero neutron cross sections.
 
 ## Application of Processed Data to ALARA Data Conversion Methods
-Data library conversion to ALARA binary libraries is done with the `convert_lib` input block in the ALARA input file. Converting preprocessed TENDL/PENDF data contained in the resultant CSV from ALARAJOYWrapper is done as such in the input file:
+Data library conversion to ALARA binary libraries is done with the `convert_lib` input block in the ALARA input file. Converting preprocessed TENDL/PENDF data contained in the resultant space-delimited DSV from ALARAJOYWrapper is done as such in the input file:
 
     convert_lib ajoylib alaralib transFname decayFname alaraFname
 wherein: 
 - `ajoylib` is the library value for ALARAJOY
-- `transFname` is the file path to the CSV containing the preprocessed FENDL3 transmutation data
+- `transFname` is the file path to the DSV containing the preprocessed FENDL3 transmutation data
 - `decayFname` is the file path to EAF decay data.
 - `alaraFname` is the file path template for resultant ALARA data libraries (.lib, .idx. .gam, .gdx)
 
