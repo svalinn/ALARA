@@ -25,7 +25,7 @@ pu am cm bk cf es fm md no lr ";
  command-line option is used, or when -h is used.
 */
 static const char *helpmsg="\
-usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
+usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] [-o <output_filename>] \n\
 \t -h                 Show this message\n\
 \t -c                 Option to only calculate chains and skip post-processing\n\
 \t -r                 \"Restart\" option to skip chain calculation and only post-process\n\
@@ -33,6 +33,7 @@ usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
 \t -V                 Show version\n\
 \t -v <n>             Set verbosity level\n\
 \t <input_filename>   Name of input file\n\
+\t <output_filename>  Name of output file\n\
 See Users' Guide for more info.\n\
 (http://alara.engr.wisc.edu/)\n";
 
