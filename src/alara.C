@@ -25,7 +25,7 @@ pu am cm bk cf es fm md no lr ";
  command-line option is used, or when -h is used.
 */
 static const char *helpmsg="\
-usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
+usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] [-o <output_filename>] \n\
 \t -h                 Show this message\n\
 \t -c                 Option to only calculate chains and skip post-processing\n\
 \t -r                 \"Restart\" option to skip chain calculation and only post-process\n\
@@ -33,11 +33,14 @@ usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] \n\
 \t -V                 Show version\n\
 \t -v <n>             Set verbosity level\n\
 \t <input_filename>   Name of input file\n\
+\t <output_filename>  Name of file in which output is written (optional)\n\
 See Users' Guide for more info.\n\
 (http://alara.engr.wisc.edu/)\n";
 
 int main(int argc, char *argv[])
-{
+{  
+  std::string out_file;
+  std::ofstream outfile;
   int argNum = 1; /// count command-line arguments
   int solved = FALSE; /// command-line derived flag to indicate whether or not the tree has already been solved
   int doOutput = TRUE; /// command-line derived flag to indicate whether or not to post-process solution
@@ -144,6 +147,35 @@ int main(int argc, char *argv[])
 	      argNum++;
 	    }
 	  break;
+    case 'o':
+    if (argv[argNum][1] == '\0') 
+		{
+        if (argNum<argc-1) 
+			{
+            	out_file = argv[argNum+1]; 
+           		outfile.open(out_file);
+            	if (!outfile.is_open())
+                	error(1, "Cannot create output file %s.", out_file.c_str());
+            	std::cout.rdbuf(outfile.rdbuf());
+            	verbose(0, "Verbose output redirected to %s", out_file.c_str());
+            	argNum += 2;
+        } 
+		else 
+			{
+            error(2, "-o requires parameter.");
+        }
+    } 
+	else 
+		{
+        	out_file = argv[argNum]+1; 
+        	outfile.open(out_file);
+        	if (!outfile.is_open())
+            	error(1, "Cannot create output file %s.", out_file.c_str());
+        	std::cout.rdbuf(outfile.rdbuf());
+        	verbose(0, "Verbose output redirected to %s", out_file.c_str());
+        	argNum++;
+    	}
+    break;
 	case 'h':
 	  verbose(-1,helpmsg,argv[0]);
 	case 'V':

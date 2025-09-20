@@ -53,7 +53,7 @@ Input::Input(char* inputFname)
 {
   if (inputFname != NULL)
     {
-      debug(1,"Openning %s for input.",inputFname);
+      debug(1,"Opening %s for input.",inputFname);
       input = openFile(inputFname);
       if (!*input)
 	error(102,"Unable to open main input file: '%s'.",inputFname);
@@ -62,7 +62,7 @@ Input::Input(char* inputFname)
     }
   else
     {
-      debug(1,"Openning stdin for input.");
+      debug(1,"Opening stdin for input.");
       input = &cin;
       verbose(1,"Opened stdin for input.");
     }
@@ -247,7 +247,7 @@ void Input::read()
 		  outList = outList->getOutFmts(*input);
 		  break;
 		case INTOK_DUMPFILE:
-		  debug(1,"Openning dump filename.");
+		  debug(1,"Opening dump filename.");
 		  *input >> token;
 		  Result::initBinDump(token);
 		  break;
@@ -519,7 +519,7 @@ void Input::clearIncludeComment()
 	    streamStack << input;
 
 
-	    verbose(2,"Openning included file: %s.",inFileName);
+	    verbose(2,"Opening included file: %s.",inFileName);
 	    /* open new stream */
 	    /* Allow inclusion of files from a search path
 	     * This allows standard elements of an input file
