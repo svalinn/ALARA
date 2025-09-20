@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
         } 
 		else 
 			{
-            error(1, "-o requires parameter.");
+            error(2, "-o requires parameter.");
         }
     } 
 	else 
