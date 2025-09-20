@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
            		outfile.open(out_file);
             	if (!outfile.is_open())
                 	error(1, "Cannot create output file %s.", out_file.c_str());
-            	oldbuf = std::cout.rdbuf(outfile.rdbuf());
+            	std::cout.rdbuf(outfile.rdbuf());
             	verbose(0, "Verbose output redirected to %s", out_file.c_str());
             	argNum += 2;
         } 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
         	outfile.open(out_file);
         	if (!outfile.is_open())
             	error(1, "Cannot create output file %s.", out_file.c_str());
-        	oldbuf = std::cout.rdbuf(outfile.rdbuf()); // redirect cout
+        	std::cout.rdbuf(outfile.rdbuf());
         	verbose(0, "Verbose output redirected to %s", out_file.c_str());
         	argNum++;
     	}
