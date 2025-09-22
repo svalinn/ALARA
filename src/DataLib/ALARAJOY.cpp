@@ -7,68 +7,24 @@
 #include <cstring>
 #include <cstdio>
 
-// Define static member
-std::vector<CSVRow> ALARAJOYLib::csvData;
+// Define DSV row parsing structure
+std::vector<DSVRow> ALARAJOYLib::dsvData;
 
-// Parse cross section array from Python list (of floats) format
-std::vector<float> ALARAJOYLib::parseXSectionArray(
-    const std::string& arrayStr
-) {
-    std::vector<float> xs;
-    if (arrayStr.size() < 2) return xs;
-
-    std::string clean = arrayStr.substr(1, arrayStr.size()-2);
-    std::stringstream ss(clean);
-    std::string item;
-
-    while (std::getline(ss, item, ',')) {
-        size_t a = item.find_first_not_of(" \t");
-        size_t b = item.find_last_not_of(" \t");
-        if (a == std::string::npos) continue;
-        xs.push_back(std::stof(item.substr(a, b - a + 1)));
-    }
-    return xs;
-}
-
-// Free helper: Parse a single CSV row
-static CSVRow parseCSVRow(const std::string& line)
+DSVRow ALARAJOYLib::parseDSVRow(const std::string& line)
 {
-    CSVRow row;
+    DSVRow row;
     std::stringstream ss(line);
-    std::string item;
+    int index;
 
-    // Column 0: Index (skip)
-    std::getline(ss, item, ',');
+    ss >> index; 
+    ss >> row.parentKZA >> row.daughterKZA;
+    ss >> row.emittedParticles >> row.nonZeroGroups;
 
-    std::getline(ss, item, ',');
-    row.parentKZA = std::stoi(item);
-
-    std::getline(ss, item, ',');
-    row.daughterKZA = std::stoi(item);
-
-    std::getline(ss, item, ',');
-    row.emittedParticles = item;
-
-    std::getline(ss, item, ',');
-    row.nonZeroGroups = std::stoi(item);
-
-    // Column 5: Cross Sections
-    std::string rest;
-    std::getline(ss, rest);
-
-    // Trim surrounding whitespace
-    auto l = rest.find_first_not_of(" \t");
-    auto r = rest.find_last_not_of(" \t");
-    if (l == std::string::npos) rest.clear();
-    else rest = rest.substr(l, r - l + 1);
-
-    // Strip optional surrounding quotes
-    if (!rest.empty() && (rest.front()=='\"' || 
-        rest.front()=='\'')) rest.erase(rest.begin());
-    if (!rest.empty() && (rest.back()=='\"'  || 
-        rest.back()=='\''))  rest.pop_back();
-
-    row.crossSections = parseXSectionArray(rest);
+    row.crossSections = std::vector<float>(row.nonZeroGroups);
+    for (int i = 0; i < row.nonZeroGroups; i++)
+    {
+        ss >> row.crossSections[i];
+    }
 
     return row;
 }
@@ -88,13 +44,8 @@ ALARAJOYLib::ALARAJOYLib(
     }
 }
 
-/* Empty Destructor
-   (by linking decay methods through EAFLib,
-   destruction is automaticaly handled by ~EAFLib() ) */
-ALARAJOYLib::~ALARAJOYLib(){}
-
-// Pre-load entire CSV into memory
-void ALARAJOYLib::loadCSVData()
+// Pre-load entire DSV into memory
+void ALARAJOYLib::loadDSVData()
 {
     csvData.clear();
     currentRowIndex = 0;
@@ -130,10 +81,9 @@ void ALARAJOYLib::getTransInfo()
     xSection = new float*[MAXALARAJOYRXNS];
     emitted = new char*[MAXALARAJOYRXNS];
 
-    for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++)
-    {
-//        xSection[rxnNum] = new float[nGroups];
-        emitted[rxnNum]  =        new char[6];
+    for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++) {
+        xSection[rxnNum] = nullptr;
+        emitted[rxnNum]  = new char[6];
     }
 }
 
@@ -161,7 +111,7 @@ int ALARAJOYLib::getTransData()
     // Reallocate xSection arrays for this parent
     for (int rxn = 0; rxn < MAXALARAJOYRXNS; rxn++) {
         delete [] xSection[rxn];
-        xSection[rxn] = new float[nGroups];
+        xSection[rxn] = new float[nGroups]();
     }
 
     // Read all reactions for current parent
