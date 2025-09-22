@@ -224,5 +224,8 @@ int main(int argc, char *argv[])
   delete rootList;
   delete inFname;
 
+  std::cout.rdbuf(oldCout);
+  outfile.close();
+
   return 0;
 }
