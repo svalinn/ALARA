@@ -33,7 +33,7 @@ usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] [-o <o
 \t -V                 Show version\n\
 \t -v <n>             Set verbosity level\n\
 \t <input_filename>   Name of input file\n\
-\t <output_filename>  Name of file in which output is written (optional)\n\
+\t -o <output_filename>  Name of file in which output is written (optional)\n\
 See Users' Guide for more info.\n\
 (http://alara.engr.wisc.edu/)\n";
 
