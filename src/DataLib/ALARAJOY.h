@@ -68,7 +68,6 @@ class ALARAJOYLib : public EAFLib
             const char* decayFname,
             const char* alaraFname
         );
-        ~ALARAJOYLib();
 
         /* Override transmutation methods with DSV implementation */
         void getTransInfo() override;
@@ -83,8 +82,6 @@ class ALARAJOYLib : public EAFLib
 
         // DSV functions
         DSVRow parseDSVRow(const std::string& line);
-        std::string cleanXSectionString(std::stringstream& ss);
-        std::vector<float> parseXSectionArray(const std::string& arrayStr);
         void loadDSVData();
         
 };

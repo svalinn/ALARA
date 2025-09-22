@@ -7,49 +7,8 @@
 #include <cstring>
 #include <cstdio>
 
-// Define static member
+// Define DSV row parsing structure
 std::vector<DSVRow> ALARAJOYLib::dsvData;
-
-// Parse cross section array from Python list (of floats) format
-std::vector<float> ALARAJOYLib::parseXSectionArray(
-    const std::string& arrayStr
-) {
-    std::vector<float> xs;
-    if (arrayStr.size() < 2) return xs;
-
-    std::string clean = arrayStr.substr(1, arrayStr.size()-2);
-    std::stringstream ss(clean);
-    std::string item;
-
-    while (std::getline(ss, item, ',')) {
-        size_t a = item.find_first_not_of(" \t");
-        size_t b = item.find_last_not_of(" \t");
-        if (a == std::string::npos) continue;
-        xs.push_back(std::stof(item.substr(a, b - a + 1)));
-    }
-    return xs;
-}
-
-// Clean out quotes and whitespaces from cross section list
-std::string ALARAJOYLib::cleanXSectionString(std::stringstream& ss)
-{
-    std::string pyList;
-    std::getline(ss, pyList);
-
-    // Trim surrounding whitespace
-    auto l = pyList.find_first_not_of(" \t");
-    auto r = pyList.find_last_not_of(" \t");
-    if (l == std::string::npos) pyList.clear();
-    else pyList = pyList.substr(l, r - l + 1);
-
-    // Strip optional surrounding quotes
-    if (!pyList.empty() && (pyList.front()=='\"' || 
-        pyList.front()=='\'')) pyList.erase(pyList.begin());
-    if (!pyList.empty() && (pyList.back()=='\"'  || 
-        pyList.back()=='\''))  pyList.pop_back();
-    
-    return pyList;
-}
 
 DSVRow ALARAJOYLib::parseDSVRow(const std::string& line)
 {
@@ -61,8 +20,11 @@ DSVRow ALARAJOYLib::parseDSVRow(const std::string& line)
     ss >> row.parentKZA >> row.daughterKZA;
     ss >> row.emittedParticles >> row.nonZeroGroups;
 
-    std::string pyList = cleanXSectionString(ss);
-    row.crossSections = parseXSectionArray(pyList);
+    row.crossSections = std::vector<float>(row.nonZeroGroups);
+    for (int i = 0; i < row.nonZeroGroups; i++)
+    {
+        ss >> row.crossSections[i];
+    }
 
     return row;
 }
@@ -81,11 +43,6 @@ ALARAJOYLib::ALARAJOYLib(
         makeBinLib(alaraFname);
     }
 }
-
-/* Empty Destructor
-   (by linking decay methods through EAFLib,
-   destruction is automaticaly handled by ~EAFLib() ) */
-ALARAJOYLib::~ALARAJOYLib(){}
 
 // Pre-load entire DSV into memory
 void ALARAJOYLib::loadDSVData()
@@ -124,10 +81,9 @@ void ALARAJOYLib::getTransInfo()
     xSection = new float*[MAXALARAJOYRXNS];
     emitted = new char*[MAXALARAJOYRXNS];
 
-    for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++)
-    {
-//        xSection[rxnNum] = new float[nGroups];
-        emitted[rxnNum]  =        new char[6];
+    for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++) {
+        xSection[rxnNum] = nullptr;
+        emitted[rxnNum]  = new char[6];
     }
 }
 
@@ -155,7 +111,7 @@ int ALARAJOYLib::getTransData()
     // Reallocate xSection arrays for this parent
     for (int rxn = 0; rxn < MAXALARAJOYRXNS; rxn++) {
         delete [] xSection[rxn];
-        xSection[rxn] = new float[nGroups];
+        xSection[rxn] = new float[nGroups]();
     }
 
     // Read all reactions for current parent
