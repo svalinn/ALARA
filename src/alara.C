@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 {  
   std::string out_file;
   std::ofstream outfile;
+  std::streambuf* oldCout = std::cout.rdbuf();  
   int argNum = 1; /// count command-line arguments
   int solved = FALSE; /// command-line derived flag to indicate whether or not the tree has already been solved
   int doOutput = TRUE; /// command-line derived flag to indicate whether or not to post-process solution
