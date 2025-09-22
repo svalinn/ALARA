@@ -177,11 +177,8 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
     """
 
     gendf_data = []
-    sigma_lists = []
-    max_groups = 0
     for MT in MTs:
         sigma_list = extract_cross_sections(file_obj, MT)
-        sigma_lists.append(sigma_list)
         gendf_data.append(
             {
                 'Parent KZA'            :                                pKZA,
