@@ -141,12 +141,9 @@ int main(int argc, char *argv[])
 
     case 'o':
 		if (argv[argNum][1] == '\0') 
-		  {
-			if (argNum<argc-1)
-			  {
-				out_file = argv[argNum+1]; 
-				used_args++;
-			  }
+			{
+			if (argNum<argc-1) 
+					out_file = argv[argNum+1]; 
 			else 
 			  {
 				error(2, "-o requires parameter.");
@@ -162,7 +159,14 @@ int main(int argc, char *argv[])
 		std::cout.rdbuf(outfile.rdbuf());
 		verbose(0, "Verbose output redirected to %s", out_file.c_str());
 
+<<<<<<< HEAD
 		argNum += used_args;
+=======
+		if (argv[argNum][1] == '\0' && argNum<argc-1)	
+			argNum += 2;	
+		else
+			argNum ++;
+>>>>>>> c3bc9b3 (Clear up redundant code in conditional statements)
 		break;
 
 	case 'h':
