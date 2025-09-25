@@ -10,25 +10,6 @@
 // Define DSV row parsing structure
 std::vector<DSVRow> ALARAJOYLib::dsvData;
 
-DSVRow ALARAJOYLib::parseDSVRow(const std::string& line)
-{
-    DSVRow row;
-    std::stringstream ss(line);
-    int index;
-
-    ss >> index; 
-    ss >> row.parentKZA >> row.daughterKZA;
-    ss >> row.emittedParticles >> row.nonZeroGroups;
-
-    row.crossSections = std::vector<float>(row.nonZeroGroups);
-    for (int i = 0; i < row.nonZeroGroups; i++)
-    {
-        ss >> row.crossSections[i];
-    }
-
-    return row;
-}
-
 // Constructor
 ALARAJOYLib::ALARAJOYLib(
     const char* transFname, const char* decayFname, const char* alaraFname
@@ -50,23 +31,31 @@ void ALARAJOYLib::loadDSVData()
     csvData.clear();
     currentRowIndex = 0;
     currentParent = -1;
-    std::string line;
 
-    // Skip header line
-    std::getline(inTrans, line);
-
-    // Read all data rows
-    while (std::getline(inTrans, line))
+    while (true)
     {
-        if (line.empty()) continue; // Skip empty lines
+        DSVRow row;
 
-        CSVRow row = parseCSVRow(line);
-        csvData.push_back(row);
+        // Extract Parent KZA, EOF at pKZA == -1
+        if (!(inTrans >> row.parentKZA) || row.parentKZA == -1) break;
+
+        // Extract Daughter KZA, emitted particles, and non-zero groups
+        inTrans >> row.daughterKZA;
+        inTrans >>row.emittedParticles >> row.nonZeroGroups;
+
+        // Iterate through rest of line for cross sections based on nGroups
+        row.crossSections = std::vector<float>(row.nonZeroGroups);
+        for (int i = 0; i < row.nonZeroGroups; i++)
+        {
+            inTrans >> row.crossSections[i];
+        }
+
+        dsvData.push_back(std::move(row));
     }
 
     // Set initial parent
-    if (!csvData.empty()) {
-        currentParent = csvData[0].parentKZA;
+    if (!dsvData.empty()){
+    currentParent = dsvData[0].parentKZA;
     }
 }
 
