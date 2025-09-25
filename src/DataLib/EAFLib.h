@@ -120,14 +120,14 @@ protected:
   void readDiscreteGammas(int, int, float, char*);
   void readContGammas(int, float, char*);
 
-public:
-
   /* Interface from ASCIILib */
   void getTransInfo();
   void getDecayInfo();
   int getTransData();
   int getDecayData();
   int getGammaData();
+
+public:
 
   /* Service */
   EAFLib(const char*, const char*, const char*);
