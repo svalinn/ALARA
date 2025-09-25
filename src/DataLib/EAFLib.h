@@ -120,8 +120,6 @@ protected:
   void readDiscreteGammas(int, int, float, char*);
   void readContGammas(int, float, char*);
 
-public:
-
   /* Interface from ASCIILib */
   void getTransInfo();
   void getDecayInfo();
