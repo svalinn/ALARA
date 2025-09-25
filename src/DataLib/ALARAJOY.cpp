@@ -72,7 +72,7 @@ void ALARAJOYLib::getTransInfo()
 
     for (int rxnNum = 0; rxnNum < MAXALARAJOYRXNS; rxnNum++) {
         xSection[rxnNum] = nullptr;
-        emitted[rxnNum]  = new char[6];
+        emitted[rxnNum]  = new char[MAXALARAJOYEMITTEDSTR];
     }
 }
 
