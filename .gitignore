@@ -8,3 +8,6 @@ configure
 depcomp
 install-sh
 missing
+
+bld/*
+build/*

@@ -190,7 +190,7 @@ void ScheduleItem::xCheck(Schedule* schedHead, Flux *fluxHead, History *histHead
       else
 	{
 	  verbose(5,"Pulsing history %s was found.",ptr->pulseName);
-	  delete pulseName;
+	  delete[] pulseName;
 	  ptr->hist = tmpHist;
 	}
     }

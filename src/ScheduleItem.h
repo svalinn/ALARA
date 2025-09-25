@@ -84,7 +84,10 @@ public:
 
   /// Inline destructor destroys whole list by deleting next - NOT!.
   ~ScheduleItem()
-    { delete next; };
+    { 
+      delete next; 
+      next = NULL;
+    };
 
   /// This function reads a sub-schedule type schedule item from the
   /// input file attached to the passed stream reference.
