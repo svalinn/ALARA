@@ -9,9 +9,9 @@ NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
              'p'     : array([ 0      ,     -1      ]), # proton emission
              'd'     : array([-1      ,     -1      ]), # deuteron emission
              't'     : array([-2      ,     -1      ]), # triton emission
-             '3He'   : array([-1      ,     -2      ]), # helium-3 emission
-             'α'     : array([-2      ,     -2      ]), # alpha emission
-             'γ'     : array([ 0      ,      0      ])  # gamma emission
+             'h'     : array([-1      ,     -2      ]), # helium-3 emission
+             'a'     : array([-2      ,     -2      ]), # alpha emission
+             'g'     : array([ 0      ,      0      ])  # gamma emission
 }
 
 # Track edge cases of unquantifiable MT reaction types
