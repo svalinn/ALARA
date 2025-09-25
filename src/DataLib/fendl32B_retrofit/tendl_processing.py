@@ -176,14 +176,8 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
                 'Daughter KZA'          :        pKZA + mt_dict[MT]['delKZA'],
                 'Emitted Particles'     :    mt_dict[MT]['Emitted Particles'],
                 'Non-Zero Groups'       :                     len(sigma_list),
+                'Cross Sections'        :                          sigma_list
             }  
         )
-
-        if len(sigma_list) > max_groups:
-            max_groups = len(sigma_list)
-
-    for row, sigma_list in zip(gendf_data, sigma_lists):
-        for i in range(max_groups):
-            row[f'XS {i}'] = sigma_list[i] if i < len(sigma_list) else None
 
     return gendf_data

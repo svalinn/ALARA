@@ -17,10 +17,10 @@ ALARAJOYLib::ALARAJOYLib(
     currentRowIndex(0),
     currentParent(-1)
 {
-    // Open the CSV file
+    // Open the DSV file
     inTrans.open(transFname, ios::in);
     if (inTrans.is_open()) {
-        loadCSVData(); // Pre-load entire CSV
+        loadDSVData(); // Pre-load entire DSV
         makeBinLib(alaraFname);
     }
 }
@@ -28,7 +28,7 @@ ALARAJOYLib::ALARAJOYLib(
 // Pre-load entire DSV into memory
 void ALARAJOYLib::loadDSVData()
 {
-    csvData.clear();
+    dsvData.clear();
     currentRowIndex = 0;
     currentParent = -1;
 
@@ -79,7 +79,7 @@ void ALARAJOYLib::getTransInfo()
 // Read transmutation data for next parent isotope
 int ALARAJOYLib::getTransData()
 {
-    if (currentRowIndex >= csvData.size()) {
+    if (currentRowIndex >= dsvData.size()) {
         return LASTISO; // end of data
     }
 
@@ -104,20 +104,20 @@ int ALARAJOYLib::getTransData()
     }
 
     // Read all reactions for current parent
-    while (currentRowIndex < csvData.size() && 
-    csvData[currentRowIndex].parentKZA == currentParent)
+    while (currentRowIndex < dsvData.size() && 
+        dsvData[currentRowIndex].parentKZA == currentParent)
     {
-        const CSVRow& row = csvData[currentRowIndex];
+        const DSVRow& row = dsvData[currentRowIndex];
 
         // Store reaction data
         transKza[rxnNum] = row.daughterKZA;
         strcpy(emitted[rxnNum], row.emittedParticles.c_str());
 
-        // Fill cross sections (75 groups total)
+        // Fill cross sections
         for (int g = 0; g < nGroups; g++)
         {
             xSection[rxnNum][g] = 
-            (g < row.nonZeroGroups) ? row.crossSections[g] : 0.0;
+                (g < row.nonZeroGroups) ? row.crossSections[g] : 0.0;
         }
 
         rxnNum++;
@@ -128,8 +128,8 @@ int ALARAJOYLib::getTransData()
     nTRxns = rxnNum;
 
     // Move to next parent for next call
-    if (currentRowIndex < csvData.size()) {
-        currentParent  = csvData[currentRowIndex].parentKZA;
+    if (currentRowIndex < dsvData.size()) {
+        currentParent  = dsvData[currentRowIndex].parentKZA;
     } else {
         currentParent = -1; // End of data
     }

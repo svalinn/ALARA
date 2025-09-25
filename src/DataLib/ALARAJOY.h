@@ -48,7 +48,7 @@ DATALIB_ALARAJOY 8     ajoy     A hybrid data library following the formatting
 #define MAXALARAJOYRXNS 350
 #define MAXALARAJOYEMITTEDSTR 6
 
-struct CSVRow {
+struct DSVRow {
     int parentKZA;
     int daughterKZA;
     std::string emittedParticles;
@@ -60,7 +60,6 @@ class ALARAJOYLib : public EAFLib
 {
     protected:
         ifstream inTrans;
-        void loadCSVData();
     
     public:
 
@@ -71,14 +70,14 @@ class ALARAJOYLib : public EAFLib
             const char* alaraFname
         );
 
-        /* Override transmutation methods with CSV implementation */
+        /* Override transmutation methods with DSV implementation */
         void getTransInfo() override;
         int getTransData() override;
 
     private:
 
-        // Variables to hold pre-loaded CSV transmutation data
-        static std::vector<CSVRow> csvData;
+        // Variables to hold pre-loaded space-delimter DSV transmutation data
+        static std::vector<DSVRow> dsvData;
         size_t currentRowIndex;
         int currentParent;
 

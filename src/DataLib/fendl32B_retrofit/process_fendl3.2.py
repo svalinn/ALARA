@@ -5,6 +5,48 @@ import groupr_tools
 from pathlib import Path
 from pandas import DataFrame
 
+def args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--fendlFileDir', '-f', required=False, nargs=1
+    )
+    return parser.parse_args()
+
+def write_dsv(dsv_path, cumulative_data):
+    """
+    Write out a space-delimited DSV file from the list of dictionaries,
+        dsv_path, produced by iterating through each reaction of each isotope
+        to be processed. Each row in the resultant DSV file is ordered as such:
+
+            pKZA dKZA emitted_particles non_zero_groups xs_1 xs_2 ... xs_n
+
+        Each row can have different lengths, as only non-zero cross-sections
+        are written out.
+
+    Arguments:
+        dsv_path (str): Filepath for the DSV file to be written.
+        cumulative_data (list of dicts): List containing separate dictionaries
+            for each reaction contained in all of the TENDL/PENDF files
+            processed.
+
+    Returns:
+        None 
+    """
+
+    xs_key = 'Cross Sections'
+    join_keys = list(cumulative_data[0].keys())
+    join_keys.remove(xs_key)
+
+    with open(dsv_path, 'w') as dsv_file:
+        for reaction in cumulative_data:
+            dsv_row = ' '.join(str(reaction[key]) for key in join_keys)
+            dsv_row += ' ' + ' '.join(str(xs) for xs in reaction[xs_key])
+            dsv_row += '\n'
+            dsv_file.write(dsv_row)
+        
+        # End of File (EOF) signifier to be read by ALARAJOY
+        dsv_file.write(str(-1))
+
 def main():
     """
     Main method when run as a command line script.
@@ -38,7 +80,9 @@ def main():
         cumulative_data.extend(gendf_data)
         groupr_tools.cleanup_njoy_files()
 
-    DataFrame(cumulative_data).to_csv('cumulative_gendf_data.csv')
+    dsv_path = dir + '/cumulative_gendf_data.dsv'
+    write_dsv(dsv_path, cumulative_data)
+    print(dsv_path)
 
 if __name__ == '__main__':
     main()
