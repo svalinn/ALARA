@@ -25,7 +25,7 @@ pu am cm bk cf es fm md no lr ";
  command-line option is used, or when -h is used.
 */
 static const char *helpmsg="\
-usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [<input_filename>] [-o <output_filename>] \n\
+usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [-o <output_filename>] [<input_filename>] \n\
 \t -h                 Show this message\n\
 \t -c                 Option to only calculate chains and skip post-processing\n\
 \t -r                 \"Restart\" option to skip chain calculation and only post-process\n\
