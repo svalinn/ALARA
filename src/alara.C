@@ -32,8 +32,8 @@ usage: %s [-h] [-r] [-t <tree_filename>] [-V] [-v <n>] [-o <output_filename>] [<
 \t -t <tree_filename> Create tree file with given name\n\
 \t -V                 Show version\n\
 \t -v <n>             Set verbosity level\n\
-\t <input_filename>   Name of input file\n\
 \t -o <output_filename>  Name of file in which output is written (optional)\n\
+\t <input_filename>   Name of input file\n\
 See Users' Guide for more info.\n\
 (http://alara.engr.wisc.edu/)\n";
 
