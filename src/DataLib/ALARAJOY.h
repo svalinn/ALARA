@@ -46,6 +46,7 @@ DATALIB_ALARAJOY 8     ajoy     A hybrid data library following the formatting
 #define DATALIB_ALARAJOY 8
 
 #define MAXALARAJOYRXNS 350
+#define MAXALARAJOYEMITTEDSTR 6
 
 struct DSVRow {
     int parentKZA;
