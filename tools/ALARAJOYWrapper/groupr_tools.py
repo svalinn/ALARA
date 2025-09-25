@@ -3,9 +3,29 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
+import os
+
+def set_directory():
+    '''
+    Establish the location of the current working directory to ensure that if
+        process_fendl3.2.py is called from ALARA/src/DataLib, FENDL3.2b
+        preprocessing files can be properly located, created, and modified.
+    Arguments:
+        None
+    Returns:
+        dir (str): Path to the current working directory (CWD) from which the
+            command was called.
+    '''
+
+    dir = os.getcwd()
+    fendl_dir = 'ALARAJOYWrapper'
+    if fendl_dir not in dir:
+        dir += f'/{fendl_dir}' # Should only be called from one directory up
+    return dir
 
 # Define constant(s)
-INPUT = 'groupr.inp'
+dir = set_directory()
+INPUT = dir + '/groupr.inp'
 
 # Create input file general template
 njoy_input = Template(Template(
@@ -62,7 +82,6 @@ def fill_input_template(material_id, MTs, element, A, mt_dict):
         material ID, the title, which incorporates the isotopic description,
         and the reactions corresponding to the MT numbers encoded in the
         files.
-
     Arguments:
         material_id (int): Unique material identifier, defined by the ENDF-6
             Formats Manual
@@ -104,7 +123,6 @@ def fill_input_template(material_id, MTs, element, A, mt_dict):
 def write_njoy_input_file(template):
     """
     Write out the NJOY GROUPR input card from the prefilled template.
-
     Arguments:
         template (str): A filled template string containing all of the
             parameters to be written out to the NJOY input card.
@@ -119,13 +137,11 @@ def insert_after_identifier(file_str, identifier, record_for_insertion):
     """
     Insert a new line immediately after the last occurrence of a line
         containing the specified identifier in the file string.
-
     Arguments:
         file_str (str): The content of the GENDF file as a string.
         identifier (str): The identifier to search for in the file content.
         record_for_insertion (str): The content to insert after the identified
             line.
-
     Returns:
         file_str (str): The (potentially) updated content of the GENDF file.
     """
@@ -150,23 +166,19 @@ def ensure_gendf_markers(gendf_path, matb):
         this method ensures that they are present. Edits will only be made if
         the SEND record for MF1 or the FEND record for MF3 are not present.
         
-
         In ENDF-6 formatting, the SEND record signifies the end of a section
         and the FEND record signifies the end of a "file". Note that the use
         of the term "file" here refers to ENDF-6 specific terminology
         referring to a hierarchy of files within a "tape", which in more
         common terminology would be the ENDF, PENDF, or GENDF file itself.
         
-
         If missing, the MF1 SEND record will be inserted at the last line of 
         the first section of the first "file" within the GENDF "tape".
         Separately, if missing, the MF 3 FEND record will be inserted at the
         end of the third "file", which will be three lines before the end of
         the tape itself.
-
         The formatting for these records can be found at:
         https://t2.lanl.gov/nis/endf/intro06.html
-
     Arguments:
         gendf_path (str): File path to the newly created GENDF file.
         matb (int): Unique material ID for the material in the GENDF file.
@@ -218,8 +230,13 @@ def run_njoy(element, A, matb):
         matb (int): Unique material ID for the material in the files.
     
     Returns:
-        gendf_path (str): File path to the newly created GENDF file. 
+        gendf_path (str or None): File path to the newly created GENDF file.
+                                    Returns None if NJOY runs unsuccessfuly.
+        result.stderr (str or None): Output of NJOY error.
+                                    Returns None if NJOY runs successfully. 
     """
+
+    gendf_path = None
 
     # Run NJOY
     result = subprocess.run(['njoy'], input=open(INPUT).read(),
@@ -228,19 +245,22 @@ def run_njoy(element, A, matb):
     # If the run is successful, log out the output
     # and make a copy of the file as a .GENDF file
     if not result.stderr:
-        gendf_path = f'tendl_2017_{element}{str(A).zfill(3)}.gendf'
+        gendf_dir = 'gendf_files'
+        if not os.path.isdir(f'{dir}/{gendf_dir}'):
+            os.mkdir(f'{dir}/{gendf_dir}')
+        gendf_path = f'{dir}/{gendf_dir}/tendl_2017_{element}{str(A).zfill(3)}.gendf'
         Path('tape31').rename(Path(gendf_path))
         ensure_gendf_markers(gendf_path, matb)
 
-        return gendf_path
+    return gendf_path, result.stderr
 
-def cleanup_njoy_files(output_path = 'njoy_ouput'):
+def cleanup_njoy_files(output_path = dir + '/njoy_ouput'):
     """
     Clean up repository from unnecessary intermediate files from NJOY run.
     
     Arguments:
         output_path (str, optional): The save path for the NJOY output.
-            Defaults to 'njoy_output', which will save the file in the
+            Defaults to f'{CWD}/njoy_output', which will save the file in the
             same directory as all other saved files from the script run.
     
     Returns:

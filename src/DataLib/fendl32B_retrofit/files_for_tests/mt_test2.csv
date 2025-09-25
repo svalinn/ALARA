@@ -1,6 +1,0 @@
-MT,Reaction,Description
-1,"(n,total)",Neutron total cross sections.
-30,"(z,2n2α)","Production of two neutrons and two alpha particles, plus a residual."
-106,"(z,3He)","Production of a 3He particle plus a residual. Sum of MT=750-799, if they are present."
-207,"(z,Xα)",Total alpha particle production.
-700,"(z,t1)",Production of a triton leaving the residual nucleus in the first excited state.

@@ -2,6 +2,8 @@
 import reaction_data as rxd
 import tendl_processing as tp
 import groupr_tools
+import argparse
+import warnings
 from pathlib import Path
 from pandas import DataFrame
 
@@ -70,15 +72,26 @@ def main():
         njoy_input = groupr_tools.fill_input_template(material_id, MTs,
                                                       element, A, mt_dict)
         groupr_tools.write_njoy_input_file(njoy_input)
-        gendf_path = groupr_tools.run_njoy(element, A, material_id)
+        gendf_path, njoy_error = groupr_tools.run_njoy(
+            element, A, material_id
+        )
 
-        pKZA = tp.extract_gendf_pkza(gendf_path)
-        # Extract MT values again from GENDF file as there may be some
-        # difference from the original MT values in the ENDF/PENDF files
-        material_id, MTs, endftk_file_obj = tp.extract_endf_specs(gendf_path)
-        gendf_data = tp.iterate_MTs(MTs, endftk_file_obj, mt_dict, pKZA)
-        cumulative_data.extend(gendf_data)
-        groupr_tools.cleanup_njoy_files()
+        if gendf_path:
+            pKZA = tp.extract_gendf_pkza(gendf_path)
+            # Extract MT values again from GENDF file as there may be some
+            # difference from the original MT values in the ENDF/PENDF files
+            material_id, MTs, endftk_file_obj = tp.extract_endf_specs(
+                gendf_path
+            )
+            gendf_data = tp.iterate_MTs(MTs, endftk_file_obj, mt_dict, pKZA)
+            cumulative_data.extend(gendf_data)
+            groupr_tools.cleanup_njoy_files()
+            print(f'Finished processing {element}{A}')
+        else:
+            warnings.warn(
+                f'''Failed to convert {element}{A}.
+                NJOY error message: {njoy_error}'''
+            )
 
     dsv_path = dir + '/cumulative_gendf_data.dsv'
     write_dsv(dsv_path, cumulative_data)
