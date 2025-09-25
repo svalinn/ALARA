@@ -846,4 +846,3 @@ int EAFLib::getGammaData()
 
   return numGSpec;
 }  
-

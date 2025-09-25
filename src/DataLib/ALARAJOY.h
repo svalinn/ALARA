@@ -60,7 +60,7 @@ class ALARAJOYLib : public EAFLib
 {
     protected:
         ifstream inTrans;
-    
+
     public:
 
         /* Service */
@@ -82,7 +82,7 @@ class ALARAJOYLib : public EAFLib
         int currentParent;
 
         void loadDSVData();
-        
+
 };
 
 #endif
