@@ -230,8 +230,13 @@ def run_njoy(element, A, matb):
         matb (int): Unique material ID for the material in the files.
     
     Returns:
-        gendf_path (str): File path to the newly created GENDF file. 
+        gendf_path (str or None): File path to the newly created GENDF file.
+                                    Returns None if NJOY runs unsuccessfuly.
+        result.stderr (str or None): Output of NJOY error.
+                                    Returns None if NJOY runs successfully. 
     """
+
+    gendf_path = None
 
     # Run NJOY
     result = subprocess.run(['njoy'], input=open(INPUT).read(),
@@ -247,9 +252,7 @@ def run_njoy(element, A, matb):
         Path('tape31').rename(Path(gendf_path))
         ensure_gendf_markers(gendf_path, matb)
 
-        return gendf_path
-    else:
-        print(result.stderr)
+    return gendf_path, result.stderr
 
 def cleanup_njoy_files(output_path = dir + '/njoy_ouput'):
     """
