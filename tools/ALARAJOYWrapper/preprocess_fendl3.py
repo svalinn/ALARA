@@ -54,13 +54,16 @@ def main():
     Main method when run as a command line script.
     """
 
+    dir = groupr_tools.set_directory()
+    search_dir = args().fendlFileDir[0] if args().fendlFileDir else dir
+
     TAPE20 = 'tape20'
     TAPE21 = 'tape21'
 
-    mt_dict = rxd.process_mt_data(rxd.load_mt_table('mt_table.csv'))
+    mt_dict = rxd.process_mt_data(rxd.load_mt_table(f'{dir}/mt_table.csv'))
 
     cumulative_data = []
-    for isotope, file_properties in tp.search_for_files().items():
+    for isotope, file_properties in tp.search_for_files(search_dir).items():
         element = file_properties['Element']
         A = file_properties['Mass Number']
         endf_path, pendf_path = file_properties['File Paths']
