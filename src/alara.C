@@ -148,35 +148,33 @@ int main(int argc, char *argv[])
 	      argNum++;
 	    }
 	  break;
+
     case 'o':
-    if (argv[argNum][1] == '\0') 
-		{
-        if (argNum<argc-1) 
+		if (argv[argNum][1] == '\0') 
 			{
-            	out_file = argv[argNum+1]; 
-           		outfile.open(out_file);
-            	if (!outfile.is_open())
-                	error(1, "Cannot create output file %s.", out_file.c_str());
-            	std::cout.rdbuf(outfile.rdbuf());
-            	verbose(0, "Verbose output redirected to %s", out_file.c_str());
-            	argNum += 2;
-        } 
+			if (argNum<argc-1) 
+					out_file = argv[argNum+1]; 
+			else 
+				{
+				error(2, "-o requires parameter.");
+				break;
+				}
+			} 
 		else 
-			{
-            error(2, "-o requires parameter.");
-        }
-    } 
-	else 
-		{
-        	out_file = argv[argNum]+1; 
-        	outfile.open(out_file);
-        	if (!outfile.is_open())
-            	error(1, "Cannot create output file %s.", out_file.c_str());
-        	std::cout.rdbuf(outfile.rdbuf());
-        	verbose(0, "Verbose output redirected to %s", out_file.c_str());
-        	argNum++;
-    	}
-    break;
+			out_file = argv[argNum]+1;
+
+		outfile.open(out_file);	
+		if (!outfile.is_open())
+			error(1, "Cannot create output file %s.", out_file.c_str());
+		std::cout.rdbuf(outfile.rdbuf());
+		verbose(0, "Verbose output redirected to %s", out_file.c_str());
+
+		if (argv[argNum][1] == '\0' && argNum<argc-1)	
+			argNum += 2;	
+		else
+			argNum ++;
+		break;
+
 	case 'h':
 	  verbose(-1,helpmsg,argv[0]);
 	case 'V':
