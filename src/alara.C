@@ -155,6 +155,7 @@ int main(int argc, char *argv[])
 			{
 			if (argNum<argc-1) 
 					out_file = argv[argNum+1]; 
+					used_args++;
 			else 
 				{
 				error(2, "-o requires parameter.");
