@@ -48,19 +48,9 @@ DATALIB_ALARAJOY 8     ajoy     A hybrid data library following the formatting
 #define MAXALARAJOYRXNS 350
 #define MAXALARAJOYEMITTEDSTR 6
 
-struct DSVRow {
-    int parentKZA;
-    int daughterKZA;
-    std::string emittedParticles;
-    int nonZeroGroups;
-    std::vector<float> crossSections;
-};
-
 class ALARAJOYLib : public EAFLib
 {
-    protected:
-        ifstream inTrans;
-
+    
     public:
 
         /* Service */
@@ -75,6 +65,14 @@ class ALARAJOYLib : public EAFLib
         int getTransData() override;
 
     private:
+
+        struct DSVRow {
+            int parentKZA;
+            int daughterKZA;
+            std::string emittedParticles;
+            int nonZeroGroups;
+            std::vector<float> crossSections;
+        };
 
         // Variables to hold pre-loaded space-delimter DSV transmutation data
         static std::vector<DSVRow> dsvData;
