@@ -150,6 +150,7 @@ int main(int argc, char *argv[])
 	  break;
 
     case 'o':
+        int used_args = 1;
 		if (argv[argNum][1] == '\0') 
 			{
 			if (argNum<argc-1) 
