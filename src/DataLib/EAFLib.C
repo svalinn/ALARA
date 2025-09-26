@@ -16,7 +16,7 @@ EAFLib::EAFLib(const char *transFname, const char *decayFname, const char *alara
 }
 
 // Decay-only constructor (for use in ALARAJOY)
-EAFLib::EAFLib(const char* decayFname, bool decayOnly) : ASCIILib(DATALIB_EAF)
+EAFLib::EAFLib(const char* decayFname) : ASCIILib(DATALIB_EAF)
 {
   // Only open the decay stream -- do not call makeBinLib here
   if (decayFname !=NULL)

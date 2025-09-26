@@ -8,12 +8,12 @@
 #include <cstdio>
 
 // Define DSV row parsing structure
-std::vector<DSVRow> ALARAJOYLib::dsvData;
+std::vector<ALARAJOYLib::DSVRow> ALARAJOYLib::dsvData;
 
 // Constructor
 ALARAJOYLib::ALARAJOYLib(
     const char* transFname, const char* decayFname, const char* alaraFname
-) : EAFLib(decayFname, true),
+) : EAFLib(decayFname),
     currentRowIndex(0),
     currentParent(-1)
 {
@@ -31,14 +31,11 @@ void ALARAJOYLib::loadDSVData()
     dsvData.clear();
     currentRowIndex = 0;
     currentParent = -1;
+    DSVRow row;
 
-    while (true)
+    // Extract Parent KZA until EOF at pKZA == -1
+    while ((inTrans >> row.parentKZA) && row.parentKZA != -1)
     {
-        DSVRow row;
-
-        // Extract Parent KZA, EOF at pKZA == -1
-        if (!(inTrans >> row.parentKZA) || row.parentKZA == -1) break;
-
         // Extract Daughter KZA, emitted particles, and non-zero groups
         inTrans >> row.daughterKZA;
         inTrans >>row.emittedParticles >> row.nonZeroGroups;
@@ -91,8 +88,7 @@ int ALARAJOYLib::getTransData()
     size_t scanIndex = currentRowIndex;
     while (scanIndex < dsvData.size() &&
         dsvData[scanIndex].parentKZA == currentParent) {
-            if (dsvData[scanIndex].nonZeroGroups > maxGroups)
-                maxGroups = dsvData[scanIndex].nonZeroGroups;
+            maxGroups = std::max(dsvData[scanIndex].nonZeroGroups, maxGroups);
             scanIndex++;
         }
     nGroups = maxGroups;
@@ -113,12 +109,12 @@ int ALARAJOYLib::getTransData()
         transKza[rxnNum] = row.daughterKZA;
         strcpy(emitted[rxnNum], row.emittedParticles.c_str());
 
-        // Fill cross sections
-        for (int g = 0; g < nGroups; g++)
-        {
-            xSection[rxnNum][g] = 
-                (g < row.nonZeroGroups) ? row.crossSections[g] : 0.0;
-        }
+        // Fill non-zero cross sections
+        int count = std::min(row.nonZeroGroups, nGroups);
+        std::memcpy(xSection[rxnNum],
+                    row.crossSections.data(), 
+                    count * sizeof(float)
+        );
 
         rxnNum++;
         currentRowIndex++;
