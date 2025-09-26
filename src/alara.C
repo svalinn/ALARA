@@ -171,11 +171,7 @@ int main(int argc, char *argv[])
 		std::cout.rdbuf(outfile.rdbuf());
 		verbose(0, "Verbose output redirected to %s", out_file.c_str());
 
-		if (argv[argNum][1] == '\0' && argNum<argc-1)	
-			argNum += 2;	
-		else
-			argNum ++;
-		break;
+		argNum += used_args;
 
 	case 'h':
 	  verbose(-1,helpmsg,argv[0]);
