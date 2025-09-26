@@ -6,6 +6,9 @@ import openmc
 import h5py
 import pandas as pd
 import numpy as np
+import argparse
+from io import StringIO
+import re
 
 # This script takes an ALARA output file (and corresponding input, material library, and flux files) and writes the parent element,
 # irradiation time, normalized flux, daughter nuclides, and number densities to a pandas df
@@ -105,4 +108,167 @@ def main():
     write_to_pd(pyne_mesh, number, unit, element, flux_array)
 
 if __name__ == "__main__":
+    main()
+
+#-------------------------------------------------------------------------------------------------    
+
+import pandas as pd
+import re
+import argparse
+from io import StringIO
+
+def args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--filepath', '-f', required=True, nargs=1
+    )
+    return parser.parse_args()
+
+def normalize_header(header_line=str) -> str:
+    """
+    Normalize table header lines by replacing spaces between numeric values
+        and their units with underscores, allowing for pandas to interpret
+        multi-word column names without splitting them into separate columns.
+    
+    Arguments:
+        header_line (str): Raw text of header line read in from ALARA output
+            file.
+    
+    Returns:
+        normalized_header_line (str): Header line with spaces in number-unit 
+            pairs replaced by underscroes (e.g., "1 d" -> "1_d").
+    """
+    
+    return re.sub(r'(\d+)\s+([a-zA-Z]+)', r'\1_\2', header_line)
+
+def sanitize_filename(name: str) -> str:
+    """
+    Convert a table name into a a valid string that can be used in a filepath
+        by replacing invalid or special characters with undescores.
+
+    Arguments:
+        name (str): Raw descriptive name of the table, as stored in the
+            key of the dictionary for that particular table.
+    
+    Returns:
+        sanitized_name (str): Modified dictionary key name without invalid
+            filepath characters.
+    """
+    
+    return re.sub(r'[<>:"/\\|?*\[\]\(\)\s]+', '_', name)
+
+def parse_table_data(current_table_lines, results,
+               current_parameter, current_interval):
+    """
+    Parse a block of table lines with StringIO into a Pandas DataFrame
+        and store in the results dictionary.
+    
+    Arguments:
+        current_table_lines (list of str): Lines of the current table,
+            each stored as a separate string.
+        results (dict): Dictionary that stores all parsed tables,
+            keyed by parameter and block name.
+        current_parameter (str): Specific quantitative value represented
+            in the table (e.g. specific activity, number density, etc.)
+        current_interval (str): Interval iterated upon in ALARA run.
+
+    Returns:
+        None
+    """
+
+    df = pd.read_csv(
+        StringIO('\n'.join(current_table_lines)),
+        delim_whitespace=True
+    )
+
+    df.columns = [c.replace("_", " ") for c in df.columns]
+    key = f'{current_parameter} - {current_interval}'
+    results[key] = df
+
+def process_alara_output(filename):
+    """
+    Reads an ALARA output file, identifies all data tables contained within,
+        and stores each as a Pandas DataFrame in a dictionary.
+
+    Arguments:
+        filename (str): Path to the ALARA output file.
+
+    Returns:
+        results (dict): Dictionary that stores all parsed tables,
+            keyed by parameter and block name.
+    """
+
+    results = {}
+    with open(filename, "r") as f:
+        lines = f.readlines()
+
+    current_parameter = None
+    current_interval = None
+    inside_table = False
+    current_table_lines = []
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Identify table parameters by '***' signature
+        if stripped.startswith('***') and stripped.endswith('***'):
+            current_parameter = stripped.strip('* ').strip()
+            continue
+
+        # Identify intervals
+        if stripped.startswith(
+            'Interval #'
+            ) or stripped.startswith('Totals for all intervals'):
+            current_interval = stripped.rstrip(':')
+            continue
+
+        # Table headers begin with 'isotope' -- start of tabular data
+        if stripped.startswith('isotope'):
+            inside_table = True
+            current_table_lines = [normalize_header(stripped)]
+            continue
+
+        # Skip buffer line inserted by ALARA ('=====...')
+        if inside_table and stripped.startswith('='):
+            continue
+
+        # Read actual tabular data
+        if inside_table and (
+            not stripped or stripped.startswith(
+                '***'
+            ) or stripped.startswith('Interval')
+        ):
+            if len(
+                current_table_lines
+            ) > 1 and current_parameter and current_interval:
+                parse_table_data(current_table_lines, results,
+                           current_parameter, current_interval
+                )
+            
+            inside_table = False
+            current_table_lines = []
+            continue
+
+        if inside_table:
+            current_table_lines.append(stripped)
+
+    # Read final table
+    if inside_table and len(
+        current_table_lines
+    ) > 1 and current_parameter and current_interval:
+        parse_table_data(current_table_lines, results,
+                   current_parameter, current_interval
+        )
+
+    return results
+
+def main():
+
+    alara_tables = process_alara_output(args().filepath[0])
+
+    for key, df in alara_tables.items():
+        filename = sanitize_filename(key) + '.csv'
+        df.to_csv(filename, index=False)
+
+if __name__ == '__main__':
     main()
