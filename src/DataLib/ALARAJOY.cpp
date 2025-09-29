@@ -110,10 +110,9 @@ int ALARAJOYLib::getTransData()
         strcpy(emitted[rxnNum], row.emittedParticles.c_str());
 
         // Fill non-zero cross sections
-        int count = std::min(row.nonZeroGroups, nGroups);
         std::memcpy(xSection[rxnNum],
                     row.crossSections.data(), 
-                    count * sizeof(float)
+                    row.nonZeroGroups * sizeof(float)
         );
 
         rxnNum++;
