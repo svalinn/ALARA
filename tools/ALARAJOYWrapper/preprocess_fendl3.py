@@ -38,6 +38,11 @@ def write_dsv(dsv_path, cumulative_data):
     join_keys.remove(xs_key)
 
     with open(dsv_path, 'w') as dsv_file:
+        
+        # Write header line with total groups for Vitamin-J
+        vitamin_J_energy_groups = 175
+        dsv_file.write(str(vitamin_J_energy_groups) + '\n')
+
         for reaction in cumulative_data:
             dsv_row = ' '.join(str(reaction[key]) for key in join_keys)
             dsv_row += ' ' + ' '.join(str(xs) for xs in reaction[xs_key])
