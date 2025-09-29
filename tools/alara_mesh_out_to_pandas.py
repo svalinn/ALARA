@@ -97,32 +97,7 @@ def write_to_pd(pyne_mesh, number, unit, element, flux_array):
     }
     #needs to include some time-varying flux magnitude
 
-def main():
-    inp_lines, out_lines, mat_lib_lines, flux_lines, mesh_file = open_files()
-    pyne_mesh = make_mesh_num_density(out_lines, mesh_file)
-    write_num_dens_hdf5(pyne_mesh)
-    number, unit = read_inp_schedule(inp_lines)
-    element = read_inp_mats(inp_lines, mat_lib_lines)
-    bin_widths, all_entries = store_flux_lines(flux_lines)
-    flux_array = normalize_flux_spectrum(all_entries, bin_widths, pyne_mesh)
-    write_to_pd(pyne_mesh, number, unit, element, flux_array)
-
-if __name__ == "__main__":
-    main()
-
 #-------------------------------------------------------------------------------------------------    
-
-import pandas as pd
-import re
-import argparse
-from io import StringIO
-
-def args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--filepath', '-f', required=True, nargs=1
-    )
-    return parser.parse_args()
 
 def normalize_header(header_line=str) -> str:
     """
@@ -262,13 +237,43 @@ def process_alara_output(filename):
 
     return results
 
+#---------------------------------------------------------------------------------------------------------------------
+#args() and main()
+
+def args():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="cmd")
+    subparsers.add_parser("mesh_based") #Choose if ALARA input & output are based on some mesh (structured/unstructured)
+
+    meshless = subparsers.add_parser("meshless")
+    meshless.add_argument("--filepath", 'f', required=True, nargs=1)
+
+    args = parser.parse_args()
+    return args
+
 def main():
 
-    alara_tables = process_alara_output(args().filepath[0])
+    if args.cmd == "mesh_based":
+        inp_lines, out_lines, mat_lib_lines, flux_lines, mesh_file = open_files()
+        pyne_mesh = make_mesh_num_density(out_lines, mesh_file)
+        write_num_dens_hdf5(pyne_mesh)
+        number, unit = read_inp_schedule(inp_lines)
+        element = read_inp_mats(inp_lines, mat_lib_lines)
+        bin_widths, all_entries = store_flux_lines(flux_lines)
+        flux_array = normalize_flux_spectrum(all_entries, bin_widths, pyne_mesh)
+        write_to_pd(pyne_mesh, number, unit, element, flux_array)    
 
-    for key, df in alara_tables.items():
-        filename = sanitize_filename(key) + '.csv'
-        df.to_csv(filename, index=False)
+    elif args.cmd == "meshless":
+        filepath = args.meshless    
+
+        alara_tables = process_alara_output(args().filepath[0])
+
+        for key, df in alara_tables.items():
+            filename = sanitize_filename(key) + '.csv'
+            df.to_csv(filename, index=False)
+
+    else:
+        print("Please choose one of the following subparser commands: mesh_based, meshless")       
 
 if __name__ == '__main__':
     main()
