@@ -40,7 +40,8 @@ void ALARAJOYLib::loadDSVData()
         inTrans >> row.daughterKZA;
         inTrans >>row.emittedParticles >> row.nonZeroGroups;
 
-        // Iterate through rest of line for cross sections based on nGroups
+        /* Iterate through rest of line for cross sections 
+           based on non-zero groups*/
         row.crossSections = std::vector<float>(row.nonZeroGroups);
         for (int i = 0; i < row.nonZeroGroups; i++)
         {
@@ -60,6 +61,8 @@ void ALARAJOYLib::loadDSVData()
 void ALARAJOYLib::getTransInfo()
 {
 
+    inTrans.getline(transTitle, MAXLINELENGTH);
+    nGroups = std::atoi(transTitle);
     nParents = 0;
 
     // Allocate arrays for maximum reactions
@@ -82,16 +85,6 @@ int ALARAJOYLib::getTransData()
 
     int rxnNum = 0;
     int parentKZA = currentParent;
-
-    // Find maximum nonZeroGroups for this parent
-    int maxGroups = 0;
-    size_t scanIndex = currentRowIndex;
-    while (scanIndex < dsvData.size() &&
-        dsvData[scanIndex].parentKZA == currentParent) {
-            maxGroups = std::max(dsvData[scanIndex].nonZeroGroups, maxGroups);
-            scanIndex++;
-        }
-    nGroups = maxGroups;
 
     // Reallocate xSection arrays for this parent
     for (int rxn = 0; rxn < MAXALARAJOYRXNS; rxn++) {
