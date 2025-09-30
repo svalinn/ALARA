@@ -1,0 +1,38 @@
+geometry rectangular
+
+volume
+     10    zone_1
+end
+
+mat_loading
+    zone_1    mix_1
+end
+
+mixture mix_1
+    material mat:fe 1 1.0
+end
+
+material_lib ./ALARA/data/elelib_to_matlib.txt
+element_lib /root/data/elelib.std
+data_library alaralib /opt/groupspace/shared/n/nukecode/ALARA/data/fendl2bin
+
+output zone
+        number_density
+end
+
+#     flux name    fluxin file   norm   shift   unused
+flux  my_flux       fluxfnsfIBfw.txt 1e18     0      default
+
+# Specify the irradiation schedule below.
+# Syntax is found in the ALARA user manual
+schedule    my_schedule
+    20 y my_flux my_pulse_history 0  s
+end
+pulsehistory  my_pulse_history
+    1    0.0    s
+end
+
+#other parameters
+truncation 1e-3
+impurity 5e-6 1e-3
+dump_file dump_1w.file
