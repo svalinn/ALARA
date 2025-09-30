@@ -12,10 +12,10 @@ import re
 from datetime import timedelta
 
 # This script takes an ALARA output file (and corresponding input, material library, and flux files) and writes the parent element,
-# irradiation time, normalized flux, daughter nuclides, and number densities to a pandas df
+# irradiation time, normalized flux, flux magnitude, daughter nuclides, and number densities to a pandas df
 
-# This script is designed to work with an ALARA flux that is discretized over a MOAB mesh object.
-# Currently, this script takes 1 single material & element over the mesh, and 1 single irradation time in the 'schedule' block.
+# This script is designed to work withs an ALARA flux that is discretized over a MOAB mesh object.
+# Currently, this script takes 1 single material & element over each mesh element, and 1 single irradation time in the 'schedule' block.
 
 def open_files():
     inp_lines = open('alara_inp_1w', 'r').readlines()    
