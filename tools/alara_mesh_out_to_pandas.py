@@ -17,11 +17,11 @@ import re
 # Currently, this script takes 1 single material & element over the mesh, and 1 single irradation time in the 'schedule' block.
 
 def open_files():
-    inp_lines = open('alara_inp', 'r').readlines()    
-    out_lines = open('alara_out', 'r').readlines() #ALARA output file from sdout
-    mat_lib_lines = open('alara_matlib', 'r').readlines()
-    flux_lines = open('alara_fluxin', 'r').readlines()
-    mesh_file = "Mesh.h5"
+    inp_lines = open('alara_inp_1w', 'r').readlines()    
+    out_lines = open('1w_out', 'r').readlines() #ALARA output file from sdout
+    mat_lib_lines = open('../alara_matlib', 'r').readlines()
+    flux_lines = open('../alara_fluxin', 'r').readlines()
+    mesh_file = "../../Mesh.h5"
     return inp_lines, out_lines, mat_lib_lines, flux_lines, mesh_file
 
 def make_mesh_num_density(out_lines, mesh_file):
@@ -42,20 +42,34 @@ def read_inp_schedule(inp_lines):
             schedule_line = inp_lines[inp_index+1].split()
             number = int(schedule_line[0])
             unit = schedule_line[1]
-    return number, unit
+    t_irr = list(((str(number)+unit).split()))
+    return t_irr
 
 def read_inp_mats(inp_lines, mat_lib_lines):
+    inside_mat_loading = False
+    mixtures = []
+    materials = []
+    elements = []
     for inp_index, inp_line in enumerate(inp_lines):
-        if inp_line.strip().startswith("mixture"):
-            mixture_line = inp_lines[inp_index+1].split()
-            material = mixture_line[1]  
-            break    
-    for mat_lib_index, mat_lib_line in enumerate(mat_lib_lines):
-        if mat_lib_line.strip().startswith(material):
-            mat_line = mat_lib_lines[mat_lib_index + 1].split()
-            element = mat_line[0]
-            break    
-    return element
+        if inp_line.strip().startswith("mat_loading"):
+            inside_mat_loading = True
+            continue
+        if inside_mat_loading:
+            if inp_line.lower().startswith("end"):
+                break
+            if inp_line.strip(): #if the current line is not blank
+                mixtures.append(inp_line.split()[1])  
+    for mixture in mixtures:     
+        for inp_index, inp_line in enumerate(inp_lines):
+            if inp_line.strip().startswith("mixture") & inp_line.strip().endswith(mixture):      
+                material_inp_line = inp_lines[inp_index+1].split()
+                materials.append(material_inp_line[1])
+    for material in materials:        
+        for mat_lib_index, mat_lib_line in enumerate(mat_lib_lines):
+            if mat_lib_line.strip().startswith(material):
+                mat_line = mat_lib_lines[mat_lib_index + 1].split()
+                elements.append(mat_line[0].capitalize())
+    return elements
 
 def store_flux_lines(flux_lines):
     energy_bins = openmc.mgxs.GROUP_STRUCTURES['VITAMIN-J-175'] 
@@ -69,32 +83,32 @@ def store_flux_lines(flux_lines):
         if line.strip() == "":
             continue
         all_entries.extend(line.split())
-
     all_entries = np.array(all_entries, dtype=float)
-
     return bin_widths, all_entries
 
 def normalize_flux_spectrum(all_entries, bin_widths, pyne_mesh):
-    flux_array = all_entries.reshape(len(bin_widths), len(pyne_mesh.mats), order="F")
+    flux_array = all_entries.reshape(len(pyne_mesh.mats), len(bin_widths))
     total_flux = np.sum(all_entries)
     for mesh_idx in range(len(pyne_mesh.mats)):
-        flux_array[:,mesh_idx] = (flux_array[:, mesh_idx] / bin_widths)  * (1 / total_flux)
+        flux_array[mesh_idx,:] = (flux_array[mesh_idx,:] / bin_widths)  * (1 / total_flux)
     return flux_array    
 
-def write_to_pd(pyne_mesh, number, unit, element, flux_array):
+def write_to_pd(pyne_mesh, t_irr, elements, flux_array):
     #writes parent element, irradiation time, normalized flux, daughter nuclides, and number densities to pandas df
     children = []
     num_dens = []
     for mat in pyne_mesh.mats.values():
         children.append(list(mat.comp.keys()))
         num_dens.append(list(mat.comp.values()))
-    df = {
-        'parent':element,
-        't_irr':str(number)+unit,
-        'flux_norm':flux_array,
+    dict = {
+        'parents':elements,
+        't_irr': t_irr*len(pyne_mesh.mats), # the irradiation schedule applies to all mesh elements
+        'flux_norm':flux_array.tolist(),
         'children': children,
         'num_dens':num_dens
     }
+    df = pd.DataFrame(dict)
+    
     #needs to include some time-varying flux magnitude
 
 #-------------------------------------------------------------------------------------------------    
@@ -240,28 +254,30 @@ def process_alara_output(filename):
 #---------------------------------------------------------------------------------------------------------------------
 #args() and main()
 
-def args():
+def parse_args():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="cmd")
     subparsers.add_parser("mesh_based") #Choose if ALARA input & output are based on some mesh (structured/unstructured)
 
     meshless = subparsers.add_parser("meshless")
-    meshless.add_argument("--filepath", 'f', required=True, nargs=1)
+    meshless.add_argument("--filepath", '-f', required=True, nargs=1)
 
     args = parser.parse_args()
     return args
 
 def main():
 
+    args = parse_args()
+
     if args.cmd == "mesh_based":
         inp_lines, out_lines, mat_lib_lines, flux_lines, mesh_file = open_files()
         pyne_mesh = make_mesh_num_density(out_lines, mesh_file)
         write_num_dens_hdf5(pyne_mesh)
-        number, unit = read_inp_schedule(inp_lines)
-        element = read_inp_mats(inp_lines, mat_lib_lines)
+        t_irr = read_inp_schedule(inp_lines)
+        elements = read_inp_mats(inp_lines, mat_lib_lines)
         bin_widths, all_entries = store_flux_lines(flux_lines)
         flux_array = normalize_flux_spectrum(all_entries, bin_widths, pyne_mesh)
-        write_to_pd(pyne_mesh, number, unit, element, flux_array)    
+        write_to_pd(pyne_mesh, t_irr, elements, flux_array)    
 
     elif args.cmd == "meshless":
         filepath = args.meshless    
