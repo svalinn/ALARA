@@ -9,6 +9,7 @@ import numpy as np
 import argparse
 from io import StringIO
 import re
+from datetime import timedelta
 
 # This script takes an ALARA output file (and corresponding input, material library, and flux files) and writes the parent element,
 # irradiation time, normalized flux, daughter nuclides, and number densities to a pandas df
@@ -42,8 +43,7 @@ def read_inp_schedule(inp_lines):
             schedule_line = inp_lines[inp_index+1].split()
             number = int(schedule_line[0])
             unit = schedule_line[1]
-    t_irr = list(((str(number)+unit).split()))
-    return t_irr
+    return number, unit
 
 def read_inp_mats(inp_lines, mat_lib_lines):
     inside_mat_loading = False
@@ -79,10 +79,9 @@ def store_flux_lines(flux_lines):
         bin_widths.append(bin_width)
 
     all_entries = []
-    for line in flux_lines:
-        if line.strip() == "":
-            continue
-        all_entries.extend(line.split())
+    for flux_line in flux_lines:
+        if flux_line.strip(): #if the current line is not blank
+            all_entries.extend(flux_line.split())
     all_entries = np.array(all_entries, dtype=float)
     return bin_widths, all_entries
 
@@ -91,9 +90,21 @@ def normalize_flux_spectrum(all_entries, bin_widths, pyne_mesh):
     total_flux = np.sum(all_entries)
     for mesh_idx in range(len(pyne_mesh.mats)):
         flux_array[mesh_idx,:] = (flux_array[mesh_idx,:] / bin_widths)  * (1 / total_flux)
-    return flux_array    
+    return flux_array 
 
-def write_to_pd(pyne_mesh, t_irr, elements, flux_array):
+def find_avg_flux(all_entries, pyne_mesh, bin_widths, number, unit):
+    # find the average flux magnitude (over the irradiation time), for each mesh element
+    # currently, the "average" is the same as the original flux per mesh element as this script only takes one
+    # entry in the irradiation schedule 
+    time_dict = {'s': 'seconds', 'm': 'minutes', 'h': 'hours', 'd': 'days', 'w': 'weeks', 'y': 'years', 'c': 'centuries'}    
+    duration_kwargs = {time_dict[unit]: number}
+    duration = timedelta(**duration_kwargs)
+    seconds = duration.total_seconds()
+    fluence_per_mesh_element = (np.sum(all_entries.reshape(len(pyne_mesh.mats), len(bin_widths)), axis=1)) * seconds
+    avg_flux_per_mesh_element = fluence_per_mesh_element / seconds
+    return avg_flux_per_mesh_element
+
+def write_to_pd(pyne_mesh, number, unit, elements, flux_array, avg_flux_per_mesh_element):
     #writes parent element, irradiation time, normalized flux, daughter nuclides, and number densities to pandas df
     children = []
     num_dens = []
@@ -102,8 +113,9 @@ def write_to_pd(pyne_mesh, t_irr, elements, flux_array):
         num_dens.append(list(mat.comp.values()))
     dict = {
         'parents':elements,
-        't_irr': t_irr*len(pyne_mesh.mats), # the irradiation schedule applies to all mesh elements
+        't_irr': list(((str(number)+unit).split()))*len(pyne_mesh.mats), # the irradiation schedule applies to all mesh elements
         'flux_norm':flux_array.tolist(),
+        'avg_flux_mag':avg_flux_per_mesh_element,
         'children': children,
         'num_dens':num_dens
     }
@@ -273,11 +285,12 @@ def main():
         inp_lines, out_lines, mat_lib_lines, flux_lines, mesh_file = open_files()
         pyne_mesh = make_mesh_num_density(out_lines, mesh_file)
         write_num_dens_hdf5(pyne_mesh)
-        t_irr = read_inp_schedule(inp_lines)
+        number, unit = read_inp_schedule(inp_lines)
         elements = read_inp_mats(inp_lines, mat_lib_lines)
         bin_widths, all_entries = store_flux_lines(flux_lines)
         flux_array = normalize_flux_spectrum(all_entries, bin_widths, pyne_mesh)
-        write_to_pd(pyne_mesh, t_irr, elements, flux_array)    
+        avg_flux_per_mesh_element = find_avg_flux(all_entries, pyne_mesh, bin_widths, number, unit)
+        write_to_pd(pyne_mesh, number, unit, elements, flux_array, avg_flux_per_mesh_element)    
 
     elif args.cmd == "meshless":
         filepath = args.meshless    
