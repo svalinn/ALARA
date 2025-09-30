@@ -1,3 +1,5 @@
+#This script produces an ALARA material library using the standard element library available in the ALARA/data folder.
+
 elelib_lines = open('../data/elelib.std', 'r').readlines()
 
 with open('../data/elelib_to_matlib.txt', 'w') as etm:
