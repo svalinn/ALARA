@@ -51,7 +51,7 @@ public:
   
   /// Inline destructor destroys whole chain by deleting 'next'.
   ~Zone() 
-    { delete next; };
+    { delete next; next=NULL; };
 
   /// Overloaded assignment operator
   Zone& operator=(const Zone&);

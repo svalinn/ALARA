@@ -38,7 +38,7 @@ public:
 
   /// Inline destructor destroys the whole list by deleting the 'next'.
   ~CoolingTime()
-    { delete next; };
+    { delete next; next=NULL; };
 
   /// This function reads a whole list of cooling times from the input file,
   /// attached to the stream given as an argument.

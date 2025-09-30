@@ -50,7 +50,7 @@ public:
 
   /// Inline destructor destroys the entire list by deleting 'next'.
   ~PulseLevel()
-    { delete next; };
+    { delete next; next=NULL; };
 
   /// Overload assignment operator 
   PulseLevel& operator=(const PulseLevel&);

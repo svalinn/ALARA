@@ -77,6 +77,7 @@ OutputFormat::~OutputFormat()
   delete gammaSrc;
   delete contactDose;
   delete next;
+  next = NULL;
   
 }
 

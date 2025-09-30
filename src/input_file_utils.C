@@ -115,7 +115,7 @@ double convertTime(double inTime, char units)
 
 
 
-const char* searchNonXSPath(const char* filename)
+char* searchNonXSPath(const char* filename)
 {
 
   const char *pathVar = getenv("ALARA_DATADIR");
@@ -127,7 +127,7 @@ const char* searchNonXSPath(const char* filename)
 }
 
 
-const char* searchXSPath(const char* filename)
+char* searchXSPath(const char* filename)
 {
 
   const char *pathVar = getenv("ALARA_XSDIR");
@@ -137,7 +137,7 @@ const char* searchXSPath(const char* filename)
 
 }
 
-const char* searchPath(const char* filename, const char* envPathVar, const char* builtinPathVar)
+char* searchPath(const char* filename, const char* envPathVar, const char* builtinPathVar)
 {
   struct stat stat_info;
   int stat_result = -1;
