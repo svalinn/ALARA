@@ -12,7 +12,7 @@ mixture mix_1
     material mat:fe 1 1.0
 end
 
-material_lib ./ALARA/data/elelib_to_matlib.txt
+material_lib ../data/elelib_to_matlib.txt
 element_lib /root/data/elelib.std
 data_library alaralib /opt/groupspace/shared/n/nukecode/ALARA/data/fendl2bin
 
