@@ -180,11 +180,12 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
     max_groups = 0
     for MT in MTs:
         sigma_list = extract_cross_sections(file_obj, MT)
-        sigma_lists.append(sigma_list)
+        # Handle high (2 digit) isomeric states in the daughter
+        dKZA = pKZA * (10 if mt_dict[MT]['High M'] else 1) + mt_dict[MT]['delKZA']
         gendf_data.append(
             {
                 'Parent KZA'            :                                pKZA,
-                'Daughter KZA'          :        pKZA + mt_dict[MT]['delKZA'],
+                'Daughter KZA'          :                                dKZA,
                 'Emitted Particles'     :    mt_dict[MT]['Emitted Particles'],
                 'Non-Zero Groups'       :                     len(sigma_list),
                 'Cross Sections'        :                          sigma_list

@@ -204,7 +204,10 @@ def process_mt_data(mt_dict):
         
         if change_NP is not None:
             change_N, change_P = change_NP
-            data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
+            data['delKZA'] = int(
+                str((change_P * 1000 + change_P + change_N) * 10) + str(M)
+                )
+            data['High M'] = True if M > 9 else False
             data['Emitted Particles'] = emitted_particles
         else:
             del mt_dict[MT]
