@@ -304,9 +304,9 @@ def run_njoy(element, A, matb):
                     os.mkdir(os.path.join(dir, filetype['Specific Dir']))
 
             filetype['Save Path'] = save_path + filetype['Extension']
-            Path(f'tape{filetype['Tape']}').rename(save_path)
+            Path(f'tape{filetype['Tape']}').rename(filetype['Save Path'])
             if filetype['Extension'] == '.gendf':
-                ensure_gendf_markers(save_path, matb)
+                ensure_gendf_markers(filetype['Save Path'], matb)
 
     return save_dict['GENDF']['Save Path'], result.stderr
 

@@ -13,6 +13,7 @@ def args():
         '--fendlFileDir', '-f', required=False, nargs=1
     )
     parser.add_argument(
+        # Temperature for NJOY run [Kelvin]
         '--temperature', '-t', required=False, nargs=1, default=[293.16]
     )
     return parser.parse_args()
@@ -24,6 +25,7 @@ def main():
 
     dir = njt.set_directory()
     search_dir = args().fendlFileDir[0] if args().fendlFileDir else dir
+    temperature = args().temperature[0]
 
     TAPE20 = 'tape20'
 
@@ -39,8 +41,7 @@ def main():
         material_id, MTs, endftk_file_obj = tp.extract_endf_specs(TAPE20)
         MTs = set(MTs).intersection(mt_dict.keys())
         njoy_input = njt.fill_input_template(
-            material_id, MTs, element, A, mt_dict,
-            temperature=args().temperature[0]
+            material_id, MTs, element, A, mt_dict, temperature
             )
         njt.write_njoy_input_file(njoy_input)
         gendf_path, njoy_error = njt.run_njoy(
@@ -64,7 +65,7 @@ def main():
                 NJOY error message: {njoy_error}'''
             )
 
-    csv_path = dir + '/cumulative_gendf_data.csv'
+    csv_path = dir + f'/cumulative_gendf_data_{temperature}K.csv'
     DataFrame(cumulative_data).to_csv(csv_path)
 
     print(csv_path)
