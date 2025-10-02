@@ -18,12 +18,11 @@ from datetime import timedelta
 # Currently, this script takes 1 single material & element over each mesh element, and 1 single irradation time in the 'schedule' block.
 
 def open_files():
-    inp_lines = open('alara_inp_1w', 'r').readlines()    
-    out_lines = open('1w_out', 'r').readlines() #ALARA output file from sdout
-    mat_lib_lines = open('../alara_matlib', 'r').readlines()
+    inp_lines = open('alara_inp_1w_test', 'r').readlines()    
+    out_lines = open('1w_out_test', 'r').readlines() #ALARA output file from sdout
     flux_lines = open('../alara_fluxin', 'r').readlines()
     mesh_file = "../../Mesh.h5"
-    return inp_lines, out_lines, mat_lib_lines, flux_lines, mesh_file
+    return inp_lines, out_lines, flux_lines, mesh_file
 
 def make_mesh_num_density(out_lines, mesh_file):
     pyne_mesh = pyne.mesh.Mesh(mesh=mesh_file)
@@ -37,39 +36,21 @@ def write_num_dens_hdf5(pyne_mesh):
         matlib[mat_id] = pyne_mesh.mats[mat_id]
     matlib.write_hdf5('pyne_matlib.h5', h5_overwrite=True)
 
-def read_inp_schedule(inp_lines):
-    for inp_index, inp_line in enumerate(inp_lines):
-        if inp_line.strip().startswith("schedule"):
-            schedule_line = inp_lines[inp_index+1].split()
-            number = int(schedule_line[0])
-            unit = schedule_line[1]
+def read_inp_schedule(out_lines):
+    for out_index, out_line in enumerate(out_lines):
+        if out_line.strip().startswith("Schedule"):
+            schedule_line = out_lines[out_index+1].split()
+            number = int(schedule_line[1])
+            unit = schedule_line[2]
     return number, unit
 
-def read_inp_mats(inp_lines, mat_lib_lines):
-    inside_mat_loading = False
-    mixtures = []
-    materials = []
+def read_inp_mats(out_lines):
+    #Track the chemical element in each mesh voxel based on the name of the corresponding zone (e.g. Zone #1: H)
     elements = []
-    for inp_index, inp_line in enumerate(inp_lines):
-        if inp_line.strip().startswith("mat_loading"):
-            inside_mat_loading = True
-            continue
-        if inside_mat_loading:
-            if inp_line.lower().startswith("end"):
-                break
-            if inp_line.strip(): #if the current line is not blank
-                mixtures.append(inp_line.split()[1])  
-    for mixture in mixtures:     
-        for inp_index, inp_line in enumerate(inp_lines):
-            if inp_line.strip().startswith("mixture") & inp_line.strip().endswith(mixture):      
-                material_inp_line = inp_lines[inp_index+1].split()
-                materials.append(material_inp_line[1])
-    for material in materials:        
-        for mat_lib_index, mat_lib_line in enumerate(mat_lib_lines):
-            if mat_lib_line.strip().startswith(material):
-                mat_line = mat_lib_lines[mat_lib_index + 1].split()
-                elements.append(mat_line[0].capitalize())
-    return elements
+    for out_line in out_lines:
+        if out_line.strip().startswith("Zone #"):
+            elements.append(out_line.strip().split()[2])
+    return elements        
 
 def store_flux_lines(flux_lines):
     energy_bins = openmc.mgxs.GROUP_STRUCTURES['VITAMIN-J-175'] 
@@ -96,8 +77,13 @@ def find_avg_flux(all_entries, pyne_mesh, bin_widths, number, unit):
     # find the average flux magnitude (over the irradiation time), for each mesh element
     # currently, the "average" is the same as the original flux per mesh element as this script only takes one
     # entry in the irradiation schedule 
-    time_dict = {'s': 'seconds', 'm': 'minutes', 'h': 'hours', 'd': 'days', 'w': 'weeks', 'y': 'years', 'c': 'centuries'}    
-    duration_kwargs = {time_dict[unit]: number}
+    time_dict = {'s': 'seconds', 'm': 'minutes', 'h': 'hours', 'd': 'days', 'w': 'weeks', 'y':'years', 'c':'centuries'}
+    if unit == 'y':
+        duration_kwargs = {time_dict['d']: 365*number} #ignoring leap years for now
+    elif unit == 'c':
+        duration_kwargs = {time_dict['d']: 36500*number} #ignoring leap years for now    
+    else:     
+        duration_kwargs = {time_dict[unit]: number}
     duration = timedelta(**duration_kwargs)
     seconds = duration.total_seconds()
     fluence_per_mesh_element = (np.sum(all_entries.reshape(len(pyne_mesh.mats), len(bin_widths)), axis=1)) * seconds
@@ -282,11 +268,11 @@ def main():
     args = parse_args()
 
     if args.cmd == "mesh_based":
-        inp_lines, out_lines, mat_lib_lines, flux_lines, mesh_file = open_files()
+        inp_lines, out_lines, flux_lines, mesh_file = open_files()
+        elements = read_inp_mats(out_lines)
+        number, unit = read_inp_schedule(out_lines)
         pyne_mesh = make_mesh_num_density(out_lines, mesh_file)
         write_num_dens_hdf5(pyne_mesh)
-        number, unit = read_inp_schedule(inp_lines)
-        elements = read_inp_mats(inp_lines, mat_lib_lines)
         bin_widths, all_entries = store_flux_lines(flux_lines)
         flux_array = normalize_flux_spectrum(all_entries, bin_widths, pyne_mesh)
         avg_flux_per_mesh_element = find_avg_flux(all_entries, pyne_mesh, bin_widths, number, unit)
