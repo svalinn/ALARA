@@ -6,8 +6,8 @@ Starting problem input processing.
 		Set geometry type: rectangular.
 		Reading zone boundaries for Dimension x:
 		Reading the material loading for this problem.
-		Openned material library ./sampleMatlib
-		Openned element library ./nuclib
+		Openned material library ./../data/matlib.sample
+		Openned element library ./../data/nuclib.std
 		Openning DataLib with type alaralib
 		Reading constituent list for Mixture mix1 with constituents:
 		Added Flux flux_1 from file fluxfnsfIBfw1intervals.txt with normalization 1, format code 1, and skipping 0 entries.
@@ -47,27 +47,27 @@ Starting problem solution.
 		Solving Root #1: fe-54 
 		   Maximum relative concentration: 0.059
 		      last Root: 3897 nodes in 997 chains with maximum length 8.
-		                 in 0.140 s (27835.715 nodes/s)
+		                 in 0.120 s (32475.000 nodes/s)
 		   Total so far: 3897 nodes in 997 chains with maximum length 8.
-		                 in 0.14 s (27835.715 nodes/s)
+		                 in 0.12 s (32475.000 nodes/s)
 		Solving Root #2: fe-56 
 		   Maximum relative concentration: 0.9172
 		      last Root: 2516 nodes in 631 chains with maximum length 8.
-		                 in 0.080 s (31450.000 nodes/s)
+		                 in 0.090 s (27955.557 nodes/s)
 		   Total so far: 6413 nodes in 1628 chains with maximum length 8.
-		                 in 0.22 s (29150.000 nodes/s)
+		                 in 0.21 s (30538.096 nodes/s)
 		Solving Root #3: fe-57 
 		   Maximum relative concentration: 0.021
 		      last Root: 2227 nodes in 539 chains with maximum length 8.
-		                 in 0.070 s (31814.289 nodes/s)
+		                 in 0.070 s (31814.281 nodes/s)
 		   Total so far: 8640 nodes in 2167 chains with maximum length 8.
-		                 in 0.29 s (29793.104 nodes/s)
+		                 in 0.28 s (30857.143 nodes/s)
 		Solving Root #4: fe-58 
 		   Maximum relative concentration: 0.0028
 		      last Root: 2736 nodes in 650 chains with maximum length 10.
 		                 in 0.090 s (30399.998 nodes/s)
 		   Total so far: 11376 nodes in 2817 chains with maximum length 10.
-		                 in 0.38 s (29936.842 nodes/s)
+		                 in 0.37 s (30745.945 nodes/s)
 	Solved problem.
 	Reset binary dump with 6 results per isotope.
 		Read dump file.
