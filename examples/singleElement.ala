@@ -26,8 +26,8 @@ mat_loading
         inner_zone1  mix1
 end
 
-material_lib  sampleMatlib
-element_lib  nuclib
+material_lib ../data/matlib.sample
+element_lib  ../data/nuclib.std
 data_library alaralib fendl2bin
 
 ## Mixtures can be a combination of elements and materials defined in your
