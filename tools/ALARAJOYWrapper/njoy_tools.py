@@ -3,7 +3,6 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
-import os
 
 def set_directory():
     '''
@@ -17,7 +16,7 @@ def set_directory():
             command was called.
     '''
 
-    dir = os.getcwd()
+    dir = str(Path.cwd())
     fendl_dir = 'ALARAJOYWrapper'
     if fendl_dir not in dir:
         dir += f'/{fendl_dir}' # Should only be called from one directory up
@@ -40,14 +39,14 @@ reconr
  $MATD/
 broadr
  $NENDF $NPEND_reconr $NPEND_broadr/
- $mat_id $NTEMP2/
+ $mat_id $N_FINAL_TEMPS/
  $ERRTHN/
- $temp2/
+ $final_broadr_temp/
  $MATD/
 unresr
  $NENDF $NIN_unresr $NOUT_unresr/
  $mat_id $NTEMP $NSIGZ $IPRINT_unresr/
- $temp/
+ $self_shielding_temp/
  $SIGZ_unresr/
  $MATD/
 gaspr
@@ -56,7 +55,7 @@ groupr/
  $NENDF $NPEND $NGOUT1 $NGOUT2/
  $mat_id $IGN $IGG $IWT $LORD $NTEMP $NSIGZ $IPRINT_groupr/
  $title/
- $temp
+ $groupr_temp
  $SIGZ_groupr/
  $reactions
  $MATD/
@@ -70,7 +69,7 @@ stop
     NPEND_reconr = 22,                   # unit for RECONR-produced pendf tape
     ERR = 0.001,                         # fractional reconstruction tolerance
     NPEND_broadr = 23,                   # unit for BROADR-produced pendf tape
-    NTEMP2 = 1,                   # number of final temperatures (default = 1)
+    N_FINAL_TEMPS = 1,            # number of final temperatures (default = 1)
     ERRTHN = 0.001,                        # fractional tolerance for thinning
     NIN_unresr = 23,  # unit for input pendf tape (equivalent to NPEND_broadr)
     NOUT_unresr = 24,                    # unit for UNRESR-produced pendf tape
@@ -150,8 +149,9 @@ def fill_input_template(material_id, MTs, element, A, mt_dict, temperature):
         element=element,
         a=A,
         mat_id=material_id,
-        temp=temperature,
-        temp2=temperature,
+        self_shielding_temp=temperature,
+        final_broadr_temp=temperature,
+        groupr_temp=temperature,
         title=title,                                            
         reactions=card9,                                        
     )
@@ -273,7 +273,7 @@ def run_njoy(element, A, matb):
                                     Returns None if NJOY runs successfully. 
     """
 
-    file_info = [
+    file_metadata = [
         ('GENDF', 'gendf_files', '.gendf', 31),
         ('PENDF', 'pendf_files', '.pendf', 25)
     ]
@@ -283,7 +283,7 @@ def run_njoy(element, A, matb):
             'Extension'                 :                ext,
             'Tape'                      :               tape
         }
-        for name, spec_dir, ext, tape in file_info
+        for name, spec_dir, ext, tape in file_metadata
     }
 
     # Run NJOY
@@ -293,20 +293,18 @@ def run_njoy(element, A, matb):
     # If the run is successful, log out the output
     # and make a copy of the file as a .GENDF file
     if not result.stderr:
-        for filetype in save_dict.values():
+        for fileinfo in save_dict.values():
             save_path = f'{dir}/{
-                        filetype['Specific Dir']
+                        fileinfo['Specific Dir']
                         }/tendl_2017_{element}{str(A).zfill(3)}'
-            
-            if not os.path.isdir(
-                os.path.join(dir, filetype['Specific Dir'])
-                ):
-                    os.mkdir(os.path.join(dir, filetype['Specific Dir']))
 
-            filetype['Save Path'] = save_path + filetype['Extension']
-            Path(f'tape{filetype['Tape']}').rename(filetype['Save Path'])
-            if filetype['Extension'] == '.gendf':
-                ensure_gendf_markers(filetype['Save Path'], matb)
+            # Ensure existence of save directory for PENDF/GENDF files
+            (Path(dir) / fileinfo['Specific Dir']).mkdir(exist_ok=True)
+
+            fileinfo['Save Path'] = save_path + fileinfo['Extension']
+            Path(f'tape{fileinfo['Tape']}').rename(fileinfo['Save Path'])
+            if fileinfo['Extension'] == '.gendf':
+                ensure_gendf_markers(fileinfo['Save Path'], matb)
 
     return save_dict['GENDF']['Save Path'], result.stderr
 
