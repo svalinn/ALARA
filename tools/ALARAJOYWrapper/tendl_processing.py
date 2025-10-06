@@ -191,21 +191,18 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
         sigma_list = extract_cross_sections(file_obj, MT)
         dKZA = pKZA + mt_dict[MT]['delKZA']
         # Skip high (2 digit) isomeric states
-        if mt_dict[MT]['High M']:
+        if not mt_dict[MT]['High M']:
+            gendf_data.append({
+                'Parent KZA'          :                                  pKZA,
+                'Daughter KZA'        :                                  dKZA,
+                'Emitted Particles'   :      mt_dict[MT]['Emitted Particles'],
+                'Non-Zero Groups'     :                       len(sigma_list),
+                'Cross Sections'      :                            sigma_list
+            })
+        else:
             warnings.warn(f'''
                 Skipping high isomeric state in daughter for {pKZA} → {dKZA}.
                 MT > 9 not allowed by ALARA.
             ''')
-            continue
-        else:
-            gendf_data.append(
-                {
-                    'Parent KZA'          :                              pKZA,
-                    'Daughter KZA'        :                              dKZA,
-                    'Emitted Particles'   :  mt_dict[MT]['Emitted Particles'],
-                    'Non-Zero Groups'     :                   len(sigma_list),
-                    'Cross Sections'      :                        sigma_list
-                }
-            )
 
     return gendf_data
