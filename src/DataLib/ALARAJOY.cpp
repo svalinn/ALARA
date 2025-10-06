@@ -6,7 +6,7 @@
 #include <string>
 #include <cstring>
 #include <cstdio>
-
+ 
 // Define DSV row parsing structure
 std::vector<ALARAJOYLib::DSVRow> ALARAJOYLib::dsvData;
 
@@ -38,7 +38,7 @@ void ALARAJOYLib::loadDSVData()
     {
         // Extract Daughter KZA, emitted particles, and non-zero groups
         inTrans >> row.daughterKZA;
-        inTrans >>row.emittedParticles >> row.nonZeroGroups;
+        inTrans >> row.emittedParticles >> row.nonZeroGroups;
 
         /* Iterate through rest of line for cross sections 
            based on non-zero groups*/
@@ -53,7 +53,7 @@ void ALARAJOYLib::loadDSVData()
 
     // Set initial parent
     if (!dsvData.empty()){
-    currentParent = dsvData[0].parentKZA;
+        currentParent = dsvData[0].parentKZA;
     }
 }
 
@@ -61,8 +61,7 @@ void ALARAJOYLib::loadDSVData()
 void ALARAJOYLib::getTransInfo()
 {
 
-    inTrans.getline(transTitle, MAXLINELENGTH);
-    nGroups = std::atoi(transTitle);
+    inTrans >> nGroups;
     nParents = 0;
 
     // Allocate arrays for maximum reactions
