@@ -13,15 +13,31 @@ def set_directory():
     Arguments:
         None
     Returns:
-        dir (str): Path to the current working directory (CWD) from which the
-            command was called.
+        dir (str): Path to the ALARAJOYWrapper.
     '''
 
-    dir = os.getcwd()
+    cwd = Path.cwd()
     fendl_dir = 'ALARAJOYWrapper'
-    if fendl_dir not in dir:
-        dir += f'/{fendl_dir}' # Should only be called from one directory up
-    return dir
+    alara_root_name = 'ALARA'
+    relative_path = Path(f'tools/{fendl_dir}')
+
+    #    1) Check to see if already in ALARAJOYWrapper
+    if fendl_dir in str(cwd):
+        return str(cwd)
+    else:
+        # 2) Walk upward from CWD to find 'ALARA'
+        for parent in [cwd] + list(cwd.parents):
+            if parent.name == alara_root_name:
+                target = parent / relative_path
+                if target.is_dir():
+                    return str(target)
+        
+       #  3) Search for 'ALARA' under the home directory
+        for p in Path.home().rglob(alara_root_name):
+            if p.is_dir():
+                target = p / relative_path
+                if target.is_dir():
+                    return str(target)
 
 # Define constant(s)
 dir = set_directory()
