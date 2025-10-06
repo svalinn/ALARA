@@ -13,7 +13,7 @@ def set_directory():
     Arguments:
         None
     Returns:
-        dir (str): Path to the ALARAJOYWrapper.
+        str(cwd) or str(target) (str): Path to the ALARAJOYWrapper.
     '''
 
     cwd = Path.cwd()
