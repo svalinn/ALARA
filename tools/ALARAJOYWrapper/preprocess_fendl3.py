@@ -98,10 +98,20 @@ def main():
             material_id, MTs, endftk_file_obj = tp.extract_endf_specs(
                 gendf_path
             )
-            gendf_data = tp.iterate_MTs(MTs, endftk_file_obj, mt_dict, pKZA)
-            cumulative_data.extend(gendf_data)
-            njt.cleanup_njoy_files()
-            print(f'Finished processing {element}{A}')
+            if MTs and endftk_file_obj:
+                gendf_data = tp.iterate_MTs(
+                    MTs, endftk_file_obj, mt_dict, pKZA
+                )
+                cumulative_data.extend(gendf_data)
+                njt.cleanup_njoy_files()
+                print(f'Finished processing {element}{A}')
+            else:
+                warnings.warn(
+                    f'''The requested file (MF3) is not present in the
+                    ENDF file tree for {element}{A}'''
+                )
+                with open('mf_fail.log', 'a') as fail:
+                    fail.write(f'{element}{A} \n')                    
         else:
             warnings.warn(
                 f'''Failed to convert {element}{A}.

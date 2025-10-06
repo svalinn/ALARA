@@ -50,7 +50,8 @@ def search_for_files(dir = '.'):
 
     file_info = {}
     for suffix in ['tendl', 'endf']:
-        for file in dir.glob(f'*.{suffix}'):
+        # Iterate alphabetically for debugging to spot where process fails
+        for file in sorted(dir.glob(f'*.{suffix}')):
             element, A = get_isotope(file.stem)
             file_info[f'{element}{A}'] = {
                 'Element'         :                             element,
@@ -78,11 +79,19 @@ def extract_endf_specs(path):
     matb = tape.material_numbers[0]
     # Set MF for cross sections
     xs_MF = 3
-    file = tape.material(matb).file(xs_MF)
-    # Extract the MT numbers that are present in the file
-    MTs = [MT.MT for MT in file.sections.to_list()]
+    try:
+        file = tape.material(matb).file(xs_MF)
+    except RuntimeError:
+        file = None
+    
+    if file:
+        # Extract the MT numbers that are present in the file
+        MTs = [MT.MT for MT in file.sections.to_list()]
 
-    return (matb, MTs, file)
+        return (matb, MTs, file)
+    
+    else:
+        return (matb, None, None)
 
 def extract_gendf_pkza(gendf_path):
     """
@@ -180,16 +189,23 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
     max_groups = 0
     for MT in MTs:
         sigma_list = extract_cross_sections(file_obj, MT)
-        # Handle high (2 digit) isomeric states in the daughter
-        dKZA = pKZA * (10 if mt_dict[MT]['High M'] else 1) + mt_dict[MT]['delKZA']
-        gendf_data.append(
-            {
-                'Parent KZA'            :                                pKZA,
-                'Daughter KZA'          :                                dKZA,
-                'Emitted Particles'     :    mt_dict[MT]['Emitted Particles'],
-                'Non-Zero Groups'       :                     len(sigma_list),
-                'Cross Sections'        :                          sigma_list
-            }  
-        )
+        dKZA = pKZA + mt_dict[MT]['delKZA']
+        # Skip high (2 digit) isomeric states
+        if mt_dict[MT]['High M']:
+            warnings.warn(f'''
+                Skipping high isomeric state in daughter for {pKZA} → {dKZA}.
+                MT > 9 not allowed by ALARA.
+            ''')
+            continue
+        else:
+            gendf_data.append(
+                {
+                    'Parent KZA'          :                              pKZA,
+                    'Daughter KZA'        :                              dKZA,
+                    'Emitted Particles'   :  mt_dict[MT]['Emitted Particles'],
+                    'Non-Zero Groups'     :                   len(sigma_list),
+                    'Cross Sections'      :                        sigma_list
+                }
+            )
 
     return gendf_data
