@@ -3,7 +3,6 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
-import os
 
 def set_directory():
     '''
