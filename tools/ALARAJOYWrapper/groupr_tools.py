@@ -23,6 +23,7 @@ def search_for_wrapper(root, fendl_dir):
         if sub.is_dir():
             print(sub.resolve())
             return str(sub.resolve())
+    
     return None
 
 def set_directory():
@@ -66,7 +67,6 @@ def set_directory():
         if bashrc.exists():
             content = bashrc.read_text(errors='ignore')
             alara_paths = set()
-
             path_exports = re.findall(r"export\s+PATH=([^\n]*)", content)
             for match in path_exports:
                 match = match.strip('"').strip("'")
