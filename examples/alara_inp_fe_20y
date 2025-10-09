@@ -21,7 +21,7 @@ output zone
 end
 
 #     flux name    fluxin file   norm   shift   unused
-flux  my_flux       fluxfnsfIBfw.txt 1e18     0      default
+flux  my_flux       fluxfnsfIBfw.txt 1     0      default
 
 # Specify the irradiation schedule below.
 # Syntax is found in the ALARA user manual
