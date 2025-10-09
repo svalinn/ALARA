@@ -84,7 +84,6 @@ def set_directory():
                     path = path.resolve()
                 if path.is_file():
                     path = path.parent
-                # Walk back until 'ALARA' directory is found
                 for parent in [path] + list(path.parents):
                     if parent.name == alara_root_name:
                         wrapper_path = search_for_wrapper(parent, fendl_dir)
