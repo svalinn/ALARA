@@ -14,7 +14,7 @@ The plot below, which represents the FNSF FW spectrum, is an example of such a s
 
 ## $\bar{\phi}$: Average Flux Magnitude Over Irradiation History
 
-This quantity is defined as $\frac{{\int_{0}^{t_{irr}}\phi\hat(t)}}{{t_{irr}}}$ and is determined by the irradiation times described in the next section.
+This quantity is defined as $\bar{\phi}=\frac{{\int_{0}^{t_{irr}}\phi\hat(t)}}{{t_{irr}}}$ and is determined by the irradiation times described in the next section.
 
 ## Total Irradiation Time
 
