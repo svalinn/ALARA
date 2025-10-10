@@ -4,6 +4,27 @@ import subprocess
 from pathlib import Path
 import re
 import os
+from shutil import copy2
+
+def search_for_wrapper(root, fendl_dir):
+    '''
+    Search for the 'ALARAJOYWrapper' directory upwards from a given root 
+        directory.
+    Arguments:
+        root (pathlib._local.PosixPath): Path to root directory from which to
+            start upward search for ALARAJOYWrapper.
+        fendl_dir (str): Name of the ALARAJOYWrapper directory.
+    Returns:
+        str(sub.resolve()) or None (str or None): Absolute path to the
+            ALARAJOYWrapper directory.
+    '''
+
+    for sub in root.rglob(fendl_dir):
+        if sub.is_dir():
+            print(sub.resolve())
+            return str(sub.resolve())
+    
+    return None
 
 def set_directory():
     '''
@@ -13,15 +34,61 @@ def set_directory():
     Arguments:
         None
     Returns:
-        dir (str): Path to the current working directory (CWD) from which the
-            command was called.
+        str(cwd.resolve()) or str(sub.resolve()) or None (str or None): Path 
+            to the ALARAJOYWrapper directory.
     '''
 
-    dir = os.getcwd()
+    cwd = Path.cwd()
     fendl_dir = 'ALARAJOYWrapper'
-    if fendl_dir not in dir:
-        dir += f'/{fendl_dir}' # Should only be called from one directory up
-    return dir
+    alara_root_name = 'ALARA'
+
+    #    1) Check to see if already in ALARAJOYWrapper
+    if fendl_dir in str(cwd):
+        return str(cwd.resolve())
+    else:
+        # 2) Walk upward from CWD to find 'ALARA'
+        for parent in [cwd] + list(cwd.parents):
+            if parent.name == alara_root_name:
+                print(type(parent))
+                print(type(fendl_dir))
+                wrapper_path = search_for_wrapper(parent, fendl_dir)
+                if wrapper_path:
+                    return wrapper_path
+        
+        # 3) Search for 'ALARA' under the home directory
+        for p in list(Path.home().rglob(alara_root_name)):
+            if p.is_dir():
+                wrapper_path = search_for_wrapper(p, fendl_dir)
+                if wrapper_path:
+                    return wrapper_path
+                
+        # 4) Search for 'ALARA' from the bashrc
+        bashrc = Path.home() / '.bashrc'
+        if bashrc.exists():
+            content = bashrc.read_text(errors='ignore')
+            alara_paths = set()
+            path_exports = re.findall(r"export\s+PATH=([^\n]*)", content)
+            for match in path_exports:
+                match = match.strip('"').strip("'")
+                expanded_path = os.path.expandvars(match)
+                expanded_path = os.path.expanduser(expanded_path)
+                alara_paths.add(Path(expanded_path).resolve())
+
+            if not alara_paths:
+                print('No ALARA references found in bashrc.')
+                return None
+            
+            for path_str in alara_paths:
+                path = Path(path_str).expanduser()
+                if path.exists():
+                    path = path.resolve()
+                if path.is_file():
+                    path = path.parent
+                for parent in [path] + list(path.parents):
+                    if parent.name == alara_root_name:
+                        wrapper_path = search_for_wrapper(parent, fendl_dir)
+                        if wrapper_path:
+                            return wrapper_path
 
 # Define constant(s)
 dir = set_directory()
@@ -249,7 +316,8 @@ def run_njoy(element, A, matb):
         if not os.path.isdir(f'{dir}/{gendf_dir}'):
             os.mkdir(f'{dir}/{gendf_dir}')
         gendf_path = f'{dir}/{gendf_dir}/tendl_2017_{element}{str(A).zfill(3)}.gendf'
-        Path('tape31').rename(Path(gendf_path))
+        copy2('tape31', gendf_path)
+        Path('tape31').unlink()
         ensure_gendf_markers(gendf_path, matb)
 
     return gendf_path, result.stderr
@@ -270,4 +338,4 @@ def cleanup_njoy_files(output_path = dir + '/njoy_ouput'):
     njoy_files = [INPUT, 'tape20', 'tape21']
     for file in njoy_files:
         Path.unlink(Path(file))
-    Path('output').rename(Path(output_path))
+    copy2('output', output_path)
