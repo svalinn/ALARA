@@ -36,7 +36,7 @@ def write_num_dens_hdf5(pyne_mesh):
         matlib[mat_id] = pyne_mesh.mats[mat_id]
     matlib.write_hdf5('pyne_matlib.h5', h5_overwrite=True)
 
-def read_inp_schedule(out_lines):
+def read_schedule(out_lines):
     for out_index, out_line in enumerate(out_lines):
         if out_line.strip().startswith("Schedule"):
             schedule_line = out_lines[out_index+1].split()
@@ -44,7 +44,7 @@ def read_inp_schedule(out_lines):
             unit = schedule_line[2]
     return number, unit
 
-def read_inp_mats(out_lines):
+def read_mats(out_lines):
     #Track the chemical element in each mesh voxel based on the name of the corresponding zone (e.g. Zone #1: H)
     elements = []
     for out_line in out_lines:
@@ -269,8 +269,8 @@ def main():
 
     if args.cmd == "mesh_based":
         inp_lines, out_lines, flux_lines, mesh_file = open_files()
-        elements = read_inp_mats(out_lines)
-        number, unit = read_inp_schedule(out_lines)
+        elements = read_mats(out_lines)
+        number, unit = read_schedule(out_lines)
         pyne_mesh = make_mesh_num_density(out_lines, mesh_file)
         write_num_dens_hdf5(pyne_mesh)
         bin_widths, all_entries = store_flux_lines(flux_lines)
