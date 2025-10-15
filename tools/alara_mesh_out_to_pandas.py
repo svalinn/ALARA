@@ -36,15 +36,6 @@ def write_num_dens_hdf5(pyne_mesh):
         matlib[mat_id] = pyne_mesh.mats[mat_id]
     matlib.write_hdf5('pyne_matlib.h5', h5_overwrite=True)
 
-def read_schedule(out_lines):
-    for out_index, out_line in enumerate(out_lines):
-        if out_line.strip().startswith("Schedule"):
-            schedule_line = out_lines[out_index+1].split()
-            number = int(schedule_line[1])
-            unit = schedule_line[2]       
-    return number, unit
-
-# this function will replace read_schedule
 def find_total_tirr(out_lines):
     #assume 1 pulse for now & 0 delay between pulses
     tirr_num_unit = {}
@@ -110,19 +101,11 @@ def normalize_flux_spectrum(all_entries, bin_widths, pyne_mesh):
         flux_array[mesh_idx,:] = (flux_array[mesh_idx,:] / bin_widths)  * (1 / total_flux)
     return flux_array 
 
-def find_avg_flux(all_entries, pyne_mesh, bin_widths, number, unit):
+def find_avg_flux(all_entries, pyne_mesh, bin_widths, number):
     # find the average flux magnitude (over the irradiation time), for each mesh element
-    # currently, the "average" is the same as the original flux per mesh element as this script only takes one
-    # entry in the irradiation schedule 
-    time_dict = {'s': 'seconds', 'm': 'minutes', 'h': 'hours', 'd': 'days', 'w': 'weeks', 'y':'years', 'c':'centuries'}
-    if unit == 'y':
-        duration_kwargs = {time_dict['d']: 365*number} #ignoring leap years for now
-    elif unit == 'c':
-        duration_kwargs = {time_dict['d']: 36500*number} #ignoring leap years for now    
-    else:     
-        duration_kwargs = {time_dict[unit]: number}
-    duration = timedelta(**duration_kwargs)
-    seconds = duration.total_seconds()
+    # currently the same as the original flux as the magnitude of the flux does not change with time
+
+    seconds = number # total pulse time
     fluence_per_mesh_element = (np.sum(all_entries.reshape(len(pyne_mesh.mats), len(bin_widths)), axis=1)) * seconds
     avg_flux_per_mesh_element = fluence_per_mesh_element / seconds
     return avg_flux_per_mesh_element
@@ -307,7 +290,6 @@ def main():
     if args.cmd == "mesh_based":
         inp_lines, out_lines, flux_lines, mesh_file = open_files()
         elements = read_mats(out_lines)
-        #number, unit = read_schedule(out_lines)
         number, unit = find_total_tirr(out_lines)
         find_total_tirr(out_lines)
         pyne_mesh = make_mesh_num_density(out_lines, mesh_file)
