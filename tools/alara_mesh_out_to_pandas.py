@@ -36,14 +36,42 @@ def write_num_dens_hdf5(pyne_mesh):
         matlib[mat_id] = pyne_mesh.mats[mat_id]
     matlib.write_hdf5('pyne_matlib.h5', h5_overwrite=True)
 
-def read_schedule(out_lines):
-    for out_index, out_line in enumerate(out_lines):
-        if out_line.strip().startswith("Schedule"):
-            schedule_line = out_lines[out_index+1].split()
-            number = int(schedule_line[1])
-            unit = schedule_line[2]
-    return number, unit
+def find_total_tirr(out_lines):
+    #assume 1 pulse for now & 0 delay between pulses
+    tirr_num_unit = {}
+    time_dict = {'s': 'seconds', 'm': 'minutes', 'h': 'hours', 'd': 'days', 'w': 'weeks', 'y': 'years', 'c': 'centuries'}
+    for out_line in out_lines:
+        if out_line.strip().startswith("pulse:"):
+            #key = number, value = unit
+            tirr_num_unit[out_line.strip().split()[1]] = out_line.strip().split()[2] #active pulse time
+            #tirr_num_unit[out_line.strip().split()[4]] = out_line.strip().split()[5] #delay time  
 
+    # Find the sum of all numbers with the same units
+    total_time_dict = {}
+    for u in time_dict.keys():
+        sum_num = sum([float(number) for number, unit in tirr_num_unit.items() if unit == u and u != 'y' and u != 'c'])
+        # Leap years not handled here
+        sum_num_yd = 365*sum([float(number) for number, unit in tirr_num_unit.items() if unit == u and u == 'y']) #years to days
+        sum_num_cd = 36500*sum([float(number) for number, unit in tirr_num_unit.items() if unit == u and u == 'c']) #centuries to days
+
+        if u == 'y':
+            total_time_dict['d'] = total_time_dict['d'] + sum_num_yd
+
+        elif u == 'c':
+            total_time_dict['d'] = total_time_dict['d'] + sum_num_cd
+
+        else:
+            total_time_dict[u] = sum_num # (total_time_dict['d'] is updated first due to how time_dict is set up)
+            
+    tot_time = timedelta(seconds=total_time_dict['s'], 
+                         minutes=total_time_dict['m'], 
+                         hours=total_time_dict['h'],
+                         days=total_time_dict['d'],
+                         weeks=total_time_dict['w'])
+    number = tot_time.total_seconds()
+    unit = list(total_time_dict.keys())[0]
+    return number, unit
+    
 def read_mats(out_lines):
     #Track the chemical element in each mesh voxel based on the name of the corresponding zone (e.g. Zone #1: H)
     elements = []
@@ -73,19 +101,11 @@ def normalize_flux_spectrum(all_entries, bin_widths, pyne_mesh):
         flux_array[mesh_idx,:] = (flux_array[mesh_idx,:] / bin_widths)  * (1 / total_flux)
     return flux_array 
 
-def find_avg_flux(all_entries, pyne_mesh, bin_widths, number, unit):
+def find_avg_flux(all_entries, pyne_mesh, bin_widths, number):
     # find the average flux magnitude (over the irradiation time), for each mesh element
-    # currently, the "average" is the same as the original flux per mesh element as this script only takes one
-    # entry in the irradiation schedule 
-    time_dict = {'s': 'seconds', 'm': 'minutes', 'h': 'hours', 'd': 'days', 'w': 'weeks', 'y':'years', 'c':'centuries'}
-    if unit == 'y':
-        duration_kwargs = {time_dict['d']: 365*number} #ignoring leap years for now
-    elif unit == 'c':
-        duration_kwargs = {time_dict['d']: 36500*number} #ignoring leap years for now    
-    else:     
-        duration_kwargs = {time_dict[unit]: number}
-    duration = timedelta(**duration_kwargs)
-    seconds = duration.total_seconds()
+    # currently the same as the original flux as the magnitude of the flux does not change with time
+
+    seconds = number # total pulse time
     fluence_per_mesh_element = (np.sum(all_entries.reshape(len(pyne_mesh.mats), len(bin_widths)), axis=1)) * seconds
     avg_flux_per_mesh_element = fluence_per_mesh_element / seconds
     return avg_flux_per_mesh_element
@@ -270,7 +290,8 @@ def main():
     if args.cmd == "mesh_based":
         inp_lines, out_lines, flux_lines, mesh_file = open_files()
         elements = read_mats(out_lines)
-        number, unit = read_schedule(out_lines)
+        number, unit = find_total_tirr(out_lines)
+        find_total_tirr(out_lines)
         pyne_mesh = make_mesh_num_density(out_lines, mesh_file)
         write_num_dens_hdf5(pyne_mesh)
         bin_widths, all_entries = store_flux_lines(flux_lines)
