@@ -53,7 +53,7 @@ def find_total_tirr(out_lines):
         if out_line.strip().startswith("pulse:"):
             #key = number, value = unit
             tirr_num_unit[out_line.strip().split()[1]] = out_line.strip().split()[2] #active pulse time
-            tirr_num_unit[out_line.strip().split()[4]] = out_line.strip().split()[5] #delay time  
+            #tirr_num_unit[out_line.strip().split()[4]] = out_line.strip().split()[5] #delay time  
 
     # Find the sum of all numbers with the same units
     total_time_dict = {}
