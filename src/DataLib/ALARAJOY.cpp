@@ -6,7 +6,7 @@
 #include <string>
 #include <cstring>
 #include <cstdio>
- 
+
 // Define DSV row parsing structure
 std::vector<ALARAJOYLib::DSVRow> ALARAJOYLib::dsvData;
 
@@ -20,6 +20,7 @@ ALARAJOYLib::ALARAJOYLib(
     // Open the DSV file
     inTrans.open(transFname, ios::in);
     if (inTrans.is_open()) {
+        getTransInfo();
         loadDSVData(); // Pre-load entire DSV
         makeBinLib(alaraFname);
     }
@@ -39,7 +40,7 @@ void ALARAJOYLib::loadDSVData()
         // Extract Daughter KZA, emitted particles, and non-zero groups
         inTrans >> row.daughterKZA;
         inTrans >> row.emittedParticles >> row.nonZeroGroups;
-
+        
         /* Iterate through rest of line for cross sections 
            based on non-zero groups*/
         row.crossSections = std::vector<float>(row.nonZeroGroups);
