@@ -32,4 +32,4 @@ _(Most codes can take a mixture of elements and generate isotopic compositions f
      - [singleElement](singleElement.md)
    * Fe irradiated for 20 years under the FNSF-DCLL neutron spectrum
      - Uses a custom material library
-     - [singleElement_20y_inp](alara_inp_fe_20y)
+     - [singleElement_20y_inp](singleElement_20y_inp/alara_inp_fe_20y)
