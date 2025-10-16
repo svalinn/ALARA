@@ -20,7 +20,7 @@ ALARAJOYLib::ALARAJOYLib(
     // Open the DSV file
     inTrans.open(transFname, ios::in);
     if (inTrans.is_open()) {
-        getTransInfo();
+//        getTransInfo();
         loadDSVData(); // Pre-load entire DSV
         makeBinLib(alaraFname);
     }
@@ -34,13 +34,16 @@ void ALARAJOYLib::loadDSVData()
     currentParent = -1;
     DSVRow row;
 
+    // Read header containing energy group number
+    inTrans >> nGroups;
+
     // Extract Parent KZA until EOF at pKZA == -1
     while ((inTrans >> row.parentKZA) && row.parentKZA != -1)
     {
         // Extract Daughter KZA, emitted particles, and non-zero groups
         inTrans >> row.daughterKZA;
         inTrans >> row.emittedParticles >> row.nonZeroGroups;
-        
+
         /* Iterate through rest of line for cross sections 
            based on non-zero groups*/
         row.crossSections = std::vector<float>(row.nonZeroGroups);
