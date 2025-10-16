@@ -12,7 +12,7 @@ mixture mix_1
     material mat:fe 1 1.0
 end
 
-material_lib ../data/elelib_to_matlib.txt
+material_lib fe_matlib.txt
 element_lib /root/data/elelib.std
 data_library alaralib /opt/groupspace/shared/n/nukecode/ALARA/data/fendl2bin
 
@@ -21,7 +21,7 @@ output zone
 end
 
 #     flux name    fluxin file   norm   shift   unused
-flux  my_flux       fluxfnsfIBfw_518MW.txt 1     0      default
+flux  my_flux       ../fluxfnsfIBfw_518MW.txt 1     0      default
 
 # Specify the irradiation schedule below.
 # Syntax is found in the ALARA user manual
