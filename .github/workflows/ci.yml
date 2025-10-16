@@ -19,6 +19,6 @@ jobs:
             cd bld
             cmake ../
             make -j 8
-            ./alara -V
-            
+            ./src/alara -V
+
 
