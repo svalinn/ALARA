@@ -13,8 +13,8 @@ from numpy.testing import assert_array_equal
         ('n', '357n14d', 357),
         ('p', '357n14d', 0),
         ('d', '357n14d', 14),
-        ('3He', '3He8α', 1),
-        ('α', '3He8α', 8)
+        ('h', 'h8a', 1),
+        ('a', 'h8a', 8)
     ]
 )
 def test_count_emitted_particles(particle, emitted_particle_string, exp):
@@ -25,10 +25,10 @@ def test_count_emitted_particles(particle, emitted_particle_string, exp):
     "emitted_particles, exp",
     [
         ('np', {'n': 1, 'p': 1}),
-        ('2d3t3He', {'d': 2, 't': 3, '3He': 1}),
+        ('2d3th', {'d': 2, 't': 3, 'h': 1}),
         ('total', {}),
-        ('α75γn3', {'α': 1, 'γ': 75, 'n': 1}),
-        ('Xα', {})
+        ('a75gn3', {'a': 1, 'g': 75, 'n': 1}),
+        ('Xa', {})
     ]
 )
 def test_emission_breakdown(emitted_particles, exp):
@@ -39,9 +39,9 @@ def test_emission_breakdown(emitted_particles, exp):
     "emission_dict, exp",
     [
         ({'n': 1, 'p': 1}, array([0, -1])),
-        ({'t': 2, 'n': 1, '3He': 3}, array([-7, -8])),
-        ({'α': 1, 'γ': 4, 'd': 1}, array([-2, -3])),
-        ({'n': 1, 'p': 1, 'd': 1, 't': 1, '3He': 1, 'α': 1, 'γ': 1}, array([-6, -7])),
+        ({'t': 2, 'n': 1, 'h': 3}, array([-7, -8])),
+        ({'a': 1, 'g': 4, 'd': 1}, array([-2, -3])),
+        ({'n': 1, 'p': 1, 'd': 1, 't': 1, 'h': 1, 'a': 1, 'g': 1}, array([-6, -7])),
         ({}, array([None, None]))
     ]
 )
@@ -66,19 +66,19 @@ def test_nucleon_changes(emission_dict, exp):
                 'Emitted Particles': 'total'
             },
             30: {
-                'Reaction': '(z,2n2α)',
+                'Reaction': '(z,2n2a)',
                 'delKZA': -40090,
-                'Emitted Particles': '2n2α'
+                'Emitted Particles': '2n2a'
             },
             106: {
-                'Reaction': '(z,3He)',
+                'Reaction': '(z,h)',
                 'delKZA': -20020,
-                'Emitted Particles': '3He'
+                'Emitted Particles': 'h'
             },
             207: {
-                'Reaction': '(z,Xα)',
+                'Reaction': '(z,Xa)',
                 'delKZA': 'N/A',
-                'Emitted Particles': 'Xα'
+                'Emitted Particles': 'Xa'
             },
             700: {
                 'Reaction': '(z,t1)',
