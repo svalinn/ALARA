@@ -5,7 +5,6 @@ import groupr_tools
 import argparse
 import warnings
 from pathlib import Path
-from pandas import DataFrame
 
 def args():
     parser = argparse.ArgumentParser()
@@ -23,7 +22,7 @@ def write_dsv(dsv_path, cumulative_data):
             pKZA dKZA emitted_particles non_zero_groups xs_1 xs_2 ... xs_n
 
         Each row can have different lengths, as only non-zero cross-sections
-        are written out.
+        are written out. The file is sorted by ascending parent KZA value.
 
     Arguments:
         dsv_path (str): Filepath for the DSV file to be written.
@@ -38,6 +37,9 @@ def write_dsv(dsv_path, cumulative_data):
     xs_key = 'Cross Sections'
     join_keys = list(cumulative_data[0].keys())
     join_keys.remove(xs_key)
+    
+    # Sort list of reaction dictionaries by ascending parent KZAs
+    cumulative_data.sort(key=lambda rxn: rxn.get(join_keys[0], float('inf')))
 
     with open(dsv_path, 'w') as dsv_file:
         
