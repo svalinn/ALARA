@@ -20,7 +20,6 @@ ALARAJOYLib::ALARAJOYLib(
     // Open the DSV file
     inTrans.open(transFname, ios::in);
     if (inTrans.is_open()) {
-//        getTransInfo();
         loadDSVData(); // Pre-load entire DSV
         makeBinLib(alaraFname);
     }
@@ -65,7 +64,6 @@ void ALARAJOYLib::loadDSVData()
 void ALARAJOYLib::getTransInfo()
 {
 
-    inTrans >> nGroups;
     nParents = 0;
 
     // Allocate arrays for maximum reactions
