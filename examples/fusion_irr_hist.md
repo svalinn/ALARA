@@ -6,7 +6,7 @@
 
 This is a neutron flux spectrum that has been integrated over all time, and normalized by particles summed over all energies. It carries units of 1/energy due to normalization of the spectrum by the corresponding energy bin width.<br>
 
-In a fusion system, these spectra might come from the blanket, FW, and other shielding materials.
+In a fusion system, these spectra might come from the blanket, first wall, and other shielding materials.
 
 The plot below, which represents the FNSF FW spectrum, is an example of such a spectrum shape.
 ![alt text](https://github.com/anu1217/ALARA/blob/irr_hist/examples/flux_norm.png?raw=true)
