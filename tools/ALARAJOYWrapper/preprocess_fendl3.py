@@ -37,7 +37,8 @@ def write_dsv(dsv_path, cumulative_data):
     join_keys.remove(xs_key)
     
     # Sort list of reaction dictionaries by ascending parent KZAs
-    cumulative_data.sort(key=lambda rxn: rxn.get(join_keys[0], float('inf')))
+    parent_label = join_keys[0]
+    cumulative_data.sort(key=lambda rxn: rxn[parent_label])
 
     with open(dsv_path, 'w') as dsv_file:
         
