@@ -78,7 +78,7 @@ topSchedule::topSchedule(const topSchedule& t) :
 topSchedule::~topSchedule()
 {
   delete [] coolD;
-  delete coolingTime;
+  delete [] coolingTime;
 }
 
 /** The correct implementation of this operator must ensure that
