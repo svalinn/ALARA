@@ -43,6 +43,9 @@ public:
 
   /// Copy Constructor
   topScheduleT(const topScheduleT&);
+
+  /// Destructor
+  ~topScheduleT();
    
   /// Overlaoded assignment operator
   topScheduleT& operator=(const topScheduleT&);
