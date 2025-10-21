@@ -1,3 +1,4 @@
+# Standard binary data libraries, such as the fendl2bin library referenced in this example, may be created using the convert_lib input option in ALARA.
 geometry rectangular
 
 volume
@@ -14,7 +15,7 @@ end
 
 material_lib ../../data/matlib.sample
 element_lib ../../data/elelib.std
-data_library alaralib /opt/groupspace/shared/n/nukecode/ALARA/data/fendl2bin
+data_library alaralib fendl2bin
 
 output zone
         number_density
