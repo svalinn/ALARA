@@ -9,7 +9,7 @@ mat_loading
 end
 
 mixture mix_1
-    material mat:fe 1 1.0
+    element fe 1 1.0
 end
 
 material_lib fe_matlib.txt
