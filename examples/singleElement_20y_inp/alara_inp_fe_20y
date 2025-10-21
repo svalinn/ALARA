@@ -12,8 +12,8 @@ mixture mix_1
     element fe 1 1.0
 end
 
-material_lib fe_matlib.txt
-element_lib /root/data/elelib.std
+material_lib ../../data/matlib.sample
+element_lib ../../data/elelib.std
 data_library alaralib /opt/groupspace/shared/n/nukecode/ALARA/data/fendl2bin
 
 output zone
