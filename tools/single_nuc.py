@@ -426,6 +426,7 @@ def plot_single_nuc(
         element='', 
         sort_by_time='shutdown', 
         head=None,
+        yscale='log',        
         relative=False,
         filter_small=False,
         threshold=0.05,
@@ -565,6 +566,7 @@ def plot_single_nuc(
         ax.set_ylabel(f'{df_dict['Variable']} [{df_dict['Unit']}]')
     ax.set_xlabel(f'Time ({'s' if seconds else 'y'})')
     ax.set_xscale('log')
+    ax.set_yscale(yscale)
 
     # Legend
     ax.legend(
@@ -632,6 +634,25 @@ def single_data_source_pie(df_dict, time):
     plt.show()
 
 def plot_isotope_diff(diff, isotope, variable, seconds=True):
+    '''
+    Create a plot of the difference in a variable's value for a given isotope
+        between two datasets over time.
+
+    Arguments:
+        diff (pandas.core.frame.DataFrame): DataFrame containing rows of the
+            union of isotopes between the two initial DataFrames to be
+            compared. Each cell contains the difference between the two at the
+            column's cooling time value. Isotopes not represented in one data
+            set or the other have cell values filled with 0.0 for the
+            subtraction calculation.
+        isotope (str): Isotope to be selected from diff of the form element-A.
+        variable (str): Dependent variable for the y-axis from the ALARA
+            output tables.
+        seconds (bool, optional): Option to convert cooling times from years
+            to seconds.
+            (Defaults to True)
+    
+    '''
     
     isotope_diff = diff[diff['isotope'] == isotope]
 
