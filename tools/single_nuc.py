@@ -3,7 +3,22 @@ import pandas as pd
 import numpy as np
 import re
 
+#-------------------- Helper Functions --------------------
+
 def select_sublist(x, y):
+    '''
+    Select intersection of list x and list y. Additionally, capture indices
+        of said intersection on list x.
+
+    Arguments:
+        x (list): Reference list.
+        y (list): Smaller list sharing some or all elements with x.
+
+    Returns:
+        sublist (list): Intersection of x and y.
+        indices (list): Index or indices of intersection on x.
+    '''
+
 
     sublist = [
         val for i, val in enumerate(x, start=1)
@@ -70,7 +85,7 @@ def process_metadata(
     
     return dfs
 
-def process_time_vals(alara_df):
+def process_time_vals(alara_df, seconds=True):
     '''
     Convert the cooling times of the ALARA analysis post-shutdown to seconds.
 
@@ -78,16 +93,17 @@ def process_time_vals(alara_df):
         alara_df (pandas.core.frame.DataFrame): DataFrame containing the
             extracted tabular data for a single variable and interval/zone of
             an ALARA run.
+        seconds (bool, optional): Option to convert cooling times from years
+            to seconds.
+            (Defaults to True)
 
     Returns:
         times (list): List of the ALARA cooling times, converted to seconds
     '''
 
     times = []
-    time_dict = {
-        'shutdown' : 0.0,
-        'y'        : 365*24*60*60
-    }
+    time_dict = {'shutdown' : 0.0}
+    time_dict['y'] = 365*24*60*60 if seconds else 1
 
     for column in alara_df.columns[1:]:
         if column == 'shutdown':
@@ -196,14 +212,15 @@ def aggregate_small_percentages(df, relative=False, threshold=0.05):
     return df
 
 def specify_data(
-        df_dict, 
+        df_dict,
         total=True, 
         element='', 
         sort_by_time='shutdown', 
         head=None,
         relative = False,
         filter_small=False,
-        threshold=0.05
+        threshold=0.05,
+        seconds=True
         ):
     '''
     Select or order a DataFrame containing ALARA output data for a partiuclar
@@ -248,7 +265,7 @@ def specify_data(
     '''
        
     df = df_dict['Data']
-    times = process_time_vals(df)
+    times = process_time_vals(df, seconds)
 
     if filter_small:
         df = aggregate_small_percentages(df, relative, threshold)
@@ -263,215 +280,6 @@ def specify_data(
         df = df.sort_values(sort_by_time, ascending=False).head(head)
 
     return df, times
-
-def plot_single_nuc(
-        df_dicts, 
-        total=False, 
-        element='', 
-        sort_by_time='shutdown', 
-        head=None,
-        relative=False,
-        filter_small=False,
-        threshold=0.05
-        ):
-    '''
-    Create a simple x-y plot of a given variable tracked in an ALARA output
-        table (as stored in a DataFrame) against a log timescale. Options for
-        plotting a single data source, as well as two data sources against
-        each other. Plot will contain unique lines for the isotopes 
-        represented in the data, with options to show only certain elements
-        and/or only the largest contributors at a given cooling time.
-        Additionally, the cumulative total values across all isotopes can be
-        plotted separately from individual isotopic data using the combination
-        of the parameters: total=True, head=1.
-
-    Arguments:
-        df_dicts (dict or list): Single dictionary containing an ALARA output 
-            DataFrame and its metadata, of the form:
-
-            df_dict = {
-                'Data Source' : (Either 'fendl2' or 'fendl3'),
-                'Variable'    : (Any ALARA output variable, dependent on ALARA
-                                 run parameters),
-                'Unit'        : (Respective unit matching the above variable),
-                'Data'        : (DataFrame containing ALARA output data for
-                                 the given data source, variable, and unit)
-            }
-
-            Alternatively, if comparing two data sources, df_dicts can be a
-            list of dictionaries of the above form.
-        total (bool, optional): Option to include the cumulative total
-            contribution from all isotopes towards the select variable in the
-            plot. If total=True, the total array will be treated equivalently
-            to any of the other isotopes and will be plotted alongside them.
-            If total=True and head=1, only the total will be plotted.
-            (Defaults to False)
-        element (str, optional): Option to plot only the isotopes of a single 
-            element. If left blank, all elements in the original DataFrame 
-            will remain present.
-            (Defaults to '')
-        sort_by_time (str, optional): Option to sort the DataFrame by the data
-            in a particular time column.
-            (Defaults to 'shutdown')
-        head (int or None, optional): Option to truncate the DataFrame to a
-            particular number of rows.
-            (Defaults to None)
-        relative (bool, optional): Option to plot relative values with respect
-            to totals at each cooling time.
-            (Defaults to False)
-        filter_small (bool, optional): Option to internally call
-            aggregate_small_percentages() to aggregate all data below a chosen
-            threshold to a new 'Other' row.
-            (Defaults to False)
-        threshold (float or int): Proportional threshold value for inclusion
-            cutoff for aggregrate_small_percentages().
-            (Defaults to 0.05)        
-    '''
-    
-    data_comp = True
-    fig, ax = plt.subplots(figsize=(10,6))
-
-    # Single data source -- Data provided as dict or DataFrame
-    if type(df_dicts) is not list:
-        df_dicts = [df_dicts]
-        data_comp = False
-
-    # Preprocess data to user specifications
-    all_labels = set()
-    all_data = []
-    for df_dict in df_dicts:
-        df, times = specify_data(
-            df_dict, 
-            total=total, 
-            element=element, 
-            sort_by_time=sort_by_time, 
-            head=head,
-            relative=relative,
-            filter_small=filter_small,
-            threshold=threshold
-        )
-
-        df = df.T
-        for col in df.columns:
-            label_text = f"{df[col].iloc[0]}"
-            all_labels.add(label_text)
-
-        all_data.append((df_dict, df, times))
-
-    labels_sorted = sorted(all_labels)
-
-    cmap = plt.cm.get_cmap('Dark2')
-    color_map = {lbl: cmap(i % cmap.N) for i, lbl in enumerate(labels_sorted)}
-
-    line_styles = ['-', ':']
-
-    # Plot data
-    for i, (df_dict, df, times) in enumerate(all_data):
-        linestyle = line_styles[i % len(line_styles)]
-        for col in df.columns:
-            label_text = f"{df[col].iloc[0]}"
-            color = color_map[label_text]
-            label = label_text
-            if data_comp:
-                label = f"{label_text} ({df_dict['Data Source']})"
-
-            ax.plot(
-                times,
-                list(df[col])[1:],
-                label=label,
-                color=color,
-                linestyle=linestyle,
-            )
-    
-    # Titles and labels, according to user specifications
-    title_suffix = (f'{df_dicts[0]['Variable']} vs Cooling Time')
-
-    if relative:
-        title_suffix += 'Relative to Total at Each Cooling Time '
-
-    if head:
-        title_suffix += (
-            f'\n(DataFrame Head Sorted by Values at {sort_by_time})'
-            )
-
-    if data_comp:
-        title_prefix = (
-            f'{df_dicts[0]['Data Source']}, {df_dicts[1]['Data Source']} '
-            'Comparison: \n'
-        )
-    else:
-        title_prefix = f'{df_dict['Data Source']}: '
-
-    ax.set_title(title_prefix + title_suffix)
-    if not relative:
-        ax.set_ylabel(f'{df_dict['Variable']} [{df_dict['Unit']}]')
-    ax.set_xlabel('Time (s)')
-    ax.set_xscale('log')
-
-    # Legend
-    ax.legend(
-        loc='center left',
-        bbox_to_anchor=(1.025, 0.5),
-        borderaxespad=0.,
-        fontsize='small'
-    )
-
-    ax.grid(True)
-    plt.tight_layout(rect=[0, 0, 0.85, 1])
-    plt.show()
-
-def single_data_source_pie(df_dict, time):
-    '''
-    Create a pie chart showing the breakdown of isotopes contributing to a
-        given variable tracked by an ALARA run at a given cooling time.
-
-    Arguments:
-        df_dict (dict): Dictionary containing an ALARA output DataFrame and
-            its metadata, of the form:
-
-            df_dict = {
-                'Data Source' : (Either 'fendl2' or 'fendl3'),
-                'Variable'    : (Any ALARA output variable, dependent on ALARA
-                                 run parameters),
-                'Unit'        : (Respective unit matching the above variable),
-                'Data'        : (DataFrame containing ALARA output data for
-                                 the given data source, variable, and unit)
-            }
-        time (str): Cooling time at which to assess the isotopic breakdown.
-            Must be of the same form as the df_dict['Data'] non-index column
-            names (i.e. 'shutdown', '1 y', etc.).
-    '''
-
-    df = aggregate_small_percentages(df_dict['Data'])
-    total = df[time].sum()
-    df['fraction'] = df[time] / total * 100
-    df = df[df['fraction'].round(1) > 0]
-    
-    wedges, texts = plt.pie(
-        df[time],
-        labels=df['isotope'],
-        wedgeprops={'edgecolor' : 'black', 'linewidth' : 1}
-        )
-
-    legend_labels = [
-        f'{isotope} : {frac:.1f}%'
-        for isotope, frac in zip(df['isotope'], df['fraction'])
-    ]
-
-    plt.title(
-        f'{df_dict['Data Source']}: Radioisotope Proportional Contribution to'
-        f' {df_dict['Variable']} at {time}'
-    )
-
-    plt.legend(
-        wedges,
-        legend_labels,
-        title='Isotopes',
-        loc='center left',
-        bbox_to_anchor=(-0.375, 0.75),
-    )
-
-    plt.show()
 
 def tabular_comp(dfs, variable):
     '''
@@ -591,8 +399,8 @@ def maximum_contribution(dfs, variable, unique_isotopes):
         numeric_cols = df.columns.difference(['isotope'])
 
         sources = {
-            'Absolute': df,
-            'Relative': df_rel
+            f'Absolute {variable}' : df,
+            'Relative'             : df_rel
         }
 
         for isotope in unique_isotopes[datalib]:
@@ -610,15 +418,228 @@ def maximum_contribution(dfs, variable, unique_isotopes):
 
     return unique_isotopes
 
-def plot_isotope_diff(diff, isotope, variable):
+#-------------------- Plotting functions --------------------
+
+def plot_single_nuc(
+        df_dicts, 
+        total=False, 
+        element='', 
+        sort_by_time='shutdown', 
+        head=None,
+        relative=False,
+        filter_small=False,
+        threshold=0.05,
+        seconds=True
+        ):
+    '''
+    Create a simple x-y plot of a given variable tracked in an ALARA output
+        table (as stored in a DataFrame) against a log timescale. Options for
+        plotting a single data source, as well as two data sources against
+        each other. Plot will contain unique lines for the isotopes 
+        represented in the data, with options to show only certain elements
+        and/or only the largest contributors at a given cooling time.
+        Additionally, the cumulative total values across all isotopes can be
+        plotted separately from individual isotopic data using the combination
+        of the parameters: total=True, head=1.
+
+    Arguments:
+        df_dicts (dict or list): Single dictionary containing an ALARA output 
+            DataFrame and its metadata, of the form:
+
+            df_dict = {
+                'Data Source' : (Either 'fendl2' or 'fendl3'),
+                'Variable'    : (Any ALARA output variable, dependent on ALARA
+                                 run parameters),
+                'Unit'        : (Respective unit matching the above variable),
+                'Data'        : (DataFrame containing ALARA output data for
+                                 the given data source, variable, and unit)
+            }
+
+            Alternatively, if comparing two data sources, df_dicts can be a
+            list of dictionaries of the above form.
+        total (bool, optional): Option to include the cumulative total
+            contribution from all isotopes towards the select variable in the
+            plot. If total=True, the total array will be treated equivalently
+            to any of the other isotopes and will be plotted alongside them.
+            If total=True and head=1, only the total will be plotted.
+            (Defaults to False)
+        element (str, optional): Option to plot only the isotopes of a single 
+            element. If left blank, all elements in the original DataFrame 
+            will remain present.
+            (Defaults to '')
+        sort_by_time (str, optional): Option to sort the DataFrame by the data
+            in a particular time column.
+            (Defaults to 'shutdown')
+        head (int or None, optional): Option to truncate the DataFrame to a
+            particular number of rows.
+            (Defaults to None)
+        relative (bool, optional): Option to plot relative values with respect
+            to totals at each cooling time.
+            (Defaults to False)
+        filter_small (bool, optional): Option to internally call
+            aggregate_small_percentages() to aggregate all data below a chosen
+            threshold to a new 'Other' row.
+            (Defaults to False)
+        threshold (float or int): Proportional threshold value for inclusion
+            cutoff for aggregrate_small_percentages().
+            (Defaults to 0.05)        
+    '''
+    
+    data_comp = True
+    fig, ax = plt.subplots(figsize=(10,6))
+
+    # Single data source -- Data provided as dict or DataFrame
+    if type(df_dicts) is not list:
+        df_dicts = [df_dicts]
+        data_comp = False
+
+    # Preprocess data to user specifications
+    all_labels = set()
+    all_data = []
+    for df_dict in df_dicts:
+        df, times = specify_data(
+            df_dict, 
+            total=total, 
+            element=element, 
+            sort_by_time=sort_by_time, 
+            head=head,
+            relative=relative,
+            filter_small=filter_small,
+            threshold=threshold,
+            seconds=seconds
+        )
+
+        df = df.T
+        for col in df.columns:
+            label_text = f"{df[col].iloc[0]}"
+            all_labels.add(label_text)
+
+        all_data.append((df_dict, df, times))
+
+    labels_sorted = sorted(all_labels)
+
+    cmap = plt.cm.get_cmap('Dark2')
+    color_map = {lbl: cmap(i % cmap.N) for i, lbl in enumerate(labels_sorted)}
+
+    line_styles = ['-', ':']
+
+    # Plot data
+    for i, (df_dict, df, times) in enumerate(all_data):
+        linestyle = line_styles[i % len(line_styles)]
+        for col in df.columns:
+            label_text = f"{df[col].iloc[0]}"
+            color = color_map[label_text]
+            label = label_text
+            if data_comp:
+                label = f"{label_text} ({df_dict['Data Source']})"
+
+            ax.plot(
+                times,
+                list(df[col])[1:],
+                label=label,
+                color=color,
+                linestyle=linestyle,
+            )
+    
+    # Titles and labels, according to user specifications
+    title_suffix = (f'{df_dicts[0]['Variable']} vs Cooling Time ')
+
+    if relative:
+        title_suffix += 'Relative to Total at Each Cooling Time '
+
+    if head:
+        title_suffix += (
+            f'\n(DataFrame Head Sorted by Values at {sort_by_time})'
+            )
+
+    if data_comp:
+        title_prefix = (
+            f'{df_dicts[0]['Data Source']}, {df_dicts[1]['Data Source']} '
+            'Comparison: \n'
+        )
+    else:
+        title_prefix = f'{df_dict['Data Source']}: '
+
+    ax.set_title(title_prefix + title_suffix)
+    if not relative:
+        ax.set_ylabel(f'{df_dict['Variable']} [{df_dict['Unit']}]')
+    ax.set_xlabel(f'Time ({'s' if seconds else 'y'})')
+    ax.set_xscale('log')
+
+    # Legend
+    ax.legend(
+        loc='center left',
+        bbox_to_anchor=(1.025, 0.5),
+        borderaxespad=0.,
+        fontsize='small'
+    )
+
+    ax.grid(True)
+    plt.tight_layout(rect=[0, 0, 0.85, 1])
+    plt.show()
+
+def single_data_source_pie(df_dict, time):
+    '''
+    Create a pie chart showing the breakdown of isotopes contributing to a
+        given variable tracked by an ALARA run at a given cooling time.
+
+    Arguments:
+        df_dict (dict): Dictionary containing an ALARA output DataFrame and
+            its metadata, of the form:
+
+            df_dict = {
+                'Data Source' : (Either 'fendl2' or 'fendl3'),
+                'Variable'    : (Any ALARA output variable, dependent on ALARA
+                                 run parameters),
+                'Unit'        : (Respective unit matching the above variable),
+                'Data'        : (DataFrame containing ALARA output data for
+                                 the given data source, variable, and unit)
+            }
+        time (str): Cooling time at which to assess the isotopic breakdown.
+            Must be of the same form as the df_dict['Data'] non-index column
+            names (i.e. 'shutdown', '1 y', etc.).
+    '''
+
+    df = aggregate_small_percentages(df_dict['Data'])
+    total = df[time].sum()
+    df['fraction'] = df[time] / total * 100
+    df = df[df['fraction'].round(1) > 0]
+    
+    wedges, texts = plt.pie(
+        df[time],
+        labels=df['isotope'],
+        wedgeprops={'edgecolor' : 'black', 'linewidth' : 1}
+        )
+
+    legend_labels = [
+        f'{isotope} : {frac:.1f}%'
+        for isotope, frac in zip(df['isotope'], df['fraction'])
+    ]
+
+    plt.title(
+        f'{df_dict['Data Source']}: Radioisotope Proportional Contribution to'
+        f' {df_dict['Variable']} at {time}'
+    )
+
+    plt.legend(
+        wedges,
+        legend_labels,
+        title='Isotopes',
+        loc='center left',
+        bbox_to_anchor=(-0.375, 0.75),
+    )
+
+    plt.show()
+
+def plot_isotope_diff(diff, isotope, variable, seconds=True):
     
     isotope_diff = diff[diff['isotope'] == isotope]
 
-    times_s = process_time_vals(isotope_diff)
+    times_s = process_time_vals(isotope_diff, seconds)
     plt.plot(times_s, list(isotope_diff.values[0])[1:])
     plt.xscale('log')
     plt.ylabel(f'Difference in {variable}')
-    plt.xlabel('Time (s)')
+    plt.xlabel(f'Time ({'s' if seconds else 'y'})')
     plt.title(
         f'Evolution of Difference in {variable} \n'
         f'between fendl2 and fendl3 for {isotope} vs Cooling Time'
