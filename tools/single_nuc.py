@@ -6,6 +6,8 @@ from alara_output_parser import parse_tables
 
 #-------------------- Helper Functions --------------------
 
+#-------------------- Helper Functions --------------------
+
 def select_sublist(x, y):
     '''
     Select intersection of list x and list y. Additionally, capture indices
