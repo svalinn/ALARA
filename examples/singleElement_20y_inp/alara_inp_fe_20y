@@ -35,5 +35,4 @@ end
 
 #other parameters
 truncation 1e-3
-impurity 5e-6 1e-3
 dump_file dump_1w.file
