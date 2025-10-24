@@ -27,6 +27,8 @@ _(Most codes can take a mixture of elements and generate isotopic compositions f
 4. Identify activation responses desired at the above time intervals
 
 ## List of Examples:
-
-   * Example of irradiating a single element (Fe) for 2 years in a typical fusion reactor with DCLL blanket
+- Single element examples:
+   * Example of irradiating Fe for 2 years in a typical fusion reactor with DCLL blanket
      - [singleElement](singleElement.md)
+   * Fe irradiated for 20 years under the FNSF-DCLL neutron spectrum
+     - [singleElement_20y_inp](singleElement_20y_inp/alara_inp_fe_20y)
