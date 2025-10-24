@@ -280,10 +280,10 @@ def ensure_gendf_markers(gendf_path, matb):
 
 def run_njoy(element, A, matb, file_capture):
     """
-    Use subprocess to run NJOY given a pre-written input card to convert a
-        pair of ENDF and PENDF files to a GENDF file and save it locally.
-        The ENDF and PENDF files must be stored in the same directory and be
-        titled 'tape20' and 'tape21' respectively for a successful NJOY run.
+    Use subprocess to run NJOY given a pre-written input card to either
+        prepare, format, and produce a PENDF file with NJOY modules RECONR,
+        BROADR, UNRESR, AND GASPR or to use an ENDF/PENDF file pair to create
+        a groupwise GENDF file.
     
     Arguments:
         cards (dict): Dictionary containing each "card"
