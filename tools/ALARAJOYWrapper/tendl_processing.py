@@ -3,6 +3,14 @@ import ENDFtk
 from pathlib import Path
 import warnings
 
+gas_kzas = {
+    'p' : 10010,
+    'd' : 10020,
+    't' : 10030,
+    'h' : 20030,
+    'a' : 20040
+}
+
 def get_isotope(stem):
     """
     Extract the element name and mass number from a given filename.
@@ -186,7 +194,15 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
     gendf_data = []
     for MT in MTs:
         sigma_list = extract_cross_sections(file_obj, MT)
-        dKZA = pKZA + mt_dict[MT]['delKZA']
+
+        # For gas production totals, track emitted gas as the daughter
+        if mt_dict[MT]['Gas']:
+            dKZA = gas_kzas[mt_dict[MT]['Gas']]
+        
+        # For standard reactions, daughter KZAs are calculated: pKZA - delKZA
+        else:
+            dKZA = pKZA + mt_dict[MT]['delKZA']
+            
         # Skip high (2 digit) isomeric states
         if not mt_dict[MT]['High M']:
             gendf_data.append({
