@@ -26,7 +26,8 @@ def write_dsv(dsv_path, cumulative_data):
         Each row can have different lengths, as only non-zero cross-sections
         are written out. The file is sorted by ascending parent KZA value.
     Arguments:
-        dsv_path (PosixPath): Filepath for the DSV file to be written.
+        dsv_path (pathlib._local.PosixPath): Filepath for the DSV file to be
+            written.
         cumulative_data (list of dicts): List containing separate dictionaries
             for each reaction contained in all of the TENDL/PENDF files
             processed.

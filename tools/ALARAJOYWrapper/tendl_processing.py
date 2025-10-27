@@ -32,8 +32,8 @@ def search_for_files(dir = Path('.')):
         information to a dictionary.
     
     Arguments:
-        directory (PosixPath, optional): Path to the directory in which to
-            search for ENDF and PENDF files.
+        directory (pathlib._local.PosixPath, optional): Path to the directory
+            in which to search for ENDF and PENDF files.
             Defaults to the present working directory (".").
     Returns:
         file_info (dict): Dictionary containing the chemical symbol, mass
@@ -63,7 +63,7 @@ def extract_endf_specs(path):
     """
     Extract the material ID and MT numbers from an ENDF file.
     Arguments:
-        path (PosixPath): File path to the selected ENDF file.
+        path (pathlib._local.PosixPath): File path to the selected ENDF file.
     
     Returns:
         matb (int): Unique material ID extracted from the file.
@@ -99,7 +99,8 @@ def extract_gendf_pkza(gendf_path):
         (0 if non-isomeric).
     
     Arguments:
-        gendf_path (PosixPath): File path to the GENDF file being analyzed.
+        gendf_path (pathlib._local.PosixPath): File path to the GENDF file
+            being analyzed.
         dir (str): String identifying the directory from which the function is
             being called.
     

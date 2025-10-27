@@ -124,7 +124,7 @@ def load_mt_table(csv_path):
         {'MT' : {'Reaction' : (z , emission)}}
     
     Arguments:
-        csv_path (PosixPath): File path to mt_table.csv
+        csv_path (pathlib._local.PosixPath): File path to mt_table.csv.
             This should be in the same repository.
     
     Returns:

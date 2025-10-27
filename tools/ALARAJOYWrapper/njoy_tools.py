@@ -12,8 +12,8 @@ def set_directory():
     Arguments:
         None
     Returns:
-        dir (PosixPath): Path to the current working directory (CWD) from
-            which the command was called.
+        dir (pathlib._local.pathlib._local.PosixPath): Path to the current
+            working directory (CWD) from which the command was called.
     '''
 
     dir = Path.cwd()
@@ -216,7 +216,8 @@ def ensure_gendf_markers(gendf_path, matb):
         The formatting for these records can be found at:
         https://t2.lanl.gov/nis/endf/intro06.html
     Arguments:
-        gendf_path (PosixPath): File path to the newly created GENDF file.
+        gendf_path (pathlib._local.PosixPath): File path to the newly created
+            GENDF file.
         matb (int): Unique material ID for the material in the GENDF file.
     
     Returns:
@@ -266,8 +267,8 @@ def run_njoy(element, A, matb):
         matb (int): Unique material ID for the material in the files.
     
     Returns:
-        file_metadata['GENDF']['save'] (PosixPath or None): File path to the
-                                    newly created GENDF file.
+        file_metadata['GENDF']['save'] (pathlib._local.PosixPath or None):
+                                    File path to the newly created GENDF file.
                                     Returns None if NJOY runs unsuccessfuly.
         result.stderr (str or None): Output of NJOY error.
                                     Returns None if NJOY runs successfully. 
@@ -306,7 +307,8 @@ def cleanup_njoy_files(output_path = dir / Path('njoy_ouput')):
     Clean up repository from unnecessary intermediate files from NJOY run.
     
     Arguments:
-        output_path (PosixPath, optional): The save path for the NJOY output.
+        output_path (pathlib._local.PosixPath, optional): The save path for
+            the NJOY output.
             Defaults to f'{CWD}/njoy_output', which will save the file in the
             same directory as all other saved files from the script run.
     
