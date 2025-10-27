@@ -13,11 +13,11 @@ def set_directory():
     Arguments:
         None
     Returns:
-        dir (str): Path to the current working directory (CWD) from which the
-            command was called.
+        dir (pathlib._local.PosixPath): Path to the current working directory
+            (CWD) from which the command was called.
     '''
 
-    return str(Path(__file__).resolve().parent)
+    return Path(__file__).resolve().parent
 
 # Define constant(s)
 dir = set_directory()
