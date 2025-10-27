@@ -25,15 +25,15 @@ def get_isotope(stem):
 
     return element, A
 
-def search_for_files(dir = '.'):
+def search_for_files(dir = Path('.')):
     """
     Search through a directory for all pairs of ENDF (TENDL) and PENDF files
         that have matching stems. If so, save the paths and the isotopic
         information to a dictionary.
     
     Arguments:
-        directory (str, optional): Path to the directory in which to search
-            for ENDF and PENDF files.
+        directory (PosixPath, optional): Path to the directory in which to
+            search for ENDF and PENDF files.
             Defaults to the present working directory (".").
     Returns:
         file_info (dict): Dictionary containing the chemical symbol, mass
@@ -45,8 +45,6 @@ def search_for_files(dir = '.'):
                                     {'File Paths'} : (endf_path, pendf_path)
             }
     """
-
-    dir = Path(dir)
 
     file_info = {}
     for suffix in ['tendl', 'endf']:
@@ -65,7 +63,7 @@ def extract_endf_specs(path):
     """
     Extract the material ID and MT numbers from an ENDF file.
     Arguments:
-        path (str): File path to the selected ENDF file.
+        path (PosixPath): File path to the selected ENDF file.
     
     Returns:
         matb (int): Unique material ID extracted from the file.
@@ -75,7 +73,7 @@ def extract_endf_specs(path):
             Only returns the file for GENDF filetypes.
     """
 
-    tape = ENDFtk.tree.Tape.from_file(path)
+    tape = ENDFtk.tree.Tape.from_file(str(path))
     matb = tape.material_numbers[0]
     # Set MF for cross sections
     xs_MF = 3
@@ -101,7 +99,7 @@ def extract_gendf_pkza(gendf_path):
         (0 if non-isomeric).
     
     Arguments:
-        gendf_path (str): File path to the GENDF file being analyzed.
+        gendf_path (PosixPath): File path to the GENDF file being analyzed.
         dir (str): String identifying the directory from which the function is
             being called.
     

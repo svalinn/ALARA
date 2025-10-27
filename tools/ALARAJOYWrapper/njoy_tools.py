@@ -12,19 +12,19 @@ def set_directory():
     Arguments:
         None
     Returns:
-        dir (str): Path to the current working directory (CWD) from which the
-            command was called.
+        dir (PosixPath): Path to the current working directory (CWD) from
+            which the command was called.
     '''
 
-    dir = str(Path.cwd())
-    fendl_dir = 'ALARAJOYWrapper'
-    if fendl_dir not in dir:
-        dir += f'/{fendl_dir}' # Should only be called from one directory up
+    dir = Path.cwd()
+    fendl_dir = Path('ALARAJOYWrapper')
+    if not (dir.parents[0] / fendl_dir).exists():
+        dir = dir / fendl_dir # Should only be called from one directory up
     return dir
 
 # Define constant(s)
 dir = set_directory()
-INPUT = dir + '/njoy.inp'
+INPUT = dir / Path('njoy.inp')
 
 # Create input file general template
 njoy_input = Template(Template(
@@ -216,7 +216,7 @@ def ensure_gendf_markers(gendf_path, matb):
         The formatting for these records can be found at:
         https://t2.lanl.gov/nis/endf/intro06.html
     Arguments:
-        gendf_path (str): File path to the newly created GENDF file.
+        gendf_path (PosixPath): File path to the newly created GENDF file.
         matb (int): Unique material ID for the material in the GENDF file.
     
     Returns:
@@ -266,24 +266,16 @@ def run_njoy(element, A, matb):
         matb (int): Unique material ID for the material in the files.
     
     Returns:
-        save_dict['GENDF']['Save Path'] (str or None): File path to the newly 
-                                    created GENDF file.
+        file_metadata['GENDF']['save'] (PosixPath or None): File path to the
+                                    newly created GENDF file.
                                     Returns None if NJOY runs unsuccessfuly.
         result.stderr (str or None): Output of NJOY error.
                                     Returns None if NJOY runs successfully. 
     """
 
-    file_metadata = [
-        ('GENDF', 'gendf_files', '.gendf', 31),
-        ('PENDF', 'pendf_files', '.pendf', 25)
-    ]
-    save_dict = {
-        name: {
-            'Specific Dir'              :           spec_dir,
-            'Extension'                 :                ext,
-            'Tape'                      :               tape
-        }
-        for name, spec_dir, ext, tape in file_metadata
+    file_metadata = {
+        'GENDF' : { 'dir' : 'gendf_files', 'ext' : '.gendf', 'tape' : 31 },
+        'PENDF' : { 'dir' : 'pendf_files', 'ext' : '.pendf', 'tape' : 25 }
     }
 
     # Run NJOY
@@ -293,27 +285,28 @@ def run_njoy(element, A, matb):
     # If the run is successful, log out the output
     # and make a copy of the file as a .GENDF file
     if not result.stderr:
-        for fileinfo in save_dict.values():
-            save_path = f'{dir}/{
-                        fileinfo['Specific Dir']
-                        }/tendl_2017_{element}{str(A).zfill(3)}'
+        for fileinfo in file_metadata.values():
+            save_path = Path(
+                f'{dir}/{fileinfo['dir']}'
+                f'/tendl_2017_{element}{str(A).zfill(3)}'
+                )
 
             # Ensure existence of save directory for PENDF/GENDF files
-            (Path(dir) / fileinfo['Specific Dir']).mkdir(exist_ok=True)
+            (dir / fileinfo['dir']).mkdir(exist_ok=True)
 
-            fileinfo['Save Path'] = save_path + fileinfo['Extension']
-            Path(f'tape{fileinfo['Tape']}').rename(fileinfo['Save Path'])
-            if fileinfo['Extension'] == '.gendf':
-                ensure_gendf_markers(fileinfo['Save Path'], matb)
+            fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
+            Path(f'tape{fileinfo['tape']}').rename(fileinfo['save'])
+            if fileinfo['ext'] == '.gendf':
+                ensure_gendf_markers(fileinfo['save'], matb)
 
-    return save_dict['GENDF']['Save Path'], result.stderr
+    return file_metadata['GENDF']['save'], result.stderr
 
-def cleanup_njoy_files(output_path = dir + '/njoy_ouput'):
+def cleanup_njoy_files(output_path = dir / Path('njoy_ouput')):
     """
     Clean up repository from unnecessary intermediate files from NJOY run.
     
     Arguments:
-        output_path (str, optional): The save path for the NJOY output.
+        output_path (PosixPath, optional): The save path for the NJOY output.
             Defaults to f'{CWD}/njoy_output', which will save the file in the
             same directory as all other saved files from the script run.
     
@@ -321,7 +314,7 @@ def cleanup_njoy_files(output_path = dir + '/njoy_ouput'):
         None
     """
 
-    intermediate_files = [INPUT] + [f'tape{i}' for i in range(20,25)] 
+    intermediate_files = [INPUT] + [Path(f'tape{i}') for i in range(20,25)]
     for file in intermediate_files:
-        Path.unlink(Path(file))
-    Path('output').rename(Path(output_path))
+        Path.unlink(file)
+    Path('output').rename(output_path)
