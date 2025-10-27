@@ -71,7 +71,7 @@ def main():
 
     TAPE20 = Path('tape20')
 
-    mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / Path('mt_table.csv')))
+    mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
 
     cumulative_data = []
     for isotope, file_properties in tp.search_for_files(search_dir).items():
@@ -117,7 +117,7 @@ def main():
                 NJOY error message: {njoy_error}'''
             )
 
-    dsv_path = dir / Path('cumulative_gendf_data.dsv')
+    dsv_path = dir / 'cumulative_gendf_data.dsv'
     write_dsv(dsv_path, cumulative_data)
     print(dsv_path)
 

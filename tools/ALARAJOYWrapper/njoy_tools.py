@@ -24,7 +24,7 @@ def set_directory():
 
 # Define constant(s)
 dir = set_directory()
-INPUT = dir / Path('njoy.inp')
+INPUT = dir / 'njoy.inp'
 
 # Create input file general template
 njoy_input = Template(Template(
@@ -287,10 +287,7 @@ def run_njoy(element, A, matb):
     # and make a copy of the file as a .GENDF file
     if not result.stderr:
         for fileinfo in file_metadata.values():
-            save_path = Path(
-                f'{dir}/{fileinfo['dir']}'
-                f'/tendl_2017_{element}{str(A).zfill(3)}'
-                )
+            save_path = dir / fileinfo['dir'] / f'tendl_2017_{element}{str(A).zfill(3)}'
 
             # Ensure existence of save directory for PENDF/GENDF files
             (dir / fileinfo['dir']).mkdir(exist_ok=True)
@@ -302,7 +299,7 @@ def run_njoy(element, A, matb):
 
     return file_metadata['GENDF']['save'], result.stderr
 
-def cleanup_njoy_files(output_path = dir / Path('njoy_ouput')):
+def cleanup_njoy_files(output_path = dir / 'njoy_ouput'):
     """
     Clean up repository from unnecessary intermediate files from NJOY run.
     
