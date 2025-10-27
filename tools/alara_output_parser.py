@@ -93,9 +93,6 @@ def parse_tables(filename):
                 current_table_lines = []
             continue
 
-        if inside_table:
-            current_table_lines.append(line)
-
     if inside_table and current_parameter and current_block:
         table_data(
             current_table_lines,
