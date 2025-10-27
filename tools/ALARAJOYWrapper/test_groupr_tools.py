@@ -1,6 +1,6 @@
 # Import packages
 import pytest
-import groupr_tools
+import njoy_tools
 import reaction_data as rxd
 
 mt_dict = rxd.process_mt_data(rxd.load_mt_table('mt_table.csv'))
@@ -91,5 +91,5 @@ stop
 ''' )]
 )
 def test_fill_input_template(material_id, MTs, element, A, mt_dict, exp):
-    obs = groupr_tools.fill_input_template(material_id, MTs, element, A, mt_dict)
+    obs = njoy_tools.fill_input_template(material_id, MTs, element, A, mt_dict)
     assert obs == exp
