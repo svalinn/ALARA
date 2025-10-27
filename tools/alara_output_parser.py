@@ -26,7 +26,7 @@ def is_new_block(line):
         )
 
 def is_table_header(line):
-    return line.startswith('isotope')
+    return line.startswith('isotope') or line.startswith('interval')
 
 def is_separator(line):
     return line.startswith('=')
