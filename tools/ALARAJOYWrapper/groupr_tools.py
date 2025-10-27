@@ -4,7 +4,6 @@ import subprocess
 from pathlib import Path
 import re
 import os
-from shutil import copy2
 
 def set_directory():
     '''
@@ -246,8 +245,7 @@ def run_njoy(element, A, matb):
         if not os.path.isdir(f'{dir}/{gendf_dir}'):
             os.mkdir(f'{dir}/{gendf_dir}')
         gendf_path = f'{dir}/{gendf_dir}/tendl_2017_{element}{str(A).zfill(3)}.gendf'
-        copy2('tape31', gendf_path)
-        Path('tape31').unlink()
+        Path('tape31').rename(Path(gendf_path))
         ensure_gendf_markers(gendf_path, matb)
 
     return gendf_path, result.stderr
@@ -268,4 +266,4 @@ def cleanup_njoy_files(output_path = dir + '/njoy_ouput'):
     njoy_files = [INPUT, 'tape20', 'tape21']
     for file in njoy_files:
         Path.unlink(Path(file))
-    copy2('output', output_path)
+    Path('output').rename(Path(output_path))
