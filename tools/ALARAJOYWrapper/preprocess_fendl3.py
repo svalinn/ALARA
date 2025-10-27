@@ -65,7 +65,7 @@ def main():
 
     dir = njt.set_directory()
     search_dir = (
-        Path(args().fendlFileDir[0]) if args().fendlFileDir else Path(dir)
+        Path(args().fendlFileDir[0]) if args().fendlFileDir else dir
         )
     temperature = args().temperature[0]
 

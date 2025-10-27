@@ -25,7 +25,7 @@ def get_isotope(stem):
 
     return element, A
 
-def search_for_files(dir = Path('.')):
+def search_for_files(dir = Path.cwd()):
     """
     Search through a directory for all pairs of ENDF (TENDL) and PENDF files
         that have matching stems. If so, save the paths and the isotopic
