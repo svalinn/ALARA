@@ -31,6 +31,15 @@ def is_table_header(line):
 def is_separator(line):
     return line.startswith('=')
 
+def has_next_line(i, lines):
+    return i + 1 < len(lines)
+
+def is_parameter_description(next_line):
+    return re.match(r'^[A-Za-z].*\[.*\]$', next_line)
+
+def has_data_rows(current_table_lines):
+    return len(current_table_lines) > 1
+
 def is_end_of_table(line):
     return line.startswith('total')
 
@@ -45,13 +54,13 @@ def table_data(
             sep=r'\s+'
         )
 
-        df.columns = [c.replace('_', '' '') for c in df.columns]
+        df.columns = [c.replace('_', '') for c in df.columns]
         key = f'{current_parameter} - {current_block}'
         results[key] = df
 
 def parse_tables(filename):
     results = {}
-    with open(filename, "r") as f:
+    with open(filename, 'r') as f:
         lines = f.readlines()
 
     current_parameter = None
@@ -59,7 +68,7 @@ def parse_tables(filename):
     inside_table = False
     current_table_lines = []
 
-    for line in lines:
+    for i, line in enumerate(lines):
         line = line.strip()
 
         if is_new_parameter(line):
@@ -68,6 +77,10 @@ def parse_tables(filename):
 
         if is_new_block(line):
             current_block = line.rstrip(':')
+            if has_next_line(i, lines):
+                next_line = lines[i + 1].strip()
+                if is_parameter_description(next_line):
+                    current_parameter = next_line
             continue
 
         if is_table_header(line):
@@ -75,9 +88,21 @@ def parse_tables(filename):
             current_table_lines = [normalize_header(line)]
             continue
 
+        # Handling "Totals for all intervals" tables
         if is_separator(line):
+            if inside_table and has_data_rows(current_table_lines):
+                if current_parameter and current_block:
+                    table_data(
+                        current_table_lines,
+                        results,
+                        current_parameter,
+                        current_block
+                    )
+                inside_table = False
+                current_table_lines = []
             continue
 
+        # Handling all other tables
         if inside_table:
             current_table_lines.append(line)
             if is_end_of_table(line):
@@ -92,14 +117,6 @@ def parse_tables(filename):
                 inside_table = False
                 current_table_lines = []
             continue
-
-    if inside_table and current_parameter and current_block:
-        table_data(
-            current_table_lines,
-            results,
-            current_parameter,
-            current_block
-        )
 
     return results
 
