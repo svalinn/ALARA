@@ -12,15 +12,11 @@ def set_directory():
     Arguments:
         None
     Returns:
-        dir (pathlib._local.pathlib._local.PosixPath): Path to the current
-            working directory (CWD) from which the command was called.
+        dir (pathlib._local.PosixPath): Path to the current working directory
+            (CWD) from which the command was called.
     '''
 
-    dir = Path.cwd()
-    fendl_dir = Path('ALARAJOYWrapper')
-    if not (dir.parents[0] / fendl_dir).exists():
-        dir = dir / fendl_dir # Should only be called from one directory up
-    return dir
+    return Path(__file__).resolve().parent
 
 # Define constant(s)
 dir = set_directory()
