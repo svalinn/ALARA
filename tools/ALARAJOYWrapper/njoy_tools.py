@@ -315,9 +315,12 @@ def run_njoy(element, A, matb, file_capture):
         (dir / fileinfo['dir']).mkdir(exist_ok=True)
 
         fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
-        shutil.copy(Path(f'tape{fileinfo['tape']}'), fileinfo['save'])
+        tape_save = Path(f'tape{fileinfo['tape']}')
         if fileinfo['ext'] == '.gendf':
+            tape_save.rename(fileinfo['save'])
             ensure_gendf_markers(fileinfo['save'], matb)
+        else:
+            shutil.copy(tape_save, fileinfo['save'])
             
         return fileinfo['save'], result.stderr
 
@@ -335,7 +338,7 @@ def cleanup_njoy_files(output_path = dir / 'njoy_ouput'):
         None
     """
 
-    intermediate_files = [INPUT] + [Path(f'tape{i}') for i in range(20,25)]
+    intermediate_files = [INPUT] + [Path(f'tape{i}') for i in range(20,26)]
     for file in intermediate_files:
         Path.unlink(file)
     Path('output').rename(output_path)
