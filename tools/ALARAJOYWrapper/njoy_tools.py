@@ -3,21 +3,6 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
-from shutil import copy
-
-def set_directory():
-    '''
-    Establish the location of the current working directory to ensure that if
-        process_fendl3.2.py is called from ALARA/src/DataLib, FENDL3.2b
-        preprocessing files can be properly located, created, and modified.
-    Arguments:
-        None
-    Returns:
-        dir (pathlib._local.PosixPath): Path to the current working directory
-            (CWD) from which the command was called.
-    '''
-
-    return Path(__file__).resolve().parent
 
 def set_directory():
     '''
@@ -314,7 +299,7 @@ def run_njoy(element, A, matb, file_capture):
                         text=True, capture_output=True)
 
     # If the run is successful, log out the output
-    # and make a copy of the file as a .GENDF file
+    # and make a copy of the file as a GENDF or PENDF file
     if not result.stderr:
         for fileinfo in file_metadata.values():
             save_path = dir / fileinfo['dir'] / f'tendl_2017_{element}{str(A).zfill(3)}'

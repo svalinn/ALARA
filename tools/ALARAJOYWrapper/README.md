@@ -13,7 +13,6 @@ This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Dat
   * [Pathlib](https://docs.python.org/3/library/pathlib.html)
   * [Pytest](https://docs.pytest.org/en/stable/getting-started.html)
   * [Re](https://docs.python.org/3/library/re.html)
-  * [Shutil](https://docs.python.org/3/library/shutil.html)
   * [String](https://docs.python.org/3/library/string.html#module-string)
   * [Subprocess](https://docs.python.org/3/library/subprocess.html)
   * [Warnings](https://docs.python.org/3/library/warnings.html)
