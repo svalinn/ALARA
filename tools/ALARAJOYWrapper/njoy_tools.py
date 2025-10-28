@@ -3,6 +3,7 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
+import shutil
 
 def set_directory():
     '''
@@ -116,7 +117,9 @@ elements = [
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
-def fill_input_template( material_id, MTs, element, A, mt_dict, temperature, run_type=None):
+def fill_input_template(
+        material_id, MTs, element, A, mt_dict, temperature, run_type=None
+        ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
         into the template for the NJOY input card. These values are the
@@ -301,18 +304,22 @@ def run_njoy(element, A, matb, file_capture):
     # If the run is successful, log out the output
     # and make a copy of the file as a GENDF or PENDF file
     if not result.stderr:
-        for fileinfo in file_metadata.values():
-            save_path = dir / fileinfo['dir'] / f'tendl_2017_{element}{str(A).zfill(3)}'
+        fileinfo = file_metadata[file_capture]
+        save_path = (
+            dir / 
+            fileinfo['dir'] / 
+            f'tendl_2017_{element}{str(A).zfill(3)}'
+        )
 
-            # Ensure existence of save directory for PENDF/GENDF files
-            (dir / fileinfo['dir']).mkdir(exist_ok=True)
+        # Ensure existence of save directory for PENDF/GENDF files
+        (dir / fileinfo['dir']).mkdir(exist_ok=True)
 
-            fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
-            Path(f'tape{fileinfo['tape']}').rename(fileinfo['save'])
-            if fileinfo['ext'] == '.gendf':
-                ensure_gendf_markers(fileinfo['save'], matb)
+        fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
+        shutil.copy(Path(f'tape{fileinfo['tape']}'), fileinfo['save'])
+        if fileinfo['ext'] == '.gendf':
+            ensure_gendf_markers(fileinfo['save'], matb)
             
-    return fileinfo['save'], result.stderr
+        return fileinfo['save'], result.stderr
 
 def cleanup_njoy_files(output_path = dir / 'njoy_ouput'):
     """
