@@ -38,13 +38,11 @@ def write_dsv(dsv_path, cumulative_data):
     xs_key = 'Cross Sections'
     join_keys = list(cumulative_data[0].keys())
     join_keys.remove(xs_key)
-
     # Sort list of reaction dictionaries by ascending parent KZAs
     parent_label = join_keys[0]
     cumulative_data.sort(key=lambda rxn: rxn[parent_label])
 
     with open(dsv_path, 'w') as dsv_file:
-
         # Write header line with total groups for Vitamin-J
         vitamin_J_energy_groups = 175
         dsv_file.write(str(vitamin_J_energy_groups) + '\n')
@@ -54,7 +52,6 @@ def write_dsv(dsv_path, cumulative_data):
             dsv_row += ' ' + ' '.join(str(xs) for xs in reaction[xs_key])
             dsv_row += '\n'
             dsv_file.write(dsv_row)
-
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv_file.write(str(-1))
 
