@@ -6,104 +6,37 @@ from alara_output_parser import parse_tables
 
 #-------------------- Helper Functions --------------------
 
-#-------------------- Helper Functions --------------------
-
-def select_sublist(x, y):
-    '''
-    Select intersection of list x and list y. Additionally, capture indices
-        of said intersection on list x.
-
-    Arguments:
-        x (list): Reference list.
-        y (list): Smaller list sharing some or all elements with x.
-
-    Returns:
-        sublist (list): Intersection of x and y.
-        indices (list): Index or indices of intersection on x.
-    '''
-
-
-    sublist = [
-        val for i, val in enumerate(x, start=1)
-        if val in y or i in (y if isinstance(y, list) else [y])
-        ]
-    indices = [i for i, val in enumerate(x) if val in sublist]
-    return sublist, indices
+def make_entry(datalib, variable, unit, data):
+    return {
+        f'{datalib} {variable}': {
+            'Data Source': datalib,
+            'Variable': variable,
+            'Unit': unit,
+            'Data': data
+        }
+    }
 
 def process_metadata(
         data_source_df,
         existing_df=None,
-        inp_datalibs=[],
-        inp_variables=[],
-        inp_units=[]
+        inp_datalib=None,
+        inp_variable=None,
+        inp_unit=None
         ):
-    
-    if inp_datalibs:
-        datalibs, _ = select_sublist(datalibs, inp_datalibs)
-    if inp_variables:
-        variables, var_indices = select_sublist(variables, inp_variables)
-        if inp_units:
-            units, _ = select_sublist(units, inp_units)
-        else:
-            units = [units[idx] for idx in var_indices]
-    if inp_units and not inp_variables:
-        units, unit_indices = select_sublist(units, inp_units)
-        variables = [variables[idx] for idx in unit_indices]
     
     dfs = {}
 
+    if existing_df:
+        dfs.update(make_entry(inp_datalib, inp_variable, inp_unit, data_source_df))
+        return dfs
+
     for datalib, output_path in data_source_df.items():
         output_tables = parse_tables(output_path)
-
-        for key in output_tables.keys():
-            totals = ''
-            variable_w_unit, interval_w_zone = key.split(' - ')
+        for key, data in output_tables.items():
+            variable_w_unit, _ = key.split(' - ')
             variable, unit = variable_w_unit.split(' [')
-            unit = unit.strip(']')
+            dfs.update(make_entry(datalib, variable, unit.strip(']'), data))
 
-            if 'Totals' in interval_w_zone:
-                totals = ' - Totals for all intervals'
-            
-            df_name = f'{datalib} {variable}{totals}'
-            dfs[df_name] = {
-                'Data Source' : datalib,
-                'Variable'    : variable,
-                'Unit'        : unit,
-                'Data'        : output_tables[key]
-            }
-
-
-
-#    dfs = {}
-
-#    for datalib in datalibs:
-#        for variable, unit in zip(variables, units):
-#            df_name = f'{datalib}_{variable}'
-#            dfs[df_name] = {
-#                'Data Source' : datalib,
-#                'Variable'    : re.sub('_' , ' ', variable),
-#                'Unit'        : re.sub(
-#                                    '_', '/', re.sub(
-#                                                '_._data_ANS6_4_3', '', unit
-#                                              )
-#                                )
-#            }
-
-#            if gen_csv:
-#                dfs[df_name]['Data'] = pd.read_csv(
-#                    gen_csv.format(
-#                        datalib=datalib, variable=variable, unit=unit
-#                        )
-#                )
-#            elif type(existing_df) is pd.core.frame.DataFrame:
-#                dfs[df_name]['Data'] = existing_df
-#            else:
-#                print(
-#                    'Invalid data source.'
-#                    'Must either be a CSV or preexisting DataFrame'
-#                    )
-#                return None
-    
     return dfs
 
 def process_time_vals(alara_df, seconds=True):
@@ -444,25 +377,30 @@ def maximum_contribution(dfs, variable, unique_isotopes):
     return unique_isotopes
 
 def split_label(label):
-    splt = label.split('(')
-    element = splt[0].strip()
-    datalib = splt[1].strip()
-    return element, datalib
+    if '(' in label:
+        parts = label.split('(')
+        isotope = parts[0].strip()
+        datalib = f'({parts[1].strip(')')})'
+    else:
+        isotope = label.strip()
+        datalib = ''
+    return isotope, datalib
 
 def reformat_isotope(isotope):
-    element, A = isotope.split('-')
-    capitalized_element = ''
-    for i, letter in enumerate(element):
-        if i == 0:
-            letter = letter.upper()
-        capitalized_element += letter
-    return f'$^{A}${capitalized_element}'
+    if isotope == 'total' or isotope == 'Other':
+        return isotope
+    else:
+        element, A = isotope.split('-')
+        element = element.capitalize()
+        return f'$^{{{A}}}\\mathrm{{{element}}}$'
 
-def construct_legend(ax):
+def construct_legend(ax, data_comp=False):
     handles, labels = ax.get_legend_handles_labels()
     labels_sorted_with_handles = sorted(
         zip(labels, handles),
-        key=lambda x: split_label(x[0])
+        key=lambda x: (
+            split_label(x[0]) if data_comp else (split_label(x[0])[0], x[0])
+        )
     )
 
     grouped_handles = []
@@ -477,7 +415,7 @@ def construct_legend(ax):
             grouped_handles.append(plt.Line2D([], [], linestyle=''))
             grouped_labels.append('――――――')
         grouped_handles.append(h)
-        grouped_labels.append(f'{isotope} ({datalib}')
+        grouped_labels.append(f'{isotope} {datalib}')
         prev_isotope = isotope
 
     ax.legend(
@@ -641,7 +579,7 @@ def plot_single_nuc(
     ax.set_xscale('log')
     ax.set_yscale(yscale)
 
-    construct_legend(ax)
+    construct_legend(ax, data_comp)
 
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
