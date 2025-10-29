@@ -20,13 +20,10 @@ def is_new_parameter(line):
     return line.startswith('***') and line.endswith('***')
 
 def is_new_block(line):
-    return (
-        line.startswith('Interval #')
-        or line.startswith('Totals for all intervals')
-        )
+    return line.startswith('Interval #')
 
 def is_table_header(line):
-    return line.startswith('isotope') or line.startswith('interval')
+    return line.startswith('isotope')
 
 def is_separator(line):
     return line.startswith('=')
@@ -40,10 +37,7 @@ def is_parameter_description(next_line):
 def has_data_rows(current_table_lines):
     return len(current_table_lines) > 1
 
-def is_totals_block(current_block):
-    return current_block.startswith('Totals for all intervals')
-
-def is_total_row(line):
+def is_end_of_table(line):
     return line.startswith('total')
 
 def table_data(
@@ -80,10 +74,6 @@ def parse_tables(filename):
 
         if is_new_block(line):
             current_block = line.rstrip(':')
-            if has_next_line(i, lines):
-                next_line = lines[i + 1].strip()
-                if is_parameter_description(next_line):
-                    current_parameter = next_line
             continue
 
         if is_table_header(line):
@@ -91,28 +81,12 @@ def parse_tables(filename):
             current_table_lines = [normalize_header(line)]
             continue
 
-        # Handling "Totals for all intervals" tables
-        if is_separator(line):
-            if (
-                inside_table
-                and has_data_rows(current_table_lines)
-                and is_totals_block(current_block)
-            ):
-                if current_parameter and current_block:
-                    table_data(
-                        current_table_lines,
-                        results,
-                        current_parameter,
-                        current_block
-                    )
-                inside_table = False
-                current_table_lines = []
+        if inside_table and is_separator(line):
             continue
 
-        # Handling all other tables
         if inside_table:
             current_table_lines.append(line)
-            if is_total_row(line):
+            if is_end_of_table(line):
                 if current_parameter and current_block:
                     table_data(
                         current_table_lines,
