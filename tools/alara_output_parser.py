@@ -40,7 +40,10 @@ def is_parameter_description(next_line):
 def has_data_rows(current_table_lines):
     return len(current_table_lines) > 1
 
-def is_end_of_table(line):
+def is_totals_block(current_block):
+    return current_block.startswith('Totals for all intervals')
+
+def is_total_row(line):
     return line.startswith('total')
 
 def table_data(
@@ -90,7 +93,11 @@ def parse_tables(filename):
 
         # Handling "Totals for all intervals" tables
         if is_separator(line):
-            if inside_table and has_data_rows(current_table_lines):
+            if (
+                inside_table
+                and has_data_rows(current_table_lines)
+                and is_totals_block(current_block)
+            ):
                 if current_parameter and current_block:
                     table_data(
                         current_table_lines,
@@ -105,7 +112,7 @@ def parse_tables(filename):
         # Handling all other tables
         if inside_table:
             current_table_lines.append(line)
-            if is_end_of_table(line):
+            if is_total_row(line):
                 if current_parameter and current_block:
                     table_data(
                         current_table_lines,
