@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import re
+from alara_output_parser import parse_tables
 
 #-------------------- Helper Functions --------------------
 
@@ -28,19 +29,13 @@ def select_sublist(x, y):
     return sublist, indices
 
 def process_metadata(
-        gen_csv='',
+        data_source_df,
         existing_df=None,
         inp_datalibs=[],
         inp_variables=[],
-        inp_units=[]):
+        inp_units=[]
+        ):
     
-    datalibs = ['fendl2', 'fendl3']
-    variables = [
-        'Number_Density', 'Specific_Activity',
-        'Total_Decay_Heat', 'Contact_Dose'
-        ]
-    units = ['atoms_kg', 'Bq_kg', 'W_kg', 'Sv_hr_._data_ANS6_4_3']
-
     if inp_datalibs:
         datalibs, _ = select_sublist(datalibs, inp_datalibs)
     if inp_variables:
@@ -52,36 +47,60 @@ def process_metadata(
     if inp_units and not inp_variables:
         units, unit_indices = select_sublist(units, inp_units)
         variables = [variables[idx] for idx in unit_indices]
-
+    
     dfs = {}
 
-    for datalib in datalibs:
-        for variable, unit in zip(variables, units):
-            df_name = f'{datalib}_{variable}'
+    for datalib, output_path in data_source_df.items():
+        output_tables = parse_tables(output_path)
+
+        for key in output_tables.keys():
+            totals = ''
+            variable_w_unit, interval_w_zone = key.split(' - ')
+            variable, unit = variable_w_unit.split(' [')
+            unit = unit.strip(']')
+
+            if 'Totals' in interval_w_zone:
+                totals = ' - Totals for all intervals'
+            
+            df_name = f'{datalib} {variable}{totals}'
             dfs[df_name] = {
                 'Data Source' : datalib,
-                'Variable'    : re.sub('_' , ' ', variable),
-                'Unit'        : re.sub(
-                                    '_', '/', re.sub(
-                                                '_._data_ANS6_4_3', '', unit
-                                              )
-                                )
+                'Variable'    : variable,
+                'Unit'        : unit,
+                'Data'        : output_tables[key]
             }
 
-            if gen_csv:
-                dfs[df_name]['Data'] = pd.read_csv(
-                    gen_csv.format(
-                        datalib=datalib, variable=variable, unit=unit
-                        )
-                )
-            elif type(existing_df) is pd.core.frame.DataFrame:
-                dfs[df_name]['Data'] = existing_df
-            else:
-                print(
-                    'Invalid data source.'
-                    'Must either be a CSV or preexisting DataFrame'
-                    )
-                return None
+
+
+#    dfs = {}
+
+#    for datalib in datalibs:
+#        for variable, unit in zip(variables, units):
+#            df_name = f'{datalib}_{variable}'
+#            dfs[df_name] = {
+#                'Data Source' : datalib,
+#                'Variable'    : re.sub('_' , ' ', variable),
+#                'Unit'        : re.sub(
+#                                    '_', '/', re.sub(
+#                                                '_._data_ANS6_4_3', '', unit
+#                                              )
+#                                )
+#            }
+
+#            if gen_csv:
+#                dfs[df_name]['Data'] = pd.read_csv(
+#                    gen_csv.format(
+#                        datalib=datalib, variable=variable, unit=unit
+#                        )
+#                )
+#            elif type(existing_df) is pd.core.frame.DataFrame:
+#                dfs[df_name]['Data'] = existing_df
+#            else:
+#                print(
+#                    'Invalid data source.'
+#                    'Must either be a CSV or preexisting DataFrame'
+#                    )
+#                return None
     
     return dfs
 
@@ -109,8 +128,8 @@ def process_time_vals(alara_df, seconds=True):
         if column == 'shutdown':
             times.append(time_dict['shutdown'])
         else:
-            time, year = column.split(' ')
-            times.append(float(time) * time_dict[year])
+            time = column.split('y')[0]
+            times.append(float(time) * time_dict['y'])
     
     return times
 
@@ -130,12 +149,16 @@ def separate_total(alara_df):
         alara_df_total (pandas.core.frame.DataFrame): DataFrame containing one
             row for the total data.
     '''
+    if alara_df.columns[0] == 'interval':
+        alara_df.at[0, 'interval'] = 'total'
+        return pd.DataFrame(), alara_df
 
-    mask_total = alara_df['isotope'] == 'total'
-    alara_df_total = alara_df[mask_total].copy()
-    alara_df_isotopes = alara_df.drop(alara_df[mask_total].index)
+    else:
+        mask_total = (alara_df['isotope'] == 'total')
+        alara_df_total = alara_df[mask_total].copy()
+        alara_df_isotopes = alara_df.drop(alara_df[mask_total].index)
 
-    return alara_df_isotopes, alara_df_total
+        return alara_df_isotopes, alara_df_total
 
 def relative_contributions(df):
     '''
@@ -418,6 +441,54 @@ def maximum_contribution(dfs, variable, unique_isotopes):
 
     return unique_isotopes
 
+def split_label(label):
+    splt = label.split('(')
+    element = splt[0].strip()
+    datalib = splt[1].strip()
+    return element, datalib
+
+def reformat_isotope(isotope):
+    element, A = isotope.split('-')
+    capitalized_element = ''
+    for i, letter in enumerate(element):
+        if i == 0:
+            letter = letter.upper()
+        capitalized_element += letter
+    return f'$^{A}${capitalized_element}'
+
+def construct_legend(ax):
+    handles, labels = ax.get_legend_handles_labels()
+    labels_sorted_with_handles = sorted(
+        zip(labels, handles),
+        key=lambda x: split_label(x[0])
+    )
+
+    grouped_handles = []
+    grouped_labels = []
+    prev_isotope = None
+
+    for lbl, h in labels_sorted_with_handles:
+        isotope, datalib = split_label(lbl)
+        isotope = reformat_isotope(isotope)
+        
+        if prev_isotope is not None and isotope != prev_isotope:
+            grouped_handles.append(plt.Line2D([], [], linestyle=''))
+            grouped_labels.append('――――――')
+        grouped_handles.append(h)
+        grouped_labels.append(f'{isotope} ({datalib}')
+        prev_isotope = isotope
+
+    ax.legend(
+        grouped_handles,
+        grouped_labels,
+        loc='center left',
+        bbox_to_anchor=(1.025, 0.5),
+        borderaxespad=0.,
+        fontsize='small',
+        handlelength=1.5,
+        handletextpad=0.5,
+    )
+
 #-------------------- Plotting functions --------------------
 
 def plot_single_nuc(
@@ -568,13 +639,7 @@ def plot_single_nuc(
     ax.set_xscale('log')
     ax.set_yscale(yscale)
 
-    # Legend
-    ax.legend(
-        loc='center left',
-        bbox_to_anchor=(1.025, 0.5),
-        borderaxespad=0.,
-        fontsize='small'
-    )
+    construct_legend(ax)
 
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])

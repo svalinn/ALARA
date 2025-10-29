@@ -19,20 +19,6 @@ def set_directory():
 
     return Path(__file__).resolve().parent
 
-def set_directory():
-    '''
-    Establish the location of the current working directory to ensure that if
-        process_fendl3.2.py is called from ALARA/src/DataLib, FENDL3.2b
-        preprocessing files can be properly located, created, and modified.
-    Arguments:
-        None
-    Returns:
-        dir (pathlib._local.PosixPath): Path to the current working directory
-            (CWD) from which the command was called.
-    '''
-
-    return Path(__file__).resolve().parent
-
 # Define constant(s)
 dir = set_directory()
 INPUT = dir / 'njoy.inp'
