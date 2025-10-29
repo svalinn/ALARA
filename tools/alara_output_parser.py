@@ -28,15 +28,6 @@ def is_table_header(line):
 def is_separator(line):
     return line.startswith('=')
 
-def has_next_line(i, lines):
-    return i + 1 < len(lines)
-
-def is_parameter_description(next_line):
-    return re.match(r'^[A-Za-z].*\[.*\]$', next_line)
-
-def has_data_rows(current_table_lines):
-    return len(current_table_lines) > 1
-
 def is_end_of_table(line):
     return line.startswith('total')
 
@@ -65,7 +56,7 @@ def parse_tables(filename):
     inside_table = False
     current_table_lines = []
 
-    for i, line in enumerate(lines):
+    for line in lines:
         line = line.strip()
 
         if is_new_parameter(line):
