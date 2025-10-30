@@ -1,12 +1,30 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
-import re
 from alara_output_parser import parse_tables
 
 #-------------------- Helper Functions --------------------
 
 def make_entry(datalib, variable, unit, data):
+    '''
+    Construct a dictionary entry for a single Pandas DataFrame and its
+        associated metadata for updating into a larger metadata dictionary.
+
+    Arguments:
+        datalib (str): Data source for the DataFrame (i.e. fendl2,
+            ALARAJOY-fendl3, etc.).
+        variable (str): Dependent variable evaluated in DataFrame (i.e. Number
+            Density, Specific Activity, etc.).
+        unit (str): Associated units for the above variable (i.e. atoms/kg, 
+            Bq/kg, etc.).
+        data (pandas.core.frame.DataFrame): Pandas DataFrame described by
+            the above metadata.
+
+    Returns:
+        entry (dict): Single data entry for dictionary containing potentially
+            multiple dataframes and associated metadata.
+
+    '''
+
     return {
         f'{datalib} {variable}': {
             'Data Source': datalib,
@@ -17,20 +35,58 @@ def make_entry(datalib, variable, unit, data):
     }
 
 def process_metadata(
-        data_source_df,
-        existing_df=None,
+        data_source,
         inp_datalib=None,
         inp_variable=None,
         inp_unit=None
         ):
+    '''
+    Flexibly create a dictionary of subdictionaries containing Pandas
+        DataFrames with associated metadata containing ALARA output data for
+        different variables. Allows for processing of either existing
+        DataFrames, with the requirement that the user provide the relevant
+        data source, evaulated variable, and its relevant units to be packaged
+        into a metadata dictionary. Alternatively, this function can directly
+        read in an ALARA output file and parse all tables and their metadata
+        internally.
+
+    Arguments:
+        data_source (dict or pandas.core.frame.DataFrame): ALARA output data.
+            If parsing directly from ALARA output files, data_source must be
+            formatted as a dictionary of the form:
+
+            data_source = {
+                Data Library 1 : path/to/output/file/for/data/library1,
+                Data Library 2 : path/to/output/file/for/data/library2
+            }
+
+            If processing a preexisting DataFrame, then data_source is just
+            the DataFrame itself.
+        inp_datalib (str or None, optional): Data source of the selected
+            DataFrame. Required if processing a preexisting DataFrame;
+            irrelevant if parsing directly from ALARA output files.
+            (Defaults to None)
+        inp_variable (str or None, optional): Evaluated variable for the
+            selected DataFrame. Required if processing a preexisting
+            DataFrame; irrelevant if parsing directly from ALARA output files.
+            (Defaults to None)
+        inp_unit (str or None, optional): Appropriate unit for the evaluated
+            variable for the selected DataFrame. Required if processing a
+            preexisting DataFrame; irrelevant if parsing directly from ALARA
+            output files.
+            (Defaults to None)
+
+    '''
     
     dfs = {}
 
-    if existing_df:
-        dfs.update(make_entry(inp_datalib, inp_variable, inp_unit, data_source_df))
+    if type(data_source) == pd.core.frame.DataFrame:
+        dfs.update(
+            make_entry(inp_datalib, inp_variable, inp_unit, data_source)
+        )
         return dfs
 
-    for datalib, output_path in data_source_df.items():
+    for datalib, output_path in data_source.items():
         output_tables = parse_tables(output_path)
         for key, data in output_tables.items():
             variable_w_unit, _ = key.split(' - ')
@@ -291,7 +347,7 @@ def tabular_comp(dfs, variable):
     indices = []
     datalibs = list({v['Data Source'] for v in dfs.values()})[::-1]
     for datalib in datalibs:
-        df = dfs[f'{datalib}_{variable}']['Data'].set_index('isotope')
+        df = dfs[f'{datalib} {variable}']['Data'].set_index('isotope')
         df = df.apply(pd.to_numeric, errors='coerce')
         comp_dfs.append(df)
         indices.append(set(df.index))
@@ -352,7 +408,7 @@ def maximum_contribution(dfs, variable, unique_isotopes):
 
     datalibs = list({v['Data Source'] for v in dfs.values()})[::-1]
     for datalib in datalibs:
-        df = dfs[f'{datalib}_{variable}']['Data']
+        df = dfs[f'{datalib} {variable}']['Data']
         df_rel = relative_contributions(df)
         numeric_cols = df.columns.difference(['isotope'])
 
@@ -377,6 +433,22 @@ def maximum_contribution(dfs, variable, unique_isotopes):
     return unique_isotopes
 
 def split_label(label):
+    '''
+    Split the string of a series' label to extract the isotope being plotted
+        and (conditionally) the data source attached to it. The data source
+        will be present parenthetically if two data sources are being plotted
+        comparitavely.
+
+    Arguments:
+        label (str): Series label generated from 
+            ax.get_legend_handles_labels().
+    
+    Returns:
+        isotope (str): Isotope being plotted.
+        datalib (str): Data source of plotted isotope. Will be empty string
+            for single data source plotting.
+    '''
+
     if '(' in label:
         parts = label.split('(')
         isotope = parts[0].strip()
@@ -387,6 +459,19 @@ def split_label(label):
     return isotope, datalib
 
 def reformat_isotope(isotope):
+    '''
+    Restructure the string describing an isotope to capitalize its first
+        letter and place the atomic number in a superscript for cleaner
+        presentation in legend. Skips "isotope" entries of "total" or "Other".
+
+    Arguments:
+        isotope (str): Identifier of the isotope of the form element-A.
+    
+    Returns:
+        isotope (str): Reformatted identifier of the isotope of the form
+            ᴬelement.
+    '''
+
     if isotope == 'total' or isotope == 'Other':
         return isotope
     else:
@@ -395,6 +480,21 @@ def reformat_isotope(isotope):
         return f'$^{{{A}}}\\mathrm{{{element}}}$'
 
 def construct_legend(ax, data_comp=False):
+    '''
+    Create a custom pyplot legend that exists outside of the grid itself and
+        can group like-isotopes together from compared data sets for clarity.
+    
+    Arguments:
+        ax (matplotlib.axes._axes.Axes): Matplotlib axis object of the plot
+            being constructed.
+        data_comp (bool, optional): Boolean setting for comparison between two
+            data sets.
+            (Defaults to False)
+    
+    Returns:
+        None
+    '''
+
     handles, labels = ax.get_legend_handles_labels()
     labels_sorted_with_handles = sorted(
         zip(labels, handles),
