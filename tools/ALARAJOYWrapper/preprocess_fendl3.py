@@ -55,13 +55,6 @@ def write_dsv(dsv_path, cumulative_data):
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv_file.write(str(-1))
 
-def args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--fendlFileDir', '-f', required=False, nargs=1
-    )
-    return parser.parse_args()
-
 def main():
     """
     Main method when run as a command line script.
