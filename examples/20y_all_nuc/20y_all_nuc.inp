@@ -1,0 +1,1747 @@
+geometry rectangular
+
+volume
+     1    h:1
+     1    h:2
+     1    he:3
+     1    he:4
+     1    li:6
+     1    li:7
+     1    be:9
+     1    b:10
+     1    b:11
+     1    c:12
+     1    c:13
+     1    n:14
+     1    n:15
+     1    o:16
+     1    o:17
+     1    o:18
+     1    f:19
+     1    ne:20
+     1    ne:21
+     1    ne:22
+     1    na:23
+     1    mg:24
+     1    mg:25
+     1    mg:26
+     1    al:27
+     1    si:28
+     1    si:29
+     1    si:30
+     1    p:31
+     1    s:32
+     1    s:33
+     1    s:34
+     1    s:36
+     1    cl:35
+     1    cl:37
+     1    ar:36
+     1    ar:38
+     1    ar:40
+     1    k:39
+     1    k:41
+     1    ca:40
+     1    ca:42
+     1    ca:43
+     1    ca:44
+     1    ca:46
+     1    ca:48
+     1    sc:45
+     1    ti:46
+     1    ti:47
+     1    ti:48
+     1    ti:49
+     1    ti:50
+     1    v:50
+     1    v:51
+     1    cr:50
+     1    cr:52
+     1    cr:53
+     1    cr:54
+     1    mn:55
+     1    fe:54
+     1    fe:56
+     1    fe:57
+     1    fe:58
+     1    co:59
+     1    ni:58
+     1    ni:60
+     1    ni:61
+     1    ni:62
+     1    ni:64
+     1    cu:63
+     1    cu:65
+     1    zn:64
+     1    zn:66
+     1    zn:67
+     1    zn:68
+     1    zn:70
+     1    ga:69
+     1    ga:71
+     1    ge:70
+     1    ge:72
+     1    ge:73
+     1    ge:74
+     1    ge:76
+     1    as:75
+     1    se:74
+     1    se:76
+     1    se:77
+     1    se:78
+     1    se:80
+     1    se:82
+     1    br:79
+     1    br:81
+     1    kr:78
+     1    kr:80
+     1    kr:82
+     1    kr:83
+     1    kr:84
+     1    kr:86
+     1    rb:85
+     1    rb:87
+     1    sr:84
+     1    sr:86
+     1    sr:87
+     1    sr:88
+     1    y:89
+     1    zr:90
+     1    zr:91
+     1    zr:92
+     1    zr:94
+     1    zr:96
+     1    nb:93
+     1    mo:92
+     1    mo:94
+     1    mo:95
+     1    mo:96
+     1    mo:97
+     1    mo:98
+     1    mo:100
+     1    ru:96
+     1    ru:98
+     1    ru:99
+     1    ru:100
+     1    ru:101
+     1    ru:102
+     1    ru:104
+     1    rh:103
+     1    pd:102
+     1    pd:104
+     1    pd:105
+     1    pd:106
+     1    pd:108
+     1    pd:110
+     1    ag:107
+     1    ag:109
+     1    cd:106
+     1    cd:108
+     1    cd:110
+     1    cd:111
+     1    cd:112
+     1    cd:113
+     1    cd:114
+     1    cd:116
+     1    in:113
+     1    in:115
+     1    sn:112
+     1    sn:114
+     1    sn:115
+     1    sn:116
+     1    sn:117
+     1    sn:118
+     1    sn:119
+     1    sn:120
+     1    sn:122
+     1    sn:124
+     1    sb:121
+     1    sb:123
+     1    te:120
+     1    te:122
+     1    te:123
+     1    te:124
+     1    te:125
+     1    te:126
+     1    te:128
+     1    te:130
+     1    i:127
+     1    xe:124
+     1    xe:126
+     1    xe:128
+     1    xe:129
+     1    xe:130
+     1    xe:131
+     1    xe:132
+     1    xe:134
+     1    xe:136
+     1    cs:133
+     1    ba:130
+     1    ba:132
+     1    ba:134
+     1    ba:135
+     1    ba:136
+     1    ba:137
+     1    ba:138
+     1    la:138
+     1    la:139
+     1    ce:136
+     1    ce:138
+     1    ce:140
+     1    ce:142
+     1    pr:141
+     1    nd:142
+     1    nd:143
+     1    nd:144
+     1    nd:145
+     1    nd:146
+     1    nd:148
+     1    nd:150
+     1    sm:144
+     1    sm:147
+     1    sm:148
+     1    sm:149
+     1    sm:150
+     1    sm:152
+     1    sm:154
+     1    eu:151
+     1    eu:153
+     1    gd:152
+     1    gd:154
+     1    gd:155
+     1    gd:156
+     1    gd:157
+     1    gd:158
+     1    gd:160
+     1    tb:159
+     1    dy:156
+     1    dy:158
+     1    dy:160
+     1    dy:161
+     1    dy:162
+     1    dy:163
+     1    dy:164
+     1    ho:165
+     1    er:162
+     1    er:164
+     1    er:166
+     1    er:167
+     1    er:168
+     1    er:170
+     1    tm:169
+     1    yb:168
+     1    yb:170
+     1    yb:171
+     1    yb:172
+     1    yb:173
+     1    yb:174
+     1    yb:176
+     1    lu:175
+     1    lu:176
+     1    hf:174
+     1    hf:176
+     1    hf:177
+     1    hf:178
+     1    hf:179
+     1    hf:180
+     1    ta:181
+     1    w:180
+     1    w:182
+     1    w:183
+     1    w:184
+     1    w:186
+     1    re:185
+     1    re:187
+     1    os:184
+     1    os:186
+     1    os:187
+     1    os:188
+     1    os:189
+     1    os:190
+     1    os:192
+     1    ir:191
+     1    ir:193
+     1    pt:190
+     1    pt:192
+     1    pt:194
+     1    pt:195
+     1    pt:196
+     1    pt:198
+     1    au:197
+     1    hg:196
+     1    hg:198
+     1    hg:199
+     1    hg:200
+     1    hg:201
+     1    hg:202
+     1    hg:204
+     1    tl:203
+     1    tl:205
+     1    pb:204
+     1    pb:206
+     1    pb:207
+     1    pb:208
+     1    bi:209
+     1    th:232
+     1    pa:231
+     1    u:234
+     1    u:235
+     1    u:238
+end
+
+mat_loading
+    h:1     mix_h:1
+    h:2     mix_h:2
+    he:3    mix_he:3
+    he:4    mix_he:4
+    li:6    mix_li:6
+    li:7    mix_li:7
+    be:9    mix_be:9
+    b:10    mix_b:10
+    b:11    mix_b:11
+    c:12    mix_c:12
+    c:13    mix_c:13
+    n:14    mix_n:14
+    n:15    mix_n:15
+    o:16    mix_o:16
+    o:17    mix_o:17
+    o:18    mix_o:18
+    f:19    mix_f:19
+    ne:20   mix_ne:20
+    ne:21   mix_ne:21
+    ne:22   mix_ne:22
+    na:23   mix_na:23
+    mg:24   mix_mg:24
+    mg:25   mix_mg:25
+    mg:26   mix_mg:26
+    al:27   mix_al:27
+    si:28   mix_si:28
+    si:29   mix_si:29
+    si:30   mix_si:30
+    p:31    mix_p:31
+    s:32    mix_s:32
+    s:33    mix_s:33
+    s:34    mix_s:34
+    s:36    mix_s:36
+    cl:35   mix_cl:35
+    cl:37   mix_cl:37
+    ar:36   mix_ar:36
+    ar:38   mix_ar:38
+    ar:40   mix_ar:40
+    k:39    mix_k:39
+    k:41    mix_k:41
+    ca:40   mix_ca:40
+    ca:42   mix_ca:42
+    ca:43   mix_ca:43
+    ca:44   mix_ca:44
+    ca:46   mix_ca:46
+    ca:48   mix_ca:48
+    sc:45   mix_sc:45
+    ti:46   mix_ti:46
+    ti:47   mix_ti:47
+    ti:48   mix_ti:48
+    ti:49   mix_ti:49
+    ti:50   mix_ti:50
+    v:50    mix_v:50
+    v:51    mix_v:51
+    cr:50   mix_cr:50
+    cr:52   mix_cr:52
+    cr:53   mix_cr:53
+    cr:54   mix_cr:54
+    mn:55   mix_mn:55
+    fe:54   mix_fe:54
+    fe:56   mix_fe:56
+    fe:57   mix_fe:57
+    fe:58   mix_fe:58
+    co:59   mix_co:59
+    ni:58   mix_ni:58
+    ni:60   mix_ni:60
+    ni:61   mix_ni:61
+    ni:62   mix_ni:62
+    ni:64   mix_ni:64
+    cu:63   mix_cu:63
+    cu:65   mix_cu:65
+    zn:64   mix_zn:64
+    zn:66   mix_zn:66
+    zn:67   mix_zn:67
+    zn:68   mix_zn:68
+    zn:70   mix_zn:70
+    ga:69   mix_ga:69
+    ga:71   mix_ga:71
+    ge:70   mix_ge:70
+    ge:72   mix_ge:72
+    ge:73   mix_ge:73
+    ge:74   mix_ge:74
+    ge:76   mix_ge:76
+    as:75   mix_as:75
+    se:74   mix_se:74
+    se:76   mix_se:76
+    se:77   mix_se:77
+    se:78   mix_se:78
+    se:80   mix_se:80
+    se:82   mix_se:82
+    br:79   mix_br:79
+    br:81   mix_br:81
+    kr:78   mix_kr:78
+    kr:80   mix_kr:80
+    kr:82   mix_kr:82
+    kr:83   mix_kr:83
+    kr:84   mix_kr:84
+    kr:86   mix_kr:86
+    rb:85   mix_rb:85
+    rb:87   mix_rb:87
+    sr:84   mix_sr:84
+    sr:86   mix_sr:86
+    sr:87   mix_sr:87
+    sr:88   mix_sr:88
+    y:89    mix_y:89
+    zr:90   mix_zr:90
+    zr:91   mix_zr:91
+    zr:92   mix_zr:92
+    zr:94   mix_zr:94
+    zr:96   mix_zr:96
+    nb:93   mix_nb:93
+    mo:92   mix_mo:92
+    mo:94   mix_mo:94
+    mo:95   mix_mo:95
+    mo:96   mix_mo:96
+    mo:97   mix_mo:97
+    mo:98   mix_mo:98
+    mo:100  mix_mo:100
+    ru:96   mix_ru:96
+    ru:98   mix_ru:98
+    ru:99   mix_ru:99
+    ru:100  mix_ru:100
+    ru:101  mix_ru:101
+    ru:102  mix_ru:102
+    ru:104  mix_ru:104
+    rh:103  mix_rh:103
+    pd:102  mix_pd:102
+    pd:104  mix_pd:104
+    pd:105  mix_pd:105
+    pd:106  mix_pd:106
+    pd:108  mix_pd:108
+    pd:110  mix_pd:110
+    ag:107  mix_ag:107
+    ag:109  mix_ag:109
+    cd:106  mix_cd:106
+    cd:108  mix_cd:108
+    cd:110  mix_cd:110
+    cd:111  mix_cd:111
+    cd:112  mix_cd:112
+    cd:113  mix_cd:113
+    cd:114  mix_cd:114
+    cd:116  mix_cd:116
+    in:113  mix_in:113
+    in:115  mix_in:115
+    sn:112  mix_sn:112
+    sn:114  mix_sn:114
+    sn:115  mix_sn:115
+    sn:116  mix_sn:116
+    sn:117  mix_sn:117
+    sn:118  mix_sn:118
+    sn:119  mix_sn:119
+    sn:120  mix_sn:120
+    sn:122  mix_sn:122
+    sn:124  mix_sn:124
+    sb:121  mix_sb:121
+    sb:123  mix_sb:123
+    te:120  mix_te:120
+    te:122  mix_te:122
+    te:123  mix_te:123
+    te:124  mix_te:124
+    te:125  mix_te:125
+    te:126  mix_te:126
+    te:128  mix_te:128
+    te:130  mix_te:130
+    i:127   mix_i:127
+    xe:124  mix_xe:124
+    xe:126  mix_xe:126
+    xe:128  mix_xe:128
+    xe:129  mix_xe:129
+    xe:130  mix_xe:130
+    xe:131  mix_xe:131
+    xe:132  mix_xe:132
+    xe:134  mix_xe:134
+    xe:136  mix_xe:136
+    cs:133  mix_cs:133
+    ba:130  mix_ba:130
+    ba:132  mix_ba:132
+    ba:134  mix_ba:134
+    ba:135  mix_ba:135
+    ba:136  mix_ba:136
+    ba:137  mix_ba:137
+    ba:138  mix_ba:138
+    la:138  mix_la:138
+    la:139  mix_la:139
+    ce:136  mix_ce:136
+    ce:138  mix_ce:138
+    ce:140  mix_ce:140
+    ce:142  mix_ce:142
+    pr:141  mix_pr:141
+    nd:142  mix_nd:142
+    nd:143  mix_nd:143
+    nd:144  mix_nd:144
+    nd:145  mix_nd:145
+    nd:146  mix_nd:146
+    nd:148  mix_nd:148
+    nd:150  mix_nd:150
+    sm:144  mix_sm:144
+    sm:147  mix_sm:147
+    sm:148  mix_sm:148
+    sm:149  mix_sm:149
+    sm:150  mix_sm:150
+    sm:152  mix_sm:152
+    sm:154  mix_sm:154
+    eu:151  mix_eu:151
+    eu:153  mix_eu:153
+    gd:152  mix_gd:152
+    gd:154  mix_gd:154
+    gd:155  mix_gd:155
+    gd:156  mix_gd:156
+    gd:157  mix_gd:157
+    gd:158  mix_gd:158
+    gd:160  mix_gd:160
+    tb:159  mix_tb:159
+    dy:156  mix_dy:156
+    dy:158  mix_dy:158
+    dy:160  mix_dy:160
+    dy:161  mix_dy:161
+    dy:162  mix_dy:162
+    dy:163  mix_dy:163
+    dy:164  mix_dy:164
+    ho:165  mix_ho:165
+    er:162  mix_er:162
+    er:164  mix_er:164
+    er:166  mix_er:166
+    er:167  mix_er:167
+    er:168  mix_er:168
+    er:170  mix_er:170
+    tm:169  mix_tm:169
+    yb:168  mix_yb:168
+    yb:170  mix_yb:170
+    yb:171  mix_yb:171
+    yb:172  mix_yb:172
+    yb:173  mix_yb:173
+    yb:174  mix_yb:174
+    yb:176  mix_yb:176
+    lu:175  mix_lu:175
+    lu:176  mix_lu:176
+    hf:174  mix_hf:174
+    hf:176  mix_hf:176
+    hf:177  mix_hf:177
+    hf:178  mix_hf:178
+    hf:179  mix_hf:179
+    hf:180  mix_hf:180
+    ta:181  mix_ta:181
+    w:180   mix_w:180
+    w:182   mix_w:182
+    w:183   mix_w:183
+    w:184   mix_w:184
+    w:186   mix_w:186
+    re:185  mix_re:185
+    re:187  mix_re:187
+    os:184  mix_os:184
+    os:186  mix_os:186
+    os:187  mix_os:187
+    os:188  mix_os:188
+    os:189  mix_os:189
+    os:190  mix_os:190
+    os:192  mix_os:192
+    ir:191  mix_ir:191
+    ir:193  mix_ir:193
+    pt:190  mix_pt:190
+    pt:192  mix_pt:192
+    pt:194  mix_pt:194
+    pt:195  mix_pt:195
+    pt:196  mix_pt:196
+    pt:198  mix_pt:198
+    au:197  mix_au:197
+    hg:196  mix_hg:196
+    hg:198  mix_hg:198
+    hg:199  mix_hg:199
+    hg:200  mix_hg:200
+    hg:201  mix_hg:201
+    hg:202  mix_hg:202
+    hg:204  mix_hg:204
+    tl:203  mix_tl:203
+    tl:205  mix_tl:205
+    pb:204  mix_pb:204
+    pb:206  mix_pb:206
+    pb:207  mix_pb:207
+    pb:208  mix_pb:208
+    bi:209  mix_bi:209
+    th:232  mix_th:232
+    pa:231  mix_pa:231
+    u:234   mix_u:234
+    u:235   mix_u:235
+    u:238   mix_u:238
+end
+
+mixture mix_h:1
+    element h:1 1 1.0
+end
+
+mixture mix_h:2
+    element h:2 1 1.0
+end
+
+mixture mix_he:3
+    element he:3 1 1.0
+end
+
+mixture mix_he:4
+    element he:4 1 1.0
+end
+
+mixture mix_li:6
+    element li:6 1 1.0
+end
+
+mixture mix_li:7
+    element li:7 1 1.0
+end
+
+mixture mix_be:9
+    element be:9 1 1.0
+end
+
+mixture mix_b:10
+    element b:10 1 1.0
+end
+
+mixture mix_b:11
+    element b:11 1 1.0
+end
+
+mixture mix_c:12
+    element c:12 1 1.0
+end
+
+mixture mix_c:13
+    element c:13 1 1.0
+end
+
+mixture mix_n:14
+    element n:14 1 1.0
+end
+
+mixture mix_n:15
+    element n:15 1 1.0
+end
+
+mixture mix_o:16
+    element o:16 1 1.0
+end
+
+mixture mix_o:17
+    element o:17 1 1.0
+end
+
+mixture mix_o:18
+    element o:18 1 1.0
+end
+
+mixture mix_f:19
+    element f:19 1 1.0
+end
+
+mixture mix_ne:20
+    element ne:20 1 1.0
+end
+
+mixture mix_ne:21
+    element ne:21 1 1.0
+end
+
+mixture mix_ne:22
+    element ne:22 1 1.0
+end
+
+mixture mix_na:23
+    element na:23 1 1.0
+end
+
+mixture mix_mg:24
+    element mg:24 1 1.0
+end
+
+mixture mix_mg:25
+    element mg:25 1 1.0
+end
+
+mixture mix_mg:26
+    element mg:26 1 1.0
+end
+
+mixture mix_al:27
+    element al:27 1 1.0
+end
+
+mixture mix_si:28
+    element si:28 1 1.0
+end
+
+mixture mix_si:29
+    element si:29 1 1.0
+end
+
+mixture mix_si:30
+    element si:30 1 1.0
+end
+
+mixture mix_p:31
+    element p:31 1 1.0
+end
+
+mixture mix_s:32
+    element s:32 1 1.0
+end
+
+mixture mix_s:33
+    element s:33 1 1.0
+end
+
+mixture mix_s:34
+    element s:34 1 1.0
+end
+
+mixture mix_s:36
+    element s:36 1 1.0
+end
+
+mixture mix_cl:35
+    element cl:35 1 1.0
+end
+
+mixture mix_cl:37
+    element cl:37 1 1.0
+end
+
+mixture mix_ar:36
+    element ar:36 1 1.0
+end
+
+mixture mix_ar:38
+    element ar:38 1 1.0
+end
+
+mixture mix_ar:40
+    element ar:40 1 1.0
+end
+
+mixture mix_k:39
+    element k:39 1 1.0
+end
+
+mixture mix_k:41
+    element k:41 1 1.0
+end
+
+mixture mix_ca:40
+    element ca:40 1 1.0
+end
+
+mixture mix_ca:42
+    element ca:42 1 1.0
+end
+
+mixture mix_ca:43
+    element ca:43 1 1.0
+end
+
+mixture mix_ca:44
+    element ca:44 1 1.0
+end
+
+mixture mix_ca:46
+    element ca:46 1 1.0
+end
+
+mixture mix_ca:48
+    element ca:48 1 1.0
+end
+
+mixture mix_sc:45
+    element sc:45 1 1.0
+end
+
+mixture mix_ti:46
+    element ti:46 1 1.0
+end
+
+mixture mix_ti:47
+    element ti:47 1 1.0
+end
+
+mixture mix_ti:48
+    element ti:48 1 1.0
+end
+
+mixture mix_ti:49
+    element ti:49 1 1.0
+end
+
+mixture mix_ti:50
+    element ti:50 1 1.0
+end
+
+mixture mix_v:50
+    element v:50 1 1.0
+end
+
+mixture mix_v:51
+    element v:51 1 1.0
+end
+
+mixture mix_cr:50
+    element cr:50 1 1.0
+end
+
+mixture mix_cr:52
+    element cr:52 1 1.0
+end
+
+mixture mix_cr:53
+    element cr:53 1 1.0
+end
+
+mixture mix_cr:54
+    element cr:54 1 1.0
+end
+
+mixture mix_mn:55
+    element mn:55 1 1.0
+end
+
+mixture mix_fe:54
+    element fe:54 1 1.0
+end
+
+mixture mix_fe:56
+    element fe:56 1 1.0
+end
+
+mixture mix_fe:57
+    element fe:57 1 1.0
+end
+
+mixture mix_fe:58
+    element fe:58 1 1.0
+end
+
+mixture mix_co:59
+    element co:59 1 1.0
+end
+
+mixture mix_ni:58
+    element ni:58 1 1.0
+end
+
+mixture mix_ni:60
+    element ni:60 1 1.0
+end
+
+mixture mix_ni:61
+    element ni:61 1 1.0
+end
+
+mixture mix_ni:62
+    element ni:62 1 1.0
+end
+
+mixture mix_ni:64
+    element ni:64 1 1.0
+end
+
+mixture mix_cu:63
+    element cu:63 1 1.0
+end
+
+mixture mix_cu:65
+    element cu:65 1 1.0
+end
+
+mixture mix_zn:64
+    element zn:64 1 1.0
+end
+
+mixture mix_zn:66
+    element zn:66 1 1.0
+end
+
+mixture mix_zn:67
+    element zn:67 1 1.0
+end
+
+mixture mix_zn:68
+    element zn:68 1 1.0
+end
+
+mixture mix_zn:70
+    element zn:70 1 1.0
+end
+
+mixture mix_ga:69
+    element ga:69 1 1.0
+end
+
+mixture mix_ga:71
+    element ga:71 1 1.0
+end
+
+mixture mix_ge:70
+    element ge:70 1 1.0
+end
+
+mixture mix_ge:72
+    element ge:72 1 1.0
+end
+
+mixture mix_ge:73
+    element ge:73 1 1.0
+end
+
+mixture mix_ge:74
+    element ge:74 1 1.0
+end
+
+mixture mix_ge:76
+    element ge:76 1 1.0
+end
+
+mixture mix_as:75
+    element as:75 1 1.0
+end
+
+mixture mix_se:74
+    element se:74 1 1.0
+end
+
+mixture mix_se:76
+    element se:76 1 1.0
+end
+
+mixture mix_se:77
+    element se:77 1 1.0
+end
+
+mixture mix_se:78
+    element se:78 1 1.0
+end
+
+mixture mix_se:80
+    element se:80 1 1.0
+end
+
+mixture mix_se:82
+    element se:82 1 1.0
+end
+
+mixture mix_br:79
+    element br:79 1 1.0
+end
+
+mixture mix_br:81
+    element br:81 1 1.0
+end
+
+mixture mix_kr:78
+    element kr:78 1 1.0
+end
+
+mixture mix_kr:80
+    element kr:80 1 1.0
+end
+
+mixture mix_kr:82
+    element kr:82 1 1.0
+end
+
+mixture mix_kr:83
+    element kr:83 1 1.0
+end
+
+mixture mix_kr:84
+    element kr:84 1 1.0
+end
+
+mixture mix_kr:86
+    element kr:86 1 1.0
+end
+
+mixture mix_rb:85
+    element rb:85 1 1.0
+end
+
+mixture mix_rb:87
+    element rb:87 1 1.0
+end
+
+mixture mix_sr:84
+    element sr:84 1 1.0
+end
+
+mixture mix_sr:86
+    element sr:86 1 1.0
+end
+
+mixture mix_sr:87
+    element sr:87 1 1.0
+end
+
+mixture mix_sr:88
+    element sr:88 1 1.0
+end
+
+mixture mix_y:89
+    element y:89 1 1.0
+end
+
+mixture mix_zr:90
+    element zr:90 1 1.0
+end
+
+mixture mix_zr:91
+    element zr:91 1 1.0
+end
+
+mixture mix_zr:92
+    element zr:92 1 1.0
+end
+
+mixture mix_zr:94
+    element zr:94 1 1.0
+end
+
+mixture mix_zr:96
+    element zr:96 1 1.0
+end
+
+mixture mix_nb:93
+    element nb:93 1 1.0
+end
+
+mixture mix_mo:92
+    element mo:92 1 1.0
+end
+
+mixture mix_mo:94
+    element mo:94 1 1.0
+end
+
+mixture mix_mo:95
+    element mo:95 1 1.0
+end
+
+mixture mix_mo:96
+    element mo:96 1 1.0
+end
+
+mixture mix_mo:97
+    element mo:97 1 1.0
+end
+
+mixture mix_mo:98
+    element mo:98 1 1.0
+end
+
+mixture mix_mo:100
+    element mo:100 1 1.0
+end
+
+mixture mix_ru:96
+    element ru:96 1 1.0
+end
+
+mixture mix_ru:98
+    element ru:98 1 1.0
+end
+
+mixture mix_ru:99
+    element ru:99 1 1.0
+end
+
+mixture mix_ru:100
+    element ru:100 1 1.0
+end
+
+mixture mix_ru:101
+    element ru:101 1 1.0
+end
+
+mixture mix_ru:102
+    element ru:102 1 1.0
+end
+
+mixture mix_ru:104
+    element ru:104 1 1.0
+end
+
+mixture mix_rh:103
+    element rh:103 1 1.0
+end
+
+mixture mix_pd:102
+    element pd:102 1 1.0
+end
+
+mixture mix_pd:104
+    element pd:104 1 1.0
+end
+
+mixture mix_pd:105
+    element pd:105 1 1.0
+end
+
+mixture mix_pd:106
+    element pd:106 1 1.0
+end
+
+mixture mix_pd:108
+    element pd:108 1 1.0
+end
+
+mixture mix_pd:110
+    element pd:110 1 1.0
+end
+
+mixture mix_ag:107
+    element ag:107 1 1.0
+end
+
+mixture mix_ag:109
+    element ag:109 1 1.0
+end
+
+mixture mix_cd:106
+    element cd:106 1 1.0
+end
+
+mixture mix_cd:108
+    element cd:108 1 1.0
+end
+
+mixture mix_cd:110
+    element cd:110 1 1.0
+end
+
+mixture mix_cd:111
+    element cd:111 1 1.0
+end
+
+mixture mix_cd:112
+    element cd:112 1 1.0
+end
+
+mixture mix_cd:113
+    element cd:113 1 1.0
+end
+
+mixture mix_cd:114
+    element cd:114 1 1.0
+end
+
+mixture mix_cd:116
+    element cd:116 1 1.0
+end
+
+mixture mix_in:113
+    element in:113 1 1.0
+end
+
+mixture mix_in:115
+    element in:115 1 1.0
+end
+
+mixture mix_sn:112
+    element sn:112 1 1.0
+end
+
+mixture mix_sn:114
+    element sn:114 1 1.0
+end
+
+mixture mix_sn:115
+    element sn:115 1 1.0
+end
+
+mixture mix_sn:116
+    element sn:116 1 1.0
+end
+
+mixture mix_sn:117
+    element sn:117 1 1.0
+end
+
+mixture mix_sn:118
+    element sn:118 1 1.0
+end
+
+mixture mix_sn:119
+    element sn:119 1 1.0
+end
+
+mixture mix_sn:120
+    element sn:120 1 1.0
+end
+
+mixture mix_sn:122
+    element sn:122 1 1.0
+end
+
+mixture mix_sn:124
+    element sn:124 1 1.0
+end
+
+mixture mix_sb:121
+    element sb:121 1 1.0
+end
+
+mixture mix_sb:123
+    element sb:123 1 1.0
+end
+
+mixture mix_te:120
+    element te:120 1 1.0
+end
+
+mixture mix_te:122
+    element te:122 1 1.0
+end
+
+mixture mix_te:123
+    element te:123 1 1.0
+end
+
+mixture mix_te:124
+    element te:124 1 1.0
+end
+
+mixture mix_te:125
+    element te:125 1 1.0
+end
+
+mixture mix_te:126
+    element te:126 1 1.0
+end
+
+mixture mix_te:128
+    element te:128 1 1.0
+end
+
+mixture mix_te:130
+    element te:130 1 1.0
+end
+
+mixture mix_i:127
+    element i:127 1 1.0
+end
+
+mixture mix_xe:124
+    element xe:124 1 1.0
+end
+
+mixture mix_xe:126
+    element xe:126 1 1.0
+end
+
+mixture mix_xe:128
+    element xe:128 1 1.0
+end
+
+mixture mix_xe:129
+    element xe:129 1 1.0
+end
+
+mixture mix_xe:130
+    element xe:130 1 1.0
+end
+
+mixture mix_xe:131
+    element xe:131 1 1.0
+end
+
+mixture mix_xe:132
+    element xe:132 1 1.0
+end
+
+mixture mix_xe:134
+    element xe:134 1 1.0
+end
+
+mixture mix_xe:136
+    element xe:136 1 1.0
+end
+
+mixture mix_cs:133
+    element cs:133 1 1.0
+end
+
+mixture mix_ba:130
+    element ba:130 1 1.0
+end
+
+mixture mix_ba:132
+    element ba:132 1 1.0
+end
+
+mixture mix_ba:134
+    element ba:134 1 1.0
+end
+
+mixture mix_ba:135
+    element ba:135 1 1.0
+end
+
+mixture mix_ba:136
+    element ba:136 1 1.0
+end
+
+mixture mix_ba:137
+    element ba:137 1 1.0
+end
+
+mixture mix_ba:138
+    element ba:138 1 1.0
+end
+
+mixture mix_la:138
+    element la:138 1 1.0
+end
+
+mixture mix_la:139
+    element la:139 1 1.0
+end
+
+mixture mix_ce:136
+    element ce:136 1 1.0
+end
+
+mixture mix_ce:138
+    element ce:138 1 1.0
+end
+
+mixture mix_ce:140
+    element ce:140 1 1.0
+end
+
+mixture mix_ce:142
+    element ce:142 1 1.0
+end
+
+mixture mix_pr:141
+    element pr:141 1 1.0
+end
+
+mixture mix_nd:142
+    element nd:142 1 1.0
+end
+
+mixture mix_nd:143
+    element nd:143 1 1.0
+end
+
+mixture mix_nd:144
+    element nd:144 1 1.0
+end
+
+mixture mix_nd:145
+    element nd:145 1 1.0
+end
+
+mixture mix_nd:146
+    element nd:146 1 1.0
+end
+
+mixture mix_nd:148
+    element nd:148 1 1.0
+end
+
+mixture mix_nd:150
+    element nd:150 1 1.0
+end
+
+mixture mix_sm:144
+    element sm:144 1 1.0
+end
+
+mixture mix_sm:147
+    element sm:147 1 1.0
+end
+
+mixture mix_sm:148
+    element sm:148 1 1.0
+end
+
+mixture mix_sm:149
+    element sm:149 1 1.0
+end
+
+mixture mix_sm:150
+    element sm:150 1 1.0
+end
+
+mixture mix_sm:152
+    element sm:152 1 1.0
+end
+
+mixture mix_sm:154
+    element sm:154 1 1.0
+end
+
+mixture mix_eu:151
+    element eu:151 1 1.0
+end
+
+mixture mix_eu:153
+    element eu:153 1 1.0
+end
+
+mixture mix_gd:152
+    element gd:152 1 1.0
+end
+
+mixture mix_gd:154
+    element gd:154 1 1.0
+end
+
+mixture mix_gd:155
+    element gd:155 1 1.0
+end
+
+mixture mix_gd:156
+    element gd:156 1 1.0
+end
+
+mixture mix_gd:157
+    element gd:157 1 1.0
+end
+
+mixture mix_gd:158
+    element gd:158 1 1.0
+end
+
+mixture mix_gd:160
+    element gd:160 1 1.0
+end
+
+mixture mix_tb:159
+    element tb:159 1 1.0
+end
+
+mixture mix_dy:156
+    element dy:156 1 1.0
+end
+
+mixture mix_dy:158
+    element dy:158 1 1.0
+end
+
+mixture mix_dy:160
+    element dy:160 1 1.0
+end
+
+mixture mix_dy:161
+    element dy:161 1 1.0
+end
+
+mixture mix_dy:162
+    element dy:162 1 1.0
+end
+
+mixture mix_dy:163
+    element dy:163 1 1.0
+end
+
+mixture mix_dy:164
+    element dy:164 1 1.0
+end
+
+mixture mix_ho:165
+    element ho:165 1 1.0
+end
+
+mixture mix_er:162
+    element er:162 1 1.0
+end
+
+mixture mix_er:164
+    element er:164 1 1.0
+end
+
+mixture mix_er:166
+    element er:166 1 1.0
+end
+
+mixture mix_er:167
+    element er:167 1 1.0
+end
+
+mixture mix_er:168
+    element er:168 1 1.0
+end
+
+mixture mix_er:170
+    element er:170 1 1.0
+end
+
+mixture mix_tm:169
+    element tm:169 1 1.0
+end
+
+mixture mix_yb:168
+    element yb:168 1 1.0
+end
+
+mixture mix_yb:170
+    element yb:170 1 1.0
+end
+
+mixture mix_yb:171
+    element yb:171 1 1.0
+end
+
+mixture mix_yb:172
+    element yb:172 1 1.0
+end
+
+mixture mix_yb:173
+    element yb:173 1 1.0
+end
+
+mixture mix_yb:174
+    element yb:174 1 1.0
+end
+
+mixture mix_yb:176
+    element yb:176 1 1.0
+end
+
+mixture mix_lu:175
+    element lu:175 1 1.0
+end
+
+mixture mix_lu:176
+    element lu:176 1 1.0
+end
+
+mixture mix_hf:174
+    element hf:174 1 1.0
+end
+
+mixture mix_hf:176
+    element hf:176 1 1.0
+end
+
+mixture mix_hf:177
+    element hf:177 1 1.0
+end
+
+mixture mix_hf:178
+    element hf:178 1 1.0
+end
+
+mixture mix_hf:179
+    element hf:179 1 1.0
+end
+
+mixture mix_hf:180
+    element hf:180 1 1.0
+end
+
+mixture mix_ta:181
+    element ta:181 1 1.0
+end
+
+mixture mix_w:180
+    element w:180 1 1.0
+end
+
+mixture mix_w:182
+    element w:182 1 1.0
+end
+
+mixture mix_w:183
+    element w:183 1 1.0
+end
+
+mixture mix_w:184
+    element w:184 1 1.0
+end
+
+mixture mix_w:186
+    element w:186 1 1.0
+end
+
+mixture mix_re:185
+    element re:185 1 1.0
+end
+
+mixture mix_re:187
+    element re:187 1 1.0
+end
+
+mixture mix_os:184
+    element os:184 1 1.0
+end
+
+mixture mix_os:186
+    element os:186 1 1.0
+end
+
+mixture mix_os:187
+    element os:187 1 1.0
+end
+
+mixture mix_os:188
+    element os:188 1 1.0
+end
+
+mixture mix_os:189
+    element os:189 1 1.0
+end
+
+mixture mix_os:190
+    element os:190 1 1.0
+end
+
+mixture mix_os:192
+    element os:192 1 1.0
+end
+
+mixture mix_ir:191
+    element ir:191 1 1.0
+end
+
+mixture mix_ir:193
+    element ir:193 1 1.0
+end
+
+mixture mix_pt:190
+    element pt:190 1 1.0
+end
+
+mixture mix_pt:192
+    element pt:192 1 1.0
+end
+
+mixture mix_pt:194
+    element pt:194 1 1.0
+end
+
+mixture mix_pt:195
+    element pt:195 1 1.0
+end
+
+mixture mix_pt:196
+    element pt:196 1 1.0
+end
+
+mixture mix_pt:198
+    element pt:198 1 1.0
+end
+
+mixture mix_au:197
+    element au:197 1 1.0
+end
+
+mixture mix_hg:196
+    element hg:196 1 1.0
+end
+
+mixture mix_hg:198
+    element hg:198 1 1.0
+end
+
+mixture mix_hg:199
+    element hg:199 1 1.0
+end
+
+mixture mix_hg:200
+    element hg:200 1 1.0
+end
+
+mixture mix_hg:201
+    element hg:201 1 1.0
+end
+
+mixture mix_hg:202
+    element hg:202 1 1.0
+end
+
+mixture mix_hg:204
+    element hg:204 1 1.0
+end
+
+mixture mix_tl:203
+    element tl:203 1 1.0
+end
+
+mixture mix_tl:205
+    element tl:205 1 1.0
+end
+
+mixture mix_pb:204
+    element pb:204 1 1.0
+end
+
+mixture mix_pb:206
+    element pb:206 1 1.0
+end
+
+mixture mix_pb:207
+    element pb:207 1 1.0
+end
+
+mixture mix_pb:208
+    element pb:208 1 1.0
+end
+
+mixture mix_bi:209
+    element bi:209 1 1.0
+end
+
+mixture mix_th:232
+    element th:232 1 1.0
+end
+
+mixture mix_pa:231
+    element pa:231 1 1.0
+end
+
+mixture mix_u:234
+    element u:234 1 1.0
+end
+
+mixture mix_u:235
+    element u:235 1 1.0
+end
+
+mixture mix_u:238
+    element u:238 1 1.0
+end
+
+material_lib ../../../data/matlib.sample
+element_lib ../../../data/nuclib.std
+data_library alaralib fendl2bin
+
+output zone
+    number_density
+end
+
+#     flux name    fluxin file   norm   shift   unused
+flux  my_flux     .../../ref_flux_files/fluxfnsfIBfw_518MW.txt 1     0      default
+
+# Specify the irradiation schedule below.
+# Syntax is found in the ALARA user manual
+schedule    my_schedule
+    20 y my_flux my_pulse_history 0  s
+end
+pulsehistory  my_pulse_history
+    1    0.0    s
+end
+
+#other parameters
+truncation 1e-15
+dump_file dump_20y_all_nuc.file
