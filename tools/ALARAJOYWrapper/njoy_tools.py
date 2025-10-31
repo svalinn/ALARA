@@ -3,21 +3,7 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
-import os
-
-def set_directory():
-    '''
-    Establish the location of the current working directory to ensure that if
-        process_fendl3.2.py is called from ALARA/src/DataLib, FENDL3.2b
-        preprocessing files can be properly located, created, and modified.
-    Arguments:
-        None
-    Returns:
-        dir (pathlib._local.PosixPath): Path to the current working directory
-            (CWD) from which the command was called.
-    '''
-
-    return Path(__file__).resolve().parent
+import shutil
 
 def set_directory():
     '''
@@ -38,7 +24,7 @@ dir = set_directory()
 INPUT = dir / 'njoy.inp'
 
 # Create input file general template
-njoy_input = Template(Template(
+njoy_prep_input = Template(Template(
 """
 moder
  $NIN_moder $NOUT_moder/
@@ -62,15 +48,6 @@ unresr
  $MATD/
 gaspr
  $NENDF $NPEND_gaspr $NOUT_gaspr/
-groupr/
- $NENDF $NPEND $NGOUT1 $NGOUT2/
- $mat_id $IGN $IGG $IWT $LORD $NTEMP $NSIGZ $IPRINT_groupr/
- $title/
- $groupr_temp
- $SIGZ_groupr/
- $reactions
- $MATD/
- 0/
 stop
 """
 ).safe_substitute(
@@ -90,6 +67,24 @@ stop
     SIGZ_unresr = 1.e10,   # sigma zero values (including infinity) for UNRESR
     NPEND_gaspr = 24,  # unit for input pendf tape (equivalent to NOUT_unresr)
     NOUT_gaspr = 25,                      # unit for GASPR-produced pendf tape
+    MATD = 0,                                # next mat number to be processed
+))
+
+groupr_input = Template(Template(
+"""
+groupr/
+ $NENDF $NPEND $NGOUT1 $NGOUT2/
+ $mat_id $IGN $IGG $IWT $LORD $NTEMP $NSIGZ $IPRINT_groupr/
+ $title/
+ $groupr_temp
+ $SIGZ_groupr/
+ $reactions
+ $MATD/
+ 0/
+stop
+"""
+).safe_substitute(
+    NENDF = 21,                # unit for endf tape (equivalent to NOUT_moder)
     NPEND = 25,         # unit for final PENDF tape (equivalent to NOUT_gaspr)
     NGOUT1 = 0,                         # unit for input gout tape (default=0)
     NGOUT2 = 31,                       # unit for output gout tape (default=0)
@@ -97,6 +92,8 @@ stop
     IGG = 0,                                    # gamma group structure option
     IWT = 11,            # weight function option (corresponding to Vitamin E)
     LORD = 0,                                                 # Legendre order
+    NTEMP = 1,                            # number of temperatures (default=1)
+    NSIGZ = 1,                            # number of sigma zeroes (default=1)
     IPRINT_groupr = 1, # long print option (0/1=minimum/maximum) - (default=1)
     ISMOOTH = 1,        # switch on/off smoother operation (1/0, default=1=on)
     SIGZ_groupr = 0,       # sigma zero values (including infinity) for GROUPR
@@ -120,7 +117,9 @@ elements = [
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
-def fill_input_template(material_id, MTs, element, A, mt_dict, temperature): 
+def fill_input_template(
+        material_id, MTs, element, A, mt_dict, temperature, run_type=None
+        ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
         into the template for the NJOY input card. These values are the
@@ -131,7 +130,7 @@ def fill_input_template(material_id, MTs, element, A, mt_dict, temperature):
         material_id (int): Unique material identifier, defined by the ENDF-6
             Formats Manual
             (https://www.oecd-nea.org/dbdata/data/manual-endf/endf102.pdf).
-        MTs (list of int): List of reaction types (MT's) present in the
+        MTs (list or set): List or set of reaction types (MT's) present in the
             ENDF/PENDF files.
         element (str): Chemical symbol for element of interest.
         A (str or int): Mass number for selected isotope.
@@ -140,12 +139,18 @@ def fill_input_template(material_id, MTs, element, A, mt_dict, temperature):
         mt_dict (dict): Reference dictionary containing reaction information
             for each MT number pre-defined in the ENDF manual.
         temperature (float): Temperature at which to run NJOY modules.
+        run_type (str or None): Specification for type of NJOY run to be
+            prepared (i.e. preparing and creating PENDFs or converting to a
+            group-structured GENDF).
+            (Defaults to None)
     
     Returns:
         template (str): Modified template with the material-
             specific information substituted in for the $identifiers,
             converted to a string.
     """
+    
+    inp = groupr_input if run_type == 'GROUPR' else njoy_prep_input
 
     Z = str(elements[element]).zfill(2)
     title = f'"{Z}-{element}-{A} for TENDL 2017"'
@@ -156,7 +161,7 @@ def fill_input_template(material_id, MTs, element, A, mt_dict, temperature):
         mtname = mt_dict[MT]['Reaction']
         card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
     card9 = '\n '.join(card9_lines)
-    return njoy_input.substitute(
+    return inp.substitute(
         element=element,
         a=A,
         mat_id=material_id,
@@ -261,12 +266,12 @@ def ensure_gendf_markers(gendf_path, matb):
     with open(gendf_path, 'w') as gendf_file:
         gendf_file.write(file_str)
 
-def run_njoy(element, A, matb):
+def run_njoy(element, A, matb, file_capture):
     """
-    Use subprocess to run NJOY given a pre-written input card to convert a
-        pair of ENDF and PENDF files to a GENDF file and save it locally.
-        The ENDF and PENDF files must be stored in the same directory and be
-        titled 'tape20' and 'tape21' respectively for a successful NJOY run.
+    Use subprocess to run NJOY given a pre-written input card to either
+        prepare, format, and produce a PENDF file with NJOY modules RECONR,
+        BROADR, UNRESR, AND GASPR or to use an ENDF/PENDF file pair to create
+        a groupwise GENDF file.
     
     Arguments:
         cards (dict): Dictionary containing each "card"
@@ -276,6 +281,8 @@ def run_njoy(element, A, matb):
             If the target is an isomer, "m" after the mass number,
             so A must be input as a string.
         matb (int): Unique material ID for the material in the files.
+        file_capture (str): Type of file to be saved from this particular 
+            iteration of NJOY runs. Either "PENDF" or "GENDF".
     
     Returns:
         file_metadata['GENDF']['save'] (pathlib._local.PosixPath or None):
@@ -295,20 +302,27 @@ def run_njoy(element, A, matb):
                         text=True, capture_output=True)
 
     # If the run is successful, log out the output
-    # and make a copy of the file as a .GENDF file
+    # and make a copy of the file as a GENDF or PENDF file
     if not result.stderr:
-        for fileinfo in file_metadata.values():
-            save_path = dir / fileinfo['dir'] / f'tendl_2017_{element}{str(A).zfill(3)}'
+        fileinfo = file_metadata[file_capture]
+        save_path = (
+            dir / 
+            fileinfo['dir'] / 
+            f'tendl_2017_{element}{str(A).zfill(3)}'
+        )
 
-            # Ensure existence of save directory for PENDF/GENDF files
-            (dir / fileinfo['dir']).mkdir(exist_ok=True)
+        # Ensure existence of save directory for PENDF/GENDF files
+        (dir / fileinfo['dir']).mkdir(exist_ok=True)
 
-            fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
-            Path(f'tape{fileinfo['tape']}').rename(fileinfo['save'])
-            if fileinfo['ext'] == '.gendf':
-                ensure_gendf_markers(fileinfo['save'], matb)
-
-    return file_metadata['GENDF']['save'], result.stderr
+        fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
+        tape_save = Path(f'tape{fileinfo['tape']}')
+        if fileinfo['ext'] == '.gendf':
+            tape_save.rename(fileinfo['save'])
+            ensure_gendf_markers(fileinfo['save'], matb)
+        else:
+            shutil.copy(tape_save, fileinfo['save'])
+            
+        return fileinfo['save'], result.stderr
 
 def cleanup_njoy_files(output_path = dir / 'njoy_ouput'):
     """
@@ -324,7 +338,7 @@ def cleanup_njoy_files(output_path = dir / 'njoy_ouput'):
         None
     """
 
-    intermediate_files = [INPUT] + [Path(f'tape{i}') for i in range(20,25)]
+    intermediate_files = [INPUT] + [Path(f'tape{i}') for i in range(20,26)]
     for file in intermediate_files:
         Path.unlink(file)
     Path('output').rename(output_path)
