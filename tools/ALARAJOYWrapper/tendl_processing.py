@@ -192,17 +192,23 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
     """
 
     gendf_data = []
+    daughters = []
     for MT in MTs:
         sigma_list = extract_cross_sections(file_obj, MT)
-
-        # For gas production totals, track emitted gas as the daughter
-        if mt_dict[MT]['Gas']:
-            dKZA = gas_kzas[mt_dict[MT]['Gas']]
+        gas = mt_dict[MT]['Gas']
+        # Daughter calculated either as an emitted gas nucleus or
+        # as the residual for non-gaseous emissions. 
+        dKZA = gas_kzas[gas] if gas else pKZA + mt_dict[MT]['delKZA']
         
-        # For standard reactions, daughter KZAs are calculated: pKZA - delKZA
-        else:
-            dKZA = pKZA + mt_dict[MT]['delKZA']
-            
+        # Special handling for 2 identical gas daughters
+        if dKZA in daughters and dKZA == (pKZA + 10) / 2:
+            daughters.remove(dKZA)
+        
+        if dKZA in daughters:
+            continue
+
+        daughters.append(dKZA)
+
         # Skip high (2 digit) isomeric states
         if not mt_dict[MT]['High M']:
             gendf_data.append({
