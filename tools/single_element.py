@@ -44,9 +44,14 @@ dump_file dump_singleElement
 
 cooling
 	1e-5 y
+    1e-4 y
+    1e-3 y
 	1e-2 y
+    1e-1 y
 	1 y
+    10 y
 	100 y
+    1000 y
 	10000 y
 end
 
