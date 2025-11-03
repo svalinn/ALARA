@@ -43,7 +43,7 @@ end
 ##
 ## skip 0 entries in the flux file
 #     fluxname filename                 norm  shift unused
-flux  flux_1  ../ref_flux_files/fluxfnsfIBfw_518MW.txt  1.0   0   default
+flux  flux_1  ref_flux_files/fluxfnsfIBfw_518MW.txt  1.0   0   default
 
 ## Irradiation is pulsed by default, so the delay terms are set to zero (0)
 ## to make the problem steady state
