@@ -481,7 +481,7 @@ def construct_legend(ax, data_comp=False):
 
 #---------------------------- Plotting functions -----------------------------
 
-def plot_single_element(
+def plot_single_response(
         df_dicts, 
         total=False, 
         element='', 
