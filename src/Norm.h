@@ -44,7 +44,7 @@ public:
   
   /// In-line destructor destroys the whole list by deleting 'next'.
   ~Norm()
-    { delete next; };
+    { delete next; next=NULL; };
 
   /// Overloaded assignment operator
   /** This inline assignment operator behaves similarly to the copy

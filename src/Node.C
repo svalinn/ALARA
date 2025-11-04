@@ -231,7 +231,9 @@ void Node::loadWDR(char *fname)
   char isoName[16], sym[5], *strPtr, isoFlag;
   double wdr;
   Node dataAccess;
-  ifstream wdrFile(searchNonXSPath(fname),ios::in);
+  char* filepath = searchNonXSPath(fname);
+  ifstream wdrFile(filepath,ios::in);
+  free(filepath);
 
   wdrCache.erase(wdrCache.begin(),wdrCache.end());
 

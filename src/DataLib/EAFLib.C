@@ -7,8 +7,12 @@ EAFLib::EAFLib(const char *transFname, const char *decayFname, const char *alara
 {
   if (transFname != NULL && decayFname != NULL)
     {
-      inTrans.open(searchNonXSPath(transFname), ios::in);
-      inDecay.open(searchNonXSPath(decayFname), ios::in);
+      char* transFilePath = searchNonXSPath(transFname);
+      char* decayFilePath = searchNonXSPath(decayFname);
+      inTrans.open(transFilePath, ios::in);
+      inDecay.open(decayFilePath, ios::in);
+      free(transFilePath);
+      free(decayFilePath);
 
       makeBinLib(alaraFname);
     }
@@ -35,15 +39,15 @@ EAFLib::~EAFLib()
 
   for (rxnNum=0;rxnNum<MAXEAFRXNS;rxnNum++)
     {
-      delete xSection[rxnNum];
-      delete emitted[rxnNum];
+      delete[] xSection[rxnNum];
+      delete[] emitted[rxnNum];
     }
-  delete xSection;
-  delete emitted;
-  delete transKza;
+  delete[] xSection;
+  delete[] emitted;
+  delete[] transKza;
 
-  delete decayKza;
-  delete bRatio;
+  delete[] decayKza;
+  delete[] bRatio;
 
   inTrans.close();
   inDecay.close();
@@ -832,15 +836,15 @@ int EAFLib::getGammaData()
 
   if (numGSpec == 0)
     {
-      delete numDisc;
-      delete nIntReg;
-      delete nPnts;
-      delete discGammaE;
-      delete discGammaI;
-      delete intRegB;
-      delete intRegT;
-      delete contX;
-      delete contY;
+      delete[] numDisc;
+      delete[] nIntReg;
+      delete[] nPnts;
+      delete[] discGammaE;
+      delete[] discGammaI;
+      delete[] intRegB;
+      delete[] intRegT;
+      delete[] contX;
+      delete[] contY;
     }
 
 

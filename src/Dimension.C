@@ -43,8 +43,9 @@ Dimension::Dimension(const Dimension& d) :
 
 Dimension::~Dimension()
 {
-  delete next; 
   delete zoneListHead; 
+  delete next; 
+  next = NULL;
 }  
 
 /** This assignment operator functions similarly to the copy

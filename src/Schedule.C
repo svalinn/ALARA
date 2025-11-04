@@ -24,7 +24,7 @@
     blank list head.  Otherwise, it creates and fills the storage for
     'schedName', initializes 'usedAsSub' to FALSE, creates a blank
     list of ScheduleItems, and initializes 'next' to NULL. */
-Schedule::Schedule(const char* name)
+Schedule::Schedule(const char* name) : calcSched(NULL)
 {
   schedName = NULL;
   if (name != NULL)
@@ -69,9 +69,11 @@ Schedule::Schedule(const Schedule &s)
     and then destroys list of Schedules by deleting 'next'. */
 Schedule::~Schedule()
 {
-  delete schedName; 
+  delete[] schedName; 
   delete itemListHead; 
+  delete calcSched;
   delete next; 
+  next = NULL;
 }
 
 

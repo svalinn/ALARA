@@ -25,6 +25,8 @@ int VolFlux::nCPEG = 0;
 VolFlux::VolFlux()
 {
   nflux = NULL;
+  CPfluxStorage = NULL;
+  CPflux = NULL;
 
   if (nGroups>0)
     {
@@ -48,11 +50,6 @@ VolFlux::VolFlux()
 		  CPflux[i][j] = 0;
 		}
 	    }
-	}
-      else
-	{
-	  CPfluxStorage = NULL;
-	  CPflux = NULL;
 	}
     }
 
