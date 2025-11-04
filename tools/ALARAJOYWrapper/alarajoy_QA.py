@@ -633,3 +633,56 @@ def plot_single_response(
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
     plt.show()
+
+def single_data_source_pie(df_dict, time):
+    '''
+    Create a pie chart showing the breakdown of isotopes contributing to a
+        given variable tracked by an ALARA run at a given cooling time.
+    Arguments:
+        df_dict (dict): Dictionary containing an ALARA output DataFrame and
+            its metadata, of the form:
+            df_dict = {
+                'Data Source' : (Either 'fendl2' or 'fendl3'),
+                'Variable'    : (Any ALARA output variable, dependent on ALARA
+                                 run parameters),
+                'Unit'        : (Respective unit matching the above variable),
+                'Data'        : (DataFrame containing ALARA output data for
+                                 the given data source, variable, and unit)
+            }
+        time (str): Cooling time at which to assess the isotopic breakdown.
+            Must be of the same form as the df_dict['Data'] non-index column
+            names (i.e. 'shutdown', '1 y', etc.).
+    Returns:
+        None
+    '''
+
+    df = aggregate_small_percentages(df_dict['Data'])
+    total = df[time].sum()
+    df['fraction'] = df[time] / total * 100
+    df = df[df['fraction'].round(1) > 0]
+
+    wedges, _ = plt.pie(
+        df[time],
+        labels=df['isotope'],
+        wedgeprops={'edgecolor' : 'black', 'linewidth' : 1}
+        )
+
+    legend_labels = [
+        f'{isotope} : {frac:.1f}%'
+        for isotope, frac in zip(df['isotope'], df['fraction'])
+    ]
+
+    plt.title(
+        f'{df_dict['Data Source']}: Radioisotope Proportional Contribution to'
+        f' {df_dict['Variable']} at {time}'
+    )
+
+    plt.legend(
+        wedges,
+        legend_labels,
+        title='Isotopes',
+        loc='center left',
+        bbox_to_anchor=(-0.375, 0.75),
+    )
+
+    plt.show()
