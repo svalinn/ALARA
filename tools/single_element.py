@@ -3,6 +3,7 @@ import pandas as pd
 from alara_output_parser import parse_tables
 from string import Template
 import subprocess
+from numpy import array
 
 #-------------------- Plotting Helper Functions --------------------
 
@@ -44,14 +45,9 @@ dump_file dump_singleElement
 
 cooling
 	1e-5 y
-    1e-4 y
-    1e-3 y
 	1e-2 y
-    1e-1 y
 	1 y
-    10 y
 	100 y
-    1000 y
 	10000 y
 end
 
@@ -917,3 +913,22 @@ def plot_isotope_diff(diff, isotope, variable, seconds=True):
         )
     plt.grid()
     plt.show()
+
+def plot_fispact_comp(datalibs, dfs, variable):
+    fispact = array([
+        2.30e+14, 2.27e+14, 1.40e+14, 9.96e+13, 1.20e+07, 1.10e+07
+    ])
+    plt.figure(figsize=(10,6))
+    for datalib in datalibs:
+        df = dfs[f'{datalib} {variable}']['Data']
+        times = process_time_vals(df, seconds=False)
+        _, alara_df = separate_total(df)
+        plt.plot(times, alara_df.values[0][1:] / fispact,
+                 label = f'ALARA ({datalib}) / FISPACT-II')
+        
+
+    plt.xscale('log')
+    plt.xlabel('Time After Irradiation (y)')
+    plt.ylabel('Ratio of Activity')
+    plt.grid()
+    plt.legend()
