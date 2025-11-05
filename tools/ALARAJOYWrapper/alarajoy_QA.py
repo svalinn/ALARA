@@ -117,7 +117,7 @@ def run_alara(element, libname):
 def make_entry(datalib, variable, unit, data):
     '''
     Construct a dictionary entry for a single Pandas DataFrame and its
-        associated metadata for updating into a larger metadata dictionary.
+        associated metadata for updating into a larger data dictionary.
     Arguments:
         datalib (str): Data source for the DataFrame (i.e. fendl2,
             ALARAJOY-fendl3, etc.).
@@ -141,7 +141,7 @@ def make_entry(datalib, variable, unit, data):
         }
     }
 
-def process_metadata(
+def process_data(
         data_source,
         inp_datalib=None,
         inp_variable=None,
@@ -153,7 +153,7 @@ def process_metadata(
         different variables. Allows for processing of either existing
         DataFrames, with the requirement that the user provide the relevant
         data source, evaulated variable, and its relevant units to be packaged
-        into a metadata dictionary. Alternatively, this function can directly
+        into a data dictionary. Alternatively, this function can directly
         read in an ALARA output file and parse all tables and their metadata
         internally.
     Arguments:
