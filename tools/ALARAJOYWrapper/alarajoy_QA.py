@@ -263,6 +263,30 @@ def separate_total(alara_df):
         alara_df_isotopes = alara_df.drop(alara_df[mask_total].index)
 
         return alara_df_isotopes, alara_df_total
+    
+def relative_contributions(df):
+    '''
+    Create a new DataFrame representing the relative proportion of the given
+        variable for the original DataFrame each isotope contributes at each
+        time column. This relative value is relative to the total value at
+        each time step, which may differ over time, depending on the variable.
+    
+    Arguments:
+        df (pandas.core.frame.DataFrame): DataFrame containing all of the
+            radioisotope data for a given variable.
+        
+    Returns:
+        df_rel (pandas.core.frame.DataFrame): Modified DataFrame containing
+            relative contributions for each isotope at each time.
+    '''
+
+    df_isotopes, df_total = separate_total(df)
+    df_rel = pd.DataFrame()
+    df_rel['isotope'] = df_isotopes['isotope']
+    for col in df.columns[1:]:
+        df_rel[col] = df_isotopes[col] / float(df_total[col].iloc[0])
+
+    return df_rel
 
 def aggregate_small_percentages(df, relative=False, threshold=0.05):
     '''
