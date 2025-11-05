@@ -408,6 +408,138 @@ def specify_data(
 
     return df, times
 
+def tabular_comp(dfs, variable):
+    '''
+    Create a new DataFrame comparing the difference isotopic contributions to
+        the given ALARA output variable at each cooling time interval. Given
+        the possibility of certain isotopes only being represented in one data
+        set or the other, store those isotopes in a dictionary by data source.
+    
+    Arguments:
+        dfs (list of dicts): List of dictionaries containing ALARA output
+            DataFrames and their metadata, of the form:
+            df_dict = {
+                'Data Source' : (Either 'fendl2' or 'fendl3'),
+                'Variable'    : (Any ALARA output variable, dependent on ALARA
+                                 run parameters),
+                'Unit'        : (Respective unit matching the above variable),
+                'Data'        : (DataFrame containing ALARA output data for
+                                 the given data source, variable, and unit)
+            }
+        variable (str): Select ALARA output variable (i.e. Specific_Activity,
+            Number_Density, etc.).
+    
+    Returns:
+        diff (pandas.core.frame.DataFrame): DataFrame containing rows of the
+            union of isotopes between the two initial DataFrames to be
+            compared. Each cell contains the difference between the two at the
+            column's cooling time value. Isotopes not represented in one data
+            set or the other have cell values filled with 0.0 for the
+            subtraction calculation.
+        unique_isotopes (dict): Dictionary with two keys, one for each of the
+            data sources to be compared. Within each key, empty
+            subdictionaries exist for each isotope represented only in that
+            data source. The form of unique_isotopes is as such:
+            unique_isotpes = {
+                'fendl2' : {
+                    'Isotope_n1' : {},
+                    ...,
+                    'Isotope_N' : {}
+                    },
+                'fendl3' : {
+                    'Isotope_m1' : {},
+                    ...,
+                    Isotope_M : {}
+                }
+            }
+    '''
+
+    comp_dfs = []
+    indices = []
+    datalibs = list({v['Data Source'] for v in dfs.values()})[::-1]
+    for datalib in datalibs:
+        df = dfs[f'{datalib} {variable}']['Data'].set_index('isotope')
+        df = df.apply(pd.to_numeric, errors='coerce')
+        comp_dfs.append(df)
+        indices.append(set(df.index))
+
+    diff = comp_dfs[0].subtract(comp_dfs[1], fill_value=0).reset_index()
+
+    unique_isotopes = {
+        datalib: {iso: {} for iso in indices[i] -indices[1-i]}
+        for i, datalib in enumerate(datalibs) 
+    }
+
+    return diff, unique_isotopes
+
+def maximum_contribution(dfs, variable, unique_isotopes):
+    ''''
+    Calculate the maximum absolute and relative contributions of each isotope
+        that is only represented in one data source and not the other. Store
+        this data in the preexisting unique_isotopes dictionary by populating
+        this data, as well as the cooling time at which these contributions
+        occur to each isotope's empty dictionary.
+    
+    Arguments:
+        dfs (list of dicts): List of dictionaries containing ALARA output
+            DataFrames and their metadata, of the form:
+            df_dict = {
+                'Data Source' : (Either 'fendl2' or 'fendl3'),
+                'Variable'    : (Any ALARA output variable, dependent on ALARA
+                                 run parameters),
+                'Unit'        : (Respective unit matching the above variable),
+                'Data'        : (DataFrame containing ALARA output data for
+                                 the given data source, variable, and unit)
+            }
+        variable (str): Select ALARA output variable (i.e. Specific_Activity,
+            Number_Density, etc.).
+        unique_isotopes (dict): Dictionary with two keys, one for each of the
+            data sources to be compared. Within each key, empty
+            subdictionaries exist for each isotope represented only in that
+            data source. The form of unique_isotopes is as such:
+            unique_isotpes = {
+                'fendl2' : {
+                    'Isotope_n1' : {},
+                    ...,
+                    'Isotope_N' : {}
+                    },
+                'fendl3' : {
+                    'Isotope_m1' : {},
+                    ...,
+                    Isotope_M : {}
+                }
+            }
+    Returns:
+        unique_isotopes (dict): Modified input dictionary, with data populated
+            for each isotope within each data source.
+    '''
+
+    datalibs = list({v['Data Source'] for v in dfs.values()})[::-1]
+    for datalib in datalibs:
+        df = dfs[f'{datalib} {variable}']['Data']
+        df_rel = relative_contributions(df)
+        numeric_cols = df.columns.difference(['isotope'])
+
+        sources = {
+            f'Absolute {variable}' : df,
+            'Relative'             : df_rel
+        }
+
+        for isotope in unique_isotopes[datalib]:
+            subdict = {}
+            for kind, data in sources.items():
+                row = data.loc[data['isotope'] == isotope, numeric_cols]
+                values = row.values[0]
+                max_val = values.max()
+                max_time = numeric_cols[values.argmax()]
+                subdict[kind] = {
+                    'Maximum Contribution': float(max_val),
+                    'Time of Maximum Contribution': max_time
+                }
+            unique_isotopes[datalib][isotope] = subdict
+
+    return unique_isotopes
+
 def split_label(label):
     '''
     Split the string of a series' label to extract the isotope being plotted
@@ -709,4 +841,40 @@ def single_data_source_pie(df_dict, time):
         bbox_to_anchor=(-0.375, 0.75),
     )
 
+    plt.show()
+
+def plot_isotope_diff(diff, isotope, variable, seconds=True):
+    '''
+    Create a plot of the difference in a variable's value for a given isotope
+        between two datasets over time.
+    Arguments:
+        diff (pandas.core.frame.DataFrame): DataFrame containing rows of the
+            union of isotopes between the two initial DataFrames to be
+            compared. Each cell contains the difference between the two at the
+            column's cooling time value. Isotopes not represented in one data
+            set or the other have cell values filled with 0.0 for the
+            subtraction calculation.
+        isotope (str): Isotope to be selected from diff of the form element-A.
+        variable (str): Dependent variable for the y-axis from the ALARA
+            output tables.
+        seconds (bool, optional): Option to convert cooling times from years
+            to seconds.
+            (Defaults to True)
+    
+    Returns:
+        None
+    '''
+
+    isotope_diff = diff[diff['isotope'] == isotope]
+
+    times_s = process_time_vals(isotope_diff, seconds)
+    plt.plot(times_s, list(isotope_diff.values[0])[1:])
+    plt.xscale('log')
+    plt.ylabel(f'Difference in {variable}')
+    plt.xlabel(f'Time ({'s' if seconds else 'y'})')
+    plt.title(
+        f'Evolution of Difference in {variable} \n'
+        f'between fendl2 and fendl3 for {isotope} vs Cooling Time'
+        )
+    plt.grid()
     plt.show()
