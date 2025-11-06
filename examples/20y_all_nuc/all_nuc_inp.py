@@ -25,7 +25,6 @@ def make_mat_mix(nuc_list):
     return load_list, mix_list    
 
 def edit_template(vol_list, load_list, mix_list, template_alara_inp):
-    temp_lines = []
     blocks = ['volume', 'mat_loading', 'mixture']
     line_lists = [vol_list, load_list, mix_list]
     new_inp = open('20y_all_nuc.inp', 'w')
