@@ -2,6 +2,9 @@ import numpy as np
 import argparse
 import yaml
 
+# This script produces the ALARA input file 20y_all_nuc.inp in this directory, with a different element library and some formatting
+# differences that may need to be addressed manually
+
 def read_nuclib(nuclib, template_alara_inp):
     nuclib_lines = open(nuclib, 'r').readlines()  
     return nuclib_lines
@@ -25,6 +28,8 @@ def make_mat_mix(nuc_list):
     return load_list, mix_list    
 
 def edit_template(vol_list, load_list, mix_list, template_alara_inp):
+    # Uses an existing ALARA input file (in this case ../singleElement_20y_inp/alara_inp_fe_20y) and appends all lines
+    # starting from the material_lib line to a new input file.
     blocks = ['volume', 'mat_loading', 'mixture']
     line_lists = [vol_list, load_list, mix_list]
     new_inp = open('20y_all_nuc.inp', 'w')
