@@ -1,0 +1,4 @@
+nuclib : ../../data/nuclib.std
+template_alara_inp : ../singleElement_20y_inp/alara_inp_fe_20y
+
+volume : 1
