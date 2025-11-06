@@ -12,7 +12,7 @@ def read_nuclib(nuclib, template_alara_inp):
 def make_volume_block(nuclib_lines, volume):
     nuc_list = []
     vol_list = []
-    for line_idx, line in enumerate(nuclib_lines):
+    for line in nuclib_lines:
         line = line.strip().split()
         if ':' in line[0]:
             nuc_list.append(line[0])
