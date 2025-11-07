@@ -14,9 +14,10 @@ def make_volume_block(nuclib_lines, volume):
     vol_list = []
     for line in nuclib_lines:
         line = line.strip().split()
-        if ':' in line[0]:
-            nuc_list.append(line[0])
-            vol_list.append(f'\t {volume}\t{line[0]}\n')
+        nuc = line[0]
+        if ':' in nuc:
+            nuc_list.append(nuc)
+            vol_list.append(f'\t {volume}\t{nuc}\n')
     return nuc_list, vol_list  
 
 def make_mat_mix(nuc_list):
