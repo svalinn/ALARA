@@ -147,8 +147,6 @@ class TableParser:
             df.to_csv(filename, index=False)
 
 class DataProcessing:
-    def __init__(self):
-        self.data_entries = {}
     
     # ---------- Utility Methods ----------
     
@@ -303,8 +301,9 @@ class DataProcessing:
     
     # ---------- Core Processing ----------
 
+    @classmethod
     def process_data(
-            self,
+            cls,
             data_source,
             inp_datalib=None,
             inp_variable=None,
@@ -364,7 +363,7 @@ class DataProcessing:
 
         if isinstance(data_source, pd.DataFrame):
             dfs.update(
-                self.make_entry(
+                cls.make_entry(
                     inp_datalib, inp_variable, inp_unit, data_source
                 )
             )
@@ -377,10 +376,9 @@ class DataProcessing:
                 variable_w_unit, _ = key.split(' - ')
                 variable, unit = variable_w_unit.split(' [')
                 dfs.update(
-                    self.make_entry(datalib, variable, unit.strip(']'), data)
+                    cls.make_entry(datalib, variable, unit.strip(']'), data)
                 )
         
-        self.data_entries.update(dfs)
         return dfs
 
 ###########################################
