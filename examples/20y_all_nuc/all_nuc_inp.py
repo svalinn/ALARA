@@ -10,30 +10,25 @@ def read_nuclib(nuclib, template_alara_inp):
     return nuclib_lines
 
 def make_volume_block(nuclib_lines, volume):
-    nuc_list = []
     vol_list = []
+    load_list = []
+    mix_list = []
     for line in nuclib_lines:
         line = line.strip().split()
         nuc = line[0]
         if ':' in nuc:
-            nuc_list.append(nuc)
             vol_list.append(f'\t {volume}\t{nuc}\n')
-    return nuc_list, vol_list  
+            load_list.append(f'\t{nuc}\t mix_{nuc}\n')
+            mix_list.append(f'mixture mix_{nuc}\n\t element {nuc} 1 1.0 \nend \n')
 
-def make_mat_mix(nuc_list):
-    load_list = []
-    mix_list = []
-    for nuc in nuc_list:
-        load_list.append(f'\t{nuc}\t mix_{nuc}\n')
-        mix_list.append(f'mixture mix_{nuc}\n\t element {nuc} 1 1.0 \nend \n')
-    return load_list, mix_list    
+    return vol_list, load_list, mix_list  
 
 def edit_template(vol_list, load_list, mix_list, template_alara_inp):
     # Uses an existing ALARA input file (in this case ../singleElement_20y_inp/alara_inp_fe_20y) and appends all lines
     # starting from the material_lib line to a new input file.
     blocks = ['volume', 'mat_loading', 'mixture']
     line_lists = [vol_list, load_list, mix_list]
-    new_inp = open('20y_all_nuc.inp', 'w')
+    new_inp = open('20y_all_nuc_test.inp', 'w')
     new_inp.write('geometry rectangular \n \n')
     for block_id, block in enumerate(line_lists):
         if block_id != 2:
@@ -78,13 +73,9 @@ def main():
     volume = params['volume']
 
     nuclib_lines= read_nuclib(nuclib, template_alara_inp)
-    nuc_list, vol_list = make_volume_block(nuclib_lines, volume)
-    load_list, mix_list = make_mat_mix(nuc_list)
-
+    vol_list, load_list, mix_list = make_volume_block(nuclib_lines, volume)
 
     edit_template(vol_list, load_list, mix_list, template_alara_inp)
-
-
 
 if __name__ == '__main__':
     main()    
