@@ -26,6 +26,6 @@ _(Most codes can take a mixture of elements and generate isotopic compositions f
 ## List of Examples:
 - Single element examples:
    * Example of irradiating Fe for 2 years in a typical fusion reactor with DCLL blanket
-     - [singleElement](singleElement.md)
+     - [singleElement_2y](singleElement_2y/README.md)
    * Fe irradiated for 20 years under the FNSF-DCLL neutron spectrum
      - [singleElement_20y_inp](singleElement_20y_inp/alara_inp_fe_20y)
