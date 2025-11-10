@@ -231,7 +231,7 @@ def plot_single_response(
 
     Arguments:
         df_dicts (dict or list): Single dictionary containing an ALARA output 
-            DataFrame and its metadata, of the form:
+            ALARADFrame and its metadata, of the form:
             df_dict = {
                 'Run Label'   : (Distinguisher between runs),
                 'Variable'    : (Any ALARA output variable, dependent on ALARA
