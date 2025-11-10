@@ -157,31 +157,8 @@ def process_data(
         read in an ALARA output file and parse all tables and their metadata
         internally.
     Arguments:
-        data_source (dict or pandas.core.frame.DataFrame): ALARA output data.
-            If parsing directly from ALARA output files, data_source must be
-            formatted as a dictionary of the form:
-            data_source = {
-                Data Library 1 : path/to/output/file/for/data/library1,
-                Data Library 2 : path/to/output/file/for/data/library2
-            }
-            If processing a preexisting DataFrame, then data_source is just
-            the DataFrame itself.
-        inp_datalib (str or None, optional): Data source of the selected
-            DataFrame. Required if processing a preexisting DataFrame;
-            irrelevant if parsing directly from ALARA output files.
-            (Defaults to None)
-        inp_variable (str or None, optional): Evaluated variable for the
-            selected DataFrame. Required if processing a preexisting
-            DataFrame; irrelevant if parsing directly from ALARA output files.
-            (Defaults to None)
-        inp_unit (str or None, optional): Appropriate unit for the evaluated
-            variable for the selected DataFrame. Required if processing a
-            preexisting DataFrame; irrelevant if parsing directly from ALARA
-            output files.
-            (Defaults to None)
-    Returns:
-        dfs (list of dicts): List of dictionaries containing ALARA output
-            DataFrames and their metadata, of the form:
+        df_dicts (dict or list): Single dictionary containing an ALARA output 
+            ALARADFrame and its metadata, of the form:
             df_dict = {
                 'Data Source' : (Either 'fendl2' or 'fendl3'),
                 'Variable'    : (Any ALARA output variable, dependent on ALARA
