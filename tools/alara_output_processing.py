@@ -3,7 +3,7 @@ import re
 import argparse
 from io import StringIO
 
-class TableParser:
+class FileParser:
 
     def __init__(self, filepath: str):
         self.filepath = filepath
@@ -12,31 +12,31 @@ class TableParser:
     # ---------- Utility and Helper Methods ----------
 
     @staticmethod
-    def normalize_header(header_line: str):
+    def _normalize_header(header_line: str):
         return re.sub(r'(\d+)\s+([a-zA-Z]+)', r'\1_\2', header_line)
 
     @staticmethod
-    def sanitize_filename(name: str):
+    def _sanitize_filename(name: str):
         return re.sub(r'[<>:"/\\|?*\[\]\(\)\s]+', '_', name)
 
     @staticmethod
-    def is_new_parameter(line):
+    def _is_new_parameter(line):
         return line.startswith('***') and line.endswith('***')
 
     @staticmethod
-    def is_new_block(line):
+    def _is_new_block(line):
         return line.startswith('Interval #')
 
     @staticmethod
-    def is_table_header(line):
+    def _is_table_header(line):
         return line.startswith('isotope')
 
     @staticmethod
-    def is_separator(line):
+    def _is_separator(line):
         return line.startswith('=')
 
     @staticmethod
-    def is_end_of_table(line):
+    def _is_end_of_table(line):
         return line.startswith('total')
 
     # ---------- Core Parsing Logic ----------
@@ -47,11 +47,11 @@ class TableParser:
             current_block
         ):
             '''
-            Parse a block of table lines with StringIO into a Pandas DataFrame
-                and store in the results dictionary.
+            Parse a block of table lines with StringIO into an ALARADFrame and
+                store in the results dictionary.
             
             Arguments:
-                self
+                self (alara_output_processing.FileParser): FileParser object.
                 current_table_lines (list of str): Lines of the current table,
                     each stored as a separate string.
                 results (dict): Dictionary that stores all parsed tables,
@@ -65,22 +65,21 @@ class TableParser:
                 None
             '''
 
-            df = pd.read_csv(
-                StringIO('\n'.join(current_table_lines)),
-                sep=r'\s+'
-            )
+            adf = ALARADFrame(pd.read_csv(
+                StringIO('\n'.join(current_table_lines)), sep=r'\s+'
+            ))
 
-            df.columns = [c.replace('_', '') for c in df.columns]
+            adf.columns = [c.replace('_', '') for c in adf.columns]
             key = f'{current_parameter} - {current_block}'
-            self.results[key] = df
+            self.results[key] = adf
 
-    def parse_output(self):
+    def extract_tables(self):
         '''
         Reads an ALARA output file, identifies all data tables contained
-            within, and stores each as a Pandas DataFrame in a dictionary.
+            within, and stores each as an ALARADFrame in a dictionary.
 
         Arguments:
-            self
+            self (alara_output_processing.FileParser): FileParser object.
 
         Returns:
             results (dict): Dictionary that stores all parsed tables,
@@ -98,25 +97,25 @@ class TableParser:
         for line in lines:
             line = line.strip()
 
-            if self.is_new_parameter(line):
+            if self._is_new_parameter(line):
                 current_parameter = line.strip('* ').strip()
                 continue
 
-            if self.is_new_block(line):
+            if self._is_new_block(line):
                 current_block = line.rstrip(':')
                 continue
 
-            if self.is_table_header(line):
+            if self._is_table_header(line):
                 inside_table = True
-                current_table_lines = [self.normalize_header(line)]
+                current_table_lines = [self._normalize_header(line)]
                 continue
 
-            if inside_table and self.is_separator(line):
+            if inside_table and self._is_separator(line):
                 continue
 
             if inside_table:
                 current_table_lines.append(line)
-                if self.is_end_of_table(line):
+                if self._is_end_of_table(line):
                     if current_parameter and current_block:
                         self._parse_table_data(
                             current_table_lines,
@@ -136,58 +135,34 @@ class TableParser:
             their own CSV files.
 
         Arguments:
-            self
+            self (alara_output_processing.FileParser): FileParser object.
         
         Returns:
             None
         '''
 
         for key, df in self.results.items():
-            filename = self.sanitize_filename(key) + '.csv'
+            filename = self._sanitize_filename(key) + '.csv'
             df.to_csv(filename, index=False)
 
-class DataProcessing:
-    
-    # ---------- Utility Methods ----------
-    
-    @staticmethod
-    def make_entry(datalib, variable, unit, data):
-        '''
-        Construct a dictionary entry for a single Pandas DataFrame and its
-            associated metadata for updating into a larger data dictionary.
-        Arguments:
-            datalib (str): Data source for the DataFrame (i.e. fendl2,
-                ALARAJOY-fendl3, etc.).
-            variable (str): Dependent variable evaluated in DataFrame (i.e.
-                Number Density, Specific Activity, etc.).
-            unit (str): Associated units for the above variable (i.e. 
-                atoms/kg, Bq/kg, etc.).
-            data (pandas.core.frame.DataFrame): Pandas DataFrame described by
-                the above metadata.
-        Returns:
-            entry (dict): Single data entry for dictionary containing
-                potentially multiple dataframes and associated metadata.
-        '''
+class ALARADFrame(pd.DataFrame):
+    '''
+    A subclass of pandas.DataFrame specialized for ALARA output.
+    '''
 
-        return {
-            f'{datalib} {variable}': {
-                'Data Source': datalib,
-                'Variable': variable,
-                'Unit': unit,
-                'Data': data
-            }
-        }
-    
-    @staticmethod
-    def process_time_vals(df, seconds=True):
+    @property
+    def _constructor(self):
+        return ALARADFrame
+
+    def process_time_vals(self, seconds=True):
         '''
         Convert the cooling times of the ALARA analysis post-shutdown to
             floating point numbers, in either seconds or years.
 
         Arguments:
-            df (pandas.core.frame.DataFrame): DataFrame containing the
-                extracted tabular data for a single variable and interval/zone
-                of an ALARA run.
+            self (alara_output_processing.ALARADFrame): Specialized ALARA
+                output DataFrame containing the extracted tabular data for a
+                single variable and interval/zone of an ALARA run.
             seconds (bool, optional): Option to convert cooling times from
                 years to seconds.
                 (Defaults to True)
@@ -201,7 +176,7 @@ class DataProcessing:
         time_dict = {'shutdown' : 0.0}
         time_dict['y'] = 365*24*60*60 if seconds else 1
 
-        for column in df.columns[1:]:
+        for column in self.columns[1:]:
             if column == 'shutdown':
                 times.append(time_dict['shutdown'])
             else:
@@ -209,17 +184,16 @@ class DataProcessing:
                 times.append(float(time) * time_dict['y'])
 
         return times
-
-    @staticmethod
-    def extract_totals(df):
+    
+    def extract_totals(self):
         '''
         Select the values from the "total" row of an ALARA output table
             DataFrame and write them out to a list.
         
         Arguments:
-            df (pandas.core.frame.DataFrame): DataFrame containing the
-                extracted tabular data for a single variable and interval/zone
-                of an ALARA run.
+            self (alara_output_processing.ALARADFrame): Specialized ALARA
+                output DataFrame containing the extracted tabular data for a
+                single variable and interval/zone of an ALARA run.
 
         Returns:
             totals (list): List of floating point numbers of the total values
@@ -227,45 +201,44 @@ class DataProcessing:
                 cooling times.
         '''
 
-        return df[df['isotope'] == 'total'].iloc[0, 1:].tolist()
+        return self[self['isotope'] == 'total'].iloc[0, 1:].tolist()
     
-    @staticmethod
-    def filter_elements(df, elements):
+    def filter_elements(self, elements):
         '''
         Create a new DataFrame containing only the data for nuclides of a
             selected element or elements.
         
         Arguments:
-            df (pandas.core.frame.DataFrame): DataFrame containing the
-                extracted tabular data for a single variable and interval/zone
-                of an ALARA run.
+            self (alara_output_processing.ALARADFrame): Specialized ALARA
+                output DataFrame containing the extracted tabular data for a
+                single variable and interval/zone of an ALARA run.
             elements (str or list): Option to plot only the isotopes of a
                 single element or list of selected elements.
 
         Returns:
-            element_df (pandas.core.frame.DataFrame): New DataFrame containing
-                only rows for the selected element(s).
+            element_df (alara_output_processing.ALARADFrame): New ALARADFrame
+                containing only rows for the selected element(s).
         '''
 
         if not isinstance(elements, list):
             elements = [elements]
 
         regex = '|'.join(fr'{el}-' for el in elements)
-        
-        return df[df['isotope'].str.contains(regex, case=False, na=False)]
+
+        return self[self['isotope'].str.contains(regex, case=False, na=False)]
     
-    def aggregate_small_percentages(self, df, relative=False, threshold=0.05):
+    def aggregate_small_percentages(self, relative=False, threshold=0.05):
         '''
-        Consolidate all rows in a DataFrame that do not have any cells with a
-            contribution of more than a threshold value to the total for its
+        Consolidate all rows in an ALARADFrame that do not have any cells with
+            a contribution of more than a threshold value to the total for its
             respective column. Rows that do not have any cells that surpass
             its column's threshold are aggregated into a new "Other" row. If a
             row has at least one column value above the threshold, then the
             whole row is preserved.
         Arguments:
-            df (pandas.core.frame.DataFrame): DataFrame containing the
-                extracted tabular data for a single variable and interval/zone
-                of an ALARA run.
+            self (alara_output_processing.ALARADFrame): Specialized ALARA
+                output DataFrame containing the extracted tabular data for a
+                single variable and interval/zone of an ALARA run.
             relative (bool, optional): Option for DataFrames already processed
                 by relative_contributions().
                 (Defaults to False)     
@@ -273,110 +246,109 @@ class DataProcessing:
                 inclusion cutoff.
                 (Defaults to 0.05)
         Returns:
-            mask_df (pandas.core.frame.DataFrame): Processed DataFrame
-                (potentially) with new row, "Other", containing all
-                aggregrated data below the thresholds.
+            mask_df (alara_output_processing.ALARADFrame): Processed
+                ALARADFrame (potentially) with new row, "Other", containing
+                all aggregrated data below the thresholds.
         '''
 
-        cols = df.columns[1:]
+        cols = self.columns[1:]
         rel_adjustment = (
-            [1] * len(cols) if relative else self.extract_totals(df)
+            [1] * len(cols) if relative else self.extract_totals()
             )
         threshold_vals = {
             col: threshold * adj for col, adj in zip(cols, rel_adjustment)
         }
 
-        small_mask = (df[cols] < pd.Series(threshold_vals)).all(axis=1)
-        other_row = pd.Series(0.0, index=df.columns, dtype=object)
-        other_row[df.columns[0]] = 'Other'
-        other_row[cols] = df.loc[small_mask, cols].sum()
+        small_mask = (self[cols] < pd.Series(threshold_vals)).all(axis=1)
+        other_row = pd.Series(0.0, index=self.columns, dtype=object)
+        other_row[self.columns[0]] = 'Other'
+        other_row[cols] = self.loc[small_mask, cols].sum()
 
-        mask_df = df.loc[~small_mask].reset_index(drop=True)
+        mask_adf = self.loc[~small_mask].reset_index(drop=True)
         if other_row[cols].sum() > 0:
-            mask_df = pd.concat(
-                [mask_df, pd.DataFrame([other_row])], ignore_index=True
+            mask_adf = pd.concat(
+                [mask_adf, pd.DataFrame([other_row])], ignore_index=True
             )
 
-        return mask_df
+        return mask_adf
+
+
+class DataLibrary:
     
-    # ---------- Core Processing ----------
+    @staticmethod
+    def make_entry(run_lbl, variable, unit, data):
+        '''
+        Construct a dictionary for a single ALARADFrame and its
+            associated metadata.
+        Arguments:
+            run_lbl (str): Distinguisher between runs, such as different data
+                sources, geometries, pulsing schedules, fluxes, etc. 
+            variable (str): Dependent variable evaluated in DataFrame (i.e.
+                Number Density, Specific Activity, etc.).
+            unit (str): Associated units for the above variable (i.e. 
+                atoms/kg, Bq/kg, etc.).
+            data (alara_output_processing.ALARADFrame): ALARADFrame described
+                by the above metadata.
+        Returns:
+            entry (dict): Single data entry for dictionary containing
+                potentially multiple dataframes and associated metadata.
+        '''
+
+        return {
+            f'{run_lbl} {variable}': {
+                'Run Label': run_lbl,
+                'Variable': variable,
+                'Unit': unit,
+                'Data': data
+            }
+        }
 
     @classmethod
-    def process_data(
-            cls,
-            data_source,
-            inp_datalib=None,
-            inp_variable=None,
-            inp_unit = None
-    ):
+    def make_entries(cls, runs_dict):
         '''
-        Flexibly create a dictionary of subdictionaries containing Pandas
-            DataFrames with associated metadata containing ALARA output data
+        Flexibly create a dictionary of subdictionaries containing
+            ALARADFrames with associated metadata containing ALARA output data
             for different variables. Allows for processing of either existing
-            DataFrames, with the requirement that the user provide the
-            relevant data source, evaulated variable, and its relevant units
+            ALARADFrames, with the requirement that the user provide the
+            relevant run parameter, evaulated variable, and its relevant units
             to be packaged into a data dictionary. Alternatively, this
             function can directly read in an ALARA output file and parse all
             tables and their metadata internally.
 
         Arguments:
-            data_source (dict or pandas.core.frame.DataFrame): ALARA output
-                data. If parsing directly from ALARA output files, data_source
-                must be formatted as a dictionary of the form:
-                data_source = {
-                    Data Library 1 : path/to/output/file/for/data/library1,
-                    Data Library 2 : path/to/output/file/for/data/library2
+            cls (alara_output_processing.DataLibrary)
+            runs_dict (dict): ALARA output data. If parsing directly from
+                ALARA output files, runs_dict must be formatted as a
+                dictionary of the form:
+                runs_dict = {
+                    Run Label 1 : path/to/output/file/for/data/run1,
+                    Run Label 2 : path/to/output/file/for/data/run2
                 }
-                If processing a preexisting DataFrame, then data_source is
-                just the DataFrame itself.
-            inp_datalib (str or None, optional): Data source of the selected
-                DataFrame. Required if processing a preexisting DataFrame;
-                irrelevant if parsing directly from ALARA output files.
-                (Defaults to None)
-            inp_variable (str or None, optional): Evaluated variable for the
-                selected DataFrame. Required if processing a preexisting
-                DataFrame; irrelevant if parsing directly from ALARA output
-                files.
-                (Defaults to None)
-            inp_unit (str or None, optional): Appropriate unit for the
-                evaluated variable for the selected DataFrame. Required if
-                processing a preexisting DataFrame; irrelevant if parsing
-                directly from ALARA output files.
-                (Defaults to None)
                 
         Returns:
             dfs (list of dicts): List of dictionaries containing ALARA output
                 DataFrames and their metadata, of the form:
                 df_dict = {
-                    'Data Source' : (Either 'fendl2' or 'fendl3'),
+                    'Run Label'   : (Distinguisher between runs),
                     'Variable'    : (Any ALARA output variable, dependent on
                                     ALARA run parameters),
                     'Unit'        : (Respective unit matching the above
                                     variable),
                     'Data'        : (DataFrame containing ALARA output data
-                                    for the given data source, variable, and
+                                    for the given run parameter, variable, and
                                     unit)
                 }
         '''
         
         dfs = {}
-
-        if isinstance(data_source, pd.DataFrame):
-            dfs.update(
-                cls.make_entry(
-                    inp_datalib, inp_variable, inp_unit, data_source
-                )
-            )
-            return dfs
-        
-        for datalib, output_path in data_source.items():
-            parser = TableParser(output_path)
-            output_tables = parser.parse_output()
+        for run_lbl, output_path in runs_dict.items():
+            parser = FileParser(output_path)
+            output_tables = parser.extract_tables()
             for key, data in output_tables.items():
                 variable_w_unit, _ = key.split(' - ')
                 variable, unit = variable_w_unit.split(' [')
                 dfs.update(
-                    cls.make_entry(datalib, variable, unit.strip(']'), data)
+                    cls.make_entry(run_lbl, variable, unit.strip(']'), data)
                 )
         
         return dfs
@@ -391,8 +363,8 @@ def args():
     return argparser.parse_args()
 
 def main():
-    parser = TableParser(args().filepath[0])
-    parser.parse_output()
+    parser = FileParser(args().filepath[0])
+    parser.extract_tables()
     parser.write_csv_files()
 
 if __name__ == '__main__':
