@@ -363,9 +363,9 @@ def args():
     return argparser.parse_args()
 
 def main():
-    parser = FileParser(args().filepath[0])
-    parser.extract_tables()
-    parser.write_csv_files()
+    alara_data = FileParser(args().filepath[0])
+    alara_data.extract_tables()
+    alara_data.write_csv_files()
 
 if __name__ == '__main__':
     main()
