@@ -131,8 +131,8 @@ class FileParser:
     # ---------- Output ----------
     def write_csv_files(self):
         '''
-        Write out all DataFrames extracted from parsed ALARA output tables to
-            their own CSV files.
+        Write out all ALARADFrames extracted from parsed ALARA output tables
+            to their own CSV files.
 
         Arguments:
             self (alara_output_processing.FileParser): FileParser object.
@@ -188,7 +188,7 @@ class ALARADFrame(pd.DataFrame):
     def extract_totals(self):
         '''
         Select the values from the "total" row of an ALARA output table
-            DataFrame and write them out to a list.
+            ALARADFrame and write them out to a list.
         
         Arguments:
             self (alara_output_processing.ALARADFrame): Specialized ALARA
@@ -205,7 +205,7 @@ class ALARADFrame(pd.DataFrame):
     
     def filter_elements(self, elements):
         '''
-        Create a new DataFrame containing only the data for nuclides of a
+        Create a new ALARADFrame containing only the data for nuclides of a
             selected element or elements.
         
         Arguments:
@@ -239,8 +239,8 @@ class ALARADFrame(pd.DataFrame):
             self (alara_output_processing.ALARADFrame): Specialized ALARA
                 output DataFrame containing the extracted tabular data for a
                 single variable and interval/zone of an ALARA run.
-            relative (bool, optional): Option for DataFrames already processed
-                by relative_contributions().
+            relative (bool, optional): Option for ALARADFrames already
+                processed by relative_contributions().
                 (Defaults to False)     
             threshold (float or int): Proportional threshold value for
                 inclusion cutoff.
@@ -283,7 +283,7 @@ class DataLibrary:
         Arguments:
             run_lbl (str): Distinguisher between runs, such as different data
                 sources, geometries, pulsing schedules, fluxes, etc. 
-            variable (str): Dependent variable evaluated in DataFrame (i.e.
+            variable (str): Dependent variable evaluated in ALARADFrame (i.e.
                 Number Density, Specific Activity, etc.).
             unit (str): Associated units for the above variable (i.e. 
                 atoms/kg, Bq/kg, etc.).
@@ -291,7 +291,7 @@ class DataLibrary:
                 by the above metadata.
         Returns:
             entry (dict): Single data entry for dictionary containing
-                potentially multiple dataframes and associated metadata.
+                potentially multiple ALARADFrames and associated metadata.
         '''
 
         return {
@@ -327,14 +327,14 @@ class DataLibrary:
                 
         Returns:
             dfs (list of dicts): List of dictionaries containing ALARA output
-                DataFrames and their metadata, of the form:
+                ALARADFrames and their metadata, of the form:
                 df_dict = {
                     'Run Label'   : (Distinguisher between runs),
                     'Variable'    : (Any ALARA output variable, dependent on
                                     ALARA run parameters),
                     'Unit'        : (Respective unit matching the above
                                     variable),
-                    'Data'        : (DataFrame containing ALARA output data
+                    'Data'        : (ALARADFrame containing ALARA output data
                                     for the given run parameter, variable, and
                                     unit)
                 }
