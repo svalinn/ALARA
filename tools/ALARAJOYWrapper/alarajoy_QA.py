@@ -349,30 +349,35 @@ def plot_single_response(
     plt.tight_layout(rect=[0, 0, 0.85, 1])
     plt.show()
 
-def single_data_source_pie(df_dict, time):
+def single_data_source_pie(df_dict, time, threshold=0.05):
     '''
     Create a pie chart showing the breakdown of isotopes contributing to a
         given variable tracked by an ALARA run at a given cooling time.
+    
     Arguments:
         df_dict (dict): Dictionary containing an ALARA output DataFrame and
             its metadata, of the form:
             df_dict = {
-                'Data Source' : (Either 'fendl2' or 'fendl3'),
+                'Run Label'   : (Distinguisher between runs),
                 'Variable'    : (Any ALARA output variable, dependent on ALARA
                                  run parameters),
                 'Unit'        : (Respective unit matching the above variable),
                 'Data'        : (DataFrame containing ALARA output data for
-                                 the given data source, variable, and unit)
+                                 the given run parameter, variable, and unit)
             }
         time (str): Cooling time at which to assess the isotopic breakdown.
             Must be of the same form as the df_dict['Data'] non-index column
             names (i.e. 'shutdown', '1 y', etc.).
+        threshold (float or int): Proportional threshold value for
+            inclusion cutoff.
+            (Defaults to 0.05)
+
     Returns:
         None
     '''
 
-    adf = df_dict['Data']
-    agg = adf.aggregate_small_percentages()
+    agg = df_dict['Data'].aggregate_small_percentages(threshold=threshold)
+    agg = agg[agg['isotope'] != 'total']
     total = agg[time].sum()
     agg['fraction'] = agg[time] / total * 100
     agg = agg[agg['fraction'].round(1) > 0]
@@ -389,7 +394,7 @@ def single_data_source_pie(df_dict, time):
     ]
 
     plt.title(
-        f'{df_dict['Data Source']}: Radioisotope Proportional Contribution to'
+        f'{df_dict['Run Label']}: Radioisotope Proportional Contribution to'
         f' {df_dict['Variable']} at {time}'
     )
 
