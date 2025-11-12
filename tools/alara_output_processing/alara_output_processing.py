@@ -60,7 +60,6 @@ class FileParser:
                     represented in the table (e.g. specific activity, number
                     density, etc.)
                 current_interval (str): Interval iterated upon in ALARA run.
-
             Returns:
                 None
             '''
@@ -77,10 +76,8 @@ class FileParser:
         '''
         Reads an ALARA output file, identifies all data tables contained
             within, and stores each as an ALARADFrame in a dictionary.
-
         Arguments:
             self (alara_output_processing.FileParser): FileParser object.
-
         Returns:
             results (dict): Dictionary that stores all parsed tables,
                 keyed by parameter and block name.
@@ -127,13 +124,13 @@ class FileParser:
                 continue
 
         return self.results
-    
+
     # ---------- Output ----------
     def write_csv_files(self):
         '''
         Write out all ALARADFrames extracted from parsed ALARA output tables
             to their own CSV files.
-
+            
         Arguments:
             self (alara_output_processing.FileParser): FileParser object.
         
@@ -158,7 +155,6 @@ class ALARADFrame(pd.DataFrame):
         '''
         Convert the cooling times of the ALARA analysis post-shutdown to
             floating point numbers, in either seconds or years.
-
         Arguments:
             self (alara_output_processing.ALARADFrame): Specialized ALARA
                 output DataFrame containing the extracted tabular data for a
@@ -166,7 +162,6 @@ class ALARADFrame(pd.DataFrame):
             seconds (bool, optional): Option to convert cooling times from
                 years to seconds.
                 (Defaults to True)
-
         Returns:
             times (list): List of the ALARA cooling times, written as 
                 floating point numbers of seconds or years.
@@ -184,7 +179,7 @@ class ALARADFrame(pd.DataFrame):
                 times.append(float(time) * time_dict['y'])
 
         return times
-    
+
     def extract_totals(self):
         '''
         Select the values from the "total" row of an ALARA output table
@@ -194,7 +189,6 @@ class ALARADFrame(pd.DataFrame):
             self (alara_output_processing.ALARADFrame): Specialized ALARA
                 output DataFrame containing the extracted tabular data for a
                 single variable and interval/zone of an ALARA run.
-
         Returns:
             totals (list): List of floating point numbers of the total values
                 for the given response, with length equal to the number of
@@ -202,7 +196,7 @@ class ALARADFrame(pd.DataFrame):
         '''
 
         return self[self['isotope'] == 'total'].iloc[0, 1:].tolist()
-    
+
     def filter_elements(self, elements):
         '''
         Create a new ALARADFrame containing only the data for nuclides of a
@@ -214,7 +208,6 @@ class ALARADFrame(pd.DataFrame):
                 single variable and interval/zone of an ALARA run.
             elements (str or list): Option to plot only the isotopes of a
                 single element or list of selected elements.
-
         Returns:
             element_df (alara_output_processing.ALARADFrame): New ALARADFrame
                 containing only rows for the selected element(s).
@@ -226,7 +219,7 @@ class ALARADFrame(pd.DataFrame):
         regex = '|'.join(fr'{el}-' for el in elements)
 
         return self[self['isotope'].str.contains(regex, case=False, na=False)]
-    
+
     def aggregate_small_percentages(self, relative=False, threshold=0.05):
         '''
         Consolidate all rows in an ALARADFrame that do not have any cells with
@@ -274,7 +267,7 @@ class ALARADFrame(pd.DataFrame):
 
 
 class DataLibrary:
-    
+
     @staticmethod
     def make_entry(run_lbl, variable, unit, data):
         '''
@@ -314,7 +307,6 @@ class DataLibrary:
             to be packaged into a data dictionary. Alternatively, this
             function can directly read in an ALARA output file and parse all
             tables and their metadata internally.
-
         Arguments:
             cls (alara_output_processing.DataLibrary)
             runs_dict (dict): ALARA output data. If parsing directly from
@@ -339,7 +331,7 @@ class DataLibrary:
                                     unit)
                 }
         '''
-        
+
         dfs = {}
         for run_lbl, output_path in runs_dict.items():
             parser = FileParser(output_path)
@@ -350,7 +342,7 @@ class DataLibrary:
                 dfs.update(
                     cls.make_entry(run_lbl, variable, unit.strip(']'), data)
                 )
-        
+
         return dfs
 
 ###########################################
