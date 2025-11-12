@@ -185,7 +185,7 @@ class ALARADFrame(pd.DataFrame):
 
         return times
     
-    def extract_totals(self):
+    def extract_totals(self, array=False):
         '''
         Select the values from the "total" row of an ALARA output table
             DataFrame and write them out to a list.
@@ -194,14 +194,21 @@ class ALARADFrame(pd.DataFrame):
             self (alara_output_processing.ALARADFrame): Specialized ALARA
                 output DataFrame containing the extracted tabular data for a
                 single variable and interval/zone of an ALARA run.
+            array (bool, optional): Option to return the times as a
+                numpy.array, rather than a list.
+                (Defaults to False)
 
         Returns:
-            totals (list): List of floating point numbers of the total values
-                for the given response, with length equal to the number of
-                cooling times.
+            totals (list or numpy.array): List or array of floating point
+                numbers of the total values for the given response, with
+                length equal to the number of cooling times.
         '''
 
-        return self[self['isotope'] == 'total'].iloc[0, 1:].tolist()
+        totals = self[self['isotope'] == 'total'].iloc[0, 1:]
+        if array:
+            return totals.to_numpy()
+        
+        return totals.tolist()
     
     def filter_elements(self, elements):
         '''
