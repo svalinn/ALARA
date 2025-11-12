@@ -7,12 +7,9 @@ _These examples are practical use cases that illustrate the ALARA workflow for t
 ## Steps needed to perform a fusion activation analysis
 
 * Identify incident particle type causing activation (assume neutron for this document)
-* Decide on appropriate multi-group activation library (energy group structure matches nuclear system's neutr
-on energy spectrum)
-* Perform a neutron transport simulation to obtain neutron flux spectrum in multi-group energy format in the 
-region of interest 
-_(If one cannot perform a neutron transport simulation, one may need to convert a reference neutron flux spec
-trum to a multi-group energy structure matching the activation library)_
+* Decide on appropriate multi-group activation library (energy group structure matches nuclear system's neutron energy spectrum)
+* Perform a neutron transport simulation to obtain neutron flux spectrum in multi-group energy format in the region of interest 
+_(If one cannot perform a neutron transport simulation, one may need to convert a reference neutron flux spectrum to a multi-group energy structure matching the activation library)_
 
 * Prepare activation code input file:
 
@@ -29,6 +26,6 @@ _(Most codes can take a mixture of elements and generate isotopic compositions f
 ## List of Examples:
 - Single element examples:
    * Example of irradiating Fe for 2 years in a typical fusion reactor with DCLL blanket
-     - [singleElement](singleElement.md)
+     - [singleElement_2y](singleElement_2y/README.md)
    * Fe irradiated for 20 years under the FNSF-DCLL neutron spectrum
      - [singleElement_20y_inp](singleElement_20y_inp/alara_inp_fe_20y)
