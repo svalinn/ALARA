@@ -90,7 +90,8 @@ def main():
 
         # PENDF Preperation and Generation
         njoy_input = njt.fill_input_template(
-            material_id, MTs, element, A, mt_dict, temperature
+            njt.njoy_prep_input, material_id,
+            MTs, element, A, mt_dict, temperature
             )
         njt.write_njoy_input_file(njoy_input)
         pendf_path, njoy_error = njt.run_njoy(
@@ -99,15 +100,13 @@ def main():
         
         _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
         pendf_MTs = array(pendf_MTs)
-        gas_MTs = pendf_MTs[
-            (pendf_MTs >= GAS_MT_MIN) & (pendf_MTs <= GAS_MT_MAX)
-            ]
+        gas_MTs = set(pendf_MTs) & set(range(GAS_MT_MIN, GAS_MT_MAX))
         MTs |= {int(gas_MT) for gas_MT in gas_MTs}
 
         # GENDF Generation
         groupr_input = njt.fill_input_template(
-            material_id, MTs, element, A,
-            mt_dict, temperature, run_type='GROUPR'
+            njt.groupr_input, material_id,
+             MTs, element, A, mt_dict, temperature
         )
         njt.write_njoy_input_file(groupr_input)
 

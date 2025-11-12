@@ -22,6 +22,8 @@ def set_directory():
 # Define constant(s)
 dir = set_directory()
 INPUT = dir / 'njoy.inp'
+MIN_TEMP_FILE = 20
+MAX_TEMP_FILE = 25
 
 # Create input file general template
 njoy_prep_input = Template(Template(
@@ -118,7 +120,7 @@ elements = [
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
 def fill_input_template(
-        material_id, MTs, element, A, mt_dict, temperature, run_type=None
+        inp, material_id, MTs, element, A, mt_dict, temperature
         ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
@@ -127,6 +129,8 @@ def fill_input_template(
         and the reactions corresponding to the MT numbers encoded in the
         files.
     Arguments:
+        inp (string.Template): String template for the input file without
+            substitutions yet. Can either be njoy_prep_input or groupr_input.
         material_id (int): Unique material identifier, defined by the ENDF-6
             Formats Manual
             (https://www.oecd-nea.org/dbdata/data/manual-endf/endf102.pdf).
@@ -149,8 +153,6 @@ def fill_input_template(
             specific information substituted in for the $identifiers,
             converted to a string.
     """
-    
-    inp = groupr_input if run_type == 'GROUPR' else njoy_prep_input
 
     Z = str(elements[element]).zfill(2)
     title = f'"{Z}-{element}-{A} for TENDL 2017"'
@@ -305,17 +307,13 @@ def run_njoy(element, A, matb, file_capture):
     # and make a copy of the file as a GENDF or PENDF file
     if not result.stderr:
         fileinfo = file_metadata[file_capture]
-        save_path = (
-            dir / 
-            fileinfo['dir'] / 
-            f'tendl_2017_{element}{str(A).zfill(3)}'
-        )
-
-        # Ensure existence of save directory for PENDF/GENDF files
-        (dir / fileinfo['dir']).mkdir(exist_ok=True)
+        save_path = dir / fileinfo['dir']
+        save_path.mkdir(exist_ok=True)
+        save_path = save_path / f'tendl_2017_{element}{str(A).zfill(3)}'
 
         fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
         tape_save = Path(f'tape{fileinfo['tape']}')
+#        tape_save.rename(fileinfo['save'])
         if fileinfo['ext'] == '.gendf':
             tape_save.rename(fileinfo['save'])
             ensure_gendf_markers(fileinfo['save'], matb)
@@ -338,7 +336,9 @@ def cleanup_njoy_files(output_path = dir / 'njoy_ouput'):
         None
     """
 
-    intermediate_files = [INPUT] + [Path(f'tape{i}') for i in range(20,26)]
+    intermediate_files = [INPUT] + [
+        Path(f'tape{i}') for i in range(MIN_TEMP_FILE, MAX_TEMP_FILE + 1)
+        ]
     for file in intermediate_files:
         Path.unlink(file)
     Path('output').rename(output_path)
