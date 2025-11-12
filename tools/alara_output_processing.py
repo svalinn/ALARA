@@ -65,13 +65,13 @@ class FileParser:
                 None
             '''
 
-            adf = ALARADFrame(pd.read_csv(
+            df = pd.read_csv(
                 StringIO('\n'.join(current_table_lines)), sep=r'\s+'
-            ))
+            )
 
-            adf.columns = [c.replace('_', '') for c in adf.columns]
+            df.columns = [c.replace('_', '') for c in df.columns]
             key = f'{current_parameter} - {current_block}'
-            self.results[key] = adf
+            self.results[key] = ALARADFrame(df)
 
     def extract_tables(self):
         '''
@@ -227,6 +227,32 @@ class ALARADFrame(pd.DataFrame):
 
         return self[self['isotope'].str.contains(regex, case=False, na=False)]
     
+    def relative_contributions(self):
+        '''
+        Create a new ALARADFrame representing the relative proportion of the
+        given variable for the original ALARADFrame that each nuclide
+        contributes at each time column. These values are relative to the
+        total value at each time step, which may differ over time, depending
+        on the variable.
+
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Specialized ALARA
+                output DataFrame containing the extracted tabular data for a
+                single variable and interval/zone of an ALARA run.
+
+        Returns:
+            adf_rel (alara_output_processing.ALARADFrame): New ALARADFrame
+                containing each nuclides relative contribution to the total at
+                each time step.                        
+        '''
+
+        totals = self.extract_totals()        
+        adf_rel = self[self['isotope'] != 'total'].copy()
+        for i, col in enumerate(adf_rel.columns[1:]):
+            adf_rel[col] /= totals[i]
+
+        return adf_rel
+    
     def aggregate_small_percentages(self, relative=False, threshold=0.05):
         '''
         Consolidate all rows in an ALARADFrame that do not have any cells with
@@ -271,7 +297,6 @@ class ALARADFrame(pd.DataFrame):
             )
 
         return mask_adf
-
 
 class DataLibrary:
     
