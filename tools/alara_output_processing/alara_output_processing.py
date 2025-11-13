@@ -2,6 +2,7 @@ import pandas as pd
 import re
 import argparse
 from io import StringIO
+from warnings import warn
 
 class FileParser:
 
@@ -137,6 +138,9 @@ class FileParser:
                     inside_table = False
                     current_table_lines = []
                 continue
+
+        if not self.results:
+            warn(f'No readable tables found within {self.filepath}')
 
         return self.results
 
