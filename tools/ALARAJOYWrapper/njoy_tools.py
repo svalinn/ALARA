@@ -3,7 +3,6 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
-import shutil
 
 def set_directory():
     '''
@@ -287,7 +286,7 @@ def run_njoy(element, A, matb, file_capture):
             iteration of NJOY runs. Either "PENDF" or "GENDF".
     
     Returns:
-        file_metadata['GENDF']['save'] (pathlib._local.PosixPath or None):
+        file_info['save'] (pathlib._local.PosixPath or None):
                                     File path to the newly created GENDF file.
                                     Returns None if NJOY runs unsuccessfuly.
         result.stderr (str or None): Output of NJOY error.
@@ -303,34 +302,31 @@ def run_njoy(element, A, matb, file_capture):
     result = subprocess.run(['njoy'], input=open(INPUT).read(),
                         text=True, capture_output=True)
 
+    fileinfo = file_metadata[file_capture]
+    fileinfo['save'] = None
+
     # If the run is successful, log out the output
     # and make a copy of the file as a GENDF or PENDF file
     if not result.stderr:
-        fileinfo = file_metadata[file_capture]
         save_path = dir / fileinfo['dir']
         save_path.mkdir(exist_ok=True)
         save_path = save_path / f'tendl_2017_{element}{str(A).zfill(3)}'
 
         fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
         tape_save = Path(f'tape{fileinfo['tape']}')
-#        tape_save.rename(fileinfo['save'])
+        fileinfo['save'].write_bytes(tape_save.read_bytes())
         if fileinfo['ext'] == '.gendf':
-            tape_save.rename(fileinfo['save'])
             ensure_gendf_markers(fileinfo['save'], matb)
-        else:
-            shutil.copy(tape_save, fileinfo['save'])
             
-        return fileinfo['save'], result.stderr
+    return fileinfo['save'], result.stderr
 
-def cleanup_njoy_files(output_path = dir / 'njoy_ouput'):
+def cleanup_njoy_files(element, A):
     """
     Clean up repository from unnecessary intermediate files from NJOY run.
     
     Arguments:
-        output_path (pathlib._local.PosixPath, optional): The save path for
-            the NJOY output.
-            Defaults to f'{CWD}/njoy_output', which will save the file in the
-            same directory as all other saved files from the script run.
+        element (str): Chemical symbol for element of interest.
+        A (str or int): Mass number for selected isotope.
     
     Returns:
         None
@@ -338,7 +334,10 @@ def cleanup_njoy_files(output_path = dir / 'njoy_ouput'):
 
     intermediate_files = [INPUT] + [
         Path(f'tape{i}') for i in range(MIN_TEMP_FILE, MAX_TEMP_FILE + 1)
-        ]
+    ]
     for file in intermediate_files:
         Path.unlink(file)
-    Path('output').rename(output_path)
+    
+    output_dir = dir / 'njoy_outputs'
+    output_dir.mkdir(exist_ok=True)
+    Path('output').rename(output_dir / f'njoy_output_{element}{A}.out')

@@ -126,7 +126,6 @@ def main():
                     MTs, endftk_file_obj, mt_dict, pKZA
                 )
                 cumulative_data.extend(gendf_data)
-                njt.cleanup_njoy_files()
                 print(f'Finished processing {element}{A}')
             else:
                 warnings.warn(
@@ -140,6 +139,8 @@ def main():
                 f'''Failed to convert {element}{A}.
                 NJOY error message: {njoy_error}'''
             )
+
+        njt.cleanup_njoy_files(element, A)
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     write_dsv(dsv_path, cumulative_data)
