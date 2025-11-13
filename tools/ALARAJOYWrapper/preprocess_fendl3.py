@@ -5,8 +5,6 @@ import njoy_tools as njt
 import argparse
 import warnings
 from pathlib import Path
-from pandas import DataFrame
-from numpy import array
 
 def args():
     parser = argparse.ArgumentParser()
@@ -99,7 +97,6 @@ def main():
         )
         
         _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
-        pendf_MTs = array(pendf_MTs)
         gas_MTs = set(pendf_MTs) & set(range(GAS_MT_MIN, GAS_MT_MAX))
         MTs |= {int(gas_MT) for gas_MT in gas_MTs}
 
