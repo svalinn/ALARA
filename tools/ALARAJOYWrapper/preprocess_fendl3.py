@@ -60,6 +60,12 @@ def main():
     Main method when run as a command line script.
     """
 
+    # Set constants
+    TAPE20 = 'tape20'
+    GAS_MT_MIN = 203 # Lowest MT number in range of gas production totals
+    GAS_MT_MAX = 207 # Highest MT number in range of gas production totals
+
+
     dir = njt.set_directory()
     search_dir = (
         Path(args().fendlFileDir[0]) if args().fendlFileDir else dir
@@ -79,12 +85,30 @@ def main():
 
         material_id, MTs, endftk_file_obj = tp.extract_endf_specs(TAPE20)
         MTs = set(MTs).intersection(mt_dict.keys())
+
+        # PENDF Preperation and Generation
         njoy_input = njt.fill_input_template(
-            material_id, MTs, element, A, mt_dict, temperature
+            njt.njoy_prep_input, material_id,
+            MTs, element, A, mt_dict, temperature
             )
         njt.write_njoy_input_file(njoy_input)
+        pendf_path, njoy_error = njt.run_njoy(
+            element, A, material_id, 'PENDF'
+        )
+        
+        _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
+        gas_MTs = set(pendf_MTs) & set(range(GAS_MT_MIN, GAS_MT_MAX))
+        MTs |= {int(gas_MT) for gas_MT in gas_MTs}
+
+        # GENDF Generation
+        groupr_input = njt.fill_input_template(
+            njt.groupr_input, material_id,
+             MTs, element, A, mt_dict, temperature
+        )
+        njt.write_njoy_input_file(groupr_input)
+
         gendf_path, njoy_error = njt.run_njoy(
-            element, A, material_id
+            element, A, material_id, 'GENDF'
         )
 
         if gendf_path:
@@ -99,7 +123,6 @@ def main():
                     MTs, endftk_file_obj, mt_dict, pKZA
                 )
                 cumulative_data.extend(gendf_data)
-                njt.cleanup_njoy_files()
                 print(f'Finished processing {element}{A}')
             else:
                 warnings.warn(
@@ -113,6 +136,8 @@ def main():
                 f'''Failed to convert {element}{A}.
                 NJOY error message: {njoy_error}'''
             )
+
+        njt.cleanup_njoy_files(element, A)
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     write_dsv(dsv_path, cumulative_data)
