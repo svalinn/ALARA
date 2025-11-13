@@ -140,7 +140,7 @@ class FileParser:
                 continue
 
         if not self.results:
-            warn(f'No readable tables found within {self.filepath}')
+            warn(f'Unable to read tables from {self.filepath}')
 
         return self.results
 
