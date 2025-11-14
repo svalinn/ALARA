@@ -1,0 +1,285 @@
+import matplotlib.pyplot as plt
+
+#------------------------ Plotting Helper Functions --------------------------
+
+def preprocess_data(df_dicts, data_key='Data', seconds=True):
+    '''
+    Extract all of the ALARADFrames from df_dicts, their (shared) time
+        columns and store them in a list of tuples for each plot to be
+        produced. Additionally, for each plot, establish a corresponding
+        colormap.
+
+    Arguments:
+        df_dicts (dict or list): Single dictionary containing an ALARA output 
+            ALARADFrame and its metadata, of the form:
+            df_dict = {
+                'Run Label'   : (Distinguisher between runs),
+                'Variable'    : (Any ALARA output variable, dependent on ALARA
+                                 run parameters),
+                'Unit'        : (Respective unit matching the above variable),
+                'Data'        : (ALARADFrame containing ALARA output data for
+                                 the given run parameter, variable, and unit)
+            }
+        data_key (str, optional): Keyword for df_dicts to direct to the
+            desired ALARADFrame to source the plot's data.
+            (Defaults to 'Data')
+        seconds (bool, optional): Option to convert cooling times from
+            years to seconds.
+            (Defaults to True)
+
+    Returns:
+        all_data (list of tuples): A list of all relevant data for each table
+            to be plotted including:
+                df_dict (dict): Single dictionary from list of dictionaries in
+                    input df_dicts.
+                adf (alara_output_processing.ALARADFrame): Specialized ALARA
+                    output DataFrame containing the extracted tabular data for
+                    a single variable and interval/zone of an ALARA run.
+                times (list of floats): Cooling times (columns of adf).
+    '''
+
+    all_labels = set()
+    all_data = []
+    for df_dict in df_dicts:
+        adf = df_dict[data_key]
+        times = adf.process_time_vals(seconds=seconds)
+        adf = adf.T
+        for col in adf.columns:
+            label_text = f"{adf[col].iloc[0]}"
+            all_labels.add(label_text)
+
+        all_data.append((df_dict, adf, times))
+
+    labels_sorted = sorted(all_labels)
+
+    cmap = plt.cm.get_cmap('Dark2')
+    color_map = {lbl: cmap(i % cmap.N) for i, lbl in enumerate(labels_sorted)}
+
+    return all_data, color_map
+
+def split_label(label):
+    '''
+    Split the string of a series' label to extract the isotope being plotted
+        and (conditionally) the run label attached to it. The run parameter
+        will be present parenthetically if two runs are being plotted
+        comparitavely.
+    Arguments:
+        label (str): Series label generated from 
+            ax.get_legend_handles_labels().
+    
+    Returns:
+        isotope (str): Isotope being plotted.
+        run_lbl (str): Run label of plotted isotope. Will be empty string
+            for single run plotting.
+    '''
+
+    if '(' in label:
+        parts = label.split('(')
+        isotope = parts[0].strip()
+        run_lbl = f'({parts[1].strip(')')})'
+    else:
+        isotope = label.strip()
+        run_lbl = ''
+    return isotope, run_lbl
+
+def reformat_isotope(isotope):
+    '''
+    Restructure the string describing an isotope to capitalize its first
+        letter and place the atomic number in a superscript for cleaner
+        presentation in legend. Skips "isotope" entries of "total" or "Other".
+    Arguments:
+        isotope (str): Identifier of the isotope of the form element-A.
+    
+    Returns:
+        isotope (str): Reformatted identifier of the isotope of the form
+            ᴬelement.
+    '''
+
+    if isotope == 'total' or isotope == 'Other':
+        return isotope
+    else:
+        element, A = isotope.split('-')
+        element = element.capitalize()
+        return f'$^{{{A}}}${element}'
+
+def construct_legend(ax, data_comp=False):
+    '''
+    Create a custom pyplot legend that exists outside of the grid itself and
+        can group like-isotopes together from compared data sets for clarity.
+    
+    Arguments:
+        ax (matplotlib.axes._axes.Axes): Matplotlib axis object of the plot
+            being constructed.
+        data_comp (bool, optional): Boolean setting for comparison between two
+            data sets.
+            (Defaults to False)
+    
+    Returns:
+        None
+    '''
+
+    handles, labels = ax.get_legend_handles_labels()
+    labels_sorted_with_handles = sorted(
+        zip(labels, handles),
+        key=lambda x: (
+            split_label(x[0]) if data_comp else (split_label(x[0])[0], x[0])
+        )
+    )
+
+    grouped_handles = []
+    grouped_labels = []
+    prev_isotope = None
+
+    for lbl, h in labels_sorted_with_handles:
+        isotope, datalib = split_label(lbl)
+        isotope = reformat_isotope(isotope)
+
+        if prev_isotope is not None and isotope != prev_isotope:
+            grouped_handles.append(plt.Line2D([], [], linestyle=''))
+            grouped_labels.append('――――――')
+        grouped_handles.append(h)
+        grouped_labels.append(f'{isotope} {datalib}')
+        prev_isotope = isotope
+
+    ax.legend(
+        grouped_handles,
+        grouped_labels,
+        loc='center left',
+        bbox_to_anchor=(1.025, 0.5),
+        borderaxespad=0.,
+        fontsize='small',
+        handlelength=1.5,
+        handletextpad=0.5,
+    )
+
+#---------------------------- Plotting functions -----------------------------
+
+def plot_single_response(
+        df_dicts,
+        data_key = 'Data',
+        sort_by_time='shutdown', 
+        head=None,
+        total=False,
+        yscale='log',        
+        relative=False,
+        seconds=True
+        ):
+    '''
+    Create a simple x-y plot of a given variable tracked in an ALARA output
+        table (as stored in an ALARADFrame) against a log timescale. Options
+        for plotting a single run, as well as two runs against each other.
+        Plot will contain unique lines for the isotopes represented in the
+        data, with options to show only certain elements and/or only the
+        largest contributors at a given cooling time. Additionally, the
+        cumulative total values across all isotopes can be plotted separately
+        from individual isotopic data using the combination of the parameters:
+        total=True, head=1.
+
+    Arguments:
+        df_dicts (dict or list): Single dictionary containing an ALARA output 
+            ALARADFrame and its metadata, of the form:
+            df_dict = {
+                'Run Label'   : (Distinguisher between runs),
+                'Variable'    : (Any ALARA output variable, dependent on ALARA
+                                 run parameters),
+                'Unit'        : (Respective unit matching the above variable),
+                'Data'        : (ALARADFrame containing ALARA output data for
+                                 the given run parameter, variable, and unit)
+            }
+            Alternatively, if comparing two ALARA runs, df_dicts can be a list
+            of dictionaries of the above form.
+        data_key (str, optional): Keyword for df_dicts to direct to the
+            desired ALARADFrame to source the plot's data.
+            (Defaults to 'Data')
+        sort_by_time (str, optional): Option to sort the ALARADFrame by the
+            data in a particular time column.
+            (Defaults to 'shutdown')
+        head (int or None, optional): Option to truncate the ALARADFrame to a
+            particular number of rows.
+            (Defaults to None)
+        total (bool, optional): Option to include the cumulative total
+            contribution from all isotopes towards the select variable in the
+            plot. If total=True, the total array will be treated equivalently
+            to any of the other isotopes and will be plotted alongside them.
+            If total=True and head=1, only the total will be plotted.
+            (Defaults to False)
+        yscale (str, optional): Matplotlib.pyplot yscale setting.
+            (Defaults to 'log')
+        relative (bool, optional): Option to plot relative values with respect
+            to totals at each cooling time.
+            (Defaults to False)
+        seconds (bool, optional): Option to convert cooling times from
+            years to seconds.
+            (Defaults to True)
+            
+    Returns:
+        None    
+    '''
+
+    data_comp = True
+    fig, ax = plt.subplots(figsize=(10,6))
+
+    # Single run -- Data provided as dict or ALARADFrame
+    if not isinstance(df_dicts, list):
+        df_dicts = [df_dicts]
+        data_comp = False
+
+    all_data, color_map = preprocess_data(
+        df_dicts, data_key=data_key, seconds=seconds
+    )
+    line_styles = ['-', ':']
+
+    # Plot data
+    for i, (df_dict, adf, times) in enumerate(all_data):
+        linestyle = line_styles[i % len(line_styles)]
+        for col in adf.columns:
+            label_text = f"{adf[col].iloc[0]}"
+            if not total and label_text == 'total':
+                continue
+
+            label_suffix = ''
+            if data_comp:
+                label_suffix = f' ({df_dict['Run Label']})'
+
+            ax.plot(
+                times,
+                list(adf[col])[1:],
+                label=label_text + label_suffix,
+                color=color_map[label_text],
+                linestyle=linestyle
+            )
+
+    # Titles and labels, according to user specifications
+    title_suffix = (f'{df_dicts[0]['Variable']} vs Cooling Time ')
+
+    if relative:
+        title_suffix += 'Relative to Total at Each Cooling Time '
+        yscale = 'linear'
+
+    if head:
+        title_suffix += (
+            f'\n(ALARADFrame Head Sorted by Values at {sort_by_time})'
+            )
+
+    if data_comp:
+        title_prefix = (
+            f'{df_dicts[0]['Run Label']}, {df_dicts[1]['Run Label']} '
+            'Comparison: \n'
+        )
+    else:
+        title_prefix = f'{df_dict['Run Label']}: '
+
+    ax.set_title(title_prefix + title_suffix)
+    ax.set_ylabel(
+        f'Proportion of Total {df_dict['Variable']}' if relative
+        else f'{df_dict['Variable']} [{df_dict['Unit']}]'
+    )
+    ax.set_xlabel(f'Time ({'s' if seconds else 'y'})')
+    ax.set_xscale('log')
+    ax.set_yscale(yscale)
+
+    construct_legend(ax, data_comp)
+
+    ax.grid(True)
+    plt.tight_layout(rect=[0, 0, 0.85, 1])
+    plt.show()
