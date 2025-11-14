@@ -15,8 +15,8 @@ def read_nuclib(nuclib):
     return nuclib_lines
 
 def make_volume_block(nuclib_lines, volume):
-    vol_lines = ""
-    load_lines = ""
+    vol_lines = "volume\n"
+    load_lines = "mat_loading\n"
     mix_lines = ""
     for line in nuclib_lines:
         line = line.strip().split()
