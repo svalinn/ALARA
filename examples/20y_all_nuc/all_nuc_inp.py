@@ -7,7 +7,7 @@ sys.path.insert(1, '..')
 
 from template_object_maker import make_template_obj
 
-# This script produces the ALARA input file 20y_all_nuc.inp in this directory, with a different element library and some formatting
+# This script produces the ALARA input file 20y_all_nuc.inp in this directory, with some formatting
 # differences that may need to be addressed manually
 
 def read_nuclib(nuclib):
