@@ -2,6 +2,7 @@ import pandas as pd
 import re
 import argparse
 from io import StringIO
+from warnings import warn
 
 class FileParser:
 
@@ -24,8 +25,23 @@ class FileParser:
         return line.startswith('***') and line.endswith('***')
 
     @staticmethod
-    def _is_new_block(line):
+    def _is_new_interval(line):
         return line.startswith('Interval #')
+    
+    @staticmethod
+    def _is_new_zone(line):
+        return line.startswith('Zone #')
+    
+    @staticmethod
+    def _is_new_material(line):
+        return line.startswith('Material #')
+
+    def _is_new_block(self, line):
+        return (
+            self._is_new_interval(line)
+            or self._is_new_zone(line)
+            or self._is_new_material(line)
+        )
 
     @staticmethod
     def _is_table_header(line):
@@ -59,7 +75,7 @@ class FileParser:
                 current_parameter (str): Specific quantitative value
                     represented in the table (e.g. specific activity, number
                     density, etc.)
-                current_interval (str): Interval iterated upon in ALARA run.
+                current_block (str): Block iterated upon in ALARA run.
             Returns:
                 None
             '''
@@ -122,6 +138,9 @@ class FileParser:
                     inside_table = False
                     current_table_lines = []
                 continue
+
+        if not self.results:
+            warn(f'Unable to read tables from {self.filepath}')
 
         return self.results
 
