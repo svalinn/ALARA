@@ -12,8 +12,9 @@ Contained within `ALARA/tools` is the Python package, `alara_output_processing`,
 
 
 ## Installation
+From the directory `ALARA/tools/` run the following command to install `alara_output_processing`:
 ```
-pip install alara_output_processing
+pip install .
 ```
 
 ## Usage
