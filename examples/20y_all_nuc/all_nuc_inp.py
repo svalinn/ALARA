@@ -25,7 +25,7 @@ def make_volume_block(nuclib_lines, volume):
             vol_lines += f'\t {volume}\t{nuc}\n'
             load_lines += f'\t{nuc}\t mix_{nuc}\n'
             mix_lines += f'mixture mix_{nuc}\n\t element {nuc} 1 1.0 \nend \n'
-    return vol_lines, load_lines, mix_lines  
+    return vol_lines + "end\n", load_lines + "end\n", mix_lines  
 
 def edit_template(template_object, params, vol_lines, load_lines, mix_lines, new_inp_name):
     new_lines = template_object.substitute(
