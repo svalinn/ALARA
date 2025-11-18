@@ -6,9 +6,9 @@ from warnings import warn
 
 class FileParser:
 
-    def __init__(self, filepath, run_label):
+    def __init__(self, filepath, run_lbl):
         self.filepath = filepath
-        self.run_label = run_label
+        self.run_lbl = run_lbl
         self.rows = []
         self.results = ALARADFrame()
 
@@ -83,12 +83,15 @@ class FileParser:
             current_table_rows (list of dicts): List of each row in the
                 table's rows as a dictionary of the form:
                 row = {
-                    'Time' : Cooling time of data entry,
+                    'Time' : Cooling time of data entry in seconds,
                     'Nuclide' : Individual nuclide,
                     'Run Parameter' : Distinguisher between runs,
-                    'Block Name' : 'Interval', 'Zone', or 'Material',
+                    'Block' : 'Interval', 'Zone', or 'Material',
+                    'Block Type' : Corresponding integer enumerator,
                     'Block Number' : Geometric position of block,
-                    'Variable' : Output response contained in the given table
+                    'Variable' : Name of the ALARA response variable
+                    'Variable Type' : Corresponding integer enumerator,
+                    'Value' : Float value for the corresponding variable
                 } 
         '''
 
@@ -99,80 +102,25 @@ class FileParser:
 
         df.columns = [c.replace('_', '') for c in df.columns]
         block_name, block_num_trail = current_block.split(' #')
-        block_num = block_num_trail.split(' ')[0]
         variable = current_parameter.split(' [')[0]
+        adf = ALARADFrame(df)
+        adf.columns = adf.process_time_vals(parsing=True)
 
-        for isotope in df.index:
-            for time in df.columns:
+        for isotope in adf.index:
+            for time in adf.columns:
                 current_table_rows.append({
-                    'Time'              :                    time,
-                    'Nuclide'           :                 isotope,
-                    'Run Parameter'     :          self.run_label,
-                    'Block Name'        :              block_name,
-                    'Block Number'      :               block_num,
-                    variable            :    df.loc[isotope, time]
+                    'Time'                 :                             time,
+                    'Nuclide'              :                          isotope,
+                    'Run Parameter'        :                     self.run_lbl,
+                    'Block'                :                       block_name,
+                    'Block Type'           :       adf.BLOCK_ENUM[block_name],
+                    'Block Number'         :    block_num_trail.split(' ')[0],
+                    'Variable'             :                         variable,
+                    'Variable Type'        :      adf.VARAIBLE_ENUM[variable],
+                    'Value'                :           adf.loc[isotope, time]
                 })
 
         return current_table_rows
-    
-    def _combine_rows(self):
-        '''
-        Combine rows from different output tables into like-rows if all other
-            attributes are the same, except for the specific response
-            variable. For example, two rows measuring the same nuclide's
-            contribution at a given time in the same block and from the same
-            run, with one measuring 'Number Density' and the other 'Specific
-            Activity', will produce a single row dicitonary with keys for both
-            variables. Each row dictionary is saved as a list element in a new
-            output list.
-
-        Arguments:
-            self (alara_output_processing.FileParser): FileParser object.
-
-        Returns:
-            comb_rows (list of dicts): List of all rows from every table in
-                the ALARA output file combined for different response
-                variables under the same other parameters.
-                row = {
-                    'Time' : Cooling time of data entry,
-                    'Nuclide' : Individual nuclide,
-                    'Run Parameter' : Distinguisher between runs,
-                    'Block Name' : 'Interval', 'Zone', or 'Material',
-                    'Block Number' : Geometric position of block,
-                    'Variable1' : First response variable at above conditions,
-                    ...
-                    'VariableN' : Nth response variable at above conditions
-                }
-        '''
-        
-        comb_rows = []
-
-        for i, row_i in enumerate(self.rows):
-            comb_row = dict(row_i)
-
-            for j, row_j in enumerate(self.rows):
-                if i == j:
-                    continue
-
-                i_keys = list(row_i.keys())
-                j_keys = list(row_j.keys())
-                i_vals = list(row_i.values())
-                j_vals = list(row_j.values())
-
-                if i_vals[:-1] == j_vals[:-1]:
-                    comb_row[j_keys[-1]] = j_vals[-1]
-
-            fixed_i = {
-                k: v for k, v in comb_row.items() if k != i_keys[-1]
-            }
-
-            if not any(
-                {k: v for k, v in cr.items()
-                if k != i_keys[-1]} == fixed_i for cr in comb_rows
-            ):
-                comb_rows.append(comb_row)
-
-        return comb_rows
 
     def extract_tables(self):
         '''
@@ -229,8 +177,7 @@ class FileParser:
                     current_table_lines = []
                 continue
         
-        comb_rows = self._combine_rows()
-        self.results = ALARADFrame(comb_rows)
+        self.results = ALARADFrame(self.rows)
 
         if self.results.empty:
             warn(f'Unable to read tables from {self.filepath}')
@@ -242,7 +189,11 @@ class ALARADFrame(pd.DataFrame):
     '''
     A subclass of pandas.DataFrame specialized for ALARA output.
     '''
-    _metadata = ['is_pivot']
+    _metadata = ['is_pivot', 'is_single_var', 'is_single_run']
+    VARIABLES = ['Number Density', 'Specific Activity', 'Total Decay Heat', 'Contact Dose']
+    BLOCKS = ['Interval', 'Zone', 'Material']
+    VARAIBLE_ENUM = {name: i for i, name in enumerate(VARIABLES)}
+    BLOCK_ENUM = {name: i for i, name in enumerate(BLOCKS)}
 
     @property
     def _constructor(self):
@@ -275,11 +226,12 @@ class ALARADFrame(pd.DataFrame):
                 cooling time and run parameter.    
         '''
 
-        single_var_adf = ALARADFrame(self.pivot(
+        single_var_adf = self[self['Variable'] == variable]
+        single_var_adf = ALARADFrame(single_var_adf.pivot(
             index='Nuclide',
             columns=['Time', 'Run Parameter'],
-            values=variable
-        ))
+            values='Value'
+        )).fillna(0.0)
 
         single_var_adf.is_pivot = True
         single_var_adf.is_single_var = True
@@ -313,7 +265,7 @@ class ALARADFrame(pd.DataFrame):
 
         return single_run_adf
 
-    def process_time_vals(self, seconds=True):
+    def process_time_vals(self, parsing=False, seconds=True):
         '''
         Convert the cooling times of an ALARADFrame to floating point numbers,
             in either seconds or years.
@@ -321,6 +273,9 @@ class ALARADFrame(pd.DataFrame):
         Arguments:
             self (alara_output_processing.ALARADFrame): Specialized ALARA
                 output DataFrame.
+            parsing (bool, optional): Option for ALARADFrame format when
+                calling this funcion inside FileParser._parse_table_data().
+                (Defaults to False)
             seconds (bool, optional): Option to convert cooling times from
                 years to seconds.
                 (Defaults to True)
@@ -334,10 +289,12 @@ class ALARADFrame(pd.DataFrame):
         time_dict = {'shutdown' : 0.0}
         time_dict['y'] = 365*24*60*60 if seconds else 1
 
-        cooling_times = (
-            self.columns.get_level_values('Time')
-            if self.is_pivot else set(self['Time'])
-        )
+        if parsing:
+            cooling_times = self.columns
+        elif self.is_pivot:
+            cooling_times = self.columns.get_level_values('Time')
+        else:
+            cooling_times = set(self['Time'])
 
         for time in cooling_times:
             if time == 'shutdown':
@@ -522,7 +479,7 @@ class DataLibrary:
 
         dfs = []
         for run_lbl, output_path in runs_dict.items():
-            parser = FileParser(output_path, run_label=run_lbl)
+            parser = FileParser(output_path, run_lbl=run_lbl)
             dfs.append(parser.extract_tables())
 
         self.adf = ALARADFrame(pd.concat(dfs).fillna(0.0))
