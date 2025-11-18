@@ -86,11 +86,9 @@ class FileParser:
                     'Time' : Cooling time of data entry in seconds,
                     'Nuclide' : Individual nuclide,
                     'Run Parameter' : Distinguisher between runs,
-                    'Block' : 'Interval', 'Zone', or 'Material',
-                    'Block Type' : Corresponding integer enumerator,
+                    'Block Type' : ALARADFrame block integer enumerator,
                     'Block Number' : Geometric position of block,
-                    'Variable' : Name of the ALARA response variable
-                    'Variable Type' : Corresponding integer enumerator,
+                    'Variable Type' : ALARADFrame variable integer enumerator,
                     'Value' : Float value for the corresponding variable
                 } 
         '''
@@ -104,7 +102,7 @@ class FileParser:
         block_name, block_num_trail = current_block.split(' #')
         variable = current_parameter.split(' [')[0]
         adf = ALARADFrame(df)
-        adf.columns = adf.process_time_vals(parsing=True)
+        adf.columns = adf.convert_to_seconds(parsing=True)
 
         for isotope in adf.index:
             for time in adf.columns:
@@ -112,10 +110,8 @@ class FileParser:
                     'Time'                 :                             time,
                     'Nuclide'              :                          isotope,
                     'Run Parameter'        :                     self.run_lbl,
-                    'Block'                :                       block_name,
                     'Block Type'           :       adf.BLOCK_ENUM[block_name],
                     'Block Number'         :    block_num_trail.split(' ')[0],
-                    'Variable'             :                         variable,
                     'Variable Type'        :      adf.VARAIBLE_ENUM[variable],
                     'Value'                :           adf.loc[isotope, time]
                 })
@@ -205,6 +201,26 @@ class ALARADFrame(pd.DataFrame):
         self.is_single_var = False
         self.is_single_run = False
 
+    def filter_rows(self, filter_dict):
+        
+        filtered_adf = self.copy()
+        for col_name, filters in filter_dict.items():
+            if not isinstance(filters, list):
+                filters = [filters]
+
+            try:
+                mask = filtered_adf[col_name].isin(filters)
+                filtered_adf = filtered_adf[mask]
+
+            except KeyError:
+                cols = []
+                for f in filters:
+                    cols.append(pd.IndexSlice[:, f])
+                filtered_adf = filtered_adf.loc[:, cols]
+                filtered_adf.is_pivot = True
+        
+        return filtered_adf
+
     def select_single_var(self, variable):
         '''
         Pivot an ALARADFrame object to contain the data for a single response
@@ -265,10 +281,10 @@ class ALARADFrame(pd.DataFrame):
 
         return single_run_adf
 
-    def process_time_vals(self, parsing=False, seconds=True):
+    def convert_to_seconds(self, parsing=False):
         '''
-        Convert the cooling times of an ALARADFrame to floating point numbers,
-            in either seconds or years.
+        Convert the cooling times of an ALARADFrame to seconds from their
+            column headers.
 
         Arguments:
             self (alara_output_processing.ALARADFrame): Specialized ALARA
@@ -276,18 +292,14 @@ class ALARADFrame(pd.DataFrame):
             parsing (bool, optional): Option for ALARADFrame format when
                 calling this funcion inside FileParser._parse_table_data().
                 (Defaults to False)
-            seconds (bool, optional): Option to convert cooling times from
-                years to seconds.
-                (Defaults to True)
 
         Returns:
             times (list): List of the ALARA cooling times, written as 
-                floating point numbers of seconds or years.
+                floating point numbers of seconds.
         '''
 
         times = []
-        time_dict = {'shutdown' : 0.0}
-        time_dict['y'] = 365*24*60*60 if seconds else 1
+        time_dict = { 'shutdown' : 0.0, 'y' : 365*24*60*60 }
 
         if parsing:
             cooling_times = self.columns
