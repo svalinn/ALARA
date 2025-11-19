@@ -112,7 +112,7 @@ class FileParser:
                     'run_lbl'              :                     self.run_lbl,
                     'block'                :       adf.BLOCK_ENUM[block_name],
                     'block_num'            :    block_num_trail.split(' ')[0],
-                    'variable'             :      adf.VARAIBLE_ENUM[variable],
+                    'variable'             :      adf.VARIABLE_ENUM[variable],
                     'value'                :           adf.loc[isotope, time]
                 })
 
@@ -191,7 +191,7 @@ class ALARADFrame(pd.DataFrame):
         'Alpha Heat', 'Beta Heat', 'Gamma Heat', 'Contact Dose'
         ]
     BLOCKS = ['Interval', 'Zone', 'Material']
-    VARAIBLE_ENUM = {name: i for i, name in enumerate(VARIABLES)}
+    VARIABLE_ENUM = {name: i for i, name in enumerate(VARIABLES)}
     BLOCK_ENUM = {name: i for i, name in enumerate(BLOCKS)}
 
     @property
