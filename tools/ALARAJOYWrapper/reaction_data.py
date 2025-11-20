@@ -9,7 +9,7 @@ NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
              'p'     : array([ 0      ,     -1      ]), # proton emission
              'd'     : array([-1      ,     -1      ]), # deuteron emission
              't'     : array([-2      ,     -1      ]), # triton emission
-             'h'   : array([-1      ,     -2      ]), # helium-3 emission
+             'h'     : array([-1      ,     -2      ]), # helium-3 emission
              'a'     : array([-2      ,     -2      ]), # alpha emission
              'g'     : array([ 0      ,      0      ])  # gamma emission
 }
@@ -79,6 +79,13 @@ def emission_breakdown(emitted_particles):
             spec_case in emitted_particles for spec_case in spec_reactions
         )
     }
+
+    # Handle gas production totals (MTs 203-207) of the format Xz
+    gases = ['p', 'd', 't', 'h', 'a']
+    if 'X' in emitted_particles:
+        for gas in gases:
+            if gas in emitted_particles:
+                emission_dict[emitted_particles] = 1
     
     return emission_dict
 
@@ -109,7 +116,8 @@ def nucleon_changes(emission_dict):
         NP_change = array([1       ,      0      ])  # neutron activation
 
         for particle, count in emission_dict.items():
-            NP_change += count * NP_dict[particle]
+            if 'X' not in particle:
+                NP_change += count * NP_dict[particle]
         
     return NP_change
 
@@ -124,7 +132,7 @@ def load_mt_table(csv_path):
         {'MT' : {'Reaction' : (z , emission)}}
     
     Arguments:
-        csv_path (str): File path to mt_table.csv
+        csv_path (pathlib._local.PosixPath): File path to mt_table.csv.
             This should be in the same repository.
     
     Returns:
@@ -197,14 +205,21 @@ def process_mt_data(mt_dict):
         emission_dict = emission_breakdown(emitted_particles)
         change_NP = nucleon_changes(emission_dict)
         M = check_for_isomer(emitted_particles)
+        gas = list(emitted_particles)[1] if 'X' in emitted_particles else None
 
         # Conditionally remove isomer tags from emitted particle strings
         if M > 0:
             emitted_particles = emitted_particles[:-len(str(M))]
+
+        # Set gas total tag to standard ALARA tag for gas reaction residual
+        if 'X' in emitted_particles:
+            emitted_particles = 'x'
         
         if change_NP is not None:
             change_N, change_P = change_NP
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
+            data['High M'] = (M > 9)
+            data['Gas'] = gas
             data['Emitted Particles'] = emitted_particles
         else:
             del mt_dict[MT]

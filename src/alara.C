@@ -53,6 +53,8 @@ int main(int argc, char *argv[])
 
   while (argNum<argc)
     {
+	  int used_args = 1;
+
       if (argv[argNum][0] != '-')
 	{
 	if (inFname == NULL)
@@ -86,19 +88,6 @@ int main(int argc, char *argv[])
 	  debug(0,"Set debug level to %d.",debug_level);
 	  break;
 #endif
-/*	case 'v':
-	  if (argv[argNum][1] == '\0')
-	    {
-	      verb_level = atoi(argv[argNum+1]);
-	      argNum+=2;
-	    }
-	  else
-	    {
-	      verb_level = atoi(argv[argNum]+1);
-	      argNum++;
-	    }
-	  verbose(0,"Set verbose level to %d.",verb_level);
-	  break;	*/
 
 	case 'v':
 	  if (argv[argNum][1] == '\0')
@@ -150,18 +139,19 @@ int main(int argc, char *argv[])
 	  break;
 
     case 'o':
-        int used_args = 1;
 		if (argv[argNum][1] == '\0') 
-			{
-			if (argNum<argc-1) 
-					out_file = argv[argNum+1]; 
-					used_args++;
+		  {
+			if (argNum<argc-1)
+			  {
+				out_file = argv[argNum+1]; 
+				used_args++;
+			  }
 			else 
-				{
+			  {
 				error(2, "-o requires parameter.");
 				break;
-				}
-			} 
+			  }
+		  } 
 		else 
 			out_file = argv[argNum]+1;
 
@@ -172,6 +162,7 @@ int main(int argc, char *argv[])
 		verbose(0, "Verbose output redirected to %s", out_file.c_str());
 
 		argNum += used_args;
+		break;
 
 	case 'h':
 	  verbose(-1,helpmsg,argv[0]);
@@ -218,7 +209,7 @@ int main(int argc, char *argv[])
   Result::closeBinDump();
 
   delete rootList;
-  delete inFname;
+  delete[] inFname;
 
   std::cout.rdbuf(oldCout);
   outfile.close();

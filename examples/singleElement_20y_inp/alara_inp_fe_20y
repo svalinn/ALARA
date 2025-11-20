@@ -1,0 +1,38 @@
+# Standard binary data libraries, such as the fendl2bin library referenced in this example, may be created using the convert_lib input option in ALARA.
+geometry rectangular
+
+volume
+     10    zone_1
+end
+
+mat_loading
+    zone_1    mix_1
+end
+
+mixture mix_1
+    element fe 1 1.0
+end
+
+material_lib ../../data/matlib.sample
+element_lib ../../data/elelib.std
+data_library alaralib fendl2bin
+
+output zone
+        number_density
+end
+
+#     flux name    fluxin file   norm   shift   unused
+flux  my_flux       ../ref_flux_files/fluxfnsfIBfw_518MW.txt 1     0      default
+
+# Specify the irradiation schedule below.
+# Syntax is found in the ALARA user manual
+schedule    my_schedule
+    20 y my_flux my_pulse_history 0  s
+end
+pulsehistory  my_pulse_history
+    1    0.0    s
+end
+
+#other parameters
+truncation 1e-3
+dump_file dump_1w.file

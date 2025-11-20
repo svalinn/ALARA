@@ -26,8 +26,8 @@ mat_loading
         inner_zone1  mix1
 end
 
-material_lib ../data/matlib.sample
-element_lib  ../data/nuclib.std
+material_lib ../../data/matlib.sample
+element_lib  ../../data/nuclib.std
 data_library alaralib fendl2bin
 
 ## Mixtures can be a combination of elements and materials defined in your
@@ -43,7 +43,7 @@ end
 ##
 ## skip 0 entries in the flux file
 #     fluxname filename                 norm  shift unused
-flux  flux_1  fluxfnsfIBfw1intervals.txt  1.0   0   default
+flux  flux_1  ../ref_flux_files/fluxfnsfIBfw_518MW.txt  1.0   0   default
 
 ## Irradiation is pulsed by default, so the delay terms are set to zero (0)
 ## to make the problem steady state

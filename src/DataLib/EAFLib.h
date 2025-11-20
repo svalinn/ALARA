@@ -127,9 +127,13 @@ protected:
   int getTransData();
   int getDecayData();
 
+
 public:
+
   /* Service */
   EAFLib(const char*, const char*, const char*);
+  // Decay-only constructor for ALARAJOYLib (no makeBinLib calling)
+  EAFLib(const char* decayFname);
   ~EAFLib();
 
 };

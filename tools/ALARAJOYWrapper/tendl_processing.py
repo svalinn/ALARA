@@ -3,6 +3,14 @@ import ENDFtk
 from pathlib import Path
 import warnings
 
+gas_kzas = {
+    'p' : 10010,
+    'd' : 10020,
+    't' : 10030,
+    'h' : 20030,
+    'a' : 20040
+}
+
 def get_isotope(stem):
     """
     Extract the element name and mass number from a given filename.
@@ -25,15 +33,15 @@ def get_isotope(stem):
 
     return element, A
 
-def search_for_files(dir = '.'):
+def search_for_files(dir = Path.cwd()):
     """
     Search through a directory for all pairs of ENDF (TENDL) and PENDF files
         that have matching stems. If so, save the paths and the isotopic
         information to a dictionary.
     
     Arguments:
-        directory (str, optional): Path to the directory in which to search
-            for ENDF and PENDF files.
+        directory (pathlib._local.PosixPath, optional): Path to the directory
+            in which to search for ENDF and PENDF files.
             Defaults to the present working directory (".").
     Returns:
         file_info (dict): Dictionary containing the chemical symbol, mass
@@ -46,18 +54,16 @@ def search_for_files(dir = '.'):
             }
     """
 
-    dir = Path(dir)
-
     file_info = {}
     for suffix in ['tendl', 'endf']:
-        for file in dir.glob(f'*.{suffix}'):
-            if file.with_suffix('.pendf').is_file():
-                element, A = get_isotope(file.stem)
-                file_info[f'{element}{A}'] = {
-                    'Element'       :                             element,
-                    'Mass Number'   :                                   A,
-                    'File Paths'    :   (file, file.with_suffix('.pendf'))
-                }
+        # Iterate alphabetically for debugging to spot where process fails
+        for file in sorted(dir.glob(f'*.{suffix}')):
+            element, A = get_isotope(file.stem)
+            file_info[f'{element}{A}'] = {
+                'Element'         :                             element,
+                'Mass Number'     :                                   A,
+                'TENDL File Path' :                                file
+            }
 
     return file_info
 
@@ -65,7 +71,7 @@ def extract_endf_specs(path):
     """
     Extract the material ID and MT numbers from an ENDF file.
     Arguments:
-        path (str): File path to the selected ENDF file.
+        path (pathlib._local.PosixPath): File path to the selected ENDF file.
     
     Returns:
         matb (int): Unique material ID extracted from the file.
@@ -75,15 +81,23 @@ def extract_endf_specs(path):
             Only returns the file for GENDF filetypes.
     """
 
-    tape = ENDFtk.tree.Tape.from_file(path)
+    tape = ENDFtk.tree.Tape.from_file(str(path))
     matb = tape.material_numbers[0]
     # Set MF for cross sections
     xs_MF = 3
-    file = tape.material(matb).file(xs_MF)
-    # Extract the MT numbers that are present in the file
-    MTs = [MT.MT for MT in file.sections.to_list()]
+    try:
+        file = tape.material(matb).file(xs_MF)
+    except RuntimeError:
+        file = None
+    
+    if file:
+        # Extract the MT numbers that are present in the file
+        MTs = [MT.MT for MT in file.sections.to_list()]
 
-    return (matb, MTs, file)
+        return (matb, MTs, file)
+    
+    else:
+        return (matb, None, None)
 
 def extract_gendf_pkza(gendf_path):
     """
@@ -93,7 +107,8 @@ def extract_gendf_pkza(gendf_path):
         (0 if non-isomeric).
     
     Arguments:
-        gendf_path (str): File path to the GENDF file being analyzed.
+        gendf_path (pathlib._local.PosixPath): File path to the GENDF file
+            being analyzed.
         dir (str): String identifying the directory from which the function is
             being called.
     
@@ -177,16 +192,36 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
     """
 
     gendf_data = []
+    daughters = []
     for MT in MTs:
         sigma_list = extract_cross_sections(file_obj, MT)
-        gendf_data.append(
-            {
-                'Parent KZA'            :                                pKZA,
-                'Daughter KZA'          :        pKZA + mt_dict[MT]['delKZA'],
-                'Emitted Particles'     :    mt_dict[MT]['Emitted Particles'],
-                'Non-Zero Groups'       :                     len(sigma_list),
-                'Cross Sections'        :                          sigma_list
-            }
-        )
+        gas = mt_dict[MT]['Gas']
+        # Daughter calculated either as an emitted gas nucleus or
+        # as the residual for non-gaseous emissions. 
+        dKZA = gas_kzas[gas] if gas else pKZA + mt_dict[MT]['delKZA']
+        
+        # Special handling for 2 identical gas daughters
+        if dKZA in daughters and dKZA == (pKZA + 10) / 2:
+            daughters.remove(dKZA)
+        
+        if dKZA in daughters:
+            continue
+
+        daughters.append(dKZA)
+
+        # Skip high (2 digit) isomeric states
+        if not mt_dict[MT]['High M']:
+            gendf_data.append({
+                'Parent KZA'          :                                  pKZA,
+                'Daughter KZA'        :                                  dKZA,
+                'Emitted Particles'   :      mt_dict[MT]['Emitted Particles'],
+                'Non-Zero Groups'     :                       len(sigma_list),
+                'Cross Sections'      :                            sigma_list
+            })
+        else:
+            warnings.warn(f'''
+                Skipping high isomeric state in daughter for {pKZA} → {dKZA}.
+                MT > 9 not allowed by ALARA.
+            ''')
 
     return gendf_data

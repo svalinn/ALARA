@@ -97,10 +97,12 @@ Loading::Loading(const Loading &l)
 
 Loading::~Loading()
 { 
-  delete mixName; 
-  delete zoneName; 
-  delete [] outputList; 
+  delete[] mixName; 
+  delete[] zoneName; 
+  delete[] outputList; 
+  delete[] total;
   delete next; 
+  next = NULL;
 }
 
 /** This assignment operator behaves similarly to the copy
@@ -200,14 +202,18 @@ bool isusv(char* Usv)
 	//Checks wheter argument points to real number. If this were the case
 	//then this is assume to be userVol and the function returns TRUE.
   
-   	char* strptr=new char[64];
-	char* *pcharptr=&strptr;
+	char* pcharptr;
 
-	strtod(Usv,pcharptr);
-	if (strptr[0]=='\0')
-		return TRUE;
-	else
-		return FALSE;
+	strtod(Usv, &pcharptr);
+	if (pcharptr[0] =='\0')
+    {
+		  return TRUE;
+    }
+	else 
+    {
+      return FALSE;
+    }
+		
 }
 /******* get a list of material loadings *******/
 /* called by Input::read(...) */

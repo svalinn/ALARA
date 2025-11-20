@@ -68,9 +68,11 @@ History::History(const History& h)
     by deleting 'next'. */
 History::~History()
 { 
-  delete histName; 
+  delete[] histName; 
   delete pulseLevelHead; 
+  delete calcHist;
   delete next;
+  next = NULL;
 }  
 
 /** This assignment operator behaves the similarly to the copy

@@ -123,24 +123,31 @@ void Component::getMatLib(istream& input)
 {
   char fname[256];
   input >> fname;
-  matLib.open(searchNonXSPath(fname));
+  char *filepath = searchNonXSPath(fname);
+  matLib.open(filepath);
 
   if (!matLib)
     error(110,"Unable to open material library: %s",fname);
 
-  verbose(2,"Opened material library %s",searchNonXSPath(fname));
+  verbose(2,"Opened material library %s", filepath);
+
+  free(filepath);
 }
 
 void Component::getEleLib(istream& input)
 {
   char fname[256];
   input >> fname;
-  eleLib.open(searchNonXSPath(fname),ios::in);
+  char *filepath = searchNonXSPath(fname);
+
+  eleLib.open(filepath,ios::in);
 
   if (!eleLib)
     error(111,"Unable to open element library: %s",fname);
 
-  verbose(2,"Opened element library %s",searchNonXSPath(fname));
+  verbose(2,"Opened element library %s",filepath);
+
+  free(filepath);
 }
 
 /****************************

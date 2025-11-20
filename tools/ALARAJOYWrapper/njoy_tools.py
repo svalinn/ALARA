@@ -3,7 +3,6 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
-import os
 
 def set_directory():
     '''
@@ -13,36 +12,81 @@ def set_directory():
     Arguments:
         None
     Returns:
-        dir (str): Path to the current working directory (CWD) from which the
-            command was called.
+        dir (pathlib._local.PosixPath): Path to the current working directory
+            (CWD) from which the command was called.
     '''
 
-    dir = os.getcwd()
-    fendl_dir = 'ALARAJOYWrapper'
-    if fendl_dir not in dir:
-        dir += f'/{fendl_dir}' # Should only be called from one directory up
-    return dir
+    return Path(__file__).resolve().parent
 
 # Define constant(s)
 dir = set_directory()
-INPUT = dir + '/groupr.inp'
+INPUT = dir / 'njoy.inp'
+MIN_TEMP_FILE = 20
+MAX_TEMP_FILE = 25
 
 # Create input file general template
-njoy_input = Template(Template(
-"""groupr/
+njoy_prep_input = Template(Template(
+"""
+moder
+ $NIN_moder $NOUT_moder/
+reconr
+ $NENDF $NPEND_reconr/
+ 'neutron PENDF for $element-$a of TENDL-2017'
+ $mat_id/
+ $ERR/
+ $MATD/
+broadr
+ $NENDF $NPEND_reconr $NPEND_broadr/
+ $mat_id $N_FINAL_TEMPS/
+ $ERRTHN/
+ $final_broadr_temp/
+ $MATD/
+unresr
+ $NENDF $NIN_unresr $NOUT_unresr/
+ $mat_id $NTEMP $NSIGZ $IPRINT_unresr/
+ $self_shielding_temp/
+ $SIGZ_unresr/
+ $MATD/
+gaspr
+ $NENDF $NPEND_gaspr $NOUT_gaspr/
+stop
+"""
+).safe_substitute(
+    NIN_moder = 20,                                         # MODER input unit
+    NOUT_moder = 21,                                       # MODER output unit
+    NENDF = 21,                # unit for endf tape (equivalent to NOUT_moder)
+    NPEND_reconr = 22,                   # unit for RECONR-produced pendf tape
+    ERR = 0.001,                         # fractional reconstruction tolerance
+    NPEND_broadr = 23,                   # unit for BROADR-produced pendf tape
+    N_FINAL_TEMPS = 1,            # number of final temperatures (default = 1)
+    ERRTHN = 0.001,                        # fractional tolerance for thinning
+    NIN_unresr = 23,  # unit for input pendf tape (equivalent to NPEND_broadr)
+    NOUT_unresr = 24,                    # unit for UNRESR-produced pendf tape
+    NTEMP = 1,                            # number of temperatures (default=1)
+    NSIGZ = 1,                            # number of sigma zeroes (default=1)
+    IPRINT_unresr = 0,         # print option for UNRESR (0/1=minimum/maximum)
+    SIGZ_unresr = 1.e10,   # sigma zero values (including infinity) for UNRESR
+    NPEND_gaspr = 24,  # unit for input pendf tape (equivalent to NOUT_unresr)
+    NOUT_gaspr = 25,                      # unit for GASPR-produced pendf tape
+    MATD = 0,                                # next mat number to be processed
+))
+
+groupr_input = Template(Template(
+"""
+groupr/
  $NENDF $NPEND $NGOUT1 $NGOUT2/
- $mat_id $IGN $IGG $IWT $LORD $NTEMP $NSIGZ $IPRINT/
+ $mat_id $IGN $IGG $IWT $LORD $NTEMP $NSIGZ $IPRINT_groupr/
  $title/
- $TEMP
- $SIGZ/
+ $groupr_temp
+ $SIGZ_groupr/
  $reactions
  $MATD/
  0/
 stop
 """
 ).safe_substitute(
-    NENDF = 20,                                           # unit for endf tape
-    NPEND = 21,                                          # unit for pendf tape
+    NENDF = 21,                # unit for endf tape (equivalent to NOUT_moder)
+    NPEND = 25,         # unit for final PENDF tape (equivalent to NOUT_gaspr)
     NGOUT1 = 0,                         # unit for input gout tape (default=0)
     NGOUT2 = 31,                       # unit for output gout tape (default=0)
     IGN = 17,    # neutron group structure option (corresponding to Vitamin J)
@@ -51,10 +95,9 @@ stop
     LORD = 0,                                                 # Legendre order
     NTEMP = 1,                            # number of temperatures (default=1)
     NSIGZ = 1,                            # number of sigma zeroes (default=1)
-    IPRINT = 1,        # long print option (0/1=minimum/maximum) --(default=1)
+    IPRINT_groupr = 1, # long print option (0/1=minimum/maximum) - (default=1)
     ISMOOTH = 1,        # switch on/off smoother operation (1/0, default=1=on)
-    TEMP = 293.16,                                     # temperature in Kelvin
-    SIGZ = 0,                         # sigma zero values (including infinity)
+    SIGZ_groupr = 0,       # sigma zero values (including infinity) for GROUPR
     MATD = 0,                                # next mat number to be processed
 ))
 
@@ -75,7 +118,9 @@ elements = [
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
-def fill_input_template(material_id, MTs, element, A, mt_dict): 
+def fill_input_template(
+        inp, material_id, MTs, element, A, mt_dict, temperature
+        ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
         into the template for the NJOY input card. These values are the
@@ -83,10 +128,12 @@ def fill_input_template(material_id, MTs, element, A, mt_dict):
         and the reactions corresponding to the MT numbers encoded in the
         files.
     Arguments:
+        inp (string.Template): String template for the input file without
+            substitutions yet. Can either be njoy_prep_input or groupr_input.
         material_id (int): Unique material identifier, defined by the ENDF-6
             Formats Manual
             (https://www.oecd-nea.org/dbdata/data/manual-endf/endf102.pdf).
-        MTs (list of int): List of reaction types (MT's) present in the
+        MTs (list or set): List or set of reaction types (MT's) present in the
             ENDF/PENDF files.
         element (str): Chemical symbol for element of interest.
         A (str or int): Mass number for selected isotope.
@@ -94,10 +141,11 @@ def fill_input_template(material_id, MTs, element, A, mt_dict):
             mass number, so A must be input as a string.
         mt_dict (dict): Reference dictionary containing reaction information
             for each MT number pre-defined in the ENDF manual.
-        template (string.Template): A static string template containing
-            the general structure of the NJOY input file to run GROUPR,
-            $identifiers for substitutable items, produced by executing
-            establish_static_template().
+        temperature (float): Temperature at which to run NJOY modules.
+        run_type (str or None): Specification for type of NJOY run to be
+            prepared (i.e. preparing and creating PENDFs or converting to a
+            group-structured GENDF).
+            (Defaults to None)
     
     Returns:
         template (str): Modified template with the material-
@@ -114,15 +162,20 @@ def fill_input_template(material_id, MTs, element, A, mt_dict):
         mtname = mt_dict[MT]['Reaction']
         card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
     card9 = '\n '.join(card9_lines)
-    return njoy_input.substitute(
+    return inp.substitute(
+        element=element,
+        a=A,
         mat_id=material_id,
+        self_shielding_temp=temperature,
+        final_broadr_temp=temperature,
+        groupr_temp=temperature,
         title=title,                                            
         reactions=card9,                                        
     )
 
 def write_njoy_input_file(template):
     """
-    Write out the NJOY GROUPR input card from the prefilled template.
+    Write out the NJOY input card from the prefilled template.
     Arguments:
         template (str): A filled template string containing all of the
             parameters to be written out to the NJOY input card.
@@ -180,7 +233,8 @@ def ensure_gendf_markers(gendf_path, matb):
         The formatting for these records can be found at:
         https://t2.lanl.gov/nis/endf/intro06.html
     Arguments:
-        gendf_path (str): File path to the newly created GENDF file.
+        gendf_path (pathlib._local.PosixPath): File path to the newly created
+            GENDF file.
         matb (int): Unique material ID for the material in the GENDF file.
     
     Returns:
@@ -213,12 +267,12 @@ def ensure_gendf_markers(gendf_path, matb):
     with open(gendf_path, 'w') as gendf_file:
         gendf_file.write(file_str)
 
-def run_njoy(element, A, matb):
+def run_njoy(element, A, matb, file_capture):
     """
-    Use subprocess to run NJOY given a pre-written input card to convert a
-        pair of ENDF and PENDF files to a GENDF file and save it locally.
-        The ENDF and PENDF files must be stored in the same directory and be
-        titled 'tape20' and 'tape21' respectively for a successful NJOY run.
+    Use subprocess to run NJOY given a pre-written input card to either
+        prepare, format, and produce a PENDF file with NJOY modules RECONR,
+        BROADR, UNRESR, AND GASPR or to use an ENDF/PENDF file pair to create
+        a groupwise GENDF file.
     
     Arguments:
         cards (dict): Dictionary containing each "card"
@@ -228,46 +282,62 @@ def run_njoy(element, A, matb):
             If the target is an isomer, "m" after the mass number,
             so A must be input as a string.
         matb (int): Unique material ID for the material in the files.
+        file_capture (str): Type of file to be saved from this particular 
+            iteration of NJOY runs. Either "PENDF" or "GENDF".
     
     Returns:
-        gendf_path (str or None): File path to the newly created GENDF file.
+        file_info['save'] (pathlib._local.PosixPath or None):
+                                    File path to the newly created GENDF file.
                                     Returns None if NJOY runs unsuccessfuly.
         result.stderr (str or None): Output of NJOY error.
                                     Returns None if NJOY runs successfully. 
     """
 
-    gendf_path = None
+    file_metadata = {
+        'GENDF' : { 'dir' : 'gendf_files', 'ext' : '.gendf', 'tape' : 31 },
+        'PENDF' : { 'dir' : 'pendf_files', 'ext' : '.pendf', 'tape' : 25 }
+    }
 
     # Run NJOY
     result = subprocess.run(['njoy'], input=open(INPUT).read(),
                         text=True, capture_output=True)
 
+    fileinfo = file_metadata[file_capture]
+    fileinfo['save'] = None
+
     # If the run is successful, log out the output
-    # and make a copy of the file as a .GENDF file
+    # and make a copy of the file as a GENDF or PENDF file
     if not result.stderr:
-        gendf_dir = 'gendf_files'
-        if not os.path.isdir(f'{dir}/{gendf_dir}'):
-            os.mkdir(f'{dir}/{gendf_dir}')
-        gendf_path = f'{dir}/{gendf_dir}/tendl_2017_{element}{str(A).zfill(3)}.gendf'
-        Path('tape31').rename(Path(gendf_path))
-        ensure_gendf_markers(gendf_path, matb)
+        save_path = dir / fileinfo['dir']
+        save_path.mkdir(exist_ok=True)
+        save_path = save_path / f'tendl_2017_{element}{str(A).zfill(3)}'
 
-    return gendf_path, result.stderr
+        fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
+        tape_save = Path(f'tape{fileinfo['tape']}')
+        fileinfo['save'].write_bytes(tape_save.read_bytes())
+        if fileinfo['ext'] == '.gendf':
+            ensure_gendf_markers(fileinfo['save'], matb)
+            
+    return fileinfo['save'], result.stderr
 
-def cleanup_njoy_files(output_path = dir + '/njoy_ouput'):
+def cleanup_njoy_files(element, A):
     """
     Clean up repository from unnecessary intermediate files from NJOY run.
     
     Arguments:
-        output_path (str, optional): The save path for the NJOY output.
-            Defaults to f'{CWD}/njoy_output', which will save the file in the
-            same directory as all other saved files from the script run.
+        element (str): Chemical symbol for element of interest.
+        A (str or int): Mass number for selected isotope.
     
     Returns:
         None
     """
 
-    njoy_files = [INPUT, 'tape20', 'tape21']
-    for file in njoy_files:
-        Path.unlink(Path(file))
-    Path('output').rename(Path(output_path))
+    intermediate_files = [INPUT] + [
+        Path(f'tape{i}') for i in range(MIN_TEMP_FILE, MAX_TEMP_FILE + 1)
+    ]
+    for file in intermediate_files:
+        Path.unlink(file)
+    
+    output_dir = dir / 'njoy_outputs'
+    output_dir.mkdir(exist_ok=True)
+    Path('output').rename(output_dir / f'njoy_output_{element}{A}.out')

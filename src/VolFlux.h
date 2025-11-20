@@ -118,7 +118,13 @@ public:
   /** Deletes storage for 'flux' and destroys list of VolFlux objects by
       deleting 'next'. Also deletes CPflux*/
   ~VolFlux()
-    { delete[] nflux; delete next; delete[] CPflux;};
+    { 
+      delete[] nflux; 
+      delete[] CPfluxStorage;
+      delete[] CPflux;
+      delete next;
+      next = NULL;
+    };
 
   /// Overloaded assignment operator
   VolFlux& operator=(const VolFlux&);

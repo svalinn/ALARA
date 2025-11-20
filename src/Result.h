@@ -89,7 +89,7 @@ public:
   /// The inline destructor deletes the storage for 'N' and then
   /// destroys the whole result list by deleting 'next'.
   ~Result()
-    { delete next; delete[] N; };
+    { delete[] N; delete next; next=NULL;};
 
   /// Overloaded assignment operator
   Result& operator=(const Result&);

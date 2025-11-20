@@ -7,12 +7,28 @@ EAFLib::EAFLib(const char *transFname, const char *decayFname, const char *alara
 {
   if (transFname != NULL && decayFname != NULL)
     {
-      inTrans.open(searchNonXSPath(transFname), ios::in);
-      inDecay.open(searchNonXSPath(decayFname), ios::in);
+      char* transFilePath = searchNonXSPath(transFname);
+      char* decayFilePath = searchNonXSPath(decayFname);
+      inTrans.open(transFilePath, ios::in);
+      inDecay.open(decayFilePath, ios::in);
+      free(transFilePath);
+      free(decayFilePath);
 
       makeBinLib(alaraFname);
     }
 
+}
+
+// Decay-only constructor (for use in ALARAJOY)
+EAFLib::EAFLib(const char* decayFname) : ASCIILib(DATALIB_EAF)
+{
+  // Only open the decay stream -- do not call makeBinLib here
+  if (decayFname !=NULL)
+  {
+    inDecay.open(searchNonXSPath(decayFname), ios::in);
+    if (!inDecay.is_open())
+      error(1002, "EAFLib(decay-only): failed to open decay file %s", decayFname);
+  }
 }
 
 EAFLib::~EAFLib()
@@ -23,15 +39,15 @@ EAFLib::~EAFLib()
 
   for (rxnNum=0;rxnNum<MAXEAFRXNS;rxnNum++)
     {
-      delete xSection[rxnNum];
-      delete emitted[rxnNum];
+      delete[] xSection[rxnNum];
+      delete[] emitted[rxnNum];
     }
-  delete xSection;
-  delete emitted;
-  delete transKza;
+  delete[] xSection;
+  delete[] emitted;
+  delete[] transKza;
 
-  delete decayKza;
-  delete bRatio;
+  delete[] decayKza;
+  delete[] bRatio;
 
   inTrans.close();
   inDecay.close();
@@ -820,18 +836,17 @@ int EAFLib::getGammaData()
 
   if (numGSpec == 0)
     {
-      delete numDisc;
-      delete nIntReg;
-      delete nPnts;
-      delete discGammaE;
-      delete discGammaI;
-      delete intRegB;
-      delete intRegT;
-      delete contX;
-      delete contY;
+      delete[] numDisc;
+      delete[] nIntReg;
+      delete[] nPnts;
+      delete[] discGammaE;
+      delete[] discGammaI;
+      delete[] intRegB;
+      delete[] intRegT;
+      delete[] contX;
+      delete[] contY;
     }
 
 
   return numGSpec;
 }  
-

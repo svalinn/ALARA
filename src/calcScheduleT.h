@@ -48,7 +48,13 @@ public:
   /// Inline destructor deletes 'subSchedT' in an array sense, 
   /// therefore deleting an entire hierarchy in a single invocation.
   ~calcScheduleT()
-    { while (nItems-->0) { delete subSchedT[nItems];} delete subSchedT; };
+    { 
+      while (nItems-->0) { 
+        delete subSchedT[nItems];
+      }
+
+      delete[] subSchedT; 
+    };
    
   /// Overload assignment operator
   calcScheduleT& operator=(const calcScheduleT&);

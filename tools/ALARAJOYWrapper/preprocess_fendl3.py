@@ -1,47 +1,114 @@
 # Import packages
 import reaction_data as rxd
 import tendl_processing as tp
-import groupr_tools
+import njoy_tools as njt
 import argparse
 import warnings
 from pathlib import Path
-from pandas import DataFrame
 
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--fendlFileDir', '-f', required=False, nargs=1
     )
+    parser.add_argument(
+        # Temperature for NJOY run [Kelvin]
+        '--temperature', '-t', required=False, nargs=1, default=[293.16]
+    )
     return parser.parse_args()
+
+def write_dsv(dsv_path, cumulative_data):
+    """
+    Write out a space-delimited DSV file from the list of dictionaries,
+        dsv_path, produced by iterating through each reaction of each isotope
+        to be processed. Each row in the resultant DSV file is ordered as such:
+            pKZA dKZA emitted_particles non_zero_groups xs_1 xs_2 ... xs_n
+        Each row can have different lengths, as only non-zero cross-sections
+        are written out. The file is sorted by ascending parent KZA value.
+    Arguments:
+        dsv_path (pathlib._local.PosixPath): Filepath for the DSV file to be
+            written.
+        cumulative_data (list of dicts): List containing separate dictionaries
+            for each reaction contained in all of the TENDL/PENDF files
+            processed.
+    Returns:
+        None 
+    """
+
+    xs_key = 'Cross Sections'
+    join_keys = list(cumulative_data[0].keys())
+    join_keys.remove(xs_key)
+    # Sort list of reaction dictionaries by ascending parent KZAs
+    parent_label = join_keys[0]
+    cumulative_data.sort(key=lambda rxn: rxn[parent_label])
+
+    with open(dsv_path, 'w') as dsv_file:
+        # Write header line with total groups for Vitamin-J
+        vitamin_J_energy_groups = 175
+        dsv_file.write(str(vitamin_J_energy_groups) + '\n')
+
+        for reaction in cumulative_data:
+            dsv_row = ' '.join(str(reaction[key]) for key in join_keys)
+            dsv_row += ' ' + ' '.join(str(xs) for xs in reaction[xs_key])
+            dsv_row += '\n'
+            dsv_file.write(dsv_row)
+        # End of File (EOF) signifier to be read by ALARAJOY
+        dsv_file.write(str(-1))
 
 def main():
     """
     Main method when run as a command line script.
     """
 
-    dir = groupr_tools.set_directory()
-    search_dir = args().fendlFileDir[0] if args().fendlFileDir else dir
-
+    # Set constants
     TAPE20 = 'tape20'
-    TAPE21 = 'tape21'
+    GAS_MT_MIN = 203 # Lowest MT number in range of gas production totals
+    GAS_MT_MAX = 207 # Highest MT number in range of gas production totals
 
-    mt_dict = rxd.process_mt_data(rxd.load_mt_table(f'{dir}/mt_table.csv'))
+
+    dir = njt.set_directory()
+    search_dir = (
+        Path(args().fendlFileDir[0]) if args().fendlFileDir else dir
+        )
+    temperature = args().temperature[0]
+
+    TAPE20 = Path('tape20')
+
+    mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
 
     cumulative_data = []
     for isotope, file_properties in tp.search_for_files(search_dir).items():
         element = file_properties['Element']
         A = file_properties['Mass Number']
-        endf_path, pendf_path = file_properties['File Paths']
-        Path(TAPE20).write_bytes(endf_path.read_bytes())
-        Path(TAPE21).write_bytes(pendf_path.read_bytes())
+        endf_path = file_properties['TENDL File Path']
+        TAPE20.write_bytes(endf_path.read_bytes())
 
         material_id, MTs, endftk_file_obj = tp.extract_endf_specs(TAPE20)
         MTs = set(MTs).intersection(mt_dict.keys())
-        njoy_input = groupr_tools.fill_input_template(material_id, MTs,
-                                                      element, A, mt_dict)
-        groupr_tools.write_njoy_input_file(njoy_input)
-        gendf_path, njoy_error = groupr_tools.run_njoy(
-            element, A, material_id
+
+        # PENDF Preperation and Generation
+        njoy_input = njt.fill_input_template(
+            njt.njoy_prep_input, material_id,
+            MTs, element, A, mt_dict, temperature
+            )
+        njt.write_njoy_input_file(njoy_input)
+        pendf_path, njoy_error = njt.run_njoy(
+            element, A, material_id, 'PENDF'
+        )
+        
+        _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
+        gas_MTs = set(pendf_MTs) & set(range(GAS_MT_MIN, GAS_MT_MAX))
+        MTs |= {int(gas_MT) for gas_MT in gas_MTs}
+
+        # GENDF Generation
+        groupr_input = njt.fill_input_template(
+            njt.groupr_input, material_id,
+             MTs, element, A, mt_dict, temperature
+        )
+        njt.write_njoy_input_file(groupr_input)
+
+        gendf_path, njoy_error = njt.run_njoy(
+            element, A, material_id, 'GENDF'
         )
 
         if gendf_path:
@@ -51,20 +118,30 @@ def main():
             material_id, MTs, endftk_file_obj = tp.extract_endf_specs(
                 gendf_path
             )
-            gendf_data = tp.iterate_MTs(MTs, endftk_file_obj, mt_dict, pKZA)
-            cumulative_data.extend(gendf_data)
-            groupr_tools.cleanup_njoy_files()
-            print(f'Finished processing {element}{A}')
+            if MTs and endftk_file_obj:
+                gendf_data = tp.iterate_MTs(
+                    MTs, endftk_file_obj, mt_dict, pKZA
+                )
+                cumulative_data.extend(gendf_data)
+                print(f'Finished processing {element}{A}')
+            else:
+                warnings.warn(
+                    f'''The requested file (MF3) is not present in the
+                    ENDF file tree for {element}{A}'''
+                )
+                with open('mf_fail.log', 'a') as fail:
+                    fail.write(f'{element}{A} \n')                    
         else:
             warnings.warn(
                 f'''Failed to convert {element}{A}.
                 NJOY error message: {njoy_error}'''
             )
 
-    csv_path = dir + '/cumulative_gendf_data.csv'
-    DataFrame(cumulative_data).to_csv(csv_path)
+        njt.cleanup_njoy_files(element, A)
 
-    print(csv_path)
+    dsv_path = dir / 'cumulative_gendf_data.dsv'
+    write_dsv(dsv_path, cumulative_data)
+    print(dsv_path)
 
 if __name__ == '__main__':
     main()

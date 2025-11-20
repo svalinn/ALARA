@@ -18,6 +18,7 @@ using namespace std;
 #include "ALARALib.h"
 #include "ADJLib.h"
 #include "FEINDLib.h"
+#include "ALARAJOY.h"
 
 const char *libTypes =  "\
 null  \
@@ -27,7 +28,8 @@ eaf   \
 adj   \
 gamma \
 ieaf  \
-feind ";
+feind \
+ajoy  ";
 
 const int libTypeLength = 6;
 
@@ -39,7 +41,8 @@ const char *libTypeStr[] = {
   "an 'adjlib' ALARA",
   "a 'gammalib' ALARA",
   "an IEAF library",
-  "a FEIND library"};
+  "a FEIND library",
+  "an ALARAJOY library"};
 
 const char *libTypeSuffix[] = {
   ".null",
@@ -49,7 +52,8 @@ const char *libTypeSuffix[] = {
   ".lib",
   ".gam",
   ".ieaf",
-  ".feind"};
+  ".feind",
+  ".ajoy"};
 
 
 /****************************
@@ -71,6 +75,7 @@ DataLib* DataLib::newLib(char* libType, istream& input)
     {
     case DATALIB_EAF:
     case DATALIB_IEAF:
+    case DATALIB_ALARAJOY:
       convertLib(libType,DATALIB_ALARA,input);
       dl = new ALARALib(ALARAFNAME);
       break;
@@ -134,6 +139,13 @@ void DataLib::convertLib(char *fromTypeStr, int toType, istream& input)
       dl = new IEAFLib(transFname,decayFname,ALARAFNAME);
       delete dl;
       break;
+    case ALARAJOY2ALARA:
+        input >> transFname >> decayFname;
+        verbose(3,"Openning ALARAJOY formatted libraries %s, %s for conversion",
+        transFname, decayFname);  
+        dl = new ALARAJOYLib(transFname, decayFname, ALARAFNAME);
+        delete dl;
+        break;
     default:
       error(1001,"Conversion from %s (%d) to (%d) is not yet supported.",
 	    fromTypeStr, fromType, toType);
@@ -161,23 +173,32 @@ void DataLib::convertLib(istream& input)
       verbose(3,"Openning EAF formatted libraries %s, %s for conversion into ALARA library %s",
 	      transFname,decayFname,alaraFname);
       dl = new EAFLib(transFname,decayFname,alaraFname);
-      delete dl;
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
+      delete dl;
       break;
     case IEAF2ALARA:
       input >> transFname >> decayFname >> alaraFname;
       verbose(3,"Openning IEAF formatted libraries %s, %s for conversion into ALARA library %s",
 	      transFname,decayFname,alaraFname);
       dl = new IEAFLib(transFname,decayFname,alaraFname);
-      delete dl;
       verbose(3,"Converted libraries with %d parents and %d groups.",
 	      dl->nParents,dl->nGroups);
+      delete dl;
       break;
     case ALARA2ADJ:
       char adjointLibName[256];
       input >> alaraFname >> adjointLibName;
       dl = new ADJLib(alaraFname,adjointLibName);
+      delete dl;
+      break;
+    case ALARAJOY2ALARA:
+      input >> transFname >> decayFname >> alaraFname;  
+      verbose(3,"Openning ALARAJOY formatted libraries %s, %s for conversion into ALARA library %s",
+      transFname,decayFname,alaraFname);  
+      dl = new ALARAJOYLib(transFname,decayFname,alaraFname);
+      verbose(3,"Converted libraries with %d parents and %d groups.",
+	      dl->nParents,dl->nGroups);
       delete dl;
       break;
     default:

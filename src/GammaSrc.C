@@ -93,7 +93,9 @@ void GammaSrc::initExposureDose(istream& input)
   input >> token;
   fileName = new char[strlen(token)+1];
   strcpy(fileName,token);
-  gDoseData.open(searchNonXSPath(fileName));
+  char* filePath = searchNonXSPath(fileName);
+  gDoseData.open(filePath);
+  free(filePath);
  
   if (!gDoseData)
     error(250,
@@ -137,7 +139,9 @@ void GammaSrc::initExposureCylVolDose(istream& input)
   input >> token;
   fileName = new char[strlen(token)+1];
   strcpy(fileName,token);
-  gDoseData.open(searchNonXSPath(fileName));
+  char* filePath = searchNonXSPath(fileName);
+  gDoseData.open(filePath);
+  free(filePath);
   if (!gDoseData)
     error(250,
 	  "Unable to open file for gamma attenuation data input (contact dose): %s\n",
@@ -185,7 +189,9 @@ void GammaSrc::initContactDose(istream& input)
   input >> token;
   fileName = new char[strlen(token)+1];
   strcpy(fileName,token);
-  gDoseData.open(searchNonXSPath(fileName));
+  char* filePath = searchNonXSPath(fileName);
+  gDoseData.open(filePath);
+  free(filePath);
   if (!gDoseData)
     error(250,
 	  "Unable to open file for gamma attenuation data input (contact dose): %s\n",
@@ -318,7 +324,9 @@ float GammaSrc::G_factor(float k,float p,float MsR,float /*b1 = 0*/)
 {
 
   ifstream GFile;
-  GFile.open(searchNonXSPath("GFunction"));
+  char* filePath = searchNonXSPath("GFunction");
+  GFile.open(filePath);
+  free(filePath);
   if (!GFile)
     error(250,"Unable to open file for interpolating G function: %s\n",
 	  "GFunction");
@@ -831,7 +839,9 @@ void GammaSrc::calcBuildupParameters(double En,  char mat, double& A1, double& A
   En = En/1e6;
 
   ifstream BFile;
-  BFile.open(searchNonXSPath("Buildup_Parameter"));
+  char* filePath = searchNonXSPath("Buildup_Parameter");
+  BFile.open(filePath);
+  free(filePath);
   if (!BFile)
     error(250,"Unable to open file for interpolating buildup factors: %s\n",
 	  "Buildup_Parameter");
