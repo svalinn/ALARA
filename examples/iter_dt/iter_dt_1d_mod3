@@ -21,7 +21,7 @@ end
 
 material_lib /root/data/matlib.sample
 element_lib /root/data/elelib.std
-data_library alaralib /opt/groupspace/shared/n/nukecode/ALARA/data/fendl2bin
+data_library alaralib fendl2bin
 
 output zone
         number_density
