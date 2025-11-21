@@ -5,9 +5,12 @@ Contained within `ALARA/tools` is the Python package, `alara_output_processing`,
 ## Dependencies
 - Standard Python libraries
     * [ArgParse](https://docs.python.org/3/library/argparse.html)
+    * [CSV](https://docs.python.org/3/library/csv.html)
     * [IO](https://docs.python.org/3/library/io.html)
     * [Re](https://docs.python.org/3/library/re.html)
+    * [Warnings](https://docs.python.org/3/library/warnings.html)
 - Generic Python packages
+    * [NumPy](https://numpy.org/install/)
     * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 
 
