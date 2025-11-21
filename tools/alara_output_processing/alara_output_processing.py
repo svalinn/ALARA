@@ -196,6 +196,7 @@ class FileParser:
                     'block' : ALARADFrame block integer enumerator,
                     'block_num' : Geometric position of block,
                     'variable' : ALARADFrame variable integer enumerator,
+                    'unit' : Unit for corresponding variable,
                     'value' : Float value for the corresponding variable
                 } 
         '''
@@ -215,7 +216,7 @@ class FileParser:
         time_key_map = dict(zip(time_cols, converted_times))
 
         block_name, block_num_trail = current_block.split(' #')
-        variable = current_parameter.split(' [')[0]
+        variable, unit = current_parameter.split(' [')
 
         current_table_rows = []
         for row in reader:
@@ -227,6 +228,7 @@ class FileParser:
                     'block'          :     ALARADFrame.BLOCK_ENUM[block_name],
                     'block_num'      :          block_num_trail.split(' ')[0],
                     'variable'       :    ALARADFrame.VARIABLE_ENUM[variable],
+                    'unit'           :                     unit.split(']')[0],
                     'value'          :           float(row.get(old_time, ''))
                 })
 
