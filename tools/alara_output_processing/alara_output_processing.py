@@ -23,7 +23,7 @@ def convert_times(vector, from_unit, to_unit):
         or centuries (c).
 
     Arguments:
-        vector (numpy.array): 1-D NumPy array containing time values.
+        vector (numpy.ndarray): 1-D NumPy array containing time values.
         from_unit (str): Time units of vector's input state. Accepted values:
             's', 'm', 'h', 'd', 'w', 'y', 'c'.
         to_unit (str): Time units of converted vector. Accepted values: 's',
