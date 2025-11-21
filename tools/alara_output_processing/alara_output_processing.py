@@ -410,36 +410,6 @@ class ALARADFrame(pd.DataFrame):
 
         return filtered_adf.reset_index(drop=True)
 
-    def extract_totals(self, write_out=list):
-        '''
-        Extract a list of the totals for a single response variable at each
-            cooling time from an ALARADFrame with data from a single run and
-            response variable.
-        
-        Arguments:
-            self (alara_output_processing.ALARADFrame): Filtered ALARADFrame
-                with only one variable and one run or a pivoted ALARADFrame of
-                'nuclide' vs. 'time'.
-
-        Returns:
-            totals (list of floats): List of total values at each
-                cooling time in the ALARADFrame.
-        '''
-
-        # Case 1: Pivoted ALARADFrame with "total" row
-        if self.index.name == 'nuclide' and 'total' in self.index:
-            totals = self[self.index == 'total'].iloc[0]
-        
-        # Case 2: Standard ALARADFrame with "total" rows
-        else:
-            totals = self.filter_rows({'nuclide' : 'total'})['value']
-
-        return (
-            totals.to_numpy() if isinstance(write_out, np.ndarray)
-            else totals.tolist()
-        )
-
-
     def calculate_relative_vals(self):
         '''
         Create a new column for a pre-filtered ALARADFrame with data for a
@@ -470,7 +440,7 @@ class ALARADFrame(pd.DataFrame):
                     'single value before calculating relative values.'
                 )
 
-        totals = self.extract_totals(write_out=np.array)
+        totals = self.filter_rows({'nuclide' : 'total'})['value'].to_numpy()
         times = sorted(set(self['time']))
         total_map = dict(zip(times, totals))
         adf_rel = self[self['nuclide'] != 'total'].copy()
