@@ -1,9 +1,9 @@
 import pandas as pd
 import re
 import argparse
+import numpy as np
 from io import StringIO
 from warnings import warn
-from numpy import array
 from csv import DictReader
 
 # ---------- General Utility Methods ----------
@@ -61,52 +61,65 @@ def extract_time_vals(times, to_unit='s'):
             numeric_times.append(float(time_str))
     
     return convert_times(
-        array(numeric_times), from_unit=unit, to_unit=to_unit
+        np.array(numeric_times), from_unit=unit, to_unit=to_unit
     )
 
-def aggregate_small_percentages(piv, relative=False, threshold=0.05):
+def aggregate_small_percentages(adf_rel, threshold=0.05):
     '''
-    Consolidate all rows in a pre-filtered and pivoted DataFrame derived from
-        a larger ALARADFRame that do not have any cells with a contribution of
-        more than a threshold value to the total for its respective column.
-        Rows that do not have any cells that surpass its column's threshold
-        are aggregated into a new "Other" row. If a row has at least one
-        column value above the threshold, then the whole row is preserved.
+    Consolidate all nuclides that do not have any row-level values greater
+        than a proportional threshold for totals over all times in a 
+        pre-filtered ALARADFrame that has been operated on by
+        ALARADFrame().calculate_relative_vals() already.
+        Nuclides that do not have any values that surpass the absolute
+        threshold at any time are aggregated into a new "Other" row for each
+        time. If a nuclide has a value that surpasses the threshold at any
+        time, then all rows for said nuclie are preserved.
 
     Arguments:
-        piv (pd.DataFrame): DataFrame created from the pivoting of an
-            ALARADFrame already operated on by ALARADFrame.filter_rows().
-        relative (bool, optional): Option for ALARADFrames already
-            processed by relative_contributions().
-            (Defaults to False)     
+        adf_rel (alara_output_processing.ALARADFrame): ALARADFRame containing
+            data from a single variable, response, and block that has been
+            filtered and processed with ALARADFrame.calculate_relative_vals()
+            prior. If those conditions are not met, a KeyError will be raised.
         threshold (float or int): Proportional threshold value for
             inclusion cutoff.
             (Defaults to 0.05)
 
     Returns:
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
-            (potentially) with new row, "Other", containing all aggregated
-            data below the thresholds.
+            (potentially) with new "Other" rows for each time, containing all
+            aggregated data below the thresholds.
     '''
 
-    piv = ALARADFrame(piv)
-    cols = piv.columns
+    if 'rel_value' not in adf_rel.columns:
+        raise KeyError(
+            'Aggregation by small percentages requires calling '\
+            'adf.calculate_relative_values() first.'
+        )
     
-    rel_adjustment = (
-        [1] * len(cols) if relative else piv.extract_totals()
-    )
-    threshold_vals = {
-        col: threshold * adj for col, adj in zip(cols, rel_adjustment)
-    }
-    piv = piv[piv.index != 'total']
+    adf = adf_rel.copy()
+    
+    max_rel_by_nuc = adf.groupby('nuclide')['rel_value'].max()
+    small_nuc = max_rel_by_nuc[max_rel_by_nuc < threshold].index
+    large_nuc = max_rel_by_nuc[max_rel_by_nuc >= threshold].index
 
-    small_mask = (piv[cols] < pd.Series(threshold_vals)).all(axis=1)
-    other_row = pd.Series(piv.loc[small_mask, cols].sum(), name='Other')
-    agg = piv.loc[~small_mask.values]
+    large_adf = adf[adf['nuclide'].isin(large_nuc)]
+    small_adf = adf[adf['nuclide'].isin(small_nuc)]
 
-    if other_row[cols].sum() > 0:
-        agg = pd.concat([agg, other_row.to_frame().T])
-    agg.index.name = 'nuclide'
+    if small_adf.empty:
+        agg = large_adf
+    else:
+        other_rows = (small_adf.groupby('time').agg({
+            'rel_value' : 'sum',
+            'value' : 'sum',
+            'run_lbl' : 'first',
+            'block' : 'first',
+            'block_num' : 'first',
+            'variable' : 'first',
+            'unit' : 'first'
+            }).reset_index()
+        )
+        other_rows['nuclide'] = 'Other'
+        agg = pd.concat([large_adf, other_rows], ignore_index=True)
 
     return agg
 
@@ -229,7 +242,7 @@ class FileParser:
                     'block_num'      :          block_num_trail.split(' ')[0],
                     'variable'       :    ALARADFrame.VARIABLE_ENUM[variable],
                     'unit'           :                     unit.split(']')[0],
-                    'value'          :           float(row.get(old_time, ''))
+                    'value'          :                   float(row[old_time])
                 })
 
         return current_table_rows
@@ -397,7 +410,7 @@ class ALARADFrame(pd.DataFrame):
 
         return filtered_adf.reset_index(drop=True)
 
-    def extract_totals(self):
+    def extract_totals(self, write_out=list):
         '''
         Extract a list of the totals for a single response variable at each
             cooling time from an ALARADFrame with data from a single run and
@@ -421,7 +434,53 @@ class ALARADFrame(pd.DataFrame):
         else:
             totals = self.filter_rows({'nuclide' : 'total'})['value']
 
-        return totals.tolist()
+        return (
+            totals.to_numpy() if isinstance(write_out, np.ndarray)
+            else totals.tolist()
+        )
+
+
+    def calculate_relative_vals(self):
+        '''
+        Create a new column for a pre-filtered ALARADFrame with data for a
+            single response, block, and run for relative contributions of each
+            nuclide at each time to the total value of that response at each
+            cooling time. If multiple runs, blocks, or variables are present
+            in the ALARADFrame, a ValueError will be raised with directions
+            for which column to further filter.
+
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Pre-filtered
+                ALARADFrame containing data for a single response, block, and
+                run.
+
+        Returns:
+            adf_rel (alara_output_processing.ALARADFrame): Copy of self, with
+                a new column 'rel_value' representing the relative
+                contribution of each row's value to the corresponding total at
+                each cooling time.
+        '''
+
+        necessary_single_filters = ['run_lbl', 'block', 'variable']
+        for col in necessary_single_filters:
+            if len(self[col].unique()) > 1:
+                raise ValueError(
+                    'Relative values can only be calculated for single run, '\
+                    f'block, and variable ALARADFrames. \nFilter {col} to '\
+                    'single value before calculating relative values.'
+                )
+
+        totals = self.extract_totals(write_out=np.array)
+        times = sorted(set(self['time']))
+        total_map = dict(zip(times, totals))
+        adf_rel = self[self['nuclide'] != 'total'].copy()
+
+        adf_rel['rel_value'] = adf_rel.apply(
+            lambda row: row['value'] / total_map[row['time']],
+            axis=1
+        )
+
+        return adf_rel
 
 
 class DataLibrary:
