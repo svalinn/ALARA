@@ -1,5 +1,4 @@
 import pandas as pd
-import re
 import argparse
 from warnings import warn
 from csv import DictReader
