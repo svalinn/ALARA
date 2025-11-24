@@ -1,7 +1,6 @@
 import pandas as pd
 import re
 import argparse
-from io import StringIO
 from warnings import warn
 from csv import DictReader
 from numpy import array
@@ -48,21 +47,22 @@ def extract_time_vals(times, to_unit='s'):
             (Defaults to 's')
 
     Returns:
-        times (numpy.ndarray): 1-D NumPy array of the converted ALARA cooling
-            times.
+        times (list): Chronologically sorted list of the converted ALARA
+            cooling times.
     '''
     
     numeric_times = []
     for time in times:
-        if 'shutdown' in time:
+        if time.isalpha() and len(time) == 1:
+            unit = time
+        elif time == 'shutdown':
             numeric_times.append(0.0)
         else:
-            time_str, unit = time.split('_')
-            numeric_times.append(float(time_str))
-    
-    return convert_times(
+            numeric_times.append(float(time))
+
+    return sorted(convert_times(
         array(numeric_times), from_unit=unit, to_unit=to_unit
-    )
+    ))
 
 def aggregate_small_percentages(adf_rel, threshold=0.05):
     '''
@@ -127,20 +127,13 @@ def aggregate_small_percentages(adf_rel, threshold=0.05):
 
 class FileParser:
 
-    def __init__(self, filepath, run_lbl):
+    def __init__(self, filepath, run_lbl, time_unit):
         self.filepath = filepath
         self.run_lbl = run_lbl
+        self.time_unit = time_unit
         self.results = ALARADFrame()
 
-    # ---------- Utility and Helper Methods ----------
-
-    @staticmethod
-    def _normalize_header(header_line: str):
-        return re.sub(r'(\d+)\s+([a-zA-Z]+)', r'\1_\2', header_line)
-
-    @staticmethod
-    def _sanitize_filename(name: str):
-        return re.sub(r'[<>:"/\\|?*\[\]\(\)\s]+', '_', name)
+    # ---------- Parsing Boolean Logic Functions ----------
 
     @staticmethod
     def _is_new_parameter(line):
@@ -204,48 +197,52 @@ class FileParser:
                 table's rows as a dictionary of the form:
                 row = {
                     'time' : Cooling time of data entry in seconds,
+                    'time_unit' : Units for cooling times,
                     'nuclide' : Individual nuclide,
                     'run_lbl' : Distinguisher between runs,
                     'block' : ALARADFrame block integer enumerator,
                     'block_num' : Geometric position of block,
                     'variable' : ALARADFrame variable integer enumerator,
-                    'unit' : Unit for corresponding variable,
+                    'var_unit' : Unit for corresponding variable,
                     'value' : Float value for the corresponding variable
                 } 
         '''
 
-        # Prepare table text for csv.DictReader
-        text = '\n'.join(current_table_lines)
-        comma_delim = re.sub(r'\t+|\s{2,}', ',', text.strip())
-        
-        reader = DictReader(StringIO(comma_delim), delimiter=',')
-        
-        # Handle and reformat DictReader data for row writing
-        raw_cols = reader.fieldnames[:]
-        nuclide_col = raw_cols[0]
-        time_cols = raw_cols[1:]
+        header_line = current_table_lines[0].strip()
+        data_lines = current_table_lines[1:]
 
-        converted_times = extract_time_vals(time_cols)
-        time_key_map = dict(zip(time_cols, converted_times))
+        raw_cols = header_line.split()
+        nuclide_col = raw_cols[0]
+        times_w_units = set(raw_cols[1:])
+        converted_times = extract_time_vals(
+            times_w_units, to_unit=self.time_unit
+        )
 
         block_name, block_num_trail = current_block.split(' #')
         variable, unit = current_parameter.split(' [')
+        
+        reader = DictReader(
+            [' '.join(line.split()) for line in data_lines],
+            fieldnames=([nuclide_col] + [str(t) for t in converted_times]),
+            delimiter=' ',
+            skipinitialspace=True
+        )
 
-        current_table_rows = []
-        for row in reader:
-            for old_time, new_time in time_key_map.items():
-                current_table_rows.append({
-                    'time'           :                               new_time,
-                    'nuclide'        :                       row[nuclide_col],
-                    'run_lbl'        :                           self.run_lbl,
-                    'block'          :     ALARADFrame.BLOCK_ENUM[block_name],
-                    'block_num'      :          block_num_trail.split(' ')[0],
-                    'variable'       :    ALARADFrame.VARIABLE_ENUM[variable],
-                    'unit'           :                     unit.split(']')[0],
-                    'value'          :                   float(row[old_time])
-                })
-
-        return current_table_rows
+        return [
+            {
+                'time'          :                                    time,
+                'time_unit'     :                          self.time_unit,
+                'nuclide'       :                        row[nuclide_col],
+                'run_lbl'       :                            self.run_lbl,
+                'block'         :      ALARADFrame.BLOCK_ENUM[block_name],
+                'block_num'     :           block_num_trail.split(' ')[0],
+                'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
+                'var_unit'      :                      unit.split(']')[0],
+                'value'         :                   float(row[str(time)])
+            }
+            for row in reader
+            for time in converted_times
+        ]
 
     def extract_tables(self):
         '''
@@ -284,7 +281,7 @@ class FileParser:
 
             if self._is_table_header(line):
                 inside_table = True
-                current_table_lines = [self._normalize_header(line)]
+                current_table_lines = [line]
                 continue
 
             if inside_table and self._is_separator(line):
@@ -445,7 +442,7 @@ class DataLibrary:
     def __init__(self):
          self.adf = None
 
-    def make_entries(self, runs_dict):
+    def make_entries(self, runs_dict, time_unit='s'):
         '''
         Flexibly create a dictionary of subdictionaries containing
             ALARADFrames with associated metadata containing ALARA output data
@@ -474,7 +471,9 @@ class DataLibrary:
 
         dfs = []
         for run_lbl, output_path in runs_dict.items():
-            parser = FileParser(output_path, run_lbl=run_lbl)
+            parser = FileParser(
+                output_path, run_lbl=run_lbl, time_unit=time_unit
+            )
             dfs.append(parser.extract_tables())
 
         self.adf = ALARADFrame(pd.concat(dfs).fillna(0.0))
@@ -486,17 +485,22 @@ class DataLibrary:
 def args():
     argparser = argparse.ArgumentParser()
     argparser.add_argument(
-        '--filepath', '-f', required=True, nargs=1
+        '--filepath', '-f', required=True
     )
     argparser.add_argument(
-        '--run_label', '-r', required=False, nargs=1
+        '--run_label', '-r', required=False
+    )
+    argparser.add_argument(
+        '--time_unit', '-t', required=False
     )
     return argparser.parse_args()
 
 def main():
-    alara_data = FileParser(args().filepath[0], args().run_label[0])
+    alara_data = FileParser(
+        args().filepath, args().run_label, args().time_unit
+    )
     adf = alara_data.extract_tables()
-    adf.to_csv(args().run_label[0])
+    adf.to_csv(f'{args().run_label}.csv')
 
 if __name__ == '__main__':
     main()
