@@ -28,11 +28,11 @@ def convert_times(vector, from_unit, to_unit):
             'm', 'h', 'd', 'w', 'y', 'c'.
 
     Returns:
-        converted_vector (numpy.ndarray): 1-D Numpy array of time values
-            converted to the desired units.
+        converted_list (list): Chronologically sorted list of the converted
+            ALARA cooling times.
     '''
 
-    return vector * (SECONDS_CONV[from_unit] / SECONDS_CONV[to_unit])
+    return sorted(vector * (SECONDS_CONV[from_unit] / SECONDS_CONV[to_unit]))
 
 def extract_time_vals(times, to_unit='s'):
     '''
@@ -59,9 +59,9 @@ def extract_time_vals(times, to_unit='s'):
         else:
             numeric_times.append(float(time))
 
-    return sorted(convert_times(
+    return convert_times(
         array(numeric_times), from_unit=unit, to_unit=to_unit
-    ))
+    )
 
 def aggregate_small_percentages(adf_rel, threshold=0.05):
     '''
