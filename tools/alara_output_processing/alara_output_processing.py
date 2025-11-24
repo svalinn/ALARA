@@ -1,10 +1,10 @@
 import pandas as pd
 import re
 import argparse
-import numpy as np
 from io import StringIO
 from warnings import warn
 from csv import DictReader
+from numpy import array
 
 # ---------- General Utility Methods ----------
 
@@ -61,7 +61,7 @@ def extract_time_vals(times, to_unit='s'):
             numeric_times.append(float(time_str))
     
     return convert_times(
-        np.array(numeric_times), from_unit=unit, to_unit=to_unit
+        array(numeric_times), from_unit=unit, to_unit=to_unit
     )
 
 def aggregate_small_percentages(adf_rel, threshold=0.05):
@@ -109,13 +109,13 @@ def aggregate_small_percentages(adf_rel, threshold=0.05):
         agg = large_adf
     else:
         other_rows = (small_adf.groupby('time').agg({
-            'rel_value' : 'sum',
-            'value' : 'sum',
-            'run_lbl' : 'first',
-            'block' : 'first',
-            'block_num' : 'first',
-            'variable' : 'first',
-            'unit' : 'first'
+            'rel_value'     :        'sum',
+            'value'         :        'sum',
+            'run_lbl'       :      'first',
+            'block'         :      'first',
+            'block_num'     :      'first',
+            'variable'      :      'first',
+            'unit'          :      'first'
             }).reset_index()
         )
         other_rows['nuclide'] = 'Other'
@@ -328,26 +328,27 @@ class ALARADFrame(pd.DataFrame):
     def _constructor(self):
         return ALARADFrame
 
-    def _filter_elements(self, elements):
+    def _single_element_all_nuclides(self, element):
         '''
-        Create a new ALARADFrame containing only the data for nuclides of a
-            selected element or elements to be called within filter_rows().
+        Create a list of all nuclides of a given element in an ALARADFrame to
+            be called within filter_rows().
         
         Arguments:
             self (alara_output_processing.ALARADFrame): Specialized ALARA
                 output DataFrame.
-            elements (str or list): Option to plot only the isotopes of a
-                single element or list of selected elements.
+            elements (str): Single element for which to find all nuclides in
+                self.
 
         Returns:
-            element_adf (alara_output_processing.ALARADFrame): New ALARADFrame
-                containing only data for the selected element(s).
+            nuclide_list (list): List of all nuclides of the selected element
+                present in the ALARADFrame.
         '''
 
-        regex = '|'.join(fr'{el}-' for el in elements)
-
-        return self[self['nuclide'].str.contains(regex, case=False, na=False)]
-
+        return self.loc[
+            self['nuclide'].str.startswith(f'{element.lower()}-', na=False),
+            'nuclide'
+        ].unique().tolist()
+    
     def filter_rows(self, filter_dict):
         '''
         Filter all rows that match user specifications for one or more
@@ -371,42 +372,28 @@ class ALARADFrame(pd.DataFrame):
                 of self containing only rows that match all conditions in 
                 filter_dict.
         '''
-        
+
         filtered_adf = self.copy()
         for col_name, filters in filter_dict.items():
-            if col_name in filtered_adf.columns:
-                if not isinstance(filters, list):
-                    filters = [filters]
-
-                if col_name == 'nuclide':
-                    elements, specific_nuclides = [], []
-                    for f in filters:
-                        if '-' not in f and f != 'total':
-                            elements.append(f)
-                        else:
-                            specific_nuclides.append(f)
-
-                    mask = pd.Series(False, index=filtered_adf.index)
-
-                    if elements:
-                        mask |= filtered_adf.index.isin(
-                            filtered_adf._filter_elements(elements).index
-                        )
-
-                    if specific_nuclides:
-                        mask |= filtered_adf[col_name].isin(specific_nuclides)
-
-                else:
-                    mask = filtered_adf[col_name].isin(filters)
-
-                filtered_adf = filtered_adf[mask]
+            if col_name not in filtered_adf.columns:
+                warn(f'Column "{col_name}" not found. Skipping.')
+                continue
             
-            else:
-                warn(
-                    f'Column name "{col_name}" from filter_dict not found in ' \
-                    f'any of the ALARADFrame columns. Skipping filter for ' \
-                    f'{col_name}.'
-                )
+            if not isinstance(filters, list):
+                filters = [filters]
+
+            if col_name == 'nuclide':
+                nuclides = []
+                for f in filters:
+                    nuclides += (
+                        filtered_adf._single_element_all_nuclides(f)
+                        if ('-' not in f and f.lower() != 'total')
+                        else [f]
+                    )
+
+                filters = list(dict.fromkeys(nuclides))
+
+            filtered_adf = filtered_adf[filtered_adf[col_name].isin(filters)]
 
         return filtered_adf.reset_index(drop=True)
 
