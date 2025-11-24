@@ -381,7 +381,7 @@ class ALARADFrame(pd.DataFrame):
             if col_name == 'nuclide':
                 nuclides = []
                 for f in filters:
-                    nuclides += (
+                    nuclides.extend(
                         filtered_adf._single_element_all_nuclides(f)
                         if ('-' not in f and f.lower() != 'total')
                         else [f]
@@ -390,6 +390,9 @@ class ALARADFrame(pd.DataFrame):
                 filters = list(dict.fromkeys(nuclides))
 
             filtered_adf = filtered_adf[filtered_adf[col_name].isin(filters)]
+
+        if filtered_adf.empty:
+            warn('Excessive filtering. No matching rows for given filters.')    
 
         return filtered_adf.reset_index(drop=True)
 
