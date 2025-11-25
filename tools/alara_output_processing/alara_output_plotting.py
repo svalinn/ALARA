@@ -115,6 +115,7 @@ def split_label(label):
             for single run plotting.
     '''
 
+    # Label formatted as f"{element}-{A} ({run_lbl})" for comparative plots
     if '(' in label:
         parts = label.split('(')
         isotope = parts[0].strip()
@@ -329,3 +330,4 @@ def plot_single_response(
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
     plt.show()
+    

@@ -1,7 +1,6 @@
 import subprocess
 from string import Template
 from pathlib import Path
-import matplotlib.pyplot as plt
 
 #--------------- Running Single Parent Element Simulation(s) -----------------
 
