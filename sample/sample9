@@ -7,13 +7,13 @@
 # 2 different methods. The first method is the default method in ALARA and the
 # second method uses the "integrate_energy" modifier. In the first method, q is
 # calculated using the decay constant (lambda), number density (N), decay time
-# (t) and gamma yeild (Y) via the following expression (for discrete line
+# (t) and gamma yield (Y) via the following expression (for discrete line
 # emission): 
 # 
 # q_method1 = lambda*N*exp(-lambda*t)*Y.
 # 
-# Note that Y is the number of gammas emmitted in the energy group of interest
-# per dintegration. The second method (i.e with the "integrate_energy" modifier)
+# Note that Y is the number of gammas emitted in the energy group of interest
+# per disintegration. The second method (i.e with the "integrate_energy" modifier)
 # calculates q by:
 # 
 # q_method2 = lambda*N*exp(-lambda*t)*Y*E/((E_hi + E_low)/2),
@@ -22,7 +22,7 @@
 # group upper and lower bounds, respectively.
 # 
 # In this problem a number density of 8.61E+022 (cm^-3) was used. Mn-56 has only
-# 1 gamma emmission in the 0.8--1.0 MeV energy group. The following nuclear data
+# 1 gamma emission in the 0.8--1.0 MeV energy group. The following nuclear data
 # applies [1]:
 # 
 # half-life (h): 2.57878
