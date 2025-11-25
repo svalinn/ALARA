@@ -89,8 +89,7 @@ The flux is read from the `fluxin1`, and normalized differently for each interva
 
 There is a single 10 year pulse.
 
-Results are produced at 11 cooling times the total heat
-and photon source, with units of Bq per cm3.
+The total heat and photon source, with units of Bq per cm3, are produced as results at 11 cooling times.
 
 Most initial nuclides will have their chains truncated with a tolerance of 1e-6,
 but impurities (defined as nuclides with an initial concetration of less than 10 ppm) will be truncated
