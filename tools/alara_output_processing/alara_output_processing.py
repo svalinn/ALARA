@@ -34,54 +34,59 @@ def convert_times(vector, from_unit, to_unit):
 
     return sorted(vector * (SECONDS_CONV[from_unit] / SECONDS_CONV[to_unit]))
 
-def extract_time_vals(times, to_unit='s'):
+def extract_time_vals(cols, to_unit='s'):
     '''
     Return the cooling times of an ALARADFrame from their column headers
         as a list in time units of the user's specification.
 
     Arguments:
-        times (list): List of cooling times from an ALARA output table header.
+        cols (list): List of cooling times and respective units from an ALARA
+            output table header. Units can be different for each time, but
+            will all be converted to the same to_unit. 
         to_unit (str, optional): Time units for conversion. Accepted values:
             's', 'm', 'h', 'd', 'w', 'y', 'c'.
             (Defaults to 's')
 
     Returns:
         times (list): Chronologically sorted list of the converted ALARA
-            cooling times.
+            cooling times in the selected units.
     '''
     
-    numeric_times = []
-    for time in times:
-        if time.isalpha() and len(time) == 1:
-            unit = time
-        elif time == 'shutdown':
-            numeric_times.append(0.0)
-        else:
-            numeric_times.append(float(time))
+    converted_times = []
+    
+    # If "shutdown" is present in the time columns, it will necessarily be the
+    # 0th entry. "Shutdown" is unit-ambivalent at time=0.
+    if cols[0] == 'shutdown':
+        converted_times.append(0.0)
+        cols = cols[1:]
 
-    return convert_times(
-        array(numeric_times), from_unit=unit, to_unit=to_unit
-    )
+    for time, unit in zip(cols[::2], cols[1::2]):
+        converted_times.append(convert_times(
+            array([float(time)]), from_unit=unit, to_unit=to_unit
+        )[0])
 
-def aggregate_small_percentages(adf_rel, threshold=0.05):
+    return converted_times
+
+def aggregate_small_percentages(adf, threshold):
     '''
     Consolidate all nuclides that do not have any row-level values greater
-        than a proportional threshold for totals over all times in a 
-        pre-filtered ALARADFrame that has been operated on by
-        ALARADFrame().calculate_relative_vals() already.
-        Nuclides that do not have any values that surpass the absolute
-        threshold at any time are aggregated into a new "Other" row for each
-        time. If a nuclide has a value that surpasses the threshold at any
-        time, then all rows for said nuclie are preserved.
+        than a given threshold for totals over all times in a pre-filtered
+        ALARADFrame containing data from a single variable, response, and
+        block. The 'value' column in the ALARADFrame can either contain
+        absolute or relative data, requiring only that the user provide an
+        appropriate threshold value.
+
+        Nuclide that do not contribute any values that surpass the threshold
+        at any time are aggregated into a new "Other" row for each time. If a
+        nuclide has a value that surpasses the threshold at any time, then all
+        rows for said nuclide are preserved.
 
     Arguments:
-        adf_rel (alara_output_processing.ALARADFrame): ALARADFRame containing
-            data from a single variable, response, and block that has been
-            filtered and processed with ALARADFrame.calculate_relative_vals()
-            prior. If those conditions are not met, a KeyError will be raised.
-        threshold (float or int): Proportional threshold value for
-            inclusion cutoff.
-            (Defaults to 0.05)
+        adf (alara_output_processing.ALARADFrame): ALARADFRame containing
+            data from a single variable, response, and block. Can contain
+            either absolute or relative response data.
+        threshold (float or int): Threshold value for inclusion cutoff, either
+            absolute or relative.
 
     Returns:
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
@@ -89,32 +94,26 @@ def aggregate_small_percentages(adf_rel, threshold=0.05):
             aggregated data below the thresholds.
     '''
 
-    if 'rel_value' not in adf_rel.columns:
-        raise KeyError(
-            'Aggregation by small percentages requires calling '\
-            'adf.calculate_relative_values() first.'
-        )
+    adfc = adf.copy()
     
-    adf = adf_rel.copy()
-    
-    max_rel_by_nuc = adf.groupby('nuclide')['rel_value'].max()
+    max_rel_by_nuc = adfc.groupby('nuclide')['value'].max()
     small_nuc = max_rel_by_nuc[max_rel_by_nuc < threshold].index
     large_nuc = max_rel_by_nuc[max_rel_by_nuc >= threshold].index
 
-    large_adf = adf[adf['nuclide'].isin(large_nuc)]
-    small_adf = adf[adf['nuclide'].isin(small_nuc)]
+    large_adf = adfc[adfc['nuclide'].isin(large_nuc)]
+    small_adf = adfc[adfc['nuclide'].isin(small_nuc)]
 
     if small_adf.empty:
         agg = large_adf
     else:
         other_rows = (small_adf.groupby('time').agg({
-            'rel_value'     :        'sum',
             'value'         :        'sum',
             'run_lbl'       :      'first',
             'block'         :      'first',
             'block_num'     :      'first',
             'variable'      :      'first',
-            'unit'          :      'first'
+            'var_unit'      :      'first',
+            'time_unit'     :      'first'
             }).reset_index()
         )
         other_rows['nuclide'] = 'Other'
@@ -212,7 +211,7 @@ class FileParser:
 
         raw_cols = header_line.split()
         nuclide_col = raw_cols[0]
-        times_w_units = set(raw_cols[1:])
+        times_w_units = raw_cols[1:]
         converted_times = extract_time_vals(
             times_w_units, to_unit=self.time_unit
         )
@@ -387,7 +386,7 @@ class ALARADFrame(pd.DataFrame):
                         else [f]
                     )
 
-                filters = list(dict.fromkeys(nuclides))
+                filters = nuclides
 
             filtered_adf = filtered_adf[filtered_adf[col_name].isin(filters)]
 
@@ -426,15 +425,17 @@ class ALARADFrame(pd.DataFrame):
                     'single value before calculating relative values.'
                 )
 
-        totals = self.filter_rows({'nuclide' : 'total'})['value'].to_numpy()
-        times = sorted(set(self['time']))
-        total_map = dict(zip(times, totals))
+        totals = self.filter_rows({
+            'nuclide' : 'total'
+            })[['time', 'value']].to_numpy()
+        total_map = {time: value for time, value in totals}
         adf_rel = self[self['nuclide'] != 'total'].copy()
 
-        adf_rel['rel_value'] = adf_rel.apply(
+        adf_rel['value'] = adf_rel.apply(
             lambda row: row['value'] / total_map[row['time']],
             axis=1
         )
+        adf_rel['var_unit'] = [None] * len(adf_rel)
 
         return adf_rel
 
