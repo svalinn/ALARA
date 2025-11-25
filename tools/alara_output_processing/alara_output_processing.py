@@ -34,7 +34,7 @@ def convert_times(vector, from_unit, to_unit):
 
     return sorted(vector * (SECONDS_CONV[from_unit] / SECONDS_CONV[to_unit]))
 
-def extract_time_vals(cols, to_unit='s'):
+def _extract_time_vals(cols, to_unit='s'):
     '''
     Return the cooling times of an ALARADFrame from their column headers
         as a list in time units of the user's specification.
@@ -76,7 +76,7 @@ def aggregate_small_percentages(adf, threshold):
         absolute or relative data, requiring only that the user provide an
         appropriate threshold value.
 
-        Nuclide that do not contribute any values that surpass the threshold
+        Nuclides that do not contribute any values that surpass the threshold
         at any time are aggregated into a new "Other" row for each time. If a
         nuclide has a value that surpasses the threshold at any time, then all
         rows for said nuclide are preserved.
@@ -194,7 +194,7 @@ class FileParser:
             current_table_rows (list of dicts): List of each row in the
                 table's rows as a dictionary of the form:
                 row = {
-                    'time' : Cooling time of data entry in seconds,
+                    'time' : Cooling time of data entry,
                     'time_unit' : Units for cooling times,
                     'nuclide' : Individual nuclide,
                     'run_lbl' : Distinguisher between runs,
@@ -212,7 +212,7 @@ class FileParser:
         raw_cols = header_line.split()
         nuclide_col = raw_cols[0]
         times_w_units = raw_cols[1:]
-        converted_times = extract_time_vals(
+        converted_times = _extract_time_vals(
             times_w_units, to_unit=self.time_unit
         )
 

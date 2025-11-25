@@ -43,10 +43,11 @@ runs = {
 This dictionary can be input directly into the function `DataLibrary.make_entries()` to create a single `ALARADFrame` containing all data from each table in each run's output files.
 ```
 lib = aop.DataLibrary()
-adfs = aop.DataLibrary.make_entries(lib, runs)
+adf = aop.DataLibrary.make_entries(lib, runs)
 ```
 The columns for `adfs` are:
 * `time`: Cooling time in seconds.
+* `time_unit`: Units for cooling time.
 * `nuclide`: Nuclide name formatted as "element-A" (i.e. "h-1" for <sup>1</sup>H) or "total".
 * `run_lbl`: Distinguisher between runs (i.e. "run1", "run2", etc.).
 * `block`: Integer enumerator for the geometric block key name. Possible block keys are "Interval", "Material", or "Zone", and their enumerator values can be accessed through `ALARADFrame().BLOCK_ENUM[block]`, where `block` is one of the above keys.
@@ -61,6 +62,7 @@ The columns for `adfs` are:
     - "Contact Dose"
     
     The respective enumerator values can be accessed through `ALARADFrame().VARIABLE_ENUM[variable]`, where `variable` is one of the above variables.
+* `var_unit`: Unit for the corresponding variable.
 * `value`: Numeric value of the particular variable respone.
 
 Below is the example `head()` of an `ALARADFrame`:
@@ -84,8 +86,7 @@ filtered_adf = adf.filter_rows(
         Column 1 : Value or [Value1, ..., Value N],
         ...
         Column N : Value or [Value1, ..., Value N]
-    },
-    inplace=False
+    }
 )
 ```
 The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive. Similarly to the Pandas parameter, `inplace` allows the user to decide whether to operate on the original `ALARADFRame` itself, or create a new frame.
@@ -109,13 +110,6 @@ The `head()` of `fendl2_spec_act_h3` is:
 | 2 | 3.153600e+05 | h-3 | fendl2 | 0 | 1 | 0 | 1.987100e+09
 | 3 | 3.153600e+07 | h-3 | fendl2 | 0 | 1 | 0 | 1.879900e+09
 | 4 | 3.153600e+09 | h-3 | fendl2 | 0 | 1 | 0 | 7.334700e+06
-
-The following operations are available on any given `ALARADFrame`, regardless of filtering:
-
-* `ALARADFrame.extract_time_vals(parsing=False)`
-    - Return the cooling times of an `ALARADFrame` from their column headers as a list in seconds. This is done internally when creating an `ALARADFrame` through `aop.FileParser.extract_tables()` or `aop.DataLibrary.make_entries()`, but can be done on any existing `ALARADFrame` to convert time values back to seconds if they have been otherwise converted using `ALARADFrame.convert_times()`. To operate on an existing `ALARADFrame`, set the optional parameter `parsing` to `True`.
-* `ALARADFrame.convert_time(unit, inplace=False, pivot=False)`
-    - Convert the units of the cooling times in an `ALARADFrame` from seconds to minutes (m), hours (h), days (d), weeks (w), years (y), or centuries (c). If desired to operate on the `ALARADFrame` itself, instead of a copy, set the optional parameter `inplace` to `True`. If operating on a pivot table (**see below for pivoting instructions**), set the optional parameter `pivot` to `True`.
 
 The following operation requires filtering to one run and one response variable:
 * `ALARADFrame.extract_totals()`
@@ -145,9 +139,17 @@ The `head()` of `pivot_df` is:
 | co-58 | 497020000.0 | 497010000.0 | 481270000.0 | 1.417400e+07 | 0.0 | 0.0 |
 | co-58m | 322330000.0 | 320150000.0 | 368720.0 | 0.000000e+00 | 0.0 | 0.0 |
 
-The following operation requires the pivoting of a filtered `ALARADFrame` as its input and is not a member of the `ALARADFrame` class:
+The following operations are utility functions that are not members of the `ALARADFrame` class:
+
+* `convert_times(vector, from_unit, to_unit)`
+    - Convert the values in a vector to and from any units in the list of
+        seconds (s), minutes (m), hours (h), days (d), weeks (w), years (y),
+        or centuries (c). Can be used to convert the time column of an `ALARADFrame`, for example from seconds to years with the following command:
+        ```
+        adf['time'] = aop.convert_times(adf['time'], from_unit='s', to_unit='y')
+        ```
 
 * `aggregate_small_percentages(piv, relative=False, threshold=0.05)`
-    -  Consolidate all rows in a pre-filtered and pivoted DataFrame derived from a larger ALARADFRame that do not have any cells with a contribution of more than a threshold value to the total for its respective column. Rows that do not have any cells that surpass its column's threshold are aggregated into a new "Other" row. If a row has at least one column value above the threshold, then the whole row is preserved.
+    - Consolidate all nuclides that do not have any row-level values greater than a given threshold for totals over all times in a pre-filtered ALARADFrame containing data from a single variable, response, and block. The 'value' column in the ALARADFrame can either contain absolute or relative data, requiring only that the user provide an appropriate threshold value.
 
-    This function sets an automatic threshold percentage of 5%, but it can be modified by explicitly setting the optional `threshold` parameter to any proportional value.
+    - Nuclides that do not contribute any values that surpass the threshold at any time are aggregated into a new "Other" row for each time. If a nuclide has a value that surpasses the threshold at any time, then all rows for said nuclide are preserved.
