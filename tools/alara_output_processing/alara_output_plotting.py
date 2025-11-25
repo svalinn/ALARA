@@ -1,61 +1,103 @@
 import matplotlib.pyplot as plt
+import alara_output_processing as aop
+from numpy import array
 
-#------------------------ Plotting Helper Functions --------------------------
-
-def preprocess_data(df_dicts, data_key='Data', seconds=True):
+def preprocess_data(
+    adf,
+    run_lbl,
+    variable,
+    nuclides = None,
+    time_unit='s',
+    sort_by_time='shutdown',
+    head=None
+):
     '''
-    Extract all of the ALARADFrames from df_dicts, their (shared) time
-        columns and store them in a list of tuples for each plot to be
-        produced. Additionally, for each plot, establish a corresponding
-        colormap.
+    Prepare an ALARADFrame containing data from multiple runs and potentially
+        multiple responses for plotting by filtering rows to a specified run,
+        variable, and potentially nuclides. After filtering, a pivot table is
+        created indexed by nuclide with values for each cooling time.
 
     Arguments:
-        df_dicts (dict or list): Single dictionary containing an ALARA output 
-            ALARADFrame and its metadata, of the form:
-            df_dict = {
-                'Run Label'   : (Distinguisher between runs),
-                'Variable'    : (Any ALARA output variable, dependent on ALARA
-                                 run parameters),
-                'Unit'        : (Respective unit matching the above variable),
-                'Data'        : (ALARADFrame containing ALARA output data for
-                                 the given run parameter, variable, and unit)
-            }
-        data_key (str, optional): Keyword for df_dicts to direct to the
-            desired ALARADFrame to source the plot's data.
-            (Defaults to 'Data')
-        seconds (bool, optional): Option to convert cooling times from
-            years to seconds.
-            (Defaults to True)
-
+        adf (alara_output_processing.ALARADFrame): ALARADFrame containing 
+            response data from one or more ALARA runs.
+        run_lbl (str): Distinguisher of the specified ALARA run.
+        variable (str): Name of the response variable.
+        nuclides (str, list, or None, optional): Optional parameter for
+            nuclide selection. For a single nuclide, input should be a string
+            of the form "element-A". For multiple individual nuclides, they
+            should be input as a list. To filter all nuclides of a given
+            element, provide the chemical symbol of the desired element,
+            either as a stand-alone string or in a list with other elements or
+            nuclides. To include the "total" row produced by ALARA, write
+            "total". If no nuclides or elements provided, the filtering will
+            pass through all nuclides matching the run_lbl and variable
+            parameters.
+            (Defaults to None)
+        time_unit (str, optional): Optional paramter to set units for cooling
+            times. Accepted values: 's', 'm', 'h', 'd', 'w', 'y', 'c'.
+            (Defaults to 's')
+        sort_by_time (str, optional): Option to sort the ALARADFrame by the
+            data in a particular time column.
+            (Defaults to 'shutdown')
+        head (int or None, optional): Option by which to truncate the
+            ALARADFrame to a particular number of rows.
+            (Defaults to None)
+        
     Returns:
-        all_data (list of tuples): A list of all relevant data for each table
-            to be plotted including:
-                df_dict (dict): Single dictionary from list of dictionaries in
-                    input df_dicts.
-                adf (alara_output_processing.ALARADFrame): Specialized ALARA
-                    output DataFrame containing the extracted tabular data for
-                    a single variable and interval/zone of an ALARA run.
-                times (list of floats): Cooling times (columns of adf).
+        times (list of floats): Chronological list of converted cooling times.
+        filtered (alara_output_processing.ALARADFrame): Modified copy of input
+            adf containing only rows that match all conditions in run_lbl,
+            variable, and (if present) nuclides.
+        piv (pandas.DataFrame): Pivot table indexed by nuclides with values
+            for each cooling time.
     '''
 
-    all_labels = set()
-    all_data = []
-    for df_dict in df_dicts:
-        adf = df_dict[data_key]
-        times = adf.process_time_vals(seconds=seconds)
-        adf = adf.T
-        for col in adf.columns:
-            label_text = f"{adf[col].iloc[0]}"
-            all_labels.add(label_text)
+    filter_dict = {
+        'run_lbl' : run_lbl, 'variable' : adf.VARIABLE_ENUM[variable]
+    }
+    if nuclides:
+        filter_dict['nuclide'] = nuclides
+        
+    filtered = adf.filter_rows(filter_dict)
+    
+    piv = filtered.pivot(
+        index='nuclide',
+        columns='time',
+        values='value'
+    )
+    times = aop.convert_times(
+        array(adf['time'].unique().tolist()), 's', time_unit
+    )
 
-        all_data.append((df_dict, adf, times))
+    if head:
+        sort_by_time = aop.extract_time_vals([sort_by_time])[0]
+        piv = piv.sort_values(sort_by_time, ascending=False).head(head)
 
-    labels_sorted = sorted(all_labels)
+    return times, filtered, piv
 
+def build_color_map(list_of_pivs):
+    '''
+    Given a list of pivot DataFrames (one per run), build a stable color map
+        keyed by nuclide name.
+
+    Arguments:
+        list_of_pivs (list of pandas.DataFrames): List of pivot tables indexed
+            by nuclide with values for each cooling time.
+
+    Returns:
+        color_map (dict): Preset color map for each nuclide in the pivot table
+            indices.
+    '''
+
+    all_nucs = set()
+    for piv in list_of_pivs:
+        for nuc in piv.index:
+            all_nucs.add(nuc)
+
+    nucs_sorted = sorted(all_nucs)
     cmap = plt.cm.get_cmap('Dark2')
-    color_map = {lbl: cmap(i % cmap.N) for i, lbl in enumerate(labels_sorted)}
 
-    return all_data, color_map
+    return {lbl: cmap(i % cmap.N) for i, lbl in enumerate(nucs_sorted)}
 
 def split_label(label):
     '''
@@ -152,18 +194,18 @@ def construct_legend(ax, data_comp=False):
         handletextpad=0.5,
     )
 
-#---------------------------- Plotting functions -----------------------------
-
 def plot_single_response(
-        df_dicts,
-        data_key = 'Data',
-        sort_by_time='shutdown', 
-        head=None,
-        total=False,
-        yscale='log',        
-        relative=False,
-        seconds=True
-        ):
+    adf,
+    run_lbls,
+    variable,
+    nuclides = None,
+    time_unit='s',
+    sort_by_time='shutdown',
+    head=None,
+    total=False,
+    yscale='log',
+    relative=False
+):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
         table (as stored in an ALARADFrame) against a log timescale. Options
@@ -176,81 +218,86 @@ def plot_single_response(
         total=True, head=1.
 
     Arguments:
-        df_dicts (dict or list): Single dictionary containing an ALARA output 
-            ALARADFrame and its metadata, of the form:
-            df_dict = {
-                'Run Label'   : (Distinguisher between runs),
-                'Variable'    : (Any ALARA output variable, dependent on ALARA
-                                 run parameters),
-                'Unit'        : (Respective unit matching the above variable),
-                'Data'        : (ALARADFrame containing ALARA output data for
-                                 the given run parameter, variable, and unit)
-            }
-            Alternatively, if comparing two ALARA runs, df_dicts can be a list
-            of dictionaries of the above form.
-        data_key (str, optional): Keyword for df_dicts to direct to the
-            desired ALARADFrame to source the plot's data.
-            (Defaults to 'Data')
+        adf (alara_output_processing.ALARADFrame): ALARADFrame containing 
+            response data from one or more ALARA runs.
+        run_lbl (str): Distinguisher of the specified ALARA run.
+        variable (str): Name of the response variable.
+        nuclides (str, list, or None, optional): Optional parameter for
+            nuclide selection. For a single nuclide, input should be a string
+            of the form "element-A". For multiple individual nuclides, they
+            should be input as a list. To filter all nuclides of a given
+            element, provide the chemical symbol of the desired element,
+            either as a stand-alone string or in a list with other elements or
+            nuclides. To include the "total" row produced by ALARA, write
+            "total". If no nuclides or elements provided, the filtering will
+            pass through all nuclides matching the run_lbl and variable
+            parameters.
+            (Defaults to None)
+        time_unit (str, optional): Optional paramter to set units for cooling
+            times. Accepted values: 's', 'm', 'h', 'd', 'w', 'y', 'c'.
+            (Defaults to 's')
         sort_by_time (str, optional): Option to sort the ALARADFrame by the
             data in a particular time column.
             (Defaults to 'shutdown')
-        head (int or None, optional): Option to truncate the ALARADFrame to a
-            particular number of rows.
-            (Defaults to None)
+        head (int or None, optional): Option by which to truncate the
+            ALARADFrame to a particular number of rows.
+            (Defaults to None)           
         total (bool, optional): Option to include the cumulative total
             contribution from all isotopes towards the select variable in the
             plot. If total=True, the total array will be treated equivalently
             to any of the other isotopes and will be plotted alongside them.
             If total=True and head=1, only the total will be plotted.
-            (Defaults to False)
-        yscale (str, optional): Matplotlib.pyplot yscale setting.
+            (Defaults to False) 
+        yscale (str, optional): Option to set the y-axis scale.
             (Defaults to 'log')
         relative (bool, optional): Option to plot relative values with respect
             to totals at each cooling time.
             (Defaults to False)
-        seconds (bool, optional): Option to convert cooling times from
-            years to seconds.
-            (Defaults to True)
-            
+
     Returns:
-        None    
+        None
     '''
 
-    data_comp = True
-    fig, ax = plt.subplots(figsize=(10,6))
+    data_comp = False
+    _, ax = plt.subplots(figsize=(10,6))
 
-    # Single run -- Data provided as dict or ALARADFrame
-    if not isinstance(df_dicts, list):
-        df_dicts = [df_dicts]
-        data_comp = False
+    if isinstance(run_lbls, list):
+        data_comp=True
+    else:
+        run_lbls = [run_lbls]
 
-    all_data, color_map = preprocess_data(
-        df_dicts, data_key=data_key, seconds=seconds
-    )
+    data_list = []
     line_styles = ['-', ':']
+    for run_lbl, linestyle in zip(run_lbls, line_styles):
+        times, filtered, piv =preprocess_data(
+            adf=adf,
+            run_lbl=run_lbl,
+            variable=variable,
+            nuclides=nuclides,
+            time_unit=time_unit,
+            sort_by_time=sort_by_time,
+            head=head,
+        )
+        data_list.append((run_lbl, times, filtered, piv, linestyle))
 
-    # Plot data
-    for i, (df_dict, adf, times) in enumerate(all_data):
-        linestyle = line_styles[i % len(line_styles)]
-        for col in adf.columns:
-            label_text = f"{adf[col].iloc[0]}"
-            if not total and label_text == 'total':
+    color_map = build_color_map([piv for (_, _, _, piv, _) in data_list])
+    for run_lbl, times, filtered, piv, linestyle in data_list:
+        
+        for nuc in piv.index:
+            if nuc == 'total' and not total:
                 continue
 
-            label_suffix = ''
-            if data_comp:
-                label_suffix = f' ({df_dict['Run Label']})'
+            label_suffix = f' ({run_lbl})' if data_comp else ''
 
             ax.plot(
-                times,
-                list(adf[col])[1:],
-                label=label_text + label_suffix,
-                color=color_map[label_text],
+                sorted(times),
+                piv.loc[nuc].tolist(),
+                label=(nuc + label_suffix),
+                color=color_map[nuc],
                 linestyle=linestyle
             )
 
-    # Titles and labels, according to user specifications
-    title_suffix = (f'{df_dicts[0]['Variable']} vs Cooling Time ')
+    title_suffix = f'{variable} vs Cooling Time '
 
     if relative:
         title_suffix += 'Relative to Total at Each Cooling Time '
@@ -259,22 +306,21 @@ def plot_single_response(
     if head:
         title_suffix += (
             f'\n(ALARADFrame Head Sorted by Values at {sort_by_time})'
-            )
+        )
 
     if data_comp:
         title_prefix = (
-            f'{df_dicts[0]['Run Label']}, {df_dicts[1]['Run Label']} '
-            'Comparison: \n'
+            f'{run_lbls[0]}, {run_lbls[1]} Comparison: \n'
         )
     else:
-        title_prefix = f'{df_dict['Run Label']}: '
+        title_prefix = f'{run_lbls[0]}: '
 
     ax.set_title(title_prefix + title_suffix)
     ax.set_ylabel(
-        f'Proportion of Total {df_dict['Variable']}' if relative
-        else f'{df_dict['Variable']} [{df_dict['Unit']}]'
+        f'Proportion of Total {variable}' if relative
+        else f'{variable} [{filtered['unit'].unique()[0]}]'
     )
-    ax.set_xlabel(f'Time ({'s' if seconds else 'y'})')
+    ax.set_xlabel(f'Time ({time_unit})')
     ax.set_xscale('log')
     ax.set_yscale(yscale)
 
