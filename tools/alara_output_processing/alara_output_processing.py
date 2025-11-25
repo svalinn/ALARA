@@ -34,7 +34,7 @@ def convert_times(vector, from_unit, to_unit):
 
     return sorted(vector * (SECONDS_CONV[from_unit] / SECONDS_CONV[to_unit]))
 
-def _extract_time_vals(cols, to_unit='s'):
+def extract_time_vals(cols, to_unit='s'):
     '''
     Return the cooling times of an ALARADFrame from their column headers
         as a list in time units of the user's specification.
@@ -212,7 +212,7 @@ class FileParser:
         raw_cols = header_line.split()
         nuclide_col = raw_cols[0]
         times_w_units = raw_cols[1:]
-        converted_times = _extract_time_vals(
+        converted_times = extract_time_vals(
             times_w_units, to_unit=self.time_unit
         )
 
