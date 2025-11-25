@@ -155,7 +155,7 @@ volume 0.5 cm3 and the adjoint response defined in `adjfile2.gam` using 21 group
 ## sample9
 
 This example is used to demonstrate the (undocumented) `integrate_energy` option
-for generating photon source output.  This options changes how dicrete
+for generating photon source output.  This options changes how discrete
 line emissions are integrated into multigroup photon sources.
 
 # Sample Data
