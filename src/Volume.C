@@ -18,6 +18,8 @@
 #include "Result.h"
 #include "Output_def.h"
 
+#include "OutputFormat.h"
+
 // Declare Static Members
 TempLibType Volume::specLib;
 TempLibType Volume::rangeLib;
@@ -617,7 +619,7 @@ void Volume::postProc()
     normalization is being used, so that the correct output information
     can be given. */
 void Volume::write(int response, int writeComp, CoolingTime* coolList, 
-		   int targetKza, int normType)
+		   int targetKza, int normType, const OutputFormat* outFmt)
 {
   Volume *head = this;
   Volume *ptr = head;
