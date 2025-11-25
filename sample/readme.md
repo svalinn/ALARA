@@ -26,7 +26,7 @@ This is the simplest sample file, with:
 * each of which has a mixture of materials
 * with those materials defined in the provided material library
 
-The neutron flux is read fro the `fluxin1` file and not scaled.
+The neutron flux is read from the `fluxin1` file and not scaled.
 
 There is a single 1 year long pulse.
 
@@ -87,13 +87,13 @@ This advanced sample includes:
 
 The flux is read from the `fluxin1`, and normalized differently for each interval.
 
-The there is a single 10 year pulse.
+There is a single 10 year pulse.
 
 Results are produced at 11 cooling times the total heat
 and photon source, with units of Bq per cm3.
 
 Most initial nuclides will have their chains truncated with a tolerance of 1e-6,
-but impurities (defined as nuclides that are less than 10 ppm) will be truncated
+but impurities (defined as nuclides with an initial concetration of less than 10 ppm) will be truncated
 with a tolerance of 1e-2.
 
 ## sample6
