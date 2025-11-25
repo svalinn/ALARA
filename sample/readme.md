@@ -4,6 +4,12 @@ These sample files have been developed primarily to support regression testing
 for ALARA.  As such, they may not be valuable files for demonstrating how to use
 ALARA, but do attempt to cover a range of input file complexity.
 
+All the samples use data files made available in the `data` subdirectory. More
+details are given below.
+
+A set of reference outputs is provided (`output_ref`) to test that ALARA is
+producing consistent results.
+
 ## sample1
 
 This sample file exists only to generate an ALARAlib data library for use in the
@@ -152,3 +158,19 @@ volume 0.5 cm3 and the adjoint response defined in `adjfile2.gam` using 21 group
 This example is used to demonstrate the (undocumented) `integrate_energy` option
 for generating photon source output.  This options changes how dicrete
 line emissions are integrated into multigroup photon sources.
+
+# Sample Data
+
+The data directory contains a variety of files for use in these sample problems:
+* Flux files have 175 group flux spectra with at least enough for each interval
+  in the problem: `fluxin1`, `fluxin2`, `fluxin3`, `hohlflux`, `fluxin_zeros`
+* A sample material library (`sampleMatlib`) describes how to build a material 
+  out of elements
+* A standard element library (`myElelib`) describes the isotopic composition of
+  standard elements, and demonstrates how to define enriched elements
+* a truncated version of the FENDL2.0 multi-group neutron cross sections and
+  decay data including gamma decay details
+* an adjoint flux (`adjfil2.gam`) used to demonstrate the ability to fold a
+  photon source with the adjoint photon flux to estimate detector response
+* data files related to output including waste disposal ratings (`NRCA`, `NRCC`)
+  and contact dose (`ANS6_4_3`)
