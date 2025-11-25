@@ -68,13 +68,13 @@ The columns for `adfs` are:
 Below is the example `head()` of an `ALARADFrame`:
 
 
-| | time | nuclide | run_lbl | block | block_num | variable | value |
-|-|------|---------|---------|-------|-----------|----------|-------|
-| 0 | 0.000000e+00 | h-1 | fendl2 | 0 | 1 | 0 | 1.176100e+22
-| 1 | 3.153600e+02 | h-1 | fendl2 | 0 | 1 | 0 | 1.176100e+22
-| 2 | 3.153600e+05 | h-1 | fendl2 | 0 | 1 | 0 | 1.176100e+22
-| 3 | 3.153600e+07 | h-1 | fendl2 | 0 | 1 | 0 | 1.176100e+22
-| 4 | 3.153600e+09 | h-1 | fendl2 | 0 | 1 | 0 | 1.176100e+22
+| | time | time_unit | nuclide | run_lbl | block | block_num | variable | var_unit | value |
+|-|------|-----------|---------|---------|-------|-----------|----------|----------|-------|
+| 0 | 's' | 0.000000e+00 | h-1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 1 | 's' | 3.153600e+02 | h-1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 2 | 's' | 3.153600e+05 | h-1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 3 | 's' | 3.153600e+07 | h-1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 4 | 's' | 3.153600e+09 | h-1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
 
 The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times.
 
@@ -89,9 +89,9 @@ filtered_adf = adf.filter_rows(
     }
 )
 ```
-The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive. Similarly to the Pandas parameter, `inplace` allows the user to decide whether to operate on the original `ALARADFRame` itself, or create a new frame.
+The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive.
 
-**Note:** When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`, however, filtering by whole elements and individual nuclides cannot be done in the same filtering operation.
+**Note:** When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`. It is also possible to filter by a combination of whole elements and individual nuclides.
 
 Below is an example filtering operation on the same `adf` from the above example:
 ```
@@ -103,17 +103,13 @@ fendl2_spec_act_h3 = adf.filter_rows({
 ```
 The `head()` of `fendl2_spec_act_h3` is:
 
-| | time | nuclide | run_lbl | block | block_num | variable | value |
-|-|------|---------|---------|-------|-----------|----------|-------|
-| 0 | 0.000000e+00 | h-3 | fendl2 | 0 | 1 | 0 | 1.988300e+09
-| 1 | 3.153600e+02 | h-3 | fendl2 | 0 | 1 | 0 | 1.988300e+09
-| 2 | 3.153600e+05 | h-3 | fendl2 | 0 | 1 | 0 | 1.987100e+09
-| 3 | 3.153600e+07 | h-3 | fendl2 | 0 | 1 | 0 | 1.879900e+09
-| 4 | 3.153600e+09 | h-3 | fendl2 | 0 | 1 | 0 | 7.334700e+06
-
-The following operation requires filtering to one run and one response variable:
-* `ALARADFrame.extract_totals()`
-    - Select the values from the "total" row of an ALARA output table ALARADFrame and write them out to a list. If nuclides were previously filtered, this method will be able to return a non-empty list so long as "total" was not filtered out. Additionally, pivoted tables can be operated on, so long as the are converted back to a `ALARADFrame`s prior to operation.
+| | time | time_unit | nuclide | run_lbl | block | block_num | variable | var_unit | value |
+|-|------|-----------|---------|---------|-------|-----------|----------|----------|-------|
+| 0 | 's' | 0.000000e+00 | h-3 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
+| 1 | 's' | 3.153600e+02 | h-3 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
+| 2 | 's' | 3.153600e+05 | h-3 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.987100e+09
+| 3 | 's' | 3.153600e+07 | h-3 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.879900e+09
+| 4 | 's' | 3.153600e+09 | h-3 | fendl2 | 0 | 1 | 1 | Bq/kg | 7.334700e+06
 
 Once data has been filtered, it can be useful to create a pivot table using `pandas.DataFrame.pivot()` to reorganize data by `nuclide` vs `time`. An example filtering and pivot table sequence (without nuclide filtering to show multiple multiple rows) is as such:
 ```
