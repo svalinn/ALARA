@@ -319,7 +319,7 @@ def plot_single_response(
     ax.set_title(title_prefix + title_suffix)
     ax.set_ylabel(
         f'Proportion of Total {variable}' if relative
-        else f'{variable} [{filtered['unit'].unique()[0]}]'
+        else f'{variable} [{filtered['var_unit'].unique()[0]}]'
     )
     ax.set_xlabel(f'Time ({time_unit})')
     ax.set_xscale('log')
