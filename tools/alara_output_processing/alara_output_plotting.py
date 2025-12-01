@@ -58,17 +58,25 @@ def preprocess_data(
     }
     if nuclides:
         filter_dict['nuclide'] = nuclides
-        
-    filtered = adf.filter_rows(filter_dict)
     
+    filtered = adf.filter_rows(filter_dict)
+
+    preset_time_unit = filtered['time_unit'].unique()[0]
+    if time_unit != preset_time_unit:
+        filtered['time'] = filtered['time'].transform(
+            lambda v: aop.convert_times(
+                array([v]), from_unit=preset_time_unit, to_unit=time_unit
+            )[0]
+        )
+        filtered['time_unit'] = [time_unit] * len(filtered)
+        
+    times = sorted(filtered['time'].unique().tolist())
+
     piv = filtered.pivot(
         index='nuclide',
         columns='time',
         values='value'
     )
-    times = sorted(aop.convert_times(
-        array(adf['time'].unique().tolist()), 's', time_unit
-    ))
 
     if sort_by_time:
         sort_by_time = aop.extract_time_vals([sort_by_time])[0]
