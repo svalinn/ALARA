@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib import lines
 import alara_output_processing as aop
 from numpy import array
 
@@ -8,7 +9,7 @@ def preprocess_data(
     variable,
     nuclides = None,
     time_unit='s',
-    sort_by_time='shutdown',
+    sort_by_time='',
     head=None
 ):
     '''
@@ -38,7 +39,7 @@ def preprocess_data(
             (Defaults to 's')
         sort_by_time (str, optional): Option to sort the ALARADFrame by the
             data in a particular time column.
-            (Defaults to 'shutdown')
+            (Defaults to '')
         head (int or None, optional): Option by which to truncate the
             ALARADFrame to a particular number of rows.
             (Defaults to None)
@@ -65,17 +66,20 @@ def preprocess_data(
         columns='time',
         values='value'
     )
-    times = aop.convert_times(
+    times = sorted(aop.convert_times(
         array(adf['time'].unique().tolist()), 's', time_unit
-    )
+    ))
+
+    if sort_by_time:
+        sort_by_time = aop.extract_time_vals([sort_by_time])[0]
+        piv = piv.sort_values(sort_by_time, ascending=False)
 
     if head:
-        sort_by_time = aop.extract_time_vals([sort_by_time])[0]
-        piv = piv.sort_values(sort_by_time, ascending=False).head(head)
+        piv = piv.head(head)
 
     return times, filtered, piv
 
-def build_color_map(list_of_pivs):
+def build_color_map(list_of_pivs, cmap_name='Dark2'):
     '''
     Given a list of pivot DataFrames (one per run), build a stable color map
         keyed by nuclide name.
@@ -83,6 +87,10 @@ def build_color_map(list_of_pivs):
     Arguments:
         list_of_pivs (list of pandas.DataFrames): List of pivot tables indexed
             by nuclide with values for each cooling time.
+        cmap_name (str, optional): Option to set the Matplotlib Colormap for
+            the plots. Reference guide for Matplotlib Colormaps can be found
+            at matplotlib.org/stable/gallery/color/colormap_reference.html
+            (Defaults to "Dark2")
 
     Returns:
         color_map (dict): Preset color map for each nuclide in the pivot table
@@ -91,13 +99,11 @@ def build_color_map(list_of_pivs):
 
     all_nucs = set()
     for piv in list_of_pivs:
-        for nuc in piv.index:
-            all_nucs.add(nuc)
+        all_nucs.update(piv.index)
+  
+    cmap = plt.cm.get_cmap(cmap_name)
 
-    nucs_sorted = sorted(all_nucs)
-    cmap = plt.cm.get_cmap('Dark2')
-
-    return {lbl: cmap(i % cmap.N) for i, lbl in enumerate(nucs_sorted)}
+    return {lbl: cmap(i % cmap.N) for i, lbl in enumerate(sorted(all_nucs))}
 
 def split_label(label):
     '''
@@ -268,9 +274,9 @@ def plot_single_response(
         run_lbls = [run_lbls]
 
     data_list = []
-    line_styles = ['-', ':']
+    line_styles = list(lines.lineStyles.keys())[:len(run_lbls)]
     for run_lbl, linestyle in zip(run_lbls, line_styles):
-        times, filtered, piv =preprocess_data(
+        times, filtered, piv = preprocess_data(
             adf=adf,
             run_lbl=run_lbl,
             variable=variable,
@@ -281,9 +287,8 @@ def plot_single_response(
         )
         data_list.append((run_lbl, times, filtered, piv, linestyle))
 
-    color_map = build_color_map([piv for (_, _, _, piv, _) in data_list])
+    color_map = build_color_map([data[3] for data in data_list])
     for run_lbl, times, filtered, piv, linestyle in data_list:
-        
         for nuc in piv.index:
             if nuc == 'total' and not total:
                 continue
@@ -291,7 +296,7 @@ def plot_single_response(
             label_suffix = f' ({run_lbl})' if data_comp else ''
 
             ax.plot(
-                sorted(times),
+                times,
                 piv.loc[nuc].tolist(),
                 label=(nuc + label_suffix),
                 color=color_map[nuc],
@@ -309,12 +314,10 @@ def plot_single_response(
             f'\n(ALARADFrame Head Sorted by Values at {sort_by_time})'
         )
 
-    if data_comp:
-        title_prefix = (
-            f'{run_lbls[0]}, {run_lbls[1]} Comparison: \n'
-        )
-    else:
-        title_prefix = f'{run_lbls[0]}: '
+    title_prefix = (
+        f'{", ".join(run_lbls)} Comparison:\n' if data_comp
+        else f'{run_lbls[0]}: '
+    )
 
     ax.set_title(title_prefix + title_suffix)
     ax.set_ylabel(
