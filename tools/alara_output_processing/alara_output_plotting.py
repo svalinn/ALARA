@@ -341,4 +341,64 @@ def plot_single_response(
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
     plt.show()
+
+def single_time_pie_chart(
+        adf,
+        run_lbl,
+        variable,
+        threshold,
+        time_idx,
+        time_unit='s'
+    ):
+    '''
+    Create a pie chart depicting the breakdown of nuclides contributing to a
+        given response at a given cooling time.
+
+    Arguments:
+        adf (alara_output_processing.ALARADFrame): ALARADFrame containing 
+            response data from one or more ALARA runs.
+        run_lbl (str): Distinguisher of the specified ALARA run.
+        variable (str): Name of the response variable.
+        threshold (float): Proportional threshold for small-value aggregation.
+        time_idx (int): Cooling time interval number (i.e. 0 for shutdown).
+        time_unit (str, optional): Optional paramter to set units for cooling
+            times. Accepted values: 's', 'm', 'h', 'd', 'w', 'y', 'c'.
+            (Defaults to 's')
     
+    Returns:
+        None
+    '''
+
+    times, filtered, _ = preprocess_data(
+        adf=adf, run_lbl=run_lbl, variable=variable, time_unit=time_unit
+    )
+    rel = filtered.calculate_relative_vals()
+    agg = aop.aggregate_small_percentages(rel, threshold)
+    time_slice = agg[agg['time'] == times[time_idx]]
+    labels = [reformat_isotope(nuc) for nuc in time_slice['nuclide']]
+
+    wedges, _ = plt.pie(
+        time_slice['value'],
+        labels=labels,
+        wedgeprops={'edgecolor' : 'black', 'linewidth' : 1}
+    )
+
+    legend_labels = [
+        f'{nuc}: {frac * 100 :.1f}%'
+        for nuc, frac in zip(labels, time_slice['value'])
+    ]
+
+    plt.title(
+        f'{run_lbl}: Aggregated Proportional Contitributions ' \
+        f'to {variable} at {times[time_idx]} {time_unit}'
+    )
+
+    plt.legend(
+        wedges,
+        legend_labels,
+        title='Nuclides',
+        loc='center left',
+        bbox_to_anchor=(-0.375, 0.75)
+    )
+    
+    plt.show()
