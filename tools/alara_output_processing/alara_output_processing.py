@@ -3,6 +3,7 @@ import argparse
 from warnings import warn
 from csv import DictReader
 from numpy import array
+import re
 
 # ---------- General Utility Methods ----------
 
@@ -216,7 +217,8 @@ class FileParser:
             times_w_units, to_unit=self.time_unit
         )
 
-        block_name, block_num_trail = current_block.split(' #')
+        parts = [part for part in re.split(r"[ #:]", current_block) if part]
+        block_name, block_num_trail = parts[:2]
         variable, unit = current_parameter.split(' [')
         
         reader = DictReader(
@@ -478,7 +480,6 @@ class DataLibrary:
                 output_path, run_lbl=run_lbl, time_unit=time_unit
             )
             dfs.append(parser.extract_tables())
-
         self.adf = ALARADFrame(pd.concat(dfs).fillna(0.0))
 
         return self.adf
