@@ -1,5 +1,5 @@
-import math
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import lines
 import alara_output_processing as aop
@@ -72,14 +72,8 @@ def preprocess_data(
             )[0]
         )
         filtered['time_unit'] = [time_unit] * len(filtered)
-        
-    times = sorted(filtered['time'].unique().tolist())
 
-    piv = filtered.pivot(
-        index='nuclide',
-        columns='time',
-        values='value'
-    )
+    piv = filtered.pivot(index='nuclide', columns='time', values='value')
 
     if sort_by_time:
         sort_by_time = aop.extract_time_vals([sort_by_time])[0]
@@ -88,9 +82,9 @@ def preprocess_data(
     if head:
         piv = piv.head(head)
 
-    return times, filtered, piv
+    return filtered, piv
 
-def build_color_map_from_pivs(list_of_pivs, cmap_name='Dark2'):
+def build_color_map_from_pivs(list_of_pivs, cmap_name):
     '''
     Given a list of pivot DataFrames (one per run), build a stable color map
         keyed by nuclide name.
@@ -98,10 +92,7 @@ def build_color_map_from_pivs(list_of_pivs, cmap_name='Dark2'):
     Arguments:
         list_of_pivs (list of pandas.DataFrames): List of pivot tables indexed
             by nuclide with values for each cooling time.
-        cmap_name (str, optional): Option to set the Matplotlib Colormap for
-            the plots. Reference guide for Matplotlib Colormaps can be found
-            at matplotlib.org/stable/gallery/color/colormap_reference.html
-            (Defaults to "Dark2")
+        cmap_name (str): Matplotlib Colormap for the plots.
 
     Returns:
         color_map (dict): Preset color map for each nuclide in the pivot table
@@ -116,18 +107,18 @@ def build_color_map_from_pivs(list_of_pivs, cmap_name='Dark2'):
 
     return {lbl: cmap(i % cmap.N) for i, lbl in enumerate(sorted(all_nucs))}
 
-def build_color_map_from_nuc_list(all_nucs, cmap_name='Dark2'):
+def build_color_map_from_nucs(all_nucs, cmap_name):
     '''
-    Given a list of nuclide name strings, build a stable color map keyed by
-        nuclide name.
+    Given a set or Series of nuclide name strings, build a stable color map
+        keyed by nuclide name.
 
     Arguments:
-        all_nucs (list of str): List of all nuclide names to be included in
-            the color map.
-        cmap_name (str, optional): Option to set the Matplotlib Colormap for
-            the plots. Reference guide for Matplotlib Colormaps can be found
-            at matplotlib.org/stable/gallery/color/colormap_reference.html
-            (Defaults to "Dark2")        
+        all_nucs (set of str or pd.core.series.Series): Collection of all
+            nuclide names to be included in the color map.
+        cmap_name (str): Matplotlib Colormap for the plots.
+    
+    Returns:
+        color_map (dict): Preset color map for each nuclide in the input list.
     '''
 
     cmap = plt.cm.get_cmap(cmap_name)
@@ -164,6 +155,7 @@ def split_label(label):
     else:
         isotope = label.strip()
         run_lbl = ''
+
     return isotope, run_lbl
 
 def reformat_isotope(isotope):
@@ -181,6 +173,7 @@ def reformat_isotope(isotope):
 
     if isotope == 'total' or isotope == 'Other':
         return isotope
+    
     else:
         element, A = isotope.split('-')
         element = element.capitalize()
@@ -260,7 +253,7 @@ def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
             aggregated data below the thresholds.
     '''
 
-    times, filtered, _ = preprocess_data(
+    filtered, _ = preprocess_data(
         adf=adf,
         run_lbl=run_lbl,
         variable=variable,
@@ -269,121 +262,46 @@ def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
     rel = filtered.calculate_relative_vals()
     agg = aop.aggregate_small_percentages(rel, threshold)
 
-    return times, agg
+    return agg
 
-def populate_table_rows(agg, all_nucs, times):
-    '''
-    Create a list of table rows for the legend-table in multi_time_pie_grid().
-        Each row is populated with the percentage contribution of its
-        respective nuclide (or aggregated "Other" pseudo-nuclide) at each
-        cooling time.
-
-    Arguments:
-        agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
-            (potentially) with new "Other" rows for each time, containing all
-            aggregated data below the thresholds.
-        all_nucs (list of str): List of all nuclide names included in the
-            table.
-        times (list of floats): Chronological list of cooling times.
-
-    Returns:
-        table_data (list of lists): Nested list data structure containing a
-            sub-list for each row in the table, corresponding to the total
-            number of nuclides represented within the table (and in all of the
-            pie charts in the grid). Each row-list contains a floating point
-            number representing the percentage contribution of that nuclide at
-            each cooling time. 
-    '''
-
-    table_data = []
-    for nuc in all_nucs:
-        row = []
-        for t in times:
-            ts = agg[(agg['nuclide'] == nuc) & (agg['time'] == t)]
-            pct = float(ts['value'].iloc[0])*100 if not ts.empty else 0.0
-            row.append(f'{pct:.1f}%')
-        table_data.append(row)
-
-    return table_data
-
-def sort_by_index(lst, indices):
-    '''
-    Reorganize a list by a new list of indices.
-
-    Arguments:
-        lst (list): List to be reordered.
-        indices (list of int): Indices for reordering.
-
-    Returns:
-        reordered_lst (lst): Modified copy of lst, reordered to the new
-            indices. 
-    '''
-
-    return [lst[i] for i in indices]
-
-def pie_grid_relative_tables(
-    fig, agg, all_nucs, times, nrows, ncols, time_unit, color_map
-):
+def pie_grid_relative_tables(gs, fig, agg, times, time_unit, color_map):
     '''
     Given a Matplotlib Figure object, create a subplot Matplotlib table object
         to act as a color-coordinated legend for a grid of pie charts with
         the percentage contributions of each nuclide represented in any of the
         pie charts at each cooling time (as well as a row for aggregated
-        "Other" nuclides taht fall below a given proportional threshold).
+        "Other" nuclides that fall below a given proportional threshold).
 
     Arguments:
+        gs (matplotlib.gridspec.GridSpec): Matplotlib Gridspec object to
+            organize the combined set of subplots containing the resultant
+            table as well as the individual pie charts in the grid.
         fig (matplotlib.figure.Figure): Matplotlib Figure object wherein the
             grid of pie charts will be constructed.
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
             (potentially) with new "Other" rows for each time, containing all
             aggregated data below the thresholds.
-        all_nucs (list of str): List of all nuclide names included in any of
-            the pie charts in the grid.
         times (list of floats): Chronological list of cooling times.
-        nrows (int): Number of rows in the grid of pie charts.
-        ncols (int): Number of columns in the grid of pie charts.
         time_unit (str): Units for cooling times.
         color_map (dict): Pre-constructed color map for each nuclide to match
             table rows with pie chart wedges.
 
     Returns:
-        gs (matplotlib.gridspec.GridSpec): Matplotlib Gridspec object to
-            organize the combined set of subplots containing the resultant
-            table as well as the individual pie charts, to be added
-            subsequent to this function's calling.
+        None
     '''
 
-    # Create table gridspec
-    left = 0.05
-    top = 0.95
-    gs = fig.add_gridspec(
-        nrows + 1, ncols,
-        height_ratios=([1.0] + [1]*nrows),
-        hspace=0.4,
-        wspace=0.3,
-        left=left, right=(1-left), top=top, bottom=(1-top)
-    )
-
-    # Build and populate table
     table_ax = fig.add_subplot(gs[0,:])
     table_ax.axis('off')
-    table_data = populate_table_rows(agg, all_nucs, times)
 
-    col_labels = [f'{t} {time_unit}' for t in times]
-    row_labels = [reformat_isotope(nuc) for nuc in all_nucs]
-
-    table_data_float = np.array([
-        [float(cell.strip('%')) for cell in row] for row in table_data
-    ])
-    row_means = table_data_float.mean(axis=1)
-    sorted_indices = np.argsort(-row_means)
-    table_data = sort_by_index(table_data, sorted_indices)
-    row_labels = sort_by_index(row_labels, sorted_indices)
+    piv = agg.pivot(index='nuclide', columns='time', values='value') * 100
+    piv = piv.loc[
+        piv.mean(axis=1).sort_values(ascending=False).index
+    ].map(lambda x: f'{x:.1f}%' if pd.notna(x) else '0.0%')
 
     table = table_ax.table(
-        cellText=table_data,
-        rowLabels=row_labels,
-        colLabels=col_labels,
+        cellText=piv.values,
+        rowLabels=[reformat_isotope(nuc) for nuc in piv.index],
+        colLabels=[f'{t} {time_unit}' for t in piv.columns],
         loc='center',
         cellLoc='center'
     )
@@ -392,22 +310,15 @@ def pie_grid_relative_tables(
     table.scale(1.0, 2.0)
 
     # Format table for readability
-    for i in range(len(row_labels)):
-        table[(i+1, -1)].get_text().set_fontweight('bold')
-    for j in range(len(col_labels)):
-        table[(0, j)].get_text().set_fontweight('bold')
+    for row in range(len(piv.index)):
+        table[(row+1, -1)].get_text().set_fontweight('bold')
+    for col in range(len(piv.columns)):
+        table[(0, col)].get_text().set_fontweight('bold')
 
-    for i, nuc in enumerate([all_nucs[idx] for idx in sorted_indices]):
+    for i, nuc in enumerate(piv.index):
         rgba = color_map[nuc]
-        
-        # Color in index
-        table[(i+1, -1)].set_facecolor(rgba)
-        
-        # Color all other columns
-        for j in range(len(times)):
-            table[(i+1, j)].set_facecolor(rgba)
-
-    return gs
+        for j in range(len(times)+1):
+            table[(i+1, j-1)].set_facecolor(rgba)
 
 def pie_labels_by_threshold(time_slice, threshold):
     '''
@@ -415,27 +326,77 @@ def pie_labels_by_threshold(time_slice, threshold):
         label for readability.
     
     Arguments:
-        
+        time_slice (alara_output_processing.ALARADFrame): Filtered ALARADFrame
+            containing data for a single cooling time.
+        threshold (float): Proportional threshold for small-value aggregation.
+
+    Returns:
+        large_nucs (list of str): List of nuclides with a large enough
+            contribution to be labeled on the pie chart, without overcrowding.
     '''
 
-    values = time_slice['value'].to_numpy()
-    total = time_slice['value'].sum()
-    fractions = values / total if total > 0 else np.zeros_like(values)
+    ts = time_slice.copy()
+    total = ts['value'].sum()
+    if total > 0:
+        ts['value'] /= total
 
-    labels = []
-    if np.any(fractions == 1.0):
-        for nuc, frac in zip(time_slice['nuclide'], fractions):
-            labels.append(reformat_isotope(nuc) if frac == 1.0 else '')
-        return labels
-    
-    for nuc, frac in zip(time_slice['nuclide'], fractions):
-        if frac >= threshold or nuc == 'Other':
-            labels.append(reformat_isotope(nuc))
-        else:
-            labels.append('')
-    
-    return labels
+    ts['nuclide'] = ts.apply(
+        lambda row: reformat_isotope(row['nuclide'])
+        if (
+            row['value'] >= threshold
+            or (row['nuclide'] == 'Other' and row['value'] > 0.0)
+        ) else '', axis=1
+    )
 
+    return ts['nuclide'].tolist()
+
+def add_pie(ax, time_slice, color_map, threshold):
+    '''
+    Create a pie chart for ALARA output data at a given cooling time to be
+        called within single_time_pie_chart() or multi_time_pie_grid().
+
+    Arguments:
+        ax (matplotlib.axes._axes.Axes): Matplotlib axis object of the plot
+            being constructed.
+        time_slice (alara_output_processing.ALARADFrame): Filtered ALARADFrame
+            containing data for a single cooling time.
+        color_map (dict): Pre-constructed color map for each nuclide to match
+            the wedges with the legend.
+        threshold (float): Proportional threshold for small-value aggregation.
+
+    Returns:
+        wedges (list of matplotlib.patches.Wedge): List of Matplotlib Wedge
+            objects corresponding to each wedge in the pie chart.
+    '''
+
+    wedges, _ = ax.pie(
+        time_slice['value'],
+        labels=pie_labels_by_threshold(time_slice, threshold),
+        colors = [color_map[nuc] for nuc in time_slice['nuclide']],
+        wedgeprops={'edgecolor' : 'black', 'linewidth' : 1},
+        labeldistance=1.1,
+        textprops={'fontsize':12}
+    )
+
+    return wedges
+
+def open_with_new_manager(fig):
+    '''
+    Create a new manager for a Matplotlib Figure object to allow for it to
+        "reopen" it and allow for it to be shown through plt.show() after
+        having been closed.
+
+    Arguments:
+        fig (matplotlib.figure.Figure): Closed Matplotlib Figure object.
+    
+    Returns:
+        None
+    '''
+
+    foo = plt.figure()
+    new_manager = foo.canvas.manager
+    new_manager.canvas.figure = fig
+    fig.set_canvas(new_manager.canvas)
 
 # ----- Plotting Functions ------
 
@@ -449,7 +410,8 @@ def plot_single_response(
     head=None,
     total=False,
     yscale='log',
-    relative=False
+    relative=False,
+    cmap_name = 'Dark2'
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -498,13 +460,18 @@ def plot_single_response(
         relative (bool, optional): Option to plot relative values with respect
             to totals at each cooling time.
             (Defaults to False)
+        cmap_name (str, optional): Option to set the Matplotlib Colormap for
+            the plots. Reference guide for Matplotlib Colormaps can be found
+            at matplotlib.org/stable/gallery/color/colormap_reference.html
+            (Defaults to "Dark2")
 
     Returns:
-        None
+        fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
+            containing the constructed plot.
     '''
 
     data_comp = False
-    _, ax = plt.subplots(figsize=(10,6))
+    fig, ax = plt.subplots(figsize=(10,6))
 
     if isinstance(run_lbls, list):
         data_comp=True
@@ -514,7 +481,7 @@ def plot_single_response(
     data_list = []
     line_styles = list(lines.lineStyles.keys())[:len(run_lbls)]
     for run_lbl, linestyle in zip(run_lbls, line_styles):
-        times, filtered, piv = preprocess_data(
+        filtered, piv = preprocess_data(
             adf=adf,
             run_lbl=run_lbl,
             variable=variable,
@@ -523,10 +490,12 @@ def plot_single_response(
             sort_by_time=sort_by_time,
             head=head,
         )
-        data_list.append((run_lbl, times, filtered, piv, linestyle))
+        data_list.append((run_lbl, filtered, piv, linestyle))
 
-    color_map = build_color_map_from_pivs([data[3] for data in data_list])
-    for run_lbl, times, filtered, piv, linestyle in data_list:
+    color_map = build_color_map_from_pivs(
+        [data[2] for data in data_list], cmap_name
+    )
+    for run_lbl, filtered, piv, linestyle in data_list:
         for nuc in piv.index:
             if nuc == 'total' and not total:
                 continue
@@ -534,7 +503,7 @@ def plot_single_response(
             label_suffix = f' ({run_lbl})' if data_comp else ''
 
             ax.plot(
-                times,
+                piv.columns,
                 piv.loc[nuc].tolist(),
                 label=(nuc + label_suffix),
                 color=color_map[nuc],
@@ -570,23 +539,27 @@ def plot_single_response(
 
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
-    plt.show()
+    plt.close(fig)
+
+    return fig
 
 def single_time_pie_chart(
-        adf,
-        run_lbl,
-        variable,
-        threshold,
-        time_idx,
-        time_unit='s'
-    ):
+    agg,
+    run_lbl,
+    variable,
+    threshold,
+    time_idx,
+    time_unit='s',
+    cmap_name='Dark2'
+):
     '''
     Create a pie chart depicting the breakdown of nuclides contributing to a
         given response at a given cooling time.
 
     Arguments:
-        adf (alara_output_processing.ALARADFrame): ALARADFrame containing 
-            response data from one or more ALARA runs.
+        agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
+            (potentially) with new "Other" rows for each time,containing all
+            aggregated data below the thresholds.
         run_lbl (str): Distinguisher of the specified ALARA run.
         variable (str): Name of the response variable.
         threshold (float): Proportional threshold for small-value aggregation.
@@ -594,49 +567,60 @@ def single_time_pie_chart(
         time_unit (str, optional): Optional paramter to set units for cooling
             times. Accepted values: 's', 'm', 'h', 'd', 'w', 'y', 'c'.
             (Defaults to 's')
+        cmap_name (str, optional): Option to set the Matplotlib Colormap for
+            the plots. Reference guide for Matplotlib Colormaps can be found
+            at matplotlib.org/stable/gallery/color/colormap_reference.html
+            (Defaults to "Dark2")
     
     Returns:
-        None
+        fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
+            containing the constructed pie chart.
     '''
 
-    times, agg = pie_chart_aggregation(
-        adf=adf,
-        run_lbl=run_lbl,
-        variable=variable,
-        time_unit=time_unit,
+    times = sorted(agg['time'].unique())
+    time_slice = agg[agg['time'] == times[time_idx]]
+    color_map = build_color_map_from_nucs(time_slice['nuclide'], cmap_name)
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    wedges = add_pie(
+        ax=ax,
+        time_slice=time_slice,
+        color_map=color_map,
         threshold=threshold
     )
-    time_slice = agg[agg['time'] == times[time_idx]]
-    labels = [reformat_isotope(nuc) for nuc in time_slice['nuclide']]
 
-    wedges, _ = plt.pie(
-        time_slice['value'],
-        labels=labels,
-        wedgeprops={'edgecolor' : 'black', 'linewidth' : 1}
-    )
+    legend_items = []
+    for wedge, nuc, val in zip(wedges, time_slice['nuclide'], time_slice['value']):
+        if val >= threshold or nuc == 'Other':
+            legend_items.append((val, wedge, nuc))
 
+    legend_items.sort(reverse=True, key=lambda x: x[0])
+
+    legend_wedges = [item[1] for item in legend_items]
     legend_labels = [
-        f'{nuc}: {frac * 100 :.1f}%'
-        for nuc, frac in zip(labels, time_slice['value'])
+        f'{reformat_isotope(item[2])}: {item[0] * 100:.1f}%'
+        for item in legend_items
     ]
-
-    plt.title(
-        f'{run_lbl}: Aggregated Proportional Contitributions ' \
-        f'to {variable} at {times[time_idx]} {time_unit}'
-    )
-
-    plt.legend(
-        wedges,
+    ax.legend(
+        legend_wedges,
         legend_labels,
         title='Nuclides',
         loc='center left',
         bbox_to_anchor=(-0.375, 0.75)
     )
-    
-    plt.show()
 
+    ax.set_title(
+        f'{run_lbl}: Aggregated Proportional Contitributions ' \
+        f'to {variable} at {times[time_idx]} {time_unit}',
+        loc='right'
+    ) 
+
+    plt.close(fig)
+
+    return fig
+    
 def multi_time_pie_grid(
-    adf,
+    agg,
     run_lbl,
     variable,
     threshold=0.05,
@@ -655,8 +639,9 @@ def multi_time_pie_grid(
         user specifications.
 
     Arguments:
-        adf (alara_output_processing.ALARADFrame): ALARADFrame containing 
-            response data from one or more ALARA runs.
+        agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
+            (potentially) with new "Other" rows for each time, containing all
+            aggregated data below the thresholds.
         run_lbl (str): Distinguisher of the specified ALARA run.
         variable (str): Name of the response variable.
         threshold (float, optional): Proportional threshold for small-value
@@ -674,30 +659,34 @@ def multi_time_pie_grid(
             (Defaults to "Dark2")
 
     Returns:
-        None        
+        fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
+            containing the table and grid of pie charts.        
     '''
 
-    times, agg = pie_chart_aggregation(
-        adf=adf,
-        run_lbl=run_lbl,
-        variable=variable,
-        time_unit=time_unit,
-        threshold=threshold
-    )
-    all_nucs = sorted(set(agg['nuclide']))
-    color_map = build_color_map_from_nuc_list(all_nucs, cmap_name=cmap_name)
+    color_map = build_color_map_from_nucs(agg['nuclide'].unique(), cmap_name)
 
+    times = sorted(agg['time'].unique())
     N = len(times)
-    nrows = math.ceil(N / ncols)
+    nrows = int(np.ceil(N / ncols))
     fig = plt.figure(figsize=(5 * ncols + 3, 5 * (nrows + 0.7)))
+
+    # Create table gridspec
+    left = 0.05
+    top = 0.95
+    gs = fig.add_gridspec(
+        nrows + 1, ncols,
+        height_ratios=([1.0] + [1]*nrows),
+        hspace=0.4,
+        wspace=0.3,
+        left=left, right=(1-left), top=top, bottom=(1-top)
+    )
     
-    gs = pie_grid_relative_tables(
+    # Populate and format data table
+    pie_grid_relative_tables(
+        gs=gs,
         fig=fig,
         agg=agg,
-        all_nucs=all_nucs,
         times=times,
-        nrows=nrows,
-        ncols=ncols,
         time_unit=time_unit,
         color_map=color_map
     )
@@ -710,13 +699,11 @@ def multi_time_pie_grid(
         ax = fig.add_subplot(gs[r, c])
         time_slice = agg[agg['time'] == t]
 
-        ax.pie(
-            time_slice['value'],
-            labels=pie_labels_by_threshold(time_slice, threshold),
-            colors=[color_map[nuc] for nuc in time_slice['nuclide']],
-            wedgeprops={'edgecolor': 'black', 'linewidth': 1},
-            labeldistance=1.1,
-            textprops={'fontsize': 12} 
+        add_pie(
+            ax=ax,
+            time_slice=time_slice, 
+            color_map=color_map,
+            threshold=threshold
         )
         ax.set_title(
             f'Time = {t} {time_unit}', fontstyle='italic', fontsize=16
@@ -762,5 +749,6 @@ def multi_time_pie_grid(
         y=0.995,
         fontweight='bold'
     )
+    plt.close(fig)
 
-    plt.show()
+    return fig
