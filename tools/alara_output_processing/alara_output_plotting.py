@@ -247,7 +247,6 @@ def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
             (Defaults to 's')
 
     Returns:
-        times (list of floats): Chronological list of cooling times.
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
             (potentially) with new "Other" rows for each time, containing all
             aggregated data below the thresholds.
