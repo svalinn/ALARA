@@ -3,7 +3,6 @@ import argparse
 from warnings import warn
 from csv import DictReader
 from numpy import array
-import re
 
 # ---------- General Utility Methods ----------
 
@@ -216,9 +215,8 @@ class FileParser:
         converted_times = extract_time_vals(
             times_w_units, to_unit=self.time_unit
         )
-
-        parts = [part for part in re.split(r"[ #:]", current_block) if part]
-        block_name, block_num_trail = parts[:2]
+        block_name, block_num_trail = current_block.split(' #')
+        block_num_trail = block_num_trail.split(':')[0]
         variable, unit = current_parameter.split(' [')
         
         reader = DictReader(
