@@ -195,7 +195,7 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
     daughters = []
     for MT in MTs:
         sigma_list = extract_cross_sections(file_obj, MT)
-        gas = mt_dict[MT]['Gas']
+        gas = mt_dict[MT]['Gas']       
         # Daughter calculated either as an emitted gas nucleus or
         # as the residual for non-gaseous emissions. 
         dKZA = gas_kzas[gas] if gas else pKZA + mt_dict[MT]['delKZA']
@@ -204,7 +204,9 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
         if dKZA in daughters and dKZA == (pKZA + 10) / 2:
             daughters.remove(dKZA)
         
-        if dKZA in daughters:
+        # Skipping pre-tracked light gas daughters not handled above
+        alpha_kza = 20040
+        if dKZA in daughters and dKZA <= alpha_kza:
             continue
 
         daughters.append(dKZA)
