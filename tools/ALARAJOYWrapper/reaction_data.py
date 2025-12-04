@@ -6,12 +6,12 @@ from numpy import array
 
 #             emitted         delta N       delta P
 NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
+             'g'     : array([ 0      ,      0      ]), # gamma emission
              'p'     : array([ 0      ,     -1      ]), # proton emission
              'd'     : array([-1      ,     -1      ]), # deuteron emission
              't'     : array([-2      ,     -1      ]), # triton emission
              'h'     : array([-1      ,     -2      ]), # helium-3 emission
-             'a'     : array([-2      ,     -2      ]), # alpha emission
-             'g'     : array([ 0      ,      0      ])  # gamma emission
+             'a'     : array([-2      ,     -2      ])  # alpha emission
 }
 
 # Track edge cases of unquantifiable MT reaction types
@@ -83,7 +83,7 @@ def emission_breakdown(emitted_particles):
     # Handle gas production totals (MTs 203-207) of the format Xz
     gases = ['p', 'd', 't', 'h', 'a']
     if 'X' in emitted_particles:
-        for gas in gases:
+        for gas in list(NP_dict.keys())[2:]:
             if gas in emitted_particles:
                 emission_dict[emitted_particles] = 1
     
@@ -205,7 +205,11 @@ def process_mt_data(mt_dict):
         emission_dict = emission_breakdown(emitted_particles)
         change_NP = nucleon_changes(emission_dict)
         M = check_for_isomer(emitted_particles)
-        gas = list(emitted_particles)[1] if 'X' in emitted_particles else None
+        emitted_list = list(emitted_particles)
+        gas = emitted_list[1] if (
+            'X' in emitted_particles
+            and emitted_list[1] in list(NP_dict.keys())[2:]
+        ) else None
 
         # Conditionally remove isomer tags from emitted particle strings
         if M > 0:
