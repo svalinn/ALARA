@@ -1,0 +1,56 @@
+## NOTE: you should run sample1 before any other samples to ensure
+## that the data is available
+## This problem runs on a set of regular pulses, which will grow in complexity in sample11 and sample12
+
+geometry rectangular
+
+volume
+     10    zone_1
+end
+
+mat_loading
+    zone_1    mix_1
+end
+
+mixture mix_1
+    element fe 1 1.0
+end
+
+material_lib ../data/matlib.sample
+element_lib ../data/elelib.std
+data_library alaralib fendl2bin
+
+output zone
+        number_density
+end
+
+#     flux name    fluxin file   norm   shift   unused
+flux  my_flux       ../examples/ref_flux_files/fluxfnsfIBfw_518MW.txt 1     0      default
+
+schedule    sch_1
+    1 y my_flux ph_1 0  s
+end
+
+schedule    sch_2
+    30 w my_flux ph_2 0 s
+end    
+
+schedule    sch_3
+    20 d my_flux ph_3 0 s
+end    
+
+pulsehistory  ph_1
+    1    0.0    s
+end
+
+pulsehistory ph_2
+    5   5.0     m
+end
+
+pulsehistory ph_3
+    10  1.0     d
+end    
+
+#other parameters
+truncation 1e-10
+dump_file dump_1w.file
