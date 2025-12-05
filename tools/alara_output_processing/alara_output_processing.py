@@ -234,7 +234,7 @@ class FileParser:
                 'run_lbl'       :                            self.run_lbl,
                 'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
                 'block_name'    :                              block_name,
-                'block_num'     :          float(block_num.split(':')[0]),
+                'block_num'     :            int(block_num.split(':')[0]),
                 'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
                 'var_unit'      :                      unit.split(']')[0],
                 'value'         :                   float(row[str(time)])
