@@ -97,7 +97,7 @@ def main():
         )
         
         _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
-        gas_MTs = set(pendf_MTs) & set(range(GAS_MT_MIN, GAS_MT_MAX))
+        gas_MTs = set(pendf_MTs) & set(range(GAS_MT_MIN, GAS_MT_MAX + 1))
         MTs |= {int(gas_MT) for gas_MT in gas_MTs}
 
         # GENDF Generation
