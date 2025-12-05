@@ -215,8 +215,8 @@ class FileParser:
         converted_times = extract_time_vals(
             times_w_units, to_unit=self.time_unit
         )
-        block_name, block_num_trail = current_block.split(' #')
-        block_num_trail = block_num_trail.split(':')[0]
+        block_type, block_num_and_name = current_block.split(' #')
+        block_num, _, block_name = block_num_and_name.partition(' ')
         variable, unit = current_parameter.split(' [')
         
         reader = DictReader(
@@ -232,8 +232,9 @@ class FileParser:
                 'time_unit'     :                          self.time_unit,
                 'nuclide'       :                        row[nuclide_col],
                 'run_lbl'       :                            self.run_lbl,
-                'block'         :      ALARADFrame.BLOCK_ENUM[block_name],
-                'block_num'     :           block_num_trail.split(' ')[0],
+                'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
+                'block_name'    :                              block_name,
+                'block_num'     :            int(block_num.split(':')[0]),
                 'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
                 'var_unit'      :                      unit.split(']')[0],
                 'value'         :                   float(row[str(time)])
