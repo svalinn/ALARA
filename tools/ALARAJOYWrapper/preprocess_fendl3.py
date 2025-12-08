@@ -8,6 +8,8 @@ import warnings
 from pathlib import Path
 from collections import defaultdict
 
+VITAMIN_J_ENERGY_GROUPS = 175
+
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -15,6 +17,9 @@ def args():
     )
     parser.add_argument(
         '--gas_handling', '-g', required=True, nargs=1
+    )
+    parser.add_argument(
+        '--amalgamate', '-a', action='store_true'
     )
     parser.add_argument(
         # Temperature for NJOY run [Kelvin]
@@ -146,6 +151,13 @@ def gas_handling(gas_method, all_rxns):
             'Invalid gas method selection. ' \
             'Must choose either "r" (remove) or "s" (subtract).'
         )
+    
+def combine_daughter_pathways(row_dicts):
+    """
+    Application of amalgamate_by() to calculate cumulative cross-sections from
+        all reaction pathways leading to each daughter nuclide contained in
+        the input data, row_dicts.
+    """
 
 def write_dsv(dsv_path, all_rxns):
     """
