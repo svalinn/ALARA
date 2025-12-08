@@ -88,7 +88,8 @@ def gas_handling(gas_method, all_rxns):
     
     else:
         raise KeyError(
-            'Invalid gas method key. Must choose either "r" (remove) or "s" (subtract)'
+            'Invalid gas method key.' \
+            'Must choose either "r" (remove) or "s" (subtract)'
         )
 
 def write_dsv(dsv_path, row_dicts):
