@@ -83,12 +83,15 @@ def gas_handling(gas_method, all_rxns):
     if gas_method == 'r':
         return remove_gas_daughters(all_rxns)
 
-    # Pathway for subtraction method to be developed in a separate PR
-    # to close #186
-    # if gas_method == 's':
-        # return subtract_gas_from_totals(rxn)
+    elif gas_method == 's':
+         return subtract_gas_from_totals(cumulative_data)
     
-def write_dsv(dsv_path, all_rxns):
+    else:
+        raise KeyError(
+            'Invalid gas method key. Must choose either "r" (remove) or "s" (subtract)'
+        )
+
+def write_dsv(dsv_path, row_dicts):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
         dsv_path, produced by iterating through each reaction of each isotope
