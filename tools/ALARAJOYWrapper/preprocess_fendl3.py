@@ -37,7 +37,6 @@ def remove_gas_daughters(rxn):
             production reactions (as denoted by the 'x' emitted particle).
     '''
 
-    # less than alpha, and is gas i.e. not neutron(s) or gamma(s)
     alpha_kza = 20040 # Heaviest gas in interest alpha-particle
     return rxn['Daughter KZA'] > alpha_kza or rxn['Emitted Particles'] == 'x'
 
