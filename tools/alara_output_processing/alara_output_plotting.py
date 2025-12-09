@@ -84,50 +84,42 @@ def preprocess_data(
 
     return filtered, piv
 
-def build_color_map_from_pivs(list_of_pivs, cmap_name):
+def build_color_map(cmap_name, all_nucs=[], pivs=None):
     '''
-    Given a list of pivot DataFrames (one per run), build a stable color map
-        keyed by nuclide name.
-
-    Arguments:
-        list_of_pivs (list of pandas.DataFrames): List of pivot tables indexed
-            by nuclide with values for each cooling time.
-        cmap_name (str): Matplotlib Colormap for the plots.
-
-    Returns:
-        color_map (dict): Preset color map for each nuclide in the pivot table
-            indices.
-    '''
-
-    all_nucs = set()
-    for piv in list_of_pivs:
-        all_nucs.update(piv.index)
-  
-    cmap = plt.cm.get_cmap(cmap_name)
-
-    return {lbl: cmap(i % cmap.N) for i, lbl in enumerate(sorted(all_nucs))}
-
-def build_color_map_from_nucs(all_nucs, cmap_name):
-    '''
-    Given a set or Series of nuclide name strings, build a stable color map
-        keyed by nuclide name.
-
-    Arguments:
-        all_nucs (set of str or pd.core.series.Series): Collection of all
-            nuclide names to be included in the color map.
-        cmap_name (str): Matplotlib Colormap for the plots.
+    Given a list of pivot DataFrames (one per run) or a 1D array-like data
+        structure of nuclide string names, build a stable color mape keyed by
+        nuclide name.
     
-    Returns:
-        color_map (dict): Preset color map for each nuclide in the input list.
+    Arguments:
+        cmap_name (str): Matplotlib Colormap for the plots.
+        all_nucs (array-like, optional): Collection of all nuclide
+            names to be included in the color map.
+            (Defaults to [])
+        pivs (list of pandas.DataFrames or None, optional): List of pivot
+            tables indexed by nuclide with values for each cooling time.
+            (Defaults to None)
     '''
-
+    
     cmap = plt.cm.get_cmap(cmap_name)
-    N = len(all_nucs)
-    colors = [cmap(i / max(N-1, 1)) for i in range(N)]
-    color_map = {lbl: color for lbl, color in zip(all_nucs, colors)}
+    
+    # Check for "empty" all_nucs compatable with any 1D array-like objs
+    if np.array(all_nucs).size == 0:
+        if pivs:
+            all_nucs = set()
+            for piv in pivs:
+                all_nucs.update(piv.index)
+        
+        else:
+            raise ValueError(
+                'Must input either all_nucs or pivs.'
+            )
 
-    # Set "Other" color as light gray in RGBA formatting
-    color_map['Other'] = (0.8, 0.8, 0.8, 1.0)
+    color_map = {
+        lbl: cmap(i % cmap.N) for i, lbl in enumerate(sorted(all_nucs))
+    }
+
+    if 'Other' in set(all_nucs):
+        color_map['Other'] = (0.8, 0.8, 0.8, 1.0)
 
     return color_map
 
@@ -263,7 +255,7 @@ def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
 
     return agg
 
-def pie_grid_relative_tables(gs, fig, agg, times, time_unit, color_map):
+def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
     '''
     Given a Matplotlib Figure object, create a subplot Matplotlib table object
         to act as a color-coordinated legend for a grid of pie charts with
@@ -272,11 +264,8 @@ def pie_grid_relative_tables(gs, fig, agg, times, time_unit, color_map):
         "Other" nuclides that fall below a given proportional threshold).
 
     Arguments:
-        gs (matplotlib.gridspec.GridSpec): Matplotlib Gridspec object to
-            organize the combined set of subplots containing the resultant
-            table as well as the individual pie charts in the grid.
-        fig (matplotlib.figure.Figure): Matplotlib Figure object wherein the
-            grid of pie charts will be constructed.
+        table_ax (matplotlib.axes._axes.Axes): Matplotlib Axes object of the
+            table being constructed.
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
             (potentially) with new "Other" rows for each time, containing all
             aggregated data below the thresholds.
@@ -289,7 +278,6 @@ def pie_grid_relative_tables(gs, fig, agg, times, time_unit, color_map):
         None
     '''
 
-    table_ax = fig.add_subplot(gs[0,:])
     table_ax.axis('off')
 
     piv = agg.pivot(index='nuclide', columns='time', values='value') * 100
@@ -491,8 +479,9 @@ def plot_single_response(
         )
         data_list.append((run_lbl, filtered, piv, linestyle))
 
-    color_map = build_color_map_from_pivs(
-        [data[2] for data in data_list], cmap_name
+    color_map = build_color_map(
+        cmap_name=cmap_name,
+        pivs=[data[2] for data in data_list]
     )
     for run_lbl, filtered, piv, linestyle in data_list:
         for nuc in piv.index:
@@ -538,7 +527,6 @@ def plot_single_response(
 
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
-    plt.close(fig)
 
     return fig
 
@@ -578,7 +566,9 @@ def single_time_pie_chart(
 
     times = sorted(agg['time'].unique())
     time_slice = agg[agg['time'] == times[time_idx]]
-    color_map = build_color_map_from_nucs(time_slice['nuclide'], cmap_name)
+    color_map = build_color_map(
+        cmap_name=cmap_name, all_nucs=time_slice['nuclide']
+    )
 
     fig, ax = plt.subplots(figsize=(6, 6))
     wedges = add_pie(
@@ -612,9 +602,7 @@ def single_time_pie_chart(
         f'{run_lbl}: Aggregated Proportional Contitributions ' \
         f'to {variable} at {times[time_idx]} {time_unit}',
         loc='right'
-    ) 
-
-    plt.close(fig)
+    )
 
     return fig
     
@@ -662,7 +650,9 @@ def multi_time_pie_grid(
             containing the table and grid of pie charts.        
     '''
 
-    color_map = build_color_map_from_nucs(agg['nuclide'].unique(), cmap_name)
+    color_map = build_color_map(
+        cmap_name=cmap_name, all_nucs=agg['nuclide'].unique()
+    )
 
     times = sorted(agg['time'].unique())
     N = len(times)
@@ -679,11 +669,11 @@ def multi_time_pie_grid(
         wspace=0.3,
         left=left, right=(1-left), top=top, bottom=(1-top)
     )
-    
+    table_ax = fig.add_subplot(gs[0,:])
+
     # Populate and format data table
     pie_grid_relative_tables(
-        gs=gs,
-        fig=fig,
+        table_ax=table_ax,
         agg=agg,
         times=times,
         time_unit=time_unit,
@@ -748,6 +738,5 @@ def multi_time_pie_grid(
         y=0.995,
         fontweight='bold'
     )
-    plt.close(fig)
 
     return fig
