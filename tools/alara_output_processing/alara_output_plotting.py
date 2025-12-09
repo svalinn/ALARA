@@ -10,7 +10,7 @@ def preprocess_data(
     adf,
     run_lbl,
     variable,
-    nuclides = None,
+    nuclides=None,
     time_unit='s',
     sort_by_time='',
     head=None
@@ -229,7 +229,9 @@ def construct_legend(ax, data_comp=False):
         handletextpad=0.5,
     )
 
-def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
+def pie_chart_aggregation(
+        adf, run_lbl, variable, threshold, time_unit, nuc_filter=False
+):
     '''
     Prepare an aggregated ALARADFrame for single or multiple pie chart
         plotting with a user-defined proportional cutoff threshold.
@@ -245,6 +247,10 @@ def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
         time_unit (str, optional): Optional paramter to set units for cooling
             times. Accepted values: 's', 'm', 'h', 'd', 'w', 'y', 'c'.
             (Defaults to 's')
+        nuc_filter (bool, optional): Option to calculate relative to the
+            totals of an ALARADFrame that has filtered out nuclides by the new
+            sum of the filtered values.
+            (Defaults to False)
 
     Returns:
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
@@ -256,9 +262,9 @@ def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
         adf=adf,
         run_lbl=run_lbl,
         variable=variable,
-        time_unit=time_unit,
+        time_unit=time_unit
     )
-    rel = filtered.calculate_relative_vals()
+    rel = filtered.calculate_relative_vals(nuc_filter)
     agg = aop.aggregate_small_percentages(rel, threshold)
 
     return agg
@@ -403,14 +409,14 @@ def plot_single_response(
     adf,
     run_lbls,
     variable,
-    nuclides = None,
+    nuclides=None,
     time_unit='s',
     sort_by_time='shutdown',
     head=None,
     total=False,
     yscale='log',
     relative=False,
-    cmap_name = 'Dark2'
+    cmap_name='Dark2'
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -470,12 +476,20 @@ def plot_single_response(
     '''
 
     data_comp = False
+    filter_stable = []
     fig, ax = plt.subplots(figsize=(10,6))
 
     if isinstance(run_lbls, list):
         data_comp=True
     else:
         run_lbls = [run_lbls]
+
+    if nuclides:
+        if not isinstance(nuclides, list):
+            nuclides = [nuclides]
+        for nuc in nuclides:
+            if nuc.startswith('!'):
+                filter_stable.append(nuc[1:].capitalize())
 
     data_list = []
     line_styles = list(lines.lineStyles.keys())[:len(run_lbls)]
@@ -515,6 +529,11 @@ def plot_single_response(
         title_suffix += 'Relative to Total at Each Cooling Time '
         yscale = 'linear'
 
+    if filter_stable:
+        title_suffix += (
+            f'with Filtering of Stable Isotopes of {','.join(filter_stable)}'
+        )
+
     if head:
         title_suffix += (
             f'\n(ALARADFrame Head Sorted by Values at {sort_by_time})'
@@ -538,7 +557,6 @@ def plot_single_response(
 
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
-    plt.close(fig)
 
     return fig
 
@@ -549,7 +567,8 @@ def single_time_pie_chart(
     threshold,
     time_idx,
     time_unit='s',
-    cmap_name='Dark2'
+    cmap_name='Dark2',
+    stable_filter=''
 ):
     '''
     Create a pie chart depicting the breakdown of nuclides contributing to a
@@ -570,6 +589,9 @@ def single_time_pie_chart(
             the plots. Reference guide for Matplotlib Colormaps can be found
             at matplotlib.org/stable/gallery/color/colormap_reference.html
             (Defaults to "Dark2")
+        stable_filter (str, optional): Option to denote an element whose
+            stable nuclides have been filtered out.
+            (Defaults to '')
     
     Returns:
         fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
@@ -608,13 +630,14 @@ def single_time_pie_chart(
         bbox_to_anchor=(-0.375, 0.75)
     )
 
+    title_suffix = (
+        f'\nwith Filtering of Stable Isotopes of {stable_filter.capitalize()}'
+        if stable_filter else ''
+    )
     ax.set_title(
         f'{run_lbl}: Aggregated Proportional Contitributions ' \
-        f'to {variable} at {times[time_idx]} {time_unit}',
-        loc='right'
+        f'to {variable} at {times[time_idx]} {time_unit} {title_suffix}'
     ) 
-
-    plt.close(fig)
 
     return fig
     
@@ -748,6 +771,5 @@ def multi_time_pie_grid(
         y=0.995,
         fontweight='bold'
     )
-    plt.close(fig)
 
     return fig
