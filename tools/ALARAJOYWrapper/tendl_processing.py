@@ -3,12 +3,13 @@ import ENDFtk
 from pathlib import Path
 import warnings
 
-gas_kzas = {
-    'p' : 10010,
-    'd' : 10020,
-    't' : 10030,
-    'h' : 20030,
-    'a' : 20040
+#           gas      KZA     MT     
+GAS_IDS = {
+            'p'  : { 10010 : 203 },
+            'd'  : { 10020 : 204 },
+            't'  : { 10030 : 205 },
+            'h'  : { 20030 : 206 },
+            'a'  : { 20040 : 207 }
 }
 
 def get_isotope(stem):
@@ -197,13 +198,16 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
         gas = mt_dict[MT]['Gas']
         # Daughter calculated either as an emitted gas nucleus or
         # as the residual for non-gaseous emissions. 
-        dKZA = gas_kzas[gas] if gas else pKZA + mt_dict[MT]['delKZA']
+        dKZA = (
+            next(iter(GAS_IDS[gas])) if gas else pKZA + mt_dict[MT]['delKZA']
+        )
 
         # Skip high (2 digit) isomeric states
         if not mt_dict[MT]['High M']:
             gendf_data.append({
                 'Parent KZA'          :                                  pKZA,
                 'Daughter KZA'        :                                  dKZA,
+                'MT'                  :                                    MT,
                 'Emitted Particles'   :      mt_dict[MT]['Emitted Particles'],
                 'Non-Zero Groups'     :                       len(sigma_list),
                 'Cross Sections'      :                            sigma_list

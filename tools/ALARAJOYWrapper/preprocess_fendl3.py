@@ -5,6 +5,8 @@ import njoy_tools as njt
 import argparse
 import warnings
 from pathlib import Path
+from itertools import chain
+from collections import defaultdict
 
 def args():
     parser = argparse.ArgumentParser()
@@ -20,11 +22,39 @@ def args():
     )
     return parser.parse_args()
 
+def amalgamate_by(nuc_type, row_dicts):
+    """
+    Reorganize a list of reaction dictionaries into a dictionary keyed by
+        either parents or daughters, each containing all the reactions that
+        either start from the same parent or produce the same daughter,
+        respectively.
+    
+    Arguments:
+        nuc_type (str): Amalgamation key, either Parent or Daughter.
+        row_dicts (list of dicts): List of containing separate dictionaries
+            for each activation reaction.
+    Returns:
+        amalgam (collections.defaultdict): Dictionary keyed by either parents
+            or daughters, each containing nested dictionaries of all reactions
+            stemming from or leading to their respective key nuclide.
+    """
+
+    amalgam = defaultdict(list)
+    for rxn in row_dicts:
+        amalgam[rxn[f'{nuc_type.capitalize()} KZA']].append(rxn)
+
+    return amalgam
+
 def remove_gas_daughters(cumulative_data):
     """
     Filter reactions from the list of all reaction row dictionaries to remove
-        all reactions resulting in a light gas daughter. Optional method to be
-        called within gas_handling().
+        all reactions resulting in a light gas daughter for each parent
+        nuclide, given that parent includes any gas total production
+        "reactions", corresponding to MT=203-207. Otherwise, if no gas totals
+        are present, preserve all reactions because there is no double
+        counting.
+        
+        Optional method to be called within gas_handling().
 
     Arguments:
         cumulative_data (list of dicts): List containing separate dictionaries
@@ -40,11 +70,18 @@ def remove_gas_daughters(cumulative_data):
     """
 
     alpha_kza = 20040 # Heaviest gas in interest alpha-particle
+    by_parent = amalgamate_by('Parent', cumulative_data)
+    
+    gas_filtered = []
+    for reactions in by_parent.values():
+        gas_filtered.extend([
+            r for r in reactions
+            if r['Daughter KZA'] > alpha_kza or r['Emitted Particles'] == 'x'
+        ] if any(
+            r['Emitted Particles'] == 'x' for r in reactions
+        ) else reactions)
 
-    return [
-        rxn for rxn in cumulative_data
-        if rxn['Daughter KZA'] > alpha_kza or rxn['Emitted Particles'] == 'x'
-    ]
+    return gas_filtered
 
 def gas_handling(gas_method, cumulative_data):
     """
@@ -93,9 +130,8 @@ def write_dsv(dsv_path, row_dicts):
         None 
     """
 
-    xs_key = 'Cross Sections'
-    join_keys = list(row_dicts[0].keys())
-    join_keys.remove(xs_key)
+    special_keys = ['Cross Sections', 'MT']
+    join_keys = [k for k in row_dicts[0] if k not in special_keys]
     # Sort list of reaction dictionaries by ascending parent KZAs
     parent_label = join_keys[0]
     row_dicts.sort(key=lambda rxn: rxn[parent_label])
@@ -106,10 +142,12 @@ def write_dsv(dsv_path, row_dicts):
         dsv_file.write(str(vitamin_J_energy_groups) + '\n')
 
         for reaction in row_dicts:
-            dsv_row = ' '.join(str(reaction[key]) for key in join_keys)
-            dsv_row += ' ' + ' '.join(str(xs) for xs in reaction[xs_key])
-            dsv_row += '\n'
-            dsv_file.write(dsv_row)
+            if not all(xs == 0.0 for xs in reaction[special_keys[0]]):
+                dsv_row = ' '.join(str(reaction[key]) for key in join_keys)
+                dsv_row += ' ' + ' '.join(
+                    str(xs) for xs in reaction[special_keys[0]]
+                ) + '\n'
+                dsv_file.write(dsv_row)
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv_file.write(str(-1))
 
@@ -120,9 +158,6 @@ def main():
 
     # Set constants
     TAPE20 = 'tape20'
-    GAS_MT_MIN = 203 # Lowest MT number in range of gas production totals
-    GAS_MT_MAX = 207 # Highest MT number in range of gas production totals
-
 
     dir = njt.set_directory()
     search_dir = (
@@ -155,7 +190,10 @@ def main():
         )
         
         _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
-        gas_MTs = set(pendf_MTs) & set(range(GAS_MT_MIN, GAS_MT_MAX + 1))
+        gas_MTs = (
+            set(pendf_MTs) &
+            set(chain.from_iterable(g.values() for g in tp.GAS_IDS.values()))
+            )
         MTs |= {int(gas_MT) for gas_MT in gas_MTs}
 
         # GENDF Generation
