@@ -1,15 +1,17 @@
 # Import packages
 import ENDFtk
 from pathlib import Path
+from reaction_data import GASES
 import warnings
+import pandas as pd
+import numpy as np
 
-gas_kzas = {
-    'p' : 10010,
-    'd' : 10020,
-    't' : 10030,
-    'h' : 20030,
-    'a' : 20040
-}
+GAS_DF = pd.DataFrame({
+    'gas'       : GASES,
+    'kza'       : [10010, 10020, 10030, 20030, 20040],
+    'total_mt'  : range(203, 207 + 1)
+})
+VITAMIN_J_ENERGY_GROUPS = 175
 
 def get_isotope(stem):
     """
@@ -173,7 +175,7 @@ def extract_cross_sections(file, MT):
 
     return sigma_list[::-1]
 
-def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
+def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns):
     """
     Iterate through all of the MTs present in a given GENDF file to extract
         the necessary data to be able to run ALARA.
@@ -184,34 +186,50 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
             contents for a specific material's cross-section data.
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv
         pKZA (int): Parent KZA identifier.
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            Emitted Particles: (str of emitted particles)
+                            Non-Zero Groups: (int of non-zero groupwise XS)
+                            Cross Sections: (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+            
     Returns:
-        gendf_data (list of dict): List of dictionaries containing parent KZA
-            daughter KZA values, emitted particles, counts of the number of
-            non-zero groups in the Vitamin-J groupwise structure, and the
-            cross-section values for those groups, organized by MT number.
+        all_rxns (collections.defaultdict): Updated dictionary for all
+            reaction pathways for the given parent and its MTs.
     """
 
-    gendf_data = []
     for MT in MTs:
-        sigma_list = extract_cross_sections(file_obj, MT)
-        gas = mt_dict[MT]['Gas']
+        sigmas = extract_cross_sections(file_obj, MT)
+        gas = mt_dict[MT]['gas']
         # Daughter calculated either as an emitted gas nucleus or
         # as the residual for non-gaseous emissions. 
-        dKZA = gas_kzas[gas] if gas else pKZA + mt_dict[MT]['delKZA']
+        dKZA = (
+            GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
+            else pKZA + mt_dict[MT]['delKZA']
+        )
 
         # Skip high (2 digit) isomeric states
-        if not mt_dict[MT]['High M']:
-            gendf_data.append({
-                'Parent KZA'          :                                  pKZA,
-                'Daughter KZA'        :                                  dKZA,
-                'Emitted Particles'   :      mt_dict[MT]['Emitted Particles'],
-                'Non-Zero Groups'     :                       len(sigma_list),
-                'Cross Sections'      :                            sigma_list
-            })
+        if not mt_dict[MT]['high_m']:
+            daughter_dict = all_rxns[pKZA][dKZA]
+            daughter_dict[MT] = {
+                'emitted'               :              mt_dict[MT]['emitted'],
+                'non_zero_groups'       :                         len(sigmas),
+                'xsections'             :                             np.pad(
+                    sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
+                )
+            }
+
         else:
             warnings.warn(f'''
                 Skipping high isomeric state in daughter for {pKZA} → {dKZA}.
                 MT > 9 not allowed by ALARA.
             ''')
 
-    return gendf_data
+    return all_rxns

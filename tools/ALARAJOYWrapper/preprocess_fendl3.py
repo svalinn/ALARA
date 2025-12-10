@@ -2,9 +2,11 @@
 import reaction_data as rxd
 import tendl_processing as tp
 import njoy_tools as njt
+import numpy as np
 import argparse
 import warnings
 from pathlib import Path
+from collections import defaultdict
 
 def args():
     parser = argparse.ArgumentParser()
@@ -17,7 +19,29 @@ def args():
     )
     return parser.parse_args()
 
-def write_dsv(dsv_path, cumulative_data):
+def truncate_xsec(xsec):
+    """
+    Truncate a cross-section array after its last non-zero value. Cross-
+        section arrays shorter than 175 entries (corresponding to the number
+        of energy groups in the Vitamin-J group structure) are implicitly
+        interpreted as 0 by ALARA when reading ALARAJOY-formatted DSV files,
+        preventing this exclusion from resulting in any lost data, while
+        minimizing the size of the DSV file to be written out.
+
+    Arguments:
+        xsec (numpy.ndarray): 1-D NumPy array with 175 elements with cross-
+            sections for each energy group in the Vitamin-J group structure.
+
+    Returns:
+        truncated (numpy.ndarray): Truncated 1-D NumPy array truncated after
+            the last non-zero element (if it is not the final element in the
+            array).
+    """
+
+    last_nonzero_idx = np.max(np.nonzero(xsec)[0])
+    return xsec[:last_nonzero_idx + 1]
+    
+def write_dsv(dsv_path, all_rxns):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
         dsv_path, produced by iterating through each reaction of each isotope
@@ -25,46 +49,52 @@ def write_dsv(dsv_path, cumulative_data):
             pKZA dKZA emitted_particles non_zero_groups xs_1 xs_2 ... xs_n
         Each row can have different lengths, as only non-zero cross-sections
         are written out. The file is sorted by ascending parent KZA value.
+
     Arguments:
         dsv_path (pathlib._local.PosixPath): Filepath for the DSV file to be
             written.
-        cumulative_data (list of dicts): List containing separate dictionaries
-            for each reaction contained in all of the TENDL/PENDF files
-            processed.
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            Emitted Particles: (str of emitted particles)
+                            Non-Zero Groups: (int of non-zero groupwise XS)
+                            Cross Sections: (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+
     Returns:
         None 
     """
 
-    xs_key = 'Cross Sections'
-    join_keys = list(cumulative_data[0].keys())
-    join_keys.remove(xs_key)
-    # Sort list of reaction dictionaries by ascending parent KZAs
-    parent_label = join_keys[0]
-    cumulative_data.sort(key=lambda rxn: rxn[parent_label])
-
-    with open(dsv_path, 'w') as dsv_file:
-        # Write header line with total groups for Vitamin-J
-        vitamin_J_energy_groups = 175
-        dsv_file.write(str(vitamin_J_energy_groups) + '\n')
-
-        for reaction in cumulative_data:
-            dsv_row = ' '.join(str(reaction[key]) for key in join_keys)
-            dsv_row += ' ' + ' '.join(str(xs) for xs in reaction[xs_key])
-            dsv_row += '\n'
-            dsv_file.write(dsv_row)
+    with open(dsv_path, 'w') as dsv:
+        dsv.write(str(tp.VITAMIN_J_ENERGY_GROUPS) + '\n')
+        for parent in all_rxns.keys():
+            for daughter in all_rxns[parent].keys():
+                for MT in all_rxns[parent][daughter].keys():
+                    rxn = all_rxns[parent][daughter][MT]
+                    dsv_row = (
+                        f'{parent} {daughter} {rxn['emitted']} ' \
+                        f'{rxn['non_zero_groups']} ' \
+                    )
+                    dsv_row += ' '.join(
+                        str(xs) for xs in truncate_xsec(rxn['xsections'])
+                    )
+                    dsv.write(dsv_row + '\n')
+        
         # End of File (EOF) signifier to be read by ALARAJOY
-        dsv_file.write(str(-1))
+        dsv.write(str(-1))
 
 def main():
     """
     Main method when run as a command line script.
     """
 
-    # Set constants
-    TAPE20 = 'tape20'
-    GAS_MT_MIN = 203 # Lowest MT number in range of gas production totals
-    GAS_MT_MAX = 207 # Highest MT number in range of gas production totals
-
+    TAPE20 = Path('tape20')
 
     dir = njt.set_directory()
     search_dir = (
@@ -72,11 +102,8 @@ def main():
         )
     temperature = args().temperature[0]
 
-    TAPE20 = Path('tape20')
-
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
-
-    cumulative_data = []
+    all_rxns = defaultdict(lambda: defaultdict(dict))
     for isotope, file_properties in tp.search_for_files(search_dir).items():
         element = file_properties['Element']
         A = file_properties['Mass Number']
@@ -97,7 +124,7 @@ def main():
         )
         
         _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
-        gas_MTs = set(pendf_MTs) & set(range(GAS_MT_MIN, GAS_MT_MAX + 1))
+        gas_MTs = set(pendf_MTs) & set(tp.GAS_DF['total_mt'])
         MTs |= {int(gas_MT) for gas_MT in gas_MTs}
 
         # GENDF Generation
@@ -119,10 +146,9 @@ def main():
                 gendf_path
             )
             if MTs and endftk_file_obj:
-                gendf_data = tp.iterate_MTs(
-                    MTs, endftk_file_obj, mt_dict, pKZA
+                all_rxns = tp.iterate_MTs(
+                    MTs, endftk_file_obj, mt_dict, pKZA, all_rxns
                 )
-                cumulative_data.extend(gendf_data)
                 print(f'Finished processing {element}{A}')
             else:
                 warnings.warn(
@@ -140,8 +166,8 @@ def main():
         njt.cleanup_njoy_files(element, A)
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
-    write_dsv(dsv_path, cumulative_data)
-    print(dsv_path)
+    write_dsv(dsv_path, all_rxns)
+    print(f'Reaction data saved to: {dsv_path}')
 
 if __name__ == '__main__':
     main()
