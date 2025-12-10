@@ -45,7 +45,24 @@ def amalgamate_by(nuc_type, row_dicts):
 
     return amalgam
 
-def remove_gas_daughters(cumulative_data):
+def build_parent_daughter_struct(cumulative_data):
+    by_parent = defaultdict(lambda: defaultdict(dict))
+
+    for rxn in cumulative_data:
+        parent = rxn['Parent KZA']
+        daughter = rxn['Daughter KZA']
+        mt   = rxn['MT']
+
+        # MT is an integer; this creates an entry safely
+        by_parent[parent][daughter][mt] = {
+            'Emitted Particles': rxn['Emitted Particles'],
+            'Non-Zero Groups' : rxn['Non-Zero Groups'],
+            'Cross Sections': rxn['Cross Sections']
+        }
+        
+    return by_parent
+
+def remove_gas_daughters(cumulative_data, mt_dict):
     """
     Filter reactions from the list of all reaction row dictionaries to remove
         all reactions resulting in a light gas daughter for each parent
@@ -68,22 +85,32 @@ def remove_gas_daughters(cumulative_data):
             represents any of the MT = 203-207 total gas production reactions
             (as denoted by the 'x' emitted particle).
     """
-
-    alpha_kza = 20040 # Heaviest gas in interest alpha-particle
-    by_parent = amalgamate_by('Parent', cumulative_data)
     
     gas_filtered = []
-    for reactions in by_parent.values():
-        gas_filtered.extend([
-            r for r in reactions
-            if r['Daughter KZA'] > alpha_kza or r['Emitted Particles'] == 'x'
-        ] if any(
-            r['Emitted Particles'] == 'x' for r in reactions
-        ) else reactions)
+    by_parent = build_parent_daughter_struct(cumulative_data)
+    for parent in by_parent.keys():
+        for daughter in by_parent[parent].keys():
+            mts = set(by_parent[parent][daughter].keys())
+            
+            deleted_mts = []
+            for mt in mts:
+                gas_mts = tp.GAS_IDS['total_mt'].tolist()
+                if mt not in gas_mts and any(mt in gas_mts for mt in mts):
+                    del by_parent[parent][daughter][mt]
+                    deleted_mts.append(mt)
+
+            for mt in (mts - set(deleted_mts)):
+                gas_filtered.append(tp.format_rxn_row(
+                    mt_dict = mt_dict,
+                    MT=mt,
+                    pKZA=parent,
+                    dKZA=daughter,
+                    sigma_list=by_parent[parent][daughter][mt]['Cross Sections']
+                ))
 
     return gas_filtered
 
-def gas_handling(gas_method, cumulative_data):
+def gas_handling(gas_method, cumulative_data, mt_dict):
     """
     Set handling method for gas production total cross-sections for any given
         reaction to determine whether it will be written out to the DSV or 
@@ -105,7 +132,7 @@ def gas_handling(gas_method, cumulative_data):
     """
 
     if gas_method == 'r':
-        return remove_gas_daughters(cumulative_data)
+        return remove_gas_daughters(cumulative_data, mt_dict)
 
     # Pathway for subtraction method to be developed in a separate PR
     # to close #186
@@ -130,8 +157,8 @@ def write_dsv(dsv_path, row_dicts):
         None 
     """
 
-    special_keys = ['Cross Sections', 'MT']
-    join_keys = [k for k in row_dicts[0] if k not in special_keys]
+    xs_key = 'Cross Sections'
+    join_keys = [k for k in row_dicts[0] if k not in [xs_key]]
     # Sort list of reaction dictionaries by ascending parent KZAs
     parent_label = join_keys[0]
     row_dicts.sort(key=lambda rxn: rxn[parent_label])
@@ -142,12 +169,10 @@ def write_dsv(dsv_path, row_dicts):
         dsv_file.write(str(vitamin_J_energy_groups) + '\n')
 
         for reaction in row_dicts:
-            if not all(xs == 0.0 for xs in reaction[special_keys[0]]):
-                dsv_row = ' '.join(str(reaction[key]) for key in join_keys)
-                dsv_row += ' ' + ' '.join(
-                    str(xs) for xs in reaction[special_keys[0]]
-                ) + '\n'
-                dsv_file.write(dsv_row)
+            dsv_row = ' '.join(str(reaction[key]) for key in join_keys)
+            dsv_row += ' ' + ' '.join(str(xs) for xs in reaction[xs_key])
+            dsv_row += '\n'
+            dsv_file.write(dsv_row)
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv_file.write(str(-1))
 
@@ -190,10 +215,7 @@ def main():
         )
         
         _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
-        gas_MTs = (
-            set(pendf_MTs) &
-            set(chain.from_iterable(g.values() for g in tp.GAS_IDS.values()))
-            )
+        gas_MTs = set(pendf_MTs) & set(tp.GAS_IDS['total_mt'])
         MTs |= {int(gas_MT) for gas_MT in gas_MTs}
 
         # GENDF Generation
@@ -236,7 +258,7 @@ def main():
         njt.cleanup_njoy_files(element, A)
 
     # Handle gas total production cross-sections, per user specifications
-    gas_filtered = gas_handling(args().gas_handling[0], cumulative_data)
+    gas_filtered = gas_handling(args().gas_handling[0], cumulative_data, mt_dict)
     
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     write_dsv(dsv_path, gas_filtered)

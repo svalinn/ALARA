@@ -2,15 +2,13 @@
 import ENDFtk
 from pathlib import Path
 import warnings
+import pandas as pd
 
-#           gas      KZA     MT     
-GAS_IDS = {
-            'p'  : { 10010 : 203 },
-            'd'  : { 10020 : 204 },
-            't'  : { 10030 : 205 },
-            'h'  : { 20030 : 206 },
-            'a'  : { 20040 : 207 }
-}
+GAS_IDS = pd.DataFrame({
+    'gas' : ['p', 'd', 't', 'h', 'a'],
+    'kza' : [10010, 10020, 10030, 20030, 20040],
+    'total_mt' : range(203, 207 + 1)
+})
 
 def get_isotope(stem):
     """
@@ -174,6 +172,20 @@ def extract_cross_sections(file, MT):
 
     return sigma_list[::-1]
 
+def format_rxn_row(mt_dict, MT, pKZA, dKZA, sigma_list, save_MTs=False):
+    rxn_row = {
+        'Parent KZA'          :                                  pKZA,
+        'Daughter KZA'        :                                  dKZA,
+        'Emitted Particles'   :      mt_dict[MT]['Emitted Particles'],
+        'Non-Zero Groups'     :                       len(sigma_list),
+        'Cross Sections'      :                            sigma_list
+    }
+
+    if save_MTs:
+        rxn_row['MT'] = MT
+
+    return rxn_row
+
 def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
     """
     Iterate through all of the MTs present in a given GENDF file to extract
@@ -199,19 +211,20 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
         # Daughter calculated either as an emitted gas nucleus or
         # as the residual for non-gaseous emissions. 
         dKZA = (
-            next(iter(GAS_IDS[gas])) if gas else pKZA + mt_dict[MT]['delKZA']
+            GAS_IDS.loc[GAS_IDS['gas'] == gas, 'kza'].iat[0] if gas
+            else pKZA + mt_dict[MT]['delKZA']
         )
 
         # Skip high (2 digit) isomeric states
         if not mt_dict[MT]['High M']:
-            gendf_data.append({
-                'Parent KZA'          :                                  pKZA,
-                'Daughter KZA'        :                                  dKZA,
-                'MT'                  :                                    MT,
-                'Emitted Particles'   :      mt_dict[MT]['Emitted Particles'],
-                'Non-Zero Groups'     :                       len(sigma_list),
-                'Cross Sections'      :                            sigma_list
-            })
+            gendf_data.append(format_rxn_row(
+                mt_dict=mt_dict,
+                MT=MT,
+                pKZA=pKZA,
+                dKZA=dKZA,
+                sigma_list=sigma_list,
+                save_MTs=True
+            ))
         else:
             warnings.warn(f'''
                 Skipping high isomeric state in daughter for {pKZA} → {dKZA}.
