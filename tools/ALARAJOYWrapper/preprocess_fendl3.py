@@ -14,11 +14,102 @@ def args():
         '--fendlFileDir', '-f', required=False, nargs=1
     )
     parser.add_argument(
+        '--gas_handling', '-g', required=True, nargs=1
+    )
+    parser.add_argument(
         # Temperature for NJOY run [Kelvin]
         '--temperature', '-t', required=False, nargs=1, default=[293.16]
     )
     return parser.parse_args()
 
+def remove_gas_daughters(all_rxns):
+    """
+    Remove reactions from the dictionary that produce a light gas daughter
+        (i.e. a nuclide lighter than an alpha particle) whose total gas
+        production is otherwise accounted for by the MT = 203-207 "reactions"
+        to avoid double-counting.
+
+        Optional method to be called within gas_handling().
+
+    Arguments:
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            Emitted Particles: (str of emitted particles)
+                            Non-Zero Groups: (int of non-zero groupwise XS)
+                            Cross Sections: (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+    
+    Returns:
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            double-counted gas-producing reactions left out.
+    """
+
+    for parent in all_rxns.keys():
+        for daughter in all_rxns[parent].keys():
+            MTs = set(all_rxns[parent][daughter].keys())
+            for MT in MTs:
+                gas_MTs = tp.GAS_DF['total_mt'].tolist()
+                if MT not in gas_MTs and any(MT in gas_MTs for MT in MTs):
+                    del all_rxns[parent][daughter][MT]
+
+    return all_rxns
+
+def gas_handling(gas_method, all_rxns):
+    """
+    Set handling method for gas production total cross-sections for any given
+        reaction to determine whether it will be written out to the DSV or 
+        not. Either remove_gas_daughters() or subtract_gas_from_totals()
+        required for gas total handling methods. If neigther is chosen, an
+        error will be raised.
+    Arguments:
+        gas_method (str): Choice of method for handling gas production total
+            cross-sections. Either 'r' (remove) or 's' (subtract). See
+            ALARAJOYWrapper/README.md for futher details on these methods.
+        cumulative_data (list of dicts): List containing separate dictionaries
+            for each reaction contained in all of the TENDL/PENDF files
+            processed.
+    Returns:
+        gas_filtered (list of dicts): List of reactions that satisfy the
+            selected gas handling method.
+    """
+
+    if gas_method == 'r':
+        return remove_gas_daughters(all_rxns)
+
+    # Pathway for subtraction method to be developed in a separate PR
+    # to close #186
+    # if gas_method == 's':
+        # return subtract_gas_from_totals(rxn)
+
+def truncate_xsec(xsec):
+    """
+    Truncate a cross-section array after its last non-zero value. Cross-
+        section arrays shorter than 175 entries (corresponding to the number
+        of energy groups in the Vitamin-J group structure) are implicitly
+        interpreted as 0 by ALARA when reading ALARAJOY-formatted DSV files,
+        preventing this exclusion from resulting in any lost data, while
+        minimizing the size of the DSV file to be written out.
+
+    Arguments:
+        xsec (numpy.ndarray): 1-D NumPy array with 175 elements with cross-
+            sections for each energy group in the Vitamin-J group structure.
+
+    Returns:
+        truncated (numpy.ndarray): Truncated 1-D NumPy array truncated after
+            the last non-zero element (if it is not the final element in the
+            array).
+    """
+
+    last_nonzero_idx = np.max(np.nonzero(xsec)[0])
+    return xsec[:last_nonzero_idx + 1]
+    
 def write_dsv(dsv_path, all_rxns):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
@@ -144,8 +235,11 @@ def main():
 
         njt.cleanup_njoy_files(element, A)
 
+    # Handle gas total production cross-sections, per user specifications
+    gas_filtered = gas_handling(args().gas_handling[0], all_rxns)
+
     dsv_path = dir / 'cumulative_gendf_data.dsv'
-    write_dsv(dsv_path, all_rxns)
+    write_dsv(dsv_path, gas_filtered)
     print(f'Reaction data saved to: {dsv_path}')
 
 if __name__ == '__main__':
