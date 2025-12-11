@@ -1,5 +1,6 @@
 # Import packages
 import ENDFtk
+from pandas import DataFrame
 from pathlib import Path
 from reaction_data import GAS_DF
 import warnings
@@ -206,7 +207,11 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns):
         # Daughter calculated either as an emitted gas nucleus or
         # as the residual for non-gaseous emissions. 
         dKZA = (
+<<<<<<< HEAD
             GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
+=======
+            GAS_IDS.loc[GAS_IDS['gas'] == gas, 'kza'].iat[0] if gas
+>>>>>>> cb57fe3 (Storing in PR before starting new one)
             else pKZA + mt_dict[MT]['delKZA']
         )
 

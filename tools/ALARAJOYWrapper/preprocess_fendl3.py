@@ -3,10 +3,16 @@ import reaction_data as rxd
 import tendl_processing as tp
 import njoy_tools as njt
 import numpy as np
+<<<<<<< HEAD
+=======
+import pandas as pd
+>>>>>>> cb57fe3 (Storing in PR before starting new one)
 import argparse
 import warnings
 from pathlib import Path
 from collections import defaultdict
+
+VITAMIN_J_ENERGY_GROUPS = 175
 
 def args():
     parser = argparse.ArgumentParser()
