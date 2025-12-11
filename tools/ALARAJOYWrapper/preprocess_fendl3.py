@@ -88,28 +88,6 @@ def gas_handling(gas_method, all_rxns):
     # to close #186
     # if gas_method == 's':
         # return subtract_gas_from_totals(rxn)
-
-def truncate_xsec(xsec):
-    """
-    Truncate a cross-section array after its last non-zero value. Cross-
-        section arrays shorter than 175 entries (corresponding to the number
-        of energy groups in the Vitamin-J group structure) are implicitly
-        interpreted as 0 by ALARA when reading ALARAJOY-formatted DSV files,
-        preventing this exclusion from resulting in any lost data, while
-        minimizing the size of the DSV file to be written out.
-
-    Arguments:
-        xsec (numpy.ndarray): 1-D NumPy array with 175 elements with cross-
-            sections for each energy group in the Vitamin-J group structure.
-
-    Returns:
-        truncated (numpy.ndarray): Truncated 1-D NumPy array truncated after
-            the last non-zero element (if it is not the final element in the
-            array).
-    """
-
-    last_nonzero_idx = np.max(np.nonzero(xsec)[0])
-    return xsec[:last_nonzero_idx + 1]
     
 def write_dsv(dsv_path, all_rxns):
     """
