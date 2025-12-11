@@ -38,9 +38,9 @@ def remove_gas_daughters(all_rxns):
                 {daughter:
                     {MT:
                         {
-                            Emitted Particles: (str of emitted particles)
-                            Non-Zero Groups: (int of non-zero groupwise XS)
-                            Cross Sections: (array of groupwise XS)
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
                         }
                     }
                 }    
