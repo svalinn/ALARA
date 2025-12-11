@@ -51,9 +51,9 @@ def remove_gas_daughters(all_rxns):
             double-counted gas-producing reactions left out.
     """
 
-    for parent in all_rxns.keys():
-        for daughter in all_rxns[parent].keys():
-            MTs = set(all_rxns[parent][daughter].keys())
+    for parent in all_rxns:
+        for daughter in all_rxns[parent]:
+            MTs = set(all_rxns[parent][daughter])
             for MT in MTs:
                 gas_MTs = tp.GAS_DF['total_mt'].tolist()
                 if MT not in gas_MTs and any(MT in gas_MTs for MT in MTs):
