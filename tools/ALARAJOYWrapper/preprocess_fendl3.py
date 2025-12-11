@@ -69,6 +69,7 @@ def gas_handling(gas_method, all_rxns):
         not. Either remove_gas_daughters() or subtract_gas_from_totals()
         required for gas total handling methods. If neigther is chosen, an
         error will be raised.
+
     Arguments:
         gas_method (str): Choice of method for handling gas production total
             cross-sections. Either 'r' (remove) or 's' (subtract). See
@@ -76,6 +77,7 @@ def gas_handling(gas_method, all_rxns):
         cumulative_data (list of dicts): List containing separate dictionaries
             for each reaction contained in all of the TENDL/PENDF files
             processed.
+    
     Returns:
         gas_filtered (list of dicts): List of reactions that satisfy the
             selected gas handling method.
