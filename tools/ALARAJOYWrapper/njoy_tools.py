@@ -159,7 +159,7 @@ def fill_input_template(
     card9_lines = []
     MFD = 3 # ENDF file tag for cross-section data
     for MT in MTs:
-        mtname = mt_dict[MT]['Reaction']
+        mtname = mt_dict[MT]['reaction']
         card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
     card9 = '\n '.join(card9_lines)
     return inp.substitute(

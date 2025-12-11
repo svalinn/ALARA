@@ -1,5 +1,6 @@
 import csv
 from numpy import array
+import pandas as pd
 
 # Define a dictionary containing all of the pathways for neutron and proton
 # changes in a nucleus following neutron activation
@@ -15,6 +16,11 @@ NP_dict = {
              'a'     : array([-2      ,     -2      ])  # alpha emission
 }
 GASES = list(NP_dict.keys())[2:]
+GAS_DF = pd.DataFrame({
+    'gas'       : GASES,
+    'kza'       : [10010, 10020, 10030, 20030, 20040],
+    'total_mt'  : range(203, 207 + 1)
+})
 
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
@@ -130,7 +136,7 @@ def load_mt_table(csv_path):
         Given this, calculate the resultant change in KZA associated with each
         MT value in the table and tally the particle emissions associated with
         these reactions. Store all of this data in a dictionary of the format:
-        {'MT' : {'Reaction' : (z , emission)}}
+        {'MT' : {'reaction' : (z , emission)}}
     
     Arguments:
         csv_path (pathlib._local.PosixPath): File path to mt_table.csv.
@@ -145,7 +151,7 @@ def load_mt_table(csv_path):
     with open(csv_path, 'r') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
-            mt_dict[int(row['MT'])] = {'Reaction' : row['Reaction']}
+            mt_dict[int(row['MT'])] = {'reaction' : row['Reaction']}
     if mt_dict:
         return mt_dict
     else:
@@ -188,21 +194,23 @@ def process_mt_data(mt_dict):
     
     Arguments:
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv,
-            with the general format: {'MT' : {'Reaction' : (z , emission)}}.
+            with the general format: {'MT' : {'reaction' : (z , emission)}}.
     
     Returns:
         mt_dict (dict): Processed dictionary containing the original data from
             the dictionary formatted mt_table.csv, with additional information
             on changes in KZA and emitted particles. The returned format is:
             {'MT' : 
-                    {'Reaction'         :               (z, emission)},
-                    {'delKZA'           :       integer change in KZA},
-                    {'Emitted Particles : string of emitted particles}
+                    {'reaction':                               (z, emission)},
+                    {'delKZA'  :                       integer change in KZA},
+                    {'high_m'  :          boolean for high (2 digit) isomers},
+                    {'gas'     : name of total gas production, if MT=203-207},
+                    {'emitted' :                 string of emitted particles}
             }
     """
 
     for MT, data in list(mt_dict.items()):
-        emitted_particles = data['Reaction'].split(',')[1][:-1]
+        emitted_particles = data['reaction'].split(',')[1][:-1]
         emission_dict = emission_breakdown(emitted_particles)
         change_NP = nucleon_changes(emission_dict)
         M = check_for_isomer(emitted_particles)
@@ -222,9 +230,9 @@ def process_mt_data(mt_dict):
         if change_NP is not None:
             change_N, change_P = change_NP
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
-            data['High M'] = (M > 9)
-            data['Gas'] = gas
-            data['Emitted Particles'] = emitted_particles
+            data['high_m'] = (M > 9)
+            data['gas'] = gas
+            data['emitted'] = emitted_particles
         else:
             del mt_dict[MT]
 
