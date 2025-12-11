@@ -19,28 +19,6 @@ def args():
     )
     return parser.parse_args()
 
-def truncate_xsec(xsec):
-    """
-    Truncate a cross-section array after its last non-zero value. Cross-
-        section arrays shorter than 175 entries (corresponding to the number
-        of energy groups in the Vitamin-J group structure) are implicitly
-        interpreted as 0 by ALARA when reading ALARAJOY-formatted DSV files,
-        preventing this exclusion from resulting in any lost data, while
-        minimizing the size of the DSV file to be written out.
-
-    Arguments:
-        xsec (numpy.ndarray): 1-D NumPy array with 175 elements with cross-
-            sections for each energy group in the Vitamin-J group structure.
-
-    Returns:
-        truncated (numpy.ndarray): Truncated 1-D NumPy array truncated after
-            the last non-zero element (if it is not the final element in the
-            array).
-    """
-
-    last_nonzero_idx = np.max(np.nonzero(xsec)[0])
-    return xsec[:last_nonzero_idx + 1]
-    
 def write_dsv(dsv_path, all_rxns):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
@@ -59,9 +37,9 @@ def write_dsv(dsv_path, all_rxns):
                 {daughter:
                     {MT:
                         {
-                            Emitted Particles: (str of emitted particles)
-                            Non-Zero Groups: (int of non-zero groupwise XS)
-                            Cross Sections: (array of groupwise XS)
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
                         }
                     }
                 }    
@@ -73,16 +51,17 @@ def write_dsv(dsv_path, all_rxns):
 
     with open(dsv_path, 'w') as dsv:
         dsv.write(str(tp.VITAMIN_J_ENERGY_GROUPS) + '\n')
-        for parent in all_rxns.keys():
-            for daughter in all_rxns[parent].keys():
-                for MT in all_rxns[parent][daughter].keys():
+        for parent in all_rxns:
+            for daughter in all_rxns[parent]:
+                for MT in all_rxns[parent][daughter]:
                     rxn = all_rxns[parent][daughter][MT]
                     dsv_row = (
                         f'{parent} {daughter} {rxn['emitted']} ' \
                         f'{rxn['non_zero_groups']} ' \
                     )
                     dsv_row += ' '.join(
-                        str(xs) for xs in truncate_xsec(rxn['xsections'])
+                        str(xs) for xs in 
+                        rxn['xsections'][np.nonzero(rxn['xsections'])]
                     )
                     dsv.write(dsv_row + '\n')
         

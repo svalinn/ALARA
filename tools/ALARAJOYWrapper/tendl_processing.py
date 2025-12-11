@@ -192,9 +192,9 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns):
                 {daughter:
                     {MT:
                         {
-                            Emitted Particles: (str of emitted particles)
-                            Non-Zero Groups: (int of non-zero groupwise XS)
-                            Cross Sections: (array of groupwise XS)
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
                         }
                     }
                 }    
@@ -217,8 +217,7 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns):
 
         # Skip high (2 digit) isomeric states
         if not mt_dict[MT]['high_m']:
-            daughter_dict = all_rxns[pKZA][dKZA]
-            daughter_dict[MT] = {
+            all_rxns[pKZA][dKZA][MT] = {
                 'emitted'               :              mt_dict[MT]['emitted'],
                 'non_zero_groups'       :                         len(sigmas),
                 'xsections'             :                             np.pad(
