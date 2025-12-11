@@ -103,7 +103,7 @@ def main():
         )
         
         _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
-        gas_MTs = set(pendf_MTs) & set(tp.GAS_DF['total_mt'])
+        gas_MTs = set(pendf_MTs) & set(rxd.GAS_DF['total_mt'])
         MTs |= {int(gas_MT) for gas_MT in gas_MTs}
 
         # GENDF Generation

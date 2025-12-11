@@ -1,16 +1,11 @@
 # Import packages
 import ENDFtk
 from pathlib import Path
-from reaction_data import GASES
+from reaction_data import GAS_DF
 import warnings
 import pandas as pd
 import numpy as np
 
-GAS_DF = pd.DataFrame({
-    'gas'       : GASES,
-    'kza'       : [10010, 10020, 10030, 20030, 20040],
-    'total_mt'  : range(203, 207 + 1)
-})
 VITAMIN_J_ENERGY_GROUPS = 175
 
 def get_isotope(stem):

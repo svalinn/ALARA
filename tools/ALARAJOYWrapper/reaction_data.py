@@ -1,5 +1,6 @@
 import csv
 from numpy import array
+import pandas as pd
 
 # Define a dictionary containing all of the pathways for neutron and proton
 # changes in a nucleus following neutron activation
@@ -15,6 +16,11 @@ NP_dict = {
              'a'     : array([-2      ,     -2      ])  # alpha emission
 }
 GASES = list(NP_dict.keys())[2:]
+GAS_DF = pd.DataFrame({
+    'gas'       : GASES,
+    'kza'       : [10010, 10020, 10030, 20030, 20040],
+    'total_mt'  : range(203, 207 + 1)
+})
 
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
