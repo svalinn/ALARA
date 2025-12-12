@@ -54,11 +54,12 @@ def remove_gas_daughters(all_rxns):
     gas_MTs = set(tp.GAS_DF['total_mt'])
     for parent in all_rxns:
         for daughter in all_rxns[parent]:
-            MTs = list(all_rxns[parent][daughter])
-            if any(MT in gas_MTs for MT in MTs):
-                for MT in MTs:
-                    if MT not in gas_MTs:
+            for gas in gas_MTs:
+                if gas in all_rxns[parent][daughter]:
+                    for MT in (set(all_rxns[parent][daughter]) - gas_MTs):
                         del all_rxns[parent][daughter][MT]
+                    
+                    break
 
     return all_rxns
 
