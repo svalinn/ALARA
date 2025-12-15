@@ -47,21 +47,23 @@ def remove_gas_daughters(all_rxns):
             }
     
     Returns:
-        all_rxns (collections.defaultdict): Modified version of all_rxns with
-            double-counted gas-producing reactions left out.
+        filtered_rxns (collections.defaultdict): Modified version of all_rxns
+            with double-counted gas-producing reactions left out.
     """
 
-    gas_MTs = set(tp.GAS_DF['total_mt'])
-    for parent in all_rxns:
-        for daughter in all_rxns[parent]:
-            for gas in gas_MTs:
-                if gas in all_rxns[parent][daughter]:
-                    for MT in (set(all_rxns[parent][daughter]) - gas_MTs):
-                        del all_rxns[parent][daughter][MT]
-                    
-                    break
+    filtered_rxns = {}
+    for parent, daughters in all_rxns.items():
+        filtered_rxns[parent] = dict(daughters)
+        gas_kzas = tp.GAS_DF['kza']
+        for gas in gas_kzas:
+            if gas in daughters:
+                gmt = tp.GAS_DF.loc[gas_kzas == gas, 'total_mt'].iat[0]
+                filtered_rxns[parent][gas] = (
+                    {gmt: daughters[gas][gmt]}
+                    if gmt in daughters[gas] else {}
+                )
 
-    return all_rxns
+    return filtered_rxns
 
 def gas_handling(gas_method, all_rxns):
     """
