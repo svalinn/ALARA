@@ -3,10 +3,6 @@ import reaction_data as rxd
 import tendl_processing as tp
 import njoy_tools as njt
 import numpy as np
-<<<<<<< HEAD
-=======
-import pandas as pd
->>>>>>> cb57fe3 (Storing in PR before starting new one)
 import argparse
 import warnings
 from pathlib import Path
@@ -53,8 +49,8 @@ def remove_gas_daughters(all_rxns):
             }
     
     Returns:
-        filtered_rxns (collections.defaultdict): Modified version of all_rxns
-            with double-counted gas-producing reactions left out.
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            double-counted gas-producing reactions left out.
     """
 
     gas_tuples = list(tp.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
@@ -62,6 +58,63 @@ def remove_gas_daughters(all_rxns):
         for gKZA, gMT in gas_tuples:
             if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
                 all_rxns[parent][gKZA] = {gMT: all_rxns[parent][gKZA][gMT]}
+
+    return all_rxns
+
+def subtract_gas_from_totals(all_rxns):
+    """
+    For any reaction that produces a gas daughter, subtract the individual
+        cross-sections from the list of total gas production cross sections
+        corresponding to MT = 203-207. Optional method to be called within
+        gas_handling().
+
+    Arguments:
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+    
+    Returns:
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            each reaction that produces a gas daughter calculating its cross-
+            sections through subtraction from gas production totals.
+
+    """
+
+    gas_dict = {row['gas']: row['kza'] for _, row in rxd.GAS_DF.iterrows()}
+    gas_xs_pairs = {
+        (parent, gKZA): np.zeros(tp.VITAMIN_J_ENERGY_GROUPS)
+        for parent in all_rxns
+        for gKZA in gas_dict.values()
+    }
+
+    for parent in all_rxns:
+        for daughter in all_rxns[parent]:
+            for rxn in all_rxns[parent][daughter].values():
+                if rxn['emitted'] != 'x':
+                    for gas, gKZA in gas_dict.items():
+                        if gas in rxn['emitted']:
+                            gas_xs_pairs[(parent, gKZA)] += rxn['xsections']
+
+    for (parent, gKZA), accumulated_xs in gas_xs_pairs.items():
+        gMT = rxd.GAS_DF.loc[rxd.GAS_DF['kza'] == gKZA, 'total_mt'].iat[0]
+        if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
+            all_rxns[parent][gKZA][gMT]['xsections'] -= accumulated_xs
+
+    for parent in all_rxns:
+        for daughter in list(all_rxns[parent]):
+            mt_data = all_rxns[parent][daughter]
+            for MT in [MT for MT, rxn in mt_data.items() if rxn['emitted'] == 'x']:
+                del mt_data[MT]
 
     return all_rxns
 
@@ -77,20 +130,30 @@ def gas_handling(gas_method, all_rxns):
         gas_method (str): Choice of method for handling gas production total
             cross-sections. Either 'r' (remove) or 's' (subtract). See
             ALARAJOYWrapper/README.md for futher details on these methods.
-        cumulative_data (list of dicts): List containing separate dictionaries
-            for each reaction contained in all of the TENDL/PENDF files
-            processed.
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
     
     Returns:
-        gas_filtered (list of dicts): List of reactions that satisfy the
-            selected gas handling method.
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            double-counted gas-producing reactions left out.
     """
 
     if gas_method == 'r':
         return remove_gas_daughters(all_rxns)
 
     elif gas_method == 's':
-         return subtract_gas_from_totals(cumulative_data)
+         return subtract_gas_from_totals(all_rxns)
     
     else:
         raise KeyError(
@@ -98,7 +161,7 @@ def gas_handling(gas_method, all_rxns):
             'Must choose either "r" (remove) or "s" (subtract)'
         )
 
-def write_dsv(dsv_path, row_dicts):
+def write_dsv(dsv_path, all_rxns):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
         dsv_path, produced by iterating through each reaction of each isotope
