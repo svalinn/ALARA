@@ -51,8 +51,8 @@ def remove_gas_daughters(all_rxns):
             with double-counted gas-producing reactions left out.
     """
 
+    gas_tuples = list(tp.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
     for parent in all_rxns:
-        gas_tuples = tp.GAS_DF[['kza', 'total_mt']].itertuples(index=False)
         for gKZA, gMT in gas_tuples:
             if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
                 all_rxns[parent][gKZA] = {gMT: all_rxns[parent][gKZA][gMT]}
