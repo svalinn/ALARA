@@ -53,9 +53,9 @@ def remove_gas_daughters(all_rxns):
             double-counted gas-producing reactions left out.
     """
 
-    gas_tuples = list(tp.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
+    gas_tuples = list(rxd.GAS_DF.itertuples(index=False))
     for parent in all_rxns:
-        for gKZA, gMT in gas_tuples:
+        for gas, gKZA, gMT in gas_tuples:
             if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
                 all_rxns[parent][gKZA] = {gMT: all_rxns[parent][gKZA][gMT]}
 
@@ -90,31 +90,41 @@ def subtract_gas_from_totals(all_rxns):
 
     """
 
-    gas_dict = {row['gas']: row['kza'] for _, row in rxd.GAS_DF.iterrows()}
-    gas_xs_pairs = {
-        (parent, gKZA): np.zeros(tp.VITAMIN_J_ENERGY_GROUPS)
-        for parent in all_rxns
-        for gKZA in gas_dict.values()
-    }
-
+    gas_tuples = list(rxd.GAS_DF.itertuples(index=False))
     for parent in all_rxns:
+        gas_accum = defaultdict(lambda: None)
         for daughter in all_rxns[parent]:
             for rxn in all_rxns[parent][daughter].values():
+                gas_prod = set()
+
+                # Identify gas daughter reactions
+                if daughter in set(rxd.GAS_DF['kza']):
+                    gas_prod.add(daughter)
+
+                # Identify gas particle emission cross-sections
                 if rxn['emitted'] != 'x':
-                    for gas, gKZA in gas_dict.items():
-                        if gas in rxn['emitted']:
-                            gas_xs_pairs[(parent, gKZA)] += rxn['xsections']
+                    for particle in rxn['emitted']:
+                        particleKZA = rxd.GAS_DF.loc[
+                            rxd.GAS_DF['gas'] == particle, 'kza'
+                        ]
+                        if not particleKZA.empty:
+                            gas_prod.add(particleKZA.iat[0])
 
-    for (parent, gKZA), accumulated_xs in gas_xs_pairs.items():
-        gMT = rxd.GAS_DF.loc[rxd.GAS_DF['kza'] == gKZA, 'total_mt'].iat[0]
-        if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
-            all_rxns[parent][gKZA][gMT]['xsections'] -= accumulated_xs
+                # Accumulate gas production cross-sections by all pathways
+                for gKZA in gas_prod:
+                    if gas_accum[gKZA] is None:
+                        gas_accum[gKZA] = rxn['xsections'].copy()
+                    else:
+                        gas_accum[gKZA] += rxn['xsections']
 
-    for parent in all_rxns:
-        for daughter in list(all_rxns[parent]):
-            mt_data = all_rxns[parent][daughter]
-            for MT in [MT for MT, rxn in mt_data.items() if rxn['emitted'] == 'x']:
-                del mt_data[MT]
+        # Subtract gas production cross-sections for each pathway from total
+        for _, gKZA, gMT in gas_tuples:
+            if (
+                gKZA in all_rxns[parent] and
+                gMT in all_rxns[parent][gKZA] and
+                gas_accum[gKZA] is not None
+            ):
+                all_rxns[parent][gKZA][gMT]['xsections'] -= gas_accum[gKZA]
 
     return all_rxns
 
@@ -157,8 +167,8 @@ def gas_handling(gas_method, all_rxns):
     
     else:
         raise KeyError(
-            'Invalid gas method key.' \
-            'Must choose either "r" (remove) or "s" (subtract)'
+            'Invalid gas method key. ' \
+            'Must choose either "r" (remove) or "s" (subtract).'
         )
 
 def write_dsv(dsv_path, all_rxns):
@@ -195,17 +205,17 @@ def write_dsv(dsv_path, all_rxns):
         dsv.write(str(tp.VITAMIN_J_ENERGY_GROUPS) + '\n')
         for parent in all_rxns:
             for daughter in all_rxns[parent]:
-                for MT in all_rxns[parent][daughter]:
-                    rxn = all_rxns[parent][daughter][MT]
-                    dsv_row = (
-                        f'{parent} {daughter} {rxn['emitted']} ' \
-                        f'{rxn['non_zero_groups']} ' \
-                    )
-                    dsv_row += ' '.join(
-                        str(xs) for xs in 
-                        rxn['xsections'][np.nonzero(rxn['xsections'])]
-                    )
-                    dsv.write(dsv_row + '\n')
+                for rxn in all_rxns[parent][daughter].values():
+                    if rxn['xsections'].sum() > 0:
+                        dsv_row = (
+                            f'{parent} {daughter} {rxn['emitted']} ' \
+                            f'{rxn['non_zero_groups']} ' \
+                        )
+                        dsv_row += ' '.join(
+                            str(xs) for xs in 
+                            rxn['xsections'][np.nonzero(rxn['xsections'])]
+                        )
+                        dsv.write(dsv_row + '\n')
         
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv.write(str(-1))
