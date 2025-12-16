@@ -10,11 +10,6 @@ This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Dat
   * [ArgParse](https://docs.python.org/3/library/argparse.html)
   * [Collections](https://docs.python.org/3/library/collections.html)
   * [Csv](https://docs.python.org/3/library/csv.html)
-<<<<<<< HEAD
-=======
-  * [Itertools](https://docs.python.org/3/library/itertools.html)
-  * [Os](https://docs.python.org/3/library/os.html)
->>>>>>> f739cf8 (Adding gas total subtraction method.)
   * [Pathlib](https://docs.python.org/3/library/pathlib.html)
   * [Pytest](https://docs.pytest.org/en/stable/getting-started.html)
   * [Re](https://docs.python.org/3/library/re.html)

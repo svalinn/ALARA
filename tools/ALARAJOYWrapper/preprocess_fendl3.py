@@ -8,8 +8,6 @@ import warnings
 from pathlib import Path
 from collections import defaultdict
 
-VITAMIN_J_ENERGY_GROUPS = 175
-
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -24,7 +22,7 @@ def args():
     )
     return parser.parse_args()
 
-def remove_gas_daughters(all_rxns):
+def remove_gas_daughters(all_rxns, gas_tuples):
     """
     Remove reactions from the dictionary that produce a light gas daughter
         (i.e. a nuclide lighter than an alpha particle) whose total gas
@@ -47,21 +45,22 @@ def remove_gas_daughters(all_rxns):
                     }
                 }    
             }
-    
+        gas_tuples (list of tuples): Pairs total gas production MT values with
+            their respective gas symbols of the form [(gas, MT), ...].
+ 
     Returns:
         all_rxns (collections.defaultdict): Modified version of all_rxns with
             double-counted gas-producing reactions left out.
     """
 
-    gas_tuples = list(rxd.GAS_DF.itertuples(index=False))
     for parent in all_rxns:
-        for gas, gKZA, gMT in gas_tuples:
+        for gKZA, gMT in gas_tuples:
             if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
                 all_rxns[parent][gKZA] = {gMT: all_rxns[parent][gKZA][gMT]}
 
     return all_rxns
 
-def subtract_gas_from_totals(all_rxns):
+def subtract_gas_from_totals(all_rxns, gas_tuples):
     """
     For any reaction that produces a gas daughter, subtract the individual
         cross-sections from the list of total gas production cross sections
@@ -82,6 +81,8 @@ def subtract_gas_from_totals(all_rxns):
                     }
                 }    
             }
+        gas_tuples (list of tuples): Pairs total gas production MT values with
+            their respective gas symbols of the form [(gas, MT), ...].
     
     Returns:
         all_rxns (collections.defaultdict): Modified version of all_rxns with
@@ -90,41 +91,13 @@ def subtract_gas_from_totals(all_rxns):
 
     """
 
-    gas_tuples = list(rxd.GAS_DF.itertuples(index=False))
     for parent in all_rxns:
-        gas_accum = defaultdict(lambda: None)
-        for daughter in all_rxns[parent]:
-            for rxn in all_rxns[parent][daughter].values():
-                gas_prod = set()
-
-                # Identify gas daughter reactions
-                if daughter in set(rxd.GAS_DF['kza']):
-                    gas_prod.add(daughter)
-
-                # Identify gas particle emission cross-sections
-                if rxn['emitted'] != 'x':
-                    for particle in rxn['emitted']:
-                        particleKZA = rxd.GAS_DF.loc[
-                            rxd.GAS_DF['gas'] == particle, 'kza'
-                        ]
-                        if not particleKZA.empty:
-                            gas_prod.add(particleKZA.iat[0])
-
-                # Accumulate gas production cross-sections by all pathways
-                for gKZA in gas_prod:
-                    if gas_accum[gKZA] is None:
-                        gas_accum[gKZA] = rxn['xsections'].copy()
-                    else:
-                        gas_accum[gKZA] += rxn['xsections']
-
-        # Subtract gas production cross-sections for each pathway from total
-        for _, gKZA, gMT in gas_tuples:
-            if (
-                gKZA in all_rxns[parent] and
-                gMT in all_rxns[parent][gKZA] and
-                gas_accum[gKZA] is not None
-            ):
-                all_rxns[parent][gKZA][gMT]['xsections'] -= gas_accum[gKZA]
+        for gKZA, gMT in gas_tuples:
+            mt_data = all_rxns[parent][gKZA]
+            if gKZA in all_rxns[parent] and gMT in mt_data:
+                for gRxn in mt_data:
+                    if gRxn != gMT:
+                        mt_data[gMT]['xsections'] -= mt_data[gRxn]['xsections']
 
     return all_rxns
 
@@ -159,11 +132,12 @@ def gas_handling(gas_method, all_rxns):
             double-counted gas-producing reactions left out.
     """
 
+    gas_tuples = list(rxd.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
     if gas_method == 'r':
-        return remove_gas_daughters(all_rxns)
+        return remove_gas_daughters(all_rxns, gas_tuples)
 
     elif gas_method == 's':
-         return subtract_gas_from_totals(all_rxns)
+         return subtract_gas_from_totals(all_rxns, gas_tuples)
     
     else:
         raise KeyError(
