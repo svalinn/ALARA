@@ -35,7 +35,7 @@ Running ALARAJOYWrapper can be done with one Python command:
 
     python preprocess_fendl3.py -g gas_handling_method -f /path/to/fendl3_data_dir/
 
-This command takes two arguments,`-g ` and `-f`. The `-g` argument sets the gas handling method for gas totals, as calculated by the NJOY GASPR module. The two possible methods are `r` (remove) and `s` (subtract). Method `r` removes all reactions with a light gas daughter (protons through alpha particles), with the exception of total gas production cross-sections (corresponding to MT = 203-207 reactions (see Appendix B of the ENDF-6 Manual at `../../developer-info/endf6-manual.pdf`)) when a total gas production cross-section exists. Method `s` (*description will be written in next PR to close #186 as the new method is developed*)...
+This command takes two arguments,`-g ` and `-f`. The `-g` argument sets the gas handling method for gas totals, as calculated by the NJOY GASPR module. The two possible methods are `r` (remove) and `s` (subtract). Method `r` removes all reactions with a light gas daughter (protons through alpha particles), with the exception of total gas production cross-sections (corresponding to MT = 203-207 reactions (see Appendix B of the ENDF-6 Manual at `../../developer-info/endf6-manual.pdf`) when a total gas production cross-section exists. Method `s` subtracts the cross-sections for each energy group of reactions that produce a gas daughter from the total gas production cross-sections instead. In effect, for gas producing reactions, selecting `r` will show only the *total* gas production cross sections for each gas, whereas `s` will show each *individual* gas production pathway with its respective cross section data.
 
 The `-f` argument directs the program to the directory containing the TENDL files. This argument is optional, and if left blank, will default to the current working directory.
 
@@ -46,13 +46,12 @@ Running `preprocess_fendl3.py` will return the file path to the resultant space-
 - Daughter KZA: Unique isotope identifier of the daughter isotope produced from a particular transmutation reaction in the format **ZZAAAM**.
 - Emitted Particles: Consecutive string of particles emitted from the transmutation reaction. The possible particles are:
   - Neutron (n)
+  - Gamma photon (g)
   - Proton (p)
   - Deuteron (d)
   - Triton (t)
   - <sup>3</sup>He nucleus (h)
   - Alpha particle (a)
-  - Gamma photon (g)
-
 
   For reactions with multiple emitted particles, the format of the text string is along the lines '3n2p', representing an emission of three neutrons and two protons. An emission containing only one of a certain particle will just contain the particle identifier, without any numerical tag (e.g. 'n' for a single neutron).
 

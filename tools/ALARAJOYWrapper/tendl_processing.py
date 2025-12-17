@@ -3,7 +3,6 @@ import ENDFtk
 from pathlib import Path
 from reaction_data import GAS_DF
 import warnings
-import pandas as pd
 import numpy as np
 
 VITAMIN_J_ENERGY_GROUPS = 175

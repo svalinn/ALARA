@@ -22,7 +22,7 @@ def args():
     )
     return parser.parse_args()
 
-def remove_gas_daughters(all_rxns):
+def remove_gas_daughters(all_rxns, gas_tuples):
     """
     Remove reactions from the dictionary that produce a light gas daughter
         (i.e. a nuclide lighter than an alpha particle) whose total gas
@@ -45,17 +45,60 @@ def remove_gas_daughters(all_rxns):
                     }
                 }    
             }
-    
+        gas_tuples (list of tuples): Pairs total gas production MT values with
+            their respective gas symbols of the form [(gas, MT), ...].
+ 
     Returns:
-        filtered_rxns (collections.defaultdict): Modified version of all_rxns
-            with double-counted gas-producing reactions left out.
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            double-counted gas-producing reactions left out.
     """
 
-    gas_tuples = list(tp.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
     for parent in all_rxns:
         for gKZA, gMT in gas_tuples:
             if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
                 all_rxns[parent][gKZA] = {gMT: all_rxns[parent][gKZA][gMT]}
+
+    return all_rxns
+
+def subtract_gas_from_totals(all_rxns, gas_tuples):
+    """
+    For any reaction that produces a gas daughter, subtract the individual
+        cross-sections from the list of total gas production cross sections
+        corresponding to MT = 203-207. Optional method to be called within
+        gas_handling().
+
+    Arguments:
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+        gas_tuples (list of tuples): Pairs total gas production MT values with
+            their respective gas symbols of the form [(gas, MT), ...].
+    
+    Returns:
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            each reaction that produces a gas daughter calculating its cross-
+            sections through subtraction from gas production totals.
+
+    """
+
+    for parent in all_rxns:
+        for gKZA, gMT in gas_tuples:
+            if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
+                for gRxn in all_rxns[parent][gKZA]:
+                    if gRxn != gMT:
+                        all_rxns[parent][gKZA][gMT]['xsections'] -= (
+                            all_rxns[parent][gKZA][gRxn]['xsections']
+                        )
 
     return all_rxns
 
@@ -71,23 +114,39 @@ def gas_handling(gas_method, all_rxns):
         gas_method (str): Choice of method for handling gas production total
             cross-sections. Either 'r' (remove) or 's' (subtract). See
             ALARAJOYWrapper/README.md for futher details on these methods.
-        cumulative_data (list of dicts): List containing separate dictionaries
-            for each reaction contained in all of the TENDL/PENDF files
-            processed.
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
     
     Returns:
-        gas_filtered (list of dicts): List of reactions that satisfy the
-            selected gas handling method.
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            double-counted gas-producing reactions left out.
     """
 
-    if gas_method == 'r':
-        return remove_gas_daughters(all_rxns)
+    gas_tuples = list(rxd.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
 
-    # Pathway for subtraction method to be developed in a separate PR
-    # to close #186
-    # if gas_method == 's':
-        # return subtract_gas_from_totals(rxn)
+    if gas_method == 'r':
+        return remove_gas_daughters(all_rxns, gas_tuples)
+
+    elif gas_method == 's':
+         return subtract_gas_from_totals(all_rxns, gas_tuples)
     
+    else:
+        raise ValueError(
+            'Invalid gas method selection. ' \
+            'Must choose either "r" (remove) or "s" (subtract).'
+        )
+
 def write_dsv(dsv_path, all_rxns):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
@@ -122,17 +181,17 @@ def write_dsv(dsv_path, all_rxns):
         dsv.write(str(tp.VITAMIN_J_ENERGY_GROUPS) + '\n')
         for parent in all_rxns:
             for daughter in all_rxns[parent]:
-                for MT in all_rxns[parent][daughter]:
-                    rxn = all_rxns[parent][daughter][MT]
-                    dsv_row = (
-                        f'{parent} {daughter} {rxn['emitted']} ' \
-                        f'{rxn['non_zero_groups']} ' \
-                    )
-                    dsv_row += ' '.join(
-                        str(xs) for xs in 
-                        rxn['xsections'][np.nonzero(rxn['xsections'])]
-                    )
-                    dsv.write(dsv_row + '\n')
+                for rxn in all_rxns[parent][daughter].values():
+                    if rxn['xsections'].sum() > 0:
+                        dsv_row = (
+                            f'{parent} {daughter} {rxn['emitted']} ' \
+                            f'{rxn['non_zero_groups']} ' \
+                        )
+                        dsv_row += ' '.join(
+                            str(xs) for xs in 
+                            rxn['xsections'][np.nonzero(rxn['xsections'])]
+                        )
+                        dsv.write(dsv_row + '\n')
         
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv.write(str(-1))
