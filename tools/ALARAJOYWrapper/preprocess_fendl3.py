@@ -2,9 +2,11 @@
 import reaction_data as rxd
 import tendl_processing as tp
 import njoy_tools as njt
+import numpy as np
 import argparse
 import warnings
 from pathlib import Path
+from collections import defaultdict
 
 def args():
     parser = argparse.ArgumentParser()
@@ -12,12 +14,140 @@ def args():
         '--fendlFileDir', '-f', required=False, nargs=1
     )
     parser.add_argument(
+        '--gas_handling', '-g', required=True, nargs=1
+    )
+    parser.add_argument(
         # Temperature for NJOY run [Kelvin]
         '--temperature', '-t', required=False, nargs=1, default=[293.16]
     )
     return parser.parse_args()
 
-def write_dsv(dsv_path, cumulative_data):
+def remove_gas_daughters(all_rxns, gas_tuples):
+    """
+    Remove reactions from the dictionary that produce a light gas daughter
+        (i.e. a nuclide lighter than an alpha particle) whose total gas
+        production is otherwise accounted for by the MT = 203-207 "reactions"
+        to avoid double-counting.
+
+        Optional method to be called within gas_handling().
+
+    Arguments:
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+        gas_tuples (list of tuples): Pairs total gas production MT values with
+            their respective gas symbols of the form [(gas, MT), ...].
+ 
+    Returns:
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            double-counted gas-producing reactions left out.
+    """
+
+    for parent in all_rxns:
+        for gKZA, gMT in gas_tuples:
+            if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
+                all_rxns[parent][gKZA] = {gMT: all_rxns[parent][gKZA][gMT]}
+
+    return all_rxns
+
+def subtract_gas_from_totals(all_rxns, gas_tuples):
+    """
+    For any reaction that produces a gas daughter, subtract the individual
+        cross-sections from the list of total gas production cross sections
+        corresponding to MT = 203-207. Optional method to be called within
+        gas_handling().
+
+    Arguments:
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+        gas_tuples (list of tuples): Pairs total gas production MT values with
+            their respective gas symbols of the form [(gas, MT), ...].
+    
+    Returns:
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            each reaction that produces a gas daughter calculating its cross-
+            sections through subtraction from gas production totals.
+
+    """
+
+    for parent in all_rxns:
+        for gKZA, gMT in gas_tuples:
+            if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
+                for gRxn in all_rxns[parent][gKZA]:
+                    if gRxn != gMT:
+                        all_rxns[parent][gKZA][gMT]['xsections'] -= (
+                            all_rxns[parent][gKZA][gRxn]['xsections']
+                        )
+
+    return all_rxns
+
+def gas_handling(gas_method, all_rxns):
+    """
+    Set handling method for gas production total cross-sections for any given
+        reaction to determine whether it will be written out to the DSV or 
+        not. Either remove_gas_daughters() or subtract_gas_from_totals()
+        required for gas total handling methods. If neigther is chosen, an
+        error will be raised.
+
+    Arguments:
+        gas_method (str): Choice of method for handling gas production total
+            cross-sections. Either 'r' (remove) or 's' (subtract). See
+            ALARAJOYWrapper/README.md for futher details on these methods.
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+    
+    Returns:
+        all_rxns (collections.defaultdict): Modified version of all_rxns with
+            double-counted gas-producing reactions left out.
+    """
+
+    gas_tuples = list(rxd.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
+
+    if gas_method == 'r':
+        return remove_gas_daughters(all_rxns, gas_tuples)
+
+    elif gas_method == 's':
+         return subtract_gas_from_totals(all_rxns, gas_tuples)
+    
+    else:
+        raise ValueError(
+            'Invalid gas method selection. ' \
+            'Must choose either "r" (remove) or "s" (subtract).'
+        )
+
+def write_dsv(dsv_path, all_rxns):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
         dsv_path, produced by iterating through each reaction of each isotope
@@ -25,40 +155,53 @@ def write_dsv(dsv_path, cumulative_data):
             pKZA dKZA emitted_particles non_zero_groups xs_1 xs_2 ... xs_n
         Each row can have different lengths, as only non-zero cross-sections
         are written out. The file is sorted by ascending parent KZA value.
+
     Arguments:
         dsv_path (pathlib._local.PosixPath): Filepath for the DSV file to be
             written.
-        cumulative_data (list of dicts): List containing separate dictionaries
-            for each reaction contained in all of the TENDL/PENDF files
-            processed.
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'non_zero_groups': (int of non-zero groupwise XS)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+
     Returns:
         None 
     """
 
-    xs_key = 'Cross Sections'
-    join_keys = list(cumulative_data[0].keys())
-    join_keys.remove(xs_key)
-    # Sort list of reaction dictionaries by ascending parent KZAs
-    parent_label = join_keys[0]
-    cumulative_data.sort(key=lambda rxn: rxn[parent_label])
-
-    with open(dsv_path, 'w') as dsv_file:
-        # Write header line with total groups for Vitamin-J
-        vitamin_J_energy_groups = 175
-        dsv_file.write(str(vitamin_J_energy_groups) + '\n')
-
-        for reaction in cumulative_data:
-            dsv_row = ' '.join(str(reaction[key]) for key in join_keys)
-            dsv_row += ' ' + ' '.join(str(xs) for xs in reaction[xs_key])
-            dsv_row += '\n'
-            dsv_file.write(dsv_row)
+    with open(dsv_path, 'w') as dsv:
+        dsv.write(str(tp.VITAMIN_J_ENERGY_GROUPS) + '\n')
+        for parent in all_rxns:
+            for daughter in all_rxns[parent]:
+                for rxn in all_rxns[parent][daughter].values():
+                    if rxn['xsections'].sum() > 0:
+                        dsv_row = (
+                            f'{parent} {daughter} {rxn['emitted']} ' \
+                            f'{rxn['non_zero_groups']} ' \
+                        )
+                        dsv_row += ' '.join(
+                            str(xs) for xs in 
+                            rxn['xsections'][np.nonzero(rxn['xsections'])]
+                        )
+                        dsv.write(dsv_row + '\n')
+        
         # End of File (EOF) signifier to be read by ALARAJOY
-        dsv_file.write(str(-1))
+        dsv.write(str(-1))
 
 def main():
     """
     Main method when run as a command line script.
     """
+
+    TAPE20 = Path('tape20')
 
     dir = njt.set_directory()
     search_dir = (
@@ -66,11 +209,8 @@ def main():
         )
     temperature = args().temperature[0]
 
-    TAPE20 = Path('tape20')
-
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
-
-    cumulative_data = []
+    all_rxns = defaultdict(lambda: defaultdict(dict))
     for isotope, file_properties in tp.search_for_files(search_dir).items():
         element = file_properties['Element']
         A = file_properties['Mass Number']
@@ -79,12 +219,30 @@ def main():
 
         material_id, MTs, endftk_file_obj = tp.extract_endf_specs(TAPE20)
         MTs = set(MTs).intersection(mt_dict.keys())
+
+        # PENDF Preperation and Generation
         njoy_input = njt.fill_input_template(
-            material_id, MTs, element, A, mt_dict, temperature
+            njt.njoy_prep_input, material_id,
+            MTs, element, A, mt_dict, temperature
             )
         njt.write_njoy_input_file(njoy_input)
+        pendf_path, njoy_error = njt.run_njoy(
+            element, A, material_id, 'PENDF'
+        )
+        
+        _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
+        gas_MTs = set(pendf_MTs) & set(rxd.GAS_DF['total_mt'])
+        MTs |= {int(gas_MT) for gas_MT in gas_MTs}
+
+        # GENDF Generation
+        groupr_input = njt.fill_input_template(
+            njt.groupr_input, material_id,
+             MTs, element, A, mt_dict, temperature
+        )
+        njt.write_njoy_input_file(groupr_input)
+
         gendf_path, njoy_error = njt.run_njoy(
-            element, A, material_id
+            element, A, material_id, 'GENDF'
         )
 
         if gendf_path:
@@ -95,11 +253,9 @@ def main():
                 gendf_path
             )
             if MTs and endftk_file_obj:
-                gendf_data = tp.iterate_MTs(
-                    MTs, endftk_file_obj, mt_dict, pKZA
+                all_rxns = tp.iterate_MTs(
+                    MTs, endftk_file_obj, mt_dict, pKZA, all_rxns
                 )
-                cumulative_data.extend(gendf_data)
-                njt.cleanup_njoy_files()
                 print(f'Finished processing {element}{A}')
             else:
                 warnings.warn(
@@ -114,9 +270,14 @@ def main():
                 NJOY error message: {njoy_error}'''
             )
 
+        njt.cleanup_njoy_files(element, A)
+
+    # Handle gas total production cross-sections, per user specifications
+    gas_filtered = gas_handling(args().gas_handling[0], all_rxns)
+
     dsv_path = dir / 'cumulative_gendf_data.dsv'
-    write_dsv(dsv_path, cumulative_data)
-    print(dsv_path)
+    write_dsv(dsv_path, gas_filtered)
+    print(f'Reaction data saved to: {dsv_path}')
 
 if __name__ == '__main__':
     main()

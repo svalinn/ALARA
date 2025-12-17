@@ -1,0 +1,14 @@
+nuclib : ../../data/nuclib.std
+new_inp_name : 20y_all_nuc.inp
+
+material_lib : ../../../data/matlib.sample
+alaralib : fendl2bin
+flux_file : .../../ref_flux_files/fluxfnsfIBfw_518MW.txt
+dump_filepath : dump_20y_all_nuc.file
+
+volume : 1
+norm : 1
+schedule_time : 20
+num_pulses : 1
+schedule_units : y
+trunc_tol : 1e-15
