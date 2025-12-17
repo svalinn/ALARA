@@ -93,11 +93,12 @@ def subtract_gas_from_totals(all_rxns, gas_tuples):
 
     for parent in all_rxns:
         for gKZA, gMT in gas_tuples:
-            mt_data = all_rxns[parent][gKZA]
-            if gKZA in all_rxns[parent] and gMT in mt_data:
-                for gRxn in mt_data:
+            if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
+                for gRxn in all_rxns[parent][gKZA]:
                     if gRxn != gMT:
-                        mt_data[gMT]['xsections'] -= mt_data[gRxn]['xsections']
+                        all_rxns[parent][gKZA][gMT]['xsections'] -= (
+                            all_rxns[parent][gKZA][gRxn]['xsections']
+                        )
 
     return all_rxns
 
@@ -133,6 +134,7 @@ def gas_handling(gas_method, all_rxns):
     """
 
     gas_tuples = list(rxd.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
+
     if gas_method == 'r':
         return remove_gas_daughters(all_rxns, gas_tuples)
 
@@ -140,8 +142,8 @@ def gas_handling(gas_method, all_rxns):
          return subtract_gas_from_totals(all_rxns, gas_tuples)
     
     else:
-        raise KeyError(
-            'Invalid gas method key. ' \
+        raise ValueError(
+            'Invalid gas method selection. ' \
             'Must choose either "r" (remove) or "s" (subtract).'
         )
 
