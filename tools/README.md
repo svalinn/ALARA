@@ -93,6 +93,8 @@ The parameter `filter_dict` allows filtering over any number of columns and any 
 
 **Note:** When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`. It is also possible to filter by a combination of whole elements and individual nuclides.
 
+To filter out all stable nuclides of an element (i.e. to ignore non-transmuted nuclides of the irradiated material), for example, write `filter_dict["nuclide"] = "!fe"` to filter out <sup>54</sup>Fe, <sup>56</sup>Fe, <sup>57</sup>Fe, and <sup>58</sup>Fe, the stable nuclides of iron. 
+
 Below is an example filtering operation on the same `adf` from the above example:
 ```
 fendl2_spec_act_h3 = adf.filter_rows({

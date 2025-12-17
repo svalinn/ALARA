@@ -1,10 +1,96 @@
 import pandas as pd
+import numpy as np
 import argparse
 from warnings import warn
 from csv import DictReader
 from numpy import array
 
 # ---------- General Utility Methods ----------
+
+STABLE_NUCLIDES = {
+    'h'  : [1,2],
+    'he' : [3,4],
+    'li' : [6,7],
+    'be' : [9],
+    'b'  : [10, 11],
+    'c'  : [12, 13],
+    'n'  : [14, 15],
+    'o'  : [16, 17, 18],
+    'f'  : [19],
+    'ne' : [20, 21, 22],
+    'na' : [23],
+    'mg' : [24, 25, 26],
+    'al' : [27],
+    'si' : [28, 29, 30],
+    'p'  : [31],
+    's'  : [32, 33, 34, 36],
+    'cl' : [35, 37],
+    'ar' : [36, 38, 40],
+    'k'  : [39, 41],
+    'ca' : [40, 42, 43, 44, 46],
+    'sc' : [45],
+    'ti' : [46, 47, 48, 49, 50],
+    'v'  : [51],
+    'cr' : [50, 52, 53, 54],
+    'mn' : [55],
+    'fe' : [54, 56, 57, 58],
+    'co' : [59],
+    'ni' : [58, 60, 61, 62, 64],
+    'cu' : [63, 65],
+    'zn' : [64, 66, 67, 68, 70],
+    'ga' : [69, 71],
+    'ge' : [70, 72, 73, 74],
+    'as' : [75],
+    'se' : [74, 76, 77, 78, 80],
+    'br' : [79, 81],
+    'kr' : [80, 82, 83, 84, 86],
+    'rb' : [85],
+    'sr' : [84, 86, 87, 88],
+    'y'  : [89],
+    'zr' : [90, 91, 92, 94],
+    'nb' : [93],
+    'mo' : [92, 94, 95, 96, 97, 98],
+    'tc' : [],
+    'ru' : [96, 98, 99, 100, 101, 102, 104],
+    'rh' : [103],
+    'pd' : [102, 104, 105, 106, 108, 110],
+    'ag' : [107, 109],
+    'cd' : [106, 108, 110, 111, 112, 114, 116],
+    'in' : [113],
+    'sn' : [112, 114, 115, 116, 117, 118, 119, 120, 122, 124],
+    'sb' : [121, 123],
+    'te' : [120, 122, 123, 124, 125, 126, 128],
+    'i'  : [127],
+    'xe' : [126, 128, 129, 130, 131, 132, 134],
+    'cs' : [133],
+    'ba' : [132, 134, 135, 136, 137, 138],
+    'la' : [139],
+    'ce' : [136, 138, 140, 142],
+    'pr' : [141],
+    'nd' : [142, 143, 145, 146, 148],
+    'pm' : [],
+    'sm' : [144, 149, 150, 152, 154],
+    'eu' : [153],
+    'gd' : [154, 155, 156, 157, 158, 160],
+    'tb' : [159],
+    'dy' : [156, 158, 160, 161, 162, 163, 164],
+    'ho' : [165],
+    'er' : [162, 164, 166, 167, 168, 170],
+    'tm' : [169],
+    'yb' : [168, 170, 171, 172, 173, 174, 176],
+    'lu' : [175],
+    'hf' : [176, 177, 178, 179, 180],
+    'ta' : ['180m', 181],
+    'w'  : [182, 183, 184, 186],
+    're' : [185],
+    'os' : [187, 188, 189, 190, 192],
+    'ir' : [191, 193],
+    'pt' : [192, 194, 195, 196, 198],
+    'au' : [197],
+    'hg' : [196, 198, 199, 200, 201, 202, 204],
+    'tl' : [203, 205],
+    'pb' : [204, 206, 207, 208]
+}
 
 SECONDS_CONV = {'s': 1}
 SECONDS_CONV['m'] = 60  * SECONDS_CONV['s']
@@ -323,8 +409,30 @@ class ALARADFrame(pd.DataFrame):
     @property
     def _constructor(self):
         return ALARADFrame
+    
+    def _filter_out_stable_inps(self, element):
+        '''
+        Create a list of all nuclides that are not stable isotopes of a chosen
+            element. This includes that element's radioisotopes plus all
+            stable and unstable nuclides of other elements in the ALARADFrame.
 
-    def _single_element_all_nuclides(self, element):
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Specialized ALARA
+                output DataFrame.
+            element (str): Single element for which to filter out all of its
+                stable nuclides.
+
+        Returns:
+            nuclide_series (pandas.core.series.Series): Series of all nuclide 
+                cells in the ALARADFrame that do not represent stable isotopes
+                of the selected element. 
+        '''
+
+        return self['nuclide'][~self['nuclide'].isin(
+            {f'{element}-{A}' for A in STABLE_NUCLIDES[element]}
+        )]
+
+    def _single_el_all_nucs(self, element):
         '''
         Create a list of all nuclides of a given element in an ALARADFrame to
             be called within filter_rows().
@@ -332,18 +440,18 @@ class ALARADFrame(pd.DataFrame):
         Arguments:
             self (alara_output_processing.ALARADFrame): Specialized ALARA
                 output DataFrame.
-            elements (str): Single element for which to find all nuclides in
+            element (str): Single element for which to find all nuclides in
                 self.
 
         Returns:
-            nuclide_list (list): List of all nuclides of the selected element
-                present in the ALARADFrame.
+            nuclide_series (pandas.core.series.Series): Series of all nuclide
+                cells of the selected element present in the ALARADFrame.
         '''
 
         return self.loc[
             self['nuclide'].str.startswith(f'{element.lower()}-', na=False),
             'nuclide'
-        ].unique().tolist()
+        ]
     
     def filter_rows(self, filter_dict):
         '''
@@ -374,18 +482,23 @@ class ALARADFrame(pd.DataFrame):
             if col_name not in filtered_adf.columns:
                 warn(f'Column "{col_name}" not found. Skipping.')
                 continue
-            
+
             if not isinstance(filters, list):
                 filters = [filters]
 
             if col_name == 'nuclide':
-                nuclides = []
+                nuclides = set()
                 for f in filters:
-                    nuclides.extend(
-                        filtered_adf._single_element_all_nuclides(f)
-                        if ('-' not in f and f.lower() != 'total')
-                        else [f]
-                    )
+                    # To filter out all stable nuclides of a single element,
+                    # Format filter_dict['nuclide'] = '!element'
+                    if f.startswith('!'):
+                        nuclides.update(filtered_adf._filter_out_stable_inps(
+                                f.split('!')[-1].lower()
+                        ))
+                    elif ('-' not in f and f.lower() != 'total'):
+                        nuclides.update(filtered_adf._single_el_all_nucs(f))
+                    else:
+                        nuclides.update([f])
 
                 filters = nuclides
 
@@ -396,7 +509,7 @@ class ALARADFrame(pd.DataFrame):
 
         return filtered_adf.reset_index(drop=True)
 
-    def calculate_relative_vals(self):
+    def calculate_relative_vals(self, nuc_filter=False):
         '''
         Create a new column for a pre-filtered ALARADFrame with data for a
             single response, block, and run for relative contributions of each
@@ -409,6 +522,10 @@ class ALARADFrame(pd.DataFrame):
             self (alara_output_processing.ALARADFrame): Pre-filtered
                 ALARADFrame containing data for a single response, block, and
                 run.
+            nuc_filter (bool, optional): Option to calculate relative to the
+                totals of an ALARADFrame that has filtered out nuclides by the
+                new sum of the filtered values.
+                (Defaults to False)
 
         Returns:
             adf_rel (alara_output_processing.ALARADFrame): Copy of self, with
@@ -426,9 +543,18 @@ class ALARADFrame(pd.DataFrame):
                     'single value before calculating relative values.'
                 )
 
-        totals = self.filter_rows({
-            'nuclide' : 'total'
-            })[['time', 'value']].to_numpy()
+        if nuc_filter:
+            no_totals = self[self['nuclide'] != 'total'].pivot(
+                index='nuclide', columns='time', values='value'
+            )
+            totals = np.zeros((len(no_totals.columns), 2))
+            for i, col in enumerate(no_totals.columns):
+                totals[i] = (col, no_totals[col].sum())
+        else:
+            totals = self.filter_rows({
+                'nuclide' : 'total'
+                })[['time', 'value']].to_numpy()
+        
         total_map = {time: value for time, value in totals}
         adf_rel = self[self['nuclide'] != 'total'].copy()
 
