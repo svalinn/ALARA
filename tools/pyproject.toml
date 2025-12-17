@@ -1,0 +1,46 @@
+[project]
+name = "alara-output-processing"
+description = "Postprocessing tools for ALARA simulation results"
+version = "0.0.1"
+readme = "README.md"
+license = {file="LICENSE.md"}
+requires-python = ">=3.8"
+
+maintainers = [
+    {name = "Eitan Weinstein", email = "esweinstein2@wisc.edu"},
+    {name = "Paul Wilson", email = "paul.wilson@wisc.edu"}
+]
+
+authors = [
+    {name = "Eitan Weinstein"},
+    {name = "Paul Wilson"}
+]
+
+keywords = ["fusion", "activation", "data", "simulation"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering"
+]
+
+dependencies = [
+    "pandas"
+]
+
+[project.urls]
+Repository = "https://github.com/svalinn/ALARA/tree/main/tools/"
+Issues = "https://github.com/svalinn/ALARA/issues"
+
+[project.scripts]
+alara-output-processing = "alara_output_processing.alara_output_processing:main"
+
+[tool.setuptools.packages.find]
+include = ["alara_output_processing*"]
+exclude = ["jALARA*", "ALARAJOYWrapper*"]
+
+[build-system]
+requires = ["setuptools>=64.0.0"]
+build-backend = "setuptools.build_meta"

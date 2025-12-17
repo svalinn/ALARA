@@ -10,7 +10,7 @@
 
 geometry cylindrical
 
-## Note that the dimention setting (r) corresponds to the geometry type (cylindrical)
+## Note that the dimension setting (r) corresponds to the geometry type (cylindrical)
 dimension	r
 		0.0
 	1	10.0

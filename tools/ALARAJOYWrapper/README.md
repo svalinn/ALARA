@@ -1,15 +1,15 @@
 # FENDL3 Preprocessor with NJOY Wrapping for ALARA (*ALARAJOYWrapper*)
 
-This preprocessor is designed to update ALARA's data input capabilities for updated FENDL3.2x data sets formatted as TENDL/PENDF files. Unlike previous versions of [FENDL](https://www-nds.iaea.org/fendl_library/websites/fendl32b/) (Fusion Evaluated Nuclear Data Library), which have available groupwise cross-section data for neutron activation, as is required for ALARA's functionality, FENDL3 data is only offered as pointwise.
+This preprocessor is designed to update ALARA's data input capabilities for updated FENDL3.2x data sets formatted as TENDL (ENDF-6) files. Unlike previous versions of [FENDL](https://www-nds.iaea.org/fendl_library/websites/fendl32b/) (Fusion Evaluated Nuclear Data Library), which have available groupwise cross-section data for neutron activation, as is required for ALARA's functionality, FENDL3 data requires conversion to that format.
 
-This preprocessor uses the [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Data Processing System's GROUPR module to convert the pointwise nuclear data to the Vitamin-J 175 energy group groupwise format for activation cross-sections and to handle the processed data to be fed back to ALARA.
+This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Data Processing System to produce requisite pointwise data (PENDF) to subsequntly convert to the Vitamin-J 175 energy group groupwise format (GENDF) for activation cross-sections and to handle the processed data to be fed back to ALARA. For pointwise conversion, ALARAJOYWrapper uses the NJOY modules MODER, RECONR, BROADR, UNRESR, and GASPR, and for the ultimate conversion to the groupwise format, GROUPR.
 
 ## Dependencies
 
 - Standard Python libraries
   * [ArgParse](https://docs.python.org/3/library/argparse.html)
+  * [Collections](https://docs.python.org/3/library/collections.html)
   * [Csv](https://docs.python.org/3/library/csv.html)
-  * [Os](https://docs.python.org/3/library/os.html)
   * [Pathlib](https://docs.python.org/3/library/pathlib.html)
   * [Pytest](https://docs.pytest.org/en/stable/getting-started.html)
   * [Re](https://docs.python.org/3/library/re.html)
@@ -25,17 +25,19 @@ This preprocessor uses the [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear
 
 
 ## Usage
-This preprocessor can and should be used independently of any ALARA run. While the data format produced from ALARAJOYWrapper is necessary to run `convert_lib` on ALARA to convert TENDL/PENDF data to an ALARA binary, once the user has a space-delimited DSV file produced from this preprocessor, usage of this preprocessor is not strictly necessary for the particular isotopes processed by the user.
+This preprocessor can and should be used independently of any ALARA run. While the data format produced from ALARAJOYWrapper is necessary to run `convert_lib` on ALARA to convert TENDL data to an ALARA binary, once the user has a space-delimited DSV file produced from this preprocessor, usage of this preprocessor is not strictly necessary for the particular isotopes processed by the user.
 
 ALARAJOYWrapper is designed to produce a space-delimited DSV containing data that can be directly read by the ALARA data library, ALARAJOY, without any further processing.
 
-To run this preprocessor, the user must first have acquired matching TENDL/PENDF file pairs for each isotope to be processed from [TENDL 2017](https://tendl.web.psi.ch/tendl_2017/tendl2017.html), which is the source for FENDL3.2x neutron activation data. All TENDL/PENDF file pairs to be processed must be in the same directory as each other to be properly identified by ALARAJOYWrapper.
+To run this preprocessor, the user must first have acquired TENDL files for each isotope to be processed from [TENDL 2017](https://tendl.web.psi.ch/tendl_2017/tendl2017.html), which is the source for FENDL3.2x neutron activation data. All TENDL files to be processed must be in the same directory as each other to be properly identified by ALARAJOYWrapper.
 
 Running ALARAJOYWrapper can be done with one Python command:
 
-    python preprocess_fendl3.py -f /path/to/fendl3_data_dir/
+    python preprocess_fendl3.py -g gas_handling_method -f /path/to/fendl3_data_dir/
 
-This command only takes one argument, `-f`, which directs the program to the directory containing the TENDL/PENDF file pairs. This argument is optional, and if left blank, will default to the current working directory.
+This command takes two arguments,`-g ` and `-f`. The `-g` argument sets the gas handling method for gas totals, as calculated by the NJOY GASPR module. The two possible methods are `r` (remove) and `s` (subtract). Method `r` removes all reactions with a light gas daughter (protons through alpha particles), with the exception of total gas production cross-sections (corresponding to MT = 203-207 reactions (see Appendix B of the ENDF-6 Manual at `../../developer-info/endf6-manual.pdf`) when a total gas production cross-section exists. Method `s` subtracts the cross-sections for each energy group of reactions that produce a gas daughter from the total gas production cross-sections instead. In effect, for gas producing reactions, selecting `r` will show only the *total* gas production cross sections for each gas, whereas `s` will show each *individual* gas production pathway with its respective cross section data.
+
+The `-f` argument directs the program to the directory containing the TENDL files. This argument is optional, and if left blank, will default to the current working directory.
 
 ## Data Output
 Running `preprocess_fendl3.py` will return the file path to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
@@ -44,13 +46,12 @@ Running `preprocess_fendl3.py` will return the file path to the resultant space-
 - Daughter KZA: Unique isotope identifier of the daughter isotope produced from a particular transmutation reaction in the format **ZZAAAM**.
 - Emitted Particles: Consecutive string of particles emitted from the transmutation reaction. The possible particles are:
   - Neutron (n)
+  - Gamma photon (g)
   - Proton (p)
   - Deuteron (d)
   - Triton (t)
   - <sup>3</sup>He nucleus (h)
   - Alpha particle (a)
-  - Gamma photon (g)
-
 
   For reactions with multiple emitted particles, the format of the text string is along the lines '3n2p', representing an emission of three neutrons and two protons. An emission containing only one of a certain particle will just contain the particle identifier, without any numerical tag (e.g. 'n' for a single neutron).
 
@@ -58,7 +59,7 @@ Running `preprocess_fendl3.py` will return the file path to the resultant space-
 - Cross Sections: List of all non-zero neutron cross sections.
 
 ## Application of Processed Data to ALARA Data Conversion Methods
-Data library conversion to ALARA binary libraries is done with the `convert_lib` input block in the ALARA input file. Converting preprocessed TENDL/PENDF data contained in the resultant space-delimited DSV from ALARAJOYWrapper is done as such in the input file:
+Data library conversion to ALARA binary libraries is done with the `convert_lib` input block in the ALARA input file. Converting preprocessed TENDL data contained in the resultant space-delimited DSV from ALARAJOYWrapper is done as such in the input file:
 
     convert_lib ajoylib alaralib transFname decayFname alaraFname
 wherein: 
