@@ -152,6 +152,59 @@ def gas_handling(gas_method, all_rxns):
             'Must choose either "r" (remove) or "s" (subtract).'
         )
 
+def combine_daughter_pathways(gas_filtered):
+    """
+    Calculate cumulative cross-sections from all reaction pathways that
+        produce like daughters.
+    
+    Arguments:
+        gas_filtered (collections.defaultdict): Modified version of all_rxns
+            that has already been processed by one of the two gas handling
+            methods.
+    
+    Returns:
+        amalgamated (collections.defaultdict): Reorganized version of
+            gas_filtered, with combined reaction pathways from multiple
+            parents to like-daughters, with cumulative cross-sections. 
+    """
+
+    daughter_to_parents = defaultdict(list)
+    amalgamated = defaultdict(lambda: defaultdict(dict))
+
+    for parent in gas_filtered:
+        for daughter in gas_filtered[parent]:
+            daughter_to_parents[daughter].append(parent)
+    
+    for daughter, parents in daughter_to_parents.items():
+        parent_key = (
+            parents[0] if len(parents) == 1
+            else ','.join(map(str, sorted(parents)))
+        )
+        combined_xs = None
+        combined_emitted = []
+
+        for parent in parents:
+            for MT in gas_filtered[parent][daughter]:
+                rxn = gas_filtered[parent][daughter][MT]
+                combined_xs = (
+                    rxn['xsections'].copy() if combined_xs is None
+                    else combined_xs + rxn['xsections']
+                )
+                combined_emitted.append(rxn['emitted'])
+
+        amalgamated[parent_key][daughter] = (
+            gas_filtered[parents[0]][daughter] if len(parents) == 1
+            else {
+                -1 : {
+                    'emitted' : ','.join(sorted(set(combined_emitted))),
+                    'non_zero_groups' : (combined_xs != 0).sum(),
+                    'xsections' : combined_xs
+                }
+            }
+        )
+
+    return amalgamated
+
 def write_dsv(dsv_path, all_rxns):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
@@ -279,6 +332,9 @@ def main():
 
     # Handle gas total production cross-sections, per user specifications
     gas_filtered = gas_handling(args().gas_handling[0], all_rxns)
+
+    if args().amalgamate:
+        gas_filtered = combine_daughter_pathways(gas_filtered)
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     write_dsv(dsv_path, gas_filtered)
