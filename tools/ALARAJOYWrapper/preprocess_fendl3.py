@@ -151,13 +151,6 @@ def gas_handling(gas_method, all_rxns):
             'Invalid gas method selection. ' \
             'Must choose either "r" (remove) or "s" (subtract).'
         )
-    
-def combine_daughter_pathways(row_dicts):
-    """
-    Application of amalgamate_by() to calculate cumulative cross-sections from
-        all reaction pathways leading to each daughter nuclide contained in
-        the input data, row_dicts.
-    """
 
 def write_dsv(dsv_path, all_rxns):
     """
