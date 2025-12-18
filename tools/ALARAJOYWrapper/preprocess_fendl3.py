@@ -80,7 +80,6 @@ def subtract_gas_from_totals(all_rxns, gas_tuples):
                     {MT:
                         {
                             'emitted': (str of emitted particles)
-                            'non_zero_groups': (int of non-zero groupwise XS)
                             'xsections': (array of groupwise XS)
                         }
                     }
@@ -126,7 +125,6 @@ def gas_handling(gas_method, all_rxns):
                     {MT:
                         {
                             'emitted': (str of emitted particles)
-                            'non_zero_groups': (int of non-zero groupwise XS)
                             'xsections': (array of groupwise XS)
                         }
                     }
@@ -168,6 +166,22 @@ def combine_daughter_pathways(gas_filtered):
             parents to like-daughters, with cumulative cross-sections. 
     """
 
+#    empty_rxn = {
+#        'emitted' : [],
+#        'xsections' : np.zeros(tp.VITAMIN_J_ENERGY_GROUPS)
+#    }
+
+#    for parent in gas_filtered:
+#        for daughter, rxn_list in gas_filtered[parent].items():
+#            collapsed = empty_rxn.copy()
+#            for rxn in rxn_list.values():
+#                collapsed['emitted'].append(rxn['emitted'])
+#                collapsed['xsections'] += rxn['xsections']
+#            collapsed['emitted'] = ','.join(collapsed['emitted'])
+#            rxn_list = {-1 : collapsed.copy()}
+#            print(gas_filtered[parent][daughter].keys())
+#    return gas_filtered
+
     daughter_to_parents = defaultdict(list)
     amalgamated = defaultdict(lambda: defaultdict(dict))
 
@@ -197,7 +211,6 @@ def combine_daughter_pathways(gas_filtered):
             else {
                 -1 : {
                     'emitted' : ','.join(sorted(set(combined_emitted))),
-                    'non_zero_groups' : (combined_xs != 0).sum(),
                     'xsections' : combined_xs
                 }
             }
@@ -224,7 +237,6 @@ def write_dsv(dsv_path, all_rxns):
                     {MT:
                         {
                             'emitted': (str of emitted particles)
-                            'non_zero_groups': (int of non-zero groupwise XS)
                             'xsections': (array of groupwise XS)
                         }
                     }
@@ -243,11 +255,11 @@ def write_dsv(dsv_path, all_rxns):
                     if rxn['xsections'].sum() > 0:
                         dsv_row = (
                             f'{parent} {daughter} {rxn['emitted']} ' \
-                            f'{rxn['non_zero_groups']} ' \
+                            f'{np.count_nonzero(rxn['xsections'])} '
                         )
                         dsv_row += ' '.join(
-                            str(xs) for xs in 
-                            rxn['xsections'][np.nonzero(rxn['xsections'])]
+                            str(xs) for xs
+                            in rxn['xsections'][np.nonzero(rxn['xsections'])]
                         )
                         dsv.write(dsv_row + '\n')
         
