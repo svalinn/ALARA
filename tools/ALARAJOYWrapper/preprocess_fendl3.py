@@ -162,61 +162,25 @@ def combine_daughter_pathways(gas_filtered):
     
     Returns:
         amalgamated (collections.defaultdict): Reorganized version of
-            gas_filtered, with combined reaction pathways from multiple
-            parents to like-daughters, with cumulative cross-sections. 
+            gas_filtered, with combined reaction pathways from a single
+            parent to like-daughters, with cumulative cross-sections. 
     """
 
-#    empty_rxn = {
-#        'emitted' : [],
-#        'xsections' : np.zeros(tp.VITAMIN_J_ENERGY_GROUPS)
-#    }
-
-#    for parent in gas_filtered:
-#        for daughter, rxn_list in gas_filtered[parent].items():
-#            collapsed = empty_rxn.copy()
-#            for rxn in rxn_list.values():
-#                collapsed['emitted'].append(rxn['emitted'])
-#                collapsed['xsections'] += rxn['xsections']
-#            collapsed['emitted'] = ','.join(collapsed['emitted'])
-#            rxn_list = {-1 : collapsed.copy()}
-#            print(gas_filtered[parent][daughter].keys())
-#    return gas_filtered
-
-    daughter_to_parents = defaultdict(list)
-    amalgamated = defaultdict(lambda: defaultdict(dict))
-
     for parent in gas_filtered:
-        for daughter in gas_filtered[parent]:
-            daughter_to_parents[daughter].append(parent)
-    
-    for daughter, parents in daughter_to_parents.items():
-        parent_key = (
-            parents[0] if len(parents) == 1
-            else ','.join(map(str, sorted(parents)))
-        )
-        combined_xs = None
-        combined_emitted = []
-
-        for parent in parents:
-            for MT in gas_filtered[parent][daughter]:
-                rxn = gas_filtered[parent][daughter][MT]
-                combined_xs = (
-                    rxn['xsections'].copy() if combined_xs is None
-                    else combined_xs + rxn['xsections']
-                )
-                combined_emitted.append(rxn['emitted'])
-
-        amalgamated[parent_key][daughter] = (
-            gas_filtered[parents[0]][daughter] if len(parents) == 1
-            else {
-                -1 : {
-                    'emitted' : ','.join(sorted(set(combined_emitted))),
-                    'xsections' : combined_xs
-                }
+        for daughter, rxn_list in gas_filtered[parent].items():
+            collapsed = {
+                'emitted'    :                                 set(),
+                'xsections'  :  np.zeros(tp.VITAMIN_J_ENERGY_GROUPS)
             }
-        )
 
-    return amalgamated
+            for rxn in rxn_list.values():
+                collapsed['emitted'].add(rxn['emitted'])
+                collapsed['xsections'] += rxn['xsections']
+
+            collapsed['emitted'] = ','.join(collapsed['emitted'])
+            gas_filtered[parent][daughter] = { -1 : collapsed }
+
+    return gas_filtered
 
 def write_dsv(dsv_path, all_rxns):
     """
