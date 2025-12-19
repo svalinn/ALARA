@@ -33,13 +33,16 @@ To run this preprocessor, the user must first have acquired TENDL files for each
 
 Running ALARAJOYWrapper can be done with one Python command:
 
-    python preprocess_fendl3.py -g gas_handling_method -f /path/to/fendl3_data_dir/ -a
+    python preprocess_fendl3.py -g gas_handling_method -f /path/to/fendl3_data_dir/ -d /path/to/eaf_decay_library/ -a
 
-This command takes two arguments,`-g ` and `-f`. The `-g` argument sets the gas handling method for gas totals, as calculated by the NJOY GASPR module. The two possible methods are `r` (remove) and `s` (subtract). Method `r` removes all reactions with a light gas daughter (protons through alpha particles), with the exception of total gas production cross-sections (corresponding to MT = 203-207 reactions (see Appendix B of the ENDF-6 Manual at `../../developer-info/endf6-manual.pdf`) when a total gas production cross-section exists. Method `s` subtracts the cross-sections for each energy group of reactions that produce a gas daughter from the total gas production cross-sections instead. In effect, for gas producing reactions, selecting `r` will show only the *total* gas production cross sections for each gas, whereas `s` will show each *individual* gas production pathway with its respective cross section data.
+This command takes four arguments,`-g `, `-f`, `-d`, and `-a`. The `-g` argument sets the gas handling method for gas totals, as calculated by the NJOY GASPR module. The two possible methods are `r` (remove) and `s` (subtract). Method `r` removes all reactions with a light gas daughter (protons through alpha particles), with the exception of total gas production cross-sections corresponding to MT = 203-207 reactions (see Appendix B of the ENDF-6 Manual at `../../developer-info/endf6-manual.pdf`) when a total gas production cross-section exists. Method `s` subtracts the cross-sections for each energy group of reactions that produce a gas daughter from the total gas production cross-sections instead. In effect, for gas producing reactions, selecting `r` will show only the *total* gas production cross sections for each gas, whereas `s` will show each *individual* gas production pathway with its respective cross section data.
 
 The `-f` argument directs the program to the directory containing the TENDL files. This argument is optional, and if left blank, will default to the current working directory.
 
+The `-d` argument directs the program to an EAF decay library necessary for cross-referencing short-lived isomeric daughters against known half-life data.
+
 The `-a` argument is an optional flag to amalgamate all like-daughter nuclides into a single row of the resultant DSV file by adding the groupwise cross-section data for all reaction pathways that produce said daughter.
+
 
 ## Data Output
 Running `preprocess_fendl3.py` will return the file path to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
@@ -59,6 +62,8 @@ Running `preprocess_fendl3.py` will return the file path to the resultant space-
 
 - Non-Zero Groups: Count of total number of energy groups in the Vitamin-J 175 energy group structure with non-zero neutron cross sections.
 - Cross Sections: List of all non-zero neutron cross sections.
+
+It should be noted that TENDL 2017 activation data contains many (n,n) reactions that leave the residual nucleus in various quantized excited states, potentially up to a 40<sup>th</sup> excited state. Most of these daughter isomers, however, are extremely short-lived and lack decay data. When converting an ALARAJOY DSV file in ALARA, as discussed below, an EAF decay library is required, being that FENDL3.2x only contains activation data. Cross-referencing exotic isomers against this decay data ensures that ultra-short-lived reaction products are not passed on to ALARA's library conversion appearing as stable nuclides. Rather, the lack of decay data signifies such a short half-life that decay evaluations are non-practical. As such, as these isomers are processed, ALARAJOYWrapper assumes that they decay to the ground state and their cross-sections are accumulated for the ground state (n,n) reaction (MT = 4).
 
 ## Application of Processed Data to ALARA Data Conversion Methods
 Data library conversion to ALARA binary libraries is done with the `convert_lib` input block in the ALARA input file. Converting preprocessed TENDL data contained in the resultant space-delimited DSV from ALARAJOYWrapper is done as such in the input file:

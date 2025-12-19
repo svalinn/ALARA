@@ -19,6 +19,9 @@ def args():
         '--gas_handling', '-g', required=True, nargs=1
     )
     parser.add_argument(
+        '--decay_lib', '-d', required=True, nargs=1
+    )
+    parser.add_argument(
         '--amalgamate', '-a', action='store_true'
     )
     parser.add_argument(
@@ -44,7 +47,6 @@ def remove_gas_daughters(all_rxns, gas_tuples):
                     {MT:
                         {
                             'emitted': (str of emitted particles)
-                            'non_zero_groups': (int of non-zero groupwise XS)
                             'xsections': (array of groupwise XS)
                         }
                     }
@@ -244,8 +246,10 @@ def main():
     temperature = args().temperature[0]
 
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
+    radionucs = rxd.find_eaf_radionuclides(Path(args().decay_lib[0]))
     all_rxns = defaultdict(lambda: defaultdict(dict))
-    for isotope, file_properties in tp.search_for_files(search_dir).items():
+
+    for file_properties in tp.search_for_files(search_dir).values():
         element = file_properties['Element']
         A = file_properties['Mass Number']
         endf_path = file_properties['TENDL File Path']
@@ -274,7 +278,6 @@ def main():
              MTs, element, A, mt_dict, temperature
         )
         njt.write_njoy_input_file(groupr_input)
-
         gendf_path, njoy_error = njt.run_njoy(
             element, A, material_id, 'GENDF'
         )
@@ -286,18 +289,21 @@ def main():
             material_id, MTs, endftk_file_obj = tp.extract_endf_specs(
                 gendf_path
             )
+
             if MTs and endftk_file_obj:
                 all_rxns = tp.iterate_MTs(
-                    MTs, endftk_file_obj, mt_dict, pKZA, all_rxns
+                    MTs, endftk_file_obj, mt_dict, pKZA, all_rxns, radionucs
                 )
                 print(f'Finished processing {element}{A}')
+
             else:
                 warnings.warn(
                     f'''The requested file (MF3) is not present in the
                     ENDF file tree for {element}{A}'''
                 )
                 with open('mf_fail.log', 'a') as fail:
-                    fail.write(f'{element}{A} \n')                    
+                    fail.write(f'{element}{A} \n')
+
         else:
             warnings.warn(
                 f'''Failed to convert {element}{A}.
