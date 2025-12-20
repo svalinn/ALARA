@@ -8,6 +8,8 @@ import warnings
 from pathlib import Path
 from collections import defaultdict
 
+VITAMIN_J_ENERGY_GROUPS = 175
+
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -15,6 +17,9 @@ def args():
     )
     parser.add_argument(
         '--gas_handling', '-g', required=True, nargs=1
+    )
+    parser.add_argument(
+        '--amalgamate', '-a', action='store_true'
     )
     parser.add_argument(
         # Temperature for NJOY run [Kelvin]
@@ -75,7 +80,6 @@ def subtract_gas_from_totals(all_rxns, gas_tuples):
                     {MT:
                         {
                             'emitted': (str of emitted particles)
-                            'non_zero_groups': (int of non-zero groupwise XS)
                             'xsections': (array of groupwise XS)
                         }
                     }
@@ -121,7 +125,6 @@ def gas_handling(gas_method, all_rxns):
                     {MT:
                         {
                             'emitted': (str of emitted particles)
-                            'non_zero_groups': (int of non-zero groupwise XS)
                             'xsections': (array of groupwise XS)
                         }
                     }
@@ -147,6 +150,38 @@ def gas_handling(gas_method, all_rxns):
             'Must choose either "r" (remove) or "s" (subtract).'
         )
 
+def combine_daughter_pathways(gas_filtered):
+    """
+    Calculate cumulative cross-sections from all reaction pathways that
+        produce like daughters.
+    
+    Arguments:
+        gas_filtered (collections.defaultdict): Modified version of all_rxns
+            that has already been processed by one of the two gas handling
+            methods.
+    
+    Returns:
+        amalgamated (collections.defaultdict): Reorganized version of
+            gas_filtered, with combined reaction pathways from a single
+            parent to like-daughters, with cumulative cross-sections. 
+    """
+
+    for parent in gas_filtered:
+        for daughter, rxn_list in gas_filtered[parent].items():
+            collapsed = {
+                'emitted'    :                                 set(),
+                'xsections'  :  np.zeros(tp.VITAMIN_J_ENERGY_GROUPS)
+            }
+
+            for rxn in rxn_list.values():
+                collapsed['emitted'].add(rxn['emitted'])
+                collapsed['xsections'] += rxn['xsections']
+
+            collapsed['emitted'] = ','.join(collapsed['emitted'])
+            gas_filtered[parent][daughter] = { -1 : collapsed }
+
+    return gas_filtered
+
 def write_dsv(dsv_path, all_rxns):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
@@ -166,7 +201,6 @@ def write_dsv(dsv_path, all_rxns):
                     {MT:
                         {
                             'emitted': (str of emitted particles)
-                            'non_zero_groups': (int of non-zero groupwise XS)
                             'xsections': (array of groupwise XS)
                         }
                     }
@@ -185,11 +219,11 @@ def write_dsv(dsv_path, all_rxns):
                     if rxn['xsections'].sum() > 0:
                         dsv_row = (
                             f'{parent} {daughter} {rxn['emitted']} ' \
-                            f'{rxn['non_zero_groups']} ' \
+                            f'{np.count_nonzero(rxn['xsections'])} '
                         )
                         dsv_row += ' '.join(
-                            str(xs) for xs in 
-                            rxn['xsections'][np.nonzero(rxn['xsections'])]
+                            str(xs) for xs
+                            in rxn['xsections'][np.nonzero(rxn['xsections'])]
                         )
                         dsv.write(dsv_row + '\n')
         
@@ -274,6 +308,9 @@ def main():
 
     # Handle gas total production cross-sections, per user specifications
     gas_filtered = gas_handling(args().gas_handling[0], all_rxns)
+
+    if args().amalgamate:
+        gas_filtered = combine_daughter_pathways(gas_filtered)
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     write_dsv(dsv_path, gas_filtered)
