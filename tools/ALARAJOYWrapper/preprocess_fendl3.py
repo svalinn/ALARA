@@ -182,6 +182,23 @@ def combine_daughter_pathways(gas_filtered):
 
     return gas_filtered
 
+def rxn_to_str(parent, daughter, rxn):
+    """
+    Generate the list of strings to be written in a single row of the DSV file.
+    """
+    # since there may be entries that are zero before the end of the cross-section
+    # we get the index of the last nonzero entry
+    last_nonzero = np.nonzero(rxn['xsections'])[-1][-1]
+
+    dsv_row = (
+        f'{parent} {daughter} {rxn['emitted']} ' \
+        f'{last_nonzero} '
+    )
+    dsv_row += ' '.join(
+        str(xs) for xs
+        in rxn['xsections'][:last_nonzero+1]
+    )
+
 def write_dsv(dsv_path, all_rxns):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
@@ -217,15 +234,7 @@ def write_dsv(dsv_path, all_rxns):
             for daughter in all_rxns[parent]:
                 for rxn in all_rxns[parent][daughter].values():
                     if rxn['xsections'].sum() > 0:
-                        dsv_row = (
-                            f'{parent} {daughter} {rxn['emitted']} ' \
-                            f'{np.count_nonzero(rxn['xsections'])} '
-                        )
-                        dsv_row += ' '.join(
-                            str(xs) for xs
-                            in rxn['xsections'][np.nonzero(rxn['xsections'])]
-                        )
-                        dsv.write(dsv_row + '\n')
+                        dsv.write(rxn_to_str(parent, daughter, rxn) + '\n')
         
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv.write(str(-1))
