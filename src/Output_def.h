@@ -31,4 +31,7 @@
 #define CM3_M3           1e-6
 #define G_KG             1e-3
 
+#define COOLTIME_DEF           1
+#define COOLTIME_S             2
+
 #endif
