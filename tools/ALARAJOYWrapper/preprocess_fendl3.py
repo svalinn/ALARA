@@ -8,8 +8,6 @@ import warnings
 from pathlib import Path
 from collections import defaultdict
 
-VITAMIN_J_ENERGY_GROUPS = 175
-
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
