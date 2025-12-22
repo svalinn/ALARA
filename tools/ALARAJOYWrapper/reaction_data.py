@@ -305,8 +305,10 @@ def find_eaf_radionuclides(eaf_path):
             f.readline()
 
         _in_decay_block = False
-        for line in f:
+        line = f.readline()
+        while line:
             MT = get_MT_from_line(line)
+
             if not _in_decay_block and MT == decay_MT:
                 _in_decay_block = True
 
@@ -315,7 +317,7 @@ def find_eaf_radionuclides(eaf_path):
                 M = int(line[33:44].strip())
                 kza = za * 10 + M
 
-                # Read half-life
+                # Read half-life (next line)
                 line = f.readline()
                 thalf = eaf_float(line[:11])
                 if thalf > 0:
@@ -323,5 +325,8 @@ def find_eaf_radionuclides(eaf_path):
 
             elif MT != decay_MT:
                 _in_decay_block = False
+
+            # Advance to next line
+            line = f.readline()
 
     return radionucs
