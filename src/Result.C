@@ -18,6 +18,7 @@
 #include "Node.h"
 
 #include "topScheduleT.h"
+#include <cmath>
 
 
 
@@ -461,6 +462,15 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 
       /* write the formatted output for this isotope */
       cout << isoName(ptr->kza,isoSym) << "\t";
+
+      double lambda = dataAccess.getLambda(ptr->kza);
+      if (lambda > 0.0) {
+        double thalf = log(2.0) / lambda ; // half-life in seconds
+        sprintf(isoSym, "%-11.4e ", thalf);
+        cout << isoSym;
+      } else {
+        cout << "stable      ";
+      }
  
      for (resNum=0;resNum<nResults;resNum++)
 	{
@@ -493,7 +503,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   coolList->writeSeparator();
 
   /* write the formatted output for the total response */
-  cout << "total\t";
+  cout << "total\t None            ";
   
   for (resNum=0;resNum<nResults;resNum++)
     {

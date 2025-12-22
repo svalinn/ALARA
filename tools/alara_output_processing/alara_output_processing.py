@@ -2,7 +2,7 @@ import pandas as pd
 import argparse
 from warnings import warn
 from csv import DictReader
-from numpy import array
+from numpy import array, nan
 
 # ---------- General Utility Methods ----------
 
@@ -211,7 +211,8 @@ class FileParser:
 
         raw_cols = header_line.split()
         nuclide_col = raw_cols[0]
-        times_w_units = raw_cols[1:]
+        thalf_col = raw_cols[1]
+        times_w_units = raw_cols[2:]
         converted_times = extract_time_vals(
             times_w_units, to_unit=self.time_unit
         )
@@ -221,27 +222,26 @@ class FileParser:
         
         reader = DictReader(
             [' '.join(line.split()) for line in data_lines],
-            fieldnames=([nuclide_col] + [str(t) for t in converted_times]),
+            fieldnames=(
+                [nuclide_col, thalf_col] + [str(t) for t in converted_times]
+            ),
             delimiter=' ',
             skipinitialspace=True
         )
 
-        return [
-            {
-                'time'          :                                    time,
-                'time_unit'     :                          self.time_unit,
-                'nuclide'       :                        row[nuclide_col],
-                'run_lbl'       :                            self.run_lbl,
-                'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
-                'block_name'    :                              block_name,
-                'block_num'     :            int(block_num.split(':')[0]),
-                'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
-                'var_unit'      :                      unit.split(']')[0],
-                'value'         :                   float(row[str(time)])
-            }
-            for row in reader
-            for time in converted_times
-        ]
+        return [{
+            'time'          :                                    time,
+            'time_unit'     :                          self.time_unit,
+            'nuclide'       :                        row[nuclide_col],
+            'half-life'     :                          row[thalf_col],
+            'run_lbl'       :                            self.run_lbl,
+            'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
+            'block_name'    :                              block_name,
+            'block_num'     :            int(block_num.split(':')[0]),
+            'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
+            'var_unit'      :                      unit.split(']')[0],
+            'value'         :                   float(row[str(time)])
+        } for row in reader for time in converted_times]
 
     def extract_tables(self):
         '''
