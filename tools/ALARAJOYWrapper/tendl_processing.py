@@ -187,7 +187,6 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns):
                     {MT:
                         {
                             'emitted': (str of emitted particles)
-                            'non_zero_groups': (int of non-zero groupwise XS)
                             'xsections': (array of groupwise XS)
                         }
                     }
@@ -213,7 +212,6 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns):
         if not mt_dict[MT]['high_m']:
             all_rxns[pKZA][dKZA][MT] = {
                 'emitted'               :              mt_dict[MT]['emitted'],
-                'non_zero_groups'       :                         len(sigmas),
                 'xsections'             :                             np.pad(
                     sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
                 )

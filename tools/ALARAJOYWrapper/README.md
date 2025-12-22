@@ -33,11 +33,13 @@ To run this preprocessor, the user must first have acquired TENDL files for each
 
 Running ALARAJOYWrapper can be done with one Python command:
 
-    python preprocess_fendl3.py -g gas_handling_method -f /path/to/fendl3_data_dir/
+    python preprocess_fendl3.py -g gas_handling_method -f /path/to/fendl3_data_dir/ -a
 
 This command takes two arguments,`-g ` and `-f`. The `-g` argument sets the gas handling method for gas totals, as calculated by the NJOY GASPR module. The two possible methods are `r` (remove) and `s` (subtract). Method `r` removes all reactions with a light gas daughter (protons through alpha particles), with the exception of total gas production cross-sections (corresponding to MT = 203-207 reactions (see Appendix B of the ENDF-6 Manual at `../../developer-info/endf6-manual.pdf`) when a total gas production cross-section exists. Method `s` subtracts the cross-sections for each energy group of reactions that produce a gas daughter from the total gas production cross-sections instead. In effect, for gas producing reactions, selecting `r` will show only the *total* gas production cross sections for each gas, whereas `s` will show each *individual* gas production pathway with its respective cross section data.
 
 The `-f` argument directs the program to the directory containing the TENDL files. This argument is optional, and if left blank, will default to the current working directory.
+
+The `-a` argument is an optional flag to amalgamate all like-daughter nuclides into a single row of the resultant DSV file by adding the groupwise cross-section data for all reaction pathways that produce said daughter.
 
 ## Data Output
 Running `preprocess_fendl3.py` will return the file path to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
