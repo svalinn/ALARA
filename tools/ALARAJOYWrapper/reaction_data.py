@@ -259,9 +259,9 @@ def eaf_float(num_str):
     if 'E' in num_str or 'e' in num_str:
         return float(num_str)
 
-    for i in range(len(num_str) - 1, 0, -1):
-        if num_str[i] in '+-':
-            return float(num_str[:i] + 'E' + num_str[i:])
+    exp_idx = max(num_str.rfind('+'), num_str.rfind('-'))
+    if exp_idx > 0:
+        return float(num_str[:exp_idx] + 'E' + num_str[exp_idx:])
 
     return float(num_str)
 
@@ -304,39 +304,27 @@ def find_eaf_radionuclides(eaf_path):
         for _ in range(n_comment_lines):
             f.readline()
 
-        while True:
-            line = f.readline()
+        line = f.readline()
+        while line:
+            while line and get_MT_from_line(line) != decay_MT:
+                line = f.readline()
+
             if not line:
                 break
 
-            MT = get_MT_from_line(line)
-            while MT != decay_MT:
-                line = f.readline()
-                if not line:
-                    return radionucs
-                
-                MT = get_MT_from_line(line)
-
             # Parse nuclide KZA
-            za = int(eaf_float(line[0:11]) + 0.1)
+            za = int(eaf_float(line[:11]))
             M = int(line[33:44].strip())
             kza = za * 10 + M
 
             # Read half-life
             line = f.readline()
-            thalf = eaf_float(line[0:11])
+            thalf = eaf_float(line[:11])
             if thalf > 0:
                 radionucs[kza] = thalf
 
             # Ignore other nuclide decay data -- skip to next nuclide
-            while True:
-                pos = f.tell()
+            while line and get_MT_from_line(line) == decay_MT:
                 line = f.readline()
-                if not line:
-                    break
-
-                if get_MT_from_line(line) != 457:
-                    f.seek(pos)
-                    break
 
     return radionucs
