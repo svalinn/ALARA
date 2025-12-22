@@ -20,6 +20,9 @@ def args():
         '--decay_lib', '-d', required=True, nargs=1
     )
     parser.add_argument(
+        '--isomer_to_ground', '-i', action='store_false'
+    )
+    parser.add_argument(
         '--amalgamate', '-a', action='store_true'
     )
     parser.add_argument(
@@ -142,7 +145,7 @@ def gas_handling(gas_method, all_rxns):
         return remove_gas_daughters(all_rxns, gas_tuples)
 
     elif gas_method == 's':
-         return subtract_gas_from_totals(all_rxns, gas_tuples)
+        return subtract_gas_from_totals(all_rxns, gas_tuples)
     
     else:
         raise ValueError(
@@ -300,7 +303,8 @@ def main():
 
             if MTs and endftk_file_obj:
                 all_rxns = tp.iterate_MTs(
-                    MTs, endftk_file_obj, mt_dict, pKZA, all_rxns, radionucs
+                    MTs, endftk_file_obj, mt_dict, pKZA,
+                    all_rxns, radionucs, args().isomer_to_ground
                 )
                 print(f'Finished processing {element}{A}')
 
