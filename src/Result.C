@@ -503,7 +503,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   coolList->writeSeparator();
 
   /* write the formatted output for the total response */
-  cout << "total\t None            ";
+  cout << "total   None        ";
   
   for (resNum=0;resNum<nResults;resNum++)
     {

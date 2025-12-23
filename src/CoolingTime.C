@@ -136,7 +136,7 @@ void CoolingTime::writeHeader()
   CoolingTime *ptr = this;
   char textBuf[16];
 
-  cout << "isotope  t_½(s)     shutdown   ";
+  cout << "isotope  t_1/2(s)   shutdown   ";
 
   while (ptr->next != NULL)
     {
