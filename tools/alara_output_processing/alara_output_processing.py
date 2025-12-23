@@ -2,7 +2,7 @@ import pandas as pd
 import argparse
 from warnings import warn
 from csv import DictReader
-from numpy import array, nan
+from numpy import array
 
 # ---------- General Utility Methods ----------
 
