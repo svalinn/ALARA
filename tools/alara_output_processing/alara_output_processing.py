@@ -169,6 +169,28 @@ class FileParser:
         return line.startswith('total')
 
     # ---------- Core Parsing Logic ----------
+
+    @staticmethod
+    def _try_float(thalf):
+        '''
+        Convert a numeric half-life value to a float. For stable nuclides or
+            the "total" row, leave "half-life" value as is.
+
+        Arguments:
+            thalf (str): Half-life value for unstable nuclides, "stable" for
+                stable nuclides, "None" for "total" row.
+
+        Returns:
+            thalf (float or str): Converted half-life value for numeric
+                strings.
+        '''
+
+        try:
+            return float(thalf)
+
+        except ValueError:
+            return thalf
+
     def _parse_table_data(
             self,
             current_table_lines,
@@ -197,6 +219,7 @@ class FileParser:
                     'time' : Cooling time of data entry,
                     'time_unit' : Units for cooling times,
                     'nuclide' : Individual nuclide,
+                    'half_life' : Half-life of unstable nuclides or "stable" 
                     'run_lbl' : Distinguisher between runs,
                     'block' : ALARADFrame block integer enumerator,
                     'block_num' : Geometric position of block,
@@ -211,7 +234,8 @@ class FileParser:
 
         raw_cols = header_line.split()
         nuclide_col = raw_cols[0]
-        times_w_units = raw_cols[1:]
+        thalf_col = raw_cols[1]
+        times_w_units = raw_cols[2:]
         converted_times = extract_time_vals(
             times_w_units, to_unit=self.time_unit
         )
@@ -221,27 +245,26 @@ class FileParser:
         
         reader = DictReader(
             [' '.join(line.split()) for line in data_lines],
-            fieldnames=([nuclide_col] + [str(t) for t in converted_times]),
+            fieldnames=(
+                [nuclide_col, thalf_col] + [str(t) for t in converted_times]
+            ),
             delimiter=' ',
             skipinitialspace=True
         )
 
-        return [
-            {
-                'time'          :                                    time,
-                'time_unit'     :                          self.time_unit,
-                'nuclide'       :                        row[nuclide_col],
-                'run_lbl'       :                            self.run_lbl,
-                'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
-                'block_name'    :                              block_name,
-                'block_num'     :            int(block_num.split(':')[0]),
-                'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
-                'var_unit'      :                      unit.split(']')[0],
-                'value'         :                   float(row[str(time)])
-            }
-            for row in reader
-            for time in converted_times
-        ]
+        return [{
+            'time'          :                                    time,
+            'time_unit'     :                          self.time_unit,
+            'nuclide'       :                        row[nuclide_col],
+            'half_life'     :         self._try_float(row[thalf_col]),
+            'run_lbl'       :                            self.run_lbl,
+            'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
+            'block_name'    :                              block_name,
+            'block_num'     :            int(block_num.split(':')[0]),
+            'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
+            'var_unit'      :                      unit.split(']')[0],
+            'value'         :                   float(row[str(time)])
+        } for row in reader for time in converted_times]
 
     def extract_tables(self):
         '''
