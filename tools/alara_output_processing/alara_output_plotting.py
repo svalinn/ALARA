@@ -103,16 +103,13 @@ def build_color_map(cmap_name, all_nucs=[], pivs=None):
     cmap = plt.cm.get_cmap(cmap_name)
     
     # Check for "empty" all_nucs compatable with any 1D array-like objs
-    if np.array(all_nucs).size == 0:
-        if pivs:
-            all_nucs = set()
-            for piv in pivs:
-                all_nucs.update(piv.index)
-        
-        else:
-            raise ValueError(
-                'Must input either all_nucs or pivs.'
-            )
+    all_nucs = set(all_nucs)
+    if len(all_nucs) == 0:
+        for piv in pivs:
+            all_nucs.update(piv.index)
+
+    if len(all_nucs) == 0:
+        raise ValueError('Must input either all_nucs or pivs.')
 
     color_map = {
         lbl: cmap(i % cmap.N) for i, lbl in enumerate(sorted(all_nucs))
@@ -366,24 +363,6 @@ def add_pie(ax, time_slice, color_map, threshold):
     )
 
     return wedges
-
-def open_with_new_manager(fig):
-    '''
-    Create a new manager for a Matplotlib Figure object to allow for it to
-        "reopen" it and allow for it to be shown through plt.show() after
-        having been closed.
-
-    Arguments:
-        fig (matplotlib.figure.Figure): Closed Matplotlib Figure object.
-    
-    Returns:
-        None
-    '''
-
-    foo = plt.figure()
-    new_manager = foo.canvas.manager
-    new_manager.canvas.figure = fig
-    fig.set_canvas(new_manager.canvas)
 
 # ----- Plotting Functions ------
 
