@@ -283,11 +283,12 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs):
         # accumulate its cross-sections to the ground-state residual (n,n)
         # reaction's cross-sections
         else:
-            nn_MT = 4 # MT = 4 for (n,n) reaction with ground-state residual
+            nn_MT = -4 # Negative parallel to MT=4 for standard (n,n) reaction
             if nn_MT not in all_rxns[pKZA][pKZA]:
-                all_rxns[pKZA][pKZA][nn_MT]['xsections'] = np.zeros(
-                    VITAMIN_J_ENERGY_GROUPS
-                )
+                all_rxns[pKZA][pKZA][nn_MT] = {
+                    'emitted'   : 'n',
+                    'xsections' : np.zeros(VITAMIN_J_ENERGY_GROUPS)
+                }
             
             all_rxns[pKZA][pKZA][nn_MT]['xsections'] += np.pad(
                 sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
