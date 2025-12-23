@@ -592,7 +592,11 @@ def multi_time_pie_grid(
     threshold=0.05,
     time_unit='s',
     ncols=2,
-    cmap_name='Dark2'
+    cmap_name='Dark2',
+    individual_pie_dimension = 5.0, # equal width/height
+    horizontal_buffer = 3.0,
+    vertical_buffer = 0.7
+
 ):
     '''
     Create a grid of pie charts for a single ALARA response variable from a
@@ -623,6 +627,15 @@ def multi_time_pie_grid(
             the plots. Reference guide for Matplotlib Colormaps can be found
             at matplotlib.org/stable/gallery/color/colormap_reference.html
             (Defaults to "Dark2")
+        individual_pie_dimension (float, optional): Optional parameter to set
+            the width/height of each pie chart in grid.
+            (Defaults to 5.0)
+        horizontal_buffer (float, optional): Optional parameter to set a
+            buffer between each pie chart in a row.
+            (Defaults to 3.0)
+        vertical_buffer (float, optional): Optional parameter to set a buffer
+            between each pie chart in a column (as well as the legend/table).
+            (Defaults to 0.7)
 
     Returns:
         fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
@@ -636,7 +649,10 @@ def multi_time_pie_grid(
     times = sorted(agg['time'].unique())
     N = len(times)
     nrows = int(np.ceil(N / ncols))
-    fig = plt.figure(figsize=(5 * ncols + 3, 5 * (nrows + 0.7)))
+    fig = plt.figure(figsize=(
+        individual_pie_dimension * ncols + horizontal_buffer,
+        individual_pie_dimension * (nrows + vertical_buffer)
+    ))
 
     # Create table gridspec
     left = 0.05
