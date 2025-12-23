@@ -6,6 +6,7 @@ Contained within `ALARA/tools` is the Python package, `alara_output_processing`,
 - Standard Python libraries
     * [ArgParse](https://docs.python.org/3/library/argparse.html)
     * [CSV](https://docs.python.org/3/library/csv.html)
+    * [Operator](https://docs.python.org/3/library/operator.html)
     * [Warnings](https://docs.python.org/3/library/warnings.html)
 - Generic Python packages
     * [NumPy](https://numpy.org/install/)
@@ -91,7 +92,9 @@ filtered_adf = adf.filter_rows(
 ```
 The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive.
 
-**Note:** When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`. It is also possible to filter by a combination of whole elements and individual nuclides.
+When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`. It is also possible to filter by a combination of whole elements and individual nuclides.
+
+Additional filtering can be done on the stability of nuclides. To filter all stable nuclides, write `filter_dict["half_lives] = "stable"`. To filter all unstable nuclides, write `filter_dict["half_lives] = "unstable"` or `filter_dict["half_lives] = "radioactive". ` Half-life filtering can also be done relative to certain time thresholds, such as filtering all nuclides with half-lives greater than 1e6 seconds. To do so write `filter_dict["half_lives] = ['>', 1e6]`. Generally, the format for this time-operator filtering is `filter_dict["half_lives] = [{operator}, {threshold}]`. 
 
 Below is an example filtering operation on the same `adf` from the above example:
 ```
