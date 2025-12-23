@@ -219,7 +219,7 @@ class FileParser:
                     'time' : Cooling time of data entry,
                     'time_unit' : Units for cooling times,
                     'nuclide' : Individual nuclide,
-                    'half_life' : Half-life of unstable nuclides or "stable" 
+                    'half_life' : Half-life of unstable nuclides or "stable",
                     'run_lbl' : Distinguisher between runs,
                     'block' : ALARADFrame block integer enumerator,
                     'block_num' : Geometric position of block,
