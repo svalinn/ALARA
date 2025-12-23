@@ -197,7 +197,7 @@ class FileParser:
                     'time' : Cooling time of data entry,
                     'time_unit' : Units for cooling times,
                     'nuclide' : Individual nuclide,
-                    'half-life' : Half-life of unstable nuclides or "stable" 
+                    'half_life' : Half-life of unstable nuclides or "stable" 
                     'run_lbl' : Distinguisher between runs,
                     'block' : ALARADFrame block integer enumerator,
                     'block_num' : Geometric position of block,
@@ -234,7 +234,7 @@ class FileParser:
             'time'          :                                    time,
             'time_unit'     :                          self.time_unit,
             'nuclide'       :                        row[nuclide_col],
-            'half-life'     :                          row[thalf_col],
+            'half_life'     :                          row[thalf_col],
             'run_lbl'       :                            self.run_lbl,
             'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
             'block_name'    :                              block_name,
