@@ -169,6 +169,28 @@ class FileParser:
         return line.startswith('total')
 
     # ---------- Core Parsing Logic ----------
+
+    @staticmethod
+    def _try_float(thalf):
+        '''
+        Convert a numeric half-life value to a float. For stable nuclides or
+            the "total" row, leave "half-life" value as is.
+
+        Arguments:
+            thalf (str): Half-life value for unstable nuclides, "stable" for
+                stable nuclides, "None" for "total" row.
+
+        Returns:
+            thalf (float or str): Converted half-life value for numeric
+                strings.
+        '''
+
+        try:
+            return float(thalf)
+
+        except ValueError:
+            return thalf
+
     def _parse_table_data(
             self,
             current_table_lines,
@@ -234,7 +256,7 @@ class FileParser:
             'time'          :                                    time,
             'time_unit'     :                          self.time_unit,
             'nuclide'       :                        row[nuclide_col],
-            'half_life'     :                          row[thalf_col],
+            'half_life'     :         self._try_float(row[thalf_col]),
             'run_lbl'       :                            self.run_lbl,
             'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
             'block_name'    :                              block_name,
