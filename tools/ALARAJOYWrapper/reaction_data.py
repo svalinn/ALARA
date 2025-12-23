@@ -230,10 +230,103 @@ def process_mt_data(mt_dict):
         if change_NP is not None:
             change_N, change_P = change_NP
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
-            data['high_m'] = (M > 9)
+            data['isomer'] = M
             data['gas'] = gas
             data['emitted'] = emitted_particles
         else:
             del mt_dict[MT]
 
     return mt_dict
+
+def eaf_float(num_str):
+    """
+    Process non-uniformly formatted scientific notation numbers from parsed
+        EAF data to standard floating point numbers.
+    
+    Arguments:
+        num_str (str): Number from an EAF file with non-uniform formatting.
+
+    Returns:
+        num (float): Reformatted number to be able to be properly converted to
+            a float.
+    """
+
+    num_str = num_str.strip()
+    if not num_str:
+        return 0.0
+
+    num_str = num_str.replace(' ', '')
+    if 'E' in num_str or 'e' in num_str:
+        return float(num_str)
+
+    exp_idx = max(num_str.rfind('+'), num_str.rfind('-'))
+    if exp_idx > 0:
+        return float(num_str[:exp_idx] + 'E' + num_str[exp_idx:])
+
+    return float(num_str)
+
+def get_MT_from_line(line):
+    """
+    Extract the MT number from a given line of an EAF file, based on a set
+        line formatting.
+
+    Arguments:
+        line (str): Text of a single line from an EAF file.
+
+    Returns:
+        MT (int): MT reaction number of that line.
+    """
+    
+    return int(line[72:75])
+
+def find_eaf_radionuclides(eaf_path):
+    """
+    Parse through an EAF file to build a dictionary keyed by radionuclides
+        with their respective half-lives as the values. Modeled after the
+        file parsing methods in ALARA/src/DataLib/EAFLib.C.
+
+    Arguments:
+        eaf_path (pathlib._local.PosixPath): Filepath to an EAF decay library.
+
+    Returns:
+        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
+    """
+
+    radionucs = {}
+    decay_MT = 457
+    
+    with open(eaf_path, 'r') as f:
+        
+        # Read header and skip introductory comment lines
+        first_line = f.readline().strip()
+        n_comment_lines = int(first_line.split()[0])
+        for _ in range(n_comment_lines):
+            f.readline()
+
+        _in_decay_block = False
+        line = f.readline()
+        while line:
+            MT = get_MT_from_line(line)
+
+            if not _in_decay_block and MT == decay_MT:
+                _in_decay_block = True
+
+                # Parse nuclide KZA
+                za = int(eaf_float(line[:11]))
+                M = int(line[33:44].strip())
+                kza = za * 10 + M
+
+                # Read half-life (next line)
+                line = f.readline()
+                thalf = eaf_float(line[:11])
+                if thalf > 0:
+                    radionucs[kza] = thalf
+
+            elif MT != decay_MT:
+                _in_decay_block = False
+
+            # Advance to next line
+            line = f.readline()
+
+    return radionucs
