@@ -1,20 +1,13 @@
 import pandas as pd
 import argparse
-import operator
+from operator import gt, lt
 from warnings import warn
 from csv import DictReader
 from numpy import array
 
 # ---------- General Utility Methods ----------
 
-OPS = {
-    '>'  : operator.gt,
-    '<'  : operator.lt,
-    '>=' : operator.ge,
-    '<=' : operator.le,
-    '==' : operator.eq,
-    '!=' : operator.ne
-}
+OPS = { '>' : gt, '<' : lt }
 
 SECONDS_CONV = {'s': 1}
 SECONDS_CONV['m'] = 60  * SECONDS_CONV['s']
@@ -390,9 +383,9 @@ class ALARADFrame(pd.DataFrame):
         
         Returns:
             select_radionucs (bool): True if the 0th element of 
-                filter_dict["half_life"] = "radioactive", "unstable", or any
-                of the Python mathematical operators (">", "<", ">=", "<=",
-                "==", "!="), otherwise False.
+                filter_dict["half_life"] = "radioactive", "unstable", or
+                either of the Python less than/greater than operators (">",
+                "<"), otherwise False.
         '''
 
         return filters[0] in {'radioactive', 'unstable'} | set(OPS)
@@ -409,7 +402,7 @@ class ALARADFrame(pd.DataFrame):
             expression (array-like): Array-like collection of a partial
                 mathematical expression of the form:
                     expression[0] (str): String of a Python-formatted
-                    mathematical operator (">", "<", ">=", "<=", "==", "!=").
+                    less than/greater than operator (">", "<").
                     expression[1] (int or float): threshold comparison value.
                 Together, the expression would be of the form ['>', 1e6].
             half_lives (set): Set of all numeric half-lives in the ALARADFrame
@@ -436,10 +429,7 @@ class ALARADFrame(pd.DataFrame):
                 (i.e. excluding "stable" for stable nuclides).
         '''
 
-        half_lives =  set(self.loc[
-            self['half_life'].apply(lambda x: isinstance(x, float)),
-            'half_life'
-        ])
+        half_lives = set(self.loc[self['half_life'] > 0, 'half_life'])
 
         # If filtered_dict contains half-life threshold operations,
         # find the subset of half-lives matching the conditions
@@ -492,8 +482,12 @@ class ALARADFrame(pd.DataFrame):
 
                 filters = nuclides
 
-            if col_name == 'half_life' and self._select_radionucs(filters):
-                filters = filtered_adf._get_half_lives(filters)
+            if col_name == 'half_life':
+                if self._select_radionucs(filters):
+                    filters = filtered_adf._get_half_lives(filters)
+                
+                elif filters[0] == 'stable':
+                    filters[0] = -1
 
             filtered_adf = filtered_adf[filtered_adf[col_name].isin(filters)]
 
