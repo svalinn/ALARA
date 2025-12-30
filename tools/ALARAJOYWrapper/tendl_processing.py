@@ -256,6 +256,7 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs):
     for MT in MTs:
         rxn = mt_dict[MT]
         sigmas = extract_cross_sections(file_obj, MT)
+        sigmas = np.pad(sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas)))
         gas = rxn['gas']
 
         # Daughter calculated either as an emitted gas nucleus or
@@ -274,9 +275,7 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs):
         ):
             all_rxns[pKZA][dKZA][MT] = {
                 'emitted'    :  rxn['emitted'],
-                'xsections'  :  np.pad(
-                    sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
-                )
+                'xsections'  :  sigmas
             }
 
         # If an (n,n) reaction produces an isomer lacking decay data,
@@ -286,12 +285,10 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs):
             nn_MT = -4 # Negative parallel to MT=4 for standard (n,n) reaction
             if nn_MT not in all_rxns[pKZA][pKZA]:
                 all_rxns[pKZA][pKZA][nn_MT] = {
-                    'emitted'   : 'n',
+                    'emitted'   : 'n*', # n-emission with excited residual
                     'xsections' : np.zeros(VITAMIN_J_ENERGY_GROUPS)
                 }
             
-            all_rxns[pKZA][pKZA][nn_MT]['xsections'] += np.pad(
-                sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
-            )
+            all_rxns[pKZA][pKZA][nn_MT]['xsections'] += sigmas
 
     return all_rxns
