@@ -133,7 +133,10 @@ public:
   /// metricMult by interpretation of the second argument.
   static void setNorm(double,int,int);
 
-  int getCooltimeMode() const;
+  static int getCooltimeMode() 
+    {
+    return cooltimeMode;
+    }
 
   /// This function is used to set outReminderStr so that each table
   /// makes it clear what is being written.  Corresponding function to query
