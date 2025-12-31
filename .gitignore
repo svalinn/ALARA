@@ -9,5 +9,8 @@ depcomp
 install-sh
 missing
 
+#python
+*.pyc
+
 bld/*
 build/*

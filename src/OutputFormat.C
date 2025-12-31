@@ -85,7 +85,6 @@ OutputFormat::~OutputFormat()
   delete gammaSrc;
   delete contactDose;
   delete next;
-  next = NULL;
   
 }
 
@@ -110,6 +109,11 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
   normUnits = new char[strlen(o.normUnits)+1];
   strcpy(normUnits,o.normUnits);
   normType = o.normType;
+
+  delete cooltimeUnits;
+  cooltimeUnits = new char[strlen(o.cooltimeUnits)+1];
+  strcpy(cooltimeUnits,o.cooltimeUnits);
+  cooltimeType = o.cooltimeType;
 
   return *this;
 }
@@ -368,11 +372,11 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case(OUTFMT_ACT):
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->actUnits,ptr->normUnits);
+			ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
+			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits);
                 bool integrate_energy;
                 if(ptr->outTypes & OUTFMT_INT_ENG){
                   integrate_energy = true;
@@ -426,15 +430,15 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case OUTRES_INT:
 		volList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-			       coolList,targetKza,ptr->normType);
+			       coolList,targetKza,ptr->normType, ptr);
 		break;
 	      case OUTRES_ZONE:
 		loadList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-				coolList,targetKza,ptr->normType);
+				coolList,targetKza,ptr->normType, ptr);
 		break;
 	      case OUTRES_MIX:
 		mixList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-			       coolList,targetKza,ptr->normType);
+			       coolList,targetKza,ptr->normType, ptr);
 		break;
 	      }
 
@@ -466,15 +470,15 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		{
 		case OUTRES_INT:
 		  volList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza,ptr->normType);
+				 coolList,targetKza,ptr->normType,ptr);
 		  break;
 		case OUTRES_ZONE:
 		  loadList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				  coolList,targetKza,ptr->normType);
+				  coolList,targetKza,ptr->normType,ptr);
 		  break;
 		case OUTRES_MIX:
 		  mixList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza,ptr->normType);
+				 coolList,targetKza,ptr->normType,ptr);
 		  break;
 		}
 	      

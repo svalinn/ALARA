@@ -134,12 +134,12 @@ int CoolingTime::makeCoolingTimes(double *& coolingTimes)
     result, and then a column for each after-shutdown cooling time. */
 void CoolingTime::writeHeader(int cooltime_units)
 {
-  CoolingTime *ptr = this;
-  char textBuf[16];
+    CoolingTime *ptr = this;
+    char textBuf[32];
 
-  cout << "isotope\t shutdown   ";
+  cout << "isotope  t_1/2(s)   shutdown   ";
 
-  while (ptr->next != NULL)
+    while (ptr->next != NULL)
     {
       ptr = ptr->next;
       if (cooltime_units == COOLTIME_S) // print cooling time converted to seconds
@@ -154,25 +154,37 @@ void CoolingTime::writeHeader(int cooltime_units)
       
       cout << textBuf;
     }
-  cout << endl;
-  writeSeparator();
+
+    cout << endl;
+    writeSeparator();
 }
 
-void CoolingTime::getCoolTimesStrings(std::vector<std::string>& coolTimesList)
+void CoolingTime::getCoolTimesStrings(std::vector<std::string>& coolTimesList, const OutputFormat* outFmt)
 {
-  coolTimesList.push_back("shutdown");
-  
-  CoolingTime *ptr = this;
-  char textBuf[16];
+    coolTimesList.push_back("shutdown");
 
-  while (ptr->next != NULL)
+    CoolingTime *ptr = this;
+    char textBuf[32]; 
+
+    while (ptr->next != NULL)
     {
-      ptr = ptr->next;
-      sprintf(textBuf,"%7g %c   ",ptr->coolingTime, ptr->units);
-      coolTimesList.push_back(textBuf);
+        ptr = ptr->next;
+
+        double timeVal = ptr->coolingTime;
+        char unitChar = ptr->units;
+
+        // Convert to seconds if requested
+        if (outFmt && outFmt->cooltimeType == COOLTIME_S)
+        {
+            timeVal = convertTime(ptr->coolingTime, ptr->units);
+            unitChar = 's';
+        }
+
+        sprintf(textBuf, "%7g %c   ", timeVal, unitChar);
+        coolTimesList.push_back(textBuf);
     }
-  
-  return;
+
+    return;
 }
 
 /** There is a  column indicating the counter for the total in question,
@@ -180,15 +192,15 @@ void CoolingTime::getCoolTimesStrings(std::vector<std::string>& coolTimesList)
     after-shutdown cooling times. */
 void CoolingTime::writeTotalHeader(const char* type, int cooltime_units)
 {
-  CoolingTime *ptr = this;
-  char textBuf[16];
+    CoolingTime *ptr = this;
+    char textBuf[32]; // slightly bigger buffer for "s"
 
-  cout << type;
-  if (strlen(type)<8)
-    cout << "\t";
-  cout << " shutdown   ";
+    cout << type;
+    if (strlen(type) < 8)
+        cout << "\t";
+    cout << " shutdown   ";
 
-  while (ptr->next != NULL)
+    while (ptr->next != NULL)
     {
       ptr = ptr->next;
       if (cooltime_units == COOLTIME_S) // print cooling time converted to seconds
@@ -203,8 +215,9 @@ void CoolingTime::writeTotalHeader(const char* type, int cooltime_units)
       
       cout << textBuf;
     }
-  cout << endl;
-  writeSeparator();
+
+    cout << endl;
+    writeSeparator();
 }
 
 void CoolingTime::writeSeparator()
@@ -214,11 +227,11 @@ void CoolingTime::writeSeparator()
   cout << "========";
 
   /* shutdown */
-  cout << "============";
+  cout << "=============";
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      cout << "============";
+      cout << "==============";
     }
   cout << endl;
 }
