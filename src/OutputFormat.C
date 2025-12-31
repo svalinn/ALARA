@@ -188,13 +188,22 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	      break;
 	    }
 
-      delete[] next->cooltimeUnits;
 	  input >> token;
-	  next->cooltimeUnits = new char[strlen(token)+1];
-	  strcpy((next->cooltimeUnits)+1,token);	
-	  next->cooltimeType = (tolower(token[0]) == 's'?COOLTIME_S:1);
 
-	  break;
+	  switch (tolower(token[0])) 
+	  	{
+		case 's':
+			next->cooltimeType = COOLTIME_S;
+			break;
+		case 'def':
+			next->cooltimeType = COOLTIME_DEF;
+			break;
+		default:
+			next->cooltimeType = COOLTIME_DEF;
+			break;
+	  	}
+	  break;	
+
 	case OUTFMT_WDR:
           next->outTypes |= 1<<type;
 	  input >> token;
@@ -310,12 +319,12 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case (OUTFMT_ACT):
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->actUnits,ptr->normUnits);
+			ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 				/* deliver gamma src filename, */
-			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits); 
+			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits); 
 		break;
 	      case (OUTFMT_CDOSE) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],

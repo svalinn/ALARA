@@ -12,7 +12,7 @@
 
 #include "CoolingTime.h"
 #include "Input_def.h"
-#include "OutputFormat.h"
+#include "Output_def.h"
 
 /***************************
  ********* Service *********
@@ -132,7 +132,7 @@ int CoolingTime::makeCoolingTimes(double *& coolingTimes)
 
 /** There is a column for the isotope, a column for the @shutdown
     result, and then a column for each after-shutdown cooling time. */
-void CoolingTime::writeHeader(const OutputFormat* outFmt)
+void CoolingTime::writeHeader(int cooltime_units)
 {
     CoolingTime *ptr = this;
     char textBuf[32];
@@ -141,20 +141,18 @@ void CoolingTime::writeHeader(const OutputFormat* outFmt)
 
     while (ptr->next != NULL)
     {
-        ptr = ptr->next;
-
-        double timeVal = ptr->coolingTime;
-        char unitChar = ptr->units;
-
-        // Convert to seconds if requested
-        if (outFmt && outFmt->cooltimeType == COOLTIME_S)
-        {
-            timeVal = convertTime(ptr->coolingTime, ptr->units);
-            unitChar = 's';
-        }
-
-        sprintf(textBuf, "%7g %c   ", timeVal, unitChar);
-        cout << textBuf;
+      ptr = ptr->next;
+      if (cooltime_units == COOLTIME_S) // print cooling time converted to seconds
+      {
+        double t_sec = convertTime(ptr->coolingTime, ptr->units);
+        sprintf(textBuf, "%9.3e s ", t_sec);
+      }
+      else  // print cooling time in default units
+      {
+        sprintf(textBuf, "%7g %c   ", ptr->coolingTime, ptr->units);
+      }
+      
+      cout << textBuf;
     }
 
     cout << endl;
@@ -192,7 +190,7 @@ void CoolingTime::getCoolTimesStrings(std::vector<std::string>& coolTimesList, c
 /** There is a  column indicating the counter for the total in question,
     one column for @ shutdown results, and then one column for each of the
     after-shutdown cooling times. */
-void CoolingTime::writeTotalHeader(const char* type, const OutputFormat* outFmt)
+void CoolingTime::writeTotalHeader(const char* type, int cooltime_units)
 {
     CoolingTime *ptr = this;
     char textBuf[32]; // slightly bigger buffer for "s"
@@ -204,20 +202,18 @@ void CoolingTime::writeTotalHeader(const char* type, const OutputFormat* outFmt)
 
     while (ptr->next != NULL)
     {
-        ptr = ptr->next;
-
-        double timeVal = ptr->coolingTime;
-        char unitChar = ptr->units;
-
-        // Convert to seconds if requested
-        if (outFmt && outFmt->cooltimeType == COOLTIME_S)
-        {
-            timeVal = convertTime(ptr->coolingTime, ptr->units);
-            unitChar = 's';
-        }
-
-        sprintf(textBuf, "%7g %c   ", timeVal, unitChar);
-        cout << textBuf;
+      ptr = ptr->next;
+      if (cooltime_units == COOLTIME_S) // print cooling time converted to seconds
+      {
+        double t_sec = convertTime(ptr->coolingTime, ptr->units);
+        sprintf(textBuf, "%9.3e s ", t_sec);
+      }
+      else  // print cooling time in default units
+      {
+        sprintf(textBuf, "%7g %c   ", ptr->coolingTime, ptr->units);
+      }
+      
+      cout << textBuf;
     }
 
     cout << endl;
