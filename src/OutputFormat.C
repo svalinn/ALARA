@@ -341,7 +341,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       cout << endl << endl;
       
       /* set units for activity */
-      Result::setNorm(ptr->actMult,ptr->normType);
+      Result::setNorm(ptr->actMult,ptr->normType,ptr->cooltimeType);
 
       /* for each indicated response */
       for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++) {
