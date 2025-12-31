@@ -51,6 +51,10 @@ OutputFormat::OutputFormat(int type)
   strcpy(normUnits,"/cm3");
   normType = 1;
 
+  cooltimeUnits = new char[5];
+  strcpy(cooltimeUnits,"def");
+  cooltimeType = 1;
+
   gammaSrc = NULL;
   contactDose = NULL;
 
@@ -58,7 +62,7 @@ OutputFormat::OutputFormat(int type)
 }
 
 OutputFormat::OutputFormat(const OutputFormat& o) :
-  resolution(o.resolution), outTypes(o.outTypes), normType(o.normType), actMult(o.actMult)
+  resolution(o.resolution), outTypes(o.outTypes), normType(o.normType), actMult(o.actMult), cooltimeType(o.cooltimeType)
 
 {
   actUnits = new char[strlen(o.actUnits)+1];
@@ -67,6 +71,9 @@ OutputFormat::OutputFormat(const OutputFormat& o) :
   normUnits = new char[strlen(o.normUnits)+1];
   strcpy(normUnits,o.normUnits);
 
+  cooltimeUnits = new char[strlen(o.cooltimeUnits)+1];
+  strcpy(cooltimeUnits,o.cooltimeUnits);
+
   next = NULL;
 }
   
@@ -74,6 +81,7 @@ OutputFormat::~OutputFormat()
 {
   delete[] actUnits;
   delete[] normUnits;
+  delete[] cooltimeUnits;
   delete gammaSrc;
   delete contactDose;
   delete next;
@@ -282,7 +290,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       /* units */
       outTypeNum = 0;
       cout << "\t" << Out_Types_Str[outTypeNum] << ": "
-	   << ptr->actUnits << " " << ptr->normUnits << endl;
+	   << ptr->actUnits << " " << ptr->normUnits << " " << ptr->cooltimeUnits << endl;
       /* regular singular responses */
       for (++outTypeNum;outTypeNum<lastSingularResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
@@ -291,12 +299,12 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case (OUTFMT_ACT):
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->actUnits,ptr->normUnits);
+			ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 				/* deliver gamma src filename, */
-			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits); 
+			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits); 
 		break;
 	      case (OUTFMT_CDOSE) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
