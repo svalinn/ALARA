@@ -135,7 +135,7 @@ public:
 
   static int getCooltimeMode() 
     {
-    return cooltimeMode;
+    return cooltime_units;
     }
 
   /// This function is used to set outReminderStr so that each table
