@@ -34,6 +34,7 @@ double Result::actMult = 1;
 double Result::metricMult = 1;
 GammaSrc* Result::gammaSrc = NULL;
 char* Result::outReminderStr = NULL;
+int Result::cooltimeMode = COOLTIME_DEF;
 
 /** When called with no arguments, the default constructor sets 'kza'
     and 'next' to 0 and NULL, respectively.  Otherwise, they are set,
@@ -582,7 +583,13 @@ void Result::readDump()
     }
 }
 
-void Result::setNorm(double passedActMult, int normType)
+int Result::getCooltimeMode() const
+{
+    return cooltime_units;
+}
+
+
+void Result::setNorm(double passedActMult, int normType, int cooltimeType)
 {
 
   actMult = passedActMult;
@@ -596,6 +603,16 @@ void Result::setNorm(double passedActMult, int normType)
     break;
   default:
     metricMult = 1;
+  }
+  switch (cooltimeType) {
+  case COOLTIME_S:
+    cooltime_units = 2;
+    break;
+  case COOLTIME_DEF:
+    cooltime_units = 1;
+    break;
+  default:
+    cooltime_units = 1;
   }
 
 }

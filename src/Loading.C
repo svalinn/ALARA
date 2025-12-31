@@ -470,7 +470,7 @@ void Loading::write(int response, int writeComp, CoolingTime* coolList,
   cout << Result::getReminderStr() << endl;
 
   /* write header for totals */
-  coolList->writeTotalHeader("zone");
+  coolList->writeTotalHeader("zone", Result::getCooltimeMode());
 
   /* for each zone */
   while (ptr->next != NULL)

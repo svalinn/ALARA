@@ -182,7 +182,7 @@ void CoolingTime::writeTotalHeader(const char* type, int cooltime_units)
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      if (cooltime_mode == COOLTIME_S) // print cooling time converted to seconds
+      if (cooltime_units == COOLTIME_S) // print cooling time converted to seconds
       {
         double t_sec = convertTime(ptr->coolingTime, ptr->units);
         sprintf(textBuf, "%9.3e s ", t_sec);

@@ -183,7 +183,22 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	      next->normType = OUTNORM_CM3;
 	      break;
 	    }
+
+	  input >> token;
+
+	  switch (tolower(token[0])) 
+	  	{
+		case 's':
+			next->cooltimeType = COOLTIME_S;
+			break;
+		case 'def':
+			next->cooltimeType = COOLTIME_DEF;
+			break;
+		default:
+		next->cooltimeType = COOLTIME_DEF;;
+	  	}
 	  break;
+	  
 	case OUTFMT_WDR:
           next->outTypes |= 1<<type;
 	  input >> token;

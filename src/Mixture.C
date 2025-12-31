@@ -616,7 +616,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
   cout << Result::getReminderStr() << endl;
 
   /* write header for totals */
-  coolList->writeTotalHeader("mixture");
+  coolList->writeTotalHeader("mixture", Result::getCooltimeMode());
 
   /* for each mixture */
   while (ptr->next != NULL)
