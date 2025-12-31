@@ -61,7 +61,7 @@ protected:
 
   /// This string is used to display cooling time units in the default (def)
   /// units or in seconds (s) in the header of the output tables
-  char *cooltimeUnits
+  char *cooltimeUnits;
 
   /// This stores the multiplication factor for the activity units.  
   /** If necessary (based on actUnits), it will store the conversion
