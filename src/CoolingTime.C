@@ -142,7 +142,16 @@ void CoolingTime::writeHeader()
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      sprintf(textBuf,"%7g %c   ",ptr->coolingTime, ptr->units);
+      if (cooltime_units == COOLTIME_S) // print cooling time converted to seconds
+      {
+        double t_sec = convertTime(ptr->coolingTime, ptr->units);
+        sprintf(textBuf, "%9.3e s ", t_sec);
+      }
+      else  // print cooling time in default units
+      {
+        sprintf(textBuf, "%7g %c   ", ptr->coolingTime, ptr->units);
+      }
+      
       cout << textBuf;
     }
   cout << endl;
