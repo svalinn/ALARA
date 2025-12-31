@@ -50,7 +50,7 @@ public:
   int makeCoolingTimes(double *&);
 
   /// This function writes a header for the standard response table.
-  void writeHeader();
+  void writeHeader(int cooltime_units);
 
   /// This function returns a string containing the nth shutdown time
   void getCoolTimesStrings(std::vector<std::string>&);

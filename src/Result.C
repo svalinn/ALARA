@@ -339,7 +339,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   cout << outReminderStr << endl;;
 
   /* write a standard header for this table */
-  coolList->writeHeader();
+  coolList->writeHeader(Result::getCooltimeMode());
 
   if (response == OUTFMT_SRC)
     {

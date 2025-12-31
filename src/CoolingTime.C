@@ -132,7 +132,7 @@ int CoolingTime::makeCoolingTimes(double *& coolingTimes)
 
 /** There is a column for the isotope, a column for the @shutdown
     result, and then a column for each after-shutdown cooling time. */
-void CoolingTime::writeHeader()
+void CoolingTime::writeHeader(int cooltime_units)
 {
   CoolingTime *ptr = this;
   char textBuf[16];
