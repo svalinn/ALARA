@@ -469,7 +469,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
         sprintf(isoSym, "%-11.4e ", thalf);
         cout << isoSym;
       } else {
-        cout << "stable      ";
+        cout << "-1          ";
       }
  
      for (resNum=0;resNum<nResults;resNum++)
@@ -503,7 +503,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   coolList->writeSeparator();
 
   /* write the formatted output for the total response */
-  cout << "total   None        ";
+  cout << "total   0           ";
   
   for (resNum=0;resNum<nResults;resNum++)
     {
