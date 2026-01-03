@@ -25,6 +25,8 @@
 #include "GammaSrc.h" 
 #include "VolFlux.h"
 
+#include "OutputFormat.h"
+
 /***************************
  ********* Service *********
  **************************/
@@ -470,7 +472,7 @@ void Mixture::tally(Result *volOutputList, double vol)
     what type of normalization is being used, so that the correct
     output information can be given. */
 void Mixture::write(int response, int writeComp, CoolingTime* coolList,
-		    int targetKza, int normType)
+		    int targetKza, int normType, const OutputFormat* outFmt)
 {
   Mixture *head = this;
   Mixture *ptr = head;
@@ -616,7 +618,7 @@ void Mixture::write(int response, int writeComp, CoolingTime* coolList,
   cout << Result::getReminderStr() << endl;
 
   /* write header for totals */
-  coolList->writeTotalHeader("mixture");
+  coolList->writeTotalHeader("mixture", Result::getCooltimeMode());
 
   /* for each mixture */
   while (ptr->next != NULL)

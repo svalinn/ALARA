@@ -51,6 +51,10 @@ OutputFormat::OutputFormat(int type)
   strcpy(normUnits,"/cm3");
   normType = 1;
 
+  cooltimeUnits = new char[5];
+  strcpy(cooltimeUnits,"def");
+  cooltimeType = 1;
+
   gammaSrc = NULL;
   contactDose = NULL;
 
@@ -58,7 +62,7 @@ OutputFormat::OutputFormat(int type)
 }
 
 OutputFormat::OutputFormat(const OutputFormat& o) :
-  resolution(o.resolution), outTypes(o.outTypes), normType(o.normType), actMult(o.actMult)
+  resolution(o.resolution), outTypes(o.outTypes), normType(o.normType), actMult(o.actMult), cooltimeType(o.cooltimeType)
 
 {
   actUnits = new char[strlen(o.actUnits)+1];
@@ -67,6 +71,9 @@ OutputFormat::OutputFormat(const OutputFormat& o) :
   normUnits = new char[strlen(o.normUnits)+1];
   strcpy(normUnits,o.normUnits);
 
+  cooltimeUnits = new char[strlen(o.cooltimeUnits)+1];
+  strcpy(cooltimeUnits,o.cooltimeUnits);
+
   next = NULL;
 }
   
@@ -74,10 +81,10 @@ OutputFormat::~OutputFormat()
 {
   delete[] actUnits;
   delete[] normUnits;
+  delete[] cooltimeUnits;
   delete gammaSrc;
   delete contactDose;
   delete next;
-  next = NULL;
   
 }
 
@@ -102,6 +109,11 @@ OutputFormat& OutputFormat::operator=(const OutputFormat& o)
   normUnits = new char[strlen(o.normUnits)+1];
   strcpy(normUnits,o.normUnits);
   normType = o.normType;
+
+  delete cooltimeUnits;
+  cooltimeUnits = new char[strlen(o.cooltimeUnits)+1];
+  strcpy(cooltimeUnits,o.cooltimeUnits);
+  cooltimeType = o.cooltimeType;
 
   return *this;
 }
@@ -175,7 +187,23 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	      next->normType = OUTNORM_CM3;
 	      break;
 	    }
-	  break;
+
+	  input >> token;
+
+	  switch (tolower(token[0])) 
+	  	{
+		case 's':
+			next->cooltimeType = COOLTIME_S;
+			break;
+		case 'def':
+			next->cooltimeType = COOLTIME_DEF;
+			break;
+		default:
+			next->cooltimeType = COOLTIME_DEF;
+			break;
+	  	}
+	  break;	
+
 	case OUTFMT_WDR:
           next->outTypes |= 1<<type;
 	  input >> token;
@@ -282,7 +310,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       /* units */
       outTypeNum = 0;
       cout << "\t" << Out_Types_Str[outTypeNum] << ": "
-	   << ptr->actUnits << " " << ptr->normUnits << endl;
+	   << ptr->actUnits << " " << ptr->normUnits << " " << ptr->cooltimeUnits << endl;
       /* regular singular responses */
       for (++outTypeNum;outTypeNum<lastSingularResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
@@ -291,12 +319,12 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case (OUTFMT_ACT):
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->actUnits,ptr->normUnits);
+			ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 				/* deliver gamma src filename, */
-			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits); 
+			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits); 
 		break;
 	      case (OUTFMT_CDOSE) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
@@ -333,7 +361,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       cout << endl << endl;
       
       /* set units for activity */
-      Result::setNorm(ptr->actMult,ptr->normType);
+      Result::setNorm(ptr->actMult,ptr->normType,ptr->cooltimeType);
 
       /* for each indicated response */
       for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++) {
@@ -344,11 +372,11 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case(OUTFMT_ACT):
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->actUnits,ptr->normUnits);
+			ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits);
+			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits);
                 bool integrate_energy;
                 if(ptr->outTypes & OUTFMT_INT_ENG){
                   integrate_energy = true;
@@ -402,15 +430,15 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case OUTRES_INT:
 		volList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-			       coolList,targetKza,ptr->normType);
+			       coolList,targetKza,ptr->normType, ptr);
 		break;
 	      case OUTRES_ZONE:
 		loadList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-				coolList,targetKza,ptr->normType);
+				coolList,targetKza,ptr->normType, ptr);
 		break;
 	      case OUTRES_MIX:
 		mixList->write(1<<outTypeNum,ptr->outTypes & OUTFMT_COMP,
-			       coolList,targetKza,ptr->normType);
+			       coolList,targetKza,ptr->normType, ptr);
 		break;
 	      }
 
@@ -442,15 +470,15 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		{
 		case OUTRES_INT:
 		  volList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza,ptr->normType);
+				 coolList,targetKza,ptr->normType,ptr);
 		  break;
 		case OUTRES_ZONE:
 		  loadList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				  coolList,targetKza,ptr->normType);
+				  coolList,targetKza,ptr->normType,ptr);
 		  break;
 		case OUTRES_MIX:
 		  mixList->write(OUTFMT_WDR,ptr->outTypes & OUTFMT_COMP,
-				 coolList,targetKza,ptr->normType);
+				 coolList,targetKza,ptr->normType,ptr);
 		  break;
 		}
 	      

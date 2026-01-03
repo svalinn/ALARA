@@ -2,6 +2,7 @@
 #include "alara.h"
 #include <vector>
 #include <string>
+#include "Output_def.h"
 
 #ifndef COOLINGTIME_H
 #define COOLINGTIME_H
@@ -49,13 +50,13 @@ public:
   int makeCoolingTimes(double *&);
 
   /// This function writes a header for the standard response table.
-  void writeHeader();
+  void writeHeader(int cooltime_units);
 
-  /// This function returns a string containing the nth shutdown time
-  void getCoolTimesStrings(std::vector<std::string>&);
+  /// This function returns a string containing the nth cooling time
+  void getCoolTimesStrings(std::vector<std::string>& coolTimesList, int cooltimeType = COOLTIME_DEF);
 
   /// This function writes a header for the table of totals. 
-  void writeTotalHeader(const char*);
+  void writeTotalHeader(const char*, int cooltime_units);
 
   /// This function writes an appropriately sized separator of
   /// "===...===" to frame the table.
