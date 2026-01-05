@@ -18,6 +18,7 @@
 #include "Node.h"
 
 #include "topScheduleT.h"
+#include "Root.h"
 #include <cmath>
 
 
@@ -314,6 +315,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   char isoSym[15];
   int mode = NuclearData::getMode();
   std::vector<std::string> coolTimesList;
+  double preIrradTotal = 0.0;
   
   /* initialize the total array */
   total = new double[nResults];
@@ -471,6 +473,16 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
       } else {
         cout << "-1          ";
       }
+
+      // Write pre-irradiation Number Density
+      Root* rootPtr = mixPtr->getRootList()->find(ptr->kza);
+      double preIrradND = 0.0;
+      if (rootPtr != NULL) {
+        preIrradND = rootPtr->getPreIrradND(mixPtr);
+      }
+      sprintf(isoSym, "%-11.4e ", preIrradND);
+      cout << isoSym;
+      preIrradTotal += preIrradND;
  
      for (resNum=0;resNum<nResults;resNum++)
 	{
