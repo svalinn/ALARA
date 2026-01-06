@@ -1,13 +1,14 @@
 import pandas as pd
 import argparse
-from operator import gt, lt
+from operator import gt, lt, ge
 from warnings import warn
 from csv import DictReader
 from numpy import array
 
+
 # ---------- General Utility Methods ----------
 
-OPS = { '>' : gt, '<' : lt }
+OPS = { '>' : gt, '<' : lt , '>=' : ge }
 
 SECONDS_CONV = {'s': 1}
 SECONDS_CONV['m'] = 60  * SECONDS_CONV['s']
@@ -56,6 +57,10 @@ def extract_time_vals(cols, to_unit='s'):
     '''
     
     converted_times = []
+
+    if cols[0] == 'pre-irrad':
+        converted_times.append(-1.0)
+        cols = cols[1:]
     
     # If "shutdown" is present in the time columns, it will necessarily be the
     # 0th entry. "Shutdown" is unit-ambivalent at time=0.
@@ -371,6 +376,27 @@ class ALARADFrame(pd.DataFrame):
             'nuclide'
         ])
     
+    def _get_initial_nuclides(self):
+        '''
+        Create a set of all nuclides in initial, pre-irradiated material
+            mixtures in an ALARADFrame to be called within filter_rows().
+
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Specialized ALARA
+                output DataFrame.
+
+        Returns:
+            initial_nucs (set): Set of all nuclides contained in the pre-
+                irradiated material mixture(s).
+        '''
+
+        return set(self.loc[
+            (self['time'] == -1)
+            & (self['value'] > 0)
+            & (self['nuclide'] != 'total'),
+            'nuclide'
+        ])
+    
     @staticmethod
     def _select_radionucs(filters):
         '''
@@ -471,14 +497,29 @@ class ALARADFrame(pd.DataFrame):
             if not isinstance(filters, list):
                 filters = [filters]
 
+            if col_name == 'time' and filters[0] != -1:
+                filters = {
+                    t for t in set(filtered_adf['time']) if OPS['>='](t, 0)
+                }
+
             if col_name == 'nuclide':
                 nuclides = set()
-                for f in filters:
-                    nuclides.update(
-                        filtered_adf._single_element_all_nuclides(f)
-                        if ('-' not in f and f.lower() != 'total')
-                        else [f]
-                    )
+                initial_nucs = filtered_adf._get_initial_nuclides()
+
+                if filters[0] == 'initial':
+                    nuclides.update(initial_nucs)
+
+                elif filters[0] == 'transmuted':
+                    all_nucs = set(filtered_adf['nuclide'])
+                    nuclides.update(all_nucs - initial_nucs - {'total'})
+
+                else:
+                    for f in filters:
+                        nuclides.update(
+                            filtered_adf._single_element_all_nuclides(f)
+                            if ('-' not in f and f.lower() != 'total')
+                            else [f]
+                        )
 
                 filters = nuclides
 

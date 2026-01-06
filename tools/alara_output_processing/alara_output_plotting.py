@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import lines
+from warnings import warn
 import alara_output_processing as aop
 
 # ------- Utility and Helper Functions -------
@@ -13,7 +14,8 @@ def preprocess_data(
     nuclides = None,
     time_unit='s',
     sort_by_time='',
-    head=None
+    pre_irrad=False,
+    head=None,
 ):
     '''
     Prepare an ALARADFrame containing data from multiple runs and potentially
@@ -43,6 +45,8 @@ def preprocess_data(
         sort_by_time (str, optional): Option to sort the ALARADFrame by the
             data in a particular time column.
             (Defaults to '')
+        pre_irrad (bool, optional): Option to include pre-irradiation values.
+            (Defaults to False)
         head (int or None, optional): Option by which to truncate the
             ALARADFrame to a particular number of rows.
             (Defaults to None)
@@ -57,8 +61,12 @@ def preprocess_data(
     '''
 
     filter_dict = {
-        'run_lbl' : run_lbl, 'variable' : adf.VARIABLE_ENUM[variable]
+        'run_lbl'  : run_lbl,
+        'variable' : adf.VARIABLE_ENUM[variable]
     }
+    if not pre_irrad:
+        filter_dict['time'] = 'post_irradiation'
+
     if nuclides:
         filter_dict['nuclide'] = nuclides
     
@@ -218,7 +226,9 @@ def construct_legend(ax, data_comp=False):
         handletextpad=0.5,
     )
 
-def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
+def pie_chart_aggregation(
+        adf, run_lbl, variable, threshold, time_unit, pre_irrad=False
+):
     '''
     Prepare an aggregated ALARADFrame for single or multiple pie chart
         plotting with a user-defined proportional cutoff threshold.
@@ -234,6 +244,8 @@ def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
         time_unit (str, optional): Optional paramter to set units for cooling
             times. Accepted values: 's', 'm', 'h', 'd', 'w', 'y', 'c'.
             (Defaults to 's')
+        pre_irrad (bool, optional): Option to include pre-irradiation values.
+            (Defaults to False)
 
     Returns:
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
@@ -246,6 +258,7 @@ def pie_chart_aggregation(adf, run_lbl, variable, threshold, time_unit):
         run_lbl=run_lbl,
         variable=variable,
         time_unit=time_unit,
+        pre_irrad=pre_irrad
     )
     rel = filtered.calculate_relative_vals()
     agg = aop.aggregate_small_percentages(rel, threshold)
@@ -285,7 +298,10 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
     table = table_ax.table(
         cellText=piv.values,
         rowLabels=[reformat_isotope(nuc) for nuc in piv.index],
-        colLabels=[f'{t} {time_unit}' for t in piv.columns],
+        colLabels=[
+            f'{'Pre-Irradiation'}' if t < 0 else f'{t} {time_unit}'
+            for t in piv.columns
+        ],
         loc='center',
         cellLoc='center'
     )
@@ -352,6 +368,13 @@ def add_pie(ax, time_slice, color_map, threshold):
         wedges (list of matplotlib.patches.Wedge): List of Matplotlib Wedge
             objects corresponding to each wedge in the pie chart.
     '''
+    
+    if time_slice['value'].sum() == 0:
+        warn(
+            'All values for the selected variable at the selected time are ' \
+            '0.\n Unable to produce a pie chart for the given time slice.'
+        )
+        return None
 
     wedges, _ = ax.pie(
         time_slice['value'],
@@ -516,7 +539,8 @@ def single_time_pie_chart(
     threshold,
     time_idx,
     time_unit='s',
-    cmap_name='Dark2'
+    cmap_name='Dark2',
+    pre_irrad=False
 ):
     '''
     Create a pie chart depicting the breakdown of nuclides contributing to a
@@ -537,6 +561,8 @@ def single_time_pie_chart(
             the plots. Reference guide for Matplotlib Colormaps can be found
             at matplotlib.org/stable/gallery/color/colormap_reference.html
             (Defaults to "Dark2")
+        pre_irrad (bool, optional): Option to include pre-irradiation values.
+            (Defaults to False)
     
     Returns:
         fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
@@ -556,9 +582,13 @@ def single_time_pie_chart(
         color_map=color_map,
         threshold=threshold
     )
+    if not wedges:
+        return None
 
     legend_items = []
-    for wedge, nuc, val in zip(wedges, time_slice['nuclide'], time_slice['value']):
+    for wedge, nuc, val in zip(
+        wedges, time_slice['nuclide'], time_slice['value']
+    ):
         if val >= threshold or nuc == 'Other':
             legend_items.append((val, wedge, nuc))
 
@@ -577,9 +607,13 @@ def single_time_pie_chart(
         bbox_to_anchor=(-0.375, 0.75)
     )
 
+    header_time = (
+        ', Pre-Irradiation Values' if pre_irrad and time_idx == 0
+        else f' at {times[time_idx]} {time_unit}'
+    )
     ax.set_title(
-        f'{run_lbl}: Aggregated Proportional Contitributions ' \
-        f'to {variable} at {times[time_idx]} {time_unit}',
+        f'{run_lbl}: Aggregated Proportional Contitributions to ' \
+        f'{variable}{header_time}',
         loc='right'
     )
 
@@ -647,6 +681,9 @@ def multi_time_pie_grid(
     )
 
     times = sorted(agg['time'].unique())
+    if times[0] < 0:
+        times[0] = 'Pre-Irradiation'
+
     N = len(times)
     nrows = int(np.ceil(N / ncols))
     fig = plt.figure(figsize=(
@@ -683,15 +720,20 @@ def multi_time_pie_grid(
         ax = fig.add_subplot(gs[r, c])
         time_slice = agg[agg['time'] == t]
 
-        add_pie(
+        wedges = add_pie(
             ax=ax,
             time_slice=time_slice, 
             color_map=color_map,
             threshold=threshold
         )
-        ax.set_title(
-            f'Time = {t} {time_unit}', fontstyle='italic', fontsize=16
-        )
+        title = f'Time = {t}'
+        title += '' if t == 'Pre-Irradiation' else f' {time_unit}'
+        if not wedges:
+            title += (
+                '\n\n(No available pie chart for this time slice\n.' \
+                'All nuclide contributions are 0 for the selected variable)'
+            )
+        ax.set_title(title, fontstyle='italic', fontsize=16)
         ax.axhline(
             y=1.25,
             xmin=0, xmax=1,
