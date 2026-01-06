@@ -198,6 +198,7 @@ def rxn_to_str(parent, daughter, rxn):
         str(xs) for xs
         in rxn['xsections'][:last_nonzero+1]
     )
+    return dsv_row
 
 def write_dsv(dsv_path, all_rxns):
     """
