@@ -516,6 +516,9 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 
   /* write the formatted output for the total response */
   cout << "total   0           ";
+
+  sprintf(isoSym, "%-11.4e ", preIrradTotal);
+  cout << isoSym;
   
   for (resNum=0;resNum<nResults;resNum++)
     {
