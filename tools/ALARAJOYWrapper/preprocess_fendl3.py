@@ -231,7 +231,7 @@ def write_dsv(dsv_path, all_rxns):
 
     with open(dsv_path, 'w') as dsv:
         dsv.write(str(tp.VITAMIN_J_ENERGY_GROUPS) + '\n')
-        for parent in all_rxns:
+        for parent in sorted(all_rxns):
             for daughter in all_rxns[parent]:
                 for rxn in all_rxns[parent][daughter].values():
                     if rxn['xsections'].sum() > 0:
