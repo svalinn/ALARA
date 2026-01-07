@@ -191,7 +191,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  if (tolower(token[0]) == 's') {
 	    next->cooltimeUnits[0] = 's';
 	  } else {
-	    next->cooltimeUnits = 'def';
+	    next->cooltimeUnits[0] = 'def';
 	  }
 
 	  switch (tolower(token[0])) 
