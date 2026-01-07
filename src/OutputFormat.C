@@ -183,8 +183,16 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	      next->normType = OUTNORM_CM3;
 	      break;
 	    }
-
+	  
+	  delete[] next->cooltimeUnits;
 	  input >> token;
+	  next->cooltimeUnits = new char[strlen(token)+2];
+	  strcpy((next->cooltimeUnits)+1,token);
+	  if (tolower(token[0]) == 's') {
+	    next->cooltimeUnits[0] = 's';
+	  } else {
+	    next->cooltimeUnits = 'def';
+	  }
 
 	  switch (tolower(token[0])) 
 	  	{
