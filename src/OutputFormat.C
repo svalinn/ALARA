@@ -188,11 +188,12 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  input >> token;
 	  next->cooltimeUnits = new char[strlen(token)+2];
 	  strcpy((next->cooltimeUnits)+1,token);
-	  if (tolower(token[0]) == 's') {
-	    next->cooltimeUnits[0] = 's';
-	  } else {
-	    next->cooltimeUnits[0] = 'def';
-	  }
+	  //   if (tolower(token[0]) == 's') {
+	  //     next->cooltimeUnits[0] = ' ';
+	  //   } else {
+	  //     next->cooltimeUnits[0] = ' ';
+	  //   }
+	  next->cooltimeUnits[0] = ' ';
 
 	  switch (tolower(token[0])) 
 	  	{
