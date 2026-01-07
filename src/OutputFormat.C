@@ -192,8 +192,6 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 			next->cooltimeType = COOLTIME_S;
 			break;
 		case 'def':
-			next->cooltimeType = COOLTIME_DEF;
-			break;
 		default:
 			next->cooltimeType = COOLTIME_DEF;
 			break;
