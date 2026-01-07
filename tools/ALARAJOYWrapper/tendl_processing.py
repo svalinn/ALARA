@@ -284,13 +284,15 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # (n,n) reaction's cross-sections or to a new psuedo-daughter of all
         # isomers with undefined decays for that parent
         else:
-            composite_KZA = f'{pKZA // 10}*'
-            special_MT, decay_KZA = (
-                (-4, pKZA) if to_ground else (-1, composite_KZA)
-            )
-
-            if not to_ground and composite_KZA not in all_rxns[pKZA]:
-                all_rxns[pKZA][composite_KZA] = defaultdict(dict)
+            if to_ground:
+                decay_KZA = f'{pKZA // 10}*'
+                special_MT = -1
+                if decay_KZA not in all_rxns[pKZA]:
+                    all_rxns[pKZA][decay_KZA] = defaultdict(dict)
+            
+            else:
+                decay_KZA = pKZA
+                special_MT = -4
 
             if special_MT not in all_rxns[pKZA][decay_KZA]:
                 all_rxns[pKZA][decay_KZA][special_MT] = {
