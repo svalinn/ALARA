@@ -40,13 +40,12 @@ void ALARAJOYLib::loadDSVData()
     while ((inTrans >> row.parentKZA) && row.parentKZA != -1)
     {
         // Extract Daughter KZA, emitted particles, and non-zero groups
-        inTrans >> row.daughterKZA;
-        inTrans >> row.emittedParticles >> row.lastNonZeroGroup;
+        inTrans >> row.daughterKZA >> row.emittedParticles;
 
         /* Iterate through rest of line for cross sections 
            based on non-zero groups*/
-        row.crossSections = std::vector<float>(row.lastNonZeroGroup);
-        for (int i = 0; i < row.lastNonZeroGroup; i++)
+        row.crossSections = std::vector<float>(nGroups);
+        for (int i = 0; i < nGroups; i++)
         {
             inTrans >> row.crossSections[i];
         }
@@ -102,12 +101,6 @@ int ALARAJOYLib::getTransData()
         // Store reaction data
         transKza[rxnNum] = row.daughterKZA;
         strcpy(emitted[rxnNum], row.emittedParticles.c_str());
-
-        // Fill non-zero cross sections
-        std::memcpy(xSection[rxnNum],
-                    row.crossSections.data(), 
-                    row.lastNonZeroGroup * sizeof(float)
-        );
 
         rxnNum++;
         currentRowIndex++;
