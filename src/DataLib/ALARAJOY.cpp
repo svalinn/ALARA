@@ -48,9 +48,7 @@ void ALARAJOYLib::loadDSVData()
         for (int i = 0; i < nGroups; i++)
         {
             inTrans >> row.crossSections[i];
-            std::cout << row.crossSections[i] << " ";
         }
-        std::cout << "\n";
 
         dsvData.push_back(std::move(row));
     }
