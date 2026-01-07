@@ -609,8 +609,6 @@ void Result::setNorm(double passedActMult, int normType, int cooltimeType)
     cooltime_units = 2;
     break;
   case COOLTIME_DEF:
-    cooltime_units = 1;
-    break;
   default:
     cooltime_units = 1;
   }
