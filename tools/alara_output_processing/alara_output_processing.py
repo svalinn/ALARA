@@ -1,10 +1,13 @@
 import pandas as pd
 import argparse
+from operator import gt, lt
 from warnings import warn
 from csv import DictReader
 from numpy import array
 
 # ---------- General Utility Methods ----------
+
+OPS = { '>' : gt, '<' : lt }
 
 SECONDS_CONV = {'s': 1}
 SECONDS_CONV['m'] = 60  * SECONDS_CONV['s']
@@ -169,6 +172,28 @@ class FileParser:
         return line.startswith('total')
 
     # ---------- Core Parsing Logic ----------
+
+    @staticmethod
+    def _try_float(thalf):
+        '''
+        Convert a numeric half-life value to a float. For stable nuclides or
+            the "total" row, leave "half-life" value as is.
+
+        Arguments:
+            thalf (str): Half-life value for unstable nuclides, "stable" for
+                stable nuclides, "None" for "total" row.
+
+        Returns:
+            thalf (float or str): Converted half-life value for numeric
+                strings.
+        '''
+
+        try:
+            return float(thalf)
+
+        except ValueError:
+            return thalf
+
     def _parse_table_data(
             self,
             current_table_lines,
@@ -197,6 +222,7 @@ class FileParser:
                     'time' : Cooling time of data entry,
                     'time_unit' : Units for cooling times,
                     'nuclide' : Individual nuclide,
+                    'half_life' : Half-life of unstable nuclides or "stable",
                     'run_lbl' : Distinguisher between runs,
                     'block' : ALARADFrame block integer enumerator,
                     'block_num' : Geometric position of block,
@@ -211,7 +237,8 @@ class FileParser:
 
         raw_cols = header_line.split()
         nuclide_col = raw_cols[0]
-        times_w_units = raw_cols[1:]
+        thalf_col = raw_cols[1]
+        times_w_units = raw_cols[2:]
         converted_times = extract_time_vals(
             times_w_units, to_unit=self.time_unit
         )
@@ -221,27 +248,26 @@ class FileParser:
         
         reader = DictReader(
             [' '.join(line.split()) for line in data_lines],
-            fieldnames=([nuclide_col] + [str(t) for t in converted_times]),
+            fieldnames=(
+                [nuclide_col, thalf_col] + [str(t) for t in converted_times]
+            ),
             delimiter=' ',
             skipinitialspace=True
         )
 
-        return [
-            {
-                'time'          :                                    time,
-                'time_unit'     :                          self.time_unit,
-                'nuclide'       :                        row[nuclide_col],
-                'run_lbl'       :                            self.run_lbl,
-                'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
-                'block_name'    :                              block_name,
-                'block_num'     :            int(block_num.split(':')[0]),
-                'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
-                'var_unit'      :                      unit.split(']')[0],
-                'value'         :                   float(row[str(time)])
-            }
-            for row in reader
-            for time in converted_times
-        ]
+        return [{
+            'time'          :                                    time,
+            'time_unit'     :                          self.time_unit,
+            'nuclide'       :                        row[nuclide_col],
+            'half_life'     :         self._try_float(row[thalf_col]),
+            'run_lbl'       :                            self.run_lbl,
+            'block'         :      ALARADFrame.BLOCK_ENUM[block_type],
+            'block_name'    :                              block_name,
+            'block_num'     :            int(block_num.split(':')[0]),
+            'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
+            'var_unit'      :                      unit.split(']')[0],
+            'value'         :                   float(row[str(time)])
+        } for row in reader for time in converted_times]
 
     def extract_tables(self):
         '''
@@ -326,7 +352,7 @@ class ALARADFrame(pd.DataFrame):
 
     def _single_element_all_nuclides(self, element):
         '''
-        Create a list of all nuclides of a given element in an ALARADFrame to
+        Create a set of all nuclides of a given element in an ALARADFrame to
             be called within filter_rows().
         
         Arguments:
@@ -336,15 +362,82 @@ class ALARADFrame(pd.DataFrame):
                 self.
 
         Returns:
-            nuclide_list (list): List of all nuclides of the selected element
+            nuclides (set): Set of all nuclides of the selected element
                 present in the ALARADFrame.
         '''
 
-        return self.loc[
+        return set(self.loc[
             self['nuclide'].str.startswith(f'{element.lower()}-', na=False),
             'nuclide'
-        ].unique().tolist()
+        ])
     
+    @staticmethod
+    def _select_radionucs(filters):
+        '''
+        Boolean function to determine whether or not a list of filters in the
+            optional "half_life" key of filter_dicts is seeking unstable
+            nuclides.
+        
+        Arguments:
+            filters (list): List of filters provided for the "half_life" key.
+        
+        Returns:
+            select_radionucs (bool): True if the 0th element of 
+                filter_dict["half_life"] = "radioactive", "unstable", or
+                either of the Python less than/greater than operators (">",
+                "<"), otherwise False.
+        '''
+
+        return filters[0] in {'radioactive', 'unstable'} | set(OPS)
+    
+    @staticmethod
+    def _half_life_numeric_ops(expression, half_lives):
+        '''
+        Create a subset of a pre-existing set of half-lives contained in an
+            ALARADFrame that match the mathematical operation and threshold
+            provided in the partial expression provided (i.e. all half-lives
+            greater than 1e6 seconds)
+
+        Arguments:
+            expression (array-like): Array-like collection of a partial
+                mathematical expression of the form:
+                    expression[0] (str): String of a Python-formatted
+                    less than/greater than operator (">", "<").
+                    expression[1] (int or float): threshold comparison value.
+                Together, the expression would be of the form ['>', 1e6].
+            half_lives (set): Set of all numeric half-lives in the ALARADFrame
+                (i.e. excluding "stable" for stable nuclides).
+
+        Returns:
+            half_lives (set): Subset of the input half_lives that match the
+                expression
+        '''
+
+        op, threshold = expression
+        return {hl for hl in half_lives if OPS[op](hl, threshold)}
+    
+    def _get_half_lives(self, filters):
+        '''
+        Create a set of all numeric half-lives in an ALARADFrame.
+
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Specialized ALARA
+                output DataFrame.
+        
+        Returns:
+            half_lives (set): Set of all numeric half-lives in the ALARADFrame
+                (i.e. excluding "stable" for stable nuclides).
+        '''
+
+        half_lives = set(self.loc[self['half_life'] > 0, 'half_life'])
+
+        # If filtered_dict contains half-life threshold operations,
+        # find the subset of half-lives matching the conditions
+        if filters[0] in OPS and isinstance(filters[1], (int, float)):
+            half_lives &= self._half_life_numeric_ops(filters, half_lives)
+
+        return half_lives
+
     def filter_rows(self, filter_dict):
         '''
         Filter all rows that match user specifications for one or more
@@ -379,15 +472,22 @@ class ALARADFrame(pd.DataFrame):
                 filters = [filters]
 
             if col_name == 'nuclide':
-                nuclides = []
+                nuclides = set()
                 for f in filters:
-                    nuclides.extend(
+                    nuclides.update(
                         filtered_adf._single_element_all_nuclides(f)
                         if ('-' not in f and f.lower() != 'total')
                         else [f]
                     )
 
                 filters = nuclides
+
+            if col_name == 'half_life':
+                if self._select_radionucs(filters):
+                    filters = filtered_adf._get_half_lives(filters)
+                
+                elif filters[0] == 'stable':
+                    filters[0] = -1
 
             filtered_adf = filtered_adf[filtered_adf[col_name].isin(filters)]
 
