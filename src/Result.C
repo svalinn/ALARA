@@ -604,7 +604,8 @@ void Result::setNorm(double passedActMult, int normType, int cooltimeType)
 
   actMult = passedActMult;
 
-  switch (normType) {
+  switch (normType) 
+  {
   case OUTNORM_M3:
     metricMult = 1.0/CM3_M3;
     break;
@@ -612,7 +613,8 @@ void Result::setNorm(double passedActMult, int normType, int cooltimeType)
     metricMult = 1.0/G_KG;
     break;
   default:
-  cooltime_units = cooltimeType;
+    cooltime_units = cooltimeType;
+  }   
 
 }
 
