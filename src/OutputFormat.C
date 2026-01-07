@@ -326,23 +326,23 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 		break;
 	      case (OUTFMT_CDOSE) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->contactDose->getFileName());
+			ptr->contactDose->getFileName(),ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_ADJ) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->adjointDose->getFileName());
+			ptr->adjointDose->getFileName(),ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_EXP) : 
 		sprintf(buffer, Out_Types_Str[outTypeNum],
-			ptr->exposureDose->getFileName());
+			ptr->exposureDose->getFileName(),ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_EXP_CYL_VOL) :
 		sprintf(buffer, Out_Types_Str[outTypeNum],
-			ptr->exposureCylVolDose->getFileName());
+			ptr->exposureCylVolDose->getFileName(),ptr->cooltimeUnits);
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->normUnits);
+			ptr->normUnits,ptr->cooltimeUnits);
 	      }
 	    cout << "\t" << buffer << endl;
 	  }
