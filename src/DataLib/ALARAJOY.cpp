@@ -42,11 +42,6 @@ void ALARAJOYLib::loadDSVData()
         // Extract Daughter KZA, emitted particles, and non-zero groups
         inTrans >> row.daughterKZA >> row.emittedParticles;
 
-        std::cout
-        << row.parentKZA << " "
-        << row.daughterKZA << " "
-        << row.emittedParticles << " ";
-
         /* Iterate through rest of line for cross sections 
            based on non-zero groups*/
         row.crossSections = std::vector<float>(nGroups);
