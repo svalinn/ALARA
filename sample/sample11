@@ -1,5 +1,3 @@
-## NOTE: you should run sample1 before any other samples to ensure
-## that the data is available
 ## This problem defined a multi-level pulse history ph_1, which gets applied in multiple schedule blocks
 
 geometry rectangular

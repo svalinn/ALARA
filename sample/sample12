@@ -1,5 +1,3 @@
-## NOTE: you should run sample1 before any other samples to ensure
-## that the data is available
 ## This problem defines multiple single-level and one multi-level pulse history, which are 
 ## applied in different configurations to the schedule blocks
 
