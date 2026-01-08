@@ -28,6 +28,13 @@ end
 #     flux name    fluxin file   norm   shift   unused
 flux  my_flux       ../examples/ref_flux_files/fluxfnsfIBfw_518MW.txt 1     0      default
 
+schedule top_sched
+    sch_1   once   0 s
+    sch_2   once   0 s
+    sch_3   once   0 s
+    sch_4   once   0 s
+end
+
 schedule    sch_1
     1 c my_flux ph_1 0  s
 end
@@ -39,7 +46,7 @@ end
 schedule    sch_3
     2 y  my_flux ph_3 8 d
     25 w my_flux ph_2 2 d
-    sch_2        ph_3 100 s
+    sch_5        ph_3 100 s
 end    
 
 schedule    sch_4
@@ -48,6 +55,10 @@ schedule    sch_4
     100 s   my_flux ph_3 10 h
     10 d    my_flux ph_4 1 w
 end
+
+schedule    sch_5
+    30 d    my_flux ph_1 0 s
+end    
 
 pulsehistory  ph_1
     1    0.0    s
@@ -62,11 +73,15 @@ pulsehistory ph_3
 end  
 
 pulsehistory  ph_4
-    1    0.0    s
+    1   0.0    s
     5   5.0     m
     10  1.0     d
 end
 
+pulsehistory once
+    1    0.0   s
+end
+
 #other parameters
-truncation 1e-10
-dump_file dump_1w.file
+truncation 1e-5
+dump_file sample12_dump.file
