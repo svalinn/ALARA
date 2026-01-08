@@ -1,5 +1,3 @@
-## NOTE: you should run sample1 before any other samples to ensure
-## that the data is available
 ## This problem runs on a set of regular pulses, which will grow in complexity in sample11 and sample12
 
 geometry rectangular
@@ -27,6 +25,12 @@ end
 #     flux name    fluxin file   norm   shift   unused
 flux  my_flux       ../examples/ref_flux_files/fluxfnsfIBfw_518MW.txt 1     0      default
 
+schedule top_sched
+    sch_1   once   0 s
+    sch_2   once   0 s
+    sch_3   once   0 s
+end
+
 schedule    sch_1
     1 y my_flux ph_1 0  s
 end
@@ -51,6 +55,10 @@ pulsehistory ph_3
     10  1.0     d
 end    
 
+pulsehistory once
+    1    0.0   s
+end
+
 #other parameters
 truncation 1e-10
-dump_file dump_1w.file
+dump_file sample10_dump.file

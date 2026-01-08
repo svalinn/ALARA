@@ -1,0 +1,125 @@
+ALARA 2.9.2
+Schedule 'top_sched':
+	Schedule 'sch_1' with 0 s delay and pulsed with history 'once':
+		pulse: 1 y with 0 s delay pulsed with history ph_1
+	Schedule 'sch_2' with 0 s delay and pulsed with history 'once':
+		pulse: 30 w with 0 s delay pulsed with history ph_2
+	Schedule 'sch_3' with 0 s delay and pulsed with history 'once':
+		pulse: 20 d with 0 s delay pulsed with history ph_3
+Zone output requested:
+	Response Units: Bq /cm3
+	Number Density [atoms/cm3]
+
+
+*** Number Density [atoms/cm3] ***
+
+Zone #1: zone_1
+	Relative Volume: 10
+	Containing mixture: mix_1
+
+Total (All constituents) 
+	COMPACTED
+	Volume Fraction: 1	Relative Volume: 10
+Number Density [atoms/cm3]
+isotope	 shutdown   
+====================
+h-1 	2.0482e+20  
+h-2 	6.4441e+18  
+h-3 	2.0127e+16  
+he-3 	2.4840e+15  
+he-4 	3.7321e+19  
+k-43 	4.1904e-01  
+k-44 	5.6622e+01  
+k-45 	8.9219e+02  
+k-46 	0.0000e+00  
+k-47 	2.9765e-17  
+ca-43 	4.3122e+07  
+ca-44 	2.2606e+09  
+ca-45 	1.7527e+10  
+ca-46 	1.2966e+10  
+ca-47 	4.0833e+09  
+ca-48 	1.0114e+08  
+ca-49 	0.0000e+00  
+sc-45 	3.9156e+10  
+sc-45m	2.6101e-01  
+sc-46 	1.9230e+09  
+sc-46m	1.2938e+03  
+sc-47 	3.6258e+10  
+sc-48 	1.2370e+12  
+sc-49 	6.6599e+06  
+sc-50 	2.1726e+06  
+sc-50m	2.9286e+03  
+ti-46 	1.0068e+11  
+ti-47 	1.3705e+13  
+ti-48 	4.4394e+14  
+ti-49 	2.6227e+14  
+ti-50 	1.2047e+16  
+ti-51 	1.5789e+10  
+ti-52 	4.9693e+00  
+ti-53 	0.0000e+00  
+v-48 	1.6425e+09  
+v-49 	4.8836e+13  
+v-50 	3.0727e+16  
+v-51 	4.5581e+18  
+v-52 	1.5365e+11  
+v-53 	1.6057e+10  
+v-54 	1.4720e+09  
+cr-49 	5.0846e+07  
+cr-50 	2.0425e+16  
+cr-51 	1.1116e+17  
+cr-52 	8.9410e+17  
+cr-53 	3.1514e+19  
+cr-54 	1.8796e+19  
+cr-55 	2.7370e+11  
+cr-56 	2.4986e+06  
+cr-57 	5.7780e+01  
+cr-58 	7.5054e-14  
+mn-51 	3.2771e+06  
+mn-52 	2.4095e+14  
+mn-52m	1.6153e+11  
+mn-53 	3.6375e+19  
+mn-54 	6.7765e+18  
+mn-55 	1.7531e+20  
+mn-56 	9.7012e+15  
+mn-57 	1.6745e+12  
+mn-58 	2.2944e+10  
+mn-58m	4.7357e+08  
+mn-59 	3.7471e+04  
+mn-60 	6.2824e+00  
+fe-53 	1.6544e+12  
+fe-53m	0.0000e+00  
+fe-54 	4.9278e+21  
+fe-55 	1.9097e+20  
+fe-56 	7.7294e+22  
+fe-57 	1.8024e+21  
+fe-58 	2.3718e+20  
+fe-59 	8.3147e+15  
+fe-60 	6.4709e+12  
+fe-61 	2.9149e+03  
+co-56 	1.6007e+07  
+co-57 	1.0223e+11  
+co-58 	8.5652e+13  
+co-58m	2.7427e+11  
+co-59 	2.0769e+17  
+co-60 	2.5218e+14  
+co-60m	2.3143e+09  
+co-61 	8.1713e+06  
+ni-58 	1.6805e+07  
+ni-59 	4.8789e+10  
+ni-60 	5.0404e+13  
+ni-61 	6.2694e+10  
+ni-62 	1.4824e+07  
+====================
+total	8.4975e+22  
+
+Totals for all zones.
+Number Density [atoms/cm3]
+zone	 shutdown   
+====================
+1	8.4975e+22  	zone_1 (mix_1)
+====================
+
+
+
+
+
