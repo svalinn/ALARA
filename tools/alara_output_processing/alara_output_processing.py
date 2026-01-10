@@ -1,13 +1,13 @@
 import pandas as pd
 import argparse
-from operator import gt, lt
+from operator import gt, lt, ge
 from warnings import warn
 from csv import DictReader
 from numpy import array
 
 # ---------- General Utility Methods ----------
 
-OPS = { '>' : gt, '<' : lt }
+OPS = { '>' : gt, '<' : lt , '>=' : ge }
 
 SECONDS_CONV = {'s': 1}
 SECONDS_CONV['m'] = 60  * SECONDS_CONV['s']
@@ -56,6 +56,10 @@ def extract_time_vals(cols, to_unit='s'):
     '''
     
     converted_times = []
+
+    if cols[0] == 'pre-irrad':
+        converted_times.append(-1.0)
+        cols = cols[1:]
     
     # If "shutdown" is present in the time columns, it will necessarily be the
     # 0th entry. "Shutdown" is unit-ambivalent at time=0.
@@ -470,6 +474,11 @@ class ALARADFrame(pd.DataFrame):
             
             if not isinstance(filters, list):
                 filters = [filters]
+
+            if col_name == 'time' and filters[0] != -1:
+                filters = {
+                    t for t in set(filtered_adf['time']) if OPS['>='](t, 0)
+                }
 
             if col_name == 'nuclide':
                 nuclides = set()

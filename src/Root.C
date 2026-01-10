@@ -212,6 +212,21 @@ double Root::mixConc(Mixture *mixPtr)
   return mixList->mixConc(mixPtr);
 }
 
+void Root::setPreIrradND(Mixture* mix, double nd)
+{
+  preIrradND[mix] = nd;
+}
+
+double Root::getPreIrradND(Mixture* mix)
+{
+  std::map<Mixture*, double>::const_iterator iter =
+  preIrradND.find(mix);
+
+  if (iter != preIrradND.end())
+    return iter->second;
+  
+  return 0.0;
+}
 
 /*****************************
  *********** List ************

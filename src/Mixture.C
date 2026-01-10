@@ -391,6 +391,24 @@ void Mixture::makeRootList(Root *&masterRootList)
       /* expand the components into a root list */
       verbose(3,"Expanding mixture %s",ptr->mixName);
       ptr->rootList = ptr->compListHead->expand(ptr);
+
+      // Calculate and store pre-irradiation number densities
+      Root *root = ptr->rootList->getNext();
+      while (root != NULL)
+      {
+        double nd_cm3 = root->mixConc(ptr); // atoms/cm^3
+        double density = ptr->totalDensity; // g/cm^3
+
+        // Calculate number density in atoms/kg
+        double nd_per_kg = 0.0;
+        if (density > 0.0)
+          nd_per_kg = nd_cm3 * 1e3 / density; // atoms/kg
+
+        // Store the pre-irradiation ND in this root
+        root->setPreIrradND(ptr, nd_per_kg);
+        root = root->getNext();
+      }
+
       switch(NuclearData::getMode())
 	{
 	case MODE_FORWARD:

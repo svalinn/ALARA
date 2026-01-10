@@ -72,13 +72,13 @@ Below is the example `head()` of an `ALARADFrame`:
 
 ||time|time_unit|nuclide|half_life|run_lbl|block|block_num|variable| var_unit|value|
 |-|-|-|-|-|-|-|-|-|-|-|
-| 0 | 's' | 0.000000e+00 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 1 | 's' | 3.153600e+02 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 2 | 's' | 3.153600e+05 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 3 | 's' | 3.153600e+07 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 4 | 's' | 3.153600e+09 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 0 | 's' | -1 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 0.000000e+0
+| 1 | 's' | 0.000000e+00 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 2 | 's' | 3.153600e+02 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 3 | 's' | 3.153600e+05 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 4 | 's' | 3.153600e+07 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
 
-The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times.
+The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times. Note that the 0<sup>th</sup> row's time of `-1` corresponds to the pre-irradiation state, and not any singular cooling time, like all positive and zero times do.
 
 Once `adf` is created, `ALARADFrame.filter_rows()` can be called to select data that matches user specifications for one or more columns:
 
@@ -95,14 +95,17 @@ The parameter `filter_dict` allows filtering over any number of columns and any 
 
 When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`. It is also possible to filter by a combination of whole elements and individual nuclides.
 
-Additional filtering can be done on the stability of nuclides. To filter all stable nuclides, write `filter_dict["half_lives] = "stable"` or `filter_dict["half_lives] = -1`. To filter all unstable nuclides, write `filter_dict["half_lives] = "unstable"` or `filter_dict["half_lives] = "radioactive". ` Half-life filtering can also be done relative to certain time thresholds, such as filtering all nuclides with half-lives greater than 1e6 seconds. To do so write `filter_dict["half_lives] = ['>', 1e6]`. Generally, the format for this time-operator filtering is `filter_dict["half_lives] = [{operator}, {threshold}]`. 
+Additional filtering can be done on the stability of nuclides. To filter all stable nuclides, write `filter_dict["half_lives] = "stable"` or `filter_dict["half_lives] = -1`. To filter all unstable nuclides, write `filter_dict["half_lives] = "unstable"` or `filter_dict["half_lives] = "radioactive". ` Half-life filtering can also be done relative to certain time thresholds, such as filtering all nuclides with half-lives greater than 1e6 seconds. To do so write `filter_dict["half_lives] = ['>', 1e6]`. Generally, the format for this time-operator filtering is `filter_dict["half_lives] = [{operator}, {threshold}]`.
+
+To filter pre-irradiation values, which are identified by `adf["time"] == -1` (see above), write `filter_dict["time"] = -1`. Otherwise, to filter post-irradiation cooling times, any other value for `filter_dict["time"]` will be accepted and will remove the pre-irradiation rows. For clarity, `filter_dict["time"] = "post_irradiation"` is recommended.
 
 Below is an example filtering operation on the same `adf` from the above example:
 ```
 fendl2_spec_act_h3 = adf.filter_rows({
     "run_lbl"  : "fendl2",
     "variable" : adf.VARIABLE_ENUM["Specific Activity"],
-    "nuclide"  : "h-3" # Filtering out just tritium
+    "nuclide"  : "h-3" # Filtering out just tritium,
+    "time"     : "post_irradiation"
 })
 ```
 The `head()` of `fendl2_spec_act_h3` is:
