@@ -227,19 +227,20 @@ def combine_daughter_pathways(gas_filtered):
 def rxn_to_str(parent, daughter, rxn):
     """
     Generate the list of strings to be written in a single row of the DSV file.
-    """
-    # since there may be entries that are zero before the end of the cross-section
-    # we get the index of the last nonzero entry
-    last_nonzero = np.nonzero(rxn['xsections'])[-1][-1]
 
-    dsv_row = (
-        f'{parent} {daughter} {rxn['emitted']} ' \
-        f'{last_nonzero} '
-    )
-    dsv_row += ' '.join(
-        str(xs) for xs
-        in rxn['xsections'][:last_nonzero+1]
-    )
+    Arguments:
+        parent (int): KZA of the reaction's parent nuclide.
+        daughter (int): KZA of the reaction's daughter nuclide.
+        rxn (dict): Dictionary for the given reaction containing cross-section
+            and emitted particle data.
+
+    Returns:
+        dsv_row (str): Joined string of all row data for a single reaction.
+    """
+
+    dsv_row = f'{parent} {daughter} {rxn['emitted']} '
+    dsv_row += ' '.join(str(xs) for xs in rxn['xsections'])
+
     return dsv_row
 
 def write_dsv(dsv_path, all_rxns):
