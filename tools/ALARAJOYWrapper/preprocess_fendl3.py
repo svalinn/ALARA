@@ -11,16 +11,58 @@ from collections import defaultdict
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--fendlFileDir', '-f', required=False, nargs=1
+        '--gas_handling', '-g', required=True, nargs=1,
+        help=('''
+            Required argument to set the gas handling method for gas
+                production totals, as calculated by the NJOY GASPR module. The
+                two possible methods are "r" (remove) and "s" (subtract).
+                Method "r" removes all reactions with a light gas daughter
+                (protons through alpha particles), with the exception of total
+                gas production cross-sections corresponding to MT = 203-207
+                reactions (see Appendix B of the ENDF-6 Manual at 
+                ALARA/developer-info/endf6-manual.pdf) when a total gas
+                production cross-section exists. Method "s" subtracts the
+                cross-sections for each energy group of reactions that produce
+                a gas daughter from the total gas production cross-sections
+                instead. In effect, for gas producing reactions, selecting "r"
+                will show only the total gas production cross-sections for
+                each gas, whereas "s" will show each individual gas production
+                pathway with its respective cross-section data.
+        ''')
     )
     parser.add_argument(
-        '--gas_handling', '-g', required=True, nargs=1
+        '--decay_lib', '-d', required=True, nargs=1,
+        help=('''
+            Required argument to direct ALARAJOYWrapper to an EAF decay
+                library necessary for cross-referencing short-lived isomeric
+                daughters against known half-life data.
+        ''')
     )
     parser.add_argument(
-        '--decay_lib', '-d', required=True, nargs=1
+        '--fendlFileDir', '-f', required=False, nargs=1,
+        help=('''
+            Optional argument to direct ALARAJOYWrapper to the directory
+                containing the TENDL files to be processed. If left blank,
+                --fendlFileDir will default to the current working directory.
+        ''')
+              
     )
     parser.add_argument(
-        '--amalgamate', '-a', action='store_true'
+        '--isomer_to_ground', '-i', action='store_false',
+        help=('''
+            Optional argument to amalgamate all isomers lackign decay data to
+                an "Other" daughter with a KZA isomer value of "*", instead of
+                forcing their decay to their respective ground states.
+        ''')
+    )
+    parser.add_argument(
+        '--amalgamate', '-a', action='store_true',
+        help=('''
+            Optional argument to amalgamate all like-daughters of a given
+                parent into a single row of the resultant DSV file file by
+                adding the groupwise cross-section data for all reaction
+                pathways that produce said daughter from each parent.
+        ''')
     )
     parser.add_argument(
         # Temperature for NJOY run [Kelvin]
@@ -142,7 +184,7 @@ def gas_handling(gas_method, all_rxns):
         return remove_gas_daughters(all_rxns, gas_tuples)
 
     elif gas_method == 's':
-         return subtract_gas_from_totals(all_rxns, gas_tuples)
+        return subtract_gas_from_totals(all_rxns, gas_tuples)
     
     else:
         raise ValueError(
@@ -300,7 +342,8 @@ def main():
 
             if MTs and endftk_file_obj:
                 all_rxns = tp.iterate_MTs(
-                    MTs, endftk_file_obj, mt_dict, pKZA, all_rxns, radionucs
+                    MTs, endftk_file_obj, mt_dict, pKZA,
+                    all_rxns, radionucs, args().isomer_to_ground
                 )
                 print(f'Finished processing {element}{A}')
 

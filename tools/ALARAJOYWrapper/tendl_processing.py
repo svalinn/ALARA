@@ -2,6 +2,7 @@
 import ENDFtk
 from pathlib import Path
 from reaction_data import GAS_DF
+from collections import defaultdict
 import warnings
 import numpy as np
 
@@ -216,7 +217,7 @@ def _is_isomer_with_decay_data(dKZA, radionucs, M):
 
     return dKZA in radionucs and M in range(1,10)
 
-def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs):
+def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
     """
     Iterate through all of the MTs present in a given GENDF file to extract
         the necessary data to be able to run ALARA. For isomeric daughters
@@ -279,16 +280,28 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs):
             }
 
         # If an (n,n) reaction produces an isomer lacking decay data,
-        # accumulate its cross-sections to the ground-state residual (n,n)
-        # reaction's cross-sections
+        # accumulate its cross-sections either to the ground-state residual
+        # (n,n) reaction's cross-sections or to a new psuedo-daughter of all
+        # isomers with undefined decays for that parent
         else:
-            nn_MT = -4 # Negative parallel to MT=4 for standard (n,n) reaction
-            if nn_MT not in all_rxns[pKZA][pKZA]:
-                all_rxns[pKZA][pKZA][nn_MT] = {
-                    'emitted'   : 'n*', # n-emission with excited residual
-                    'xsections' : np.zeros(VITAMIN_J_ENERGY_GROUPS)
-                }
+            if to_ground:
+                decay_KZA = f'{pKZA // 10}*'
+                special_MT = -1
+                if decay_KZA not in all_rxns[pKZA]:
+                    all_rxns[pKZA][decay_KZA] = defaultdict(dict)
             
-            all_rxns[pKZA][pKZA][nn_MT]['xsections'] += sigmas
+            else:
+                decay_KZA = pKZA
+                special_MT = -4
+
+            if special_MT not in all_rxns[pKZA][decay_KZA]:
+                all_rxns[pKZA][decay_KZA][special_MT] = {
+                    'emitted'     :   'n*',
+                    'xsections'   :   np.zeros(VITAMIN_J_ENERGY_GROUPS)
+                }
+
+            all_rxns[pKZA][decay_KZA][special_MT]['xsections'] += np.pad(
+                sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
+            )
 
     return all_rxns
