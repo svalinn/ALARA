@@ -480,9 +480,9 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
       if (rootPtr != NULL) {
         preIrradND = rootPtr->getPreIrradND(mixPtr);
       }
-      sprintf(isoSym, "%-11.4e ", preIrradND);
+      sprintf(isoSym, "%-11.4e ", preIrradND * volume_mass);
       cout << isoSym;
-      preIrradTotal += preIrradND;
+      preIrradTotal += preIrradND * volume_mass;
  
      for (resNum=0;resNum<nResults;resNum++)
 	{
