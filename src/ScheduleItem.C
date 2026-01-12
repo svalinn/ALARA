@@ -217,8 +217,8 @@ void ScheduleItem::write(int level)
 	       << " with " << ptr->delay << " " << ptr->dUnits 
 	       << " delay pulsed with history "  << ptr->hist->getName() << endl;
 	  cout << "pulse: " << ptr->opTime << " " << ptr->opUnits 
-         << "pulse_history: "  << ptr->hist->getName() << endl;
-	       << " delay " << ptr->delay << " " << ptr->dUnits    
+         << "pulse_history: "  << ptr->hist->getName()
+	       << " delay " << ptr->delay << " " << ptr->dUnits << endl;
 	  break;
 	case SCHED_SCHED: /* sub-schedule: recursively call back to schedule::write() */
 	  ptr->subSched->write(level,ptr->hist->getName(),ptr->delay,ptr->dUnits);
