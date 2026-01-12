@@ -215,8 +215,7 @@ void ScheduleItem::write(int level)
 	    cout << "\t";
 	  cout << "pulse: " << ptr->opTime << " " << ptr->opUnits 
 	       << " with " << ptr->delay << " " << ptr->dUnits 
-	       << " delay pulsed with history "  << ptr->hist->getName() << endl;
-      cout << "\t";   
+	       << " delay pulsed with history "  << ptr->hist->getName() << endl << "\t";
 	  cout << "pulse_entry: " << ptr->opTime << " " << ptr->opUnits 
          << " pulse_history "  << ptr->hist->getName()
 	       << " delay " << ptr->delay << " " << ptr->dUnits << endl;
