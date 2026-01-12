@@ -205,6 +205,8 @@ void Schedule::write(int level, char *histName, double delay, char dUnits)
       cout << "Schedule '" << ptr->schedName << "' with " << delay 
 	   << " " << dUnits << " delay and pulsed with history '" 
 	   << histName << "':" << endl;
+      cout << "Schedule '" << ptr->schedName << "' pulse_history " << histName 
+	   << " delay " << delay << " " << dUnits << endl;
     }
 
   ptr->itemListHead->write(level+1);
