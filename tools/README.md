@@ -91,13 +91,15 @@ filtered_adf = adf.filter_rows(
     }
 )
 ```
-The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive.
+The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive, unless otherwise specified.
+
+To filter pre-irradiation values, which are identified by `adf["time"] == -1` (see above), write `filter_dict["time"] = -1`. Otherwise, to filter post-irradiation cooling times, any other value for `filter_dict["time"]` will be accepted and will remove the pre-irradiation rows. For clarity, `filter_dict["time"] = "post_irradiation"` is recommended.
 
 When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`. It is also possible to filter by a combination of whole elements and individual nuclides.
 
-Additional filtering can be done on the stability of nuclides. To filter all stable nuclides, write `filter_dict["half_lives] = "stable"` or `filter_dict["half_lives] = -1`. To filter all unstable nuclides, write `filter_dict["half_lives] = "unstable"` or `filter_dict["half_lives] = "radioactive". ` Half-life filtering can also be done relative to certain time thresholds, such as filtering all nuclides with half-lives greater than 1e6 seconds. To do so write `filter_dict["half_lives] = ['>', 1e6]`. Generally, the format for this time-operator filtering is `filter_dict["half_lives] = [{operator}, {threshold}]`.
+Additional nuclide filtering can be done on the stability of nuclides. To filter all stable nuclides, write `filter_dict["half_lives] = "stable"` or `filter_dict["half_lives] = -1`. To filter all unstable nuclides, write `filter_dict["half_lives] = "unstable"` or `filter_dict["half_lives] = "radioactive". ` Half-life filtering can also be done relative to certain time thresholds, such as filtering all nuclides with half-lives greater than 1e6 seconds. To do so write `filter_dict["half_lives] = ['>', 1e6]`. Generally, the format for this time-operator filtering is `filter_dict["half_lives] = [{operator}, {threshold}]`.
 
-To filter pre-irradiation values, which are identified by `adf["time"] == -1` (see above), write `filter_dict["time"] = -1`. Otherwise, to filter post-irradiation cooling times, any other value for `filter_dict["time"]` will be accepted and will remove the pre-irradiation rows. For clarity, `filter_dict["time"] = "post_irradiation"` is recommended.
+Finally, nuclides can be filtered on their presence in the initial material compositions or not. To filter only nuclides which existed pre-irradiation, write `filter_dict["nuclide"] = "initial"`. Conversely, to filter only new nuclides produced through neutron activation or as decay products, write `filter_dict["nuclide] = "transmuted"`.
 
 Below is an example filtering operation on the same `adf` from the above example:
 ```
@@ -121,8 +123,9 @@ The `head()` of `fendl2_spec_act_h3` is:
 Once data has been filtered, it can be useful to create a pivot table using `pandas.DataFrame.pivot()` to reorganize data by `nuclide` vs `time`. An example filtering and pivot table sequence (without nuclide filtering to show multiple multiple rows) is as such:
 ```
 filtered_adf = adf.filter_rows({
-    "run_lbl" : "fendl2",
-    "variable" : adf.VARIABLE_ENUM["Specific Activity"]
+    "run_lbl"  : "fendl2",
+    "variable" : adf.VARIABLE_ENUM["Specific Activity"],
+    "time"     : "post_irradiation"
 })
 pivot_df = filtered_adf.pivot(
     index="nuclide",
