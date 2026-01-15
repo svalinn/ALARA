@@ -7,6 +7,7 @@
  */
 
 #include "PulseHistory.h"
+#include <iostream>
 
 #include "Chain.h"
 
@@ -19,9 +20,16 @@
     are set with the arguments.  Note that the pointers are copied,
     and not the arrays themselves.  In both cases, 'setCode' is
     initialized to -1. */
-PulseHistory::PulseHistory(int nlvls, int *pulse, double *decay) :
+PulseHistory::PulseHistory(const char* histName, int nlvls, int *pulse, double *decay) :
   setCode(-1), nLevels(nlvls),  nPulse(pulse),  td(decay)
 {
+  histName = NULL;
+  if (name != NULL)
+    {
+      histName = new char[strlen(name) + 1];
+      memCheck(histName, "PulseHistory::PulseHistory: histName");
+      strcpy(histName, name);
+    }
 
   D = NULL;
   if (nLevels>0)
@@ -39,6 +47,14 @@ PulseHistory::PulseHistory(const PulseHistory &p) :
   setCode(p.setCode),nLevels(p.nLevels)
 {
   int lvlNum;
+
+  histName = NULL;
+  if (p.histName != NULL)
+    {
+      histName = new char[strlen(p.histName) + 1];
+      memCheck(histName, "PulseHistory copy ctor: histName");
+      strcpy(histName, p.histName);
+    }
 
   nPulse = NULL;
   td = NULL;
@@ -204,5 +220,26 @@ Matrix PulseHistory::doHistory(Matrix opT)
 
   return opT;
 
+}
+
+void PulseHistory::write_ph() const
+{
+    cout << "pulse_history: '" << histName << "" << endl;
+    cout << "num_pulsing_levels: " << nLevels << endl;
+    cout << "num_pulses_per_level: [";
+    for (int lvlNum = 0; lvlNum < nLevels; lvlNum++)
+    {
+      cout << nPulse[lvlNum];
+      if (lvlNum < nLevels - 1) cout << ", ";
+    }
+    cout << "]" << endl;
+
+    cout << "delay_seconds_per_level: [";
+    for (int lvlNum = 0; lvlNum < nLevels; lvlNum++)
+    {
+      cout << td[lvlNum];
+      if (lvlNum < nLevels - 1) cout << ", ";
+    }
+    cout << "]" << endl;
 }
 
