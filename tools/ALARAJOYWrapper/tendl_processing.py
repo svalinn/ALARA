@@ -172,9 +172,9 @@ def extract_cross_sections(file, MT):
 
     return sigma_list[::-1]
 
-def _is_ground_state_nuc(M):
+def _is_ground_state_daughter(M, dKZA):
     """
-    Determine if a given nuclide is in its ground state.
+    Determine if a given daughter is in its ground state.
      
     One of two internal Boolean methods to determine whether to create a new
         reaction entry in all_rxns for a given parent, daughter, MT
@@ -182,15 +182,16 @@ def _is_ground_state_nuc(M):
 
     Arguments:
         M (int): Isomeric state of the given nuclide.
+        dKZA (int): Daughter KZA identifier.
     
     Returns:
-        is_ground_state (bool): True if the nuclide is in its ground state,
-            False if excited.
+        is_ground_state (bool): True if the daughter nuclide is in its ground
+            state, False if excited.
     """
 
-    return M == 0
+    return M == 0 and dKZA % 10 == 0
 
-def _is_isomer_with_decay_data(dKZA, radionucs, M):
+def _is_isomer_with_decay_data(dKZA, pKZA, radionucs, M):
     """
     Determine if a nuclear isomer has a known half-life (determined from 
         parsing of an EAF decay library) and whose excited state is less than
@@ -206,6 +207,7 @@ def _is_isomer_with_decay_data(dKZA, radionucs, M):
 
     Arguments:
         dKZA (int): Daughter KZA identifier.
+        pKZA (int): Parent KZA identifier.
         radionucs (dict): Dictionary keyed by all radionuclides in the EAF
             decay library, with values of their half-lives.
         M (int): Isomeric state of the given nuclide.
@@ -215,7 +217,7 @@ def _is_isomer_with_decay_data(dKZA, radionucs, M):
             than 10 and has a known half-life.
     """
 
-    return dKZA in radionucs and M in range(1,10)
+    return dKZA in radionucs and ((pKZA % 10) + M in range(1,10))
 
 def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
     """
@@ -271,21 +273,21 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # or any ground-state daughters. Necessarily need to cut off maximum
         # excitation at 9th state by nature of KZA conventions
         if (
-            _is_ground_state_nuc(rxn['isomer']) or
-            _is_isomer_with_decay_data(dKZA, radionucs, rxn['isomer'])
+            _is_ground_state_daughter(rxn['isomer'], dKZA) or
+            _is_isomer_with_decay_data(dKZA, pKZA, radionucs, rxn['isomer'])
         ):
             all_rxns[pKZA][dKZA][MT] = {
                 'emitted'    :  rxn['emitted'],
                 'xsections'  :  sigmas
             }
 
-        # If an (n,n) reaction produces an isomer lacking decay data,
-        # accumulate its cross-sections either to the ground-state residual
-        # (n,n) reaction's cross-sections or to a new psuedo-daughter of all
-        # isomers with undefined decays for that parent
+        # If a reaction produces an isomer lacking decay data, acccumulate its
+        # cross-sections either to the ground-state residual reaction's cross-
+        # sections or to a new psuedo-daughter of all isomers with undefined
+        # decays for that parent
         else:
             if to_ground:
-                decay_KZA = f'{pKZA // 10}*'
+                decay_KZA = f'{dKZA // 10}*'
                 special_MT = -1
                 if decay_KZA not in all_rxns[pKZA]:
                     all_rxns[pKZA][decay_KZA] = defaultdict(dict)
@@ -296,7 +298,7 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
 
             if special_MT not in all_rxns[pKZA][decay_KZA]:
                 all_rxns[pKZA][decay_KZA][special_MT] = {
-                    'emitted'     :   'n*',
+                    'emitted'     : f'{rxn['emitted']}*',
                     'xsections'   :   np.zeros(VITAMIN_J_ENERGY_GROUPS)
                 }
 
