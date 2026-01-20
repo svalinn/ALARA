@@ -287,7 +287,8 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # decays for that parent
         else:
             if to_ground:
-                decay_KZA = f'{dKZA // 10}*'
+                div_KZA = pKZA if rxn['emitted'] == 'n' else dKZA
+                decay_KZA = f'{div_KZA // 10}*'
                 special_MT = -1
                 if decay_KZA not in all_rxns[pKZA]:
                     all_rxns[pKZA][decay_KZA] = defaultdict(dict)
