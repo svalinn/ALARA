@@ -1,9 +1,11 @@
 import pandas as pd
 import argparse
+import pypact
 from operator import gt, lt, ge
 from warnings import warn
 from csv import DictReader
 from numpy import array
+from pathlib import Path
 
 
 # ---------- General Utility Methods ----------
@@ -338,6 +340,50 @@ class FileParser:
         return self.results
 
 
+class FispactParser:
+
+    @staticmethod
+    def fispact_to_adf(run_lbl, output_path):
+        with pypact.Reader(output_path) as output:
+            rows = []
+            for time in output.inventory_data:
+                mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 # [kg]
+                for nuc in time.nuclides:
+                    nuclide = f'{nuc.element}-{nuc.isotope}{nuc.state}'
+                    half_life = nuc.half_life if nuc.half_life != 0 else -1
+
+                    # Standard units from FISPACT-II User Manual, Table 7
+                    # https://fispact.ukaea.uk/_documentation/UKAEA-R18001.pdf
+                    fis_var_dict = dict(zip(
+                        ALARADFrame.VARIABLE_ENUM.values(), [
+                            {'variable':nuc.atoms/mass,    'unit':'atoms/kg'},
+                            {'variable':nuc.activity/mass, 'unit':'Bq/kg'   },
+                            {'variable':nuc.heat,          'unit':'kW'      },
+                            {'variable':nuc.alpha_heat,    'unit':'kW'      },
+                            {'variable':nuc.beta_heat,     'unit':'kW'      },
+                            {'variable':nuc.gamma_heat,    'unit':'kW'      },
+                            {'variable':nuc.dose,          'unit':'Sv/hr'   }
+                        ]
+                    ))
+
+                    for enum, var_dict in fis_var_dict.items():
+                        rows.append({
+                            'time'          :               time.cooling_time,
+                            'time_unit'     :                             's',
+                            'nuclide'       :                         nuclide,
+                            'half_life'     :                       half_life,
+                            'run_lbl'       :                         run_lbl,
+                            'block'         :                              -1,
+                            'block_name'    :                              -1,
+                            'block_num'     :                              -1,
+                            'variable'      :                            enum,
+                            'var_unit'      :                var_dict['unit'],
+                            'value'         :            var_dict['variable']
+                        })
+            
+        return ALARADFrame(rows)
+
+
 class ALARADFrame(pd.DataFrame):
     '''
     A subclass of pandas.DataFrame specialized for ALARA output.
@@ -615,10 +661,17 @@ class DataLibrary:
 
         dfs = []
         for run_lbl, output_path in runs_dict.items():
-            parser = FileParser(
-                output_path, run_lbl=run_lbl, time_unit=time_unit
-            )
-            dfs.append(parser.extract_tables())
+            if Path(output_path).suffix == '.fis':
+                data =FispactParser.fispact_to_adf(run_lbl, output_path)
+        
+            else:
+                parser = FileParser(
+                    output_path, run_lbl=run_lbl, time_unit=time_unit
+                )
+                data = parser.extract_tables()
+            
+            dfs.append(data)
+
         self.adf = ALARADFrame(pd.concat(dfs).fillna(0.0))
 
         return self.adf
