@@ -72,11 +72,11 @@ Below is the example `head()` of an `ALARADFrame`:
 
 ||time|time_unit|nuclide|half_life|run_lbl|block|block_num|variable| var_unit|value|
 |-|-|-|-|-|-|-|-|-|-|-|
-| 0 | 's' | -1 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 0.000000e+0
-| 1 | 's' | 0.000000e+00 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 2 | 's' | 3.153600e+02 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 3 | 's' | 3.153600e+05 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 4 | 's' | 3.153600e+07 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 0 | -1 | 's' | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 0.000000e+0
+| 1 | 0.000000e+00| 's'  | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 2 | 3.153600e+02 | 's' | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 3 | 3.153600e+05 |'s' |  h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 4 | 3.153600e+07 | 's' |  h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
 
 The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times. Note that the 0<sup>th</sup> row's time of `-1` corresponds to the pre-irradiation state, and not any singular cooling time, like all positive and zero times do.
 
@@ -112,11 +112,11 @@ The `head()` of `fendl2_spec_act_h3` is:
 
 ||time|time_unit|nuclide|half_life|run_lbl|block|block_num|variable| var_unit|value|
 |-|-|-|-|-|-|-|-|-|-|-|
-| 0 | 's' | 0.000000e+00 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
-| 1 | 's' | 3.153600e+02 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
-| 2 | 's' | 3.153600e+05 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.987100e+09
-| 3 | 's' | 3.153600e+07 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.879900e+09
-| 4 | 's' | 3.153600e+09 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 7.334700e+06
+| 0 | 0.000000e+00 | 's' |  h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
+| 1 | 3.153600e+02 | 's' | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
+| 2 | 3.153600e+05 | 's' | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.987100e+09
+| 3 | 3.153600e+07 | 's' | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.879900e+09
+| 4 | 3.153600e+09 | 's' | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 7.334700e+06
 
 Once data has been filtered, it can be useful to create a pivot table using `pandas.DataFrame.pivot()` to reorganize data by `nuclide` vs `time`. An example filtering and pivot table sequence (without nuclide filtering to show multiple multiple rows) is as such:
 ```
