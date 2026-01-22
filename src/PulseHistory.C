@@ -226,11 +226,10 @@ void PulseHistory::write_ph() const
 {
     cout << "pulse_history: '" << histName << "" << endl;
     cout << "num_pulsing_levels: " << nLevels << endl;
-    cout << "num_pulses_per_level: [";
-    for (int lvlNum = 0; lvlNum < nLevels; lvlNum++)
+    cout << "num_pulses_per_level: [" << nPulse[0];
+    for (int lvlNum = 1; lvlNum < nLevels; lvlNum++)
     {
-      cout << nPulse[lvlNum];
-      if (lvlNum < nLevels - 1) cout << ", ";
+      cout << ", " << nPulse[lvlNum];
     }
     cout << "]" << endl;
 
