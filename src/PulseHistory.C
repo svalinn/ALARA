@@ -233,11 +233,10 @@ void PulseHistory::write_ph() const
     }
     cout << "]" << endl;
 
-    cout << "delay_seconds_per_level: [";
-    for (int lvlNum = 0; lvlNum < nLevels; lvlNum++)
+    cout << "delay_seconds_per_level: [" << td[0];
+    for (int lvlNum = 1; lvlNum < nLevels; lvlNum++)
     {
-      cout << td[lvlNum];
-      if (lvlNum < nLevels - 1) cout << ", ";
+      cout << ", " << td[lvlNum];
     }
     cout << "]" << endl;
 }
