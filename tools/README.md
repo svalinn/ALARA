@@ -11,6 +11,8 @@ Contained within `ALARA/tools` is the Python package, `alara_output_processing`,
 - Generic Python packages
     * [NumPy](https://numpy.org/install/)
     * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+- Domain-specific packages
+    * [Pypact](https://github.com/fispact/pypact)
 
 
 ## Installation
