@@ -75,7 +75,7 @@ public:
 
   /// This function writes the details of each pulse history to the
   /// output file.
-  void write_ph() const
+  void write_ph() const;
 
 };
 
