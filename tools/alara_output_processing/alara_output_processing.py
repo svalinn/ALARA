@@ -346,7 +346,17 @@ class FispactParser:
     def fispact_to_adf(run_lbl, output_path):
         with pypact.Reader(output_path) as output:
             rows = []
+            time_zero = 0
             for time in output.inventory_data:
+                
+                # FISPACT-II marks both pre-irradiation and shutdown as
+                # time.cooling_time = 0. This conditional sets the first
+                # instance (pre-irradiation) to -1 to match the ALARADFrame
+                # time label convention.
+                if time.cooling_time == 0 and time_zero == 0:
+                    time.cooling_time = -1
+                    time_zero += 1
+
                 mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 # [kg]
                 for n in time.nuclides:
                     nuclide = f'{n.element.lower()}-{n.isotope}{n.state}'
