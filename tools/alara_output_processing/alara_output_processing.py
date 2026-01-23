@@ -344,6 +344,22 @@ class FispactParser:
 
     @staticmethod
     def fispact_to_adf(run_lbl, output_path):
+        '''
+        Parse output data from a FISPACT-II output file and write out relevant
+            data in the canonical ALARADFrame data structure, to be integrated
+            in a single frame alongside ALARA output data.
+
+        Arguments:
+            run_lbl (str): Distinguisher between runs (i.e. "fispact-ii").
+            output_path (str or pathlib._local.PosixPath): Path to the
+                FISPACT-II output file. Must have the file suffix ".fis".
+        
+        Returns:
+            adf (alara_output_processing.ALARADFrame): Specialized DataFrame
+                for ALARA output data, containing FISPACT-II output data as
+                well.
+        '''
+
         with pypact.Reader(output_path) as output:
             rows = []
             time_zero = 0
@@ -390,8 +406,8 @@ class FispactParser:
                             'var_unit'      :                var_dict['unit'],
                             'value'         :            var_dict['variable']
                         })
-            
-        return ALARADFrame(rows)
+
+        return ALARADFrame(rows).create_total_rows()
 
 
 class ALARADFrame(pd.DataFrame):
@@ -410,6 +426,39 @@ class ALARADFrame(pd.DataFrame):
     @property
     def _constructor(self):
         return ALARADFrame
+
+    def create_total_rows(self):
+        '''
+        Calculate and insert "total" nuclide row data for each variable,
+            time-step in an ALARADFrame. Only used when loading FISPACT-II
+            output data into an ALARADFrame, as ALARA output data always
+            contains cumulative "total" data at each time-step.
+
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Specialized DataFrame
+                for ALARA output data, containing FISPACT-II output data as
+                well.
+
+        Returns:
+            adf_with_totals (alara_output_processing.ALARADFrame): Updated
+                ALARADFrame with calculated totals.
+        '''
+
+        totals = self.groupby(
+            ['run_lbl', 'variable', 'time'], as_index=False
+        ).agg({
+            'value'      :   'sum',
+            'time_unit'  : 'first',
+            'var_unit'   : 'first',
+            'block'      : 'first',
+            'block_name' : 'first',
+            'block_num'  : 'first',
+        })
+
+        totals['nuclide'] = 'total'
+        totals['half_life'] = 0
+
+        return pd.concat([self, totals], ignore_index=True)
 
     def _single_element_all_nuclides(self, element):
         '''
