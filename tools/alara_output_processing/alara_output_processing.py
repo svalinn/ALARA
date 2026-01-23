@@ -348,21 +348,21 @@ class FispactParser:
             rows = []
             for time in output.inventory_data:
                 mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 # [kg]
-                for nuc in time.nuclides:
-                    nuclide = f'{nuc.element}-{nuc.isotope}{nuc.state}'
-                    half_life = nuc.half_life if nuc.half_life != 0 else -1
+                for n in time.nuclides:
+                    nuclide = f'{n.element.lower()}-{n.isotope}{n.state}'
+                    half_life = n.half_life if n.half_life != 0 else -1
 
                     # Standard units from FISPACT-II User Manual, Table 7
                     # https://fispact.ukaea.uk/_documentation/UKAEA-R18001.pdf
                     fis_var_dict = dict(zip(
                         ALARADFrame.VARIABLE_ENUM.values(), [
-                            {'variable':nuc.atoms/mass,    'unit':'atoms/kg'},
-                            {'variable':nuc.activity/mass, 'unit':'Bq/kg'   },
-                            {'variable':nuc.heat,          'unit':'kW'      },
-                            {'variable':nuc.alpha_heat,    'unit':'kW'      },
-                            {'variable':nuc.beta_heat,     'unit':'kW'      },
-                            {'variable':nuc.gamma_heat,    'unit':'kW'      },
-                            {'variable':nuc.dose,          'unit':'Sv/hr'   }
+                            { 'variable':n.atoms/mass,    'unit':'atoms/kg' },
+                            { 'variable':n.activity/mass, 'unit':'Bq/kg'    },
+                            { 'variable':n.heat,          'unit':'kW'       },
+                            { 'variable':n.alpha_heat,    'unit':'kW'       },
+                            { 'variable':n.beta_heat,     'unit':'kW'       },
+                            { 'variable':n.gamma_heat,    'unit':'kW'       },
+                            { 'variable':n.dose,          'unit':'Sv/hr'    }
                         ]
                     ))
 
@@ -652,6 +652,9 @@ class DataLibrary:
                     Run Label 1 : path/to/output/file/for/data/run1,
                     Run Label 2 : path/to/output/file/for/data/run2
                 }
+
+                Note: To read in a FISPACT-II output table, its path suffix in
+                runs_dict must be ".fis". 
                 
         Returns:
             self.adf (alara_output_processing.ALARADFrame): Specialized ALARA
@@ -662,7 +665,7 @@ class DataLibrary:
         dfs = []
         for run_lbl, output_path in runs_dict.items():
             if Path(output_path).suffix == '.fis':
-                data =FispactParser.fispact_to_adf(run_lbl, output_path)
+                data = FispactParser.fispact_to_adf(run_lbl, output_path)
         
             else:
                 parser = FileParser(
