@@ -26,8 +26,8 @@ end
 flux  my_flux       ../examples/ref_flux_files/fluxfnsfIBfw_518MW.txt 1     0      default
 
 schedule top_sched
-    sch_1   once   0 s
-    sch_2   once   0 s
+    sch_1   once   1 h
+    sch_2   once   90 d 
     sch_3   once   0 s
 end
 

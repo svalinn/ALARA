@@ -28,8 +28,8 @@ flux  my_flux       ../examples/ref_flux_files/fluxfnsfIBfw_518MW.txt 1     0   
 
 schedule top_sched
     sch_1   once   0 s
-    sch_2   once   0 s
-    sch_3   once   0 s
+    sch_2   once   0.5 y
+    sch_3   once   7 d
     sch_4   once   0 s
 end
 
