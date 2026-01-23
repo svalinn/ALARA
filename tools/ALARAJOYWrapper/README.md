@@ -8,12 +8,11 @@ This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Dat
 
 - Standard Python libraries
   * [ArgParse](https://docs.python.org/3/library/argparse.html)
+  * [Collections](https://docs.python.org/3/library/collections.html)
   * [Csv](https://docs.python.org/3/library/csv.html)
-  * [Os](https://docs.python.org/3/library/os.html)
   * [Pathlib](https://docs.python.org/3/library/pathlib.html)
   * [Pytest](https://docs.pytest.org/en/stable/getting-started.html)
   * [Re](https://docs.python.org/3/library/re.html)
-  * [Shutil](https://docs.python.org/3/library/shutil.html)
   * [String](https://docs.python.org/3/library/string.html#module-string)
   * [Subprocess](https://docs.python.org/3/library/subprocess.html)
   * [Warnings](https://docs.python.org/3/library/warnings.html)
@@ -33,10 +32,14 @@ ALARAJOYWrapper is designed to produce a space-delimited DSV containing data tha
 To run this preprocessor, the user must first have acquired TENDL files for each isotope to be processed from [TENDL 2017](https://tendl.web.psi.ch/tendl_2017/tendl2017.html), which is the source for FENDL3.2x neutron activation data. All TENDL files to be processed must be in the same directory as each other to be properly identified by ALARAJOYWrapper.
 
 Running ALARAJOYWrapper can be done with one Python command:
+```
+python preprocess_fendl3.py -g gas_handling_method -f /path/to/fendl3_data_dir/ -d /path/to/eaf_decay_library/ -i -a
+```
+To read in detail about each of these arguments, call this command:
+```
+python preprocess_fendl3.py -h
+```
 
-    python preprocess_fendl3.py -f /path/to/fendl3_data_dir/
-
-This command only takes one argument, `-f`, which directs the program to the directory containing the TENDL files. This argument is optional, and if left blank, will default to the current working directory.
 
 ## Data Output
 Running `preprocess_fendl3.py` will return the file path to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
@@ -45,18 +48,19 @@ Running `preprocess_fendl3.py` will return the file path to the resultant space-
 - Daughter KZA: Unique isotope identifier of the daughter isotope produced from a particular transmutation reaction in the format **ZZAAAM**.
 - Emitted Particles: Consecutive string of particles emitted from the transmutation reaction. The possible particles are:
   - Neutron (n)
+  - Gamma photon (g)
   - Proton (p)
   - Deuteron (d)
   - Triton (t)
   - <sup>3</sup>He nucleus (h)
   - Alpha particle (a)
-  - Gamma photon (g)
-
 
   For reactions with multiple emitted particles, the format of the text string is along the lines '3n2p', representing an emission of three neutrons and two protons. An emission containing only one of a certain particle will just contain the particle identifier, without any numerical tag (e.g. 'n' for a single neutron).
 
 - Non-Zero Groups: Count of total number of energy groups in the Vitamin-J 175 energy group structure with non-zero neutron cross sections.
 - Cross Sections: List of all non-zero neutron cross sections.
+
+It should be noted that TENDL 2017 activation data contains many (n,n) reactions that leave the residual nucleus in various quantized excited states, potentially up to a 40<sup>th</sup> excited state. Most of these daughter isomers, however, are extremely short-lived and lack decay data. When converting an ALARAJOY DSV file in ALARA, as discussed below, an EAF decay library is required, given that FENDL3.2x only contains activation data. Cross-referencing exotic isomers against this decay data ensures that ultra-short-lived reaction products are not passed on to ALARA's library conversion appearing as stable nuclides. Rather, the lack of decay data signifies such a short half-life that decay evaluations are not practical. As such, as these isomers are processed, ALARAJOYWrapper defaults to assume that they decay to the ground state and their cross-sections are accumulated for the ground state (n,n) reaction (MT = 4). To avoid making this assumption and instead to accumulate all of these reactions for each parent into an "Other" row, use the optional flag `-i` when running ALARAJOYWrapper (see command-line argument `--help` or `-h` for more details).
 
 ## Application of Processed Data to ALARA Data Conversion Methods
 Data library conversion to ALARA binary libraries is done with the `convert_lib` input block in the ALARA input file. Converting preprocessed TENDL data contained in the resultant space-delimited DSV from ALARAJOYWrapper is done as such in the input file:

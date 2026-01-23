@@ -70,7 +70,6 @@ class ALARAJOYLib : public EAFLib
             int parentKZA;
             int daughterKZA;
             std::string emittedParticles;
-            int nonZeroGroups;
             std::vector<float> crossSections;
         };
 

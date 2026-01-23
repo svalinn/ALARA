@@ -1,15 +1,12 @@
 # Import packages
 import ENDFtk
 from pathlib import Path
+from reaction_data import GAS_DF
+from collections import defaultdict
 import warnings
+import numpy as np
 
-gas_kzas = {
-    'p' : 10010,
-    'd' : 10020,
-    't' : 10030,
-    'h' : 20030,
-    'a' : 20040
-}
+VITAMIN_J_ENERGY_GROUPS = 175
 
 def get_isotope(stem):
     """
@@ -17,6 +14,7 @@ def get_isotope(stem):
     Arguments:
         stem (str): Stem of a an ENDF (TENDL) and/or PENDF file, formatted
             as f'{element}{mass_number}.ext'
+
     Returns:
         element (str): Chemical symbol of the isotope whose data is contained
             in the file.
@@ -43,6 +41,7 @@ def search_for_files(dir = Path.cwd()):
         directory (pathlib._local.PosixPath, optional): Path to the directory
             in which to search for ENDF and PENDF files.
             Defaults to the present working directory (".").
+
     Returns:
         file_info (dict): Dictionary containing the chemical symbol, mass
             number, and paths to the ENDF and PENDF files for a given isotope.
@@ -173,10 +172,61 @@ def extract_cross_sections(file, MT):
 
     return sigma_list[::-1]
 
-def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
+def _is_ground_state_nuc(M):
+    """
+    Determine if a given nuclide is in its ground state.
+     
+    One of two internal Boolean methods to determine whether to create a new
+        reaction entry in all_rxns for a given parent, daughter, MT
+        combination.
+
+    Arguments:
+        M (int): Isomeric state of the given nuclide.
+    
+    Returns:
+        is_ground_state (bool): True if the nuclide is in its ground state,
+            False if excited.
+    """
+
+    return M == 0
+
+def _is_isomer_with_decay_data(dKZA, radionucs, M):
+    """
+    Determine if a nuclear isomer has a known half-life (determined from 
+        parsing of an EAF decay library) and whose excited state is less than
+        10. The cut-off at the 9th excited state is necessary because double-
+        digit Ms could alter a KZA to represent a different element (i.e. the
+        10th excited state of Li-6 would have a KZA of 300610, which by the
+        KZA formatting convention would actually represent Zn-61, a 
+        radionuclide with decay data in the EAF-2010 decay library).
+
+    One of two internal Boolean methods to determine whether to create a new
+        reaction entry in all_rxns for a given parent, daughter, MT
+        combination.
+
+    Arguments:
+        dKZA (int): Daughter KZA identifier.
+        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
+        M (int): Isomeric state of the given nuclide.
+
+    Returns:
+        has_known_decay (bool): True if the isomer is in an excited state less
+            than 10 and has a known half-life.
+    """
+
+    return dKZA in radionucs and M in range(1,10)
+
+def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
     """
     Iterate through all of the MTs present in a given GENDF file to extract
-        the necessary data to be able to run ALARA.
+        the necessary data to be able to run ALARA. For isomeric daughters
+        with an excited state less than 10 that do not have known half-lives
+        (determined by the keys of radionucs, itself derived from the provided
+        EAF decay library), this function assumes a infinitesimal half-life
+        decaying to the ground state. As such, the cross-sections for these
+        isomer daughters are accumulated to the ground state cross-sections by
+        energy group.
     
     Arguments:
         MTs (list of int): List of reaction types present in the GENDF file.
@@ -184,44 +234,74 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA):
             contents for a specific material's cross-section data.
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv
         pKZA (int): Parent KZA identifier.
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
+            
     Returns:
-        gendf_data (list of dict): List of dictionaries containing parent KZA
-            daughter KZA values, emitted particles, counts of the number of
-            non-zero groups in the Vitamin-J groupwise structure, and the
-            cross-section values for those groups, organized by MT number.
+        all_rxns (collections.defaultdict): Updated dictionary for all
+            reaction pathways for the given parent and its MTs.
     """
 
-    gendf_data = []
-    daughters = []
     for MT in MTs:
-        sigma_list = extract_cross_sections(file_obj, MT)
-        gas = mt_dict[MT]['Gas']
+        rxn = mt_dict[MT]
+        sigmas = extract_cross_sections(file_obj, MT)
+        sigmas = np.pad(sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas)))
+        gas = rxn['gas']
+
         # Daughter calculated either as an emitted gas nucleus or
-        # as the residual for non-gaseous emissions. 
-        dKZA = gas_kzas[gas] if gas else pKZA + mt_dict[MT]['delKZA']
-        
-        # Special handling for 2 identical gas daughters
-        if dKZA in daughters and dKZA == (pKZA + 10) / 2:
-            daughters.remove(dKZA)
-        
-        if dKZA in daughters:
-            continue
+        # as the residual for non-gaseous emissions.
+        dKZA = (
+            GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
+            else pKZA + rxn['delKZA']
+        )
 
-        daughters.append(dKZA)
+        # Process all reactions producing isomer daughters with decay data
+        # or any ground-state daughters. Necessarily need to cut off maximum
+        # excitation at 9th state by nature of KZA conventions
+        if (
+            _is_ground_state_nuc(rxn['isomer']) or
+            _is_isomer_with_decay_data(dKZA, radionucs, rxn['isomer'])
+        ):
+            all_rxns[pKZA][dKZA][MT] = {
+                'emitted'    :  rxn['emitted'],
+                'xsections'  :  sigmas
+            }
 
-        # Skip high (2 digit) isomeric states
-        if not mt_dict[MT]['High M']:
-            gendf_data.append({
-                'Parent KZA'          :                                  pKZA,
-                'Daughter KZA'        :                                  dKZA,
-                'Emitted Particles'   :      mt_dict[MT]['Emitted Particles'],
-                'Non-Zero Groups'     :                       len(sigma_list),
-                'Cross Sections'      :                            sigma_list
-            })
+        # If an (n,n) reaction produces an isomer lacking decay data,
+        # accumulate its cross-sections either to the ground-state residual
+        # (n,n) reaction's cross-sections or to a new psuedo-daughter of all
+        # isomers with undefined decays for that parent
         else:
-            warnings.warn(f'''
-                Skipping high isomeric state in daughter for {pKZA} → {dKZA}.
-                MT > 9 not allowed by ALARA.
-            ''')
+            if to_ground:
+                decay_KZA = f'{pKZA // 10}*'
+                special_MT = -1
+                if decay_KZA not in all_rxns[pKZA]:
+                    all_rxns[pKZA][decay_KZA] = defaultdict(dict)
+            
+            else:
+                decay_KZA = pKZA
+                special_MT = -4
 
-    return gendf_data
+            if special_MT not in all_rxns[pKZA][decay_KZA]:
+                all_rxns[pKZA][decay_KZA][special_MT] = {
+                    'emitted'     :   'n*',
+                    'xsections'   :   np.zeros(VITAMIN_J_ENERGY_GROUPS)
+                }
+
+            all_rxns[pKZA][decay_KZA][special_MT]['xsections'] += np.pad(
+                sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
+            )
+
+    return all_rxns

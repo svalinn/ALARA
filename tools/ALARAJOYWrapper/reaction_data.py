@@ -1,18 +1,26 @@
 import csv
 from numpy import array
+import pandas as pd
 
 # Define a dictionary containing all of the pathways for neutron and proton
 # changes in a nucleus following neutron activation
 
 #             emitted         delta N       delta P
-NP_dict   = {'n'     : array([-1      ,      0      ]), # neutron emission
+NP_dict = {
+             'n'     : array([-1      ,      0      ]), # neutron emission
+             'g'     : array([ 0      ,      0      ]), # gamma emission
              'p'     : array([ 0      ,     -1      ]), # proton emission
              'd'     : array([-1      ,     -1      ]), # deuteron emission
              't'     : array([-2      ,     -1      ]), # triton emission
              'h'     : array([-1      ,     -2      ]), # helium-3 emission
-             'a'     : array([-2      ,     -2      ]), # alpha emission
-             'g'     : array([ 0      ,      0      ])  # gamma emission
+             'a'     : array([-2      ,     -2      ])  # alpha emission
 }
+GASES = list(NP_dict.keys())[2:]
+GAS_DF = pd.DataFrame({
+    'gas'       : GASES,
+    'kza'       : [10010, 10020, 10030, 20030, 20040],
+    'total_mt'  : range(203, 207 + 1)
+})
 
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
@@ -81,9 +89,8 @@ def emission_breakdown(emitted_particles):
     }
 
     # Handle gas production totals (MTs 203-207) of the format Xz
-    gases = ['p', 'd', 't', 'h', 'a']
     if 'X' in emitted_particles:
-        for gas in gases:
+        for gas in GASES:
             if gas in emitted_particles:
                 emission_dict[emitted_particles] = 1
     
@@ -129,7 +136,7 @@ def load_mt_table(csv_path):
         Given this, calculate the resultant change in KZA associated with each
         MT value in the table and tally the particle emissions associated with
         these reactions. Store all of this data in a dictionary of the format:
-        {'MT' : {'Reaction' : (z , emission)}}
+        {'MT' : {'reaction' : (z , emission)}}
     
     Arguments:
         csv_path (pathlib._local.PosixPath): File path to mt_table.csv.
@@ -144,7 +151,7 @@ def load_mt_table(csv_path):
     with open(csv_path, 'r') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
-            mt_dict[int(row['MT'])] = {'Reaction' : row['Reaction']}
+            mt_dict[int(row['MT'])] = {'reaction' : row['Reaction']}
     if mt_dict:
         return mt_dict
     else:
@@ -187,25 +194,30 @@ def process_mt_data(mt_dict):
     
     Arguments:
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv,
-            with the general format: {'MT' : {'Reaction' : (z , emission)}}.
+            with the general format: {'MT' : {'reaction' : (z , emission)}}.
     
     Returns:
         mt_dict (dict): Processed dictionary containing the original data from
             the dictionary formatted mt_table.csv, with additional information
             on changes in KZA and emitted particles. The returned format is:
             {'MT' : 
-                    {'Reaction'         :               (z, emission)},
-                    {'delKZA'           :       integer change in KZA},
-                    {'Emitted Particles : string of emitted particles}
+                    {'reaction':                               (z, emission)},
+                    {'delKZA'  :                       integer change in KZA},
+                    {'high_m'  :          boolean for high (2 digit) isomers},
+                    {'gas'     : name of total gas production, if MT=203-207},
+                    {'emitted' :                 string of emitted particles}
             }
     """
 
     for MT, data in list(mt_dict.items()):
-        emitted_particles = data['Reaction'].split(',')[1][:-1]
+        emitted_particles = data['reaction'].split(',')[1][:-1]
         emission_dict = emission_breakdown(emitted_particles)
         change_NP = nucleon_changes(emission_dict)
         M = check_for_isomer(emitted_particles)
-        gas = list(emitted_particles)[1] if 'X' in emitted_particles else None
+        emitted_list = list(emitted_particles)
+        gas = emitted_list[1] if (
+            emitted_list[0] == 'X' and emitted_list[1] in GASES
+        ) else None
 
         # Conditionally remove isomer tags from emitted particle strings
         if M > 0:
@@ -218,10 +230,103 @@ def process_mt_data(mt_dict):
         if change_NP is not None:
             change_N, change_P = change_NP
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
-            data['High M'] = (M > 9)
-            data['Gas'] = gas
-            data['Emitted Particles'] = emitted_particles
+            data['isomer'] = M
+            data['gas'] = gas
+            data['emitted'] = emitted_particles
         else:
             del mt_dict[MT]
 
     return mt_dict
+
+def eaf_float(num_str):
+    """
+    Process non-uniformly formatted scientific notation numbers from parsed
+        EAF data to standard floating point numbers.
+    
+    Arguments:
+        num_str (str): Number from an EAF file with non-uniform formatting.
+
+    Returns:
+        num (float): Reformatted number to be able to be properly converted to
+            a float.
+    """
+
+    num_str = num_str.strip()
+    if not num_str:
+        return 0.0
+
+    num_str = num_str.replace(' ', '')
+    if 'E' in num_str or 'e' in num_str:
+        return float(num_str)
+
+    exp_idx = max(num_str.rfind('+'), num_str.rfind('-'))
+    if exp_idx > 0:
+        return float(num_str[:exp_idx] + 'E' + num_str[exp_idx:])
+
+    return float(num_str)
+
+def get_MT_from_line(line):
+    """
+    Extract the MT number from a given line of an EAF file, based on a set
+        line formatting.
+
+    Arguments:
+        line (str): Text of a single line from an EAF file.
+
+    Returns:
+        MT (int): MT reaction number of that line.
+    """
+    
+    return int(line[72:75])
+
+def find_eaf_radionuclides(eaf_path):
+    """
+    Parse through an EAF file to build a dictionary keyed by radionuclides
+        with their respective half-lives as the values. Modeled after the
+        file parsing methods in ALARA/src/DataLib/EAFLib.C.
+
+    Arguments:
+        eaf_path (pathlib._local.PosixPath): Filepath to an EAF decay library.
+
+    Returns:
+        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
+    """
+
+    radionucs = {}
+    decay_MT = 457
+    
+    with open(eaf_path, 'r') as f:
+        
+        # Read header and skip introductory comment lines
+        first_line = f.readline().strip()
+        n_comment_lines = int(first_line.split()[0])
+        for _ in range(n_comment_lines):
+            f.readline()
+
+        _in_decay_block = False
+        line = f.readline()
+        while line:
+            MT = get_MT_from_line(line)
+
+            if not _in_decay_block and MT == decay_MT:
+                _in_decay_block = True
+
+                # Parse nuclide KZA
+                za = int(eaf_float(line[:11]))
+                M = int(line[33:44].strip())
+                kza = za * 10 + M
+
+                # Read half-life (next line)
+                line = f.readline()
+                thalf = eaf_float(line[:11])
+                if thalf > 0:
+                    radionucs[kza] = thalf
+
+            elif MT != decay_MT:
+                _in_decay_block = False
+
+            # Advance to next line
+            line = f.readline()
+
+    return radionucs

@@ -18,6 +18,8 @@
 #include "Node.h"
 
 #include "topScheduleT.h"
+#include "Root.h"
+#include <cmath>
 
 
 
@@ -313,6 +315,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   char isoSym[15];
   int mode = NuclearData::getMode();
   std::vector<std::string> coolTimesList;
+  double preIrradTotal = 0.0;
   
   /* initialize the total array */
   total = new double[nResults];
@@ -461,6 +464,25 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
 
       /* write the formatted output for this isotope */
       cout << isoName(ptr->kza,isoSym) << "\t";
+
+      double lambda = dataAccess.getLambda(ptr->kza);
+      if (lambda > 0.0) {
+        double thalf = log(2.0) / lambda ; // half-life in seconds
+        sprintf(isoSym, "%-11.4e ", thalf);
+        cout << isoSym;
+      } else {
+        cout << "-1          ";
+      }
+
+      // Write pre-irradiation Number Density
+      Root* rootPtr = mixPtr->getRootList()->find(ptr->kza);
+      double preIrradND = 0.0;
+      if (rootPtr != NULL) {
+        preIrradND = rootPtr->getPreIrradND(mixPtr);
+      }
+      sprintf(isoSym, "%-11.4e ", preIrradND * volume_mass);
+      cout << isoSym;
+      preIrradTotal += preIrradND * volume_mass;
  
      for (resNum=0;resNum<nResults;resNum++)
 	{
@@ -493,7 +515,10 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   coolList->writeSeparator();
 
   /* write the formatted output for the total response */
-  cout << "total\t";
+  cout << "total   0           ";
+
+  sprintf(isoSym, "%-11.4e ", preIrradTotal);
+  cout << isoSym;
   
   for (resNum=0;resNum<nResults;resNum++)
     {
