@@ -41,9 +41,12 @@ protected:
   /// for this pulsing history, one per dwell time, i.e. level.
   Matrix *D;
 
+  /// Name used to refer to each pulsing history.
+  char *histName;
+
 public:
   /// Default constructor, when called with no arguments
-  PulseHistory (int nlvls=0, int *pulse = NULL, double *decay=NULL );
+  PulseHistory (const char* histName, int nlvls=0, int *pulse = NULL, double *decay=NULL );
 
   /// Copy constructor 
   PulseHistory (const PulseHistory&);
@@ -69,6 +72,10 @@ public:
   /// This function performs the mathematics required to represent the
   /// pulsing history.
   Matrix doHistory(Matrix);
+
+  /// This function writes the details of each pulse history to the
+  /// output file.
+  void write_ph() const
 
 };
 
