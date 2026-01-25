@@ -417,12 +417,12 @@ class ALARADFrame(pd.DataFrame):
         return filters[0] in {'radioactive', 'unstable'} | set(OPS)
     
     @staticmethod
-    def _half_life_numeric_ops(expression, half_lives):
+    def _filter_numerically(expression, numeric_set):
         '''
-        Create a subset of a pre-existing set of half-lives contained in an
-            ALARADFrame that match the mathematical operation and threshold
-            provided in the partial expression provided (i.e. all half-lives
-            greater than 1e6 seconds)
+        Create a subset of a pre-existing set of contained that match the
+            mathematical operation and threshold provided in the partial
+            expression provided (i.e. all half-lives
+            greater than 1e6 seconds).
 
         Arguments:
             expression (array-like): Array-like collection of a partial
@@ -431,16 +431,15 @@ class ALARADFrame(pd.DataFrame):
                     less than/greater than operator (">", "<").
                     expression[1] (int or float): threshold comparison value.
                 Together, the expression would be of the form ['>', 1e6].
-            half_lives (set): Set of all numeric half-lives in the ALARADFrame
-                (i.e. excluding "stable" for stable nuclides).
+            numeric_set (set): Set of all numeric values to be filtered.
 
         Returns:
-            half_lives (set): Subset of the input half_lives that match the
-                expression
+            numeric_subset (set): Subset of input set containing only values
+                that match the supplied mathematical expression.
         '''
 
         op, threshold = expression
-        return {hl for hl in half_lives if OPS[op](hl, threshold)}
+        return {x for x in numeric_set if OPS[op](x, threshold)}
     
     def _get_half_lives(self, filters):
         '''
@@ -460,7 +459,7 @@ class ALARADFrame(pd.DataFrame):
         # If filtered_dict contains half-life threshold operations,
         # find the subset of half-lives matching the conditions
         if filters[0] in OPS and isinstance(filters[1], (int, float)):
-            half_lives &= self._half_life_numeric_ops(filters, half_lives)
+            half_lives &= self._filter_numerically(filters, half_lives)
 
         return half_lives
 
@@ -497,10 +496,10 @@ class ALARADFrame(pd.DataFrame):
             if not isinstance(filters, list):
                 filters = [filters]
 
-            if col_name == 'time' and filters[0] != -1:
-                filters = {
-                    t for t in set(filtered_adf['time']) if OPS['>='](t, 0)
-                }
+            if col_name == 'time' and filters[0] in OPS:
+                filters = filtered_adf._filter_numerically(
+                    filters, set(filtered_adf['time'])
+                )
 
             if col_name == 'nuclide':
                 nuclides = set()

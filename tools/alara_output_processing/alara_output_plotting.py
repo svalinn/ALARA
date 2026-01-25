@@ -65,7 +65,7 @@ def preprocess_data(
         'variable' : adf.VARIABLE_ENUM[variable]
     }
     if not pre_irrad:
-        filter_dict['time'] = 'post_irradiation'
+        filter_dict['time'] = ['>', -1]
 
     if nuclides:
         filter_dict['nuclide'] = nuclides
