@@ -203,7 +203,7 @@ def process_mt_data(mt_dict):
             {'MT' : 
                     {'reaction':                               (z, emission)},
                     {'delKZA'  :                       integer change in KZA},
-                    {'high_m'  :          boolean for high (2 digit) isomers},
+                    {'isomer'  :               metastable state (0 if ground),
                     {'gas'     : name of total gas production, if MT=203-207},
                     {'emitted' :                 string of emitted particles}
             }
