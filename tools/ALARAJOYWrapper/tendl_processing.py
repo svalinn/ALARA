@@ -316,6 +316,13 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
     excitation_pathways = {}
     for MT in MTs:
         rxn = mt_dict[MT]
+
+        # Modify parent M value if it is an isomer and the reaction pathway
+        # does not specify a specific excitation level of the daughter nuclide
+        parent_excitation = int(str(pKZA)[-1])
+        if parent_excitation > 0 and MT not in EXCITATION_REACTIONS:
+            rxn['isomer'] += parent_excitation
+
         sigmas = extract_cross_sections(file_obj, MT)
         gas = rxn['gas']
         delKZA = rxn['delKZA']
