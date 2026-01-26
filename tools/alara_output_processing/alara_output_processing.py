@@ -380,19 +380,30 @@ class FispactParser:
 
                     # Standard units from FISPACT-II User Manual, Table 7
                     # https://fispact.ukaea.uk/_documentation/UKAEA-R18001.pdf
-                    fis_var_dict = dict(zip(
-                        ALARADFrame.VARIABLE_ENUM.values(), [
-                            { 'variable':n.atoms/mass,    'unit':'atoms/kg' },
-                            { 'variable':n.activity/mass, 'unit':'Bq/kg'    },
-                            { 'variable':n.heat,          'unit':'kW'       },
-                            { 'variable':n.alpha_heat,    'unit':'kW'       },
-                            { 'variable':n.beta_heat,     'unit':'kW'       },
-                            { 'variable':n.gamma_heat,    'unit':'kW'       },
-                            { 'variable':n.dose,          'unit':'Sv/hr'    }
-                        ]
-                    ))
+                    for name, enum in ALARADFrame.VARIABLE_ENUM.items():
+                        match name:
+                            case 'Number Density':
+                                value = n.atoms / mass
+                                unit  = 'atoms/kg'
+                            case 'Specific Activity':
+                                value = n.activity / mass
+                                unit  = 'Bq/kg'
+                            case 'Total Decay Heat':
+                                value = n.heat
+                                unit  = 'kW'
+                            case 'Alpha Heat':
+                                value = n.alpha_heat
+                                unit  = 'kW'
+                            case 'Beta Heat':
+                                value = n.beta_heat
+                                unit  = 'kW'
+                            case 'Gamma Heat':
+                                value = n.gamma_heat
+                                unit  = 'kW'
+                            case 'Contact Dose':
+                                value = n.dose
+                                unit  = 'Sv/hr'
 
-                    for enum, var_dict in fis_var_dict.items():
                         rows.append({
                             'time'          :               time.cooling_time,
                             'time_unit'     :                             's',
@@ -403,8 +414,8 @@ class FispactParser:
                             'block_name'    :                              -1,
                             'block_num'     :                              -1,
                             'variable'      :                            enum,
-                            'var_unit'      :                var_dict['unit'],
-                            'value'         :            var_dict['variable']
+                            'var_unit'      :                            unit,
+                            'value'         :                           value
                         })
 
         return ALARADFrame(rows).create_total_rows()
