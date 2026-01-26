@@ -289,7 +289,7 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # or any ground-state daughters. Necessarily need to cut off maximum
         # excitation at 9th state by nature of KZA conventions
         if (
-            _is_ground_state_daughter(rxn['isomer'], dKZA) or
+            _is_ground_state_daughter(rxn['isomer']) or
             _is_isomer_with_decay_data(dKZA, pKZA, radionucs, rxn['isomer'])
         ):
             all_rxns[pKZA][dKZA][MT] = {
