@@ -299,7 +299,7 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
         cellText=piv.values,
         rowLabels=[reformat_isotope(nuc) for nuc in piv.index],
         colLabels=[
-            f'{'Pre-Irradiation'}' if t < 0 else {trunc_t(t)} {time_unit}'
+            f'{'Pre-Irradiation' if t < 0 else trunc_t(t)} {time_unit}'
             for t in piv.columns
         ],
         loc='center',
