@@ -299,7 +299,7 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
         cellText=piv.values,
         rowLabels=[reformat_isotope(nuc) for nuc in piv.index],
         colLabels=[
-            f'{'Pre-Irradiation'}' if t < 0 else f'{t:.2e} {time_unit}'
+            f'{'Pre-Irradiation'}' if t < 0 else {trunc_t(t)} {time_unit}'
             for t in piv.columns
         ],
         loc='center',
@@ -319,6 +319,20 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
         rgba = color_map[nuc]
         for j in range(len(times)+1):
             table[(i+1, j-1)].set_facecolor(rgba)
+
+def trunc_t(t):
+    '''
+    Truncate time value in scientific notation to 2 decimal places.
+
+    Arguments:
+        t (float): Cooling time.
+
+    Returns:
+        t_trunc (str): Reformatted cooling time in truncated scientific
+            notation.
+    '''
+
+    return f'{t:.2e}'
 
 def pie_labels_by_threshold(time_slice, threshold):
     '''
@@ -726,7 +740,7 @@ def multi_time_pie_grid(
             color_map=color_map,
             threshold=threshold
         )
-        title = f'Time = {t if t == 'Pre-Irradiation' else t:.2e}'
+        title = f'Time = {t if t == 'Pre-Irradiation' else trunc_t(t)}'
         title += '' if t == 'Pre-Irradiation' else f' {time_unit}'
         if not wedges:
             title += (
