@@ -623,7 +623,7 @@ def single_time_pie_chart(
 
     header_time = (
         ', Pre-Irradiation Values' if pre_irrad and time_idx == 0
-        else f' at {times[time_idx]:.2e} {time_unit}'
+        else f' at {trunc_t(times[time_idx])} {time_unit}'
     )
     ax.set_title(
         f'{run_lbl}: Aggregated Proportional Contitributions to ' \
