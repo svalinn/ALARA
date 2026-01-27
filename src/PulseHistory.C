@@ -224,7 +224,7 @@ Matrix PulseHistory::doHistory(Matrix opT)
 
 void PulseHistory::write_ph() const
 {
-    cout << "pulse_history: '" << histName << "" << endl;
+    cout << "pulse_history: '" << histName << "'" << endl;
     cout << "num_pulsing_levels: " << nLevels << endl;
     cout << "num_pulses_per_level: [" << nPulse[0];
     for (int lvlNum = 1; lvlNum < nLevels; lvlNum++)
