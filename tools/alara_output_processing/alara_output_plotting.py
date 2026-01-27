@@ -726,7 +726,7 @@ def multi_time_pie_grid(
             color_map=color_map,
             threshold=threshold
         )
-        title = f'Time = {t:.2e}'
+        title = f'Time = {t if t == 'Pre-Irradiation' else t:.2e}'
         title += '' if t == 'Pre-Irradiation' else f' {time_unit}'
         if not wedges:
             title += (
