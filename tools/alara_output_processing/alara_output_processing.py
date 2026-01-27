@@ -363,6 +363,7 @@ class FispactParser:
         with pypact.Reader(output_path) as output:
             rows = []
             time_zero = 0
+            all_nucs = set()
             for time in output.inventory_data:
                 
                 # FISPACT-II marks both pre-irradiation and shutdown as
@@ -376,6 +377,7 @@ class FispactParser:
                 mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 # [kg]
                 for n in time.nuclides:
                     nuclide = f'{n.element.lower()}-{n.isotope}{n.state}'
+                    all_nucs.update({nuclide})
                     half_life = n.half_life if n.half_life != 0 else -1
 
                     # Standard units from FISPACT-II User Manual, Table 7
@@ -418,7 +420,7 @@ class FispactParser:
                             'value'         :                           value
                         })
 
-        return ALARADFrame(rows).create_total_rows()
+        return ALARADFrame(rows).create_total_rows(), all_nucs
 
 
 class ALARADFrame(pd.DataFrame):
@@ -437,39 +439,6 @@ class ALARADFrame(pd.DataFrame):
     @property
     def _constructor(self):
         return ALARADFrame
-
-    def create_total_rows(self):
-        '''
-        Calculate and insert "total" nuclide row data for each variable,
-            time-step in an ALARADFrame. Only used when loading FISPACT-II
-            output data into an ALARADFrame, as ALARA output data always
-            contains cumulative "total" data at each time-step.
-
-        Arguments:
-            self (alara_output_processing.ALARADFrame): Specialized DataFrame
-                for ALARA output data, containing FISPACT-II output data as
-                well.
-
-        Returns:
-            adf_with_totals (alara_output_processing.ALARADFrame): Updated
-                ALARADFrame with calculated totals.
-        '''
-
-        totals = self.groupby(
-            ['run_lbl', 'variable', 'time'], as_index=False
-        ).agg({
-            'value'      :   'sum',
-            'time_unit'  : 'first',
-            'var_unit'   : 'first',
-            'block'      : 'first',
-            'block_name' : 'first',
-            'block_num'  : 'first',
-        })
-
-        totals['nuclide'] = 'total'
-        totals['half_life'] = 0
-
-        return pd.concat([self, totals], ignore_index=True)
 
     def _single_element_all_nuclides(self, element):
         '''
@@ -696,6 +665,90 @@ class ALARADFrame(pd.DataFrame):
 
         return adf_rel
 
+    #### FISPACT-II Hybrid ALARADFrame Operations ####
+    ####    (ALARADFrames with FISPACT-II data)   ####
+
+    def create_total_rows(self):
+        '''
+        Calculate and insert "total" nuclide row data for each variable,
+            time-step in an ALARADFrame. Only used when loading FISPACT-II
+            output data into an ALARADFrame, as ALARA output data always
+            contains cumulative "total" data at each time-step.
+
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Specialized DataFrame
+                for ALARA output data, containing FISPACT-II output data as
+                well.
+
+        Returns:
+            adf_with_totals (alara_output_processing.ALARADFrame): Updated
+                ALARADFrame with calculated totals.
+        '''
+
+        totals = self.groupby(
+            ['run_lbl', 'variable', 'time'], as_index=False
+        ).agg({
+            'value'      :   'sum',
+            'time_unit'  : 'first',
+            'var_unit'   : 'first',
+            'block'      : 'first',
+            'block_name' : 'first',
+            'block_num'  : 'first',
+        })
+
+        totals['nuclide'] = 'total'
+        totals['half_life'] = 0
+
+        return pd.concat([self, totals], ignore_index=True)
+
+    def fill_skipped_nucs(self, all_nucs):
+        '''
+        Fill in rows with response values of 0.0 for missing nuclides at
+            different times. Only necessary once after loading for
+            ALARADFrames containing FISPACT-II data, as FISPACT-II output
+            files ignore nuclides not present at a given time if their number
+            densities are 0, even if they are present at other times. Not
+            necessary for ALARA-only data because ALARA tracks all nuclides 
+            present at any time for each time, marking appropriate responses
+            of 0 in such cases already.
+
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Specialized DataFrame
+                for ALARA output data, containing FISPACT-II output data as
+                well.
+            all_nucs (set): Set of all nuclides catalogued in the inventory
+                across all times.
+
+        Returns:
+            filled_adf (alara_output_processing.ALARADFrame): Expanded
+                ALARADFrame containing response data for all nuclides at all
+                times, including zeros.
+        '''
+
+        fill_rows = []
+        for time in self['time'].unique():
+            time_filtered = self.filter_rows({'time' : time})
+            for nuc in (all_nucs - set(time_filtered['nuclide'])):
+                for var in self['variable'].unique():
+                    fill_rows.append({
+                        'time'          :                                time,
+                        'time_unit'     :            self['time_unit'].iat[0],
+                        'nuclide'       :                                 nuc,
+                        'half_life'     :                  self.filter_rows({
+                                                              'nuclide' : nuc
+                                                       })['half_life'].iat[0],
+                        'run_lbl'       :              self['run_lbl'].iat[0],
+                        'block'         :                self['block'].iat[0],
+                        'block_name'    :           self['block_name'].iat[0],
+                        'variable'      :                                 var,
+                        'var_unit'      :                  self.filter_rows({
+                                                             'variable' : var
+                                                        })['var_unit'].iat[0],
+                        'value'         :                                 0.0
+                    })
+        
+        return pd.concat([self, ALARADFrame(fill_rows)], ignore_index=True)
+
 
 class DataLibrary:
 
@@ -735,7 +788,10 @@ class DataLibrary:
         dfs = []
         for run_lbl, output_path in runs_dict.items():
             if Path(output_path).suffix == '.fis':
-                data = FispactParser.fispact_to_adf(run_lbl, output_path)
+                missing_nucs, all_nucs = FispactParser.fispact_to_adf(
+                    run_lbl, output_path
+                )
+                data = missing_nucs.fill_skipped_nucs(all_nucs)
         
             else:
                 parser = FileParser(
