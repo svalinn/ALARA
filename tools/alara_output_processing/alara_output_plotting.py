@@ -299,7 +299,7 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
         cellText=piv.values,
         rowLabels=[reformat_isotope(nuc) for nuc in piv.index],
         colLabels=[
-            f'{'Pre-Irradiation'}' if t < 0 else f'{t} {time_unit}'
+            f'{'Pre-Irradiation'}' if t < 0 else f'{t:.2e} {time_unit}'
             for t in piv.columns
         ],
         loc='center',
@@ -609,7 +609,7 @@ def single_time_pie_chart(
 
     header_time = (
         ', Pre-Irradiation Values' if pre_irrad and time_idx == 0
-        else f' at {times[time_idx]} {time_unit}'
+        else f' at {times[time_idx]:.2e} {time_unit}'
     )
     ax.set_title(
         f'{run_lbl}: Aggregated Proportional Contitributions to ' \
@@ -726,7 +726,7 @@ def multi_time_pie_grid(
             color_map=color_map,
             threshold=threshold
         )
-        title = f'Time = {t}'
+        title = f'Time = {t:.2e}'
         title += '' if t == 'Pre-Irradiation' else f' {time_unit}'
         if not wedges:
             title += (
