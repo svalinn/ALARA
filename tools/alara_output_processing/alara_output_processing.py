@@ -726,26 +726,23 @@ class ALARADFrame(pd.DataFrame):
         '''
 
         fill_rows = []
+        row = {k: self[k].iat[0] for k in ['run_lbl', 'block', 'block_name']}
         for time in self['time'].unique():
             time_filtered = self.filter_rows({'time' : time})
+            row['time'] = time
+            row['time_unit'] = time_filtered['time_unit'].iat[0]
             for nuc in (all_nucs - set(time_filtered['nuclide'])):
+                row['nuclide'] = nuc
+                row['half_life'] = self.filter_rows({
+                    'nuclide' : nuc
+                })['half_life'].iat[0]
                 for var in self['variable'].unique():
-                    fill_rows.append({
-                        'time'          :                                time,
-                        'time_unit'     :            self['time_unit'].iat[0],
-                        'nuclide'       :                                 nuc,
-                        'half_life'     :                  self.filter_rows({
-                                                              'nuclide' : nuc
-                                                       })['half_life'].iat[0],
-                        'run_lbl'       :              self['run_lbl'].iat[0],
-                        'block'         :                self['block'].iat[0],
-                        'block_name'    :           self['block_name'].iat[0],
-                        'variable'      :                                 var,
-                        'var_unit'      :                  self.filter_rows({
-                                                             'variable' : var
-                                                        })['var_unit'].iat[0],
-                        'value'         :                                 0.0
-                    })
+                    row['variable'] = var
+                    row['var_unit'] = self.filter_rows({
+                        'variable' : var
+                    })['var_unit'].iat[0]
+                    row['value'] = 0.0
+                    fill_rows.append(row)
         
         return pd.concat([self, ALARADFrame(fill_rows)], ignore_index=True)
 
