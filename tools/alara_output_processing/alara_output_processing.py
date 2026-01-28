@@ -364,6 +364,9 @@ class FispactParser:
             rows = []
             time_zero = 0
             all_nucs = set()
+            row = {k: -1 for k in ['block', 'block_name', 'block_num']}
+            row['run_lbl'] = run_lbl
+            row['time_unit'] = 's'
             for time in output.inventory_data:
                 
                 # FISPACT-II marks both pre-irradiation and shutdown as
@@ -374,11 +377,14 @@ class FispactParser:
                     time.cooling_time = -1
                     time_zero += 1
 
+                row['time'] = time.cooling_time
                 mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 # [kg]
                 for n in time.nuclides:
                     nuclide = f'{n.element.lower()}-{n.isotope}{n.state}'
                     all_nucs.update({nuclide})
                     half_life = n.half_life if n.half_life != 0 else -1
+                    row['nuclide'] = nuclide
+                    row['half_life'] = half_life
 
                     # Standard units from FISPACT-II User Manual, Table 7
                     # https://fispact.ukaea.uk/_documentation/UKAEA-R18001.pdf
@@ -406,19 +412,10 @@ class FispactParser:
                                 value = n.dose
                                 unit  = 'Sv/hr'
 
-                        rows.append({
-                            'time'          :               time.cooling_time,
-                            'time_unit'     :                             's',
-                            'nuclide'       :                         nuclide,
-                            'half_life'     :                       half_life,
-                            'run_lbl'       :                         run_lbl,
-                            'block'         :                              -1,
-                            'block_name'    :                              -1,
-                            'block_num'     :                              -1,
-                            'variable'      :                            enum,
-                            'var_unit'      :                            unit,
-                            'value'         :                           value
-                        })
+                        row['variable'] = enum
+                        row['var_unit'] = unit
+                        row['value'] = value
+                        rows.append(row.copy())
 
         return ALARADFrame(rows).create_total_rows(), all_nucs
 
@@ -435,6 +432,10 @@ class ALARADFrame(pd.DataFrame):
     BLOCKS = ['Interval', 'Zone', 'Material']
     VARIABLE_ENUM = {name: i for i, name in enumerate(VARIABLES)}
     BLOCK_ENUM = {name: i for i, name in enumerate(BLOCKS)}
+    CANONICAL_COLUMN_ORDER = [
+        'time', 'time_unit', 'nuclide', 'half_life', 'run_lbl',
+        'block', 'block_num', 'variable', 'var_unit', 'value'
+    ]
 
     @property
     def _constructor(self):
@@ -742,7 +743,7 @@ class ALARADFrame(pd.DataFrame):
                         'variable' : var
                     })['var_unit'].iat[0]
                     row['value'] = 0.0
-                    fill_rows.append(row)
+                    fill_rows.append(row.copy())
         
         return pd.concat([self, ALARADFrame(fill_rows)], ignore_index=True)
 
@@ -788,7 +789,9 @@ class DataLibrary:
                 missing_nucs, all_nucs = FispactParser.fispact_to_adf(
                     run_lbl, output_path
                 )
-                data = missing_nucs.fill_skipped_nucs(all_nucs)
+                data = missing_nucs.fill_skipped_nucs(all_nucs)[
+                    ALARADFrame.CANONICAL_COLUMN_ORDER
+                ]
         
             else:
                 parser = FileParser(
