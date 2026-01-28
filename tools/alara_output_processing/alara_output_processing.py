@@ -391,17 +391,17 @@ class FispactParser:
                                 value = n.activity / mass
                                 unit  = 'Bq/kg'
                             case 'Total Decay Heat':
-                                value = n.heat
-                                unit  = 'kW'
+                                value = (n.heat * 1e3) / mass
+                                unit  = 'W/kg' # kW/kg -> W/kg
                             case 'Alpha Heat':
-                                value = n.alpha_heat
-                                unit  = 'kW'
+                                value = (n.alpha_heat * 1e3) / mass
+                                unit  = 'W/kg' # kW/kg -> W/kg
                             case 'Beta Heat':
-                                value = n.beta_heat
-                                unit  = 'kW'
+                                value = (n.beta_heat * 1e3) / mass
+                                unit  = 'W/kg' # kW/kg -> W/kg
                             case 'Gamma Heat':
-                                value = n.gamma_heat
-                                unit  = 'kW'
+                                value = (n.gamma_heat * 1e3) / mass
+                                unit  = 'W/kg' # kW/kg -> W/kg
                             case 'Contact Dose':
                                 value = n.dose
                                 unit  = 'Sv/hr'
