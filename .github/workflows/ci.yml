@@ -1,0 +1,26 @@
+name: ALARA Build/TEST
+
+on:
+    workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+    Build:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Build
+          run: |
+            mkdir bld
+            cd bld
+            cmake ../
+            make -j 8
+            ./src/alara -V
+
+
