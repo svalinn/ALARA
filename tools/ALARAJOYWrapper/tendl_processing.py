@@ -6,6 +6,7 @@ from collections import defaultdict
 import warnings
 import numpy as np
 
+
 VITAMIN_J_ENERGY_GROUPS = 175
 EXCITATION_REACTIONS = np.concatenate((
     np.arange(51 ,  92), # (n,n*)  reactions
@@ -181,20 +182,16 @@ def extract_cross_sections(file, MT):
 
     return sigma_list[::-1]
 
-def _is_ground_state_daughter(M):
+def _is_ground_state(M):
     """
-    Determine if a given daughter is in its ground state.
-     
-    One of two internal Boolean methods to determine whether to create a new
-        reaction entry in all_rxns for a given parent, daughter, MT
-        combination.
+    Determine if a given reaction yields a ground state product.
 
     Arguments:
         M (int): Isomeric state of the given nuclide.
     
     Returns:
-        is_ground_state (bool): True if the daughter nuclide is in its ground
-            state, False if excited.
+        is_ground_state (bool): True if yields a ground state product. False
+            if excited.
     """
 
     return M == 0
@@ -287,9 +284,9 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
 
         # Process all reactions producing isomer daughters with decay data
         # or any ground-state daughters. Necessarily need to cut off maximum
-        # excitation at 9th state by nature of KZA conventions
+        # excitation at 9th state by nature of KZA conventions.
         if (
-            _is_ground_state_daughter(rxn['isomer']) or
+            _is_ground_state(rxn['isomer']) or
             _is_isomer_with_decay_data(dKZA, pKZA, radionucs, rxn['isomer'])
         ):
             all_rxns[pKZA][dKZA][MT] = {
