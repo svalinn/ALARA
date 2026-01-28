@@ -299,7 +299,7 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
         cellText=piv.values,
         rowLabels=[reformat_isotope(nuc) for nuc in piv.index],
         colLabels=[
-            f'{'Pre-Irradiation' if t < 0 else trunc_t(t)} {time_unit}'
+            f'{format_t(t)} {time_unit}'
             for t in piv.columns
         ],
         loc='center',
@@ -320,19 +320,20 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
         for j in range(len(times)+1):
             table[(i+1, j-1)].set_facecolor(rgba)
 
-def trunc_t(t):
+def format_t(t):
     '''
-    Truncate time value in scientific notation to 2 decimal places.
+    Format a time value as either "Pre-Irradiation" or numerically in
+        scientific notation to 2 decimal places.
 
     Arguments:
-        t (float): Cooling time.
+        t (float or str): Cooling time.
 
     Returns:
         t_trunc (str): Reformatted cooling time in truncated scientific
             notation.
     '''
 
-    return f'{t:.2e}'
+    return t if (t == 'Pre-Irradiation' or t < 0) else f'{t:.2e}'
 
 def pie_labels_by_threshold(time_slice, threshold):
     '''
@@ -623,7 +624,7 @@ def single_time_pie_chart(
 
     header_time = (
         ', Pre-Irradiation Values' if pre_irrad and time_idx == 0
-        else f' at {trunc_t(times[time_idx])} {time_unit}'
+        else f' at {times[time_idx]} {time_unit}'
     )
     ax.set_title(
         f'{run_lbl}: Aggregated Proportional Contitributions to ' \
@@ -740,7 +741,7 @@ def multi_time_pie_grid(
             color_map=color_map,
             threshold=threshold
         )
-        title = f'Time = {t if t == 'Pre-Irradiation' else trunc_t(t)}'
+        title = f'Time = {format_t(t)}'
         title += '' if t == 'Pre-Irradiation' else f' {time_unit}'
         if not wedges:
             title += (
