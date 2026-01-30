@@ -1,4 +1,6 @@
 ## This problem runs on a set of regular pulses, which will grow in complexity in sample11 and sample12
+## Runs a top-level schedule with 3 separate sub-schedules, each of which is run exactly once.
+## The individual sub-schedules are each constructed with their own pulse histories.
 
 geometry rectangular
 

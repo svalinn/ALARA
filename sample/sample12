@@ -1,5 +1,9 @@
-## This problem defines multiple single-level and one multi-level pulse history, which are 
-## applied in different configurations to the schedule blocks
+## This problem defines multiple single-level and 1 multi-level pulse history, which are 
+## applied in different configurations to the schedule blocks.
+
+## The top-level schedule runs (exactly once) each of the sub-schedules in succession.
+## sch_3 is a multi-level schedule block, which itself contains a sub-schedule sch_5.
+## This means the top-level schedule is nested with multiple layers of schedules & pulsing histories.
 
 geometry rectangular
 
