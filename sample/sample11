@@ -1,4 +1,7 @@
-## This problem defined a multi-level pulse history ph_1, which gets applied in multiple schedule blocks
+## The top-level schedule runs (exactly once) each of the three sub-schedules in succession, with a delay applied just before
+## the start of the next sub-schedule. 
+
+## Each sub-schedule is run with the multi-level pulse history ph_1, which runs the three pulsing levels (and corresponding delays) in succession.
 
 geometry rectangular
 
