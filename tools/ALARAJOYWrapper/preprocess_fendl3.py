@@ -34,8 +34,12 @@ def args():
         '--decay_lib', '-d', required=True, nargs=1,
         help=('''
             Required argument to direct ALARAJOYWrapper to an EAF decay
-                library necessary for cross-referencing short-lived isomeric
-                daughters against known half-life data.
+                library or directory containing EAF decay files for
+                individual nuclides. Necessary for cross-referencing short-
+                lived isomeric daughters against known half-life data.
+              
+                Note: If using --decay_lib to direct to a directory of EAF
+                decay files, all files must have the extension ".dat".
         ''')
     )
     parser.add_argument(
