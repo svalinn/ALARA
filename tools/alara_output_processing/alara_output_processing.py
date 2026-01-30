@@ -358,6 +358,8 @@ class FispactParser:
             adf (alara_output_processing.ALARADFrame): Specialized DataFrame
                 for ALARA output data, containing FISPACT-II output data as
                 well.
+            all_nucs (set): Set of all nuclides catalogued in the inventory
+                across all times.
         '''
 
         with pypact.Reader(output_path) as output:
