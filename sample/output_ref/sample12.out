@@ -1,0 +1,150 @@
+ALARA 2.9.2
+Schedule 'top_sched':
+	schedule sch_1 pulse_history once delay 0 s 
+		pulse_entry: 1 c pulse_history ph_1 delay 0 s
+	schedule sch_2 pulse_history once delay 0.5 y 
+		pulse_entry: 30 w pulse_history ph_2 delay 0 s
+	schedule sch_3 pulse_history once delay 7 d 
+		pulse_entry: 2 y pulse_history ph_3 delay 8 d
+		pulse_entry: 25 w pulse_history ph_2 delay 2 d
+		schedule sch_5 pulse_history ph_3 delay 100 s 
+			pulse_entry: 30 d pulse_history ph_1 delay 0 s
+	schedule sch_4 pulse_history once delay 0 s 
+		pulse_entry: 1 y pulse_history ph_1 delay 1 h
+		pulse_entry: 50 m pulse_history ph_2 delay 1 h
+		pulse_entry: 100 s pulse_history ph_3 delay 10 h
+		pulse_entry: 10 d pulse_history ph_4 delay 1 w
+pulse_history: 'ph_1
+num_pulsing_levels: 1
+num_pulses_per_level: [1]
+delay_seconds_per_level: [0]
+pulse_history: 'ph_2
+num_pulsing_levels: 1
+num_pulses_per_level: [10]
+delay_seconds_per_level: [300]
+pulse_history: 'ph_3
+num_pulsing_levels: 1
+num_pulses_per_level: [20]
+delay_seconds_per_level: [86400]
+pulse_history: 'ph_4
+num_pulsing_levels: 3
+num_pulses_per_level: [1, 5, 10]
+delay_seconds_per_level: [0, 300, 86400]
+pulse_history: 'once
+num_pulsing_levels: 1
+num_pulses_per_level: [1]
+delay_seconds_per_level: [0]
+Zone output requested:
+	Response Units: Bq /cm3
+	Number Density [atoms/cm3]
+
+
+*** Number Density [atoms/cm3] ***
+
+Zone #1: zone_1
+	Relative Volume: 10
+	Containing mixture: mix_1
+
+Total (All constituents) 
+	COMPACTED
+	Volume Fraction: 1	Relative Volume: 10
+Number Density [atoms/cm3]
+isotope  t_1/2(s)   pre-irrad   shutdown   
+======================
+h-1 	-1          0.0000e+00  6.6465e+21  
+h-2 	-1          0.0000e+00  2.1096e+20  
+h-3 	3.8911e+08  0.0000e+00  1.2245e+18  
+he-3 	-1          0.0000e+00  1.2485e+18  
+he-4 	-1          0.0000e+00  1.2653e+21  
+k-43 	7.9920e+04  0.0000e+00  1.8358e+00  
+k-44 	1.3278e+03  0.0000e+00  0.0000e+00  
+k-45 	1.0400e+03  0.0000e+00  0.0000e+00  
+k-46 	9.5000e+01  0.0000e+00  0.0000e+00  
+k-47 	1.7500e+01  0.0000e+00  0.0000e+00  
+ca-43 	-1          0.0000e+00  1.0320e+13  
+ca-44 	-1          0.0000e+00  5.3120e+14  
+ca-45 	1.4057e+07  0.0000e+00  1.8841e+13  
+ca-46 	-1          0.0000e+00  4.5079e+15  
+ca-47 	3.9208e+05  0.0000e+00  1.3356e+12  
+ca-48 	-1          0.0000e+00  2.4879e+11  
+ca-49 	5.2320e+02  0.0000e+00  0.0000e+00  
+sc-45 	-1          0.0000e+00  1.2801e+15  
+sc-45m	3.1600e-01  0.0000e+00  0.0000e+00  
+sc-46 	7.2420e+06  0.0000e+00  5.3788e+12  
+sc-46m	1.8700e+01  0.0000e+00  0.0000e+00  
+sc-47 	2.8909e+05  0.0000e+00  8.3072e+12  
+sc-48 	1.5721e+05  0.0000e+00  2.4396e+12  
+sc-49 	3.4320e+03  0.0000e+00  0.0000e+00  
+sc-50 	1.0250e+02  0.0000e+00  0.0000e+00  
+sc-50m	3.5000e-01  0.0000e+00  0.0000e+00  
+ti-46 	-1          0.0000e+00  4.5157e+15  
+ti-47 	-1          0.0000e+00  1.4359e+17  
+ti-48 	-1          0.0000e+00  6.5069e+17  
+ti-49 	-1          0.0000e+00  3.7333e+18  
+ti-50 	-1          0.0000e+00  1.2710e+19  
+ti-51 	3.4800e+02  0.0000e+00  0.0000e+00  
+ti-52 	1.0200e+02  0.0000e+00  0.0000e+00  
+ti-53 	3.2700e+01  0.0000e+00  0.0000e+00  
+v-48 	1.3802e+06  0.0000e+00  5.2211e+11  
+v-49 	2.8512e+07  0.0000e+00  2.0137e+16  
+v-50 	4.7000e+24  0.0000e+00  2.6201e+19  
+v-51 	-1          0.0000e+00  1.3188e+20  
+v-52 	2.2470e+02  0.0000e+00  0.0000e+00  
+v-53 	9.7200e+01  0.0000e+00  0.0000e+00  
+v-54 	4.9800e+01  0.0000e+00  0.0000e+00  
+cr-49 	2.5140e+03  0.0000e+00  0.0000e+00  
+cr-50 	-1          0.0000e+00  4.4986e+17  
+cr-51 	2.3938e+06  0.0000e+00  8.4429e+16  
+cr-52 	-1          0.0000e+00  4.2071e+20  
+cr-53 	-1          0.0000e+00  1.1035e+21  
+cr-54 	-1          0.0000e+00  1.9650e+21  
+cr-55 	2.1240e+02  0.0000e+00  0.0000e+00  
+cr-56 	3.5600e+02  0.0000e+00  0.0000e+00  
+cr-57 	2.1100e+01  0.0000e+00  0.0000e+00  
+cr-58 	7.0000e+00  0.0000e+00  0.0000e+00  
+mn-51 	2.7720e+03  0.0000e+00  0.0000e+00  
+mn-52 	4.8310e+05  0.0000e+00  2.0755e+15  
+mn-52m	1.2660e+03  0.0000e+00  0.0000e+00  
+mn-53 	1.1668e+14  0.0000e+00  7.4282e+20  
+mn-54 	2.6983e+07  0.0000e+00  2.5232e+19  
+mn-55 	-1          0.0000e+00  9.3247e+21  
+mn-56 	9.2844e+03  0.0000e+00  2.7099e-04  
+mn-57 	9.6600e+01  0.0000e+00  0.0000e+00  
+mn-58 	6.5300e+01  0.0000e+00  0.0000e+00  
+mn-58m	3.0000e+00  0.0000e+00  0.0000e+00  
+mn-59 	4.6000e+00  0.0000e+00  0.0000e+00  
+fe-53 	5.1060e+02  0.0000e+00  0.0000e+00  
+fe-53m	1.5480e+02  0.0000e+00  0.0000e+00  
+fe-54 	-1          4.9989e+20  3.0511e+21  
+fe-55 	8.6314e+07  0.0000e+00  2.3150e+20  
+fe-56 	-1          7.7711e+21  6.5113e+22  
+fe-57 	-1          1.7793e+20  2.3133e+21  
+fe-58 	-1          2.3723e+19  2.4952e+20  
+fe-59 	3.8450e+06  0.0000e+00  8.1355e+15  
+fe-60 	2.3700e+14  0.0000e+00  4.0229e+14  
+co-57 	2.3483e+07  0.0000e+00  3.9679e+12  
+co-58 	6.1223e+06  0.0000e+00  2.4916e+15  
+co-58m	3.2184e+04  0.0000e+00  1.7246e+07  
+co-59 	-1          0.0000e+00  6.2301e+18  
+co-60 	1.6636e+08  0.0000e+00  2.9147e+16  
+co-60m	6.2820e+02  0.0000e+00  0.0000e+00  
+co-61 	5.9400e+03  0.0000e+00  2.2190e-22  
+ni-58 	-1          0.0000e+00  2.4851e+14  
+ni-59 	2.3984e+12  0.0000e+00  9.3878e+15  
+ni-60 	-1          0.0000e+00  2.7995e+17  
+ni-61 	-1          0.0000e+00  4.0448e+15  
+ni-62 	-1          0.0000e+00  4.3302e+13  
+======================
+total   0           8.4726e+21  9.2848e+22  
+
+Totals for all zones.
+Number Density [atoms/cm3]
+zone	 shutdown   
+======================
+1	9.2848e+22  	zone_1 (mix_1)
+======================
+
+
+
+
+
