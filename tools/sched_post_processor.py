@@ -114,8 +114,6 @@ def parse_arg():
     return arg.f              
 
 def main():
-    output_path = '../../../test_dir/sample12.out'
-
     lines = read_out(output_path)
 
     pulse_dict = read_pulse_histories(lines)
