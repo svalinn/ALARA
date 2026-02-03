@@ -377,10 +377,10 @@ class FispactParser:
                 # time label convention.
                 if time.cooling_time == 0 and time_zero == 0:
                     time.cooling_time = -1
+                    mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 # [kg]
                     time_zero += 1
 
                 row['time'] = time.cooling_time
-                mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 # [kg]
                 for n in time.nuclides:
                     nuclide = f'{n.element.lower()}-{n.isotope}{n.state}'
                     all_nucs.update({nuclide})
