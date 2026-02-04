@@ -97,8 +97,7 @@ def convert_to_s(sch_dict):
         matches = search_for_match(sch_dict, search_field)
         for match in matches:
             if 'sched_delay_dur' in match: # if the entry is a schedule entry
-                match['sched_delay_dur'] = float(matches[0]['sched_delay_dur']) * unit_multiples[match['sched_delay_unit']]
-                print(match)
+                match['sched_delay_dur'] = float(match['sched_delay_dur']) * unit_multiples[match['sched_delay_unit']]
             elif 'pe_dur' in match: # if the entry is a pulse entry
                 match['pe_dur'] = float(match['pe_dur']) * unit_multiples[match['pe_dur_unit']]
                 match['pe_delay_dur'] = float(match['pe_delay_dur']) * unit_multiples[matches[0]['pe_delay_unit']]
