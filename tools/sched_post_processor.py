@@ -21,7 +21,25 @@ def read_pulse_histories(out_lines):
             pulse_dict[line.split()[1].strip("':")] = {"num_pulses_all_levels": out_lines[line_idx+2].split(":")[1].strip(), 
                                                    "delay_seconds_all_levels": out_lines[line_idx+3].split(":")[1].strip()
                                                       }                                                                                         
-    return pulse_dict  
+    return pulse_dict
+
+def make_sch_sub_dict(line):
+    sch_sub_dict = {
+    "sched_ph_name" : line.strip().split()[3],
+    "sched_delay_dur" : line.strip().split()[5],
+    "sched_delay_unit" : line.strip().split()[6]
+                   }
+    return sch_sub_dict
+
+def make_pe_sub_dict(line):
+    pe_sub_dict = {
+    "pe_dur": line.split()[1], 
+    "pe_dur_unit": line.split()[2], 
+    "corr_ph_name": line.split()[4],
+    "pe_delay_dur": line.split()[6],
+    "pe_delay_unit": line.split()[7]
+                  } 
+    return pe_sub_dict
 
 def make_nested_dict(lines):
     '''
@@ -40,20 +58,11 @@ def make_nested_dict(lines):
 
         if newline_name.strip().split()[0] == 'schedule':
             counter = 1
-            last_upper_indent_level[child_level][f'schedule {line.strip().split()[1]}'] = {
-                                                    "sched_ph_name" : line.strip().split()[3],
-                                                    "sched_delay_dur" : line.strip().split()[5],
-                                                    "sched_delay_unit" : line.strip().split()[6]
-                                                   }
+            last_upper_indent_level[child_level][f'schedule {line.strip().split()[1]}'] = make_sch_sub_dict(line)
             last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f'schedule {line.strip().split()[1]}']
 
         elif newline_name.strip().split()[0] == 'pulse_entry':
-            last_upper_indent_level[child_level][f"{line.strip().split()[0]} num_{counter}_in_sched"] = {
-                                            "pe_dur": line.split()[1], 
-                                             "pe_dur_unit": line.split()[2], 
-                                             "corr_ph_name": line.split()[4],
-                                             "pe_delay_dur": line.split()[6],
-                                             "pe_delay_unit": line.split()[7]}   
+            last_upper_indent_level[child_level][f"{line.strip().split()[0]} num_{counter}_in_sched"] = make_pe_sub_dict(line)  
             last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f"{line.strip().split()[0]} {counter}_in_sched"]
             counter += 1         
         else: # for line with top schedule
