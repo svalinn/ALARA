@@ -39,7 +39,7 @@ def read_pulse_histories(lines):
 def make_sch_sub_dict(sch_line, unit_multipliers):
     sch_sub_dict = {
     "sched_ph_name" : sch_line[3],
-    "sched_delay_dur" : unit_multipliers[sch_line[6]] * float(sch_line[5]),
+    "sched_delay_dur" : float(sch_line[5]) * unit_multipliers[sch_line[6]],
     "sched_delay_unit" : 's'
                    }
     return sch_sub_dict
@@ -63,29 +63,33 @@ def make_nested_dict(lines):
     sch_dict = {}
     last_upper_indent_level = {0: sch_dict}
     line_idx = 0
+    counter_dict = {}
     unit_multipliers = make_unit_multipliers()
     while not lines[line_idx].startswith("pulse_history:"): # next section of output
-
         child_level = lines[line_idx].count('\t')
-        newline_name = lines[line_idx].lstrip('\t').rstrip('\n')
+        newline_name = lines[line_idx].strip().split()
 
-        if newline_name.strip().split()[0] == 'schedule':
-            counter = 1
-            last_upper_indent_level[child_level][f'schedule {newline_name.split()[1]}'] = make_sch_sub_dict(newline_name.split(), 
-                                                                                                            unit_multipliers)
-            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f'schedule {newline_name.split()[1]}']
-            line_idx += 1
-
-        elif newline_name.strip().split()[0] == 'pulse_entry:':
-            last_upper_indent_level[child_level][f"{newline_name.split()[0]} num_{counter}_in_sched"] = make_pe_sub_dict(newline_name.split(),
-                                                                                                                         unit_multipliers)  
-            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f"{newline_name.split()[0]} num_{counter}_in_sched"]
-            counter += 1
-            line_idx += 1        
-        else: # for line with top schedule
-            last_upper_indent_level[child_level][newline_name.split()[1].strip("':")] = {}
-            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][newline_name.split()[1].strip("':")]           
+        if newline_name[0] == 'schedule':
+            last_upper_indent_level[child_level][f'schedule {newline_name[1]}'] = make_sch_sub_dict(newline_name, 
+                                                                                                    unit_multipliers)
+            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f'schedule {newline_name[1]}']
             line_idx += 1 
+            new_child_level = lines[line_idx].count('\t')
+            counter = counter_dict[new_child_level] = 1
+
+        elif newline_name[0] == 'pulse_entry:':
+            counter = counter_dict[child_level]
+            last_upper_indent_level[child_level][f"pulse_entry num_{counter}_in_sched"] = make_pe_sub_dict(newline_name,
+                                                                                                           unit_multipliers)  
+            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f"pulse_entry num_{counter}_in_sched"]
+            counter = counter_dict[child_level] = counter + 1
+            line_idx += 1  
+        else: # for line with top schedule
+            last_upper_indent_level[child_level][newline_name[1].strip("':")] = {}
+            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][newline_name[1].strip("':")]           
+            line_idx += 1
+            new_child_level = lines[line_idx].count('\t')
+            counter = counter_dict[new_child_level] = 1
     return sch_dict
 
 def make_unit_multipliers():
