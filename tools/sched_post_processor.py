@@ -4,11 +4,10 @@ import argparse
 def read_out(output_path):
     with open(output_path, "r") as output_file:
         lines = output_file.readlines()
-        for line_idx, line in enumerate(lines):
-            # ignore all lines above the one with the top schedule
-            if line.startswith("top_schedule 'top_sched':"):
-                lines = lines[line_idx:]
-    return lines
+    line_idx = 0
+    while not lines[line_idx].startswith("top_schedule 'top_sched':"):
+        line_idx += 1
+    return lines[line_idx:]
 
 def read_pulse_histories(out_lines):    
     '''
