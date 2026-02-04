@@ -16,11 +16,25 @@ def read_pulse_histories(out_lines):
     regardless of usage in any schedule item.
     '''
     pulse_dict = {}
-    for line_idx, line in enumerate(out_lines):
-        if line.strip().startswith("pulse_history"):
-            pulse_dict[line.split()[1].strip("':")] = {"num_pulses_all_levels": out_lines[line_idx+2].split(":")[1].strip(), 
-                                                   "delay_seconds_all_levels": out_lines[line_idx+3].split(":")[1].strip()
-                                                      }                                                                                         
+    line_idx = 0
+    num_lines = len(out_lines)
+    while line_idx < num_lines:
+        line = out_lines[line_idx].strip()
+        if line.startswith("pulse_history"):
+            num_pulse_line = out_lines[line_idx+2].strip()
+            delay_line = out_lines[line_idx+3].strip()
+
+            pulse_hist_name = line.split()[1].strip("':")
+            num_pulses = num_pulse_line.split(":")[1]
+            delays = delay_line.split(":")[1]
+
+            pulse_dict[pulse_hist_name] = {
+                "num_pulses_all_levels" : num_pulses,
+                "delay_seconds_all_levels" : delays
+            }
+            line_idx += 3
+         else:
+            line_idx += 1                                                                                         
     return pulse_dict
 
 def make_sch_sub_dict(line):
