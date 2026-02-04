@@ -364,7 +364,7 @@ class FispactParser:
 
         with pypact.Reader(output_path) as output:
             rows = []
-            time_zero = 0
+            time_zero = True
             all_nucs = set()
             row = {k: -1 for k in ['block', 'block_name', 'block_num']}
             row['run_lbl'] = run_lbl
@@ -375,10 +375,10 @@ class FispactParser:
                 # time.cooling_time = 0. This conditional sets the first
                 # instance (pre-irradiation) to -1 to match the ALARADFrame
                 # time label convention.
-                if time.cooling_time == 0 and time_zero == 0:
+                if time.cooling_time == 0 and time_zero:
                     time.cooling_time = -1
                     mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 # [kg]
-                    time_zero += 1
+                    time_zero = False
 
                 row['time'] = time.cooling_time
                 for n in time.nuclides:
