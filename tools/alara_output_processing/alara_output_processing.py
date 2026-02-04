@@ -667,21 +667,15 @@ class ALARADFrame(pd.DataFrame):
         adf_rel['var_unit'] = [None] * len(adf_rel)
 
         return adf_rel
-
-    #### FISPACT-II Hybrid ALARADFrame Operations ####
-    ####    (ALARADFrames with FISPACT-II data)   ####
-
+    
     def create_total_rows(self):
         '''
         Calculate and insert "total" nuclide row data for each variable,
-            time-step in an ALARADFrame. Only used when loading FISPACT-II
-            output data into an ALARADFrame, as ALARA output data always
-            contains cumulative "total" data at each time-step.
+            time-step in an ALARADFrame.
 
         Arguments:
             self (alara_output_processing.ALARADFrame): Specialized DataFrame
-                for ALARA output data, containing FISPACT-II output data as
-                well.
+                for ALARA output data.
 
         Returns:
             adf_with_totals (alara_output_processing.ALARADFrame): Updated
@@ -703,6 +697,9 @@ class ALARADFrame(pd.DataFrame):
         totals['half_life'] = 0
 
         return pd.concat([self, totals], ignore_index=True)
+
+    #### FISPACT-II Hybrid ALARADFrame Operations ####
+    ####    (ALARADFrames with FISPACT-II data)   ####
 
     def fill_skipped_nucs(self, all_nucs):
         '''

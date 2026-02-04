@@ -627,7 +627,7 @@ def single_time_pie_chart(
         else f' at {times[time_idx]} {time_unit}'
     )
     ax.set_title(
-        f'{run_lbl}: Aggregated Proportional Contitributions to ' \
+        f'{run_lbl}:\nAggregated Proportional Contitributions to ' \
         f'{variable}{header_time}',
         loc='right'
     )
