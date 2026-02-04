@@ -46,10 +46,10 @@ def make_sch_sub_dict(sch_line, unit_multipliers):
 
 def make_pe_sub_dict(pe_line, unit_multipliers):
     pe_sub_dict = {
-    "pe_dur": unit_multipliers[pe_line[2]] * float(pe_line[1]), 
+    "pe_dur": float(pe_line[1]) * unit_multipliers[pe_line[2]], 
     "pe_dur_unit": 's', 
     "corr_ph_name": pe_line[4],
-    "pe_delay_dur": unit_multipliers[pe_line[7]] * float(pe_line[1]),
+    "pe_delay_dur": float(pe_line[6]) * unit_multipliers[pe_line[7]],
     "pe_delay_unit": 's'
                   } 
     return pe_sub_dict
