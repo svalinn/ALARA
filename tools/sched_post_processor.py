@@ -49,14 +49,13 @@ def make_nested_dict(lines):
             last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f'schedule {line.strip().split()[1]}']
 
         elif newline_name.strip().split()[0] == 'pulse_entry:':
-            last_upper_indent_level[child_level][line.strip().split()[0]] = {
-                                            "entry_num_in_sched" : counter,
+            last_upper_indent_level[child_level][f"{line.strip().split()[0]} {counter}_in_sched"] = {
                                             "pe_dur": line.split()[1], 
                                              "pe_dur_unit": line.split()[2], 
                                              "corr_ph_name": line.split()[4],
                                              "pe_delay_dur": line.split()[6],
                                              "pe_delay_unit": line.split()[7]}   
-            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][line.strip().split()[0]]
+            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f"{line.strip().split()[0]} {counter}_in_sched"]
             counter += 1         
         else: # for line with top schedule
             last_upper_indent_level[child_level][newline_name.split()[1].strip("':")] = {}
@@ -96,13 +95,15 @@ def convert_to_s(sch_dict):
     search_fields = ["schedule", "pulse_entry:"]
     for search_field in search_fields:
         matches = search_for_match(sch_dict, search_field)
-        if 'sched_delay_dur' in matches[0]: # if the entry is a schedule entry
-            matches[0]['sched_delay_dur'] = float(matches[0]['sched_delay_dur']) * unit_multiples[matches[0]['sched_delay_unit']]
-        elif 'pe_dur' in matches[0]: # if the entry is a pulse entry
-            matches[0]['pe_dur'] = float(matches[0]['pe_dur']) * unit_multiples[matches[0]['pe_dur_unit']]
-            matches[0]['pe_delay_dur'] = float(matches[0]['pe_delay_dur']) * unit_multiples[matches[0]['pe_delay_unit']]
+        for match in matches:
+            if 'sched_delay_dur' in match: # if the entry is a schedule entry
+                match['sched_delay_dur'] = float(matches[0]['sched_delay_dur']) * unit_multiples[match['sched_delay_unit']]
+                print(match)
+            elif 'pe_dur' in match: # if the entry is a pulse entry
+                match['pe_dur'] = float(match['pe_dur']) * unit_multiples[match['pe_dur_unit']]
+                match['pe_delay_dur'] = float(match['pe_delay_dur']) * unit_multiples[matches[0]['pe_delay_unit']]
 
-        matches[0]['sched_delay_unit'] = matches[0]['pe_dur_unit'] = matches[0]['pe_delay_unit'] = 's' 
+            match['sched_delay_unit'] = match['pe_dur_unit'] = match['pe_delay_unit'] = 's'     
     return sch_dict
 
 def parse_arg():
