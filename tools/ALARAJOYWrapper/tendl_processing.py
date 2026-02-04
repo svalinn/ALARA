@@ -196,15 +196,15 @@ def _is_ground_state(M):
 
     return M == 0
 
-def _is_isomer_with_decay_data(dKZA, pKZA, radionucs, M):
+def _has_decay_data(dKZA, pKZA, radionucs, M):
     """
-    Determine if a nuclear isomer has a known half-life (determined from 
-        parsing of an EAF decay library) and whose excited state is less than
-        10. The cut-off at the 9th excited state is necessary because double-
-        digit Ms could alter a KZA to represent a different element (i.e. the
-        10th excited state of Li-6 would have a KZA of 300610, which by the
-        KZA formatting convention would actually represent Zn-61, a 
-        radionuclide with decay data in the EAF-2010 decay library).
+    Determine if a nuclide has a known half-life (determined from parsing of
+        an EAF decay library) and whose excited state is less than 10. The
+        cut-off at the 9th excited state is necessary because double-digit Ms
+        could alter a KZA to represent a different element (i.e. the 10th
+        excited state of Li-6 would have a KZA of 300610, which by the KZA
+        formatting convention would actually represent Zn-61, a radionuclide
+        with decay data in the EAF-2010 decay library).
 
     One of two internal Boolean methods to determine whether to create a new
         reaction entry in all_rxns for a given parent, daughter, MT
@@ -287,7 +287,7 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # excitation at 9th state by nature of KZA conventions.
         if (
             _is_ground_state(rxn['isomer']) or
-            _is_isomer_with_decay_data(dKZA, pKZA, radionucs, rxn['isomer'])
+            _has_decay_data(dKZA, pKZA, radionucs, rxn['isomer'])
         ):
             all_rxns[pKZA][dKZA][MT] = {
                 'emitted'    :  rxn['emitted'],
