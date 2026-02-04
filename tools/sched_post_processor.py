@@ -41,23 +41,22 @@ def make_nested_dict(lines):
 
         if newline_name.strip().split()[0] == 'schedule':
             counter = 1
-            last_upper_indent_level[child_level]["schedule"] = {
-                                                    "sched_name" : line.strip().split()[1],
+            last_upper_indent_level[child_level][f'schedule {line.strip().split()[1]}'] = {
                                                     "sched_ph_name" : line.strip().split()[3],
                                                     "sched_delay_dur" : line.strip().split()[5],
                                                     "sched_delay_unit" : line.strip().split()[6]
                                                    }
-            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level]["schedule"]
+            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f'schedule {line.strip().split()[1]}']
 
         elif newline_name.strip().split()[0] == 'pulse_entry:':
-            last_upper_indent_level[child_level]['pulse_entry'] = {
+            last_upper_indent_level[child_level][line.strip().split()[0]] = {
                                             "entry_num_in_sched" : counter,
                                             "pe_dur": line.split()[1], 
                                              "pe_dur_unit": line.split()[2], 
                                              "corr_ph_name": line.split()[4],
                                              "pe_delay_dur": line.split()[6],
                                              "pe_delay_unit": line.split()[7]}   
-            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level]['pulse_entry']
+            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][line.strip().split()[0]]
             counter += 1         
         else: # for line with top schedule
             last_upper_indent_level[child_level][newline_name.split()[1].strip("':")] = {}
@@ -71,7 +70,7 @@ def search_for_match(top_dict, search_str):
     matches = []
     for key, value in top_dict.items():
 
-        if key == search_str:
+        if key.startswith(search_str):
             matches.append(value)
 
         elif isinstance(value, dict):
@@ -94,8 +93,7 @@ def convert_to_s(sch_dict):
     'm' : 60,
     's' : 1
                      }
-
-    search_fields = ["schedule", "pulse_entry"]
+    search_fields = ["schedule", "pulse_entry:"]
     for search_field in search_fields:
         matches = search_for_match(sch_dict, search_field)
         if 'sched_delay_dur' in matches[0]: # if the entry is a schedule entry
