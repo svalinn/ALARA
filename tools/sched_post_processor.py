@@ -49,7 +49,8 @@ def make_nested_dict(lines):
     '''
     sch_dict = {}
     last_upper_indent_level = {0: sch_dict}
-    for line in lines:
+    line_idx = 0
+    while not lines[line_idx].startswith("pulse_history:"):
         if line.startswith("pulse_history:"): #next section of output
             break
 
