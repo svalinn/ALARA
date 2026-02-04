@@ -36,8 +36,8 @@ def make_nested_dict(lines):
         if line.startswith("pulse_history:"): #next section of output
             break
 
+        chile_level = line.count('\t')
         newline_name = line.lstrip('\t').rstrip('\n')
-        child_level = len(line.rstrip('\n')) - len(newline_name) # find number of tabs in the line
 
         if newline_name.strip().split()[0] == 'schedule':
             counter = 1
