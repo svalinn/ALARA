@@ -88,22 +88,6 @@ def make_nested_dict(lines):
             line_idx += 1 
     return sch_dict
 
-def search_for_match(top_dict, search_str):
-    '''
-    Takes a nested top dictionary and searches all sub-dictionaries for matches with a provided string.
-    '''
-    matches = []
-    for key, value in top_dict.items():
-
-        if key.startswith(search_str):
-            matches.append(value)
-
-        elif isinstance(value, dict):
-            match_res = search_for_match(value, search_str)
-            matches.extend(match_res)
-
-    return matches
-
 def make_unit_multipliers():
     '''
     Defines multipliers to convert all durations and units in schedule/pulse entries to seconds. Changes the corresponding 
