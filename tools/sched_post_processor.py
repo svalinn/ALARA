@@ -114,14 +114,13 @@ def parse_arg():
     return arg.f              
 
 def main():
+    output_path = parse_arg()
     lines = read_out(output_path)
 
     pulse_dict = read_pulse_histories(lines)
     sch_dict = make_nested_dict(lines)
 
     sch_dict = convert_to_s(sch_dict)
-
-    out_path = parse_arg()
 
 if __name__ == '__main__':
     main()
