@@ -9,7 +9,7 @@ def read_out(output_path):
         line_idx += 1  
     return lines[line_idx:]
 
-def read_pulse_histories(out_lines):    
+def read_pulse_histories(lines):    
     '''
     Creates a dictionary with the name of the pulse history as the key, and a dictionary containing the number of pulses
     in all pulsing levels & the delay (in seconds) of all pulsing levels as the value. All pulse histories are stored
@@ -17,12 +17,11 @@ def read_pulse_histories(out_lines):
     '''
     pulse_dict = {}
     line_idx = 0
-    num_lines = len(out_lines)
-    while line_idx < num_lines:
-        line = out_lines[line_idx].strip()
+    while line_idx < len(lines):
+        line = lines[line_idx].strip()
         if line.startswith("pulse_history"):
-            num_pulse_line = out_lines[line_idx+2].strip()
-            delay_line = out_lines[line_idx+3].strip()
+            num_pulse_line = lines[line_idx+2].strip()
+            delay_line = lines[line_idx+3].strip()
 
             pulse_hist_name = line.split()[1].strip("':")
             num_pulses = num_pulse_line.split(":")[1]
@@ -32,9 +31,9 @@ def read_pulse_histories(out_lines):
                 "num_pulses_all_levels" : num_pulses,
                 "delay_seconds_all_levels" : delays
             }
-            line_idx += 3
-         else:
-            line_idx += 1                                                                                         
+            line_idx += 4
+        else:
+            line_idx += 1                                                                                      
     return pulse_dict
 
 def make_sch_sub_dict(line):
