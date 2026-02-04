@@ -57,13 +57,13 @@ def make_nested_dict(lines):
 
         if newline_name.strip().split()[0] == 'schedule':
             counter = 1
-            last_upper_indent_level[child_level][f'schedule {lines[line_idx].strip().split()[1]}'] = make_sch_sub_dict(lines[line_idx])
-            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f'schedule {lines[line_idx].strip().split()[1]}']
+            last_upper_indent_level[child_level][f'schedule {newline_name.split()[1]}'] = make_sch_sub_dict(lines[line_idx])
+            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f'schedule {newline_name.split()[1]}']
             line_idx += 1
 
         elif newline_name.strip().split()[0] == 'pulse_entry:':
-            last_upper_indent_level[child_level][f"{lines[line_idx].strip().split()[0]} num_{counter}_in_sched"] = make_pe_sub_dict(lines[line_idx])  
-            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f"{lines[line_idx].strip().split()[0]} num_{counter}_in_sched"]
+            last_upper_indent_level[child_level][f"{newline_name.split()[0]} num_{counter}_in_sched"] = make_pe_sub_dict(lines[line_idx])  
+            last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f"{newline_name.split()[0]} num_{counter}_in_sched"]
             counter += 1
             line_idx += 1        
         else: # for line with top schedule
