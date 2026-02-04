@@ -47,8 +47,8 @@ def make_nested_dict(lines):
                                                    }
             last_upper_indent_level[child_level + 1] = last_upper_indent_level[child_level][f'schedule {line.strip().split()[1]}']
 
-        elif newline_name.strip().split()[0] == 'pulse_entry:':
-            last_upper_indent_level[child_level][f"{line.strip().split()[0]} {counter}_in_sched"] = {
+        elif newline_name.strip().split()[0] == 'pulse_entry':
+            last_upper_indent_level[child_level][f"{line.strip().split()[0]} num_{counter}_in_sched"] = {
                                             "pe_dur": line.split()[1], 
                                              "pe_dur_unit": line.split()[2], 
                                              "corr_ph_name": line.split()[4],
@@ -91,7 +91,7 @@ def convert_to_s(sch_dict):
     'm' : 60,
     's' : 1
                      }
-    search_fields = ["schedule", "pulse_entry:"]
+    search_fields = ["schedule", "pulse_entry"]
     for search_field in search_fields:
         matches = search_for_match(sch_dict, search_field)
         for match in matches:
