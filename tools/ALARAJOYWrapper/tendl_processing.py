@@ -226,7 +226,7 @@ def _has_decay_data(dKZA, radionucs):
 
     Returns:
         has_known_decay (bool): True if the nuclide has a known half-life
-            contained in the EAF decay library.
+            contained in the reference EAF decay library.
     """
 
     return dKZA in radionucs
