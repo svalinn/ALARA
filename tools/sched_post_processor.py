@@ -75,12 +75,11 @@ def make_nested_dict(lines, unit_multipliers):
         newline_name = lines[line_idx].strip().split()
 
         if newline_name[0] == "schedule":
-            last_upper_indent_level[child_level][f"schedule {newline_name[1]}"] = (
-                make_sch_sub_dict(newline_name, unit_multipliers)
-            )
+            last_upper_indent_level[child_level][
+                f"schedule {newline_name[1]}"] = (make_sch_sub_dict(
+                    newline_name, unit_multipliers))
             last_upper_indent_level[child_level + 1] = last_upper_indent_level[
-                child_level
-            ][f"schedule {newline_name[1]}"]
+                child_level][f"schedule {newline_name[1]}"]
             line_idx += 1
             new_child_level = lines[line_idx].count("\t")
             counter = counter_dict[new_child_level] = 1
@@ -88,18 +87,18 @@ def make_nested_dict(lines, unit_multipliers):
         elif newline_name[0] == "pulse_entry:":
             counter = counter_dict[child_level]
             last_upper_indent_level[child_level][
-                f"pulse_entry num_{counter}_in_sched"
-            ] = make_pe_sub_dict(newline_name, unit_multipliers)
+                f"pulse_entry num_{counter}_in_sched"] = make_pe_sub_dict(
+                    newline_name, unit_multipliers)
             last_upper_indent_level[child_level + 1] = last_upper_indent_level[
-                child_level
-            ][f"pulse_entry num_{counter}_in_sched"]
+                child_level][f"pulse_entry num_{counter}_in_sched"]
             counter = counter_dict[child_level] = counter + 1
             line_idx += 1
         else:  # for line with top schedule
-            last_upper_indent_level[child_level][newline_name[1].strip("':")] = {}
-            last_upper_indent_level[child_level + 1] = last_upper_indent_level[
-                child_level
-            ][newline_name[1].strip("':")]
+            last_upper_indent_level[child_level][newline_name[1].strip(
+                "':")] = {}
+            last_upper_indent_level[child_level +
+                                    1] = last_upper_indent_level[child_level][
+                                        newline_name[1].strip("':")]
             line_idx += 1
             new_child_level = lines[line_idx].count("\t")
             counter = counter_dict[new_child_level] = 1
@@ -108,9 +107,10 @@ def make_nested_dict(lines, unit_multipliers):
 
 def parse_arg():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-f", required=True, type=str, help="path to file containing ALARA output"
-    )
+    parser.add_argument("-f",
+                        required=True,
+                        type=str,
+                        help="path to file containing ALARA output")
     arg = parser.parse_args()
     return arg.f
 
