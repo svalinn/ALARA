@@ -54,7 +54,7 @@ def make_pe_sub_dict(pe_line, unit_multipliers):
                   } 
     return pe_sub_dict
 
-def make_nested_dict(lines):
+def make_nested_dict(lines, unit_multipliers):
     '''
     Constructs a hierarchy of dictionaries with a separate level for each additional tab found at the beginning of each line
     in the section of the output with schedule details.
@@ -64,7 +64,6 @@ def make_nested_dict(lines):
     last_upper_indent_level = {0: sch_dict}
     line_idx = 0
     counter_dict = {}
-    unit_multipliers = make_unit_multipliers()
     while not lines[line_idx].startswith("pulse_history:"): # next section of output
         child_level = lines[line_idx].count('\t')
         newline_name = lines[line_idx].strip().split()
@@ -92,22 +91,6 @@ def make_nested_dict(lines):
             counter = counter_dict[new_child_level] = 1
     return sch_dict
 
-def make_unit_multipliers():
-    '''
-    Defines multipliers to convert all durations and units in schedule/pulse entries to seconds. Changes the corresponding 
-    entries in the dictionaries to reflect this change.
-    '''
-    unit_multipliers = {
-    'c' : 60 * 60 * 24 * 365 * 100,
-    'y' : 60 * 60 * 24 * 365,
-    'w' : 60 * 60 * 24 * 7,
-    'd' : 60 * 60 * 24,
-    'h' : 60 * 60,
-    'm' : 60,
-    's' : 1
-                     }
-    return unit_multipliers
-
 def parse_arg():
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", required=True, type=str, help="path to file containing ALARA output")
@@ -115,12 +98,20 @@ def parse_arg():
     return arg.f              
 
 def main():
+    unit_multipliers = {
+    'c' : 60 * 60 * 24 * 365 * 100,
+    'y' : 60 * 60 * 24 * 365,
+    'w' : 60 * 60 * 24 * 7,
+    'd' : 60 * 60 * 24,
+    'h' : 60 * 60,
+    'm' : 60,
+    's' : 1}
+
     output_path = parse_arg()
     lines = read_out(output_path)
-    unit_multipliers = make_unit_multipliers()
 
     pulse_dict = read_pulse_histories(lines)
-    sch_dict = make_nested_dict(lines)
+    sch_dict = make_nested_dict(lines, unit_multipliers)
 
 if __name__ == '__main__':
     main()
