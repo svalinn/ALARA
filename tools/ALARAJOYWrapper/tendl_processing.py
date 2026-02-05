@@ -239,6 +239,7 @@ def determine_daughter_excitation(
             potentially with new parent/reaction excitation data.
     """
 
+<<<<<<< HEAD
     # Reference existing excitation_pathways dict; if a reaction is already
     # accounted for, return its reference excitation
     if pKZA in excitation_pathways:
@@ -270,6 +271,17 @@ def determine_daughter_excitation(
             excitation_pathways[pKZA][EXCITATION_DICT[MT][iso]] = iso
     else:
         excitation_pathways[pKZA][MT] = 0
+=======
+    Arguments:
+        dKZA (int): Daughter KZA identifier.
+        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
+
+    Returns:
+        has_known_decay (bool): True if the nuclide has a known half-life
+            contained in the reference EAF decay library.
+    """
+>>>>>>> da346b9 (Docstring fix)
 
     return excitation_pathways[pKZA][MT], excitation_pathways
 
