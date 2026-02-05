@@ -72,36 +72,36 @@ def make_nested_dict(lines, unit_multipliers):
     # next section of output
     while not lines[line_idx].startswith("pulse_history:"):
         child_level = lines[line_idx].count("\t")
-        newline_name = lines[line_idx].strip().split()
+        child_level_line = lines[line_idx].strip().split()
 
-        if newline_name[0] == "schedule":
+        if child_level_line[0] == "schedule":
             last_upper_indent_level[child_level][
-                f"schedule {newline_name[1]}"] = (make_sch_sub_dict(
-                    newline_name, unit_multipliers))
+                f"schedule {child_level_line[1]}"] = (make_sch_sub_dict(
+                    child_level_line, unit_multipliers))
             last_upper_indent_level[child_level + 1] = last_upper_indent_level[
-                child_level][f"schedule {newline_name[1]}"]
+                child_level][f"schedule {child_level_line[1]}"]
             line_idx += 1
             new_child_level = lines[line_idx].count("\t")
             counter = counter_dict[new_child_level] = 1
 
-        elif newline_name[0] == "pulse_entry:":
+        elif child_level_line[0] == "pulse_entry:":
             counter = counter_dict[child_level]
             last_upper_indent_level[child_level][
                 f"pulse_entry num_{counter}_in_sched"] = make_pe_sub_dict(
-                    newline_name, unit_multipliers)
+                    child_level_line, unit_multipliers)
             last_upper_indent_level[child_level + 1] = last_upper_indent_level[
                 child_level][f"pulse_entry num_{counter}_in_sched"]
-            counter = counter_dict[child_level] = counter + 1
+            counter_dict[child_level] = counter + 1
             line_idx += 1
         else:  # for line with top schedule
-            last_upper_indent_level[child_level][newline_name[1].strip(
+            last_upper_indent_level[child_level][child_level_line[1].strip(
                 "':")] = {}
             last_upper_indent_level[child_level +
                                     1] = last_upper_indent_level[child_level][
-                                        newline_name[1].strip("':")]
+                                        child_level_line[1].strip("':")]
             line_idx += 1
             new_child_level = lines[line_idx].count("\t")
-            counter = counter_dict[new_child_level] = 1
+            counter_dict[new_child_level] = 1
     return sch_dict
 
 
@@ -113,7 +113,6 @@ def parse_arg():
                         help="path to file containing ALARA output")
     arg = parser.parse_args()
     return arg.f
-
 
 def main():
     unit_multipliers = {
@@ -131,7 +130,6 @@ def main():
 
     pulse_dict = read_pulse_histories(lines)
     sch_dict = make_nested_dict(lines, unit_multipliers)
-
 
 if __name__ == "__main__":
     main()
