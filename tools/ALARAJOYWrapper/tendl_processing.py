@@ -182,6 +182,24 @@ def extract_cross_sections(file, MT):
 
     return sigma_list[::-1]
 
+def _has_valid_daughter_KZA(pKZA, M):
+    """
+    Determine if a given parent and isomeric value associated with a given
+        reaction will produce a duaghter nuclide with a valid KZA.
+        Specifically, this is to ensure that the daughter's excited state is
+        less than 10. The cut-off at the 9th excited state is necessary
+        because double-digit excited states alter a KZA to represent a
+        different element (i.e. the 10th excited state of Li-6 would have a
+        KZA of 300610, which by the KZA formatting convention would actually
+        represent Zn-61).
+
+    Arguments:
+        pKZA (int): Parent KZA identifier.
+        M (int): Isomeric state of the given nuclide
+    """
+
+    return (pKZA % 10) + M < 10
+
 def _is_ground_state(M):
     """
     Determine if a given reaction yields a ground state product.
@@ -196,33 +214,22 @@ def _is_ground_state(M):
 
     return M == 0
 
-def _has_decay_data(dKZA, pKZA, radionucs, M):
+def _has_decay_data(dKZA, radionucs):
     """
     Determine if a nuclide has a known half-life (determined from parsing of
-        an EAF decay library) and whose excited state is less than 10. The
-        cut-off at the 9th excited state is necessary because double-digit Ms
-        could alter a KZA to represent a different element (i.e. the 10th
-        excited state of Li-6 would have a KZA of 300610, which by the KZA
-        formatting convention would actually represent Zn-61, a radionuclide
-        with decay data in the EAF-2010 decay library).
-
-    One of two internal Boolean methods to determine whether to create a new
-        reaction entry in all_rxns for a given parent, daughter, MT
-        combination.
+        an EAF decay library).
 
     Arguments:
         dKZA (int): Daughter KZA identifier.
-        pKZA (int): Parent KZA identifier.
         radionucs (dict): Dictionary keyed by all radionuclides in the EAF
             decay library, with values of their half-lives.
-        M (int): Isomeric state of the given nuclide.
 
     Returns:
-        has_known_decay (bool): True if the isomer is in an excited state less
-            than 10 and has a known half-life.
+        has_known_decay (bool): True if the nuclide has a known half-life
+            contained in the EAF decay library.
     """
 
-    return dKZA in radionucs and ((pKZA % 10) + M in range(1,10))
+    return dKZA in radionucs
 
 def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
     """
@@ -285,9 +292,8 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # Process all reactions producing isomer daughters with decay data
         # or any ground-state daughters. Necessarily need to cut off maximum
         # excitation at 9th state by nature of KZA conventions.
-        if (
-            _is_ground_state(rxn['isomer']) or
-            _has_decay_data(dKZA, pKZA, radionucs, rxn['isomer'])
+        if _has_valid_daughter_KZA(pKZA, rxn['isomer']) and (
+            _is_ground_state(rxn['isomer']) or _has_decay_data(dKZA, radionucs)
         ):
             all_rxns[pKZA][dKZA][MT] = {
                 'emitted'    :  rxn['emitted'],
@@ -300,11 +306,11 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # decays for that parent
         else:
             if to_ground:
-                decay_KZA = (dKZA // 10) * 10
+                decay_KZA = (dKZA // 10 - rxn['isomer'] // 10) * 10
                 special_MT = -1
 
             else:
-                decay_KZA = f'{dKZA // 10}*'
+                decay_KZA = f'{dKZA // 10 - rxn['isomer'] // 10}*'
                 special_MT = -4
 
             if decay_KZA not in all_rxns[pKZA]:
