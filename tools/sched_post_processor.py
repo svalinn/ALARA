@@ -59,12 +59,21 @@ def make_pe_sub_dict(pe_line, unit_multipliers):
     return pe_sub_dict
 
 
-def make_nested_dict(lines, unit_multipliers):
+def make_nested_dict(lines):
     """
     Constructs a hierarchy of dictionaries with a separate level for each additional tab found at the beginning of each line
     in the section of the output with schedule details.
     A sub-dictionary is created for each additional indented level.
     """
+    unit_multipliers = {
+        "c": 60 * 60 * 24 * 365 * 100,
+        "y": 60 * 60 * 24 * 365,
+        "w": 60 * 60 * 24 * 7,
+        "d": 60 * 60 * 24,
+        "h": 60 * 60,
+        "m": 60,
+        "s": 1,
+    }
     sch_dict = {}
     sched_tree = {0: sch_dict}
     line_idx = 0
@@ -75,11 +84,11 @@ def make_nested_dict(lines, unit_multipliers):
         child_level_line = lines[line_idx].strip().split()
 
         if child_level_line[0] == "schedule":
-            sched_tree[child_level][
-                f"schedule {child_level_line[1]}"] = (make_sch_sub_dict(
-                    child_level_line, unit_multipliers))
-            sched_tree[child_level + 1] = sched_tree[
-                child_level][f"schedule {child_level_line[1]}"]
+            sched_tree[child_level][f"schedule {child_level_line[1]}"] = (
+                make_sch_sub_dict(child_level_line, unit_multipliers))
+            sched_tree[
+                child_level +
+                1] = sched_tree[child_level][f"schedule {child_level_line[1]}"]
             line_idx += 1
             new_child_level = lines[line_idx].count("\t")
             counter = counter_dict[new_child_level] = 1
@@ -89,16 +98,14 @@ def make_nested_dict(lines, unit_multipliers):
             sched_tree[child_level][
                 f"pulse_entry num_{counter}_in_sched"] = make_pe_sub_dict(
                     child_level_line, unit_multipliers)
-            sched_tree[child_level + 1] = sched_tree[
-                child_level][f"pulse_entry num_{counter}_in_sched"]
+            sched_tree[child_level + 1] = sched_tree[child_level][
+                f"pulse_entry num_{counter}_in_sched"]
             counter_dict[child_level] = counter + 1
             line_idx += 1
         else:  # for line with top schedule
-            sched_tree[child_level][child_level_line[1].strip(
-                "':")] = {}
-            sched_tree[child_level +
-                                    1] = sched_tree[child_level][
-                                        child_level_line[1].strip("':")]
+            sched_tree[child_level][child_level_line[1].strip("':")] = {}
+            sched_tree[child_level + 1] = sched_tree[child_level][
+                child_level_line[1].strip("':")]
             line_idx += 1
             new_child_level = lines[line_idx].count("\t")
             counter_dict[new_child_level] = 1
@@ -115,21 +122,11 @@ def parse_arg():
     return arg.f
 
 def main():
-    unit_multipliers = {
-        "c": 60 * 60 * 24 * 365 * 100,
-        "y": 60 * 60 * 24 * 365,
-        "w": 60 * 60 * 24 * 7,
-        "d": 60 * 60 * 24,
-        "h": 60 * 60,
-        "m": 60,
-        "s": 1,
-    }
-
     output_path = parse_arg()
     lines = read_out(output_path)
 
     pulse_dict = read_pulse_histories(lines)
-    sch_dict = make_nested_dict(lines, unit_multipliers)
+    sch_dict = make_nested_dict(lines)
 
 if __name__ == "__main__":
     main()
