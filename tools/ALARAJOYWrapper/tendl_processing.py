@@ -239,7 +239,6 @@ def determine_daughter_excitation(
             potentially with new parent/reaction excitation data.
     """
 
-<<<<<<< HEAD
     # Reference existing excitation_pathways dict; if a reaction is already
     # accounted for, return its reference excitation
     if pKZA in excitation_pathways:
@@ -271,17 +270,6 @@ def determine_daughter_excitation(
             excitation_pathways[pKZA][EXCITATION_DICT[MT][iso]] = iso
     else:
         excitation_pathways[pKZA][MT] = 0
-=======
-    Arguments:
-        dKZA (int): Daughter KZA identifier.
-        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
-
-    Returns:
-        has_known_decay (bool): True if the nuclide has a known half-life
-            contained in the reference EAF decay library.
-    """
->>>>>>> da346b9 (Docstring fix)
 
     return excitation_pathways[pKZA][MT], excitation_pathways
 
@@ -328,12 +316,6 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
     excitation_pathways = {}
     for MT in MTs:
         rxn = mt_dict[MT]
-
-        # Modify parent M value if it is an isomer and the reaction pathway
-        # does not specify a specific excitation level of the daughter nuclide
-        parent_excitation = int(str(pKZA)[-1])
-        if parent_excitation > 0 and MT not in EXCITATION_REACTIONS:
-            rxn['isomer'] += parent_excitation
 
         sigmas = extract_cross_sections(file_obj, MT)
         gas = rxn['gas']
