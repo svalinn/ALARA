@@ -54,7 +54,7 @@ def args():
     parser.add_argument(
         '--isomer_to_ground', '-i', action='store_false',
         help=('''
-            Optional argument to amalgamate all isomers lackign decay data to
+            Optional argument to amalgamate all isomers lacking decay data to
                 an "Other" daughter with a KZA isomer value of "*", instead of
                 forcing their decay to their respective ground states.
         ''')
