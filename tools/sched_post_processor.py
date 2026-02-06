@@ -1,5 +1,6 @@
 import numpy as np
 import argparse
+import json
 
 
 def read_out(output_path):
@@ -75,11 +76,11 @@ def make_nested_dict(lines, unit_multipliers):
         child_level_line = lines[line_idx].strip().split()
 
         if child_level_line[0] == "schedule":
-            sched_tree[child_level][
-                f"schedule {child_level_line[1]}"] = (make_sch_sub_dict(
-                    child_level_line, unit_multipliers))
-            sched_tree[child_level + 1] = sched_tree[
-                child_level][f"schedule {child_level_line[1]}"]
+            sched_tree[child_level][f"schedule {child_level_line[1]}"] = (
+                make_sch_sub_dict(child_level_line, unit_multipliers))
+            sched_tree[
+                child_level +
+                1] = sched_tree[child_level][f"schedule {child_level_line[1]}"]
             line_idx += 1
             new_child_level = lines[line_idx].count("\t")
             counter = counter_dict[new_child_level] = 1
@@ -89,19 +90,19 @@ def make_nested_dict(lines, unit_multipliers):
             sched_tree[child_level][
                 f"pulse_entry num_{counter}_in_sched"] = make_pe_sub_dict(
                     child_level_line, unit_multipliers)
-            sched_tree[child_level + 1] = sched_tree[
-                child_level][f"pulse_entry num_{counter}_in_sched"]
+            sched_tree[child_level + 1] = sched_tree[child_level][
+                f"pulse_entry num_{counter}_in_sched"]
             counter_dict[child_level] = counter + 1
             line_idx += 1
         else:  # for line with top schedule
-            sched_tree[child_level][child_level_line[1].strip(
-                "':")] = {}
-            sched_tree[child_level +
-                                    1] = sched_tree[child_level][
-                                        child_level_line[1].strip("':")]
+            sched_tree[child_level][child_level_line[1].strip("':")] = {}
+            sched_tree[child_level + 1] = sched_tree[child_level][
+                child_level_line[1].strip("':")]
             line_idx += 1
             new_child_level = lines[line_idx].count("\t")
             counter_dict[new_child_level] = 1
+    with open("json_sch_dict", "w") as json_file:
+        json.dump(sch_dict, json_file, indent=4, sort_keys=True)
     return sch_dict
 
 
