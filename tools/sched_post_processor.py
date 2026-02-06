@@ -6,7 +6,7 @@ def read_out(output_path):
     with open(output_path, "r") as output_file:
         lines = output_file.readlines()
     line_idx = 0
-    while not lines[line_idx].startswith("top_schedule 'top_sched':"):
+    while not lines[line_idx].startswith("top_schedule"):
         line_idx += 1
     return lines[line_idx:]
 
