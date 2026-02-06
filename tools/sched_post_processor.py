@@ -115,7 +115,6 @@ def parse_arg():
     arg = parser.parse_args()
     return arg.f
 
-
 def main():
     unit_multipliers = {
         "c": 60 * 60 * 24 * 365 * 100,
@@ -132,7 +131,6 @@ def main():
 
     pulse_dict = read_pulse_histories(lines)
     sch_dict = make_nested_dict(lines, unit_multipliers)
-
 
 if __name__ == "__main__":
     main()
