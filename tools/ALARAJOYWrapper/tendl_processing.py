@@ -275,8 +275,9 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # Modify parent M value if it is an isomer and the reaction pathway
         # does not specify a specific excitation level of the daughter nuclide
         parent_excitation = int(str(pKZA)[-1])
+        M = rxn['isomer']
         if parent_excitation > 0 and MT not in EXCITATION_REACTIONS:
-            rxn['isomer'] += parent_excitation
+            M += parent_excitation
 
         sigmas = extract_cross_sections(file_obj, MT)
         sigmas = np.pad(sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas)))
@@ -292,8 +293,8 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # Process all reactions producing isomer daughters with decay data
         # or any ground-state daughters. Necessarily need to cut off maximum
         # excitation at 9th state by nature of KZA conventions.
-        if _has_valid_daughter_KZA(pKZA, rxn['isomer']) and (
-            _is_ground_state(rxn['isomer']) or _has_decay_data(dKZA, radionucs)
+        if _has_valid_daughter_KZA(pKZA, M) and (
+            _is_ground_state(M) or _has_decay_data(dKZA, radionucs)
         ):
             all_rxns[pKZA][dKZA][MT] = {
                 'emitted'    :  rxn['emitted'],
@@ -306,11 +307,11 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # decays for that parent
         else:
             if to_ground:
-                decay_KZA = (dKZA // 10 - rxn['isomer'] // 10) * 10
+                decay_KZA = (dKZA // 10 - M // 10) * 10
                 special_MT = -1
 
             else:
-                decay_KZA = f'{dKZA // 10 - rxn['isomer'] // 10}*'
+                decay_KZA = f'{dKZA // 10 - M // 10}*'
                 special_MT = -4
 
             if decay_KZA not in all_rxns[pKZA]:
