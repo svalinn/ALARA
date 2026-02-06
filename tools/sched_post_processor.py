@@ -121,12 +121,14 @@ def parse_arg():
     arg = parser.parse_args()
     return arg.f
 
+
 def main():
     output_path = parse_arg()
     lines = read_out(output_path)
 
     pulse_dict = read_pulse_histories(lines)
     sch_dict = make_nested_dict(lines)
+
 
 if __name__ == "__main__":
     main()
