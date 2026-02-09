@@ -182,38 +182,6 @@ def extract_cross_sections(file, MT):
 
     return sigma_list[::-1]
 
-def _has_valid_daughter_KZA(pKZA, M):
-    """
-    Determine if a given parent and isomeric value associated with a given
-        reaction will produce a duaghter nuclide with a valid KZA.
-        Specifically, this is to ensure that the daughter's excited state is
-        less than 10. The cut-off at the 9th excited state is necessary
-        because double-digit excited states alter a KZA to represent a
-        different element (i.e. the 10th excited state of Li-6 would have a
-        KZA of 300610, which by the KZA formatting convention would actually
-        represent Zn-61).
-
-    Arguments:
-        pKZA (int): Parent KZA identifier.
-        M (int): Isomeric state of the given nuclide
-    """
-
-    return (pKZA % 10) + M < 10
-
-def _is_ground_state(M):
-    """
-    Determine if a given reaction yields a ground state product.
-
-    Arguments:
-        M (int): Isomeric state of the given nuclide.
-    
-    Returns:
-        is_ground_state (bool): True if yields a ground state product. False
-            if excited.
-    """
-
-    return M == 0
-
 def _has_decay_data(dKZA, radionucs):
     """
     Determine if a nuclide has a known half-life (determined from parsing of
@@ -230,6 +198,55 @@ def _has_decay_data(dKZA, radionucs):
     """
 
     return dKZA in radionucs
+
+def calculate_dKZA(pKZA, rxn, M, radionucs):
+    '''
+    Calculate the KZA of the daughter nuclide resulting from a given parent,
+        reaction, and the reaction metadata. Internally checks the KZA
+        validity and existence of EAF decay data for each nuclide, and will
+        force isomers of high (double-digit) excitation or with missing decay
+        data to the ground state KZA. If a nuclide is already in the ground-
+        state, but nevertheless lacks decay data, its daughter KZA will remain
+        unchanged. If a nuclide is forced to the ground state, the state of
+        the change is logged in the metadata Boolean output forced_ground as
+        True.
+
+    Arguments:
+        pKZA (int): Parent KZA identifier.
+        rxn (dict): Dictionary containing all metadata for an MT-indexed
+            activation reaction.
+        M (int): Change in nuclear excitation caused by the given reaction.
+        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
+
+    Returns:
+        dKZA (int): Daughter KZA identifier.
+        forced_ground (bool): Boolean flag to mark whether a daughter KZA was
+            internally forced to the ground state. True for daughters with an
+            isomeric state greater than or equal to 10 or that do not have
+            known half-lives, as determined by the EAF decay data. False for
+            all other nuclides, even if missing known decay data.
+    '''
+
+    gas = rxn['gas']
+    forced_ground = False
+
+    # Daughter calculated either as an emitted gas nucleus or as the residual
+    # nuclide for non-gaseous emissions.
+    dKZA = (
+        GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
+        else pKZA + rxn['delKZA']
+    )
+
+    # Force isomeric daughters with high excitation levels or without known
+    # half-lives to their ground state, and flag the change
+    if pKZA % 10 + M >= 10 or not _has_decay_data(dKZA, radionucs):
+        grounded = (dKZA // 10 - M // 10) * 10
+        forced_ground = dKZA != grounded
+        if forced_ground:
+            dKZA = grounded
+
+    return dKZA, forced_ground
 
 def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
     """
@@ -281,21 +298,13 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
 
         sigmas = extract_cross_sections(file_obj, MT)
         sigmas = np.pad(sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas)))
-        gas = rxn['gas']
 
-        # Daughter calculated either as an emitted gas nucleus or
-        # as the residual for non-gaseous emissions.
-        dKZA = (
-            GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
-            else pKZA + rxn['delKZA']
-        )
+        dKZA, forced_ground = calculate_dKZA(pKZA, rxn, M, radionucs)
 
         # Process all reactions producing isomer daughters with decay data
         # or any ground-state daughters. Necessarily need to cut off maximum
         # excitation at 9th state by nature of KZA conventions.
-        if _has_valid_daughter_KZA(pKZA, M) and (
-            _is_ground_state(M) or _has_decay_data(dKZA, radionucs)
-        ):
+        if not forced_ground:
             all_rxns[pKZA][dKZA][MT] = {
                 'emitted'    :  rxn['emitted'],
                 'xsections'  :  sigmas
@@ -307,23 +316,22 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
         # decays for that parent
         else:
             if to_ground:
-                decay_KZA = (dKZA // 10 - M // 10) * 10
                 special_MT = -1
 
             else:
-                decay_KZA = f'{dKZA // 10 - M // 10}*'
+                dKZA = f'{dKZA // 10}*'
                 special_MT = -4
 
-            if decay_KZA not in all_rxns[pKZA]:
+            if dKZA not in all_rxns[pKZA]:
                 all_rxns[pKZA][dKZA] = defaultdict(dict)
 
-            if special_MT not in all_rxns[pKZA][decay_KZA]:
-                all_rxns[pKZA][decay_KZA][special_MT] = {
+            if special_MT not in all_rxns[pKZA][dKZA]:
+                all_rxns[pKZA][dKZA][special_MT] = {
                     'emitted'     : f'{rxn['emitted']}*',
                     'xsections'   :   np.zeros(VITAMIN_J_ENERGY_GROUPS)
                 }
 
-            all_rxns[pKZA][decay_KZA][special_MT]['xsections'] += np.pad(
+            all_rxns[pKZA][dKZA][special_MT]['xsections'] += np.pad(
                 sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
             )
 
