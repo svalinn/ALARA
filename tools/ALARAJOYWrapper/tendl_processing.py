@@ -182,23 +182,6 @@ def extract_cross_sections(file, MT):
 
     return sigma_list[::-1]
 
-def _has_decay_data(dKZA, radionucs):
-    """
-    Determine if a nuclide has a known half-life (determined from parsing of
-        an EAF decay library).
-
-    Arguments:
-        dKZA (int): Daughter KZA identifier.
-        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
-
-    Returns:
-        has_known_decay (bool): True if the nuclide has a known half-life
-            contained in the reference EAF decay library.
-    """
-
-    return dKZA in radionucs
-
 def calculate_dKZA(pKZA, rxn, M, radionucs):
     '''
     Calculate the KZA of the daughter nuclide resulting from a given parent,
@@ -240,7 +223,7 @@ def calculate_dKZA(pKZA, rxn, M, radionucs):
 
     # Force isomeric daughters with high excitation levels or without known
     # half-lives to their ground state, and flag the change
-    if pKZA % 10 + M >= 10 or not _has_decay_data(dKZA, radionucs):
+    if pKZA % 10 + M >= 10 or dKZA not in radionucs:
         grounded = (dKZA // 10 - M // 10) * 10
         forced_ground = dKZA != grounded
         if forced_ground:
