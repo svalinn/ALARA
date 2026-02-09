@@ -211,6 +211,7 @@ def extract_cross_sections(file, MT):
     sigmas = sigma_list[::-1]
     return np.pad(sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas)))
 
+<<<<<<< HEAD
 def determine_daughter_excitation(
     endf_path, MT, pKZA, delKZA, excitation_pathways
 ):
@@ -270,6 +271,54 @@ def determine_daughter_excitation(
             excitation_pathways[pKZA][EXCITATION_DICT[MT][iso]] = iso
     else:
         excitation_pathways[pKZA][MT] = 0
+=======
+def calculate_dKZA(pKZA, rxn, M, radionucs):
+    '''
+    Calculate the KZA of the daughter nuclide resulting from a given parent,
+        reaction, and the reaction metadata. Internally checks the KZA
+        validity and existence of EAF decay data for each nuclide, and will
+        force isomers of high (double-digit) excitation or with missing decay
+        data to the ground state KZA. If a nuclide is already in the ground-
+        state, but nevertheless lacks decay data, its daughter KZA will remain
+        unchanged. If a nuclide is forced to the ground state, the state of
+        the change is logged in the metadata Boolean output forced_ground as
+        True.
+
+    Arguments:
+        pKZA (int): Parent KZA identifier.
+        rxn (dict): Dictionary containing all metadata for an MT-indexed
+            activation reaction.
+        M (int): Change in nuclear excitation caused by the given reaction.
+        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
+
+    Returns:
+        dKZA (int): Daughter KZA identifier.
+        forced_ground (bool): Boolean flag to mark whether a daughter KZA was
+            internally forced to the ground state. True for daughters with an
+            isomeric state greater than or equal to 10 or that do not have
+            known half-lives, as determined by the EAF decay data. False for
+            all other nuclides, even if missing known decay data.
+    '''
+
+    gas = rxn['gas']
+    forced_ground = False
+
+    # Daughter calculated either as an emitted gas nucleus or as the residual
+    # nuclide for non-gaseous emissions.
+    dKZA = (
+        GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
+        else pKZA + rxn['delKZA']
+    )
+
+    # Force isomeric daughters with high excitation levels or without known
+    # half-lives to their ground state, and flag the change
+    if pKZA % 10 + M >= 10 or dKZA not in radionucs:
+        grounded = (dKZA // 10 - M // 10) * 10
+        forced_ground = dKZA != grounded
+        if forced_ground:
+            dKZA = grounded
+>>>>>>> 245477c (Simplifying conditionals by removing outdated single-use function)
 
     return excitation_pathways[pKZA][MT], excitation_pathways
 
