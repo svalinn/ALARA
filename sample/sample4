@@ -45,7 +45,7 @@ cooling
    100 y
 end
 
-dump_file  dump_files/sample3.dump
+dump_file  dump_files/sample4.dump
 
 Pulsehistory part_a
 	25 	25 h
