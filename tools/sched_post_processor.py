@@ -81,34 +81,26 @@ def make_nested_dict(lines):
     # next section of output
     while not lines[line_idx].startswith("pulse_history:"):
         child_level = lines[line_idx].count("\t")
-        child_level_line = lines[line_idx].strip().split()
+        if child_level not in counter_dict:
+            counter_dict[child_level] = 0
+        if child_level not in sched_tree:
+            sched_tree[child_level] = {}
+        tokens = lines[line_idx].strip().split()
 
-        if child_level_line[0] == "schedule":
-            sched_tree[child_level][f"schedule {child_level_line[1]}"] = (
-                make_sch_sub_dict(child_level_line, unit_multipliers))
-            sched_tree[
-                child_level +
-                1] = sched_tree[child_level][f"schedule {child_level_line[1]}"]
-            line_idx += 1
-            new_child_level = lines[line_idx].count("\t")
-            counter = counter_dict[new_child_level] = 1
+        if tokens[0] == "top_schedule":
+            sched_name = tokens[1].strip("':")
+            sched_tree[child_level][sched_name] = {}
+        elif tokens[0] == "pulse_entry:"
+            sched_tree[child_level][counter_dict[child_level]] = make_pe_sub_dict(
+                tokens
+            )
+            counter_dict[child_level] += 1
+        elif tokens[0] == "schedule":
+            sched_tree[child_level][tokens[1]] = make_sch_sub_dict(tokens)
 
-        elif child_level_line[0] == "pulse_entry:":
-            counter = counter_dict[child_level]
-            sched_tree[child_level][
-                f"pulse_entry num_{counter}_in_sched"] = make_pe_sub_dict(
-                    child_level_line, unit_multipliers)
-            sched_tree[child_level + 1] = sched_tree[child_level][
-                f"pulse_entry num_{counter}_in_sched"]
-            counter_dict[child_level] = counter + 1
-            line_idx += 1
-        else:  # for line with top schedule
-            sched_tree[child_level][child_level_line[1].strip("':")] = {}
-            sched_tree[child_level + 1] = sched_tree[child_level][
-                child_level_line[1].strip("':")]
-            line_idx += 1
-            new_child_level = lines[line_idx].count("\t")
-            counter_dict[new_child_level] = 1
+        line_idx += 1
+
+
     return sch_dict
 
 
