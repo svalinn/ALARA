@@ -83,7 +83,7 @@ end
 ## envoking "reverse mode" (see comment on "mixture" above)
 data_library adjlib data/truncated_fendl2adj
 
-dump_file dump_files/sample5.dump
+dump_file dump_files/sample7.dump
 
 output zone
    units Bq cm3
