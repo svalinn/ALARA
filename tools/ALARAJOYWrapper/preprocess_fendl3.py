@@ -280,10 +280,10 @@ def write_dsv(dsv_path, all_rxns):
         dsv.write(str(tp.VITAMIN_J_ENERGY_GROUPS) + '\n')
         for parent in sorted(all_rxns):
             for daughter in all_rxns[parent]:
-                for rxn in all_rxns[parent][daughter].values():
-                    if rxn['xsections'].sum() > 0:
-                        dsv.write(rxn_to_str(parent, daughter, rxn) + '\n')
-        
+                if parent != daughter:
+                    for rxn in all_rxns[parent][daughter].values():
+                        if rxn['xsections'].sum() > 0:
+                            dsv.write(f'{rxn_to_str(parent,daughter,rxn)}\n')
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv.write(str(-1))
 
