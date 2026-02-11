@@ -1,6 +1,15 @@
 import numpy as np
 import argparse
 
+unit_multipliers = {
+    "c": 60 * 60 * 24 * 365 * 100,
+    "y": 60 * 60 * 24 * 365,
+    "w": 60 * 60 * 24 * 7,
+    "d": 60 * 60 * 24,
+    "h": 60 * 60,
+    "m": 60,
+    "s": 1,
+}
 
 def read_out(output_path):
     with open(output_path, "r") as output_file:
@@ -39,8 +48,10 @@ def read_pulse_histories(lines):
     return pulse_dict
 
 
-def make_sch_sub_dict(sch_line, unit_multipliers):
+def make_sch_sub_dict(sch_line):
     sch_sub_dict = {
+        "type" : "schedule",
+        "sched_name": sch_line[1],
         "sched_ph_name": sch_line[3],
         "sched_delay_dur": float(sch_line[5]) * unit_multipliers[sch_line[6]],
         "sched_delay_unit": "s",
@@ -50,6 +61,7 @@ def make_sch_sub_dict(sch_line, unit_multipliers):
 
 def make_pe_sub_dict(pe_line, unit_multipliers):
     pe_sub_dict = {
+        "type" : "pulse_entry",
         "pe_dur": float(pe_line[1]) * unit_multipliers[pe_line[2]],
         "pe_dur_unit": "s",
         "corr_ph_name": pe_line[4],
@@ -65,38 +77,30 @@ def make_nested_dict(lines):
     in the section of the output with schedule details.
     A sub-dictionary is created for each additional indented level.
     """
-    unit_multipliers = {
-        "c": 60 * 60 * 24 * 365 * 100,
-        "y": 60 * 60 * 24 * 365,
-        "w": 60 * 60 * 24 * 7,
-        "d": 60 * 60 * 24,
-        "h": 60 * 60,
-        "m": 60,
-        "s": 1,
-    }
     sch_dict = {}
     sched_tree = {0: sch_dict}
     line_idx = 0
-    counter_dict = {}
     # next section of output
+    ancestors = []
+    current_sched = sched_tree[0]
+
     while not lines[line_idx].startswith("pulse_history:"):
-        child_level = lines[line_idx].count("\t")
-        if child_level not in counter_dict:
-            counter_dict[child_level] = 0
-        if child_level not in sched_tree:
-            sched_tree[child_level] = {}
+        new_child_level = lines[line_idx].count("\t")
         tokens = lines[line_idx].strip().split()
 
-        if tokens[0] == "top_schedule":
-            sched_name = tokens[1].strip("':")
-            sched_tree[child_level][sched_name] = {}
-        elif tokens[0] == "pulse_entry:"
-            sched_tree[child_level][counter_dict[child_level]] = make_pe_sub_dict(
-                tokens
+        while new_child_level < len(ancestors):
+            current_sched = ancestors.pop()
+
+        if "schedule" in tokens[0]:  # need to sort out what this means for top_schedules
+            current_sched["children"].append(
+                make_sch_sub_dict(tokens)
             )
-            counter_dict[child_level] += 1
-        elif tokens[0] == "schedule":
-            sched_tree[child_level][tokens[1]] = make_sch_sub_dict(tokens)
+            ancestors.append(current_sched)
+            current_sched = current_sched["children"][-1]
+        elif tokens[0] == "pulse_entry:"
+            current_sched["children"].append( 
+                make_pe_sub_dict(tokens)
+            )
 
         line_idx += 1
 
