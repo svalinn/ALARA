@@ -203,7 +203,6 @@ def process_mt_data(mt_dict):
             {'MT' : 
                     {'reaction':                               (z, emission)},
                     {'delKZA'  :                       integer change in KZA},
-                    {'isomer'  :               metastable state (0 if ground),
                     {'gas'     : name of total gas production, if MT=203-207},
                     {'emitted' :                 string of emitted particles}
             }
@@ -230,7 +229,6 @@ def process_mt_data(mt_dict):
         if change_NP is not None:
             change_N, change_P = change_NP
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
-            data['isomer'] = M
             data['gas'] = gas
             data['emitted'] = emitted_particles
         else:
