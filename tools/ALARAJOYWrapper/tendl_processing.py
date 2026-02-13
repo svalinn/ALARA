@@ -18,6 +18,16 @@ EXCITATION_REACTIONS = np.concatenate((
     np.arange(875, 892), # (n,2n*) reactions
 ))
 
+EXCITATION_DICT = {
+    4   : [4] + list(range(51,   92)), # (n,n*) reactions
+    103 : range(600, 650), # (n,p*) reactions
+    104 : range(650, 700), # (n,d*) reactions
+    105 : range(700, 750), # (n,t*) reactions
+    106 : range(750, 800), # (n,h*) reactions
+    107 : range(800, 850), # (n,a*) reactions
+    108 : range(875, 892)  # (n,2n*) reactions
+}
+
 def get_isotope(stem):
     """
     Extract the element name and mass number from a given filename.
@@ -76,6 +86,29 @@ def search_for_files(dir = Path.cwd()):
 
     return file_info
 
+def create_endf_file_obj(path, MF):
+    """
+    For a TENDL (ENDF) file containing activation data for a single nuclide,
+        store a single MF's "file" data in an ENDFtk file object.
+
+    Arguments:
+        path (str): Filepath to an ENDF file.
+        MF (int): ENDF file number.
+
+    Returns:
+        file (ENDFtk.tree.File): Single MF ENDFtk file object.
+        matb (int): Unique material ID extracted from the file.
+    """
+
+    file = None
+    tape = ENDFtk.tree.Tape.from_file(str(path))
+    matb = tape.material_numbers[0]
+    material = tape.material(matb)
+    if MF in [MF.MF for MF in material.files]:
+        file = material.file(MF)
+
+    return file, matb
+
 def extract_endf_specs(path):
     """
     Extract the material ID and MT numbers from an ENDF file.
@@ -90,14 +123,9 @@ def extract_endf_specs(path):
             Only returns the file for GENDF filetypes.
     """
 
-    tape = ENDFtk.tree.Tape.from_file(str(path))
-    matb = tape.material_numbers[0]
-    # Set MF for cross sections
-    xs_MF = 3
-    try:
-        file = tape.material(matb).file(xs_MF)
-    except RuntimeError:
-        file = None
+    # Set MF for cross-sections
+    xs_MF=3
+    file, matb = create_endf_file_obj(path, xs_MF)
     
     if file:
         # Extract the MT numbers that are present in the file
@@ -163,9 +191,9 @@ def extract_cross_sections(file, MT):
             the file's sectional organization.
     
     Returns:
-        sigma_list (list): All of the cross-sections for a given reaction type
-            and material, listed as floating point numbers. If the run fails,
-            the function will just return an empty list.
+        sigma_list (array): All of the cross-sections for a given reaction type
+            and material, listed as floating point numbers and padded up to
+            175 entries corresponding to the VITAMIN-J group structure.
     """
 
     section = file.section(MT).content
@@ -180,58 +208,72 @@ def extract_cross_sections(file, MT):
         for line in lines
     ]
 
-    return sigma_list[::-1]
+    sigmas = sigma_list[::-1]
+    return np.pad(sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas)))
 
-def calculate_dKZA(pKZA, rxn, M, radionucs):
-    '''
-    Calculate the KZA of the daughter nuclide resulting from a given parent,
-        reaction, and the reaction metadata. Internally checks the KZA
-        validity and existence of EAF decay data for each nuclide, and will
-        force isomers of high (double-digit) excitation or with missing decay
-        data to the ground state KZA. If a nuclide is already in the ground-
-        state, but nevertheless lacks decay data, its daughter KZA will remain
-        unchanged. If a nuclide is forced to the ground state, the state of
-        the change is logged in the metadata Boolean output forced_ground as
-        True.
+def determine_daughter_excitation(
+    endf_path, MT, pKZA, delKZA, excitation_pathways
+):
+    """
+    Reference File 10 ("Cross Sections for Production of Radioactive
+        Nuclides") of a nuclide's original TENDL (ENDF) file to identify
+        possible isomeric states of a given reaction's daughter nuclide.
+        Store all reactions that can produce isomers in the dictionary
+        excitation_pathways as reference for subsequent MTs of higher
+        excitation.
 
     Arguments:
-        pKZA (int): Parent KZA identifier.
-        rxn (dict): Dictionary containing all metadata for an MT-indexed
-            activation reaction.
-        M (int): Change in nuclear excitation caused by the given reaction.
-        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
-
+        endf_path (pathlib._local.PosixPath): Path to the parent nuclide's
+            original TENDL (ENDF) file.
+        MT (int): Numerical identifier for the given reaction.
+        pKZA (int): KZA identifier of the parent nuclide.
+        delKZA (int): Change in KZA from the given reaction.
+        excitation_pathways (dict): Dictionary keyed by parent KZA values
+            containing sub-dictionaries keyed by MT reactions that can produce
+            isomeric daughters, with values of the excitation level of said
+            daughters.
+        
     Returns:
-        dKZA (int): Daughter KZA identifier.
-        forced_ground (bool): Boolean flag to mark whether a daughter KZA was
-            internally forced to the ground state. True for daughters with an
-            isomeric state greater than or equal to 10 or that do not have
-            known half-lives, as determined by the EAF decay data. False for
-            all other nuclides, even if missing known decay data.
-    '''
+        M (int): Isomeric level of the resultant daughter.
+        excitation_pathways (dict): Updated excitation_pathways dictionary,
+            potentially with new parent/reaction excitation data.
+    """
 
-    gas = rxn['gas']
-    forced_ground = False
+    # Reference existing excitation_pathways dict; if a reaction is already
+    # accounted for, return its reference excitation
+    if pKZA in excitation_pathways:
+        if MT in excitation_pathways[pKZA]:
+            return excitation_pathways[pKZA][MT], excitation_pathways
+        else:
+            return 0, excitation_pathways
+    
+    # Parse File 10 for allowed daughter excitations from a given reaction
+    excitation_pathways[pKZA] = {}
 
-    # Daughter calculated either as an emitted gas nucleus or as the residual
-    # nuclide for non-gaseous emissions.
-    dKZA = (
-        GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
-        else pKZA + rxn['delKZA']
-    )
+    za = f'{(pKZA // 10) * 10 + delKZA}'[:-1]
+    mf10 = 10
+    file10, _ = create_endf_file_obj(endf_path, mf10)
+    excitation_levels = []
+    if file10 and MT in [MT.MT for MT in file10.sections]:
+        section = file10.section(MT)
+    else:
+        return 0, excitation_pathways
+    
+    for line in section.content.split('\n'):
+        if za in line:
+            excitation_levels.append(int(
+                line.split(za)[1].strip().split(' ')[0]
+            ))
 
-    # Force isomeric daughters with high excitation levels or without known
-    # half-lives to their ground state, and flag the change
-    if pKZA % 10 + M >= 10 or dKZA not in radionucs:
-        grounded = (dKZA // 10 - M // 10) * 10
-        forced_ground = dKZA != grounded
-        if forced_ground:
-            dKZA = grounded
+    if MT in EXCITATION_DICT:
+        for iso in excitation_levels:
+            excitation_pathways[pKZA][EXCITATION_DICT[MT][iso]] = iso
+    else:
+        excitation_pathways[pKZA][MT] = 0
 
-    return dKZA, forced_ground
+    return excitation_pathways[pKZA][MT], excitation_pathways
 
-def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
+def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
     """
     Iterate through all of the MTs present in a given GENDF file to extract
         the necessary data to be able to run ALARA. For isomeric daughters
@@ -260,57 +302,77 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, radionucs, to_ground):
                     }
                 }    
             }
-        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
-        to_ground (bool): 
+        eaf_nucs (dict): Dictionary keyed by all nuclides in the EAF decay
+            library, with values of their half-lives (zeros for stable
+            nuclides).
+        endf_path (pathlib._local.PosixPath): Path to the parent nuclide's
+            original TENDL (ENDF) file.
             
     Returns:
         all_rxns (collections.defaultdict): Updated dictionary for all
             reaction pathways for the given parent and its MTs.
     """
 
+    excitation_pathways = {}
     for MT in MTs:
         rxn = mt_dict[MT]
-
-        # Modify parent M value if it is an isomer and the reaction pathway
-        # does not specify a specific excitation level of the daughter nuclide
-        parent_excitation = int(str(pKZA)[-1])
-        M = rxn['isomer']
-        if parent_excitation > 0 and MT not in EXCITATION_REACTIONS:
-            M += parent_excitation
-
         sigmas = extract_cross_sections(file_obj, MT)
-        sigmas = np.pad(sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas)))
+        gas = rxn['gas']
+        delKZA = rxn['delKZA']
+        emitted = rxn['emitted']
 
-        dKZA, forced_ground = calculate_dKZA(pKZA, rxn, M, radionucs)
+        if gas:
+            dKZA = GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0]
 
-        # Process all reactions producing isomer daughters with decay data
-        # or any ground-state daughters. Necessarily need to cut off maximum
-        # excitation at 9th state by nature of KZA conventions.
-        if not forced_ground:
+        else:
+            M, excitation_pathways = determine_daughter_excitation(
+                endf_path=endf_path,
+                MT=MT,
+                pKZA=pKZA,
+                delKZA=delKZA,
+                excitation_pathways=excitation_pathways
+            )
+
+            # Reset deLKZA for supposed excitation reactions that lack
+            # required MF10 isomeric daughter confirmation
+            if delKZA >= 0 and M == 0 and MT in EXCITATION_REACTIONS:
+                delKZA = 0
+
+            # Recalculate daughter KZA with explicit isomerism from MF10
+            dKZA = (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
+            
+            # Flag reactions that produce an isomer
+            if M > 0:
+                emitted += '*'
+
+            # Subtract individual excitation reactions from cumulative sums
+            if MT in excitation_pathways[pKZA] and MT in EXCITATION_DICT:
+                for subMT in excitation_pathways[pKZA]:
+                    if subMT != MT and subMT in MTs:
+                        sigmas -= extract_cross_sections(file_obj, subMT)
+                            
+            # Nullify redundant excitation reactions
+            elif MT in EXCITATION_REACTIONS and MT not in excitation_pathways[pKZA]:
+                sigmas = np.zeros(VITAMIN_J_ENERGY_GROUPS)
+
+        if dKZA in eaf_nucs:
             all_rxns[pKZA][dKZA][MT] = {
-                'emitted'    :  rxn['emitted'],
+                'emitted'    :  emitted,
                 'xsections'  :  sigmas
             }
 
-        # If a reaction produces an isomer lacking decay data, acccumulate its
-        # cross-sections either to the ground-state residual reaction's cross-
-        # sections or to a new psuedo-daughter of all isomers with undefined
-        # decays for that parent
         else:
-            if to_ground:
-                special_MT = -1
-
-            else:
-                dKZA = f'{dKZA // 10}*'
-                special_MT = -4
+            # Force dKZA to ground; possible for an isomer reaction to exist
+            # in TENDL data without having decay data in EAF
+            dKZA = (dKZA // 10) * 10
+            special_MT = -1
 
             if dKZA not in all_rxns[pKZA]:
                 all_rxns[pKZA][dKZA] = defaultdict(dict)
 
             if special_MT not in all_rxns[pKZA][dKZA]:
                 all_rxns[pKZA][dKZA][special_MT] = {
-                    'emitted'     : f'{rxn['emitted']}*',
+                    'emitted'     :   emitted,
                     'xsections'   :   np.zeros(VITAMIN_J_ENERGY_GROUPS)
                 }
 
