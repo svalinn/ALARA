@@ -33,7 +33,7 @@ To run this preprocessor, the user must first have acquired TENDL files for each
 
 Running ALARAJOYWrapper can be done with one Python command:
 ```
-python preprocess_fendl3.py -g gas_handling_method -f /path/to/fendl3_data_dir/ -d /path/to/eaf_decay_library/ -i -a
+python preprocess_fendl3.py -g gas_handling_method -f /path/to/fendl3_data_dir/ -d /path/to/eaf_decay_library/ -a
 ```
 To read in detail about each of these arguments, call this command:
 ```

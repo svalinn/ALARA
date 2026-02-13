@@ -24,7 +24,7 @@ GAS_DF = pd.DataFrame({
 
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
-    'total', 'z0', 'nonelas.', 'anything', 'contin.',
+    'total','z0', 'nonelas.', 'anything', 'contin.',
     'fission', 'f', 'RES', 'X', 'disap', 'abs'
     ]
 
@@ -279,11 +279,12 @@ def get_MT_from_line(line):
     
     return int(line[72:75])
 
-def find_eaf_radionuclides(eaf_path):
+def find_eaf_ref_data(eaf_path):
     """
-    Parse through an EAF file to build a dictionary keyed by radionuclides
+    Parse through an EAF file to build a dictionary keyed by all nuclides
         with their respective half-lives as the values. Modeled after the
-        file parsing methods in ALARA/src/DataLib/EAFLib.C.
+        file parsing methods in ALARA/src/DataLib/EAFLib.C. Stable nuclides
+        are saved with half-lives of 0.
 
     Arguments:
         eaf_path (pathlib._local.PosixPath): Filepath to an EAF decay library
@@ -291,8 +292,9 @@ def find_eaf_radionuclides(eaf_path):
             formatted with a ".dat" extension.
 
     Returns:
-        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
+        eaf_nucs (dict): Dictionary keyed by all nuclides in the EAF decay
+            library, with values of their half-lives (or zeros to indicate
+            stability).
     """
 
     radionucs = {}
@@ -312,8 +314,21 @@ def find_eaf_radionuclides(eaf_path):
                 f.readline()
 
             _in_decay_block = False
+            prev_line = None
             line = f.readline()
+
             while line:
+
+                # Stable nuclide processing
+                if 'STABLE NUCLIDE' in line and prev_line is not None:
+                    iso = prev_line.rstrip().split('DECAY')[0]
+
+                    if 'FILE' not in iso:
+                        Z, _, A = iso.split('-')
+                        kza = (int(Z) * 1000 + int(A)) * 10
+                        radionucs.setdefault(kza, 0.0)
+
+                # Radionuclide processing
                 MT = get_MT_from_line(line)
 
                 if not _in_decay_block and MT == decay_MT:
@@ -333,7 +348,7 @@ def find_eaf_radionuclides(eaf_path):
                 elif MT != decay_MT:
                     _in_decay_block = False
 
-                # Advance to next line
+                prev_line = line
                 line = f.readline()
 
     return radionucs
