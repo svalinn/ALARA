@@ -355,10 +355,6 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
             elif MT in EXCITATION_REACTIONS and MT not in excitation_pathways[pKZA]:
                 sigmas = np.zeros(VITAMIN_J_ENERGY_GROUPS)
 
-
-        if pKZA == 491090 and emitted == 'n*':
-            print(pKZA, dKZA, MT, M, dKZA - M)
-
         if dKZA in eaf_nucs and M < 10:
             all_rxns[pKZA][dKZA][MT] = {
                 'emitted'    :  emitted,
