@@ -1,4 +1,3 @@
-import numpy as np
 import argparse
 
 unit_multipliers = {
@@ -88,22 +87,25 @@ def make_nested_dict(lines):
         new_child_level = lines[line_idx].count("\t")
         tokens = lines[line_idx].strip().split()
 
+        if "children" not in current_sched.keys():
+            current_sched["children"] = []
+
         while new_child_level < len(ancestors):
             current_sched = ancestors.pop()
 
-        if "schedule" in tokens[0]:  # need to sort out what this means for top_schedules
-            current_sched["children"].append(
-                make_sch_sub_dict(tokens)
-            )
+        if tokens[0] == "schedule":
+
+            current_sched["children"].append(make_sch_sub_dict(tokens))
             ancestors.append(current_sched)
             current_sched = current_sched["children"][-1]
-        elif tokens[0] == "pulse_entry:"
-            current_sched["children"].append( 
-                make_pe_sub_dict(tokens)
-            )
+
+        elif tokens[0] == "top_schedule":
+            ancestors.append(current_sched)
+
+        elif tokens[0] == "pulse_entry:":
+            current_sched["children"].append(make_pe_sub_dict(tokens))
 
         line_idx += 1
-
 
     return sch_dict
 
