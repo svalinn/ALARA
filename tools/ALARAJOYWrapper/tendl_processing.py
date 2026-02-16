@@ -334,17 +334,16 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
                 excitation_pathways=excitation_pathways
             )
 
-            # Reset deLKZA for supposed excitation reactions that lack
-            # required MF10 isomeric daughter confirmation
-            if delKZA >= 0 and M == 0 and MT in EXCITATION_REACTIONS:
+            # Reset deLKZA for (n,n*) excitation reactions
+            if delKZA >= 0 and MT in EXCITATION_REACTIONS:
                 delKZA = 0
 
-            # Recalculate daughter KZA with explicit isomerism from MF10
-            dKZA = (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
-            
             # Flag reactions that produce an isomer
             if M > 0:
                 emitted += '*'
+
+            # Recalculate daughter KZA with explicit isomerism from MF10
+            dKZA = (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
 
             # Subtract individual excitation reactions from cumulative sums
             if MT in excitation_pathways[pKZA] and MT in EXCITATION_DICT:
@@ -365,7 +364,7 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
         else:
             # Force dKZA to ground; possible for an isomer reaction to exist
             # in TENDL data without having decay data in EAF
-            dKZA = (dKZA // 10) * 10
+            dKZA = ((dKZA - M) // 10) * 10
             special_MT = -1
 
             if dKZA not in all_rxns[pKZA]:
