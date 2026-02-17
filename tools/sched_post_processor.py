@@ -80,8 +80,8 @@ def make_nested_dict(lines):
     sched_tree = {0: {"children" : [] } }
     line_idx = 0
     # next section of output
-    ancestors = []
     current_sched = sched_tree[0]
+    ancestors = [current_sched]
 
     while not lines[line_idx].startswith("pulse_history:"):
         new_child_level = lines[line_idx].count("\t")
