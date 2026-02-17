@@ -25,7 +25,7 @@ EXCITATION_DICT = {
     105 : range(700, 750), # (n,t*) reactions
     106 : range(750, 800), # (n,h*) reactions
     107 : range(800, 850), # (n,a*) reactions
-    108 : range(875, 892)  # (n,2n*) reactions
+    16  : range(875, 892)  # (n,2n*) reactions
 }
 
 def get_isotope(stem):
@@ -333,6 +333,8 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
                 delKZA=delKZA,
                 excitation_pathways=excitation_pathways
             )
+            if pKZA == 561380:
+                print(pKZA, MT, M)
 
             # Reset deLKZA for (n,n*) excitation reactions
             if delKZA >= 0 and MT in EXCITATION_REACTIONS:
