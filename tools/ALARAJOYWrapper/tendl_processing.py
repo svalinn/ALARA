@@ -333,8 +333,6 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
                 delKZA=delKZA,
                 excitation_pathways=excitation_pathways
             )
-            if pKZA == 561380:
-                print(pKZA, MT, M)
 
             # Reset deLKZA for (n,n*) excitation reactions
             if delKZA >= 0 and MT in EXCITATION_REACTIONS:
