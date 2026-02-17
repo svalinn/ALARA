@@ -87,8 +87,6 @@ def make_nested_dict(lines):
         new_child_level = lines[line_idx].count("\t")
         tokens = lines[line_idx].strip().split()
 
-        if "children" not in current_sched.keys():
-            current_sched["children"] = []
 
         while new_child_level < len(ancestors):
             current_sched = ancestors.pop()
