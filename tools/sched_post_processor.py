@@ -97,8 +97,6 @@ def make_nested_dict(lines):
             ancestors.append(current_sched)
             current_sched = current_sched["children"][-1]
 
-        elif tokens[0] == "top_schedule":
-            ancestors.append(current_sched)
 
         elif tokens[0] == "pulse_entry:":
             current_sched["children"].append(make_pe_sub_dict(tokens))
