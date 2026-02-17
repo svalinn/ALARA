@@ -76,8 +76,7 @@ def make_nested_dict(lines):
     in the section of the output with schedule details.
     A sub-dictionary is created for each additional indented level.
     """
-    sch_dict = {}
-    sched_tree = {0: sch_dict}
+    sched_tree = {0: {"children" : [] } }
     line_idx = 0
     # next section of output
     ancestors = []
