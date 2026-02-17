@@ -195,7 +195,7 @@ void Schedule::write(int level, char *histName, double delay, char dUnits)
       if (ptr->usedAsSub)
 	error(400,"Unable to find top level schedule.\nA top level schedule must not used as a sub-schedule.");
 
-      cout << "Schedule '" << ptr->schedName << "':" << endl;
+      cout << "top_schedule '" << ptr->schedName << "':" << endl;
     }
   else
     {
