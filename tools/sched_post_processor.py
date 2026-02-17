@@ -54,6 +54,7 @@ def make_sch_sub_dict(sch_line):
         "sched_ph_name": sch_line[3],
         "sched_delay_dur": float(sch_line[5]) * unit_multipliers[sch_line[6]],
         "sched_delay_unit": "s",
+        "children" : [],
     }
     return sch_sub_dict
 
