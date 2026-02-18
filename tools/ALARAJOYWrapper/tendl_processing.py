@@ -371,7 +371,9 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
             # Conditionally lower an isomer's excitation to the next lowest
             # value with known-decay data
             if M > 1:
-                for lowered_M in range(M - 1, 0, -1):
+                # Decrease excitation incrementally, with a maximum possible
+                # M of 9 by KZA convention
+                for lowered_M in range(M - 1 if M <= 10 else 9, 0, -1):
                     trialKZA = dKZA + lowered_M
                     if trialKZA in eaf_nucs:
                         dKZA = trialKZA
