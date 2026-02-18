@@ -352,7 +352,10 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
                         sigmas -= extract_cross_sections(file_obj, subMT)
                             
             # Nullify redundant excitation reactions
-            elif MT in EXCITATION_REACTIONS and MT not in excitation_pathways[pKZA]:
+            elif (
+                MT in EXCITATION_REACTIONS
+                and MT not in excitation_pathways[pKZA]
+            ):
                 sigmas = np.zeros(VITAMIN_J_ENERGY_GROUPS)
 
         if dKZA in eaf_nucs and M < 10:
@@ -362,10 +365,16 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
             }
 
         else:
-            # Force dKZA to ground; possible for an isomer reaction to exist
-            # in TENDL data without having decay data in EAF
             dKZA = ((dKZA - M) // 10) * 10
             special_MT = -1
+            
+            # Conditionally lower an isomer's excitation to the next lowest
+            # value with known-decay data
+            if M > 1:
+                for lowered_M in range(M - 1, 0, -1):
+                    trialKZA = dKZA + lowered_M
+                    if trialKZA in eaf_nucs:
+                        dKZA = trialKZA
 
             if dKZA not in all_rxns[pKZA]:
                 all_rxns[pKZA][dKZA] = defaultdict(dict)
