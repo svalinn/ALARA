@@ -60,6 +60,8 @@ protected:
   /// data is for.
   int kza;
 
+  static int cooltime_units;
+
   /// This is an array of results, one for each cooling time and at
   /// shutdown.
   double *N;
@@ -129,7 +131,9 @@ public:
   
   /// This function is used to set actMult from the first argument and
   /// metricMult by interpretation of the second argument.
-  static void setNorm(double,int);
+  static void setNorm(double,int,int);
+
+  static int getCooltimeMode();
 
   /// This function is used to set outReminderStr so that each table
   /// makes it clear what is being written.  Corresponding function to query
