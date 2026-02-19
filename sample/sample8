@@ -39,7 +39,7 @@ pulsehistory steady_state
 	1	0 s
 end
 
-dump_file dump_files/sample6.dump
+dump_file dump_files/sample8.dump
 
 data_library alaralib data/truncated_fendl2bin
 
