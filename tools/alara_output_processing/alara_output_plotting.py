@@ -168,7 +168,7 @@ def reformat_isotope(isotope):
             ᴬelement.
     '''
 
-    if isotope == 'total' or isotope == 'Other':
+    if 'total' in isotope.lower() or isotope == 'Other':
         return isotope
     
     else:
@@ -226,6 +226,36 @@ def construct_legend(ax, data_comp=False):
         handletextpad=0.5,
     )
 
+def plot_or_scatter(plot_type, ax, x, y, label, color, style):
+    '''
+    Using a like-set of arguments, create either a standard plot or scatter
+        plot for an ALARADFrame to be called within plot_single_response.
+
+    Arguments:
+        plot_type (str): Designation of what kind of plot to produce. Accepted
+            values are either "plot" or "scatter".
+        ax (matplotlib.axes._axes.Axes): Matplotlib axis object of the plot
+            being constructed.
+        x (array-like): x-axis data.
+        y (array-like): y-axis data.
+        label (str): Series label.
+        style (str): Matplotlib lineStyle or lineMarker symbol unique to each
+            run.
+    
+    Returns:
+        None
+    '''
+
+    if plot_type == 'plot':
+        ax.plot(x, y, label=label, color=color, linestyle=style)
+    elif plot_type == 'scatter':
+        ax.scatter(x, y, label=label, color=color, marker=style)
+    else:
+        raise ValueError(
+            'Invalid plot type.' \
+            'Must choose either "plot" or "scatter" for plot_type.'
+        )
+
 def pie_chart_aggregation(
         adf, run_lbl, variable, threshold, time_unit, pre_irrad=False
 ):
@@ -265,7 +295,9 @@ def pie_chart_aggregation(
 
     return agg
 
-def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
+def pie_grid_relative_tables(
+        table_ax, agg, times, time_unit, color_map, totals, var_unit
+):
     '''
     Given a Matplotlib Figure object, create a subplot Matplotlib table object
         to act as a color-coordinated legend for a grid of pie charts with
@@ -283,6 +315,8 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
         time_unit (str): Units for cooling times.
         color_map (dict): Pre-constructed color map for each nuclide to match
             table rows with pie chart wedges.
+        totals (list): List of total values at each cooling time.
+        var_unit (str): Unit of the variable being processed.
 
     Returns:
         None
@@ -293,8 +327,24 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
     piv = agg.pivot(index='nuclide', columns='time', values='value') * 100
     piv = piv.loc[
         piv.mean(axis=1).sort_values(ascending=False).index
-    ].map(lambda x: f'{x:.1f}%' if pd.notna(x) else '0.0%')
+    ]
+    totals_row = pd.Series(totals, index=piv.columns)
+    total_name = f'Total {var_unit}'
+    piv = pd.concat(
+        [totals_row.to_frame(name=total_name).T, piv],
+        axis=0
+    )
 
+    formatted_rows = []
+    for idx, row in piv.iterrows():
+        is_total = (idx == total_name)
+        formatted_rows.append([
+            (f'{x:.2e}' if is_total else f'{x:.1f}%') if pd.notna(x)
+            else ('0.0' if is_total else '0.0%')
+            for x in row
+        ])
+    piv = pd.DataFrame(formatted_rows, index=piv.index, columns=piv.columns)
+    
     table = table_ax.table(
         cellText=piv.values,
         rowLabels=[reformat_isotope(nuc) for nuc in piv.index],
@@ -305,17 +355,21 @@ def pie_grid_relative_tables(table_ax, agg, times, time_unit, color_map):
         loc='center',
         cellLoc='center'
     )
+
     table.auto_set_font_size(False)
-    table.set_fontsize(11)
+    table.set_fontsize(14)
     table.scale(1.0, 2.0)
 
     # Format table for readability
     for row in range(len(piv.index)):
         table[(row+1, -1)].get_text().set_fontweight('bold')
     for col in range(len(piv.columns)):
-        table[(0, col)].get_text().set_fontweight('bold')
+        for row in range(2):
+            table[(row, col)].get_text().set_fontweight('bold')
 
     for i, nuc in enumerate(piv.index):
+        if nuc == total_name:
+            continue
         rgba = color_map[nuc]
         for j in range(len(times)+1):
             table[(i+1, j-1)].set_facecolor(rgba)
@@ -414,8 +468,10 @@ def plot_single_response(
     head=None,
     total=False,
     yscale='log',
+    ymin=None,
     relative=False,
-    cmap_name = 'Dark2'
+    cmap_name = 'Dark2',
+    plot_type = 'plot'
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -461,6 +517,9 @@ def plot_single_response(
             (Defaults to False) 
         yscale (str, optional): Option to set the y-axis scale.
             (Defaults to 'log')
+        ymin (int, float, or None, optional): Option to set a bottom limit for
+            the y-axis.
+            (Defaults to None)
         relative (bool, optional): Option to plot relative values with respect
             to totals at each cooling time.
             (Defaults to False)
@@ -483,8 +542,12 @@ def plot_single_response(
         run_lbls = [run_lbls]
 
     data_list = []
-    line_styles = list(lines.lineStyles.keys())[:len(run_lbls)]
-    for run_lbl, linestyle in zip(run_lbls, line_styles):
+    styles = list(
+        lines.lineStyles.keys() if plot_type == 'plot'
+        else lines.lineMarkers.keys()
+    )[:len(run_lbls)]
+
+    for run_lbl, style in zip(run_lbls, styles):
         filtered, piv = preprocess_data(
             adf=adf,
             run_lbl=run_lbl,
@@ -494,25 +557,27 @@ def plot_single_response(
             sort_by_time=sort_by_time,
             head=head,
         )
-        data_list.append((run_lbl, filtered, piv, linestyle))
+        data_list.append((run_lbl, filtered, piv, style))
 
     color_map = build_color_map(
         cmap_name=cmap_name,
         pivs=[data[2] for data in data_list]
     )
-    for run_lbl, filtered, piv, linestyle in data_list:
+    for run_lbl, filtered, piv, style in data_list:
         for nuc in piv.index:
             if nuc == 'total' and not total:
                 continue
 
             label_suffix = f' ({run_lbl})' if data_comp else ''
 
-            ax.plot(
-                piv.columns,
-                piv.loc[nuc].tolist(),
+            plot_or_scatter(
+                ax=ax,
+                plot_type=plot_type,
+                x=piv.columns,
+                y=piv.loc[nuc].tolist(),
                 label=(nuc + label_suffix),
                 color=color_map[nuc],
-                linestyle=linestyle
+                style=style
             )
 
     title_suffix = f'{variable} vs Cooling Time '
@@ -539,6 +604,8 @@ def plot_single_response(
     ax.set_xlabel(f'Time ({time_unit})')
     ax.set_xscale('log')
     ax.set_yscale(yscale)
+    if ymin:
+        ax.set_ylim(bottom=ymin)
 
     construct_legend(ax, data_comp)
 
@@ -638,6 +705,8 @@ def multi_time_pie_grid(
     agg,
     run_lbl,
     variable,
+    var_unit,
+    totals,
     threshold=0.05,
     time_unit='s',
     ncols=2,
@@ -645,7 +714,6 @@ def multi_time_pie_grid(
     individual_pie_dimension = 5.0, # equal width/height
     horizontal_buffer = 3.0,
     vertical_buffer = 0.7
-
 ):
     '''
     Create a grid of pie charts for a single ALARA response variable from a
@@ -663,6 +731,8 @@ def multi_time_pie_grid(
             aggregated data below the thresholds.
         run_lbl (str): Distinguisher of the specified ALARA run.
         variable (str): Name of the response variable.
+        var_unit (str): Unit of the variable being processed.
+        totals (list): List of total values at each cooling time.
         threshold (float, optional): Proportional threshold for small-value
             aggregation.
             (Defaults to 0.05)
@@ -724,7 +794,9 @@ def multi_time_pie_grid(
         agg=agg,
         times=times,
         time_unit=time_unit,
-        color_map=color_map
+        color_map=color_map,
+        totals=totals,
+        var_unit=var_unit
     )
 
     # Create pie charts in a chronologically ordered grid with the table above
