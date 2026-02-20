@@ -124,7 +124,7 @@ def build_color_map(cmap_name, all_nucs=[], pivs=None):
     }
 
     if 'Other' in set(all_nucs):
-        color_map['Other'] = (0.3, 0.3, 0.3, 1.0)
+        color_map['Other'] = (0.8, 0.8, 0.8, 1.0)
 
     return color_map
 
@@ -355,12 +355,9 @@ def pie_grid_relative_tables(
         loc='center',
         cellLoc='center'
     )
-    for (row, col), cell in table.get_celld().items():
-        if row > 1:
-            cell.get_text().set_color('whitesmoke')
 
     table.auto_set_font_size(False)
-    table.set_fontsize(11)
+    table.set_fontsize(14)
     table.scale(1.0, 2.0)
 
     # Format table for readability
