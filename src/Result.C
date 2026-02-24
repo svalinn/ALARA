@@ -613,8 +613,9 @@ void Result::setNorm(double passedActMult, int normType, int cooltimeType)
     metricMult = 1.0/G_KG;
     break;
   default:
-    cooltime_units = cooltimeType;
-  }   
+    metricMult = 1;
+  }
+  cooltime_units = cooltimeType;  
 
 }
 

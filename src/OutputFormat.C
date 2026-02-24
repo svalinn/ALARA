@@ -200,7 +200,6 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 			next->cooltimeType = COOLTIME_DEF;
 			break;
 	  	}
-	  break;	
 
 	case OUTFMT_WDR:
           next->outTypes |= 1<<type;
