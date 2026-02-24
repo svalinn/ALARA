@@ -51,6 +51,10 @@ OutputFormat::OutputFormat(int type)
   strcpy(normUnits,"/cm3");
   normType = 1;
 
+  cooltimeUnits = new char[5];
+  strcpy(cooltimeUnits,"def");
+  cooltimeType = 1;
+
   gammaSrc = NULL;
   contactDose = NULL;
 
@@ -58,7 +62,7 @@ OutputFormat::OutputFormat(int type)
 }
 
 OutputFormat::OutputFormat(const OutputFormat& o) :
-  resolution(o.resolution), outTypes(o.outTypes), normType(o.normType), actMult(o.actMult)
+  resolution(o.resolution), outTypes(o.outTypes), normType(o.normType), actMult(o.actMult), cooltimeType(o.cooltimeType)
 
 {
   actUnits = new char[strlen(o.actUnits)+1];
@@ -67,6 +71,9 @@ OutputFormat::OutputFormat(const OutputFormat& o) :
   normUnits = new char[strlen(o.normUnits)+1];
   strcpy(normUnits,o.normUnits);
 
+  cooltimeUnits = new char[strlen(o.cooltimeUnits)+1];
+  strcpy(cooltimeUnits,o.cooltimeUnits);
+
   next = NULL;
 }
   
@@ -74,6 +81,7 @@ OutputFormat::~OutputFormat()
 {
   delete[] actUnits;
   delete[] normUnits;
+  delete[] cooltimeUnits;
   delete gammaSrc;
   delete contactDose;
   delete next;
@@ -141,6 +149,7 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
       switch (1<<type)
 	{
 	case OUTFMT_UNITS:
+	  {	
 	  next->outTypes |= 1<<type;
 	  delete[] next->actUnits;
 	  input >> token;
@@ -175,7 +184,34 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	      next->normType = OUTNORM_CM3;
 	      break;
 	    }
-	  break;
+	  
+	  delete[] next->cooltimeUnits;
+	  next->cooltimeUnits = new char[strlen(token)+1];
+	  strcpy(next->cooltimeUnits, "");
+
+	  next->cooltimeType = COOLTIME_DEF;
+	  std::streampos pos = input.tellg();
+	  
+	  if (input >> token)
+		{
+		if (tolower(token[0]) == 's')
+			{
+			next->cooltimeType = COOLTIME_S;
+
+			delete[] next->cooltimeUnits;
+			next->cooltimeUnits = new char[strlen(token)+1];
+			strcpy(next->cooltimeUnits, token);
+			}
+		else if (tolower(token[0]) == 'd')
+			{
+			input.seekg(pos);
+			}
+		else
+			{
+			error(230, "Unknown cooling time unit '%s'", token);		
+			}
+		}
+	  }
 	case OUTFMT_WDR:
           next->outTypes |= 1<<type;
 	  input >> token;
@@ -282,7 +318,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       /* units */
       outTypeNum = 0;
       cout << "\t" << Out_Types_Str[outTypeNum] << ": "
-	   << ptr->actUnits << " " << ptr->normUnits << endl;
+	   << ptr->actUnits << " " << ptr->normUnits << " " << ptr->cooltimeUnits << endl;
       /* regular singular responses */
       for (++outTypeNum;outTypeNum<lastSingularResponse;outTypeNum++)
 	if (ptr->outTypes & 1<<outTypeNum)
@@ -291,32 +327,32 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
 	      {
 	      case (OUTFMT_ACT):
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->actUnits,ptr->normUnits);
+			ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_SRC) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
 				/* deliver gamma src filename, */
-			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits); 
+			ptr->normUnits, ptr->gammaSrc->getFileName(),ptr->actUnits,ptr->normUnits,ptr->cooltimeUnits); 
 		break;
 	      case (OUTFMT_CDOSE) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->contactDose->getFileName());
+			ptr->contactDose->getFileName(),ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_ADJ) :
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->adjointDose->getFileName());
+			ptr->adjointDose->getFileName(),ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_EXP) : 
 		sprintf(buffer, Out_Types_Str[outTypeNum],
-			ptr->exposureDose->getFileName());
+			ptr->exposureDose->getFileName(),ptr->cooltimeUnits);
 		break;
 	      case (OUTFMT_EXP_CYL_VOL) :
 		sprintf(buffer, Out_Types_Str[outTypeNum],
-			ptr->exposureCylVolDose->getFileName());
+			ptr->exposureCylVolDose->getFileName(),ptr->cooltimeUnits);
 		break;
 	      default:
 		sprintf(buffer,Out_Types_Str[outTypeNum],
-			ptr->normUnits);
+			ptr->normUnits,ptr->cooltimeUnits);
 	      }
 	    cout << "\t" << buffer << endl;
 	  }
@@ -333,7 +369,7 @@ void OutputFormat::write(Volume* volList, Mixture* mixList, Loading* loadList,
       cout << endl << endl;
       
       /* set units for activity */
-      Result::setNorm(ptr->actMult,ptr->normType);
+      Result::setNorm(ptr->actMult,ptr->normType,ptr->cooltimeType);
 
       /* for each indicated response */
       for (outTypeNum=firstResponse;outTypeNum<lastSingularResponse;outTypeNum++) {
