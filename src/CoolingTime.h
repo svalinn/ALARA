@@ -2,7 +2,6 @@
 #include "alara.h"
 #include <vector>
 #include <string>
-#include "Output_def.h"
 
 #ifndef COOLINGTIME_H
 #define COOLINGTIME_H
