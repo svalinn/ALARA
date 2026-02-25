@@ -601,10 +601,14 @@ def plot_single_response(
             # starts/stops abruptly, this zero-division is the cause and not
             # necessarily an error, as various nuclides may be present across
             # all cooling times.
-            y = (
-                piv.loc[nuc].to_numpy() / control_piv.loc[nuc].to_numpy()
-                if ratio_plotting else piv.loc[nuc].tolist()
-            )
+            try:
+                y = (
+                    piv.loc[nuc].to_numpy() / control_piv.loc[nuc].to_numpy()
+                    if ratio_plotting else piv.loc[nuc].tolist()
+                )
+            except KeyError:
+                print(f'KeyError: Missing {nuc} from {run_lbl}')
+                continue
 
             label_suffix = f' ({run_lbl})' if data_comp else ''
             plot_or_scatter(
