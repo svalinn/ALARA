@@ -1,6 +1,6 @@
 # ALARA Output Processing
 
-Contained within `ALARA/tools` is the Python package, `alara_output_processing`, a module desgined for the parsing of ALARA output files into Pandas DataFrame-inherited structures, with a robust set of operations to organize and process data to user specifications.
+Contained within `ALARA/tools` is the Python package, `alara_output_processing`, a module desgined for the parsing of ALARA and FISPACT-II output files into Pandas DataFrame-inherited structures, with a robust set of operations to organize and process data to user specifications.
 
 ## Dependencies
 - Standard Python libraries
@@ -11,6 +11,8 @@ Contained within `ALARA/tools` is the Python package, `alara_output_processing`,
 - Generic Python packages
     * [NumPy](https://numpy.org/install/)
     * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+- Domain-specific packages
+    * [Pypact](https://github.com/fispact/pypact)
 
 
 ## Installation
@@ -41,6 +43,8 @@ runs = {
 }
 ```
 
+**Note:** This toolkit is also capable of parsing FISPACT-II output tables and storing their data in the same canonical `ALARADFrame` structure. To process FISPACT-II output data, the output file must contain the suffix `".fis"` to be recognized as such (i.e. `"/path/to/fispactii/output.fis"`).
+
 This dictionary can be input directly into the function `DataLibrary.make_entries()` to create a single `ALARADFrame` containing all data from each table in each run's output files.
 ```
 lib = aop.DataLibrary()
@@ -52,7 +56,8 @@ The columns for `adfs` are:
 * `nuclide`: Nuclide name formatted as "element-A" (i.e. "h-1" for <sup>1</sup>H) or "total".
 * `half_life`: Half-life in seconds of an unstable nuclide. `-1` for stable nuclides, `0` for "total" rows.
 * `run_lbl`: Distinguisher between runs (i.e. "run1", "run2", etc.).
-* `block`: Integer enumerator for the geometric block key name. Possible block keys are "Interval", "Material", or "Zone", and their enumerator values can be accessed through `ALARADFrame().BLOCK_ENUM[block]`, where `block` is one of the above keys.
+* `block`: Integer enumerator for the geometric block key name. Possible block keys are "Interval", "Material", or "Zone", and their enumerator values can be accessed through `ALARADFrame().BLOCK_ENUM[block]`, where `block` is one of the above keys. For FISPACT-II data, `block`, `block_name`, and `block_num` are all set to `-1`.
+* `block_name`: Name of the block.
 * `block_num`: Geometric position of the block.
 * `variable`: Integer enumerator for the response variable key name. Possible variable keys are:
     - "Number Density"
