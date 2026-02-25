@@ -59,7 +59,7 @@ def make_sch_sub_dict(sch_line):
     return sch_sub_dict
 
 
-def make_pe_sub_dict(pe_line, unit_multipliers):
+def make_pe_sub_dict(pe_line):
     pe_sub_dict = {
         "type" : "pulse_entry",
         "pe_dur": float(pe_line[1]) * unit_multipliers[pe_line[2]],
@@ -103,7 +103,7 @@ def make_nested_dict(lines):
 
         line_idx += 1
 
-    return sch_dict
+    return sched_tree
 
 
 def parse_arg():
