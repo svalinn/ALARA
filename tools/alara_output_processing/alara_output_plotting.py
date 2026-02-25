@@ -638,8 +638,6 @@ def plot_single_response(
 
     ax.set_title(title_prefix + title_suffix)
 
-    
-
     ax.set_ylabel(
         f'Ratio of {variable} against {control_run}' if ratio_plotting
         else (f'Proportion of Total {variable}' if relative
@@ -650,7 +648,6 @@ def plot_single_response(
     ax.set_yscale(yscale)
     if ymin:
         ax.set_ylim(bottom=ymin)
-
 
     legend_ax = None
     if separate_legend:
