@@ -594,20 +594,19 @@ def plot_single_response(
             if nuc == 'total' and not total:
                 continue
 
-            if ratio_plotting:
-                # Vectorized division to calculate time-series ratio against
-                # the control run. If zeros exist in the control run, a zero-
-                # division RuntimeWarning will be raised, but does not cause
-                # plotting issues as NaNs will just not be plotted. If a ratio
-                # series starts/stops abruptly, this zero-division is the
-                # cause and not necessarily an error, as various nuclides may
-                # be present across all cooling times.
-                y = piv.loc[nuc].to_numpy() / control_piv.loc[nuc].to_numpy()
-                label_suffix = f'\n (Ratio of {control_run} : {run_lbl})'
-            else:
-                y = piv.loc[nuc].tolist()
-                label_suffix = f' ({run_lbl})' if data_comp else ''
+            # Vectorized division to calculate time-series ratio against the
+            # control run. If zeros exist in the control run, a zero-division
+            # RuntimeWarning will be raised, but does not cause plotting
+            # issues as NaNs will just not be plotted. If a ratio series
+            # starts/stops abruptly, this zero-division is the cause and not
+            # necessarily an error, as various nuclides may be present across
+            # all cooling times.
+            y = (
+                piv.loc[nuc].to_numpy() / control_piv.loc[nuc].to_numpy()
+                if ratio_plotting else piv.loc[nuc].tolist()
+            )
 
+            label_suffix = f' ({run_lbl})' if data_comp else ''
             plot_or_scatter(
                 ax=ax,
                 plot_type=plot_type,
@@ -638,9 +637,13 @@ def plot_single_response(
     )
 
     ax.set_title(title_prefix + title_suffix)
+
+    
+
     ax.set_ylabel(
-        f'Proportion of Total {variable}' if relative
-        else f'{variable} [{filtered['var_unit'].unique()[0]}]'
+        f'Ratio of {variable} against {control_run}' if ratio_plotting
+        else (f'Proportion of Total {variable}' if relative
+        else f'{variable} [{filtered['var_unit'].unique()[0]}]')
     )
     ax.set_xlabel(f'Time ({time_unit})')
     ax.set_xscale('log')
