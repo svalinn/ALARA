@@ -176,20 +176,24 @@ def reformat_isotope(isotope):
         element = element.capitalize()
         return f'$^{{{A}}}${element}'
 
-def construct_legend(ax, data_comp=False):
+def construct_legend(ax, data_comp=False, legend_ax=None):
     '''
     Create a custom pyplot legend that exists outside of the grid itself and
         can group like-isotopes together from compared data sets for clarity.
     
     Arguments:
-        ax (matplotlib.axes._axes.Axes): Matplotlib axis object of the plot
+        ax (matplotlib.axes._axes.Axes): Matplotlib Axes object of the plot
             being constructed.
         data_comp (bool, optional): Boolean setting for comparison between two
             data sets.
             (Defaults to False)
+        legend_ax (matplotlib.axes._axes.Axes or None, optional): Optional
+            argument to construct the legend on a separate Matplotlib Axes
+            object than the plot itself.
     
     Returns:
-        None
+        legend (matplotlib.legend.Legend): Matplotlib Legend object containing
+            the constructed legend.
     '''
 
     handles, labels = ax.get_legend_handles_labels()
@@ -215,16 +219,20 @@ def construct_legend(ax, data_comp=False):
         grouped_labels.append(f'{isotope} {datalib}')
         prev_isotope = isotope
 
-    ax.legend(
+    target_ax = legend_ax if legend_ax else ax
+
+    legend = target_ax.legend(
         grouped_handles,
         grouped_labels,
-        loc='center left',
-        bbox_to_anchor=(1.025, 0.5),
+        loc='center' if legend_ax else 'center left',
+        bbox_to_anchor=None if legend_ax else (1.025, 0.5),
         borderaxespad=0.,
         fontsize='small',
         handlelength=1.5,
         handletextpad=0.5,
     )
+
+    return legend
 
 def plot_or_scatter(plot_type, ax, x, y, label, color, style):
     '''
@@ -329,7 +337,7 @@ def pie_grid_relative_tables(
         piv.mean(axis=1).sort_values(ascending=False).index
     ]
     totals_row = pd.Series(totals, index=piv.columns)
-    total_name = f'Total {var_unit}'
+    total_name = f'Total [{var_unit}]'
     piv = pd.concat(
         [totals_row.to_frame(name=total_name).T, piv],
         axis=0
@@ -470,8 +478,10 @@ def plot_single_response(
     yscale='log',
     ymin=None,
     relative=False,
-    cmap_name = 'Dark2',
-    plot_type = 'plot'
+    cmap_name='Dark2',
+    plot_type='plot',
+    separate_legend=False,
+    control_run=''
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -527,12 +537,24 @@ def plot_single_response(
             the plots. Reference guide for Matplotlib Colormaps can be found
             at matplotlib.org/stable/gallery/color/colormap_reference.html
             (Defaults to "Dark2")
+        separate_legend (bool, optional): Option to return the legend as a
+            separate Matplotlib Figure object. Can be useful for plots with
+            many nuclide series.
+            (Defaults to False)
+        control_run (str, optional): Option to set a control run to against
+            which to calculate time-series ratios for all other runs. If used,
+            must case-sensitively match one of the labels in the list run_lbl.
+            (Defaults to '')
 
     Returns:
         fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
             containing the constructed plot.
+        legend_fig (matplotlib.figure.Figure or None): Conditionally separated
+            Matplotlib Figure object containing only the plot's legend. None
+            if separate_legend argument is False.
     '''
 
+    ratio_plotting = True if control_run else False
     data_comp = False
     fig, ax = plt.subplots(figsize=(10,6))
 
@@ -557,7 +579,11 @@ def plot_single_response(
             sort_by_time=sort_by_time,
             head=head,
         )
-        data_list.append((run_lbl, filtered, piv, style))
+
+        if run_lbl == control_run and ratio_plotting:
+            control_piv = piv
+        else:
+            data_list.append((run_lbl, filtered, piv, style))
 
     color_map = build_color_map(
         cmap_name=cmap_name,
@@ -568,19 +594,27 @@ def plot_single_response(
             if nuc == 'total' and not total:
                 continue
 
-            label_suffix = f' ({run_lbl})' if data_comp else ''
+            if ratio_plotting:
+                y = piv.loc[nuc].to_numpy() / control_piv.loc[nuc].to_numpy()
+                label_suffix = f'\n (Ratio of {control_run} : {run_lbl})'
+            else:
+                y = piv.loc[nuc].tolist()
+                label_suffix = f' ({run_lbl})' if data_comp else ''
 
             plot_or_scatter(
                 ax=ax,
                 plot_type=plot_type,
                 x=piv.columns,
-                y=piv.loc[nuc].tolist(),
+                y=y,
                 label=(nuc + label_suffix),
                 color=color_map[nuc],
                 style=style
             )
 
-    title_suffix = f'{variable} vs Cooling Time '
+    title_suffix = (
+        f'Ratio of {variable} against {control_run}' if ratio_plotting
+        else f'{variable}'
+    ) + ' vs Cooling Time'
 
     if relative:
         title_suffix += 'Relative to Total at Each Cooling Time '
@@ -607,12 +641,19 @@ def plot_single_response(
     if ymin:
         ax.set_ylim(bottom=ymin)
 
-    construct_legend(ax, data_comp)
+
+    legend_ax = None
+    if separate_legend:
+        n_items = len(color_map)
+        _, legend_ax = plt.subplots(figsize=(4, max(4, 0.3 * n_items)))
+        legend_ax.axis('off')
+
+    legend_fig = construct_legend(ax, data_comp, legend_ax)
 
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
 
-    return fig
+    return fig, legend_fig
 
 def single_time_pie_chart(
     agg,
