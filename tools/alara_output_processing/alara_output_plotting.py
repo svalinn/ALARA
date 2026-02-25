@@ -594,14 +594,14 @@ def plot_single_response(
             if nuc == 'total' and not total:
                 continue
 
-            # Vectorized division to calculate time-series ratio against the
-            # control run. If zeros exist in the control run, a zero-division
-            # RuntimeWarning will be raised, but does not cause plotting
-            # issues as NaNs will just not be plotted. If a ratio series
-            # starts/stops abruptly, this zero-division is the cause and not
-            # necessarily an error, as various nuclides may be present across
-            # all cooling times.
             try:
+                # Vectorized division to calculate time-series ratio against
+                # the control run. If zeros exist in the control run, a zero-
+                # division RuntimeWarning will be raised, but does not cause
+                # plotting issues as NaNs will just not be plotted. If a ratio
+                # series starts/stops abruptly, this zero-division is the
+                # cause and not necessarily an error, as various nuclides may
+                # be present across all cooling times.
                 y = (
                     piv.loc[nuc].to_numpy() / control_piv.loc[nuc].to_numpy()
                     if ratio_plotting else piv.loc[nuc].tolist()
