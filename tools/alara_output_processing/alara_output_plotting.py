@@ -640,7 +640,7 @@ def plot_single_response(
                 thalf = filtered.loc[
                     filtered['nuclide'] == nuc, 'half_life'
                 ].iat[0]
-                plt.axvline(x=thalf, color=thalf_cmap[nuc], alpha=0.5, label=(
+                plt.axvline(x=thalf, color=thalf_cmap[nuc], alpha=0.85, label=(
                     rf'{nuc} ($t_{{1/2}} = {thalf:.2e}{time_unit}$)'
                 ))
                 plotted_nucs.append(nuc)
