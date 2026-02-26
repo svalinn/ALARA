@@ -481,7 +481,7 @@ def plot_single_response(
     cmap_name='Dark2',
     plot_type='plot',
     separate_legend=False,
-    control_run=''
+    control_run=None
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -541,9 +541,10 @@ def plot_single_response(
             separate Matplotlib Figure object. Can be useful for plots with
             many nuclide series.
             (Defaults to False)
-        control_run (str, optional): Option to set a control run to against
-            which to calculate time-series ratios for all other runs. If used,
-            must case-sensitively match one of the labels in the list run_lbl.
+        control_run (str or None, optional): Option to set a control run to
+            against which to calculate time-series ratios for all other runs.
+            If used, must case-sensitively match one of the labels in the list
+            run_lbl.
             (Defaults to '')
 
     Returns:
@@ -554,7 +555,7 @@ def plot_single_response(
             if separate_legend argument is False.
     '''
 
-    ratio_plotting = True if control_run else False
+    ratio_plotting = (control_run is not None)
     data_comp = False
     fig, ax = plt.subplots(figsize=(10,6))
 
@@ -580,7 +581,7 @@ def plot_single_response(
             head=head,
         )
 
-        if run_lbl == control_run and ratio_plotting:
+        if run_lbl == control_run:
             control_piv = piv
         else:
             data_list.append((run_lbl, filtered, piv, style))
@@ -601,7 +602,7 @@ def plot_single_response(
                 # plotting issues as NaNs will just not be plotted. If a ratio
                 # series starts/stops abruptly, this zero-division is the
                 # cause and not necessarily an error, as various nuclides may
-                # be present across all cooling times.
+                # not be present across all cooling times.
                 y = (
                     piv.loc[nuc].to_numpy() / control_piv.loc[nuc].to_numpy()
                     if ratio_plotting else piv.loc[nuc].tolist()
