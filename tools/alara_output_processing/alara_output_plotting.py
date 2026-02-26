@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import lines
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 from warnings import warn
 import alara_output_processing as aop
 
@@ -92,7 +94,7 @@ def preprocess_data(
 
     return filtered, piv
 
-def build_color_map(cmap_name, all_nucs=[], pivs=None):
+def build_color_map(cmap_name, all_nucs=[], pivs=None, mark_thalf=False):
     '''
     Given a list of pivot DataFrames (one per run) or a 1D array-like data
         structure of nuclide string names, build a stable color mape keyed by
@@ -119,9 +121,14 @@ def build_color_map(cmap_name, all_nucs=[], pivs=None):
     if len(all_nucs) == 0:
         raise ValueError('Must input either all_nucs or pivs.')
 
-    color_map = {
-        lbl: cmap(i % cmap.N) for i, lbl in enumerate(sorted(all_nucs))
-    }
+    if mark_thalf:
+        color_map = {
+            lbl: cmap(0.4 + 0.55 * i / max(len(all_nucs)-1,1)) for i, lbl in enumerate(sorted(all_nucs))
+        }
+    else:
+        color_map = {
+            lbl: cmap(i % cmap.N) for i, lbl in enumerate(sorted(all_nucs))
+        }
 
     if 'Other' in set(all_nucs):
         color_map['Other'] = (0.8, 0.8, 0.8, 1.0)
@@ -481,7 +488,8 @@ def plot_single_response(
     cmap_name='Dark2',
     plot_type='plot',
     separate_legend=False,
-    control_run=None
+    control_run=None,
+    mark_thalf=False
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -546,6 +554,9 @@ def plot_single_response(
             If used, must case-sensitively match one of the labels in the list
             run_lbl.
             (Defaults to '')
+        mark_thalf (bool, optional): Option to mark a vertical line for the
+            half-lives of all nuclides present in the plot.
+            (Defaults to False)
 
     Returns:
         fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
@@ -586,10 +597,13 @@ def plot_single_response(
         else:
             data_list.append((run_lbl, filtered, piv, style))
 
-    color_map = build_color_map(
-        cmap_name=cmap_name,
-        pivs=[data[2] for data in data_list]
+    pivs = [data[2] for data in data_list]
+    color_map = build_color_map(cmap_name=cmap_name, pivs=pivs)
+    thalf_cmap = build_color_map(
+        cmap_name='Reds', pivs=pivs, mark_thalf=mark_thalf
     )
+
+    plotted_nucs = []
     for run_lbl, filtered, piv, style in data_list:
         for nuc in piv.index:
             if nuc == 'total' and not total:
@@ -621,6 +635,15 @@ def plot_single_response(
                 color=color_map[nuc],
                 style=style
             )
+
+            if mark_thalf and nuc not in plotted_nucs:
+                thalf = filtered.loc[
+                    filtered['nuclide'] == nuc, 'half_life'
+                ].iat[0]
+                plt.axvline(x=thalf, color=thalf_cmap[nuc], alpha=0.5, label=(
+                    rf'{nuc} ($t_{{1/2}} = {thalf:.2e}{time_unit}$)'
+                ))
+                plotted_nucs.append(nuc)
 
     title_suffix = (
         f'Ratio of {variable} against {control_run}' if ratio_plotting
