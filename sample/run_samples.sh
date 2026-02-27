@@ -4,7 +4,7 @@
 set -e
 
 # ALARA executable
-ALARA=../bin/alara
+ALARA=../bld/src/alara
 
 # Print version information
 ${ALARA} -V
