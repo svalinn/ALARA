@@ -52,14 +52,6 @@ def args():
               
     )
     parser.add_argument(
-        '--isomer_to_ground', '-i', action='store_false',
-        help=('''
-            Optional argument to amalgamate all isomers lackign decay data to
-                an "Other" daughter with a KZA isomer value of "*", instead of
-                forcing their decay to their respective ground states.
-        ''')
-    )
-    parser.add_argument(
         '--amalgamate', '-a', action='store_true',
         help=('''
             Optional argument to amalgamate all like-daughters of a given
@@ -280,10 +272,10 @@ def write_dsv(dsv_path, all_rxns):
         dsv.write(str(tp.VITAMIN_J_ENERGY_GROUPS) + '\n')
         for parent in sorted(all_rxns):
             for daughter in all_rxns[parent]:
-                for rxn in all_rxns[parent][daughter].values():
-                    if rxn['xsections'].sum() > 0:
-                        dsv.write(rxn_to_str(parent, daughter, rxn) + '\n')
-        
+                if parent != daughter:
+                    for rxn in all_rxns[parent][daughter].values():
+                        if rxn['xsections'].sum() > 0:
+                            dsv.write(f'{rxn_to_str(parent,daughter,rxn)}\n')
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv.write(str(-1))
 
@@ -301,7 +293,7 @@ def main():
     temperature = args().temperature[0]
 
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
-    radionucs = rxd.find_eaf_radionuclides(Path(args().decay_lib[0]))
+    eaf_nucs = rxd.find_eaf_ref_data(Path(args().decay_lib[0]))
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
     for file_properties in tp.search_for_files(search_dir).values():
@@ -348,7 +340,7 @@ def main():
             if MTs and endftk_file_obj:
                 all_rxns = tp.iterate_MTs(
                     MTs, endftk_file_obj, mt_dict, pKZA,
-                    all_rxns, radionucs, args().isomer_to_ground
+                    all_rxns, eaf_nucs, TAPE20
                 )
                 print(f'Finished processing {element}{A}')
 
