@@ -49,7 +49,7 @@ pulsehistory  pulsed_spec
         10   5 s
 end
 
-dump_file dump_files/sample2.dump
+dump_file dump_files/sample3.dump
 
 data_library alaralib data/truncated_fendl2bin
 

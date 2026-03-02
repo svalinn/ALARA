@@ -67,7 +67,7 @@ end
 
 data_library alaralib data/truncated_fendl2bin
 
-dump_file dump_files/sample4.dump
+dump_file dump_files/sample5.dump
 
 output zone
    units Bq cm3

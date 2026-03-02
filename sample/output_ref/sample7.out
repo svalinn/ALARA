@@ -38,11 +38,11 @@ Starting problem input processing.
 ***Please review this schedule hierarchy.!!!!!!!!!!
 
 Schedule 'myschedule':
-	pulse: 10 s with 12 s delay pulsed with history single_pulse
-	pulse: 10 s with 3 s delay pulsed with history single_pulse
-	pulse: 10 s with 5 s delay pulsed with history single_pulse
-	Schedule 'sub_1' with 5 s delay and pulsed with history 'triple_pulse':
-		pulse: 5 s with 0 s delay pulsed with history double_pulse
+	pulse_entry: 10 s pulse_history single_pulse delay 12 s
+	pulse_entry: 10 s pulse_history single_pulse delay 3 s
+	pulse_entry: 10 s pulse_history single_pulse delay 5 s
+	schedule sub_1 pulse_history triple_pulse delay 5 s 
+		pulse_entry: 5 s pulse_history double_pulse delay 0 s
 
 ***End of schedule hierarchy.
 
@@ -54,6 +54,18 @@ Schedule 'myschedule':
 		Assigning 3 fluxes to each interval
 		Making list of root isotopes.
 		Processing pulsing histories.
+pulse_history: 'single_pulse
+num_pulsing_levels: 1
+num_pulses_per_level: [1]
+delay_seconds_per_level: [0]
+pulse_history: 'double_pulse
+num_pulsing_levels: 1
+num_pulses_per_level: [2]
+delay_seconds_per_level: [10]
+pulse_history: 'triple_pulse
+num_pulsing_levels: 1
+num_pulses_per_level: [3]
+delay_seconds_per_level: [100]
 		Processing schedule hierarchy.
 		Processing cooling times.
 		Collapsing schedules from top.
@@ -65,8 +77,8 @@ Starting problem solution.
 		   Total so far: 111 nodes in 19 chains with maximum length 2.
 		Solving Root #2: he-4 
 		   Maximum relative concentration: 0
-		      last Root: 1563 nodes in 487 chains with maximum length 5.
-		   Total so far: 1674 nodes in 506 chains with maximum length 5.
+		      last Root: 1563 nodes in 488 chains with maximum length 5.
+		   Total so far: 1674 nodes in 507 chains with maximum length 5.
 	Solved problem.
 	Reset binary dump with 2 results per isotope.
 		Tallying constituent results into total result lists.
@@ -88,21 +100,21 @@ Total (All constituents)
 	COMPACTED
 	Volume Fraction: 1	Relative Volume: 7402.2
 Number Density [atoms/cm3]
-isotope	 shutdown         1 s   
-================================
-s-32 	2.8636e+13  2.8636e+13  
-s-33 	7.4133e+09  7.4133e+09  
-k-39 	1.9119e+13  1.9119e+13  
-ca-40 	1.4361e+15  1.4361e+15  
-================================
-total	1.4839e+15  1.4839e+15  
+isotope  t_1/2(s)   pre-irrad   shutdown         1 s   
+======================================
+s-32 	-1          9.5107e+15  2.8636e+13  2.8636e+13  
+s-33 	-1          7.5068e+13  7.4133e+09  7.4133e+09  
+k-39 	-1          3.3768e+16  1.9119e+13  1.9119e+13  
+ca-40 	-1          1.0478e+18  1.4361e+15  1.4361e+15  
+======================================
+total   0           1.0911e+18  1.4839e+15  1.4839e+15  
 
 Totals for all zones.
 Number Density [atoms/cm3]
 zone	 shutdown         1 s   
-================================
+======================================
 1	1.4839e+15  1.4839e+15  	zone_1 (mix_1)
-================================
+======================================
 
 
 
@@ -127,52 +139,52 @@ Total (All constituents)
 	COMPACTED
 	Volume Fraction: 1	Relative Volume: 7402.2
 Number Density [atoms/cm3]
-isotope	 shutdown         1 s   
-================================
-c-12 	1.1796e+18  1.1796e+18  
-c-13 	8.6427e+15  8.6427e+15  
-n-14 	2.9493e+15  2.9493e+15  
-n-15 	2.4747e+12  2.4747e+12  
-o-16 	2.1514e+19  2.1514e+19  
-o-17 	4.1270e+15  4.1270e+15  
-o-18 	2.5062e+15  2.5062e+15  
-na-23 	4.2576e+16  4.2576e+16  
-mg-24 	2.5424e+17  2.5424e+17  
-mg-25 	2.2347e+16  2.2347e+16  
-mg-26 	8.2145e+15  8.2145e+15  
-al-27 	1.5064e+17  1.5064e+17  
-si-28 	2.0426e+18  2.0426e+18  
-si-29 	8.1003e+16  8.1003e+16  
-si-30 	1.5790e+16  1.5790e+16  
-s-32 	3.1424e+16  3.1424e+16  
-s-33 	4.0592e+14  4.0592e+14  
-s-34 	9.8698e+14  9.8698e+14  
-s-36 	2.3951e+11  2.3951e+11  
-k-39 	7.0336e+16  7.0336e+16  
-k-41 	3.4799e+15  3.4799e+15  
-ca-40 	2.6936e+18  2.6936e+18  
-ca-42 	1.7866e+16  1.7866e+16  
-ca-43 	6.1155e+14  6.1155e+14  
-ca-44 	3.5764e+15  3.5764e+15  
-ca-46 	1.6887e+12  1.6887e+12  
-ti-46 	8.8000e+13  8.8000e+13  
-ti-47 	5.6469e+13  5.6469e+13  
-ti-48 	3.0804e+14  3.0804e+14  
-ti-49 	1.0767e+13  1.0767e+13  
-ti-50 	4.9330e+12  4.9330e+12  
-fe-54 	1.0977e+15  1.0977e+15  
-fe-56 	6.3928e+15  6.3928e+15  
-fe-57 	1.4929e+14  1.4929e+14  
-fe-58 	9.1314e+12  9.1314e+12  
-================================
-total	2.8160e+19  2.8160e+19  
+isotope  t_1/2(s)   pre-irrad   shutdown         1 s   
+======================================
+c-12 	-1          8.6255e+17  1.1796e+18  1.1796e+18  
+c-13 	-1          9.6642e+15  8.6427e+15  8.6427e+15  
+n-14 	-1          1.3427e+15  2.9493e+15  2.9493e+15  
+n-15 	-1          4.9324e+12  2.4747e+12  2.4747e+12  
+o-16 	-1          5.8012e+18  2.1514e+19  2.1514e+19  
+o-17 	-1          2.1516e+15  4.1270e+15  4.1270e+15  
+o-18 	-1          1.1863e+16  2.5062e+15  2.5062e+15  
+na-23 	-1          3.4485e+16  4.2576e+16  4.2576e+16  
+mg-24 	-1          9.0792e+16  2.5424e+17  2.5424e+17  
+mg-25 	-1          1.1494e+16  2.2347e+16  2.2347e+16  
+mg-26 	-1          1.2655e+16  8.2145e+15  8.2145e+15  
+al-27 	-1          1.4412e+17  1.5064e+17  1.5064e+17  
+si-28 	-1          9.7320e+17  2.0426e+18  2.0426e+18  
+si-29 	-1          4.9277e+16  8.1003e+16  8.1003e+16  
+si-30 	-1          3.2711e+16  1.5790e+16  1.5790e+16  
+s-32 	-1          9.5107e+15  3.1424e+16  3.1424e+16  
+s-33 	-1          7.5068e+13  4.0592e+14  4.0592e+14  
+s-34 	-1          4.2138e+14  9.8698e+14  9.8698e+14  
+s-36 	-1          2.0018e+12  2.3951e+11  2.3951e+11  
+k-39 	-1          3.3768e+16  7.0336e+16  7.0336e+16  
+k-41 	-1          2.4405e+15  3.4799e+15  3.4799e+15  
+ca-40 	-1          1.0478e+18  2.6936e+18  2.6936e+18  
+ca-42 	-1          6.9931e+15  1.7866e+16  1.7866e+16  
+ca-43 	-1          1.4591e+15  6.1155e+14  6.1155e+14  
+ca-44 	-1          2.2547e+16  3.5764e+15  3.5764e+15  
+ca-46 	-1          4.3234e+13  1.6887e+12  1.6887e+12  
+ti-46 	-1          1.5763e+14  8.8000e+13  8.8000e+13  
+ti-47 	-1          1.4384e+14  5.6469e+13  5.6469e+13  
+ti-48 	-1          1.4541e+15  3.0804e+14  3.0804e+14  
+ti-49 	-1          1.0837e+14  1.0767e+13  1.0767e+13  
+ti-50 	-1          1.0640e+14  4.9330e+12  4.9330e+12  
+fe-54 	-1          1.6352e+15  1.0977e+15  1.0977e+15  
+fe-56 	-1          2.5421e+16  6.3928e+15  6.3928e+15  
+fe-57 	-1          5.8203e+14  1.4929e+14  1.4929e+14  
+fe-58 	-1          7.7604e+13  9.1314e+12  9.1314e+12  
+======================================
+total   0           9.1922e+18  2.8160e+19  2.8160e+19  
 
 Totals for all zones.
 Number Density [atoms/cm3]
 zone	 shutdown         1 s   
-================================
+======================================
 1	2.8160e+19  2.8160e+19  	zone_1 (mix_1)
-================================
+======================================
 
 
 
