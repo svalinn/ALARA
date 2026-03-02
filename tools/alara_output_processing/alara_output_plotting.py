@@ -226,13 +226,21 @@ def construct_legend(ax, data_comp=False, legend_ax=None):
         grouped_labels.append(f'{isotope} {datalib}')
         prev_isotope = isotope
 
-    target_ax = legend_ax if legend_ax else ax
+    #target_ax = legend_ax if legend_ax else ax
+    if legend_ax:
+        target_ax = legend_ax
+        loc = 'center'
+        bbox_to_anchor = None
+    else:
+        target_ax = ax
+        loc = 'center left'
+        bbox_to_anchor = (1.025, 0.5)
 
     legend = target_ax.legend(
         grouped_handles,
         grouped_labels,
-        loc='center' if legend_ax else 'center left',
-        bbox_to_anchor=None if legend_ax else (1.025, 0.5),
+        loc=loc,
+        bbox_to_anchor=bbox_to_anchor,
         borderaxespad=0.,
         fontsize='small',
         handlelength=1.5,
@@ -645,14 +653,19 @@ def plot_single_response(
                 ))
                 plotted_nucs.append(nuc)
 
+    ylabel = f'{variable} [{filtered['var_unit'].unique()[0]}]'
     title_suffix = (
         f'Ratio of {variable} against {control_run}' if ratio_plotting
         else f'{variable}'
     ) + ' vs Cooling Time'
 
+    if ratio_plotting:
+        ylabel = f'Ratio of {variable} against {control_run}'
+
     if relative:
         title_suffix += 'Relative to Total at Each Cooling Time '
         yscale = 'linear'
+        ylabel = f'Proportion of Total {variable}'
 
     if head:
         title_suffix += (
@@ -665,12 +678,7 @@ def plot_single_response(
     )
 
     ax.set_title(title_prefix + title_suffix)
-
-    ax.set_ylabel(
-        f'Ratio of {variable} against {control_run}' if ratio_plotting
-        else (f'Proportion of Total {variable}' if relative
-        else f'{variable} [{filtered['var_unit'].unique()[0]}]')
-    )
+    ax.set_ylabel(ylabel)
     ax.set_xlabel(f'Time ({time_unit})')
     ax.set_xscale('log')
     ax.set_yscale(yscale)
