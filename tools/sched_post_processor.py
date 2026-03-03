@@ -101,6 +101,10 @@ def make_nested_dict(lines):
         elif tokens[0] == "pulse_entry:":
             current_sched["children"].append(make_pe_sub_dict(tokens))
 
+        elif tokens[0] == "top_schedule":
+            line_idx += 1
+            continue  
+
         line_idx += 1
 
     return sched_tree
