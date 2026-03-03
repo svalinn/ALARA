@@ -77,32 +77,28 @@ def make_nested_dict(lines):
     in the section of the output with schedule details.
     A sub-dictionary is created for each additional indented level.
     """
-    sched_tree = {0: {"children" : [] } }
+    sched_tree = {0: {"children": []}}
     line_idx = 0
     # next section of output
     current_sched = sched_tree[0]
     ancestors = [current_sched]
+    keywords = ["top_schedule", "schedule", "pulse_entry:"]
 
-    while not lines[line_idx].startswith("pulse_history:"):
+    while any(lines[line_idx].strip().startswith(keyword) for keyword in keywords):
         new_child_level = lines[line_idx].count("\t")
         tokens = lines[line_idx].strip().split()
-
-
         while new_child_level < len(ancestors):
             current_sched = ancestors.pop()
-
-        if tokens[0] == "schedule":
+        if tokens[0] == keywords[1]:
 
             current_sched["children"].append(make_sch_sub_dict(tokens))
             ancestors.append(current_sched)
             current_sched = current_sched["children"][-1]
 
-
-        elif tokens[0] == "pulse_entry:":
+        elif tokens[0] == keywords[2]:
             current_sched["children"].append(make_pe_sub_dict(tokens))
 
         line_idx += 1
-
     return sched_tree
 
 
