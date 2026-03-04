@@ -7,6 +7,7 @@
  */
 
 #include "PulseHistory.h"
+#include <iostream>
 
 #include "Chain.h"
 
@@ -19,9 +20,16 @@
     are set with the arguments.  Note that the pointers are copied,
     and not the arrays themselves.  In both cases, 'setCode' is
     initialized to -1. */
-PulseHistory::PulseHistory(int nlvls, int *pulse, double *decay) :
+PulseHistory::PulseHistory(const char* name, int nlvls, int *pulse, double *decay) :
   setCode(-1), nLevels(nlvls),  nPulse(pulse),  td(decay)
 {
+  this->histName = NULL;
+  if (name != NULL)
+    {
+      this->histName = new char[strlen(name) + 1];
+      memCheck(histName, "PulseHistory::PulseHistory: histName");
+      strcpy(this->histName, name);
+    }
 
   D = NULL;
   if (nLevels>0)
@@ -39,6 +47,14 @@ PulseHistory::PulseHistory(const PulseHistory &p) :
   setCode(p.setCode),nLevels(p.nLevels)
 {
   int lvlNum;
+
+  histName = NULL;
+  if (p.histName != NULL)
+    {
+      histName = new char[strlen(p.histName) + 1];
+      memCheck(histName, "PulseHistory copy ctor: histName");
+      strcpy(histName, p.histName);
+    }
 
   nPulse = NULL;
   td = NULL;
@@ -90,6 +106,13 @@ PulseHistory::PulseHistory(PulseHistory* hist1, double delay,
     delayLvl = 1;
 
   nLevels = hist1Lvls + hist2Lvls + delayLvl;
+  
+  if (hist1 != NULL)
+    setCode = hist1->setCode;
+  else
+    setCode = -1;
+
+
   nPulse = new int[nLevels];
   memCheck(nPulse,"PulseHistory::PulseHistory(...) 'merge' constructor: nPulse");
   td = new double[nLevels];
@@ -122,7 +145,6 @@ PulseHistory::PulseHistory(PulseHistory* hist1, double delay,
       memCheck(D,"PulseHistory::PulseHistory(...) 'merge' constructor: D");
     }      
     
-  setCode = hist1->setCode;
 }
 
 /** The correct implementation of this operator must ensure
@@ -204,5 +226,25 @@ Matrix PulseHistory::doHistory(Matrix opT)
 
   return opT;
 
+}
+
+void PulseHistory::write_ph() const
+{
+    cout << "pulse_history: '" << histName << "':" << endl;
+    cout << "\t num_pulsing_levels: " << nLevels << endl;
+    cout << "\t num_pulses_per_level: [" << nPulse[0];
+    for (int lvlNum = 1; lvlNum < nLevels; lvlNum++)
+    {
+      cout << ", " << nPulse[lvlNum];
+    }
+    cout << "]" << endl;
+
+    cout << "\t delay_seconds_per_level: [" << td[0];
+    for (int lvlNum = 1; lvlNum < nLevels; lvlNum++)
+    {
+      cout << ", " << td[lvlNum];
+    }
+    cout << "]" << endl;
+    cout << "\n";
 }
 

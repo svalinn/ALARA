@@ -5,6 +5,7 @@
 #define ROOT_H
 
 #include "Node.h"
+#include <map>
 
 /** \brief This class stores the information about a root isotope.
  *
@@ -111,6 +112,10 @@ protected:
   // This points to the next root isotope in the list of root isotopes.
   // This list is sorted by KZA number
   Root* nextRoot;
+
+  // Pre-irradiation number density in atoms/kg
+  // Stored per mixture (indexed by mixture pointer)
+  std::map<Mixture*, double> preIrradND;
    
   /// This function adds a root isotope to the list of root isotopes.
   void add(Root*);
@@ -147,6 +152,12 @@ public:
   /// This function calls MixCompRef::readDump() for each root isotope
   /// in the problem.
   void readDump();
+
+  // Set the pre-irradiation number density for this root
+  void setPreIrradND(Mixture* mix, double nd);
+
+  // Get the pre-irradiation number density for this root
+  double getPreIrradND(Mixture* mix);
 
   /// This function calls MixCompRef::readDump() for the next target
   /// isotope only.

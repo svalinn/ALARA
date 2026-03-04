@@ -170,7 +170,7 @@ void History::makeHistories()
     {
       ptr = ptr->next;
       verbose(3,"Building pulsing history %s",ptr->histName);
-      ptr->calcHist = ptr->pulseLevelHead->makeHistory();
+      ptr->calcHist = ptr->pulseLevelHead->makeHistory(ptr->histName);
     }
 
   verbose(3,"Processed all the pulsing histories.");

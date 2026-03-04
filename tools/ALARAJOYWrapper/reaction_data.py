@@ -286,7 +286,9 @@ def find_eaf_radionuclides(eaf_path):
         file parsing methods in ALARA/src/DataLib/EAFLib.C.
 
     Arguments:
-        eaf_path (pathlib._local.PosixPath): Filepath to an EAF decay library.
+        eaf_path (pathlib._local.PosixPath): Filepath to an EAF decay library
+            or directory containing individual nuclide-decay data files
+            formatted with a ".dat" extension.
 
     Returns:
         radionucs (dict): Dictionary keyed by all radionuclides in the EAF
@@ -295,38 +297,43 @@ def find_eaf_radionuclides(eaf_path):
 
     radionucs = {}
     decay_MT = 457
-    
-    with open(eaf_path, 'r') as f:
-        
-        # Read header and skip introductory comment lines
-        first_line = f.readline().strip()
-        n_comment_lines = int(first_line.split()[0])
-        for _ in range(n_comment_lines):
-            f.readline()
 
-        _in_decay_block = False
-        line = f.readline()
-        while line:
-            MT = get_MT_from_line(line)
+    for eaf in (eaf_path.glob('*.dat') if eaf_path.is_dir() else [eaf_path]):
+        with open(eaf, 'r') as f:
+            
+            # Read header and skip introductory comment lines
+            first_line = f.readline().strip()
+            try:
+                n_comment_lines = int(first_line.split()[0])
+            except ValueError:
+                n_comment_lines = 1
 
-            if not _in_decay_block and MT == decay_MT:
-                _in_decay_block = True
+            for _ in range(n_comment_lines):
+                f.readline()
 
-                # Parse nuclide KZA
-                za = int(eaf_float(line[:11]))
-                M = int(line[33:44].strip())
-                kza = za * 10 + M
-
-                # Read half-life (next line)
-                line = f.readline()
-                thalf = eaf_float(line[:11])
-                if thalf > 0:
-                    radionucs[kza] = thalf
-
-            elif MT != decay_MT:
-                _in_decay_block = False
-
-            # Advance to next line
+            _in_decay_block = False
             line = f.readline()
+            while line:
+                MT = get_MT_from_line(line)
+
+                if not _in_decay_block and MT == decay_MT:
+                    _in_decay_block = True
+
+                    # Parse nuclide KZA
+                    za = int(eaf_float(line[:11]))
+                    M = int(line[33:44].strip())
+                    kza = za * 10 + M
+
+                    # Read half-life (next line)
+                    line = f.readline()
+                    thalf = eaf_float(line[:11])
+                    if thalf > 0:
+                        radionucs[kza] = thalf
+
+                elif MT != decay_MT:
+                    _in_decay_block = False
+
+                # Advance to next line
+                line = f.readline()
 
     return radionucs

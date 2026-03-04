@@ -211,11 +211,11 @@ void ScheduleItem::write(int level)
       switch (ptr->type)
 	{
 	case SCHED_PULSE: /* single pulse */
-	  for (lvlNum=0;lvlNum<level;lvlNum++)
-	    cout << "\t";
-	  cout << "pulse: " << ptr->opTime << " " << ptr->opUnits 
-	       << " with " << ptr->delay << " " << ptr->dUnits 
-	       << " delay pulsed with history "  << ptr->hist->getName() << endl;
+    for (lvlNum=0; lvlNum<level; lvlNum++)
+      cout << "\t";     
+	  cout << "pulse_entry: " << ptr->opTime << " " << ptr->opUnits 
+         << " pulse_history "  << ptr->hist->getName()
+	       << " delay " << ptr->delay << " " << ptr->dUnits << endl;
 	  break;
 	case SCHED_SCHED: /* sub-schedule: recursively call back to schedule::write() */
 	  ptr->subSched->write(level,ptr->hist->getName(),ptr->delay,ptr->dUnits);

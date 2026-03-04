@@ -108,7 +108,7 @@ calcSchedule::calcSchedule(double td, History* hist, calcSchedule* schedItem)
   opTime = -1;
   fluxCode = -1;
 
-  subSched = new calcSchedule*;
+  subSched = new calcSchedule*[1];
   memCheck(subSched,"calcSchedule::calcSchedule(...) constructor: subSched");
 
   subSched[0] = schedItem;
@@ -195,7 +195,10 @@ void calcSchedule::collapse()
       opTime = subSched[0]->opTime;
       fluxCode = subSched[0]->fluxCode;
       calcSchedule **tmp = subSched;
-      subSched = subSched[0]->subSched;
+      subSched = tmp[0]->subSched;
+      tmp[0]->subSched = NULL;
+      tmp[0]->nItems = 0;
+
       delete[] tmp;
 
     }

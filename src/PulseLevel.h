@@ -62,7 +62,7 @@ public:
   /// It loops through all the levels, converting the time to seconds and
   /// accumulating the data in standard arrays to create a new PulseHistory
   /// object.
-  PulseHistory* makeHistory();
+  PulseHistory* makeHistory(const char* histName);
 
   /// Inline function to determine whether this object is the head of
   /// the list.

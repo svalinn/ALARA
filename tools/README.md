@@ -1,6 +1,6 @@
 # ALARA Output Processing
 
-Contained within `ALARA/tools` is the Python package, `alara_output_processing`, a module desgined for the parsing of ALARA output files into Pandas DataFrame-inherited structures, with a robust set of operations to organize and process data to user specifications.
+Contained within `ALARA/tools` is the Python package, `alara_output_processing`, a module desgined for the parsing of ALARA and FISPACT-II output files into Pandas DataFrame-inherited structures, with a robust set of operations to organize and process data to user specifications.
 
 ## Dependencies
 - Standard Python libraries
@@ -11,6 +11,8 @@ Contained within `ALARA/tools` is the Python package, `alara_output_processing`,
 - Generic Python packages
     * [NumPy](https://numpy.org/install/)
     * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+- Domain-specific packages
+    * [Pypact](https://github.com/fispact/pypact)
 
 
 ## Installation
@@ -41,6 +43,8 @@ runs = {
 }
 ```
 
+**Note:** This toolkit is also capable of parsing FISPACT-II output tables and storing their data in the same canonical `ALARADFrame` structure. To process FISPACT-II output data, the output file must contain the suffix `".fis"` to be recognized as such (i.e. `"/path/to/fispactii/output.fis"`).
+
 This dictionary can be input directly into the function `DataLibrary.make_entries()` to create a single `ALARADFrame` containing all data from each table in each run's output files.
 ```
 lib = aop.DataLibrary()
@@ -52,7 +56,8 @@ The columns for `adfs` are:
 * `nuclide`: Nuclide name formatted as "element-A" (i.e. "h-1" for <sup>1</sup>H) or "total".
 * `half_life`: Half-life in seconds of an unstable nuclide. `-1` for stable nuclides, `0` for "total" rows.
 * `run_lbl`: Distinguisher between runs (i.e. "run1", "run2", etc.).
-* `block`: Integer enumerator for the geometric block key name. Possible block keys are "Interval", "Material", or "Zone", and their enumerator values can be accessed through `ALARADFrame().BLOCK_ENUM[block]`, where `block` is one of the above keys.
+* `block`: Integer enumerator for the geometric block key name. Possible block keys are "Interval", "Material", or "Zone", and their enumerator values can be accessed through `ALARADFrame().BLOCK_ENUM[block]`, where `block` is one of the above keys. For FISPACT-II data, `block`, `block_name`, and `block_num` are all set to `-1`.
+* `block_name`: Name of the block.
 * `block_num`: Geometric position of the block.
 * `variable`: Integer enumerator for the response variable key name. Possible variable keys are:
     - "Number Density"
@@ -72,13 +77,13 @@ Below is the example `head()` of an `ALARADFrame`:
 
 ||time|time_unit|nuclide|half_life|run_lbl|block|block_num|variable| var_unit|value|
 |-|-|-|-|-|-|-|-|-|-|-|
-| 0 | 's' | 0.000000e+00 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 1 | 's' | 3.153600e+02 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 2 | 's' | 3.153600e+05 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 3 | 's' | 3.153600e+07 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 4 | 's' | 3.153600e+09 | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 0 | -1 | 's' | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 0.000000e+0
+| 1 | 0.000000e+00| 's'  | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 2 | 3.153600e+02 | 's' | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 3 | 3.153600e+05 |'s' |  h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+| 4 | 3.153600e+07 | 's' |  h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
 
-The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times.
+The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times. Note that the 0<sup>th</sup> row's time of `-1` corresponds to the pre-irradiation state, and not any singular cooling time, like all positive and zero times do.
 
 Once `adf` is created, `ALARADFrame.filter_rows()` can be called to select data that matches user specifications for one or more columns:
 
@@ -91,35 +96,41 @@ filtered_adf = adf.filter_rows(
     }
 )
 ```
-The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive.
+The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive, unless otherwise specified.
+
+To filter pre-irradiation values, which are identified by `adf["time"] == -1` (see above), write `filter_dict["time"] = -1`. Otherwise, to filter post-irradiation cooling times, any other value for `filter_dict["time"]` will be accepted and will remove the pre-irradiation rows. For clarity, `filter_dict["time"] = "post_irradiation"` is recommended.
 
 When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`. It is also possible to filter by a combination of whole elements and individual nuclides.
 
-Additional filtering can be done on the stability of nuclides. To filter all stable nuclides, write `filter_dict["half_lives] = "stable"` or `filter_dict["half_lives] = -1`. To filter all unstable nuclides, write `filter_dict["half_lives] = "unstable"` or `filter_dict["half_lives] = "radioactive". ` Half-life filtering can also be done relative to certain time thresholds, such as filtering all nuclides with half-lives greater than 1e6 seconds. To do so write `filter_dict["half_lives] = ['>', 1e6]`. Generally, the format for this time-operator filtering is `filter_dict["half_lives] = [{operator}, {threshold}]`. 
+Additional nuclide filtering can be done on the stability of nuclides. To filter all stable nuclides, write `filter_dict["half_life"] = "stable"` or `filter_dict["half_life"] = -1`. To filter all unstable nuclides, write `filter_dict["half_lives] = "unstable"` or `filter_dict["half_life"] = "radioactive". ` Half-life filtering can also be done relative to certain time thresholds, such as filtering all nuclides with half-lives greater than 1e6 seconds. To do so write `filter_dict["half_life"] = [">", 1e6]`. Generally, the format for this time-operator filtering is `filter_dict["half_life"] = [{operator}, {threshold}]`.
+
+Finally, nuclides can be filtered on their presence in the initial material compositions or not. To filter only nuclides which existed pre-irradiation, write `filter_dict["nuclide"] = "initial"`. Conversely, to filter only new nuclides produced through neutron activation or as decay products, write `filter_dict["nuclide"] = "transmuted"`.
 
 Below is an example filtering operation on the same `adf` from the above example:
 ```
 fendl2_spec_act_h3 = adf.filter_rows({
     "run_lbl"  : "fendl2",
     "variable" : adf.VARIABLE_ENUM["Specific Activity"],
-    "nuclide"  : "h-3" # Filtering out just tritium
+    "nuclide"  : "h-3" # Filtering out just tritium,
+    "time"     : "post_irradiation"
 })
 ```
 The `head()` of `fendl2_spec_act_h3` is:
 
 ||time|time_unit|nuclide|half_life|run_lbl|block|block_num|variable| var_unit|value|
 |-|-|-|-|-|-|-|-|-|-|-|
-| 0 | 's' | 0.000000e+00 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
-| 1 | 's' | 3.153600e+02 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
-| 2 | 's' | 3.153600e+05 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.987100e+09
-| 3 | 's' | 3.153600e+07 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.879900e+09
-| 4 | 's' | 3.153600e+09 | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 7.334700e+06
+| 0 | 0.000000e+00 | 's' |  h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
+| 1 | 3.153600e+02 | 's' | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.988300e+09
+| 2 | 3.153600e+05 | 's' | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.987100e+09
+| 3 | 3.153600e+07 | 's' | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 1.879900e+09
+| 4 | 3.153600e+09 | 's' | h-3 | 3.880000e+08 | fendl2 | 0 | 1 | 1 | Bq/kg | 7.334700e+06
 
 Once data has been filtered, it can be useful to create a pivot table using `pandas.DataFrame.pivot()` to reorganize data by `nuclide` vs `time`. An example filtering and pivot table sequence (without nuclide filtering to show multiple multiple rows) is as such:
 ```
 filtered_adf = adf.filter_rows({
-    "run_lbl" : "fendl2",
-    "variable" : adf.VARIABLE_ENUM["Specific Activity"]
+    "run_lbl"  : "fendl2",
+    "variable" : adf.VARIABLE_ENUM["Specific Activity"],
+    "time"     : "post_irradiation"
 })
 pivot_df = filtered_adf.pivot(
     index="nuclide",

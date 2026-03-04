@@ -1,0 +1,48 @@
+## This problem attempts to run a series of independent schedules and is intended to produce an error message.
+
+geometry rectangular
+
+volume
+     10    zone_1
+end
+
+mat_loading
+    zone_1    mix_1
+end
+
+mixture mix_1
+    element fe 1 1.0
+end
+
+material_lib /ALARA/data/matlib.sample
+element_lib /ALARA/data/elelib.std
+data_library alaralib fendl2bin
+
+output zone
+        number_density
+end
+
+#     flux name    fluxin file   norm   shift   unused
+flux  my_flux       /ALARA/sample/data/fluxin2 1     0      default
+
+schedule    sch_1
+    1 y my_flux ph_1 1  w
+    5 m my_flux ph_2 0  s
+end
+
+schedule    sch_2
+    30 w my_flux ph_2 0 s
+end    
+
+pulsehistory  ph_1
+    1    0.0    s
+end
+
+pulsehistory ph_2
+    10  1.0     d
+    20  6.5     y
+end
+
+#other parameters
+truncation 1e-5
+dump_file mult_top_dump.file
