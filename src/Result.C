@@ -36,6 +36,7 @@ double Result::actMult = 1;
 double Result::metricMult = 1;
 GammaSrc* Result::gammaSrc = NULL;
 char* Result::outReminderStr = NULL;
+int Result::cooltime_units = COOLTIME_DEF;
 
 /** When called with no arguments, the default constructor sets 'kza'
     and 'next' to 0 and NULL, respectively.  Otherwise, they are set,
@@ -341,7 +342,7 @@ void Result::write(int response, int targetKza, Mixture *mixPtr,
   cout << outReminderStr << endl;;
 
   /* write a standard header for this table */
-  coolList->writeHeader();
+  coolList->writeHeader(Result::getCooltimeMode());
 
   if (response == OUTFMT_SRC)
     {
@@ -607,12 +608,19 @@ void Result::readDump()
     }
 }
 
-void Result::setNorm(double passedActMult, int normType)
+int Result::getCooltimeMode()
+{
+    return cooltime_units;
+}
+
+
+void Result::setNorm(double passedActMult, int normType, int cooltimeType)
 {
 
   actMult = passedActMult;
 
-  switch (normType) {
+  switch (normType) 
+  {
   case OUTNORM_M3:
     metricMult = 1.0/CM3_M3;
     break;
@@ -622,6 +630,7 @@ void Result::setNorm(double passedActMult, int normType)
   default:
     metricMult = 1;
   }
+  cooltime_units = cooltimeType;  
 
 }
 
