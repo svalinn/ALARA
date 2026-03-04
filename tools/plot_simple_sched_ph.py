@@ -66,7 +66,6 @@ def parse_arg():
     parser.add_argument("-f",
                         type=str,
                         required=True,
-                        default="/filespace/a/asrajendra/research/test_dir/simple_test_out",
                         help="path to file containing ALARA output")
     arg = parser.parse_args()
     return arg.f
