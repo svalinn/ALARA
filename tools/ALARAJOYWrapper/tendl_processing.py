@@ -5,7 +5,7 @@ from reaction_data import GAS_DF
 from collections import defaultdict
 import warnings
 import numpy as np
-
+import gendf_parser as gp
 
 VITAMIN_J_ENERGY_GROUPS = 175
 EXCITATION_REACTIONS = np.concatenate((
@@ -136,15 +136,58 @@ def extract_endf_specs(path):
     else:
         return (matb, None, None)
 
-def extract_gendf_pkza(gendf_path):
+def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
     """
-    Read in and parse the contents of a GENDF file to construct the parent
+    Reference an ENDF file's MF10 file data and explicitly defined excitation
+        reactions to construct a dictionary keyed by reaction type (MT)
+        containing lists of all possible isomeric states of residual daughters
+        produced from each reaction type with cross-section data in the TENDL
+        file.
+
+    Arguments:
+        endf_path (pathlib._local.PosixPath): Path to the ENDF (TENDL) file to
+            be processed.
+        MTs (set): Set of all MT reaction numbers contained in the TENDL file.
+        pKZA (int): KZA identifier of the TENDL file's single nuclide.
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
+
+    Returns:
+         isomer_dict (collections.defaultdict): Dictionary keyed by reaction
+            type (MT), with each MT containing a list of all isomeric states
+            of possible daughter nuclides for which there are cross-section
+            data in the original TENDL file.
+    """
+
+    isomer_dict = defaultdict(list)
+    for MT in MTs:
+        za = f'{(pKZA // 10) * 10 + mt_dict[MT]['delKZA']}'[:-1]
+        mf10 = 10
+        file10, _ = create_endf_file_obj(endf_path, mf10)
+        if file10 and MT in [MT.MT for MT in file10.sections]:
+            section = file10.section(MT)
+        else:
+            isomer_dict[MT].append(
+                MT % 50 if MT in EXCITATION_REACTIONS else 0
+            )
+            continue
+
+        for line in section.content.split('\n'):
+            if f' {za} ' in line:
+                isomer_dict[MT].append(int(
+                    line.split(za)[1].strip().split(' ')[0]
+                ))
+
+    return isomer_dict
+
+def extract_pendf_pkza(pendf_path):
+    """
+    Read in and parse the contents of a PENDF file to construct the parent
         KZA. KZA values are defined as ZZAAAM, where ZZ is the isotope's
         atomic number, AAA is the mass number, and M is the isomeric state
         (0 if non-isomeric).
     
     Arguments:
-        gendf_path (pathlib._local.PosixPath): File path to the GENDF file
+        pendf_path (pathlib._local.PosixPath): File path to the PENDF file
             being analyzed.
         dir (str): String identifying the directory from which the function is
             being called.
@@ -153,7 +196,7 @@ def extract_gendf_pkza(gendf_path):
         pKZA (int): Parent KZA identifier.
     """
 
-    with open(gendf_path, 'r') as f:
+    with open(pendf_path, 'r') as f:
         first_line = f.readline()
     Z, element, A = first_line.split('-')[:3]
 
@@ -179,110 +222,174 @@ def extract_gendf_pkza(gendf_path):
     pKZA = (Z * 1000 + A) * 10 + M
     return pKZA
 
-def extract_cross_sections(file, MT):
+def _gendf_parse_control(line):
+    """
+    Extract the integer values of the MF (file) and MT (reaction) numbers from
+        a given line of an ENDF-formatted file. By ENDF formatting
+        conventions, these values are always in a fixed position, but may
+        contain additional whitespace.
+    
+    Arguments:
+        line (str): Text of a whole line of an ENDF-formatted file.
+    
+    Returns:
+        MF (int or None): ENDF file number. None if the file is incorrectly
+            formatted.
+        MT (int): Reaction number. None if the file is incorrectly formatted.
+    """
+
+    if len(line) < 75:
+        return None, None
+    
+    try:
+        return (
+            int(line[70:72]), # MF
+            int(line[72:75])  # MT
+        )
+    except ValueError:
+        return None, None
+
+def update_gendf_MTs(gendf_path):
+    """
+    Parse a GENDF file to find all unique MT reaction numbers. Necessary to
+        be called after running GROUPR as there may be some MTs present in the
+        reference ENDF/PENDF files used to produced the GENDF file that may
+        not be present in the final GENDF file.
+
+    Arguments:
+        gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
+            which to extract cross-section data.
+
+    Returns:
+        MTs (set): Set of all unique MTs contained in the GENDF file.    
+    """
+
+    MTs = set()
+    with open(gendf_path, 'r') as f:
+        for line in f:
+            mf, mt = _gendf_parse_control(line)
+            if mf == 3 and mt != 0:
+                MTs.add(mt)
+
+    return MTs
+
+def extract_gendf_xs_lines_by_MT(gendf_path, MT):
+    """
+    Parse a GENDF-formatted (post-GROUPR processing) file for lines containing
+        cross-section data for a given reaction type.
+
+    Arguments:
+        gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
+            which to extract cross-section data.
+        MT (int): Reaction type for which to extract cross-sections.
+
+    Returns:
+        sections (list of str): List of all lines in the MT-section containing
+            cross-section data.
+    """
+
+    sections = []
+    current_section_lines = []
+    line_count = 0
+
+    with open(gendf_path, 'r') as f:
+        for line in f:
+            mf, mt = _gendf_parse_control(line)
+            if mf == 3 and mt == MT:
+                line_count += 1
+
+                # Every 2nd line starting at the 3rd line has cross-sections.
+                if line_count >= 3 and line_count % 2 == 1:
+                    current_section_lines.append(line)
+
+            elif mf == 3 and mt == 0:
+                # SEND record; end of MT section
+                if current_section_lines:
+                    sections.append(current_section_lines)
+                    current_section_lines = []
+                line_count = 0
+
+            else:
+                if current_section_lines:
+                    sections.append(current_section_lines)
+                    current_section_lines = []
+                line_count = 0
+
+    return sections
+
+def extract_cross_sections(gendf_path, MT, M_values):
     """
     Parse through the contents of a GENDF file section to extract the
-        cross-section data for a specific reaction type (MT).
+        cross-section data for a specific reaction type (MT). A given MT may
+        have multiple actual reaction pathways, corresponding to different
+        isomeric states of the daughter, which appear within the file in
+        ascending order of excitation.
     
     Arguments:
-        file (ENDFtk.tree.File): ENDFtk file object containing a specific
-            material's cross-section data.
+        gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
+            which to extract cross-section data.
         MT (int): Numerical identifier for the reaction type corresponding to
             the file's sectional organization.
+        M_values (list of int): All possible isomeric states of the residual
+            daughter produced from the given reaction type.
     
     Returns:
-        sigma_list (array): All of the cross-sections for a given reaction type
-            and material, listed as floating point numbers and padded up to
-            175 entries corresponding to the VITAMIN-J group structure.
+        sigma_dict (dict): Dictionary keyed by tuples of (MT, M) with values
+            of padded NumPy arrays containing groupwise cross-sections 
+            following the VITAMIN-J group structure.
     """
 
-    section = file.section(MT).content
+    sections = extract_gendf_xs_lines_by_MT(gendf_path, MT)
+    sigma_dict = {}
+    N = min(len(M_values), len(sections))
+    for M, lines in zip(M_values[:N], sections[:N]):
+        sigmas = [
+            float(line.split(' ')[2].replace('+','E+').replace('-','E-'))
+            for line in lines
+        ][::-1]
+        sigma_dict[(MT, M)] = np.pad(
+            sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
+        )
+    
+    return sigma_dict
 
-    # Only every 2nd line starting at the 3rd line has cross-section data.
-    lines = section.split('\n')[2:-2:2]
-
-    # Extract the 3rd token and convert to more conventional string
-    # representation of a float
-    sigma_list = [
-        float(line.split(' ')[2].replace('+','E+').replace('-','E-'))
-        for line in lines
-    ]
-
-    sigmas = sigma_list[::-1]
-    return np.pad(sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas)))
-
-def determine_daughter_excitation(
-    endf_path, MT, pKZA, delKZA, excitation_pathways
-):
+def incrementally_deexcite_isomer(M, dKZA, eaf_nucs):
     """
-    Reference File 10 ("Cross Sections for Production of Radioactive
-        Nuclides") of a nuclide's original TENDL (ENDF) file to identify
-        possible isomeric states of a given reaction's daughter nuclide.
-        Store all reactions that can produce isomers in the dictionary
-        excitation_pathways as reference for subsequent MTs of higher
-        excitation.
+    Lower an isomer's excitation to the next lowest value with known-decay
+        data. Decrease incrementally by one, with a maximum possible
+        excitation level of 9 by KZA conventions.
 
     Arguments:
-        endf_path (pathlib._local.PosixPath): Path to the parent nuclide's
-            original TENDL (ENDF) file.
-        MT (int): Numerical identifier for the given reaction.
-        pKZA (int): KZA identifier of the parent nuclide.
-        delKZA (int): Change in KZA from the given reaction.
-        excitation_pathways (dict): Dictionary keyed by parent KZA values
-            containing sub-dictionaries keyed by MT reactions that can produce
-            isomeric daughters, with values of the excitation level of said
-            daughters.
-        
+        M (int): Excitation level of the given nuclide.
+        dKZA (int): KZA signifier of the given nuclide.
+        eaf_nucs (dict): Dictionary keyed by all nuclides in the EAF decay
+            library, with values of their half-lives (zeros for stable
+            nuclides).
+
     Returns:
-        M (int): Isomeric level of the resultant daughter.
-        excitation_pathways (dict): Updated excitation_pathways dictionary,
-            potentially with new parent/reaction excitation data.
+        trial_KZA (int): KZA with reduced nuclear excitation to match nuclides
+            that can be referenced with known-decay data from the provided EAF
+            decay library.
     """
 
-    # Reference existing excitation_pathways dict; if a reaction is already
-    # accounted for, return its reference excitation
-    if pKZA in excitation_pathways:
-        if MT in excitation_pathways[pKZA]:
-            return excitation_pathways[pKZA][MT], excitation_pathways
-        else:
-            return 0, excitation_pathways
-    
-    # Parse File 10 for allowed daughter excitations from a given reaction
-    excitation_pathways[pKZA] = {}
+    for lowered_M in range(min(M - 1, 9), 0, -1):
+        trial_KZA = dKZA + lowered_M
+        if trial_KZA in eaf_nucs:
+            return trial_KZA
 
-    za = f'{(pKZA // 10) * 10 + delKZA}'[:-1]
-    mf10 = 10
-    file10, _ = create_endf_file_obj(endf_path, mf10)
-    excitation_levels = []
-    if file10 and MT in [MT.MT for MT in file10.sections]:
-        section = file10.section(MT)
-    else:
-        return 0, excitation_pathways
-    
-    for line in section.content.split('\n'):
-        if za in line:
-            excitation_levels.append(int(
-                line.split(za)[1].strip().split(' ')[0]
-            ))
-
-    if MT in EXCITATION_DICT:
-        for iso in excitation_levels:
-            excitation_pathways[pKZA][EXCITATION_DICT[MT][iso]] = iso
-    else:
-        excitation_pathways[pKZA][MT] = 0
-
-    return excitation_pathways[pKZA][MT], excitation_pathways
-
-def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
+def iterate_MTs(
+    MTs, mt_dict, pKZA, all_rxns, eaf_nucs, isomer_dict, gendf_path
+):
     """
     Iterate through all of the MTs present in a given GENDF file to extract
         the necessary data to be able to run ALARA. For isomeric daughters
         with an excited state less than 10 that do not have known half-lives
         (determined by the keys of radionucs, itself derived from the provided
         EAF decay library), this function assumes a infinitesimal half-life
-        decaying to the ground state. As such, the cross-sections for these
-        isomer daughters are accumulated to the ground state cross-sections by
-        energy group.
+        with discrete deexcitations to the next lowest isomeric state, until 
+        reaching a level with a known half-life. As such, the cross-sections 
+        for these isomer daughters are accumulated to the appropriate isomeric 
+        state cross-sections by energy group.
     
     Arguments:
         MTs (list of int): List of reaction types present in the GENDF file.
@@ -305,19 +412,20 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
         eaf_nucs (dict): Dictionary keyed by all nuclides in the EAF decay
             library, with values of their half-lives (zeros for stable
             nuclides).
-        endf_path (pathlib._local.PosixPath): Path to the parent nuclide's
-            original TENDL (ENDF) file.
+         isomer_dict (collections.defaultdict): Dictionary keyed by reaction
+            type (MT), with each MT containing a list of all isomeric states
+            of possible daughter nuclides for which there are cross-section
+            data in the original TENDL file.
+        gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
+            which to extract groupwise cross-sections.
             
     Returns:
         all_rxns (collections.defaultdict): Updated dictionary for all
             reaction pathways for the given parent and its MTs.
     """
 
-    excitation_pathways = {}
     for MT in MTs:
         rxn = mt_dict[MT]
-
-        sigmas = extract_cross_sections(file_obj, MT)
         gas = rxn['gas']
         delKZA = rxn['delKZA']
         emitted = rxn['emitted']
@@ -326,69 +434,46 @@ def iterate_MTs(MTs, file_obj, mt_dict, pKZA, all_rxns, eaf_nucs, endf_path):
             dKZA = GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0]
 
         else:
-            M, excitation_pathways = determine_daughter_excitation(
-                endf_path=endf_path,
-                MT=MT,
-                pKZA=pKZA,
-                delKZA=delKZA,
-                excitation_pathways=excitation_pathways
+            isomer_specific_rxns = extract_cross_sections(
+                gendf_path, MT, isomer_dict[MT]
             )
-
-            # Reset deLKZA for (n,n*) excitation reactions
             if delKZA >= 0 and MT in EXCITATION_REACTIONS:
                 delKZA = 0
-
-            # Flag reactions that produce an isomer
-            if M > 0:
-                emitted += '*'
-
-            # Recalculate daughter KZA with explicit isomerism from MF10
-            dKZA = (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
-
-            # Subtract individual excitation reactions from cumulative sums
-            if MT in excitation_pathways[pKZA] and MT in EXCITATION_DICT:
-                for subMT in excitation_pathways[pKZA]:
-                    if subMT != MT and subMT in MTs:
-                        sigmas -= extract_cross_sections(file_obj, subMT)
-                            
-            # Nullify redundant excitation reactions
-            elif (
-                MT in EXCITATION_REACTIONS
-                and MT not in excitation_pathways[pKZA]
-            ):
-                sigmas = np.zeros(VITAMIN_J_ENERGY_GROUPS)
-
-        if dKZA in eaf_nucs and M < 10:
-            all_rxns[pKZA][dKZA][MT] = {
-                'emitted'    :  emitted,
-                'xsections'  :  sigmas
-            }
-
-        else:
-            dKZA = ((dKZA - M) // 10) * 10
-            special_MT = -1
             
-            # Conditionally lower an isomer's excitation to the next lowest
-            # value with known-decay data
-            if M > 1:
-                # Decrease excitation incrementally, with a maximum possible
-                # M of 9 by KZA convention
-                for lowered_M in range(M - 1 if M <= 10 else 9, 0, -1):
-                    trialKZA = dKZA + lowered_M
-                    if trialKZA in eaf_nucs:
-                        dKZA = trialKZA
+            # Calculate dKZA values for each excitation pathway in MF10
+            for (_, M), sigmas in isomer_specific_rxns.items():
+                dKZA = (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
 
-            if dKZA not in all_rxns[pKZA]:
-                all_rxns[pKZA][dKZA] = defaultdict(dict)
+                if M > 0:
+                    emitted += '*'
 
-            if special_MT not in all_rxns[pKZA][dKZA]:
-                all_rxns[pKZA][dKZA][special_MT] = {
-                    'emitted'     :   emitted,
-                    'xsections'   :   np.zeros(VITAMIN_J_ENERGY_GROUPS)
-                }
+                if dKZA in eaf_nucs and M < 10:
+                    all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
+                        'emitted'    :  emitted,
+                        'xsections'  :  sigmas
+                    }
 
-            all_rxns[pKZA][dKZA][special_MT]['xsections'] += np.pad(
-                sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
-            )
+                else:
+                    dKZA = ((dKZA - M) // 10) * 10
+                    special_MT = -1
+                    
+                    if M > 1:
+                        incrementally_deexcite_isomer(M, dKZA, eaf_nucs)
+
+                    if dKZA:
+                        if dKZA not in all_rxns[pKZA]:
+                            all_rxns[pKZA][dKZA] = defaultdict(dict)
+
+                        if special_MT not in all_rxns[pKZA][dKZA]:
+                            all_rxns[pKZA][dKZA][special_MT] = {
+                                'emitted'  : emitted,
+                                'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
+                            }
+
+                        all_rxns[pKZA][dKZA][special_MT][
+                            'xsections'
+                        ] += np.pad(
+                            sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
+                        )
 
     return all_rxns
