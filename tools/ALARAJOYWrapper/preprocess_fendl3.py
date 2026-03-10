@@ -318,11 +318,15 @@ def main():
         _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
         gas_MTs = set(pendf_MTs) & set(rxd.GAS_DF['total_mt'])
         MTs |= {int(gas_MT) for gas_MT in gas_MTs}
+        pKZA = tp.extract_pendf_pkza(pendf_path)
+        isomer_dict = tp.determine_all_excitations(
+            TAPE20, MTs, pKZA, mt_dict
+        )
 
         # GENDF Generation
         groupr_input = njt.fill_input_template(
-            njt.groupr_input, material_id,
-             MTs, element, A, mt_dict, temperature
+            njt.groupr_input, material_id, MTs, element, 
+            A, mt_dict, temperature, pKZA, isomer_dict
         )
         njt.write_njoy_input_file(groupr_input)
         gendf_path, njoy_error = njt.run_njoy(
@@ -330,17 +334,13 @@ def main():
         )
 
         if gendf_path:
-            pKZA = tp.extract_gendf_pkza(gendf_path)
             # Extract MT values again from GENDF file as there may be some
             # difference from the original MT values in the ENDF/PENDF files
-            material_id, MTs, endftk_file_obj = tp.extract_endf_specs(
-                gendf_path
-            )
-
-            if MTs and endftk_file_obj:
+            MTs = tp.update_gendf_MTs(gendf_path)
+            if MTs:
                 all_rxns = tp.iterate_MTs(
-                    MTs, endftk_file_obj, mt_dict, pKZA,
-                    all_rxns, eaf_nucs, TAPE20
+                    MTs, mt_dict, pKZA, all_rxns,
+                    eaf_nucs, isomer_dict, gendf_path
                 )
                 print(f'Finished processing {element}{A}')
 
