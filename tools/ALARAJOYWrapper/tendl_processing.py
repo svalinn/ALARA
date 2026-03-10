@@ -458,7 +458,9 @@ def iterate_MTs(
                     special_MT = -1
                     
                     if M > 1:
-                        incrementally_deexcite_isomer(M, dKZA, eaf_nucs)
+                        dKZA = incrementally_deexcite_isomer(
+                            M, dKZA, eaf_nucs
+                        )
 
                     if dKZA:
                         if dKZA not in all_rxns[pKZA]:
