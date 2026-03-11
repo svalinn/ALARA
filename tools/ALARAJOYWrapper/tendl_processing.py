@@ -433,6 +433,10 @@ def iterate_MTs(
 
         if gas:
             dKZA = GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0]
+            all_rxns[pKZA][dKZA][MT] = {
+                'emitted'    :  emitted,
+                'xsections'  :  sigmas
+            }
 
         else:
             isomer_specific_rxns = extract_cross_sections(
@@ -481,4 +485,7 @@ def iterate_MTs(
                             sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
                         )
 
+    for parent in all_rxns:
+        for daughter in all_rxns[parent]:
+            print(parent, daughter, all_rxns[parent][daughter])
     return all_rxns
