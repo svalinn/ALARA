@@ -430,62 +430,53 @@ def iterate_MTs(
         gas = rxn['gas']
         delKZA = rxn['delKZA']
         emitted = rxn['emitted']
+        isomer_specific_rxns = extract_cross_sections(
+            gendf_path, MT, isomer_dict[MT]
+        )
 
-        if gas:
-            dKZA = GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0]
-            all_rxns[pKZA][dKZA][MT] = {
-                'emitted'    :  emitted,
-                'xsections'  :  sigmas
-            }
-
-        else:
-            isomer_specific_rxns = extract_cross_sections(
-                gendf_path, MT, isomer_dict[MT]
+        # Reset delKZA for (n,n*) reactions
+        if delKZA >= 0 and MT in EXCITATION_REACTIONS:
+            delKZA = 0
+        
+        # Calculate dKZA values for each excitation pathway in MF10
+        for (_, M), sigmas in isomer_specific_rxns.items():
+            dKZA = (
+                GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
+                else (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
             )
 
-            # Reset delKZA for (n,n*) reactions
-            if delKZA >= 0 and MT in EXCITATION_REACTIONS:
-                delKZA = 0
-            
-            # Calculate dKZA values for each excitation pathway in MF10
-            for (_, M), sigmas in isomer_specific_rxns.items():
-                dKZA = (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
+            if M > 0:
+                emitted += '*'
 
-                if M > 0:
-                    emitted += '*'
+            if dKZA in eaf_nucs and M < 10:
+                all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
+                    'emitted'    :  emitted,
+                    'xsections'  :  sigmas
+                }
 
-                if dKZA in eaf_nucs and M < 10:
-                    all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
-                        'emitted'    :  emitted,
-                        'xsections'  :  sigmas
-                    }
+            else:
+                dKZA = ((dKZA - M) // 10) * 10
+                special_MT = -1
+                
+                if M > 1:
+                    dKZA = incrementally_deexcite_isomer(
+                        M, dKZA, eaf_nucs
+                    )
 
-                else:
-                    dKZA = ((dKZA - M) // 10) * 10
-                    special_MT = -1
-                    
-                    if M > 1:
-                        dKZA = incrementally_deexcite_isomer(
-                            M, dKZA, eaf_nucs
-                        )
+                if dKZA:
+                    if dKZA not in all_rxns[pKZA]:
+                        all_rxns[pKZA][dKZA] = defaultdict(dict)
 
-                    if dKZA:
-                        if dKZA not in all_rxns[pKZA]:
-                            all_rxns[pKZA][dKZA] = defaultdict(dict)
+                    if special_MT not in all_rxns[pKZA][dKZA]:
+                        all_rxns[pKZA][dKZA][special_MT] = {
+                            'emitted'  : emitted,
+                            'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
+                        }
 
-                        if special_MT not in all_rxns[pKZA][dKZA]:
-                            all_rxns[pKZA][dKZA][special_MT] = {
-                                'emitted'  : emitted,
-                                'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
-                            }
+                    all_rxns[pKZA][dKZA][special_MT][
+                        'xsections'
+                    ] += np.pad(
+                        sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
+                    )
 
-                        all_rxns[pKZA][dKZA][special_MT][
-                            'xsections'
-                        ] += np.pad(
-                            sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
-                        )
-
-    for parent in all_rxns:
-        for daughter in all_rxns[parent]:
-            print(parent, daughter, all_rxns[parent][daughter])
     return all_rxns
