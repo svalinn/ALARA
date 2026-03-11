@@ -173,6 +173,7 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
 
         for line in section.content.split('\n'):
             if f' {za} ' in line:
+                # Line formatted with ZA cushioned by whitespace on both sides
                 isomer_dict[MT].append(int(
                     line.split(za)[1].strip().split(' ')[0]
                 ))
@@ -437,6 +438,8 @@ def iterate_MTs(
             isomer_specific_rxns = extract_cross_sections(
                 gendf_path, MT, isomer_dict[MT]
             )
+
+            # Reset delKZA for (n,n*) reactions
             if delKZA >= 0 and MT in EXCITATION_REACTIONS:
                 delKZA = 0
             
