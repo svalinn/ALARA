@@ -31,7 +31,7 @@ moder
  $NIN_moder $NOUT_moder/
 reconr
  $NENDF $NPEND_reconr/
- 'neutron PENDF for $element-$a of TENDL-2017'
+ $title
  $mat_id/
  $ERR/
  $MATD/
@@ -119,7 +119,8 @@ elements = [
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
 def fill_input_template(
-        inp, material_id, MTs, element, A, mt_dict, temperature
+        inp, material_id, MTs, element, A, mt_dict, temperature,
+        pKZA=None, isomer_dict={}
         ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
@@ -142,10 +143,14 @@ def fill_input_template(
         mt_dict (dict): Reference dictionary containing reaction information
             for each MT number pre-defined in the ENDF manual.
         temperature (float): Temperature at which to run NJOY modules.
-        run_type (str or None): Specification for type of NJOY run to be
-            prepared (i.e. preparing and creating PENDFs or converting to a
-            group-structured GENDF).
+        pKZA (int or None, optional): Parent KZA identifier, only needed when
+            filling the GROUPR-specific template.
             (Defaults to None)
+        isomer_dict (dict, optional): Dictionary keyed by MT reaction number,
+            containing lists for each reaction type of possible isomeric
+            states of the residual daughter. Only needed when filling the
+            GROUPR-specific template.
+            (Defaults to {})
     
     Returns:
         template (str): Modified template with the material-
@@ -158,9 +163,17 @@ def fill_input_template(
 
     card9_lines = []
     MFD = 3 # ENDF file tag for cross-section data
-    for MT in MTs:
+    for MT in sorted(MTs):
         mtname = mt_dict[MT]['reaction']
-        card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
+        if isomer_dict and len(isomer_dict[MT]) > 1:
+            za = str((pKZA + mt_dict[MT]['delKZA']) // 10).zfill(6)
+            for M in isomer_dict[MT]:
+                if M < 10:
+                    card9_lines.append(f'4{za}{M} {MT} "{mtname}, M={M}"')
+                else:
+                    isomer_dict[MT].remove(M)
+        else:
+            card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
     card9 = '\n '.join(card9_lines)
     return inp.substitute(
         element=element,
