@@ -5,7 +5,6 @@ from reaction_data import GAS_DF
 from collections import defaultdict
 import warnings
 import numpy as np
-import gendf_parser as gp
 
 VITAMIN_J_ENERGY_GROUPS = 175
 EXCITATION_REACTIONS = np.concatenate((
@@ -17,16 +16,6 @@ EXCITATION_REACTIONS = np.concatenate((
     np.arange(800, 850), # (n,a*)  reactions
     np.arange(875, 892), # (n,2n*) reactions
 ))
-
-EXCITATION_DICT = {
-    4   : [4] + list(range(51,   92)), # (n,n*) reactions
-    103 : range(600, 650), # (n,p*) reactions
-    104 : range(650, 700), # (n,d*) reactions
-    105 : range(700, 750), # (n,t*) reactions
-    106 : range(750, 800), # (n,h*) reactions
-    107 : range(800, 850), # (n,a*) reactions
-    16  : range(875, 892)  # (n,2n*) reactions
-}
 
 def get_isotope(stem):
     """
