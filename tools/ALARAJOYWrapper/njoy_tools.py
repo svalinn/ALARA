@@ -3,6 +3,7 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
+from tendl_processing import EXCITATION_REACTIONS
 
 def set_directory():
     '''
@@ -165,15 +166,30 @@ def fill_input_template(
     MFD = 3 # ENDF file tag for cross-section data
     for MT in sorted(MTs):
         mtname = mt_dict[MT]['reaction']
-        if isomer_dict and len(isomer_dict[MT]) > 1:
+        if pKZA:
             za = str((pKZA + mt_dict[MT]['delKZA']) // 10).zfill(6)
-            for M in isomer_dict[MT]:
-                if M < 10:
-                    card9_lines.append(f'4{za}{M} {MT} "{mtname}, M={M}"')
-                else:
-                    isomer_dict[MT].remove(M)
+            has_isomers = False
+            for MF in [9,10]:
+                if isomer_dict and len(isomer_dict[MT][MF]) > 1:
+                    has_isomers = True
+                    for M in isomer_dict[MT][MF]:
+                        if M < 10:
+                            card9_lines.append(
+                                f'{3 if MF == 9 else 4}{za}{M} {MT} "{mtname}, M={M}" /'
+                            )
+                        else:
+                            # Special handling for high LFS
+                            # Requires develop branch of NJOY2016
+                            card9_lines.append(
+                                '-1 / \n'\
+                                f' {MF} {MT} {za} {M} "{mtname}, M={M}" /'
+                            )
+
+            if not has_isomers:
+                card9_lines.append(f'{MFD} {MT} "{mtname}" /')
+
         else:
-            card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
+            card9_lines.append(f'{MFD} {MT} "{mtname}" /')
     card9 = '\n '.join(card9_lines)
     return inp.substitute(
         element=element,
