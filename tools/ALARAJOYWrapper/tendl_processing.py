@@ -124,26 +124,6 @@ def extract_endf_specs(path):
     
     else:
         return (matb, None, None)
-    
-def LFS_to_M(LFS, endf_path, za, excitations):
-    if LFS >= 1:
-        M = excitations[-1] + 1
-        replacement = f'     {' ' + str(M) if LFS >= 10 else M}'
-        with open(endf_path, 'r') as f:
-            lines = f.readlines()
-
-        for i, line in enumerate(lines):
-            if f' {za} ' in line:
-                M = excitations[-1] + 1
-                lines[i] = line.replace(f'     {LFS}', replacement)
-
-#        with open(endf_path, 'w') as f:
-#            f.writelines(lines)
-    
-    else:
-        M = LFS
-
-    return M
 
 def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
     """
