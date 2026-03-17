@@ -124,6 +124,26 @@ def extract_endf_specs(path):
     
     else:
         return (matb, None, None)
+    
+def LFS_to_M(LFS, endf_path, za, excitations):
+    if LFS >= 1:
+        M = excitations[-1] + 1
+        replacement = f'     {' ' + str(M) if LFS >= 10 else M}'
+        with open(endf_path, 'r') as f:
+            lines = f.readlines()
+
+        for i, line in enumerate(lines):
+            if f' {za} ' in line:
+                M = excitations[-1] + 1
+                lines[i] = line.replace(f'     {LFS}', replacement)
+
+#        with open(endf_path, 'w') as f:
+#            f.writelines(lines)
+    
+    else:
+        M = LFS
+
+    return M
 
 def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
     """
@@ -147,25 +167,24 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
             data in the original TENDL file.
     """
 
-    isomer_dict = defaultdict(list)
-    for MT in MTs:
-        za = f'{(pKZA // 10) * 10 + mt_dict[MT]['delKZA']}'[:-1]
-        mf10 = 10
-        file10, _ = create_endf_file_obj(endf_path, mf10)
-        if file10 and MT in [MT.MT for MT in file10.sections]:
-            section = file10.section(MT)
-        else:
-            isomer_dict[MT].append(
-                MT % 50 if MT in EXCITATION_REACTIONS else 0
-            )
-            continue
+    isomer_dict = defaultdict(lambda: defaultdict(list))
 
-        for line in section.content.split('\n'):
-            if f' {za} ' in line:
-                # Line formatted with ZA cushioned by whitespace on both sides
-                isomer_dict[MT].append(int(
-                    line.split(za)[1].strip().split(' ')[0]
-                ))
+    for MT in MTs:
+        if MT not in EXCITATION_REACTIONS:
+            za = f'{(pKZA // 10) * 10 + mt_dict[MT]['delKZA']}'[:-1]
+            for MF in [9, 10]:
+                file, _ = create_endf_file_obj(endf_path, MF)
+                if file and MT in [MT.MT for MT in file.sections]:
+                    section = file.section(MT)
+                    for line in section.content.split('\n'):
+                        if f' {za} ' in line:
+                            # Line formatted with ZA cushioned by whitespace on both sides
+                            isomer_dict[MT][MF].append(int(
+                                line.split(za)[1].strip().split(' ')[0]
+                            ))
+
+            if not isomer_dict[MT]:
+                isomer_dict[MT][3].append(0)
 
     return isomer_dict
 
@@ -331,7 +350,11 @@ def extract_cross_sections(gendf_path, MT, M_values):
 
     sections = extract_gendf_xs_lines_by_MT(gendf_path, MT)
     sigma_dict = {}
-    N = min(len(M_values), len(sections))
+    excitations = len(M_values)
+    N = min(excitations, len(sections))
+    if excitations > 1:
+        M_values = list(range(excitations))
+
     for M, lines in zip(M_values[:N], sections[:N]):
         sigmas = [
             float(line.split(' ')[2].replace('+','E+').replace('-','E-'))
@@ -415,57 +438,56 @@ def iterate_MTs(
     """
 
     for MT in MTs:
-        rxn = mt_dict[MT]
-        gas = rxn['gas']
-        delKZA = rxn['delKZA']
-        emitted = rxn['emitted']
-        isomer_specific_rxns = extract_cross_sections(
-            gendf_path, MT, isomer_dict[MT]
-        )
-
-        # Reset delKZA for (n,n*) reactions
-        if delKZA >= 0 and MT in EXCITATION_REACTIONS:
-            delKZA = 0
-        
-        # Calculate dKZA values for each excitation pathway in MF10
-        for (_, M), sigmas in isomer_specific_rxns.items():
-            dKZA = (
-                GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
-                else (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
+        # Avoid duplicate isomer cross-sections -- excitations already
+        # covered by MF 9/10 cumulative reactions
+        if MT not in EXCITATION_REACTIONS:
+            isomer_specific_rxns = extract_cross_sections(
+                gendf_path, MT, list(isomer_dict[MT].values())[0]
             )
+            
+            # Calculate dKZA values for each excitation pathway in MF10
+            for (_, M), sigmas in isomer_specific_rxns.items():
+                rxn = mt_dict[MT]
+                gas = rxn['gas']
+                delKZA = rxn['delKZA']
+                emitted = rxn['emitted']
+                dKZA = (
+                    GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
+                    else (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
+                )
 
-            if M > 0:
-                emitted += '*'
+                if M > 0:
+                    emitted += '*'
 
-            if dKZA in eaf_nucs and M < 10:
-                all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
-                    'emitted'    :  emitted,
-                    'xsections'  :  sigmas
-                }
+                if dKZA in eaf_nucs and M < 10:
+                    all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
+                        'emitted'    :  emitted,
+                        'xsections'  :  sigmas
+                    }
 
-            else:
-                dKZA = ((dKZA - M) // 10) * 10
-                special_MT = -1
-                
-                if M > 1:
-                    dKZA = incrementally_deexcite_isomer(
-                        M, dKZA, eaf_nucs
-                    )
+                else:
+                    dKZA = ((dKZA - M) // 10) * 10
+                    special_MT = -1
+                    
+                    if M > 1:
+                        dKZA = incrementally_deexcite_isomer(
+                            M, dKZA, eaf_nucs
+                        )
 
-                if dKZA:
-                    if dKZA not in all_rxns[pKZA]:
-                        all_rxns[pKZA][dKZA] = defaultdict(dict)
+                    if dKZA:
+                        if dKZA not in all_rxns[pKZA]:
+                            all_rxns[pKZA][dKZA] = defaultdict(dict)
 
-                    if special_MT not in all_rxns[pKZA][dKZA]:
-                        all_rxns[pKZA][dKZA][special_MT] = {
-                            'emitted'  : emitted,
-                            'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
-                        }
+                        if special_MT not in all_rxns[pKZA][dKZA]:
+                            all_rxns[pKZA][dKZA][special_MT] = {
+                                'emitted'  : emitted,
+                                'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
+                            }
 
-                    all_rxns[pKZA][dKZA][special_MT][
-                        'xsections'
-                    ] += np.pad(
-                        sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
-                    )
+                        all_rxns[pKZA][dKZA][special_MT][
+                            'xsections'
+                        ] += np.pad(
+                            sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
+                        )
 
     return all_rxns
