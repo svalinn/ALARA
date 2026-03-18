@@ -415,9 +415,11 @@ def iterate_MTs(
             library, with values of their half-lives (zeros for stable
             nuclides).
          isomer_dict (collections.defaultdict): Dictionary keyed by reaction
-            type (MT), with each MT containing a list of all isomeric states
-            of possible daughter nuclides for which there are cross-section
-            data in the original TENDL file.
+            type (MT), with each MT containing a subdictionary of the MF from
+            which the isomeric pathways are extracted. At the lowest MT/MF
+            level has a list of all isomeric states of possible daughter
+            nuclides for which there are cross-section data in the original
+            TENDL file.
         gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
             which to extract groupwise cross-sections.
             
