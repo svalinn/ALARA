@@ -127,11 +127,13 @@ def extract_endf_specs(path):
 
 def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
     """
-    Reference an ENDF file's MF10 file data and explicitly defined excitation
-        reactions to construct a dictionary keyed by reaction type (MT)
-        containing lists of all possible isomeric states of residual daughters
-        produced from each reaction type with cross-section data in the TENDL
-        file.
+    Reference an ENDF file's MF9 and MF10 file data and explicitly defined
+        excitation reactions to construct a nested dictionary keyed by
+        reaction type (MT) and then file type (MF) containing lists of all 
+        possible isomeric states of residual daughters produced from each
+        reaction type with cross-section data in the TENDL file. Reactions
+        without explicit isomeric pathways continue to reference MF3 general
+        cross-section data.
 
     Arguments:
         endf_path (pathlib._local.PosixPath): Path to the ENDF (TENDL) file to
@@ -142,9 +144,11 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
 
     Returns:
          isomer_dict (collections.defaultdict): Dictionary keyed by reaction
-            type (MT), with each MT containing a list of all isomeric states
-            of possible daughter nuclides for which there are cross-section
-            data in the original TENDL file.
+            type (MT), with each MT containing a subdictionary of the MF from
+            which the isomeric pathways are extracted. At the lowest MT/MF
+            level has a list of all isomeric states of possible daughter
+            nuclides for which there are cross-section data in the original
+            TENDL file.
     """
 
     isomer_dict = defaultdict(lambda: defaultdict(list))
@@ -152,13 +156,18 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
     for MT in MTs:
         if MT not in EXCITATION_REACTIONS:
             za = f'{(pKZA // 10) * 10 + mt_dict[MT]['delKZA']}'[:-1]
+
+            # Isomer pathways contained either in MF 9 ("Multiplicities for
+            # Production of Radioactive Nuclides") and MF 10 ("Cross Sections
+            # for Production of Radioactive Nuclides").
             for MF in [9, 10]:
                 file, _ = create_endf_file_obj(endf_path, MF)
                 if file and MT in [MT.MT for MT in file.sections]:
                     section = file.section(MT)
                     for line in section.content.split('\n'):
                         if f' {za} ' in line:
-                            # Line formatted with ZA cushioned by whitespace on both sides
+                            # Line formatted with ZA cushioned by whitespace
+                            # on both sides
                             isomer_dict[MT][MF].append(int(
                                 line.split(za)[1].strip().split(' ')[0]
                             ))
@@ -424,16 +433,15 @@ def iterate_MTs(
             isomer_specific_rxns = extract_cross_sections(
                 gendf_path, MT, list(isomer_dict[MT].values())[0]
             )
+            rxn = mt_dict[MT]
+            gas = rxn['gas']
             
             # Calculate dKZA values for each excitation pathway in MF10
             for (_, M), sigmas in isomer_specific_rxns.items():
-                rxn = mt_dict[MT]
-                gas = rxn['gas']
-                delKZA = rxn['delKZA']
                 emitted = rxn['emitted']
                 dKZA = (
                     GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0] if gas
-                    else (((pKZA // 10) * 10 + delKZA) // 10) * 10 + M
+                    else (((pKZA // 10) * 10 + rxn['delKZA']) // 10) * 10 + M
                 )
 
                 if M > 0:
