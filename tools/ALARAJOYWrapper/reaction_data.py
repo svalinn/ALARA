@@ -24,7 +24,7 @@ GAS_DF = pd.DataFrame({
 
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
-    'total','z0', 'nonelas.', 'anything', 'contin.',
+    'total', 'z0', 'nonelas.', 'anything', 'contin.',
     'fission', 'f', 'RES', 'X', 'disap', 'abs'
     ]
 
