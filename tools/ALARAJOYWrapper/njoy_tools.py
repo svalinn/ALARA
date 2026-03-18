@@ -3,7 +3,6 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
-from tendl_processing import EXCITATION_REACTIONS
 
 def set_directory():
     '''
@@ -119,6 +118,83 @@ elements = [
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
+def write_card9_special_isomer_reactions(
+    pKZA, mt_dict, isomer_dict, MT, card9_lines, mtname      
+):
+    """
+    Format Card 9 reaction entries for the NJOY/GROUPR input file with the
+        special formatting for excitation reactions. Specific excitations
+        of daughter nuclides for a given MT can be found in either MF9
+        ('Multiplicities for Production of Radioactive Nuclides') or MF10 
+        ('Cross Sections for Pdocution of Radioactive Nuclides'), with
+        appropriate values supplied in the input isomer_dict.
+
+        The formatting for isomeric states below 10 follows the description
+        of MF/pathway-specific reactions in the NJOY 2016 user manual 
+        (https://github.com/njoy/NJOY2016-manual/raw/master/njoy16.pdf) in
+        section 8 (page.245):
+        
+            3zzzaaam nuclide production for zzzaaam from a subsection of MF=9
+            4zzzaaam nuclide production for zzzaaam from a subsection of MF=10
+
+        The formatting for isomeric states greater than or equal to 10 follows
+        the guidelines provided in the develop branch
+        (db71977593d084ae5bbb9e5c88a926541718d313) of NJOY-2016, described in
+        src/groupr.f90:
+
+            card9a     Extended residual format (mfd = -1 only)
+                file    The file (MF) to extract data from
+                section The section (MT) to extract data from
+                zaid    The ZZZAAA value of the residual
+                m       The metastable (file = 3, 6) or excited level
+                        (file = 9, 10) number
+
+    Arguments:
+        pKZA (int): KZA identifier of the target (parent) nuclide.
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
+        isomer_dict (collections.defaultdict): Dictionary keyed by reaction
+            type (MT), with each MT containing a subdictionary of the MF from
+            which the isomeric pathways are extracted. At the lowest MT/MF
+            level has a list of all isomeric states of possible daughter
+            nuclides for which there are cross-section data in the original
+            TENDL file.
+        MT (int): Unique integer identifier for the reaction type.
+        card9_lines (list of str): List of each individual reaction string
+            across all MTs/excitation pathways to be written out to the NJOY
+            input file.
+        mtname (str): Description of the reaction type.
+
+    Returns:
+        card9_lines (list of str): Updated list of reaction strings for the
+            given MT and all of its excitation pathways.
+        has_isomers (bool): Boolean to denote whether a given MT contains
+            pathways to produce daughter nuclides in any quantum state other
+            than the ground state.
+    """
+
+    za = str((pKZA + mt_dict[MT]['delKZA']) // 10).zfill(6)
+    has_isomers = False
+
+    for MF in [9,10]:
+        if isomer_dict and len(isomer_dict[MT][MF]) > 1:
+            has_isomers = True
+            for M in isomer_dict[MT][MF]:
+                if M < 10:
+                    card9_lines.append(
+                        f'{3 if MF == 9 else 4}{za}{M} ' \
+                        f'{MT} "{mtname}, M={M}" /'
+                    )
+                else:
+                    # Special handling for high LFS
+                    # Requires develop branch of NJOY2016
+                    card9_lines.append(
+                        '-1 / \n' \
+                        f' {MF} {MT} {za} {M} "{mtname}, M={M}" /'
+                    )
+
+    return card9_lines, has_isomers
+
+
 def fill_input_template(
         inp, material_id, MTs, element, A, mt_dict, temperature,
         pKZA=None, isomer_dict={}
@@ -139,8 +215,9 @@ def fill_input_template(
             ENDF/PENDF files.
         element (str): Chemical symbol for element of interest.
         A (str or int): Mass number for selected isotope.
-            If the target is a metastable isomer, "m" is written after the
-            mass number, so A must be input as a string.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
         mt_dict (dict): Reference dictionary containing reaction information
             for each MT number pre-defined in the ENDF manual.
         temperature (float): Temperature at which to run NJOY modules.
@@ -167,27 +244,9 @@ def fill_input_template(
     for MT in sorted(MTs):
         mtname = mt_dict[MT]['reaction']
         if pKZA:
-            za = str((pKZA + mt_dict[MT]['delKZA']) // 10).zfill(6)
-            has_isomers = False
-            # Isomer pathways contained either in MF 9 ("Multiplicities for
-            # Production of Radioactive Nuclides") and MF 10 ("Cross Sections
-            # for Production of Radioactive Nuclides").
-            for MF in [9,10]:
-                if isomer_dict and len(isomer_dict[MT][MF]) > 1:
-                    has_isomers = True
-                    for M in isomer_dict[MT][MF]:
-                        if M < 10:
-                            card9_lines.append(
-                                f'{3 if MF == 9 else 4}{za}{M} ' \
-                                f'{MT} "{mtname}, M={M}" /'
-                            )
-                        else:
-                            # Special handling for high LFS
-                            # Requires develop branch of NJOY2016
-                            card9_lines.append(
-                                '-1 / \n' \
-                                f' {MF} {MT} {za} {M} "{mtname}, M={M}" /'
-                            )
+            card9_lines, has_isomers = write_card9_special_isomer_reactions(
+                pKZA, mt_dict, isomer_dict, MT, card9_lines, mtname
+            )
 
             if not has_isomers:
                 card9_lines.append(f'{MFD} {MT} "{mtname}" /')
@@ -312,8 +371,9 @@ def run_njoy(element, A, matb, file_capture):
             identified by its card number.
         element (str): Chemical symbol for element of interest.
         A (str or int): Mass number for selected isotope.
-            If the target is an isomer, "m" after the mass number,
-            so A must be input as a string.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
         matb (int): Unique material ID for the material in the files.
         file_capture (str): Type of file to be saved from this particular 
             iteration of NJOY runs. Either "PENDF" or "GENDF".
@@ -360,6 +420,9 @@ def cleanup_njoy_files(element, A):
     Arguments:
         element (str): Chemical symbol for element of interest.
         A (str or int): Mass number for selected isotope.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
     
     Returns:
         None
