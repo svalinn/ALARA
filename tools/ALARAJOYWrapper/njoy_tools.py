@@ -169,19 +169,23 @@ def fill_input_template(
         if pKZA:
             za = str((pKZA + mt_dict[MT]['delKZA']) // 10).zfill(6)
             has_isomers = False
+            # Isomer pathways contained either in MF 9 ("Multiplicities for
+            # Production of Radioactive Nuclides") and MF 10 ("Cross Sections
+            # for Production of Radioactive Nuclides").
             for MF in [9,10]:
                 if isomer_dict and len(isomer_dict[MT][MF]) > 1:
                     has_isomers = True
                     for M in isomer_dict[MT][MF]:
                         if M < 10:
                             card9_lines.append(
-                                f'{3 if MF == 9 else 4}{za}{M} {MT} "{mtname}, M={M}" /'
+                                f'{3 if MF == 9 else 4}{za}{M} ' \
+                                f'{MT} "{mtname}, M={M}" /'
                             )
                         else:
                             # Special handling for high LFS
                             # Requires develop branch of NJOY2016
                             card9_lines.append(
-                                '-1 / \n'\
+                                '-1 / \n' \
                                 f' {MF} {MT} {za} {M} "{mtname}, M={M}" /'
                             )
 
