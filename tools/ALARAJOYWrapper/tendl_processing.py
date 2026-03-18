@@ -341,6 +341,8 @@ def extract_cross_sections(gendf_path, MT, M_values):
     sigma_dict = {}
     excitations = len(M_values)
     N = min(excitations, len(sections))
+    
+    # If multiple excitations, M values equal the list indices of LFS values
     if excitations > 1:
         M_values = list(range(excitations))
 
