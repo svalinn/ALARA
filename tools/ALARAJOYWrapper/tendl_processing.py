@@ -107,9 +107,6 @@ def extract_endf_specs(path):
     Returns:
         matb (int): Unique material ID extracted from the file.
         MTs (list): List of reaction types (MT's) present in the file.
-        file (ENDFtk.tree.File or None): ENDFtk file object containing the
-            contents for a specific material's cross-section data.
-            Only returns the file for GENDF filetypes.
     """
 
     # Set MF for cross-sections
@@ -120,10 +117,10 @@ def extract_endf_specs(path):
         # Extract the MT numbers that are present in the file
         MTs = [MT.MT for MT in file.sections.to_list()]
 
-        return (matb, MTs, file)
+        return (matb, MTs)
     
     else:
-        return (matb, None, None)
+        return (matb, None)
 
 def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
     """
