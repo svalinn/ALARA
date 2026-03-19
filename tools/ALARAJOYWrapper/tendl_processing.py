@@ -363,9 +363,8 @@ def incrementally_deexcite_isomer(M, dKZA, eaf_nucs):
     Arguments:
         M (int): Excitation level of the given nuclide.
         dKZA (int): KZA signifier of the given nuclide.
-        eaf_nucs (dict): Dictionary keyed by all nuclides in the EAF decay
-            library, with values of their half-lives (zeros for stable
-            nuclides).
+        eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
 
     Returns:
         trial_KZA (int): KZA with reduced nuclear excitation to match nuclides
@@ -410,9 +409,8 @@ def iterate_MTs(
                     }
                 }    
             }
-        eaf_nucs (dict): Dictionary keyed by all nuclides in the EAF decay
-            library, with values of their half-lives (zeros for stable
-            nuclides).
+        eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
          isomer_dict (collections.defaultdict): Dictionary keyed by reaction
             type (MT), with each MT containing a subdictionary of the MF from
             which the isomeric pathways are extracted. At the lowest MT/MF
@@ -448,7 +446,7 @@ def iterate_MTs(
                 if M > 0:
                     emitted += '*'
 
-                if dKZA in eaf_nucs and M < 10:
+                if dKZA in eaf_nucs or M == 0:
                     all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
                         'emitted'    :  emitted,
                         'xsections'  :  sigmas
