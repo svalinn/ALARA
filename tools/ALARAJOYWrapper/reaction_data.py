@@ -279,10 +279,9 @@ def get_MT_from_line(line):
 
 def find_eaf_ref_data(eaf_path):
     """
-    Parse through an EAF file to build a dictionary keyed by all nuclides
+    Parse through an EAF file to build a dictionary keyed by all radionuclides
         with their respective half-lives as the values. Modeled after the
-        file parsing methods in ALARA/src/DataLib/EAFLib.C. Stable nuclides
-        are saved with half-lives of 0.
+        file parsing methods in ALARA/src/DataLib/EAFLib.C.
 
     Arguments:
         eaf_path (pathlib._local.PosixPath): Filepath to an EAF decay library
@@ -290,9 +289,8 @@ def find_eaf_ref_data(eaf_path):
             formatted with a ".dat" extension.
 
     Returns:
-        eaf_nucs (dict): Dictionary keyed by all nuclides in the EAF decay
-            library, with values of their half-lives (or zeros to indicate
-            stability).
+        eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
     """
 
     radionucs = {}
@@ -316,15 +314,6 @@ def find_eaf_ref_data(eaf_path):
             line = f.readline()
 
             while line:
-
-                # Stable nuclide processing
-                if 'STABLE NUCLIDE' in line and prev_line is not None:
-                    iso = prev_line.rstrip().split('DECAY')[0]
-
-                    if 'FILE' not in iso:
-                        Z, _, A = iso.split('-')
-                        kza = (int(Z) * 1000 + int(A)) * 10
-                        radionucs.setdefault(kza, 0.0)
 
                 # Radionuclide processing
                 MT = get_MT_from_line(line)

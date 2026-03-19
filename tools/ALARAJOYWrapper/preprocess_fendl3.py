@@ -167,9 +167,8 @@ def process_gendf(
                     }
                 }    
             }
-        eaf_nucs (dict): Dictionary keyed by all nuclides in the EAF decay
-            library, with values of their half-lives (zeros for stable
-            nuclides).
+        eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
 
     Returns:
         all_rxns (collections.defaultdict): Updated dictionary for all
