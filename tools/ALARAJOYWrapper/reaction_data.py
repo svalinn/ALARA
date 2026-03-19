@@ -310,7 +310,6 @@ def find_eaf_ref_data(eaf_path):
                 f.readline()
 
             _in_decay_block = False
-            prev_line = None
             line = f.readline()
 
             while line:
@@ -335,7 +334,6 @@ def find_eaf_ref_data(eaf_path):
                 elif MT != decay_MT:
                     _in_decay_block = False
 
-                prev_line = line
                 line = f.readline()
 
     return radionucs
