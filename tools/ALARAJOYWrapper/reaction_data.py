@@ -203,7 +203,6 @@ def process_mt_data(mt_dict):
             {'MT' : 
                     {'reaction':                               (z, emission)},
                     {'delKZA'  :                       integer change in KZA},
-                    {'high_m'  :          boolean for high (2 digit) isomers},
                     {'gas'     : name of total gas production, if MT=203-207},
                     {'emitted' :                 string of emitted particles}
             }
@@ -230,7 +229,6 @@ def process_mt_data(mt_dict):
         if change_NP is not None:
             change_N, change_P = change_NP
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
-            data['isomer'] = M
             data['gas'] = gas
             data['emitted'] = emitted_particles
         else:
@@ -279,9 +277,9 @@ def get_MT_from_line(line):
     
     return int(line[72:75])
 
-def find_eaf_radionuclides(eaf_path):
+def find_eaf_ref_data(eaf_path):
     """
-    Parse through an EAF file to build a dictionary keyed by radionuclides
+    Parse through an EAF file to build a dictionary keyed by all radionuclides
         with their respective half-lives as the values. Modeled after the
         file parsing methods in ALARA/src/DataLib/EAFLib.C.
 
@@ -291,7 +289,7 @@ def find_eaf_radionuclides(eaf_path):
             formatted with a ".dat" extension.
 
     Returns:
-        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
+        eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
             decay library, with values of their half-lives.
     """
 
@@ -313,7 +311,10 @@ def find_eaf_radionuclides(eaf_path):
 
             _in_decay_block = False
             line = f.readline()
+
             while line:
+
+                # Radionuclide processing
                 MT = get_MT_from_line(line)
 
                 if not _in_decay_block and MT == decay_MT:
@@ -333,7 +334,6 @@ def find_eaf_radionuclides(eaf_path):
                 elif MT != decay_MT:
                     _in_decay_block = False
 
-                # Advance to next line
                 line = f.readline()
 
     return radionucs
