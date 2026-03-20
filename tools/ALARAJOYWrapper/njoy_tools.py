@@ -124,9 +124,9 @@ def write_card9_special_isomer_reactions(
     """
     Format Card 9 reaction entries for the NJOY/GROUPR input file with the
         special formatting for excitation reactions. Specific excitations
-        of daughter nuclides for a given MT can be found in either MF9
-        ('Multiplicities for Production of Radioactive Nuclides') or MF10 
-        ('Cross Sections for Pdocution of Radioactive Nuclides'), with
+        of daughter nuclides for a given MT can be found in either 
+        MF9  ('Multiplicities for Production of Radioactive Nuclides') or 
+        MF10 ('Cross Sections for Production of Radioactive Nuclides'), with
         appropriate values supplied in the input isomer_dict.
 
         The formatting for isomeric states follows the guidelines provided in
