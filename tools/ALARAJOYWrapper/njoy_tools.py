@@ -119,7 +119,7 @@ elements = [
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
 def write_card9_special_isomer_reactions(
-    pKZA, mt_dict, isomer_dict, MT, card9_lines, mtname      
+    pKZA, mt_dict, isomer_dict, MT, card9_lines, mtname  
 ):
     """
     Format Card 9 reaction entries for the NJOY/GROUPR input file with the
@@ -129,18 +129,9 @@ def write_card9_special_isomer_reactions(
         ('Cross Sections for Pdocution of Radioactive Nuclides'), with
         appropriate values supplied in the input isomer_dict.
 
-        The formatting for isomeric states below 10 follows the description
-        of MF/pathway-specific reactions in the NJOY 2016 user manual 
-        (https://github.com/njoy/NJOY2016-manual/raw/master/njoy16.pdf) in
-        section 8 (page.245):
-        
-            3zzzaaam nuclide production for zzzaaam from a subsection of MF=9
-            4zzzaaam nuclide production for zzzaaam from a subsection of MF=10
-
-        The formatting for isomeric states greater than or equal to 10 follows
-        the guidelines provided in the develop branch
-        (db71977593d084ae5bbb9e5c88a926541718d313) of NJOY-2016, described in
-        src/groupr.f90:
+        The formatting for isomeric states follows the guidelines provided in
+        the develop branch (db71977593d084ae5bbb9e5c88a926541718d313) of
+        NJOY-2016, described in NJOY2016/src/groupr.f90:
 
             card9a     Extended residual format (mfd = -1 only)
                 file    The file (MF) to extract data from
@@ -167,33 +158,17 @@ def write_card9_special_isomer_reactions(
     Returns:
         card9_lines (list of str): Updated list of reaction strings for the
             given MT and all of its excitation pathways.
-        has_isomers (bool): Boolean to denote whether a given MT contains
-            pathways to produce daughter nuclides in any quantum state other
-            than the ground state.
     """
 
     za = str((pKZA + mt_dict[MT]['delKZA']) // 10).zfill(6)
-    has_isomers = False
-
-    for MF in [9,10]:
-        if isomer_dict and len(isomer_dict[MT][MF]) > 1:
-            has_isomers = True
+    for MF in isomer_dict[MT].keys():
+        if len(isomer_dict[MT][MF]) > 1:
             for M in isomer_dict[MT][MF]:
-                if M < 10:
-                    card9_lines.append(
-                        f'{3 if MF == 9 else 4}{za}{M} ' \
-                        f'{MT} "{mtname}, M={M}" /'
-                    )
-                else:
-                    # Special handling for high LFS
-                    # Requires develop branch of NJOY2016
-                    card9_lines.append(
-                        '-1 / \n' \
-                        f' {MF} {MT} {za} {M} "{mtname}, M={M}" /'
-                    )
+                card9_lines.append(
+                    f'-1 / \n {MF} {MT} {za} {M} "{mtname}, M={M}" /'
+                )
 
-    return card9_lines, has_isomers
-
+    return card9_lines
 
 def fill_input_template(
         inp, material_id, MTs, element, A, mt_dict, temperature,
@@ -241,18 +216,24 @@ def fill_input_template(
 
     card9_lines = []
     MFD = 3 # ENDF file tag for cross-section data
-    for MT in sorted(MTs):
-        mtname = mt_dict[MT]['reaction']
-        if pKZA:
-            card9_lines, has_isomers = write_card9_special_isomer_reactions(
-                pKZA, mt_dict, isomer_dict, MT, card9_lines, mtname
+    if isomer_dict:
+        for MT in sorted(MTs):
+            mtname = mt_dict[MT]['reaction']
+            has_isomers = (
+                MT in isomer_dict and isomer_dict[MT].keys() != {MFD}
             )
+            if pKZA:
+                if has_isomers:
+                    card9_lines = write_card9_special_isomer_reactions(
+                        pKZA, mt_dict, isomer_dict, MT, card9_lines, mtname
+                    )
 
-            if not has_isomers:
+                else:
+                    card9_lines.append(f'{MFD} {MT} "{mtname}" /')
+
+            else:
                 card9_lines.append(f'{MFD} {MT} "{mtname}" /')
 
-        else:
-            card9_lines.append(f'{MFD} {MT} "{mtname}" /')
     card9 = '\n '.join(card9_lines)
     return inp.substitute(
         element=element,
