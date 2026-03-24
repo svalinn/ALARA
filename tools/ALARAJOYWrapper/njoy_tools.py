@@ -119,7 +119,7 @@ elements = [
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
 def write_card9_special_isomer_reactions(
-    pKZA, mt_dict, isomer_dict, MT, card9_lines, mtname  
+    pKZA, MT, mt_data, isomer_data, mtname
 ):
     """
     Format Card 9 reaction entries for the NJOY/GROUPR input file with the
@@ -142,33 +142,33 @@ def write_card9_special_isomer_reactions(
 
     Arguments:
         pKZA (int): KZA identifier of the target (parent) nuclide.
-        mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
-        isomer_dict (collections.defaultdict): Dictionary keyed by reaction
-            type (MT), with each MT containing a subdictionary of the MF from
-            which the isomeric pathways are extracted. At the lowest MT/MF
-            level has a list of all isomeric states of possible daughter
-            nuclides for which there are cross-section data in the original
-            TENDL file.
         MT (int): Unique integer identifier for the reaction type.
+        mt_data (dict): Reaction-specific sub-dictionary of mt_dict containing
+            the reaction type, delKZA, gas-production designation, and string
+            of emitted particles.
+        isomer_data (collections.defaultdict): Reaction-specific
+            sub-dictionary of isomer_data keyed by the MF from which the
+            isomeric pathways are extracted.
         card9_lines (list of str): List of each individual reaction string
             across all MTs/excitation pathways to be written out to the NJOY
             input file.
         mtname (str): Description of the reaction type.
 
     Returns:
-        card9_lines (list of str): Updated list of reaction strings for the
-            given MT and all of its excitation pathways.
+        card9_extension (list of str): List of reaction strings for the given
+            MT and all of its excitation pathways to extend on the list of all
+            card9 reactions.
     """
 
-    za = str((pKZA + mt_dict[MT]['delKZA']) // 10).zfill(6)
-    for MF in isomer_dict[MT].keys():
-        if len(isomer_dict[MT][MF]) > 1:
-            for M in isomer_dict[MT][MF]:
-                card9_lines.append(
-                    f'-1 / \n {MF} {MT} {za} {M} "{mtname}, M={M}" /'
-                )
+    card9_extension = []
+    za = str((pKZA + mt_data['delKZA']) // 10).zfill(6)
+    for MF in isomer_data:
+        for M in isomer_data[MF]:
+            card9_extension.append(
+                f'-1 / \n {MF} {MT} {za} {M} "{mtname}, M={M}" /'
+            )
 
-    return card9_lines
+    return card9_extension
 
 def fill_input_template(
         inp, material_id, MTs, element, A, mt_dict, temperature,
@@ -180,6 +180,7 @@ def fill_input_template(
         material ID, the title, which incorporates the isotopic description,
         and the reactions corresponding to the MT numbers encoded in the
         files.
+
     Arguments:
         inp (string.Template): String template for the input file without
             substitutions yet. Can either be njoy_prep_input or groupr_input.
@@ -222,17 +223,9 @@ def fill_input_template(
             has_isomers = (
                 MT in isomer_dict and isomer_dict[MT].keys() != {MFD}
             )
-            if pKZA:
-                if has_isomers:
-                    card9_lines = write_card9_special_isomer_reactions(
-                        pKZA, mt_dict, isomer_dict, MT, card9_lines, mtname
-                    )
-
-                else:
-                    card9_lines.append(f'{MFD} {MT} "{mtname}" /')
-
-            else:
-                card9_lines.append(f'{MFD} {MT} "{mtname}" /')
+            card9_lines.extend(write_card9_special_isomer_reactions(
+                pKZA, MT, mt_dict[MT], isomer_dict[MT], mtname
+            ) if pKZA and has_isomers else [f'{MFD} {MT} "{mtname}" /'])
 
     card9 = '\n '.join(card9_lines)
     return inp.substitute(
