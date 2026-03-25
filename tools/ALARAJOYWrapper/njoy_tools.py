@@ -118,9 +118,7 @@ elements = [
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
-def write_card9_special_isomer_reactions(
-    pKZA, MT, mt_data, isomer_data, mtname
-):
+def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
     """
     Format Card 9 reaction entries for the NJOY/GROUPR input file with the
         special formatting for excitation reactions. Specific excitations
@@ -223,9 +221,9 @@ def fill_input_template(
             has_isomers = (
                 MT in isomer_dict and isomer_dict[MT].keys() != {MFD}
             )
-            card9_lines.extend(write_card9_special_isomer_reactions(
+            card9_lines.extend(card9_special_isomer_reactions(
                 pKZA, MT, mt_dict[MT], isomer_dict[MT], mtname
-            ) if pKZA and has_isomers else [f'{MFD} {MT} "{mtname}" /'])
+            ) if has_isomers else [f'{MFD} {MT} "{mtname}" /'])
 
     card9 = '\n '.join(card9_lines)
     return inp.substitute(
