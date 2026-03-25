@@ -218,12 +218,12 @@ def fill_input_template(
     if isomer_dict:
         for MT in sorted(MTs):
             mtname = mt_dict[MT]['reaction']
-            has_isomers = (
-                MT in isomer_dict and isomer_dict[MT].keys() != {MFD}
-            )
-            card9_lines.extend(card9_special_isomer_reactions(
-                pKZA, MT, mt_dict[MT], isomer_dict[MT], mtname
-            ) if has_isomers else [f'{MFD} {MT} "{mtname}" /'])
+            if MT in isomer_dict and isomer_dict[MT].keys() != {MFD}:
+                card9_lines.extend(card9_special_isomer_reactions(
+                    pKZA, MT, mt_dict[MT], isomer_dict[MT], mtname
+                ))
+            else:
+                card9_lines.append(f'{MFD} {MT} "{mtname}" /')
 
     card9 = '\n '.join(card9_lines)
     return inp.substitute(
