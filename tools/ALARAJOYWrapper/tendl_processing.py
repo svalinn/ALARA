@@ -297,13 +297,6 @@ def extract_gendf_xs_lines_by_MT(gendf_path, MT):
                 if line_count >= 3 and line_count % 2 == 1:
                     current_section_lines.append(line)
 
-            elif mf == 3 and mt == 0:
-                # SEND record; end of MT section
-                if current_section_lines:
-                    sections.append(current_section_lines)
-                    current_section_lines = []
-                line_count = 0
-
             else:
                 if current_section_lines:
                     sections.append(current_section_lines)
