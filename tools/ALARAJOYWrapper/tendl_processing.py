@@ -283,7 +283,7 @@ def extract_gendf_xs_lines(gendf_path, MTs):
 
     return xs_line_dict
 
-def process_xsections(xs_lines, MT, M_values):
+def process_xsections(xs_lines, M_values):
     """
     Given a list of lines containing all cross-section data for a given
         reaction type, identify all excitation pathways and save reformatted
@@ -295,8 +295,6 @@ def process_xsections(xs_lines, MT, M_values):
     Arguments:
         xs_lines (line of str): List of all lines in the MT-section containing
             cross-section data.
-        MT (int): Numerical identifier for the reaction type corresponding to
-            the file's sectional organization.
         M_values (list of int): All possible isomeric states of the residual
             daughter produced from the given reaction type.
     
