@@ -66,8 +66,48 @@ def args():
     )
     return parser.parse_args()
 
+def calculate_pKZA(element, A):
+    """
+    Construct the target (parent) nuclide's KZA value. KZA values are defined
+        as ZZAAAM, where ZZ is the nuclide's atomic number, AAA is the mass
+        number, and M is the isomeric state (0 if ground state).
+
+    Arguments:
+        element (str): Chemical symbol of the target nuclide.
+        A (int or str): Mass number of the nuclide, potentially including an
+            isomeric tag, such as "m" for the first excited state, "n" for the
+            second, etc. (Note: TENDL data should only include up to a maximum
+            of the second excited state).
+
+    Returns:
+        pKZA (int): KZA value of the target nuclide.
+    """
+
+    Z = njt.elements[element]
+    A = str(A).lower()
+
+    # Metastable states classified by TENDL as m = 1, n = 2, etc.
+    # (Generally expecting only m, occasionally n, but physically,
+    # values could go higher, so isomeric_states goes up to z = 14)
+    M = 0
+    isomeric_states = 'mnopqrstuvwxyz'
+    isomer_tag = next(
+        (tag for tag in isomeric_states if tag in A), None
+    )
+    if isomer_tag:
+        M = isomeric_states.find(isomer_tag) + 1
+    
+    if M > 2:
+        warnings.warn(
+            f'Isomeric state greater than 2. Unexpected case for TENDL2017.',
+            UserWarning
+        )
+
+    A = int(A.split(isomer_tag)[0])
+    return (Z * 1000 + A) * 10 + M
+
 def process_pendf(
-    njoy_prep_input, material_id, MTs,
+    njoy_prep_input, material_id, MTs, pKZA,
     element, A, mt_dict, temperature, tendl_path
 ):
     """
@@ -98,7 +138,6 @@ def process_pendf(
         MTs (set): Updated set of all reaction types shared between the
             original TENDL file and the processed PENDF file, specifically
             including total gas production reactions.
-        pKZA (int): KZA identifier of the target (parent) nuclide.
         isomer_dict (collections.defaultdict): Dictionary keyed by reaction
             type (MT), with each MT containing a subdictionary of the MF from
             which the isomeric pathways are extracted. At the lowest MT/MF
@@ -117,13 +156,10 @@ def process_pendf(
     pendf_path, njoy_error = njt.run_njoy(element, A, material_id, 'PENDF')
 
     _, pendf_MTs = tp.extract_endf_specs(pendf_path)
-    MTs |= {
-        gas_MT for gas_MT in set(pendf_MTs) & set(rxd.GAS_DF['total_mt'])
-    }
-    pKZA = tp.extract_pendf_pkza(pendf_path)
+    MTs |= set(pendf_MTs).intersection(set(rxd.GAS_DF['total_mt']))
     isomer_dict = tp.determine_all_excitations(tendl_path, MTs, pKZA, mt_dict)
 
-    return MTs, pKZA, isomer_dict, njoy_error
+    return MTs, isomer_dict, njoy_error
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, element, A, mt_dict,
@@ -187,11 +223,18 @@ def process_gendf(
     if gendf_path:
         # Extract MT values again from GENDF file as there may be some
         # difference from the original MT values in the ENDF/PENDF files
-        MTs = tp.update_gendf_MTs(gendf_path)
-        if MTs:
+        gendf_MTs = tp.get_gendf_MTs(gendf_path)
+        if MTs != gendf_MTs:
+            diffs = sorted(MTs - gendf_MTs)
+            warnings.warn(
+                f'GENDF file missing MTs {diffs} present in the ' \
+                'original TENDL file.'
+            )
+        if gendf_MTs:
+            xs_line_dict = tp.extract_gendf_xs_lines(gendf_path, MTs)
             all_rxns = tp.iterate_MTs(
-                MTs, mt_dict, pKZA, all_rxns,
-                eaf_nucs, isomer_dict, gendf_path
+                gendf_MTs, mt_dict, xs_line_dict, pKZA, 
+                all_rxns, eaf_nucs, isomer_dict, gendf_path
             )
             print(f'Finished processing {element}{A}')
 
@@ -441,17 +484,18 @@ def main():
     eaf_nucs = rxd.find_eaf_ref_data(Path(args().decay_lib[0]))
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
-    for file_properties in tp.search_for_files(search_dir).values():
+    for file_properties in tp.search_for_files(search_dir):
         element = file_properties['Element']
         A = file_properties['Mass Number']
+        pKZA = calculate_pKZA(element, A)
         endf_path = file_properties['TENDL File Path']
         TAPE20.write_bytes(endf_path.read_bytes())
 
         material_id, MTs = tp.extract_endf_specs(TAPE20)
         MTs = set(MTs).intersection(mt_dict.keys())
 
-        MTs, pKZA, isomer_dict, njoy_prep_error = process_pendf(
-            njt.njoy_prep_input, material_id, MTs,
+        MTs, isomer_dict, njoy_prep_error = process_pendf(
+            njt.njoy_prep_input, material_id, MTs, pKZA,
             element, A, mt_dict, temperature, TAPE20
         )
 
