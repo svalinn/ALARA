@@ -167,9 +167,9 @@ def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
     return card9_extension
 
 def fill_input_template(
-        inp, material_id, MTs, element, A, mt_dict, temperature,
-        pKZA=None, isomer_dict={}
-        ):
+    inp, material_id, MTs, element, A, mt_dict, temperature,
+    pKZA=None, isomer_dict={}
+):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
         into the template for the NJOY input card. These values are the

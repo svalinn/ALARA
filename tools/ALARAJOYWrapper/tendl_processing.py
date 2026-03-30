@@ -212,47 +212,25 @@ def _gendf_parse_control(line):
     except ValueError:
         return None, None
 
-def get_gendf_MTs(gendf_path):
-    """
-    Parse a GENDF file to find all unique MT reaction numbers. Necessary to
-        be called after running GROUPR as there may be some MTs present in the
-        reference ENDF/PENDF files used to produced the GENDF file that may
-        not be present in the final GENDF file.
-
-    Arguments:
-        gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
-            which to extract cross-section data.
-
-    Returns:
-        MTs (set): Set of all unique MTs contained in the GENDF file.    
-    """
-
-    MTs = set()
-    with open(gendf_path, 'r') as f:
-        for line in f:
-            mf, mt = _gendf_parse_control(line)
-            if mf == 3 and mt != 0:
-                MTs.add(mt)
-
-    return MTs
-
-def extract_gendf_xs_lines(gendf_path, MTs):
+def extract_gendf_data(gendf_path):
     """
     Parse a GENDF-formatted (post-GROUPR processing) file for lines containing
-        cross-section data for each reaction type in the provided set of MTs.
+        cross-section data for each reaction type, while compiling a full set
+        of all MT numbers corresponding to that reaction.
 
     Arguments
          gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
              which to extract cross-section data.
-         MTs (set of ints): All reaction types with cross-section data in the
-            provided GENDF.
 
     Returns:
         xs_line_dict (collections.defaultdict): Dictionary keyed by MT number
             with values of lists of all line strings in the MT-section from
             the parsed GENDF file containing cross-section data.
+         MTs (set of ints): All reaction types with cross-section data in the
+            provided GENDF.
     """
-    
+
+    MTs = set()
     xs_line_dict = defaultdict(list)
     current_section_lines = []
     current_MT = None
@@ -261,7 +239,8 @@ def extract_gendf_xs_lines(gendf_path, MTs):
     with open(gendf_path, 'r') as f:
         for line in f:
             mf, mt = _gendf_parse_control(line)
-            if mf == 3 and mt in MTs:
+            if mf == 3 and mt != 0:
+                MTs.add(mt)
                 if mt != current_MT:
                     if current_section_lines:
                         xs_line_dict[current_MT].append(current_section_lines)
@@ -281,7 +260,7 @@ def extract_gendf_xs_lines(gendf_path, MTs):
                 current_MT = None
                 line_count = 0
 
-    return xs_line_dict
+    return xs_line_dict, MTs
 
 def process_xsections(xs_lines, M_values):
     """
@@ -342,7 +321,7 @@ def incrementally_deexcite_isomer(M, dKZA, eaf_nucs):
     """
 
     trial_M = min(M-1, 9)
-    while (dKZA + trial_M) not in eaf_nucs and trial_M >= 0:
+    while (dKZA + trial_M) not in eaf_nucs and trial_M > 0:
         trial_M -= 1
 
     return dKZA + trial_M
@@ -400,7 +379,7 @@ def iterate_MTs(
     for MT in (MTs - EXCITATION_REACTIONS):
         xs_lines = xs_line_dict[MT]
         M_values = list(isomer_dict[MT].values())[0]
-        isomer_specific_rxns = process_xsections(xs_lines, MT, M_values)
+        isomer_specific_rxns = process_xsections(xs_lines, M_values)
         rxn = mt_dict[MT]
         gas = rxn['gas']
         
