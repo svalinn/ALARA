@@ -8,6 +8,8 @@ import warnings
 from pathlib import Path
 from collections import defaultdict
 
+ISOMERIC_STATES = 'mnopqrstuvwxyz'
+
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -90,12 +92,11 @@ def calculate_pKZA(element, A):
     # (Generally expecting only m, occasionally n, but physically,
     # values could go higher, so isomeric_states goes up to z = 14)
     M = 0
-    isomeric_states = 'mnopqrstuvwxyz'
     isomer_tag = next(
-        (tag for tag in isomeric_states if tag in A), None
+        (tag for tag in ISOMERIC_STATES if tag in A), None
     )
     if isomer_tag:
-        M = isomeric_states.find(isomer_tag) + 1
+        M = ISOMERIC_STATES.find(isomer_tag) + 1
     
     if M > 2:
         warnings.warn(
@@ -106,9 +107,33 @@ def calculate_pKZA(element, A):
     A = int(A.split(isomer_tag)[0])
     return (Z * 1000 + A) * 10 + M
 
+def interpret_KZA(kza):
+    """
+    Infer the chemical symbol and mass number from a KZA (ZZAAAM) number.
+
+    Arguments:
+        kza (int): Unique ZZAAAM for a given nuclide.
+
+    Returns:
+        element (str): Chemical symbol of the target nuclide.
+        A (str or int): Mass number for selected isotope.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
+    """
+
+    kza = str(kza)
+    A = kza[-4:-1]
+    Z = kza[:kza.find(A)].zfill(2)
+    element = list(njt.elements.keys())[int(Z) - 1]
+    M = int(kza[-1])
+    if M > 0:
+        A += ISOMERIC_STATES[M - 1]
+
+    return element, A
+
 def process_pendf(
-    njoy_prep_input, material_id, MTs, pKZA,
-    element, A, mt_dict, temperature, tendl_path
+    njoy_prep_input, material_id, MTs, pKZA, mt_dict, temperature, tendl_path
 ):
     """
     Prepare and run initial NJOY run with MODER, RECONR, BROADR, UNRESR, and
@@ -124,11 +149,6 @@ def process_pendf(
             Formats Manual
             (https://www.oecd-nea.org/dbdata/data/manual-endf/endf102.pdf).
         MTs (set): Set of all MTs from the original TENDL file.
-        element (str): Chemical symbol for the element of interest.
-        A (str or int): Mass number for selected isotope.
-            If the target is a metastable isomer, "m" or "n" is written after 
-            the mass number, corresponding to the first or second metastable
-            states.
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
         temperature (float): Temperature at which to run NJOY modules.
         tendl_path (pathlib._local.PosixPath): Path to the original,
@@ -148,6 +168,7 @@ def process_pendf(
             is successful.
     """
 
+    element, A = interpret_KZA(pKZA)
     njoy_error = ''
     njoy_input = njt.fill_input_template(
         njoy_prep_input, material_id, MTs, element, A, mt_dict, temperature
@@ -162,7 +183,7 @@ def process_pendf(
     return MTs, isomer_dict, njoy_error
 
 def process_gendf(
-    njoy_groupr_input, material_id, MTs, element, A, mt_dict,
+    njoy_groupr_input, material_id, MTs, mt_dict,
     temperature, pKZA, isomer_dict, all_rxns, eaf_nucs
 ):
     """
@@ -177,11 +198,6 @@ def process_gendf(
             Formats Manual
             (https://www.oecd-nea.org/dbdata/data/manual-endf/endf102.pdf).
         MTs (set): Set of all MTs from the original TENDL file.
-        element (str): Chemical symbol for the element of interest.
-        A (str or int): Mass number for selected isotope.
-            If the target is a metastable isomer, "m" or "n" is written after 
-            the mass number, corresponding to the first or second metastable
-            states.
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
         temperature (float): Temperature at which to run NJOY modules.
         pKZA (int): KZA identifier of the target (parent) nuclide.
@@ -211,6 +227,7 @@ def process_gendf(
             reaction pathways for the given parent and its MTs.
     """
 
+    element, A = interpret_KZA(pKZA)
     groupr_input = njt.fill_input_template(
         njoy_groupr_input, material_id, MTs, element,
         A, mt_dict, temperature, pKZA, isomer_dict
@@ -223,7 +240,7 @@ def process_gendf(
     if gendf_path:
         # Extract MT values again from GENDF file as there may be some
         # difference from the original MT values in the ENDF/PENDF files
-        gendf_MTs = tp.get_gendf_MTs(gendf_path)
+        xs_line_dict, gendf_MTs = tp.extract_gendf_data(gendf_path)
         if MTs != gendf_MTs:
             diffs = sorted(MTs - gendf_MTs)
             warnings.warn(
@@ -231,7 +248,6 @@ def process_gendf(
                 'original TENDL file.'
             )
         if gendf_MTs:
-            xs_line_dict = tp.extract_gendf_xs_lines(gendf_path, MTs)
             all_rxns = tp.iterate_MTs(
                 gendf_MTs, mt_dict, xs_line_dict, pKZA, 
                 all_rxns, eaf_nucs, isomer_dict, gendf_path
@@ -495,13 +511,13 @@ def main():
         MTs = set(MTs).intersection(mt_dict.keys())
 
         MTs, isomer_dict, njoy_prep_error = process_pendf(
-            njt.njoy_prep_input, material_id, MTs, pKZA,
-            element, A, mt_dict, temperature, TAPE20
+            njt.njoy_prep_input, material_id, MTs,
+            pKZA, mt_dict, temperature, TAPE20
         )
 
         if not njoy_prep_error:
             all_rxns = process_gendf(
-                njt.groupr_input, material_id, MTs, element, A, mt_dict,
+                njt.groupr_input, material_id, MTs, mt_dict,
                 temperature, pKZA, isomer_dict, all_rxns, eaf_nucs 
             )
 
