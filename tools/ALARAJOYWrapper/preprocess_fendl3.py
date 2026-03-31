@@ -442,7 +442,7 @@ def main():
         endf_path = file_properties['TENDL File Path']
         TAPE20.write_bytes(endf_path.read_bytes())
 
-        material_id, MTs, endftk_file_obj = tp.extract_endf_specs(TAPE20)
+        material_id, MTs = tp.extract_endf_specs(TAPE20)
         endf6_MTs = set(mt_dict.keys())
         if len(MTs - endf6_MTs) > 0:
             invalid_MTs = sorted(MTs - endf6_MTs)
