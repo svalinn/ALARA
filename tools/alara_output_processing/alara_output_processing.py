@@ -510,6 +510,8 @@ class OpenMCParser:
                 for ALARA output data, containing OpenMC output data as well.
         """
         
+        # Import OpenMC only within OpenMCParser so that an OpenMC
+        # installation is only required when parsing OpenMC data
         try:
             import openmc
             import openmc.deplete
