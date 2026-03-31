@@ -444,7 +444,7 @@ def main():
 
         material_id, MTs, endftk_file_obj = tp.extract_endf_specs(TAPE20)
         endf6_MTs = set(mt_dict.keys())
-        if MTs != endf6_MTs:
+        if len(MTs - endf6_MTs) > 0:
             invalid_MTs = sorted(MTs - endf6_MTs)
             warnings.warn(
                 f'Invalid MTs in provided TENDL file for' \
