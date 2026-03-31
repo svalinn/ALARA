@@ -1,6 +1,6 @@
 # ALARA Output Processing
 
-Contained within `ALARA/tools` is the Python package, `alara_output_processing`, a module desgined for the parsing of ALARA and FISPACT-II output files into Pandas DataFrame-inherited structures, with a robust set of operations to organize and process data to user specifications.
+Contained within `ALARA/tools` is the Python package, `alara_output_processing`, a module desgined for the parsing of ALARA, FISPACT-II, and OpenMC output files into Pandas DataFrame-inherited structures, with a robust set of operations to organize and process data to user specifications.
 
 ## Dependencies
 - Standard Python libraries
@@ -13,6 +13,9 @@ Contained within `ALARA/tools` is the Python package, `alara_output_processing`,
     * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 - Domain-specific packages
     * [Pypact](https://github.com/fispact/pypact)
+    * [OpenMC](https://docs.openmc.org/en/stable/quickinstall.html)
+
+**Note:** OpenMC is only needed when parsing OpenMC depletion HDF5 files. Output processing for ALARA and FISPACT-II output data can be run independtly of an OpenMC installation.
 
 
 ## Installation
@@ -24,7 +27,7 @@ pip install .
 ## Usage
 `alara_output_processing` can be used either as a pure Python library, or as a command line tool. From the command line, calling `alara_output_processing` with the filepath to an ALARA output file will automatically identify and parse all text-formatted tables contained in the output file and write them out to individual CSV files (corresponding to each zone/interval of the ALARA run). To run `alara_output_processing` from the command line, run:
 ```
-alara_output_processing -f /path/to/alara/output.txt
+alara_output_processing -f /path/to/activation/output.txt -r run_lbl -t time_units
 ```
 
 Alternatively, when used as a Python library, `alara_output_processing` can read in and parse ALARA output tables as such:
@@ -43,13 +46,29 @@ runs = {
 }
 ```
 
-**Note:** This toolkit is also capable of parsing FISPACT-II output tables and storing their data in the same canonical `ALARADFrame` structure. To process FISPACT-II output data, the output file must contain the suffix `".fis"` to be recognized as such (i.e. `"/path/to/fispactii/output.fis"`).
+This toolkit is also capable of parsing FISPACT-II output tables and OpenMC HDF5 depletion responses, and storing their data in the same canonical `ALARADFrame` structure. To process FISPACT-II output data, the output file must contain the suffix `".fis"` to be recognized as such (i.e. `"/path/to/fispactii/output.fis"`). To process OpenMC output data, the output file must contain the suffix `".h5"`, corresponding to the depletion results from an OpenMC depletion simulation. Additionally, the OpenMC `cross_sections.xml` and `chain.xml` files used to run the depletion must be supplied with these additional arguments:
+
+```
+-x cross_sections.xml -c chain.xml
+```
 
 This dictionary can be input directly into the function `DataLibrary.make_entries()` to create a single `ALARADFrame` containing all data from each table in each run's output files.
 ```
 lib = aop.DataLibrary()
 adf = aop.DataLibrary.make_entries(lib, runs)
 ```
+
+Like above, for OpenMC HDF5 output files, this must be supplemented with paths to the appropriate `cross_sections.xml` and `chain.xml`, with the additional arguments for `DataLibrary.make_entries()`:
+
+```
+adf = aop.DataLibrary.make_entries(
+    lib,
+    run,
+    xs_path=/path/to/cross_sections.xml,
+    chain_path=/path/to/chain.xml
+)
+```
+
 The columns for `adfs` are:
 * `time`: Cooling time in seconds.
 * `time_unit`: Units for cooling time.
