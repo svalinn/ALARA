@@ -8,6 +8,8 @@ import warnings
 from pathlib import Path
 from collections import defaultdict
 
+ISOMERIC_STATES = 'mnopqrstuvwxyz'
+
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -52,14 +54,6 @@ def args():
               
     )
     parser.add_argument(
-        '--isomer_to_ground', '-i', action='store_false',
-        help=('''
-            Optional argument to amalgamate all isomers lackign decay data to
-                an "Other" daughter with a KZA isomer value of "*", instead of
-                forcing their decay to their respective ground states.
-        ''')
-    )
-    parser.add_argument(
         '--amalgamate', '-a', action='store_true',
         help=('''
             Optional argument to amalgamate all like-daughters of a given
@@ -73,6 +67,208 @@ def args():
         '--temperature', '-t', required=False, nargs=1, default=[293.16]
     )
     return parser.parse_args()
+
+def calculate_pKZA(element, A):
+    """
+    Construct the target (parent) nuclide's KZA value. KZA values are defined
+        as ZZAAAM, where ZZ is the nuclide's atomic number, AAA is the mass
+        number, and M is the isomeric state (0 if ground state).
+
+    Arguments:
+        element (str): Chemical symbol of the target nuclide.
+        A (int or str): Mass number of the nuclide, potentially including an
+            isomeric tag, such as "m" for the first excited state, "n" for the
+            second, etc. (Note: TENDL data should only include up to a maximum
+            of the second excited state).
+
+    Returns:
+        pKZA (int): KZA value of the target nuclide.
+    """
+
+    Z = njt.elements[element]
+    A = str(A).lower()
+
+    # Metastable states classified by TENDL as m = 1, n = 2, etc.
+    # (Generally expecting only m, occasionally n, but physically,
+    # values could go higher, so isomeric_states goes up to z = 14)
+    M = 0
+    isomer_tag = next(
+        (tag for tag in ISOMERIC_STATES if tag in A), None
+    )
+    if isomer_tag:
+        M = ISOMERIC_STATES.find(isomer_tag) + 1
+    
+    if M > 2:
+        warnings.warn(
+            f'Isomeric state greater than 2. Unexpected case for TENDL2017.',
+            UserWarning
+        )
+
+    A = int(A.split(isomer_tag)[0])
+    return (Z * 1000 + A) * 10 + M
+
+def interpret_KZA(kza):
+    """
+    Infer the chemical symbol and mass number from a KZA (ZZAAAM) number.
+
+    Arguments:
+        kza (int): Unique ZZAAAM for a given nuclide.
+
+    Returns:
+        element (str): Chemical symbol of the target nuclide.
+        A (str or int): Mass number for selected isotope.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
+    """
+
+    kza = str(kza)
+    A = kza[-4:-1]
+    Z = kza[:kza.find(A)].zfill(2)
+    element = list(njt.elements.keys())[int(Z) - 1]
+    M = int(kza[-1])
+    if M > 0:
+        A += ISOMERIC_STATES[M - 1]
+
+    return element, A
+
+def process_pendf(
+    njoy_prep_input, material_id, MTs, pKZA, mt_dict, temperature, tendl_path
+):
+    """
+    Prepare and run initial NJOY run with MODER, RECONR, BROADR, UNRESR, and
+        GASPR modules to prodece the requisite PENDF file for a subsequent
+        NJOY run with GROUPR. Concurrently, update the set of MTs with total
+        gas production values, store the KZA of the target nuclide, and create
+        a dictionary of all isomeric pathways for each MT.
+
+    Arguments:
+        njoy_prep_input (string.Template): Unfilled Template object for the
+            preparatory NJOY input file.
+        material_id (int): Unique material identifier, defined by the ENDF-6
+            Formats Manual
+            (https://www.oecd-nea.org/dbdata/data/manual-endf/endf102.pdf).
+        MTs (set): Set of all MTs from the original TENDL file.
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
+        temperature (float): Temperature at which to run NJOY modules.
+        tendl_path (pathlib._local.PosixPath): Path to the original,
+            unmodified TENDL file.
+
+    Returns:
+        MTs (set): Updated set of all reaction types shared between the
+            original TENDL file and the processed PENDF file, specifically
+            including total gas production reactions.
+        isomer_dict (collections.defaultdict): Dictionary keyed by reaction
+            type (MT), with each MT containing a subdictionary of the MF from
+            which the isomeric pathways are extracted. At the lowest MT/MF
+            level has a list of all isomeric states of possible daughter
+            nuclides for which there are cross-section data in the original
+            TENDL file.
+        njoy_error (str): Error message from the NJOY run. Empty string if run
+            is successful.
+    """
+
+    element, A = interpret_KZA(pKZA)
+    njoy_error = ''
+    njoy_input = njt.fill_input_template(
+        njoy_prep_input, material_id, MTs, element, A, mt_dict, temperature
+    )
+    njt.write_njoy_input_file(njoy_input)
+    pendf_path, njoy_error = njt.run_njoy(element, A, material_id, 'PENDF')
+
+    _, pendf_MTs = tp.extract_endf_specs(pendf_path)
+    MTs |= set(pendf_MTs).intersection(set(rxd.GAS_DF['total_mt']))
+    isomer_dict = tp.determine_all_excitations(tendl_path, MTs, pKZA, mt_dict)
+
+    return MTs, isomer_dict, njoy_error
+
+def process_gendf(
+    njoy_groupr_input, material_id, MTs, mt_dict,
+    temperature, pKZA, isomer_dict, all_rxns, eaf_nucs
+):
+    """
+    Prepare and run NJOY run with GROUPR and iteratively extract cross-section
+        data for each reaction type, with all excitation pathways to be saved
+        in the all_rxns dictionary.
+
+    Arguments:
+        njoy_groupr_input (string.Template): Unfilled Template object for the
+            GROUPR NJOY input file.
+        material_id (int): Unique material identifier, defined by the ENDF-6
+            Formats Manual
+            (https://www.oecd-nea.org/dbdata/data/manual-endf/endf102.pdf).
+        MTs (set): Set of all MTs from the original TENDL file.
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
+        temperature (float): Temperature at which to run NJOY modules.
+        pKZA (int): KZA identifier of the target (parent) nuclide.
+        isomer_dict (collections.defaultdict): Dictionary keyed by reaction
+            type (MT), with each MT containing a subdictionary of the MF from
+            which the isomeric pathways are extracted. At the lowest MT/MF
+            level has a list of all isomeric states of possible daughter
+            nuclides for which there are cross-section data in the original
+            TENDL file.
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+        eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
+            decay library, with values of their half-lives.
+
+    Returns:
+        all_rxns (collections.defaultdict): Updated dictionary for all
+            reaction pathways for the given parent and its MTs.
+    """
+
+    element, A = interpret_KZA(pKZA)
+    groupr_input = njt.fill_input_template(
+        njoy_groupr_input, material_id, MTs, element,
+        A, mt_dict, temperature, pKZA, isomer_dict
+    )
+    njt.write_njoy_input_file(groupr_input)
+    gendf_path, njoy_error = njt.run_njoy(
+        element, A, material_id, 'GENDF'
+    )
+
+    if gendf_path:
+        # Extract MT values again from GENDF file as there may be some
+        # difference from the original MT values in the ENDF/PENDF files
+        xs_line_dict, gendf_MTs = tp.extract_gendf_data(gendf_path)
+        if MTs != gendf_MTs:
+            diffs = sorted(MTs - gendf_MTs)
+            warnings.warn(
+                f'GENDF file missing MTs {diffs} present in the ' \
+                'original TENDL file.'
+            )
+        if gendf_MTs:
+            all_rxns = tp.iterate_MTs(
+                gendf_MTs, mt_dict, xs_line_dict, pKZA, 
+                all_rxns, eaf_nucs, isomer_dict, gendf_path
+            )
+            print(f'Finished processing {element}{A}')
+
+        else:
+            warnings.warn(
+                f'''The requested file (MF3) is not present in the
+                ENDF file tree for {element}{A}'''
+            )
+            with open('mf_fail.log', 'a') as fail:
+                fail.write(f'{element}{A} \n')
+
+    else:
+        warnings.warn(
+            f'''Failed to convert {element}{A}.
+            NJOY error message: {njoy_error}'''
+        )
+
+    return all_rxns
 
 def remove_gas_daughters(all_rxns, gas_tuples):
     """
@@ -301,69 +497,34 @@ def main():
     temperature = args().temperature[0]
 
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
-    radionucs = rxd.find_eaf_radionuclides(Path(args().decay_lib[0]))
+    eaf_nucs = rxd.find_eaf_ref_data(Path(args().decay_lib[0]))
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
-    for file_properties in tp.search_for_files(search_dir).values():
+    for file_properties in tp.search_for_files(search_dir):
         element = file_properties['Element']
         A = file_properties['Mass Number']
+        pKZA = calculate_pKZA(element, A)
         endf_path = file_properties['TENDL File Path']
         TAPE20.write_bytes(endf_path.read_bytes())
 
-        material_id, MTs, endftk_file_obj = tp.extract_endf_specs(TAPE20)
+        material_id, MTs = tp.extract_endf_specs(TAPE20)
         MTs = set(MTs).intersection(mt_dict.keys())
 
-        # PENDF Preperation and Generation
-        njoy_input = njt.fill_input_template(
-            njt.njoy_prep_input, material_id,
-            MTs, element, A, mt_dict, temperature
+        MTs, isomer_dict, njoy_prep_error = process_pendf(
+            njt.njoy_prep_input, material_id, MTs,
+            pKZA, mt_dict, temperature, TAPE20
+        )
+
+        if not njoy_prep_error:
+            all_rxns = process_gendf(
+                njt.groupr_input, material_id, MTs, mt_dict,
+                temperature, pKZA, isomer_dict, all_rxns, eaf_nucs 
             )
-        njt.write_njoy_input_file(njoy_input)
-        pendf_path, njoy_error = njt.run_njoy(
-            element, A, material_id, 'PENDF'
-        )
-        
-        _, pendf_MTs, _ = tp.extract_endf_specs(pendf_path)
-        gas_MTs = set(pendf_MTs) & set(rxd.GAS_DF['total_mt'])
-        MTs |= {int(gas_MT) for gas_MT in gas_MTs}
-
-        # GENDF Generation
-        groupr_input = njt.fill_input_template(
-            njt.groupr_input, material_id,
-             MTs, element, A, mt_dict, temperature
-        )
-        njt.write_njoy_input_file(groupr_input)
-        gendf_path, njoy_error = njt.run_njoy(
-            element, A, material_id, 'GENDF'
-        )
-
-        if gendf_path:
-            pKZA = tp.extract_gendf_pkza(gendf_path)
-            # Extract MT values again from GENDF file as there may be some
-            # difference from the original MT values in the ENDF/PENDF files
-            material_id, MTs, endftk_file_obj = tp.extract_endf_specs(
-                gendf_path
-            )
-
-            if MTs and endftk_file_obj:
-                all_rxns = tp.iterate_MTs(
-                    MTs, endftk_file_obj, mt_dict, pKZA,
-                    all_rxns, radionucs, args().isomer_to_ground
-                )
-                print(f'Finished processing {element}{A}')
-
-            else:
-                warnings.warn(
-                    f'''The requested file (MF3) is not present in the
-                    ENDF file tree for {element}{A}'''
-                )
-                with open('mf_fail.log', 'a') as fail:
-                    fail.write(f'{element}{A} \n')
 
         else:
             warnings.warn(
-                f'''Failed to convert {element}{A}.
-                NJOY error message: {njoy_error}'''
+                f'''PENDF preparation failed for {element}{A}.
+                NJOY error message: {njoy_prep_error}'''
             )
 
         njt.cleanup_njoy_files(element, A)

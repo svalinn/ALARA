@@ -31,7 +31,7 @@ moder
  $NIN_moder $NOUT_moder/
 reconr
  $NENDF $NPEND_reconr/
- 'neutron PENDF for $element-$a of TENDL-2017'
+ $title
  $mat_id/
  $ERR/
  $MATD/
@@ -103,30 +103,80 @@ stop
 
 # Define a dictionary of elements in the Periodic Table
 elements = [
-    'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
-    'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca',
-    'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
-    'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y', 'Zr',
-    'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
-    'Sb', 'Te', 'I', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
-    'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
-    'Lu', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
-    'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
-    'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
-    'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
+    'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', 'Mg', 'Al',
+    'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe',
+    'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr',
+    'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
+    'Sb', 'Te', 'I', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm',
+    'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Hf', 'Ta', 'W',
+    'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn',
+    'Fr', 'Ra', 'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf',
+    'Es', 'Fm', 'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
     'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og'
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
+def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
+    """
+    Format Card 9 reaction entries for the NJOY/GROUPR input file with the
+        special formatting for excitation reactions. Specific excitations
+        of daughter nuclides for a given MT can be found in either 
+        MF9  ('Multiplicities for Production of Radioactive Nuclides') or 
+        MF10 ('Cross Sections for Production of Radioactive Nuclides'), with
+        appropriate values supplied in the input isomer_dict.
+
+        The formatting for isomeric states follows the guidelines provided in
+        the develop branch (db71977593d084ae5bbb9e5c88a926541718d313) of
+        NJOY-2016, described in NJOY2016/src/groupr.f90:
+
+            card9a     Extended residual format (mfd = -1 only)
+                file    The file (MF) to extract data from
+                section The section (MT) to extract data from
+                zaid    The ZZZAAA value of the residual
+                m       The metastable (file = 3, 6) or excited level
+                        (file = 9, 10) number
+
+    Arguments:
+        pKZA (int): KZA identifier of the target (parent) nuclide.
+        MT (int): Unique integer identifier for the reaction type.
+        mt_data (dict): Reaction-specific sub-dictionary of mt_dict containing
+            the reaction type, delKZA, gas-production designation, and string
+            of emitted particles.
+        isomer_data (collections.defaultdict): Reaction-specific
+            sub-dictionary of isomer_data keyed by the MF from which the
+            isomeric pathways are extracted.
+        card9_lines (list of str): List of each individual reaction string
+            across all MTs/excitation pathways to be written out to the NJOY
+            input file.
+        mtname (str): Description of the reaction type.
+
+    Returns:
+        card9_extension (list of str): List of reaction strings for the given
+            MT and all of its excitation pathways to extend on the list of all
+            card9 reactions.
+    """
+
+    card9_extension = []
+    za = str((pKZA + mt_data['delKZA']) // 10).zfill(6)
+    for MF in isomer_data:
+        for M in isomer_data[MF]:
+            card9_extension.append(
+                f'-1 / \n {MF} {MT} {za} {M} "{mtname}, M={M}" /'
+            )
+
+    return card9_extension
+
 def fill_input_template(
-        inp, material_id, MTs, element, A, mt_dict, temperature
-        ):
+    inp, material_id, MTs, element, A, mt_dict, temperature,
+    pKZA=None, isomer_dict={}
+):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
         into the template for the NJOY input card. These values are the
         material ID, the title, which incorporates the isotopic description,
         and the reactions corresponding to the MT numbers encoded in the
         files.
+
     Arguments:
         inp (string.Template): String template for the input file without
             substitutions yet. Can either be njoy_prep_input or groupr_input.
@@ -137,15 +187,20 @@ def fill_input_template(
             ENDF/PENDF files.
         element (str): Chemical symbol for element of interest.
         A (str or int): Mass number for selected isotope.
-            If the target is a metastable isomer, "m" is written after the
-            mass number, so A must be input as a string.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
         mt_dict (dict): Reference dictionary containing reaction information
             for each MT number pre-defined in the ENDF manual.
         temperature (float): Temperature at which to run NJOY modules.
-        run_type (str or None): Specification for type of NJOY run to be
-            prepared (i.e. preparing and creating PENDFs or converting to a
-            group-structured GENDF).
+        pKZA (int or None, optional): Parent KZA identifier, only needed when
+            filling the GROUPR-specific template.
             (Defaults to None)
+        isomer_dict (dict, optional): Dictionary keyed by MT reaction number,
+            containing lists for each reaction type of possible isomeric
+            states of the residual daughter. Only needed when filling the
+            GROUPR-specific template.
+            (Defaults to {})
     
     Returns:
         template (str): Modified template with the material-
@@ -158,9 +213,16 @@ def fill_input_template(
 
     card9_lines = []
     MFD = 3 # ENDF file tag for cross-section data
-    for MT in MTs:
-        mtname = mt_dict[MT]['reaction']
-        card9_lines.append(f'{MFD} {MT} "{mtname}" /') 
+    if isomer_dict:
+        for MT in sorted(MTs):
+            mtname = mt_dict[MT]['reaction']
+            if MT in isomer_dict and isomer_dict[MT].keys() != {MFD}:
+                card9_lines.extend(card9_special_isomer_reactions(
+                    pKZA, MT, mt_dict[MT], isomer_dict[MT], mtname
+                ))
+            else:
+                card9_lines.append(f'{MFD} {MT} "{mtname}" /')
+
     card9 = '\n '.join(card9_lines)
     return inp.substitute(
         element=element,
@@ -279,8 +341,9 @@ def run_njoy(element, A, matb, file_capture):
             identified by its card number.
         element (str): Chemical symbol for element of interest.
         A (str or int): Mass number for selected isotope.
-            If the target is an isomer, "m" after the mass number,
-            so A must be input as a string.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
         matb (int): Unique material ID for the material in the files.
         file_capture (str): Type of file to be saved from this particular 
             iteration of NJOY runs. Either "PENDF" or "GENDF".
@@ -327,6 +390,9 @@ def cleanup_njoy_files(element, A):
     Arguments:
         element (str): Chemical symbol for element of interest.
         A (str or int): Mass number for selected isotope.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
     
     Returns:
         None
