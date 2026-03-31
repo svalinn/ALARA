@@ -13,26 +13,6 @@ ISOMERIC_STATES = 'mnopqrstuvwxyz'
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--gas_handling', '-g', required=True, nargs=1,
-        help=('''
-            Required argument to set the gas handling method for gas
-                production totals, as calculated by the NJOY GASPR module. The
-                two possible methods are "r" (remove) and "s" (subtract).
-                Method "r" removes all reactions with a light gas daughter
-                (protons through alpha particles), with the exception of total
-                gas production cross-sections corresponding to MT = 203-207
-                reactions (see Appendix B of the ENDF-6 Manual at 
-                ALARA/developer-info/endf6-manual.pdf) when a total gas
-                production cross-section exists. Method "s" subtracts the
-                cross-sections for each energy group of reactions that produce
-                a gas daughter from the total gas production cross-sections
-                instead. In effect, for gas producing reactions, selecting "r"
-                will show only the total gas production cross-sections for
-                each gas, whereas "s" will show each individual gas production
-                pathway with its respective cross-section data.
-        ''')
-    )
-    parser.add_argument(
         '--decay_lib', '-d', required=True, nargs=1,
         help=('''
             Required argument to direct ALARAJOYWrapper to an EAF decay
@@ -327,8 +307,6 @@ def subtract_gas_from_totals(all_rxns, gas_tuples):
                     }
                 }    
             }
-        gas_tuples (list of tuples): Pairs total gas production MT values with
-            their respective gas symbols of the form [(gas, MT), ...].
     
     Returns:
         all_rxns (collections.defaultdict): Modified version of all_rxns with
@@ -337,6 +315,7 @@ def subtract_gas_from_totals(all_rxns, gas_tuples):
 
     """
 
+    gas_tuples = list(rxd.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
     for parent in all_rxns:
         for gKZA, gMT in gas_tuples:
             if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
@@ -347,50 +326,6 @@ def subtract_gas_from_totals(all_rxns, gas_tuples):
                         )
 
     return all_rxns
-
-def gas_handling(gas_method, all_rxns):
-    """
-    Set handling method for gas production total cross-sections for any given
-        reaction to determine whether it will be written out to the DSV or 
-        not. Either remove_gas_daughters() or subtract_gas_from_totals()
-        required for gas total handling methods. If neigther is chosen, an
-        error will be raised.
-
-    Arguments:
-        gas_method (str): Choice of method for handling gas production total
-            cross-sections. Either 'r' (remove) or 's' (subtract). See
-            ALARAJOYWrapper/README.md for futher details on these methods.
-        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
-            parent nuclides to store all reaction data, with structured as:
-            {parent:
-                {daughter:
-                    {MT:
-                        {
-                            'emitted': (str of emitted particles)
-                            'xsections': (array of groupwise XS)
-                        }
-                    }
-                }    
-            }
-    
-    Returns:
-        all_rxns (collections.defaultdict): Modified version of all_rxns with
-            double-counted gas-producing reactions left out.
-    """
-
-    gas_tuples = list(rxd.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
-
-    if gas_method == 'r':
-        return remove_gas_daughters(all_rxns, gas_tuples)
-
-    elif gas_method == 's':
-        return subtract_gas_from_totals(all_rxns, gas_tuples)
-    
-    else:
-        raise ValueError(
-            'Invalid gas method selection. ' \
-            'Must choose either "r" (remove) or "s" (subtract).'
-        )
 
 def combine_daughter_pathways(gas_filtered):
     """
@@ -530,7 +465,7 @@ def main():
         njt.cleanup_njoy_files(element, A)
 
     # Handle gas total production cross-sections, per user specifications
-    gas_filtered = gas_handling(args().gas_handling[0], all_rxns)
+    gas_filtered = subtract_gas_from_totals(all_rxns)
 
     if args().amalgamate:
         gas_filtered = combine_daughter_pathways(gas_filtered)
