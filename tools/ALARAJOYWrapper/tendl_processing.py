@@ -117,7 +117,7 @@ def extract_endf_specs(path):
     
     Returns:
         matb (int): Unique material ID extracted from the file.
-        MTs (list): List of reaction types (MT's) present in the file.
+        MTs (set): Set of reaction types (MT's) present in the file.
     """
 
     # Set MF for cross-sections
@@ -126,7 +126,7 @@ def extract_endf_specs(path):
     
     if file:
         # Extract the MT numbers that are present in the file
-        MTs = [MT.MT for MT in file.sections.to_list()]
+        MTs = set(MT.MT for MT in file.sections.to_list())
 
         return (matb, MTs)
     
