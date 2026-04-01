@@ -343,7 +343,7 @@ class FileParser:
 class FispactParser:
 
     @staticmethod
-    def fispact_to_adf(run_lbl, output_path, time_unit):
+    def fispact_to_adf(run_lbl, output_path, time_unit='s'):
         '''
         Parse output data from a FISPACT-II output file and write out relevant
             data in the canonical ALARADFrame data structure, to be integrated
@@ -353,6 +353,9 @@ class FispactParser:
             run_lbl (str): Distinguisher between runs (i.e. "fispact-ii").
             output_path (str or pathlib._local.PosixPath): Path to the
                 FISPACT-II output file. Must have the file suffix ".fis".
+            time_unit (str, optional): Option to set the time units for the
+                data to be read in.
+                (Defaults to "s")
         
         Returns:
             adf (alara_output_processing.ALARADFrame): Specialized DataFrame
@@ -422,6 +425,11 @@ class FispactParser:
         return ALARADFrame(rows).create_total_rows(), all_nucs
 
 class OpenMCParser:
+    UNIT_DICT = {
+        'Number Density'        :    'atoms/kg',
+        'Specific Activity'     :       'Bq/kg',
+        'Total Decay Heat'      :        'W/kg'
+    }
 
     @staticmethod
     def _calculate_num_dens_dict(mat):
@@ -441,15 +449,15 @@ class OpenMCParser:
         # openmc.data only needed if OpenMCParser is used
         import openmc.data
 
-        amu_to_kg = 1.66053906660e-27
-        atom_densities = mat.get_nuclide_atom_densities()
-        cumulative_density = sum(
-            n * openmc.data.atomic_mass(nuc) * amu_to_kg
-            for nuc, n in atom_densities.items()
-        )
+        # Material.get_mass_density() returns a density in g/cm3,
+        # Material.get_nuclide_atom_densities() returns densities in atom/b-cm
+        # In order to get number densities in atom/kg, need to convert mass
+        # densities to kg/b-cm
+        g_cm3_to_kg_b_cm = 1e-27
 
         return {
-            nuc: n / cumulative_density for nuc, n in atom_densities.items()
+            nuc: n / (mat.get_mass_density() * g_cm3_to_kg_b_cm)
+            for nuc, n in mat.get_nuclide_atom_densities().items()
         }
     
     @staticmethod
@@ -543,35 +551,26 @@ class OpenMCParser:
                     )
                 }
 
-        rows = []
-        for i, time in enumerate(cooling_times):
-            for block_num, mat in enumerate(materials):
-                for var, enum in ALARADFrame.VARIABLE_ENUM.items():
-                    if var in responses[time][mat.id]:
-                        for n in nuclides:
-                            val = responses[time][mat.id][var]
-                            row = {
-                                'time'       : time,
-                                'time_unit'  : time_unit,
-                                'nuclide'    : OpenMCParser._reformat_nuc(n),
-                                'variable'   : enum,
-                                'block'      : 'Material',
-                                'block_name' : mat.name if mat.name else 0,
-                                'block_num'  : block_num,
-                                'run_lbl'    : run_lbl
-                            }
-
-                            match var:
-                                case 'Number Density':
-                                    unit = 'atom/kg'
-                                case 'Specific Activity':
-                                    unit = 'Bq/kg'
-                                case 'Total Decay Heat':
-                                    unit = 'W/kg'
-                            
-                            row['var_unit'] = unit
-                            row['value'] = val.get(n, 0)
-                            rows.append(row)
+        rows = [
+            {
+                'time'          :                                        time,
+                'time_unit'     :                                   time_unit,
+                'nuclide'       :             OpenMCParser._reformat_nuc(nuc),
+                'run_lbl'       :                                     run_lbl,
+                'block'         :                                  'Material',
+                'block_name'    :                 mat.name if mat.name else 0,
+                'block_num'     :                                   block_num,
+                'variable'      :              ALARADFrame.VARIABLE_ENUM[var],
+                'var_unit'      :                 OpenMCParser.UNIT_DICT[var],
+                'value'         :    responses[time][mat.id][var].get(nuc, 0)
+            }
+            for time in cooling_times
+            for block_num, mat in enumerate(materials)
+            for var in (
+                set(ALARADFrame.VARIABLE_ENUM) & set(responses[time][mat.id])
+            )
+            for nuc in nuclides
+        ] 
 
         return ALARADFrame(rows).create_total_rows()[
             ALARADFrame.CANONICAL_COLUMN_ORDER
