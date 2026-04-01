@@ -551,26 +551,25 @@ class OpenMCParser:
                     )
                 }
 
-        rows = [
-            {
-                'time'          :                                        time,
-                'time_unit'     :                                   time_unit,
-                'nuclide'       :             OpenMCParser._reformat_nuc(nuc),
-                'run_lbl'       :                                     run_lbl,
-                'block'         :                                  'Material',
-                'block_name'    :                 mat.name if mat.name else 0,
-                'block_num'     :                                   block_num,
-                'variable'      :              ALARADFrame.VARIABLE_ENUM[var],
-                'var_unit'      :                 OpenMCParser.UNIT_DICT[var],
-                'value'         :    responses[time][mat.id][var].get(nuc, 0)
-            }
-            for time in cooling_times
-            for block_num, mat in enumerate(materials)
-            for var in (
-                set(ALARADFrame.VARIABLE_ENUM) & set(responses[time][mat.id])
-            )
-            for nuc in nuclides
-        ] 
+        rows = []
+        for t in cooling_times:
+            for block_num, mat in enumerate(materials):
+                for var in (
+                    set(ALARADFrame.VARIABLE_ENUM) & set(responses[time][mat.id])
+                ):
+                    for n in nuclides:
+                        rows.append({
+                            'time'       :                                  t,
+                            'time_unit'  :                          time_unit,
+                            'nuclide'    :      OpenMCParser._reformat_nuc(n),
+                            'run_lbl'    :                            run_lbl,
+                            'block'      :                         'Material',
+                            'block_name' :        mat.name if mat.name else 0,
+                            'block_num'  :                          block_num,
+                            'variable'   :     ALARADFrame.VARIABLE_ENUM[var],
+                            'var_unit'   :        OpenMCParser.UNIT_DICT[var],
+                            'value'      : responses[t][mat.id][var].get(n,0)
+                        })
 
         return ALARADFrame(rows).create_total_rows()[
             ALARADFrame.CANONICAL_COLUMN_ORDER
@@ -1015,7 +1014,7 @@ def main():
     lib = DataLibrary()
     adf = lib.make_entries(
         runs_dict,
-        parsed_args.time_unit,
+        parsed_args.time_unit or 's',
         parsed_args.cross_sections,
         parsed_args.chain_file
     )
