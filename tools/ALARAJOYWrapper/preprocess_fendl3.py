@@ -157,7 +157,7 @@ def process_pendf(
     pendf_path, njoy_error = njt.run_njoy(element, A, material_id, 'PENDF')
 
     _, pendf_MTs = tp.extract_endf_specs(pendf_path)
-    MTs |= set(pendf_MTs).intersection(set(rxd.GAS_DF['total_mt']))
+    MTs |= pendf_MTs.intersection(set(rxd.GAS_DF['total_mt']))
     isomer_dict = tp.determine_all_excitations(tendl_path, MTs, pKZA, mt_dict)
 
     return MTs, isomer_dict, njoy_error
@@ -443,14 +443,15 @@ def main():
         TAPE20.write_bytes(endf_path.read_bytes())
 
         material_id, MTs = tp.extract_endf_specs(TAPE20)
-        endf6_MTs = set(mt_dict.keys())
+        pre_filtered_MTs = {1,2,3,5}
+        endf6_MTs = set(mt_dict.keys()) - pre_filtered_MTs
         if len(MTs - endf6_MTs) > 0:
             invalid_MTs = sorted(MTs - endf6_MTs)
             warnings.warn(
                 f'Invalid MTs in provided TENDL file for' \
                 f'{element}-{A}: {invalid_MTs}'
             )
-        MTs = set(MTs).intersection(endf6_MTs)
+        MTs = MTs.intersection(endf6_MTs)
 
         MTs, isomer_dict, njoy_prep_error = process_pendf(
             njt.njoy_prep_input, material_id, MTs,
