@@ -250,44 +250,7 @@ def process_gendf(
 
     return all_rxns
 
-def remove_gas_daughters(all_rxns, gas_tuples):
-    """
-    Remove reactions from the dictionary that produce a light gas daughter
-        (i.e. a nuclide lighter than an alpha particle) whose total gas
-        production is otherwise accounted for by the MT = 203-207 "reactions"
-        to avoid double-counting.
-
-        Optional method to be called within gas_handling().
-
-    Arguments:
-        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
-            parent nuclides to store all reaction data, with structured as:
-            {parent:
-                {daughter:
-                    {MT:
-                        {
-                            'emitted': (str of emitted particles)
-                            'xsections': (array of groupwise XS)
-                        }
-                    }
-                }    
-            }
-        gas_tuples (list of tuples): Pairs total gas production MT values with
-            their respective gas symbols of the form [(gas, MT), ...].
- 
-    Returns:
-        all_rxns (collections.defaultdict): Modified version of all_rxns with
-            double-counted gas-producing reactions left out.
-    """
-
-    for parent in all_rxns:
-        for gKZA, gMT in gas_tuples:
-            if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
-                all_rxns[parent][gKZA] = {gMT: all_rxns[parent][gKZA][gMT]}
-
-    return all_rxns
-
-def subtract_gas_from_totals(all_rxns, gas_tuples):
+def subtract_gas_from_totals(all_rxns):
     """
     For any reaction that produces a gas daughter, subtract the individual
         cross-sections from the list of total gas production cross sections
