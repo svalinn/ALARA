@@ -44,6 +44,10 @@ protected:
   /// including metric prefix) is being used for this output block.
   int normType;
 
+  /// This is used to store the type of units used for the cooling times
+  /// in the output tables (default vs seconds)
+  int cooltimeType;
+
   /// This STL set is used to store a unique list of filenames.    
   filenameList wdrFilenames;
 
@@ -54,6 +58,10 @@ protected:
   /// This string is used in output to display which normalization units
   /// the results are being shown in (cm3 v. m3 v. g v. kg).
   char *normUnits;
+
+  /// This string is used to display cooling time units in the default (def)
+  /// units or in seconds (s) in the header of the output tables
+  char *cooltimeUnits;
 
   /// This stores the multiplication factor for the activity units.  
   /** If necessary (based on actUnits), it will store the conversion
