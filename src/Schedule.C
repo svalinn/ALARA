@@ -184,21 +184,34 @@ void Schedule::write(int level, char *histName, double delay, char dUnits)
   /* on first call, search for top level schedule */
   if (level==0)
     {
-      bool found_top_sched = FALSE;
+      // bool found_top_sched = FALSE;
       verbose(0,"\n\n***Please review this schedule hierarchy.!!!!!!!!!!\n");
+      Schedule *top_sched = NULL;
       while (ptr->next != NULL)
-	{
+  {
 	  ptr = ptr->next;
 	  if (!ptr->usedAsSub)
     {
-      if (found_top_sched)
-        error(400, "Multiple top schedules have been found. Only one schedule can be the top schedule.");
-      found_top_sched = TRUE;
-    }  
-	}
-      
-      if (found_top_sched == FALSE)
-	error(400,"Unable to find top level schedule.\nA top level schedule must not used as a sub-schedule.");
+      // if (found_top_sched)
+      //   error(400, "Multiple top schedules have been found. Only one schedule can be the top schedule.");
+      // found_top_sched = TRUE;
+      top_sched = ptr;
+      break;
+    }
+    
+	}    
+      if (top_sched == NULL)
+      // if (found_top_sched == FALSE)
+	      error(400,"Unable to find top level schedule.\nA top level schedule must not used as a sub-schedule.");
+
+      Schedule *next_sched = ptr;
+      while (next_sched != NULL)
+  {
+    if (!next_sched->usedAsSub && next_sched != top_sched)
+      error(400, "Multiple top schedules have been found. Only one schedule can be the top schedule.");
+
+    next_sched = next_sched->next;
+  }
 
       cout << "top_schedule '" << ptr->schedName << "':" << endl;
     }
