@@ -344,9 +344,10 @@ int EAFLib::getTransData()
 	    /* determine how many are produced */
 	    mult=atoi(emitted[rxnNum]+eNum-1);
 	  /* based on which character this is */
-	  gasNum = strchr(gasList,emitted[rxnNum][eNum])-gasList;
-	  if (gasNum>=0)
+	  const char* gasPtr = strchr(gasList, emitted[rxnNum][eNum]);
+	  if (gasPtr)
 	    {
+		  gasNum = gasPtr-gasList;
 	      gasFlag[gasNum] = 1;
 	      for (gNum=0;gNum<nGroups;gNum++)
 		gas[gasNum][gNum] += mult*xSection[rxnNum][gNum];

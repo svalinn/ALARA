@@ -6,7 +6,7 @@ from warnings import warn
 from csv import DictReader
 from numpy import array
 from pathlib import Path
-
+from collections import defaultdict
 
 # ---------- General Utility Methods ----------
 
@@ -343,7 +343,7 @@ class FileParser:
 class FispactParser:
 
     @staticmethod
-    def fispact_to_adf(run_lbl, output_path):
+    def fispact_to_adf(run_lbl, output_path, time_unit='s'):
         '''
         Parse output data from a FISPACT-II output file and write out relevant
             data in the canonical ALARADFrame data structure, to be integrated
@@ -353,6 +353,9 @@ class FispactParser:
             run_lbl (str): Distinguisher between runs (i.e. "fispact-ii").
             output_path (str or pathlib._local.PosixPath): Path to the
                 FISPACT-II output file. Must have the file suffix ".fis".
+            time_unit (str, optional): Option to set the time units for the
+                data to be read in.
+                (Defaults to "s")
         
         Returns:
             adf (alara_output_processing.ALARADFrame): Specialized DataFrame
@@ -368,7 +371,7 @@ class FispactParser:
             all_nucs = set()
             row = {k: -1 for k in ['block', 'block_name', 'block_num']}
             row['run_lbl'] = run_lbl
-            row['time_unit'] = 's'
+            row['time_unit'] = time_unit
             for time in output.inventory_data:
                 
                 # FISPACT-II marks both pre-irradiation and shutdown as
@@ -420,6 +423,157 @@ class FispactParser:
                         rows.append(row.copy())
 
         return ALARADFrame(rows).create_total_rows(), all_nucs
+
+class OpenMCParser:
+    UNIT_DICT = {
+        'Number Density'        :    'atoms/kg',
+        'Specific Activity'     :       'Bq/kg',
+        'Total Decay Heat'      :        'W/kg'
+    }
+
+    @staticmethod
+    def _calculate_num_dens_dict(mat):
+        """
+        For each nuclide in a material's composition, calculate its number
+            density in atoms/kg.
+
+        Arguments:
+            mat (openmc.material.Material): OpenMC Material object, containing
+                nuclide-specific atom density data.
+        
+        Returns:
+            num_dens (dict): Dictionary keyed by individual nuclides, with
+                their number densities in atoms/kg as the values.
+        """
+
+        # openmc.data only needed if OpenMCParser is used
+        import openmc.data
+
+        # Material.get_mass_density() returns a density in g/cm3,
+        # Material.get_nuclide_atom_densities() returns densities in atom/b-cm
+        # In order to get number densities in atom/kg, need to convert mass
+        # densities to kg/b-cm
+        g_cm3_to_kg_b_cm = 1e-27
+
+        return {
+            nuc: n / (mat.get_mass_density() * g_cm3_to_kg_b_cm)
+            for nuc, n in mat.get_nuclide_atom_densities().items()
+        }
+    
+    @staticmethod
+    def _reformat_nuc(nuc):
+        """
+        Reformat the nuclide name string from OpenMC, which follows the GNDS
+            formatting convention ({element}{A}_m{M}) to be consistent with
+            ALARA-formatted nuclides ({element}-{A}{M}).
+
+        Arguments:
+            nuc (str): Unique identifier for a single nuclide formatted as
+                {element}{A}_m{M} (_m{M} only for isomers).
+
+        Returns:
+            reformatted_nuc (str): Modified nuclide string to match with ALARA
+                formatting, as {element}{A}{M} ({M} only for isomers).
+        """
+        
+        M = ''
+        if '_' in nuc:
+            nuc, isomer_tag = nuc.split('_')
+            isomeric_states = 'mnopqrstuvwxyz'
+            M = isomeric_states[int(isomer_tag[-1]) - 1]
+
+        element = ''
+        A = ''
+        for char in nuc:
+            if char.isalpha():
+                element += char
+            else:
+                A += char
+        
+        return f'{element}-{A}{M}'
+
+    @staticmethod
+    def openmc_to_adf(run_lbl, output_path, xs_path, chain_path, time_unit):
+
+        """
+        Parse output data from an OpenMC depletion simulation HDF5 output
+            file and write out relevant data in the canonical ALARADFrame
+            data structure, to be integrated in a single frame alongside ALARA
+            output data. Requires paths to the cross-section and chain XML
+            files used in the OpenMC depletion simulation.
+
+        Arguments:
+            run_lbl (str): Distinguisher between runs (i.e. "openmc").
+            output_path (str or pathlib._local.PosixPath): Path to the
+                OpenMC output HDF5 file. Must have the file suffix ".h5".
+            xs_path (str or pathlib._local.PosixPath): Path to the cross-
+                section XML file used in the OpenMC depletion simulation. Must
+                have the file suffix ".xml".
+            chain_path (str or pathlib._local.PosixPath): Path to the
+                depletion chain XML file used in the OpenMC depletion
+                simulation. Must have the file suffix ".xml".
+
+        Returns:
+            adf (alara_output_processing.ALARADFrame): Specialized DataFrame
+                for ALARA output data, containing OpenMC output data as well.
+        """
+        
+        # Import OpenMC only within OpenMCParser so that an OpenMC
+        # installation is only required when parsing OpenMC data
+        try:
+            import openmc
+            import openmc.deplete
+        except ImportError:
+            raise ImportError(
+                'OpenMC must be installed to parse OpenMC depletion files.'
+            )
+
+        openmc.config['cross_sections'] = Path(xs_path)
+        openmc.config['chain_file'] = Path(chain_path)
+
+        results = openmc.deplete.Results(output_path)
+        nuclides = results[0].index_nuc
+        cooling_times = results.get_times(time_units=time_unit)
+
+        responses = defaultdict(dict)
+        for i, time in enumerate(cooling_times):
+            materials = results.export_to_materials(i)
+            for mat in materials:
+                responses[time][mat.id] = {
+                    'Number Density'    : (
+                        OpenMCParser._calculate_num_dens_dict(mat)
+                    ),
+                    'Specific Activity' : (
+                        mat.get_activity('Bq/kg', by_nuclide=True)
+                    ),
+                    'Total Decay Heat'  : (
+                        mat.get_decay_heat('W/kg', by_nuclide=True)
+                    )
+                }
+
+        rows = []
+        for t in cooling_times:
+            for block_num, mat in enumerate(materials):
+                for var in (
+                    set(ALARADFrame.VARIABLE_ENUM) & set(responses[time][mat.id])
+                ):
+                    for n in nuclides:
+                        rows.append({
+                            'time'       :                                  t,
+                            'time_unit'  :                          time_unit,
+                            'nuclide'    :      OpenMCParser._reformat_nuc(n),
+                            'run_lbl'    :                            run_lbl,
+                            'block'      :                         'Material',
+                            'block_name' :        mat.name if mat.name else 0,
+                            'block_num'  :                          block_num,
+                            'variable'   :     ALARADFrame.VARIABLE_ENUM[var],
+                            'var_unit'   :        OpenMCParser.UNIT_DICT[var],
+                            'value'      : responses[t][mat.id][var].get(n,0)
+                        })
+
+        return ALARADFrame(rows).create_total_rows()[
+            ALARADFrame.CANONICAL_COLUMN_ORDER
+        ]
 
 
 class ALARADFrame(pd.DataFrame):
@@ -752,7 +906,9 @@ class DataLibrary:
     def __init__(self):
          self.adf = None
 
-    def make_entries(self, runs_dict, time_unit='s'):
+    def make_entries(
+        self, runs_dict, time_unit='s', xs_path=Path(), chain_path=Path()
+    ):
         '''
         Flexibly create a dictionary of subdictionaries containing
             ALARADFrames with associated metadata containing ALARA output data
@@ -774,7 +930,20 @@ class DataLibrary:
                 }
 
                 Note: To read in a FISPACT-II output table, its path suffix in
-                runs_dict must be ".fis". 
+                runs_dict must be ".fis".
+            time_unit (str, optional): Option to set the time units for the
+                data to be read in.
+                (Defaults to "s")
+            xs_path (str or pathlib._local.PosixPath, optional): Path to the
+                cross-section XML file used in an OpenMC depletion simulation.
+                Only required if any of the runs in runs_dict is an OpenMC
+                depletion simulation HDF5 results file. If included, must have
+                the file suffix ".xml".
+            chain_path (str or pathlib._local.PosixPath, optional): Path to
+                the depletion chain XML file used in an OpenMC depletion
+                simulation. Only required if any of the runs in runs_dict is
+                an OpenMC depletion simulation HDF5 results file. If included,
+                must have the file suffix ".xml".
                 
         Returns:
             self.adf (alara_output_processing.ALARADFrame): Specialized ALARA
@@ -784,14 +953,23 @@ class DataLibrary:
 
         dfs = []
         for run_lbl, output_path in runs_dict.items():
+            
+            # FISPACT-II special handling
             if Path(output_path).suffix == '.fis':
                 missing_nucs, all_nucs = FispactParser.fispact_to_adf(
-                    run_lbl, output_path
+                    run_lbl, output_path, time_unit
                 )
                 data = missing_nucs.fill_skipped_nucs(all_nucs)[
                     ALARADFrame.CANONICAL_COLUMN_ORDER
                 ]
+
+            # OpenMC special handling
+            elif Path(output_path).suffix == '.h5':
+                data = OpenMCParser.openmc_to_adf(
+                    run_lbl, output_path, xs_path, chain_path, time_unit
+                )
         
+            # Standard ALARA handling
             else:
                 parser = FileParser(
                     output_path, run_lbl=run_lbl, time_unit=time_unit
@@ -817,14 +995,30 @@ def args():
     argparser.add_argument(
         '--time_unit', '-t', required=False
     )
+    
+    # OpenMC specific args
+    argparser.add_argument(
+        '--cross_sections', '-x', required=False
+    )
+    argparser.add_argument(
+        '--chain_file', '-c', required=False
+    )
     return argparser.parse_args()
 
 def main():
-    alara_data = FileParser(
-        args().filepath, args().run_label, args().time_unit
+
+    parsed_args = args()
+    runs_dict = {
+        parsed_args.run_label: parsed_args.filepath
+    }
+    lib = DataLibrary()
+    adf = lib.make_entries(
+        runs_dict,
+        parsed_args.time_unit or 's',
+        parsed_args.cross_sections,
+        parsed_args.chain_file
     )
-    adf = alara_data.extract_tables()
-    adf.to_csv(f'{args().run_label}.csv')
+    adf.to_csv(f'{parsed_args.run_label}.csv', index=False)
 
 if __name__ == '__main__':
     main()
