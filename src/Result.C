@@ -619,8 +619,7 @@ void Result::setNorm(double passedActMult, int normType, int cooltimeType)
 
   actMult = passedActMult;
 
-  switch (normType) 
-  {
+  switch (normType) {
   case OUTNORM_M3:
     metricMult = 1.0/CM3_M3;
     break;
