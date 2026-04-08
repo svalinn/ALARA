@@ -27,7 +27,7 @@ Starting problem input processing.
 
 ***Please review this schedule hierarchy.!!!!!!!!!!
 
-Schedule 'total':
+top_schedule 'total':
 	pulse_entry: 0 s pulse_history mypulse delay 0 s
 
 ***End of schedule hierarchy.
@@ -39,10 +39,11 @@ Schedule 'total':
 		Assigning 1 fluxes to each interval
 		Making list of root isotopes.
 		Processing pulsing histories.
-pulse_history: 'mypulse
-num_pulsing_levels: 1
-num_pulses_per_level: [1]
-delay_seconds_per_level: [0]
+pulse_history: 'mypulse':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [1]
+	 delay_seconds_per_level: [0]
+
 		Processing schedule hierarchy.
 		Processing cooling times.
 		Collapsing schedules from top.

@@ -37,7 +37,7 @@ Starting problem input processing.
 
 ***Please review this schedule hierarchy.!!!!!!!!!!
 
-Schedule 'myschedule':
+top_schedule 'myschedule':
 	pulse_entry: 10 s pulse_history single_pulse delay 12 s
 	pulse_entry: 10 s pulse_history single_pulse delay 3 s
 	pulse_entry: 10 s pulse_history single_pulse delay 5 s
@@ -54,18 +54,21 @@ Schedule 'myschedule':
 		Assigning 3 fluxes to each interval
 		Making list of root isotopes.
 		Processing pulsing histories.
-pulse_history: 'single_pulse
-num_pulsing_levels: 1
-num_pulses_per_level: [1]
-delay_seconds_per_level: [0]
-pulse_history: 'double_pulse
-num_pulsing_levels: 1
-num_pulses_per_level: [2]
-delay_seconds_per_level: [10]
-pulse_history: 'triple_pulse
-num_pulsing_levels: 1
-num_pulses_per_level: [3]
-delay_seconds_per_level: [100]
+pulse_history: 'single_pulse':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [1]
+	 delay_seconds_per_level: [0]
+
+pulse_history: 'double_pulse':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [2]
+	 delay_seconds_per_level: [10]
+
+pulse_history: 'triple_pulse':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [3]
+	 delay_seconds_per_level: [100]
+
 		Processing schedule hierarchy.
 		Processing cooling times.
 		Collapsing schedules from top.
@@ -77,8 +80,8 @@ Starting problem solution.
 		   Total so far: 111 nodes in 19 chains with maximum length 2.
 		Solving Root #2: he-4 
 		   Maximum relative concentration: 0
-		      last Root: 1563 nodes in 488 chains with maximum length 5.
-		   Total so far: 1674 nodes in 507 chains with maximum length 5.
+		      last Root: 1563 nodes in 486 chains with maximum length 5.
+		   Total so far: 1674 nodes in 505 chains with maximum length 5.
 	Solved problem.
 	Reset binary dump with 2 results per isotope.
 		Tallying constituent results into total result lists.

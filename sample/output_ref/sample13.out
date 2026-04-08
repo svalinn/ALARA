@@ -1,0 +1,30 @@
+ALARA 2.9.2
+Set verbose level to 3.
+Opened tree file output/sample13.tree.
+	Opened sample13 for input.
+Starting problem input processing.
+	Reading input.
+		Set geometry type: rectangular.
+		Reading volumes and zone assignments of intervals.
+		Reading the material loading for this problem.
+		Reading constituent list for Mixture mix_1 with constituents:
+		Opened material library /ALARA/data/matlib.sample
+		Opened element library /ALARA/data/elelib.std
+		Openning DataLib with type alaralib
+		Added output at resolution 2 (zone)
+		Added Flux my_flux from file /ALARA/sample/data/fluxin2 with normalization 1, format code 1, and skipping 0 entries.
+		Reading items for schedule sch_1.
+		Reading items for schedule sch_2.
+		Reading pulsing levels for History ph_1:
+		Reading pulsing levels for History ph_2:
+		Truncation parameters set at 1e-05 for truncation and 1e-07 for ignore.
+	Cross-checking input for completeness and self-consistency.
+		Checking for all internally referenced mixtures.
+		Checking for all mixtures referenced in material loading.
+		Checking for all zones referenced in interval definitions.
+		Checking for all sub-schedules, fluxes and pulsing histories referenced in schedules.
+
+
+***Please review this schedule hierarchy.!!!!!!!!!!
+
+Error #400: Multiple top schedules have been found. Only one schedule can be the top schedule.
