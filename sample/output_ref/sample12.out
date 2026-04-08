@@ -1,39 +1,101 @@
 ALARA 2.9.2
-Schedule 'top_sched':
-	schedule sch_1 pulse_history once delay 0 s 
-		pulse_entry: 1 c pulse_history ph_1 delay 0 s
-	schedule sch_2 pulse_history once delay 0.5 y 
-		pulse_entry: 30 w pulse_history ph_2 delay 0 s
-	schedule sch_3 pulse_history once delay 7 d 
-		pulse_entry: 2 y pulse_history ph_3 delay 8 d
-		pulse_entry: 25 w pulse_history ph_2 delay 2 d
-		schedule sch_5 pulse_history ph_3 delay 100 s 
-			pulse_entry: 30 d pulse_history ph_1 delay 0 s
-	schedule sch_4 pulse_history once delay 0 s 
-		pulse_entry: 1 y pulse_history ph_1 delay 1 h
-		pulse_entry: 50 m pulse_history ph_2 delay 1 h
-		pulse_entry: 100 s pulse_history ph_3 delay 10 h
-		pulse_entry: 10 d pulse_history ph_4 delay 1 w
-pulse_history: 'ph_1
-num_pulsing_levels: 1
-num_pulses_per_level: [1]
-delay_seconds_per_level: [0]
-pulse_history: 'ph_2
-num_pulsing_levels: 1
-num_pulses_per_level: [10]
-delay_seconds_per_level: [300]
-pulse_history: 'ph_3
-num_pulsing_levels: 1
-num_pulses_per_level: [20]
-delay_seconds_per_level: [86400]
-pulse_history: 'ph_4
-num_pulsing_levels: 3
-num_pulses_per_level: [1, 5, 10]
-delay_seconds_per_level: [0, 300, 86400]
-pulse_history: 'once
-num_pulsing_levels: 1
-num_pulses_per_level: [1]
-delay_seconds_per_level: [0]
+Set verbose level to 3.
+Opened tree file output/sample12.tree.
+	Opened sample12 for input.
+Starting problem input processing.
+	Reading input.
+		Set geometry type: rectangular.
+		Reading volumes and zone assignments of intervals.
+		Reading the material loading for this problem.
+		Reading constituent list for Mixture mix_1 with constituents:
+		Opened material library ./../data/matlib.sample
+		Opened element library ./../data/elelib.std
+		Openning DataLib with type alaralib
+		Added output at resolution 2 (zone)
+		Added Flux my_flux from file ../examples/ref_flux_files/fluxfnsfIBfw_518MW.txt with normalization 1, format code 1, and skipping 0 entries.
+		Reading items for schedule top_sched.
+		Reading items for schedule sch_1.
+		Reading items for schedule sch_2.
+		Reading items for schedule sch_3.
+		Reading items for schedule sch_4.
+		Reading items for schedule sch_5.
+		Reading pulsing levels for History ph_1:
+		Reading pulsing levels for History ph_2:
+		Reading pulsing levels for History ph_3:
+		Reading pulsing levels for History ph_4:
+		Reading pulsing levels for History once:
+		Truncation parameters set at 1e-05 for truncation and 1e-07 for ignore.
+	Cross-checking input for completeness and self-consistency.
+		Checking for all internally referenced mixtures.
+		Checking for all mixtures referenced in material loading.
+		Checking for all zones referenced in interval definitions.
+		Checking for all sub-schedules, fluxes and pulsing histories referenced in schedules.
+
+
+***Please review this schedule hierarchy.!!!!!!!!!!
+
+top_schedule 'sch_5':
+	pulse_entry: 30 d pulse_history ph_1 delay 0 s
+
+***End of schedule hierarchy.
+
+
+	Preprocessing input.
+		Replacing all 'similar' constituents and removing unused mixtures.
+		Cross-referencing intervals with mixtures.
+		Assigning 1 fluxes to each interval
+		Making list of root isotopes.
+		Processing pulsing histories.
+pulse_history: 'ph_1':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [1]
+	 delay_seconds_per_level: [0]
+
+pulse_history: 'ph_2':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [10]
+	 delay_seconds_per_level: [300]
+
+pulse_history: 'ph_3':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [20]
+	 delay_seconds_per_level: [86400]
+
+pulse_history: 'ph_4':
+	 num_pulsing_levels: 3
+	 num_pulses_per_level: [1, 5, 10]
+	 delay_seconds_per_level: [0, 300, 86400]
+
+pulse_history: 'once':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [1]
+	 delay_seconds_per_level: [0]
+
+		Processing schedule hierarchy.
+		Processing cooling times.
+		Collapsing schedules from top.
+		Making storage hierarchies in intervals.
+Starting problem solution.
+		Solving Root #1: fe-54 
+		   Maximum relative concentration: 0.059
+		      last Root: 3491 nodes in 2165 chains with maximum length 10.
+		   Total so far: 3491 nodes in 2165 chains with maximum length 10.
+		Solving Root #2: fe-56 
+		   Maximum relative concentration: 0.9172
+		      last Root: 2410 nodes in 1515 chains with maximum length 12.
+		   Total so far: 5901 nodes in 3680 chains with maximum length 12.
+		Solving Root #3: fe-57 
+		   Maximum relative concentration: 0.021
+		      last Root: 2417 nodes in 1494 chains with maximum length 11.
+		   Total so far: 8318 nodes in 5174 chains with maximum length 12.
+		Solving Root #4: fe-58 
+		   Maximum relative concentration: 0.0028
+		      last Root: 2475 nodes in 1497 chains with maximum length 11.
+		   Total so far: 10793 nodes in 6671 chains with maximum length 12.
+	Solved problem.
+	Reset binary dump with 1 results per isotope.
+		Read dump file.
+		Tallying constituent results into total result lists.
 Zone output requested:
 	Response Units: Bq /cm3
 	Number Density [atoms/cm3]
@@ -148,3 +210,4 @@ zone	 shutdown
 
 
 
+Output.

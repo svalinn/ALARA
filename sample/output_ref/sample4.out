@@ -29,7 +29,7 @@ Starting problem input processing.
 
 ***Please review this schedule hierarchy.!!!!!!!!!!
 
-Schedule 'problem_1_a':
+top_schedule 'problem_1_a':
 	pulse_entry: 1 d pulse_history part_a delay 25 d
 	pulse_entry: 5 m pulse_history once delay 0 d
 
@@ -43,14 +43,16 @@ Schedule 'problem_1_a':
 		Assigning 1 fluxes to each interval
 		Making list of root isotopes.
 		Processing pulsing histories.
-pulse_history: 'part_a
-num_pulsing_levels: 1
-num_pulses_per_level: [25]
-delay_seconds_per_level: [90000]
-pulse_history: 'once
-num_pulsing_levels: 1
-num_pulses_per_level: [1]
-delay_seconds_per_level: [0]
+pulse_history: 'part_a':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [25]
+	 delay_seconds_per_level: [90000]
+
+pulse_history: 'once':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [1]
+	 delay_seconds_per_level: [0]
+
 		Processing schedule hierarchy.
 		Processing cooling times.
 		Collapsing schedules from top.

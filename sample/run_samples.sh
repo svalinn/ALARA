@@ -14,8 +14,7 @@ rm -rf   output dump_files
 mkdir -p output dump_files
 
 # Run samples
-samples=sample?
-for sample in ${samples}; do
+for sample in $(ls sample* | sort -V); do
   echo ${sample}
-  ${ALARA} -v 3 -t output/${sample}.tree ${sample} > output/${sample}.out
+  ${ALARA} -v 3 -t output/${sample}.tree ${sample} > output/${sample}.out 2>&1
 done
