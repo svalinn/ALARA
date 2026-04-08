@@ -192,25 +192,19 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	  next->cooltimeType = COOLTIME_DEF;
 	  std::streampos pos = input.tellg();
 	  
-	  if (input >> token)
-		{
-		if (tolower(token[0]) == 's')
-			{
+	  if (input >> token) {
+		if (tolower(token[0]) == 's') {
 			next->cooltimeType = COOLTIME_S;
 
 			delete[] next->cooltimeUnits;
 			next->cooltimeUnits = new char[strlen(token)+1];
 			strcpy(next->cooltimeUnits, token);
-			}
-		else if (tolower(token[0]) == 'd')
-			{
+		} else if (tolower(token[0]) == 'd') {
 			input.seekg(pos);
-			}
-		else
-			{
+		} else {
 			error(230, "Unknown cooling time unit '%s'", token);		
-			}
 		}
+	}
 	  }
 	case OUTFMT_WDR:
           next->outTypes |= 1<<type;
