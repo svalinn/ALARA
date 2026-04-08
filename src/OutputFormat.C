@@ -184,28 +184,28 @@ OutputFormat* OutputFormat::getOutFmts(istream& input)
 	      next->normType = OUTNORM_CM3;
 	      break;
 	    }
-	  
-	  delete[] next->cooltimeUnits;
-	  next->cooltimeUnits = new char[strlen(token)+1];
-	  strcpy(next->cooltimeUnits, "");
 
-	  next->cooltimeType = COOLTIME_DEF;
+	  delete[] next->cooltimeUnits;
+	  next->cooltimeUnits = nullptr;
 	  std::streampos pos = input.tellg();
 	  
 	  if (input >> token) {
 		if (tolower(token[0]) == 's') {
 			next->cooltimeType = COOLTIME_S;
 
-			delete[] next->cooltimeUnits;
-			next->cooltimeUnits = new char[strlen(token)+1];
+			next->cooltimeUnits = new char[strlen(token)+2];
 			strcpy(next->cooltimeUnits, token);
-		} else if (tolower(token[0]) == 'd') {
-			input.seekg(pos);
 		} else {
-			error(230, "Unknown cooling time unit '%s'", token);		
+			input.seekg(pos);
+
+			next->cooltimeType = COOLTIME_DEF;
+			next->cooltimeUnits = new char[4];
+			strcpy(next->cooltimeUnits, "def");
 		}
-	}
+	}	
+	break;	
 	  }
+
 	case OUTFMT_WDR:
           next->outTypes |= 1<<type;
 	  input >> token;
