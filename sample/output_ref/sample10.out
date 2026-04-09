@@ -31,8 +31,13 @@ Starting problem input processing.
 
 ***Please review this schedule hierarchy.!!!!!!!!!!
 
-top_schedule 'sch_3':
-	pulse_entry: 20 d pulse_history ph_3 delay 0 s
+top_schedule 'top_sched':
+	schedule sch_1 pulse_history once delay 1 d 
+		pulse_entry: 1 y pulse_history ph_1 delay 0 s
+	schedule sch_2 pulse_history once delay 25 d 
+		pulse_entry: 30 w pulse_history ph_2 delay 0 s
+	schedule sch_3 pulse_history once delay 0 s 
+		pulse_entry: 20 d pulse_history ph_3 delay 0 s
 
 ***End of schedule hierarchy.
 

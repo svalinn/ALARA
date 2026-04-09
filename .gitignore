@@ -9,6 +9,10 @@ depcomp
 install-sh
 missing
 
+sample/output/*
+sample/dump_files/*
+sample/data/*
+
 #python
 *.pyc
 

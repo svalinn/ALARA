@@ -8,11 +8,11 @@ Starting problem input processing.
 		Reading volumes and zone assignments of intervals.
 		Reading the material loading for this problem.
 		Reading constituent list for Mixture mix_1 with constituents:
-		Opened material library /ALARA/data/matlib.sample
-		Opened element library /ALARA/data/elelib.std
+		Opened material library ./../data/matlib.sample
+		Opened element library ./../data/elelib.std
 		Openning DataLib with type alaralib
 		Added output at resolution 2 (zone)
-		Added Flux my_flux from file /ALARA/sample/data/fluxin2 with normalization 1, format code 1, and skipping 0 entries.
+		Added Flux my_flux from file data/fluxin2 with normalization 1, format code 1, and skipping 0 entries.
 		Reading items for schedule sch_1.
 		Reading items for schedule sch_2.
 		Reading pulsing levels for History ph_1:

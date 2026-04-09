@@ -180,37 +180,39 @@ void Schedule::write(int level, char *histName, double delay, char dUnits)
 {
   Schedule *ptr = this;
   int lvlNum;
+  Schedule *top_sched = NULL;
 
   /* on first call, search for top level schedule */
   if (level==0)
     {
-      bool found_top_sched = FALSE;
       verbose(0,"\n\n***Please review this schedule hierarchy.!!!!!!!!!!\n");
       while (ptr->next != NULL)
-	{
-	  ptr = ptr->next;
-	  if (!ptr->usedAsSub)
-    {
-      if (found_top_sched)
-        error(400, "Multiple top schedules have been found. Only one schedule can be the top schedule.");
-      found_top_sched = TRUE;
-    }  
-	}
+	    {
+	    ptr = ptr->next;
+      if (!ptr->usedAsSub)
+        {
+          if (top_sched != NULL)
+            error(400, "Multiple top schedules have been found. Only one schedule can be the top schedule.");
+          top_sched = ptr;
+        }  
+	    }
       
-      if (found_top_sched == FALSE)
-	error(400,"Unable to find top level schedule.\nA top level schedule must not used as a sub-schedule.");
+      if (top_sched == NULL)
+	      error(400,"Unable to find top level schedule.\nA top level schedule must not be used as a sub-schedule.");
 
-      cout << "top_schedule '" << ptr->schedName << "':" << endl;
+      cout << "top_schedule '" << top_sched->schedName << "':" << endl;
     }
   else
     {
       for (lvlNum=0;lvlNum<level;lvlNum++)
-	cout << "\t";
+	      cout << "\t";
       cout << "schedule " << ptr->schedName << " pulse_history " << histName 
-	   << " delay " << delay << " " << dUnits << " " << endl; 
+	         << " delay " << delay << " " << dUnits << " " << endl; 
     }
-
-  ptr->itemListHead->write(level+1);
+  if (top_sched != NULL)
+    top_sched->itemListHead->write(level+1);
+  else  
+    ptr->itemListHead->write(level+1);
 
   if (level==0)
     verbose(0,"\n***End of schedule hierarchy.\n\n");
