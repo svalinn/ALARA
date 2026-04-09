@@ -209,8 +209,10 @@ void Schedule::write(int level, char *histName, double delay, char dUnits)
       cout << "schedule " << ptr->schedName << " pulse_history " << histName 
 	         << " delay " << delay << " " << dUnits << " " << endl; 
     }
-
-  ptr->itemListHead->write(level+1);
+  if (top_sched != NULL)
+    top_sched->itemListHead->write(level+1);
+  else  
+    ptr->itemListHead->write(level+1);
 
   if (level==0)
     verbose(0,"\n***End of schedule hierarchy.\n\n");
