@@ -27,7 +27,7 @@ Starting problem input processing.
 
 ***Please review this schedule hierarchy.!!!!!!!!!!
 
-Schedule '1_year':
+top_schedule '1_year':
 	pulse_entry: 5 y pulse_history steady_state delay 0 s
 
 ***End of schedule hierarchy.
@@ -40,10 +40,11 @@ Schedule '1_year':
 		Assigning 1 fluxes to each interval
 		Making list of root isotopes.
 		Processing pulsing histories.
-pulse_history: 'steady_state
-num_pulsing_levels: 1
-num_pulses_per_level: [1]
-delay_seconds_per_level: [0]
+pulse_history: 'steady_state':
+	 num_pulsing_levels: 1
+	 num_pulses_per_level: [1]
+	 delay_seconds_per_level: [0]
+
 		Processing schedule hierarchy.
 		Processing cooling times.
 		Collapsing schedules from top.

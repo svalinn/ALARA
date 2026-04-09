@@ -18,7 +18,7 @@ end
 
 material_lib ../data/matlib.sample
 element_lib ../data/elelib.std
-data_library alaralib fendl2bin
+data_library alaralib data/truncated_fendl2bin
 
 output zone
         number_density
@@ -63,4 +63,4 @@ end
 
 #other parameters
 truncation 1e-10
-dump_file sample10_dump.file
+dump_file dump_files/sample10_dump.file
