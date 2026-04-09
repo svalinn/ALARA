@@ -14,8 +14,8 @@ mixture mix_1
     element fe 1 1.0
 end
 
-material_lib /ALARA/data/matlib.sample
-element_lib /ALARA/data/elelib.std
+material_lib ../data/matlib.sample
+element_lib ../data/elelib.std
 data_library alaralib data/truncated_fendl2bin
 
 output zone
@@ -23,7 +23,7 @@ output zone
 end
 
 #     flux name    fluxin file   norm   shift   unused
-flux  my_flux       /ALARA/sample/data/fluxin2 1     0      default
+flux  my_flux       data/fluxin2 1     0      default
 
 schedule    sch_1
     1 y my_flux ph_1 1  w
