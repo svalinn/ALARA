@@ -418,9 +418,9 @@ def main():
         TAPE20.write_bytes(endf_path.read_bytes())
 
         material_id, MTs = tp.extract_endf_specs(TAPE20)
-        endf6_MTs = set(mt_dict.keys()) - PREFILTERED_MTS
-        if len((MTs - PREFILTERED_MTS) - endf6_MTs) > 0:
-            invalid_MTs = sorted((MTs - PREFILTERED_MTS) - endf6_MTs)
+        endf6_MTs = set(mt_dict.keys())
+        if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
+            invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
             warnings.warn(
                 f'Invalid MTs in provided TENDL file for ' \
                 f'{element}-{A}: {invalid_MTs}'
