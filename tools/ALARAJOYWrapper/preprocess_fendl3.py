@@ -9,18 +9,6 @@ from pathlib import Path
 from collections import defaultdict
 
 ISOMERIC_STATES = 'mnopqrstuvwxyz'
-PREFILTERED_MTS = {
-    1,  # (n, total)
-    2,  # (z,z0)
-    3,  # (z, nonelas.)
-    5,  # (z, anything)
-    18, # (z, fission)
-    19, # (n,f)
-    20, # (n,nf)
-    21, # (n,2nf)
-    38  # (n,3nf)
-}
-
 
 def args():
     parser = argparse.ArgumentParser()
@@ -418,7 +406,7 @@ def main():
         TAPE20.write_bytes(endf_path.read_bytes())
 
         material_id, MTs = tp.extract_endf_specs(TAPE20)
-        endf6_MTs = set(mt_dict.keys())
+        endf6_MTs = set(mt_dict)
         if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
             invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
             warnings.warn(
