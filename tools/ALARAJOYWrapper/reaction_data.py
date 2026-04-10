@@ -220,36 +220,35 @@ def process_mt_data(mt_dict):
             }
     """
 
+    for MT in (set(mt_dict) & SPEC_MTS):
+        del mt_dict[MT]
+
     for MT, data in list(mt_dict.items()):
-        if MT in SPEC_MTS:
-            del mt_dict[MT]
+        emitted_particles = data['reaction'].split(',')[1][:-1]
+        emission_dict = emission_breakdown(emitted_particles)
+        change_NP = nucleon_changes(emission_dict)
+        M = check_for_isomer(emitted_particles)
+        emitted_list = list(emitted_particles)
+        gas = emitted_list[1] if (
+            emitted_list[0] == 'X' and emitted_list[1] in GASES
+        ) else None
 
+        # Conditionally remove isomer tags from emitted particle strings
+        if M > 0:
+            emitted_particles = emitted_particles[:-len(str(M))]
+
+        # Set gas total tag to standard ALARA tag for gas reaction residual
+        if 'X' in emitted_particles:
+            emitted_particles = 'x'
+        
+        if change_NP is not None:
+            change_N, change_P = change_NP
+            data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
+            data['gas'] = gas
+            data['emitted'] = emitted_particles
+        
         else:
-            emitted_particles = data['reaction'].split(',')[1][:-1]
-            emission_dict = emission_breakdown(emitted_particles)
-            change_NP = nucleon_changes(emission_dict)
-            M = check_for_isomer(emitted_particles)
-            emitted_list = list(emitted_particles)
-            gas = emitted_list[1] if (
-                emitted_list[0] == 'X' and emitted_list[1] in GASES
-            ) else None
-
-            # Conditionally remove isomer tags from emitted particle strings
-            if M > 0:
-                emitted_particles = emitted_particles[:-len(str(M))]
-
-            # Set gas total tag to standard ALARA tag for gas reaction residual
-            if 'X' in emitted_particles:
-                emitted_particles = 'x'
-            
-            if change_NP is not None:
-                change_N, change_P = change_NP
-                data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
-                data['gas'] = gas
-                data['emitted'] = emitted_particles
-            
-            else:
-                del mt_dict[MT]
+            del mt_dict[MT]
 
     return mt_dict
 
