@@ -28,6 +28,18 @@ spec_reactions = [
     'fission', 'f', 'RES', 'X', 'disap', 'abs'
     ]
 
+SPEC_MTS = {
+    1,  # (n, total)
+    2,  # (z,z0)
+    3,  # (z, nonelas.)
+    5,  # (z, anything)
+    18, # (z, fission)
+    19, # (n,f)
+    20, # (n,nf)
+    21, # (n,2nf)
+    38  # (n,3nf)
+}
+
 def count_emitted_particles(particle, emitted_particle_string):
     """
     Count emitted particles from a reaction given a target particle
@@ -208,6 +220,9 @@ def process_mt_data(mt_dict):
             }
     """
 
+    for MT in (set(mt_dict) & SPEC_MTS):
+        del mt_dict[MT]
+
     for MT, data in list(mt_dict.items()):
         emitted_particles = data['reaction'].split(',')[1][:-1]
         emission_dict = emission_breakdown(emitted_particles)
@@ -231,6 +246,7 @@ def process_mt_data(mt_dict):
             data['delKZA'] = (change_P * 1000 + change_P + change_N) * 10 + M
             data['gas'] = gas
             data['emitted'] = emitted_particles
+        
         else:
             del mt_dict[MT]
 
