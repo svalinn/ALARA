@@ -1,6 +1,5 @@
 import pandas as pd
 import argparse
-import pypact
 from operator import gt, lt, ge
 from warnings import warn
 from csv import DictReader
@@ -364,6 +363,14 @@ class FispactParser:
             all_nucs (set): Set of all nuclides catalogued in the inventory
                 across all times.
         '''
+
+        # Import Pypact only within FispactParser
+        try:
+            import pypact
+        except ImportError:
+            raise ImportError(
+                'Pypact must be installed to parse FISPACT-II output files.'
+            )
 
         with pypact.Reader(output_path) as output:
             rows = []
