@@ -859,6 +859,60 @@ class ALARADFrame(pd.DataFrame):
 
         return pd.concat([self, totals], ignore_index=True)
 
+    def zero_long_decay_responses(self, half_lives=10):
+        '''
+        For each radionuclide in an ALARADFrame, overwrite all response values
+            at cooling times greater than a given number of half-lives to 0.
+            This zeroing corrects for round-off errors that arise from decay
+            responses approaching lower limits of machine precision following
+            the exponential curve of radioactive decay. A recommended number
+            of half-lives after which to overwrite is 10, at which point the
+            inventory of any given radionuclide will be <0.1% of its maximum.
+
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Specialized DataFrame
+                for ALARA output data.
+            half_lives (int or float, optional): Option to specify the number of
+                half-lives to pass in cooling time before zeroing subsequent decay
+                responses.
+                (Defaults to 10)
+
+        Returns:
+            adf (alara_output_processing.ALARADFrame): Modified ALARADFrame in
+                which individual nuclide responses after a given number of half-
+                lives are set to zero.
+        '''
+
+        # To achieve <1% of maximum inventory for each nuclide, the minimum
+        # number of recommended half-lives to be elapsed before truncation is set
+        # at 7, however, using the default value of 10 is preferable to minimize
+        # excessive deletion.
+        minimum_half_lives = 7
+        if half_lives < minimum_half_lives:
+            warn((
+                f'Decay truncation after only {half_lives} half-lives is ' \
+                'likely insufficient to appropriately approximate null ' \
+                'decay responses at these times. \n Consider increasing ' \
+                'half_lives parameter.'
+            ))
+
+        zeroed_adf = self.copy()
+
+        for nuc in set(zeroed_adf['nuclide'].unique()) - {'total'}:
+            thalf = zeroed_adf.filter_rows({
+                'nuclide' : nuc
+            })['half_life'].unique()[0]
+            if thalf > 0:
+                zeroed_adf.loc[
+                    (
+                        (zeroed_adf['nuclide'] == nuc)
+                        & (zeroed_adf['time'] > thalf * half_lives)
+                    ),
+                    'value'
+                ] = 0
+
+        return zeroed_adf
+
     #### FISPACT-II Hybrid ALARADFrame Operations ####
     ####    (ALARADFrames with FISPACT-II data)   ####
 
