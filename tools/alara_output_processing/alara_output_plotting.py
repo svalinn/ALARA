@@ -318,7 +318,7 @@ def pie_chart_aggregation(
         variable=variable,
         time_unit=time_unit,
         pre_irrad=pre_irrad,
-        decay_truncation=decay_zeroing,
+        decay_zeroing=decay_zeroing,
         half_lives=half_lives
     )
     rel = filtered.calculate_relative_vals()
@@ -598,7 +598,7 @@ def plot_single_response(
             time_unit=time_unit,
             sort_by_time=sort_by_time,
             head=head,
-            decay_truncation=decay_zeroing,
+            decay_zeroing=decay_zeroing,
             half_lives=half_lives
         )
         data_list.append((run_lbl, filtered, piv, style))
