@@ -193,8 +193,7 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
         # Account for cases of explicit MF3 excitation reactions without
         # corresponding cumulative MTs (i.e. (n,a0) [MT=800] for C-13)
         elif cumulative_MT not in MTs:
-            cumulative_arange = EXCITATION_DICT[cumulative_MT]
-            M = np.where(cumulative_arange == MT)[0][0]
+            M = np.where(EXCITATION_DICT[cumulative_MT] == MT)[0][0]
             if cumulative_MT == 4:
                 M += 1
             isomer_dict[MT][3].append(M)
