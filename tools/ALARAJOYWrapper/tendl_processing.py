@@ -7,15 +7,21 @@ import warnings
 import numpy as np
 
 VITAMIN_J_ENERGY_GROUPS = 175
-EXCITATION_REACTIONS = set(np.concatenate((
-    np.arange(51 ,  92), # (n,n*)  reactions
-    np.arange(601, 650), # (n,p*)  reactions
-    np.arange(651, 700), # (n,d*)  reactions
-    np.arange(700, 750), # (n,t*)  reactions
-    np.arange(750, 800), # (n,h*)  reactions
-    np.arange(800, 850), # (n,a*)  reactions
-    np.arange(875, 892), # (n,2n*) reactions
-)))
+EXCITATION_DICT = {
+    4   : np.arange(51 ,  92), # (n,n*)  reactions
+    103 : np.arange(601, 650), # (n,p*)  reactions
+    104 : np.arange(651, 700), # (n,d*)  reactions
+    105 : np.arange(700, 750), # (n,t*)  reactions
+    106 : np.arange(750, 800), # (n,h*)  reactions
+    107 : np.arange(800, 850), # (n,a*)  reactions
+    16  : np.arange(875, 892), # (n,2n*) reactions
+}
+EXCITATION_REACTIONS = set(np.concatenate(list(EXCITATION_DICT.values())))
+REVERSE_EXCITATION_DICT = {
+    val: key
+    for key, arr in EXCITATION_DICT.items()
+    for val in arr
+}
 
 def get_isotope(stem):
     """
@@ -162,6 +168,7 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
     isomer_dict = defaultdict(lambda: defaultdict(list))
 
     for MT in MTs:
+        cumulative_MT = REVERSE_EXCITATION_DICT.get(MT)
         if MT not in EXCITATION_REACTIONS:
             za = f'{(pKZA // 10) * 10 + mt_dict[MT]['delKZA']}'[:-1]
 
@@ -183,6 +190,15 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
             if not isomer_dict[MT]:
                 isomer_dict[MT][3].append(0)
 
+        # Account for cases of explicit MF3 excitation reactions without
+        # corresponding cumulative MTs (i.e. (n,a0) [MT=800] for C-13)
+        elif cumulative_MT not in MTs:
+            cumulative_arange = EXCITATION_DICT[cumulative_MT]
+            M = np.where(cumulative_arange == MT)[0][0]
+            if cumulative_MT == 4:
+                M += 1
+            isomer_dict[MT][3].append(M)
+  
     return isomer_dict
 
 def _gendf_parse_control(line):
@@ -374,51 +390,59 @@ def iterate_MTs(
             reaction pathways for the given parent and its MTs.
     """
 
-    # Avoid duplicate isomer cross-sections -- excitations already
-    # covered by MF 9/10 cumulative reactions
-    for MT in (MTs - EXCITATION_REACTIONS):
-        xs_lines = xs_line_dict[MT]
-        M_values = list(isomer_dict[MT].values())[0]
-        isomer_specific_rxns = process_xsections(xs_lines, M_values)
-        rxn = mt_dict[MT]
-        gas = rxn['gas']
-        
-        # Calculate dKZA values for each excitation pathway in MF10
-        for M, sigmas in isomer_specific_rxns.items():
-            emitted = rxn['emitted']
-            dKZA = (((pKZA // 10) * 10 + rxn['delKZA']) // 10) * 10 + M
-            if gas:
-                dKZA = GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0]
+    for MT in MTs:
+        if (
+            MT not in EXCITATION_REACTIONS
+            or REVERSE_EXCITATION_DICT[MT] not in MTs
+        ):
+            xs_lines = xs_line_dict[MT]
+            M_values = list(isomer_dict[MT].values())[0]
+            isomer_specific_rxns = process_xsections(xs_lines, M_values)
+            rxn = mt_dict[MT]
+            gas = rxn['gas']
+            
+            # Calculate dKZA values for each excitation pathway in MF10
+            for M, sigmas in isomer_specific_rxns.items():
+                emitted = rxn['emitted']
+                dKZA = (((pKZA // 10) * 10 + rxn['delKZA']) // 10) * 10 + M
+                if gas:
+                    dKZA = GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0]
 
-            if M > 0:
-                emitted += '*'
+                # Remove ENDF isomer tags for explicit excitation reactions
+                if emitted[-1].isdigit() or emitted[-1] == 'c':
+                    emitted = emitted[:-1]
 
-            if dKZA in eaf_nucs or M == 0:
-                all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
-                    'emitted'    :  emitted,
-                    'xsections'  :  sigmas
-                }
+                # Signify isomeric state in ALARA formatting with a "*" for
+                # each excited level  
+                if M > 0:
+                    emitted += '*'
 
-            else:
-                dKZA = ((dKZA - M) // 10) * 10
-                special_MT = -1
-                
-                if M > 1:
-                    dKZA = incrementally_deexcite_isomer(M, dKZA, eaf_nucs)
-
-                if dKZA not in all_rxns[pKZA]:
-                    all_rxns[pKZA][dKZA] = defaultdict(dict)
-
-                if special_MT not in all_rxns[pKZA][dKZA]:
-                    all_rxns[pKZA][dKZA][special_MT] = {
-                        'emitted'  : emitted,
-                        'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
+                if dKZA in eaf_nucs or M == 0:
+                    all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
+                        'emitted'    :  emitted,
+                        'xsections'  :  sigmas
                     }
 
-                all_rxns[pKZA][dKZA][special_MT][
-                    'xsections'
-                ] += np.pad(
-                    sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
-                )
+                else:
+                    dKZA = ((dKZA - M) // 10) * 10
+                    special_MT = -1
+                    
+                    if M > 1:
+                        dKZA = incrementally_deexcite_isomer(M, dKZA, eaf_nucs)
+
+                    if dKZA not in all_rxns[pKZA]:
+                        all_rxns[pKZA][dKZA] = defaultdict(dict)
+
+                    if special_MT not in all_rxns[pKZA][dKZA]:
+                        all_rxns[pKZA][dKZA][special_MT] = {
+                            'emitted'  : emitted,
+                            'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
+                        }
+
+                    all_rxns[pKZA][dKZA][special_MT][
+                        'xsections'
+                    ] += np.pad(
+                        sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
+                    )
 
     return all_rxns
