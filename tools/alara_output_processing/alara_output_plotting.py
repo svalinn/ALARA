@@ -16,7 +16,6 @@ def preprocess_data(
     sort_by_time='',
     pre_irrad=False,
     head=None,
-    decay_zeroing=True,
     half_lives=10
 ):
     '''
@@ -57,9 +56,11 @@ def preprocess_data(
             parameter to zero to eliminate round-off error for long cooling
             times (relative to half-life length).
             (Defaults to True)
-        half_lives (int or float, optional): Option to specify the number of
-            half-lives to pass in cooling time before zeroing subsequent decay
-            responses. Only relevant if decay_zeroing is True.
+        half_lives (int, float, or None, optional): Option to specify the
+            number of half-lives to pass in cooling time before zeroing
+            subsequent decay responses. Used to eliminate round-off error for
+            long cooling times (relative to half-life length). To avoid half-
+            life zeroing, set half_lives to None.
             (Defaults to 10)
         
     Returns:
@@ -82,7 +83,7 @@ def preprocess_data(
     
     filtered = adf.filter_rows(filter_dict)
 
-    if decay_zeroing:
+    if half_lives is not None:
         filtered = filtered.zero_long_decay_responses(half_lives=half_lives)
 
     preset_time_unit = filtered['time_unit'].unique()[0]
@@ -276,7 +277,6 @@ def pie_chart_aggregation(
         threshold,
         time_unit,
         pre_irrad=False,
-        decay_zeroing=True,
         half_lives=10
 ):
     '''
@@ -296,14 +296,11 @@ def pie_chart_aggregation(
             (Defaults to 's')
         pre_irrad (bool, optional): Option to include pre-irradiation values.
             (Defaults to False)
-        decay_zeroing (bool, optional): Option to overwrite individual nuclide
-            responses after the number of half-lives set in the half_lives
-            parameter to zero to eliminate round-off error for long cooling
-            times (relative to half-life length).
-            (Defaults to True)
-        half_lives (int or float, optional): Option to specify the number of
-            half-lives to pass in cooling time before zeroing subsequent decay
-            responses. Only relevant if decay_zeroing is True.
+        half_lives (int, float, or None, optional): Option to specify the
+            number of half-lives to pass in cooling time before zeroing
+            subsequent decay responses. Used to eliminate round-off error for
+            long cooling times (relative to half-life length). To avoid half-
+            life zeroing, set half_lives to None.
             (Defaults to 10)
 
     Returns:
@@ -318,7 +315,6 @@ def pie_chart_aggregation(
         variable=variable,
         time_unit=time_unit,
         pre_irrad=pre_irrad,
-        decay_zeroing=decay_zeroing,
         half_lives=half_lives
     )
     rel = filtered.calculate_relative_vals()
@@ -497,7 +493,6 @@ def plot_single_response(
     time_unit='s',
     sort_by_time='shutdown',
     head=None,
-    decay_zeroing=True,
     half_lives=10,
     total=False,
     yscale='log',
@@ -542,14 +537,11 @@ def plot_single_response(
         head (int or None, optional): Option by which to truncate the
             ALARADFrame to a particular number of rows.
             (Defaults to None)
-        decay_zeroing (bool, optional): Option to overwrite individual nuclide
-            responses after the number of half-lives set in the half_lives
-            parameter to zero to eliminate round-off error for long cooling
-            times (relative to half-life length).
-            (Defaults to True)
-        half_lives (int or float, optional): Option to specify the number of
-            half-lives to pass in cooling time before zeroing subsequent decay
-            responses. Only relevant if decay_zeroing is True.
+        half_lives (int, float, or None, optional): Option to specify the
+            number of half-lives to pass in cooling time before zeroing
+            subsequent decay responses. Used to eliminate round-off error for
+            long cooling times (relative to half-life length). To avoid half-
+            life zeroing, set half_lives to None.
             (Defaults to 10)
         total (bool, optional): Option to include the cumulative total
             contribution from all isotopes towards the select variable in the
@@ -598,7 +590,6 @@ def plot_single_response(
             time_unit=time_unit,
             sort_by_time=sort_by_time,
             head=head,
-            decay_zeroing=decay_zeroing,
             half_lives=half_lives
         )
         data_list.append((run_lbl, filtered, piv, style))
