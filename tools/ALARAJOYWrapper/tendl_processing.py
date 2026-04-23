@@ -194,6 +194,8 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
         # corresponding cumulative MTs (i.e. (n,a0) [MT=800] for C-13)
         elif cumulative_MT not in MTs:
             M = np.where(EXCITATION_DICT[cumulative_MT] == MT)[0][0]
+            # MT = 50 is forbidden in ENDF6, so scattering reactions require
+            # an index adjustment compared to other state-explcit reactions
             if cumulative_MT == 4:
                 M += 1
             isomer_dict[MT][3].append(M)
