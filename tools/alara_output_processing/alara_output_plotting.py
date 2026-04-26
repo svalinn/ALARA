@@ -16,6 +16,7 @@ def preprocess_data(
     sort_by_time='',
     pre_irrad=False,
     head=None,
+    half_lives=10
 ):
     '''
     Prepare an ALARADFrame containing data from multiple runs and potentially
@@ -50,9 +51,19 @@ def preprocess_data(
         head (int or None, optional): Option by which to truncate the
             ALARADFrame to a particular number of rows.
             (Defaults to None)
+        decay_zeroing (bool, optional): Option to overwrite individual nuclide
+            responses after the number of half-lives set in the half_lives
+            parameter to zero to eliminate round-off error for long cooling
+            times (relative to half-life length).
+            (Defaults to True)
+        half_lives (int, float, or None, optional): Option to specify the
+            number of half-lives to pass in cooling time before zeroing
+            subsequent decay responses. Used to eliminate round-off error for
+            long cooling times (relative to half-life length). To avoid half-
+            life zeroing, set half_lives to None.
+            (Defaults to 10)
         
     Returns:
-        times (list of floats): Chronological list of converted cooling times.
         filtered (alara_output_processing.ALARADFrame): Modified copy of input
             adf containing only rows that match all conditions in run_lbl,
             variable, and (if present) nuclides.
@@ -71,6 +82,9 @@ def preprocess_data(
         filter_dict['nuclide'] = nuclides
     
     filtered = adf.filter_rows(filter_dict)
+
+    if half_lives is not None:
+        filtered = filtered.zero_long_decay_responses(half_lives=half_lives)
 
     preset_time_unit = filtered['time_unit'].unique()[0]
     if time_unit != preset_time_unit:
@@ -257,7 +271,13 @@ def plot_or_scatter(plot_type, ax, x, y, label, color, style):
         )
 
 def pie_chart_aggregation(
-        adf, run_lbl, variable, threshold, time_unit, pre_irrad=False
+        adf,
+        run_lbl,
+        variable,
+        threshold,
+        time_unit,
+        pre_irrad=False,
+        half_lives=10
 ):
     '''
     Prepare an aggregated ALARADFrame for single or multiple pie chart
@@ -276,6 +296,12 @@ def pie_chart_aggregation(
             (Defaults to 's')
         pre_irrad (bool, optional): Option to include pre-irradiation values.
             (Defaults to False)
+        half_lives (int, float, or None, optional): Option to specify the
+            number of half-lives to pass in cooling time before zeroing
+            subsequent decay responses. Used to eliminate round-off error for
+            long cooling times (relative to half-life length). To avoid half-
+            life zeroing, set half_lives to None.
+            (Defaults to 10)
 
     Returns:
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
@@ -288,7 +314,8 @@ def pie_chart_aggregation(
         run_lbl=run_lbl,
         variable=variable,
         time_unit=time_unit,
-        pre_irrad=pre_irrad
+        pre_irrad=pre_irrad,
+        half_lives=half_lives
     )
     rel = filtered.calculate_relative_vals()
     agg = aop.aggregate_small_percentages(rel, threshold)
@@ -466,6 +493,7 @@ def plot_single_response(
     time_unit='s',
     sort_by_time='shutdown',
     head=None,
+    half_lives=10,
     total=False,
     yscale='log',
     ymin=None,
@@ -508,7 +536,13 @@ def plot_single_response(
             (Defaults to 'shutdown')
         head (int or None, optional): Option by which to truncate the
             ALARADFrame to a particular number of rows.
-            (Defaults to None)           
+            (Defaults to None)
+        half_lives (int, float, or None, optional): Option to specify the
+            number of half-lives to pass in cooling time before zeroing
+            subsequent decay responses. Used to eliminate round-off error for
+            long cooling times (relative to half-life length). To avoid half-
+            life zeroing, set half_lives to None.
+            (Defaults to 10)
         total (bool, optional): Option to include the cumulative total
             contribution from all isotopes towards the select variable in the
             plot. If total=True, the total array will be treated equivalently
@@ -556,6 +590,7 @@ def plot_single_response(
             time_unit=time_unit,
             sort_by_time=sort_by_time,
             head=head,
+            half_lives=half_lives
         )
         data_list.append((run_lbl, filtered, piv, style))
 
