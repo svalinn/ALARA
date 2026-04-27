@@ -858,6 +858,22 @@ class ALARADFrame(pd.DataFrame):
         totals['half_life'] = 0
 
         return pd.concat([self, totals], ignore_index=True)
+    
+    def get_thalf(self, nuclide):
+        '''
+        Extract the half-life for a single nuclide in an ALARADFrame.
+
+        Arguments:
+            self (alara_output_processing.ALARADFrame): Specialized DataFrame
+                for ALARA output data.
+            nuclide (str): Unique identifier for a single nuclide in the form
+                {element}-{A} (i.e. Fe-55 or Re-186m).
+
+        Returns:
+            thalf (float): Half-life of the provided nuclided, in seconds.
+        '''
+
+        return self.filter_rows({'nuclide' : nuclide})['half_life'].iat[0]
 
     def zero_long_decay_responses(self, half_lives=10):
         '''
@@ -899,9 +915,7 @@ class ALARADFrame(pd.DataFrame):
         zeroed_adf = self.copy()
 
         for nuc in set(zeroed_adf['nuclide'].unique()) - {'total'}:
-            thalf = zeroed_adf.filter_rows({
-                'nuclide' : nuc
-            })['half_life'].unique()[0]
+            thalf = zeroed_adf.get_thalf(nuc)
             if thalf > 0:
                 zeroed_adf.loc[
                     (
@@ -948,9 +962,7 @@ class ALARADFrame(pd.DataFrame):
             row['time_unit'] = time_filtered['time_unit'].iat[0]
             for nuc in (all_nucs - set(time_filtered['nuclide'])):
                 row['nuclide'] = nuc
-                row['half_life'] = self.filter_rows({
-                    'nuclide' : nuc
-                })['half_life'].iat[0]
+                row['half_life'] = self.get_thalf(nuc)
                 for var in self['variable'].unique():
                     row['variable'] = var
                     row['var_unit'] = self.filter_rows({
