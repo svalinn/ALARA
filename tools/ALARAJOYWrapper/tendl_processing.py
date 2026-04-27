@@ -192,7 +192,7 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
 
         # Account for cases of explicit MF3 excitation reactions without
         # corresponding cumulative MTs (i.e. (n,a0) [MT=800] for C-13)
-        elif cumulative_MT not in MTs:
+        elif cumulative_MT is not None and cumulative_MT not in MTs:
             M = np.where(EXCITATION_DICT[cumulative_MT] == MT)[0][0]
             # MT = 50 is forbidden in ENDF6, so scattering reactions require
             # an index adjustment compared to other state-explcit reactions
@@ -391,61 +391,63 @@ def iterate_MTs(
             reaction pathways for the given parent and its MTs.
     """
 
+    filtered_MTs = MTs - EXCITATION_REACTIONS
     for MT in MTs:
-        if (
-            MT not in EXCITATION_REACTIONS
-            or REVERSE_EXCITATION_DICT[MT] not in MTs
-        ):
-            xs_lines = xs_line_dict[MT]
-            M_values = list(isomer_dict[MT].values())[0]
-            isomer_specific_rxns = process_xsections(xs_lines, M_values)
-            rxn = mt_dict[MT]
-            gas = rxn['gas']
-            
-            # Calculate dKZA values for each excitation pathway in MF10
-            for M, sigmas in isomer_specific_rxns.items():
-                emitted = rxn['emitted']
-                dKZA = (((pKZA // 10) * 10 + rxn['delKZA']) // 10) * 10 + M
-                if gas:
-                    dKZA = GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0]
+        cumulative_MT = REVERSE_EXCITATION_DICT.get(MT)
+        if cumulative_MT is not None and cumulative_MT not in MTs:
+            filtered_MTs.add(MT)
 
-                # Remove ENDF isomer tags for explicit excitation reactions
-                if emitted[-1].isdigit() or emitted[-1] == 'c':
-                    emitted = emitted[:-1]
+    for MT in filtered_MTs:
+        xs_lines = xs_line_dict[MT]
+        M_values = list(isomer_dict[MT].values())[0]
+        isomer_specific_rxns = process_xsections(xs_lines, M_values)
+        rxn = mt_dict[MT]
+        gas = rxn['gas']
+        
+        # Calculate dKZA values for each excitation pathway in MF10
+        for M, sigmas in isomer_specific_rxns.items():
+            emitted = rxn['emitted']
+            dKZA = (((pKZA // 10) * 10 + rxn['delKZA']) // 10) * 10 + M
+            if gas:
+                dKZA = GAS_DF.loc[GAS_DF['gas'] == gas, 'kza'].iat[0]
 
-                # Signify isomeric state in ALARA formatting with a "*" for
-                # each excited level  
-                if M > 0:
-                    emitted += '*'
+            # Remove ENDF isomer tags for explicit excitation reactions
+            if emitted[-1].isdigit() or emitted[-1] == 'c':
+                emitted = emitted[:-1]
 
-                if dKZA in eaf_nucs or M == 0:
-                    all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
-                        'emitted'    :  emitted,
-                        'xsections'  :  sigmas
+            # Signify isomeric state in ALARA formatting with a "*" for
+            # each excited level  
+            if M > 0:
+                emitted += '*'
+
+            if dKZA in eaf_nucs or M == 0:
+                all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
+                    'emitted'    :  emitted,
+                    'xsections'  :  sigmas
+                }
+
+            else:
+                dKZA = ((dKZA - M) // 10) * 10
+                special_MT = -1
+                
+                if M > 1:
+                    dKZA = incrementally_deexcite_isomer(
+                        M, dKZA, eaf_nucs
+                    )
+
+                if dKZA not in all_rxns[pKZA]:
+                    all_rxns[pKZA][dKZA] = defaultdict(dict)
+
+                if special_MT not in all_rxns[pKZA][dKZA]:
+                    all_rxns[pKZA][dKZA][special_MT] = {
+                        'emitted'  : emitted,
+                        'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
                     }
 
-                else:
-                    dKZA = ((dKZA - M) // 10) * 10
-                    special_MT = -1
-                    
-                    if M > 1:
-                        dKZA = incrementally_deexcite_isomer(
-                            M, dKZA, eaf_nucs
-                        )
-
-                    if dKZA not in all_rxns[pKZA]:
-                        all_rxns[pKZA][dKZA] = defaultdict(dict)
-
-                    if special_MT not in all_rxns[pKZA][dKZA]:
-                        all_rxns[pKZA][dKZA][special_MT] = {
-                            'emitted'  : emitted,
-                            'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
-                        }
-
-                    all_rxns[pKZA][dKZA][special_MT][
-                        'xsections'
-                    ] += np.pad(
-                        sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
-                    )
+                all_rxns[pKZA][dKZA][special_MT][
+                    'xsections'
+                ] += np.pad(
+                    sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
+                )
 
     return all_rxns
