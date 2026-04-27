@@ -122,6 +122,10 @@ def build_color_map(cmap_name, all_nucs=[], pivs=None, mark_thalf=False):
         pivs (list of pandas.DataFrames or None, optional): List of pivot
             tables indexed by nuclide with values for each cooling time.
             (Defaults to None)
+        mark_thalf (bool, optional): Option to create a corresponding shade
+            for each nuclide's half-life to be plotted vertically alongside
+            the time series.
+            (Defaults to False)
     '''
     
     cmap = plt.cm.get_cmap(cmap_name)
@@ -137,7 +141,8 @@ def build_color_map(cmap_name, all_nucs=[], pivs=None, mark_thalf=False):
 
     if mark_thalf:
         color_map = {
-            lbl: cmap(0.4 + 0.55 * i / max(len(all_nucs)-1,1)) for i, lbl in enumerate(sorted(all_nucs))
+            lbl: cmap(0.4 + 0.55 * i / max(len(all_nucs)-1,1))
+            for i, lbl in enumerate(sorted(all_nucs))
         }
     else:
         color_map = {
@@ -651,21 +656,21 @@ def plot_single_response(
             if nuc == 'total' and not total:
                 continue
 
-            try:
-                # Conditional vectorized division to calculate time-series
-                # ratio against the control run. If zeros exist in the control
-                # run, a zero-division RuntimeWarning will be raised, but does
-                # not cause plotting issues as NaNs will just not be plotted.
-                # If a ratio series starts/stops abruptly, this zero-division
-                # is the cause and is not necessarily an error, as various
-                # nuclides may not be present across all cooling times.
-                y = (
-                    piv.loc[nuc].to_numpy() / control_piv.loc[nuc].to_numpy()
-                    if ratio_plotting else piv.loc[nuc].tolist()
-                )
-            except KeyError:
-                print(f'KeyError: Missing {nuc} from {run_lbl}')
+            if nuc not in filtered['nuclide'].unique():
+                warn(f'Missing {nuc} from {run_lbl}')
                 continue
+
+            # Vectorized division to calculate time-series ratio against the
+            # control run. If zeros exist in the control run, a zero-division
+            # RuntimeWarning will be raised, but does not cause plotting
+            # issues as NaNs will just not be plotted. If a ratio series
+            # starts/stops abruptly, this zero-division is the cause and is
+            # not necessarily an error, as various nuclides may not be present
+            # across all cooling times.
+
+            y = piv.loc[nuc].to_numpy()
+            if ratio_plotting:
+                y /= control_piv.loc[nuc].to_numpy()
 
             label_suffix = f' ({run_lbl})' if data_comp else ''
             plot_or_scatter(
