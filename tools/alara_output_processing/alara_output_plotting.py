@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import lines
 import matplotlib.cm as cm
-import matplotlib.colors as mcolors
 from warnings import warn
 import alara_output_processing as aop
 
