@@ -29,7 +29,7 @@ This preprocessor can and should be used independently of any ALARA run. While t
 
 ALARAJOYWrapper is designed to produce a space-delimited DSV containing data that can be directly read by the ALARA data library, ALARAJOY, without any further processing.
 
-To run this preprocessor, the user must first have acquired TENDL files for each isotope to be processed from [TENDL 2017](https://tendl.web.psi.ch/tendl_2017/tendl2017.html), which is the source for FENDL3.2x neutron activation data. All TENDL files to be processed must be in the same directory as each other to be properly identified by ALARAJOYWrapper.
+To run this preprocessor, the user must first have acquired TENDL files for each isotope from a selected [TENDL distribution](https://tendl.imperial.ac.uk/). While this tool is designed specifically for the purpose of making FENDL3.2x activation data available to be used in ALARA, the formatting of TENDL 2017 is not unique to that release, and users can apply any version of TENDL desired from the Imperial College London TENDL database to be processed in the ALARAJOY format. Otherwise, [TENDL 2017](https://tendl.imperial.ac.uk/tendl_2017/tendl2017.html) is the source for FENDL3.2x neutron activation data and is the standard intended input for this tool. All TENDL files to be processed must be in the same directory as each other to be properly identified by ALARAJOYWrapper.
 
 Running ALARAJOYWrapper can be done with one Python command:
 ```
