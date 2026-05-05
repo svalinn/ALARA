@@ -683,9 +683,7 @@ def plot_single_response(
             )
 
             if mark_thalf and nuc not in plotted_nucs:
-                thalf = filtered.loc[
-                    filtered['nuclide'] == nuc, 'half_life'
-                ].iat[0]
+                thalf = filtered.get_thalf(nuc)
                 plt.axvline(x=thalf, color=thalf_cmap[nuc], alpha=0.85, label=(
                     rf'{nuc} ($t_{{1/2}} = {thalf:.2e}{time_unit}$)'
                 ))
