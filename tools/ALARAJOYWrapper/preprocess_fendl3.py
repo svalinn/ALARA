@@ -281,6 +281,7 @@ def subtract_gas_from_totals(all_rxns):
     gas_tuples = list(rxd.GAS_DF[['kza', 'total_mt']].itertuples(index=False))
     for parent in all_rxns:
         for gKZA, gMT in gas_tuples:
+            gMT = str(gMT)
             if gKZA in all_rxns[parent] and gMT in all_rxns[parent][gKZA]:
                 for gRxn in all_rxns[parent][gKZA]:
                     if gRxn != gMT:
