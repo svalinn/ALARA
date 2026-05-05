@@ -2,7 +2,7 @@
 
 This preprocessor is designed to update ALARA's data input capabilities for updated FENDL3.2x data sets formatted as TENDL (ENDF-6) files. Unlike previous versions of [FENDL](https://www-nds.iaea.org/fendl_library/websites/fendl32b/) (Fusion Evaluated Nuclear Data Library), which have available groupwise cross-section data for neutron activation, as is required for ALARA's functionality, FENDL3 data requires conversion to that format.
 
-This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Data Processing System to produce requisite pointwise data (PENDF) to subsequntly convert to the Vitamin-J 175 energy group groupwise format (GENDF) for activation cross-sections and to handle the processed data to be fed back to ALARA. For pointwise conversion, ALARAJOYWrapper uses the NJOY modules MODER, RECONR, BROADR, UNRESR, and GASPR, and for the ultimate conversion to the groupwise format, GROUPR. Note that in order to properly handle isomeric reactions, NJOY 2016 has to be built with from the commit `db71977593d084ae5bbb9e5c88a926541718d313` or newer of the `develop` branch, which includes the necessary support for holistic isomer handling.
+This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Data Processing System to produce requisite pointwise data (PENDF) to subsequntly convert to the Vitamin-J 175 energy group groupwise format (GENDF) for activation cross-sections and to handle the processed data to be fed back to ALARA. For pointwise conversion, ALARAJOYWrapper uses the NJOY modules MODER, RECONR, BROADR, UNRESR, and GASPR, and for the ultimate conversion to the groupwise format, GROUPR. Note that in order to properly handle isomeric reactions, NJOY 2016 has to be built with from the commit `1dbce787` or newer of the `develop` branch, which includes the necessary support for holistic isomer handling.
 
 ## Dependencies
 
@@ -29,7 +29,7 @@ This preprocessor can and should be used independently of any ALARA run. While t
 
 ALARAJOYWrapper is designed to produce a space-delimited DSV containing data that can be directly read by the ALARA data library, ALARAJOY, without any further processing.
 
-To run this preprocessor, the user must first have acquired TENDL files for each isotope to be processed from [TENDL 2017](https://tendl.web.psi.ch/tendl_2017/tendl2017.html), which is the source for FENDL3.2x neutron activation data. All TENDL files to be processed must be in the same directory as each other to be properly identified by ALARAJOYWrapper.
+To run this preprocessor, the user must first have acquired TENDL files for each isotope from a selected [TENDL distribution](https://tendl.imperial.ac.uk/). While this tool is designed specifically for the purpose of making FENDL3.2x activation data available to be used in ALARA, the formatting of TENDL 2017 is not unique to that release, and users can apply any version of TENDL desired from the Imperial College London TENDL database to be processed in the ALARAJOY format. Otherwise, [TENDL 2017](https://tendl.imperial.ac.uk/tendl_2017/tendl2017.html) is the source for FENDL3.2x neutron activation data and is the standard intended input for this tool. All TENDL files to be processed must be in the same directory as each other to be properly identified by ALARAJOYWrapper.
 
 Running ALARAJOYWrapper can be done with one Python command:
 ```
