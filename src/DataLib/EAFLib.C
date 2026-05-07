@@ -58,7 +58,7 @@ void EAFLib::extract(char* input, float* value)
   char section[32];
 
   /* find beginning of exponent */
-  int expStart = strcspn(input,"+-");
+  int expStart = strcspn(input+1,"+-") + 1;
 
   /* extract mantissa portion to string variable */
   strncpy(section,input,expStart);
@@ -397,14 +397,28 @@ void EAFLib::getDecayInfo()
 {
 
   char buffer[MAXLINELENGTH];
-  int junkInt,i;
+  int  MT;
 
-  /* read number of initial comment lines */
-  inDecay >> junkInt;
+  std::streampos lineStart;
 
-  /* read end of this line and comment lines */
-  for (i=0;i<=junkInt;i++)
-    inDecay.getline(buffer,MAXLINELENGTH);
+  while (true)
+    {
+      lineStart = inDecay.tellg();
+      if (!inDecay.getline(buffer, MAXLINELENGTH)) break;
+
+      int len = (int)strlen(buffer);
+      if (len < 75) continue;
+
+      char mtField[4] = {0};
+      strncpy(mtField, buffer + 72, 3);
+      MT = atoi(mtField);
+
+      if (MT == 457)
+        {
+          inDecay.seekg(lineStart);
+          break;
+        }
+    }
 
   decayKza = new int[MAXEAFDCYMODES];
   memCheck(decayKza,"EAFLib::getDecayInfo(...): decayKza");
@@ -438,8 +452,11 @@ int EAFLib::getDecayData()
       /* scan for first 457 card */
       inDecay.getline(buffer,MAXLINELENGTH);
       /* extract the MT number of this line */
-      buffer[75] = '\0';
-      MT = atoi(buffer+72);
+      int len = (int)strlen(buffer);
+      if (len < 75) { MT = 0; continue; }
+      char mtField[4] = {0};
+      strncpy(mtField, buffer + 72, 3);
+      MT = atoi(mtField);
     } while (MT != 457 && !inDecay.eof());
 
   if (inDecay.eof())
