@@ -699,7 +699,7 @@ def plot_single_response(
         ylabel = f'Ratio of {variable} against {control_run}'
 
     if relative:
-        title_suffix += 'Relative to Total at Each Cooling Time '
+        title_suffix += ' Relative to Total at Each Cooling Time '
         yscale = 'linear'
         ylabel = f'Proportion of Total {variable}'
 
