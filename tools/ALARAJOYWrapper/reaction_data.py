@@ -3,7 +3,7 @@ from numpy import array
 import pandas as pd
 from endf_parserpy import EndfParserPy
 from endf_parserpy.interpreter.endf_utils import (
-    BlankLineError, UnexpectedEndOfInputError
+    BlankLineError, UnexpectedEndOfInputError, UnexpectedControlRecordError
 )
 import warnings
 from pathlib import Path
@@ -280,7 +280,7 @@ def resolve_ukdd_inconsistencies(decay_parser, decay_file):
     decay_MF = 8
     while True:
         try:
-            return decay_parser.parsefile(decay_file)[decay_MF][DECAY_MT]
+            return decay_parser.parsefile(decay_file)#[decay_MF][DECAY_MT]
 
         except BlankLineError as B:
             blank_line = int(str(B).split()[1])
@@ -396,9 +396,15 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
         decay_lib_type = 'ukdd'
         all_nucs = dict()
         for ukdd_file in decay_dir.iterdir():
+            if '.DS_Store' in str(ukdd_file):
+                ukdd_file.unlink()
+                continue
+
             decay_parser = EndfParserPy()
-            decay_data = resolve_ukdd_inconsistencies(decay_parser, ukdd_file)
-            if decay_data:
+            parsed_file = resolve_ukdd_inconsistencies(decay_parser, ukdd_file)
+#            decay_parser.writefile(ukdd_file, parsed_file, exclude=(1,), overwrite=True)
+            if parsed_file:
+                decay_data = parsed_file[8][457]
                 decay_data['filepath'] = ukdd_file
                 kza = int(f'{int(decay_data['ZA'])}{int(decay_data['LIS'])}')
                 all_nucs[kza] = decay_data
@@ -476,7 +482,7 @@ def get_MT_from_line(line):
     
     return int(line[72:75])
 
-def find_radionucs_from_decay_lib(compiled_decay_lib):
+def find_nucs_from_decay_lib(compiled_decay_lib):
     """
     Parse through an pre-compiled decay library file to build a dictionary
         keyed by all radionuclides with their respective half-lives as the
@@ -489,11 +495,11 @@ def find_radionucs_from_decay_lib(compiled_decay_lib):
             EAF4.1, EAF2010, etc.) or a UKDD decay library (UKDD-12, UKDD-20).
 
     Returns:
-        radionucs (dict): Dictionary keyed by all radionuclides in the decay
-            library, with values of their half-lives.
+        all_nucs (dict): Dictionary keyed by all nuclide KZAs in the decay
+            library, with values of their half-lives (-1 for stable nuclides).
     """
 
-    radionucs = {}
+    all_nucs = {}
     with open(compiled_decay_lib, 'r') as f:
         
         # Read header and skip introductory comment lines
@@ -530,16 +536,20 @@ def find_radionucs_from_decay_lib(compiled_decay_lib):
                 za = int(standardize_float(line[:11]))
                 M = int(line[33:44].strip())
                 kza = za * 10 + M
+                stability = int(line[44:56].strip()) # 0->unstable , 1->stable
 
                 # Read half-life (next line)
                 line = f.readline()
-                thalf = standardize_float(line[:11])
-                if thalf > 0:
-                    radionucs[kza] = thalf
+                if stability == 0:
+                    thalf = standardize_float(line[:11])
+                    all_nucs[kza] = thalf
+
+                else:
+                    all_nucs[kza] = -1
 
             elif MT != DECAY_MT:
                 _in_decay_block = False
 
             line = f.readline()
 
-    return radionucs
+    return all_nucs
