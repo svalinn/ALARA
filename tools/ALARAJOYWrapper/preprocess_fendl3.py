@@ -163,7 +163,7 @@ def process_pendf(
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict,
-    temperature, pKZA, isomer_dict, all_rxns, radionucs
+    temperature, pKZA, isomer_dict, all_rxns, all_nucs
 ):
     """
     Prepare and run NJOY run with GROUPR and iteratively extract cross-section
@@ -198,8 +198,8 @@ def process_gendf(
                     }
                 }    
             }
-        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
+        all_nucs (dict): Dictionary keyed by all nuclide KZAs in the decay
+            library, with values of their half-lives (-1 for stable nuclides).
 
     Returns:
         all_rxns (collections.defaultdict): Updated dictionary for all
@@ -229,7 +229,7 @@ def process_gendf(
         if gendf_MTs:
             all_rxns = tp.iterate_MTs(
                 gendf_MTs, mt_dict, xs_line_dict, pKZA, 
-                all_rxns, radionucs, isomer_dict, gendf_path
+                all_rxns, all_nucs, isomer_dict
             )
             print(f'Finished processing {element}{A}')
 
@@ -400,7 +400,7 @@ def main():
     if decay_path.is_dir():
         decay_path = rxd.compile_decay_lib(decay_path, decay_lib_type, dir)
 
-    radionucs = rxd.find_radionucs_from_decay_lib(decay_path)
+    all_nucs = rxd.find_nucs_from_decay_lib(decay_path)
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
     for file_properties in tp.search_for_files(search_dir):
@@ -428,7 +428,7 @@ def main():
         if not njoy_prep_error:
             all_rxns = process_gendf(
                 njt.groupr_input, material_id, MTs, mt_dict,
-                temperature, pKZA, isomer_dict, all_rxns, radionucs 
+                temperature, pKZA, isomer_dict, all_rxns, all_nucs
             )
 
         else:
