@@ -224,7 +224,7 @@ def process_pendf(
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict, temperature, pKZA,
-    isomer_dict, all_rxns, radionucs, group_name, tendl_dir,
+    isomer_dict, all_rxns, all_nucs, group_name, tendl_dir,
     ign=17, ngn='', egn=''
 ):
     """
@@ -260,8 +260,8 @@ def process_gendf(
                     }
                 }    
             }
-        radionucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
+        all_nucs (dict): Dictionary keyed by all nuclide KZAs in the decay
+            library, with values of their half-lives (-1 for stable nuclides).
         group_name (str): Name of the group structure for groupwise
             conversion.
         tendl_dir (pathlib._local.PosixPath): Path to the directory in which
@@ -314,7 +314,7 @@ def process_gendf(
         if gendf_MTs:
             all_rxns = tp.iterate_MTs(
                 gendf_MTs, mt_dict, non_zero_xs, pKZA, 
-                all_rxns, radionucs, isomer_dict, gendf_path, nGroups
+                all_rxns, all_nucs, isomer_dict, gendf_path, nGroups
             )
             print(f'Finished processing {element}-{A}')
 
@@ -559,7 +559,7 @@ def main():
     if decay_path.is_dir():
         decay_path = rxd.compile_decay_lib(decay_path, decay_lib_type, dir)
 
-    radionucs = rxd.find_radionucs_from_decay_lib(decay_path)
+    all_nucs = rxd.find_nucs_from_decay_lib(decay_path)
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
     unresr_err_cases = []
@@ -585,7 +585,7 @@ def main():
         if not njoy_prep_error:
             all_rxns, nGroups = process_gendf(
                 njt.groupr_input, material_id, MTs, mt_dict, temperature,
-                pKZA, isomer_dict, all_rxns, radionucs, group_name, search_dir,
+                pKZA, isomer_dict, all_rxns, all_nucs, group_name, search_dir,
                 ign=ign, ngn=ngn, egn=egn
             )
 
