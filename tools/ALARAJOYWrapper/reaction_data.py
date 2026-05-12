@@ -402,11 +402,10 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
 
             decay_parser = EndfParserPy()
             parsed_file = resolve_ukdd_inconsistencies(decay_parser, ukdd_file)
-#            decay_parser.writefile(ukdd_file, parsed_file, exclude=(1,), overwrite=True)
             if parsed_file:
                 decay_data = parsed_file[8][457]
                 decay_data['filepath'] = ukdd_file
-                kza = int(f'{int(decay_data['ZA'])}{int(decay_data['LIS'])}')
+                kza = int(f'{int(decay_data['ZA'])}{int(decay_data['LISO'])}')
                 all_nucs[kza] = decay_data
 
         for i, kza in enumerate(sorted(all_nucs)):
