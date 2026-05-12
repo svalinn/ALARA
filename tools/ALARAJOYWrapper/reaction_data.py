@@ -329,17 +329,6 @@ def append_to_compiled_lib(
     with open(decay_file, 'r') as f:
         lines = f.readlines()
 
-    # Remove TEND record from individual files for valid compilation except
-    # for final file in iteration. TEND flags needed initially for individual
-    # UKDD file restructuring to meet ALARA readable format, but cannot be
-    # present in the middle of a compiled decay file containing multiple
-    # nuclides
-    if not last_file and decay_lib_type == 'ukdd':
-        lines = [
-            line[:81] for line in lines
-            if TEND_RECORD not in line
-        ]
-
     with open(compiled_file, 'a') as f:
         f.writelines(lines)
 
@@ -405,7 +394,7 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
             if parsed_file:
                 decay_data = parsed_file[8][457]
                 decay_data['filepath'] = ukdd_file
-                kza = int(f'{int(decay_data['ZA'])}{int(decay_data['LISO'])}')
+                kza = int(decay_data['ZA']) * 10 + int(decay_data['LISO'])
                 all_nucs[kza] = decay_data
 
         for i, kza in enumerate(sorted(all_nucs)):
