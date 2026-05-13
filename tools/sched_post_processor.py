@@ -82,20 +82,23 @@ def make_nested_dict(lines):
     # next section of output
     current_sched = sched_tree[0]
     ancestors = [current_sched]
-    keywords = ["top_schedule", "schedule", "pulse_entry:"]
+    top_schedule = "top_schedule"
+    schedule = "schedule"
+    pulse_entry = "pulse_entry:"
+    keywords = [top_schedule, schedule, pulse_entry]
 
     while any(lines[line_idx].strip().startswith(keyword) for keyword in keywords):
         new_child_level = lines[line_idx].count("\t")
         tokens = lines[line_idx].strip().split()
         while new_child_level < len(ancestors):
             current_sched = ancestors.pop()
-        if tokens[0] == keywords[1]:
+        if tokens[0] == schedule:
 
             current_sched["children"].append(make_sch_sub_dict(tokens))
             ancestors.append(current_sched)
             current_sched = current_sched["children"][-1]
 
-        elif tokens[0] == keywords[2]:
+        elif tokens[0] == pulse_entry:
             current_sched["children"].append(make_pe_sub_dict(tokens))
 
         line_idx += 1
