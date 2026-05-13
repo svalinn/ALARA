@@ -544,7 +544,8 @@ def plot_single_response(
     Arguments:
         adf (alara_output_processing.ALARADFrame): ALARADFrame containing 
             response data from one or more ALARA runs.
-        run_lbl (str): Distinguisher of the specified ALARA run.
+        run_lbls (str or list of str): Distinguisher of the specified run or
+            list of distinguishers for multiple runs.
         variable (str): Name of the response variable.
         nuclides (str, list, or None, optional): Optional parameter for
             nuclide selection. For a single nuclide, input should be a string
