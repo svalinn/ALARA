@@ -704,11 +704,13 @@ def plot_single_response(
             y = piv.loc[nuc].to_numpy()
             if ratio_plotting:
                 y /= control_piv.loc[nuc].to_numpy()
-                mean = format_statistic(y.mean(), sig_figs)
-                sem = format_statistic(y.std() * (len(y) ** -0.5), sig_figs)
-                label_suffix += (
-                    f'\n$\\mu = {mean}, \\ \\sigma_{{\\mu}} = {sem}$\n――――――'
-                )
+                if not np.isnan(y.mean()):
+                    mean = format_statistic(y.mean(), sig_figs)
+                    sem = format_statistic(y.std() * len(y) ** -0.5, sig_figs)
+                    label_suffix += (
+                        f'\n$\\mu = {mean},' \
+                        f'\\ \\sigma_{{\\mu}} = {sem}$\n――――――'
+                    )
 
             plot_or_scatter(
                 ax=ax,
