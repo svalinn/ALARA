@@ -704,7 +704,7 @@ def plot_single_response(
             y = piv.loc[nuc].to_numpy()
             if ratio_plotting:
                 y /= control_piv.loc[nuc].to_numpy()
-                if not np.isnan(y.mean()):
+                if not np.isnan(y.mean()) and nuc == 'total':
                     mean = format_statistic(y.mean(), sig_figs)
                     sem = format_statistic(y.std() * len(y) ** -0.5, sig_figs)
                     label_suffix += (
