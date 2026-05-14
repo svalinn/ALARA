@@ -530,7 +530,7 @@ def plot_single_response(
     plot_type='plot',
     separate_legend=False,
     control_run=None,
-    sig_figs=4,
+    sig_figs=3,
     mark_thalf=False
 ):
     '''
