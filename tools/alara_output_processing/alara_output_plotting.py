@@ -175,7 +175,7 @@ def split_label(label):
         isotope = parts[0].strip()
         run_lbl = f'({parts[1].strip(')')})'
         if '$\\mu' in run_lbl:
-            run_lbl = run_lbl[:-1]
+            run_lbl = run_lbl.strip(')')
     else:
         isotope = label.strip()
         run_lbl = ''
@@ -202,30 +202,6 @@ def reformat_isotope(isotope):
         element, A = isotope.split('-')
         element = element.capitalize()
         return f'$^{{{A}}}${element}'
-
-def format_statistic(statistic, sig_figs):
-    '''
-    Format a statistic to be written out in a plot legend with a desired
-        number of significant figures. Value written out in fixed-point
-        notation (i.e. 1.234) for values between 0.001 and 1000 or scientific
-        notation (i.e. 5.678e+09) for values outside of those bounds.
-
-    Arguments:
-        statistic (float): Statistic from a series (i.e. mean, standard
-            deviation of the mean, etc.).
-        sig_figs (int): Number of desired significant figures for the
-            representation of the statistic.
-
-    Returns:
-        formated_statistic (str): Value with the desired number of significant
-            figures, either in fixed-point or scientific notation
-    '''
-
-    return (
-        f'{statistic:.{sig_figs}f}'
-        if statistic > 1e-3 and statistic < 1e3
-        else f'{statistic:.{sig_figs}e}'
-    )
 
 def construct_legend(ax, data_comp=False, legend_ax=None):
     '''
@@ -554,7 +530,7 @@ def plot_single_response(
     plot_type='plot',
     separate_legend=False,
     control_run=None,
-    sig_figs=3,
+    sig_figs=4,
     mark_thalf=False
 ):
     '''
@@ -705,11 +681,9 @@ def plot_single_response(
             if ratio_plotting:
                 y /= control_piv.loc[nuc].to_numpy()
                 if not np.isnan(y.mean()) and nuc == 'total':
-                    mean = format_statistic(y.mean(), sig_figs)
-                    sem = format_statistic(y.std() * len(y) ** -0.5, sig_figs)
                     label_suffix += (
-                        f'\n$\\mu = {mean},' \
-                        f'\\ \\sigma_{{\\mu}} = {sem}$\n――――――'
+                        f'\n$\\mu = {y.mean():.{sig_figs}g},' \
+                        f'\\ \\sigma = {y.std():.{sig_figs}g}$\n――――――'
                     )
 
             plot_or_scatter(
