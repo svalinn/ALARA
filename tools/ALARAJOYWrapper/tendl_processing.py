@@ -9,8 +9,8 @@ import numpy as np
 VITAMIN_J_ENERGY_GROUPS = 175
 EXCITATION_DICT = {
     4   : np.arange(51 ,  92), # (n,n*)  reactions
-    103 : np.arange(601, 650), # (n,p*)  reactions
-    104 : np.arange(651, 700), # (n,d*)  reactions
+    103 : np.arange(600, 650), # (n,p*)  reactions
+    104 : np.arange(650, 700), # (n,d*)  reactions
     105 : np.arange(700, 750), # (n,t*)  reactions
     106 : np.arange(750, 800), # (n,h*)  reactions
     107 : np.arange(800, 850), # (n,a*)  reactions
