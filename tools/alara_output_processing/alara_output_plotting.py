@@ -174,6 +174,8 @@ def split_label(label):
         parts = label.split('(')
         isotope = parts[0].strip()
         run_lbl = f'({parts[1].strip(')')})'
+        if '$\\mu' in run_lbl:
+            run_lbl = run_lbl.strip(')')
     else:
         isotope = label.strip()
         run_lbl = ''
@@ -528,6 +530,7 @@ def plot_single_response(
     plot_type='plot',
     separate_legend=False,
     control_run=None,
+    sig_figs=3,
     mark_thalf=False
 ):
     '''
@@ -600,6 +603,10 @@ def plot_single_response(
             If used, must case-sensitively match one of the labels in the list
             run_lbl.
             (Defaults to '')
+        sig_figs (int): Option to set a number of significant figures for the
+            represenation of statistics calculated for time-series ratios (in
+            conjunction with control_run).
+            (Defaults to 3)
         mark_thalf (bool, optional): Option to mark a vertical line for the
             half-lives of all nuclides present in the plot.
             (Defaults to False)
@@ -660,6 +667,8 @@ def plot_single_response(
                 warn(f'Missing {nuc} from {run_lbl}')
                 continue
 
+            label_suffix = f' ({run_lbl})' if data_comp else ''
+
             # Vectorized division to calculate time-series ratio against the
             # control run. If zeros exist in the control run, a zero-division
             # RuntimeWarning will be raised, but does not cause plotting
@@ -671,8 +680,12 @@ def plot_single_response(
             y = piv.loc[nuc].to_numpy()
             if ratio_plotting:
                 y /= control_piv.loc[nuc].to_numpy()
+                if not np.isnan(y.mean()) and nuc == 'total':
+                    label_suffix += (
+                        f'\n$\\mu = {y.mean():.{sig_figs}g},' \
+                        f'\\ \\sigma = {y.std():.{sig_figs}g}$\n――――――'
+                    )
 
-            label_suffix = f' ({run_lbl})' if data_comp else ''
             plot_or_scatter(
                 ax=ax,
                 plot_type=plot_type,
