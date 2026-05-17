@@ -379,6 +379,7 @@ class FispactParser:
             row = {k: -1 for k in ['block', 'block_name', 'block_num']}
             row['run_lbl'] = run_lbl
             row['time_unit'] = time_unit
+            previous_times = 0.0
             for time in output.inventory_data:
                 
                 # FISPACT-II marks both pre-irradiation and shutdown as
@@ -386,11 +387,23 @@ class FispactParser:
                 # instance (pre-irradiation) to -1 to match the ALARADFrame
                 # time label convention.
                 if time.cooling_time == 0 and time_zero:
-                    time.cooling_time = -1
-                    mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 # [kg]
+                    actual_cooling_time = -1
+                    mass = sum(nuc.grams for nuc in time.nuclides) / 1e3 #[kg]
                     time_zero = False
+                
+                # The Pypact value time.cooling_time is a cumulative value of
+                # all cooling times up to the actual cooling time in
+                # reference. In order to index by the cooling time itself, the
+                # accumulation up to the previous time must be subtracted from
+                # time.cooling_time
+                else:
+                    actual_cooling_time = time.cooling_time - previous_times
+                
+                previous_times = (
+                    time.cooling_time if time.cooling_time != 0 else 0.0
+                )
 
-                row['time'] = time.cooling_time
+                row['time'] = actual_cooling_time
                 for n in time.nuclides:
                     nuclide = f'{n.element.lower()}-{n.isotope}{n.state}'
                     all_nucs.update({nuclide})
