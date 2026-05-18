@@ -5,6 +5,7 @@ from matplotlib import lines
 import matplotlib.cm as cm
 from warnings import warn
 import alara_output_processing as aop
+from collections import defaultdict
 
 # ------- Utility and Helper Functions -------
 
@@ -195,13 +196,18 @@ def reformat_isotope(isotope):
             ᴬelement.
     '''
 
+    time_bounds = ''
+    if ':' in isotope:
+        isotope, time_bounds = isotope.split(':', 1)
+        time_bounds = ':' + time_bounds
+
     if 'total' in isotope.lower() or isotope == 'Other':
         return isotope
-    
+
     else:
         element, A = isotope.split('-')
         element = element.capitalize()
-        return f'$^{{{A}}}${element}'
+        return f'$^{{{A}}}${element}{time_bounds}'
 
 def construct_legend(ax, data_comp=False, legend_ax=None):
     '''
@@ -511,6 +517,131 @@ def add_pie(ax, time_slice, color_map, threshold):
 
     return wedges
 
+def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
+    '''
+    Identify the time ranges for a single response variable in which any
+        individual nuclide is the response's dominant contributor. Over these
+        ranges, shade the region with a corresponding color for that nuclide,
+        either with a pre-existing color map or by producing a new one if not
+        provided. Shading is done as a function of the proportion of the total
+        decay response contributed by the dominant nuclide at each time, with
+        proportions closer to 1 being shaded darker and vice versa.
+
+    Arguments:
+        piv (pandas.DataFrame): Pivot table indexed by nuclides with values
+            for each cooling time.
+        ax (matplotlib.axes._axes.Axes): Matplotlib Axes object of the plot
+            being constructed.
+        color_map (dict): Pre-constructed color map for each nuclide to match
+            the wedges with the legend. Empty dictionary if no color map
+            existing yet for the plot.
+        cmap_name (str): Matplotlib Colormap for the plot.
+
+    Returns:
+        ax (matplotlib.axes._axes.Axes): Updated Axes object with shaded
+            regions for dominant nuclides.
+        color_map (dict): Copy of the original color map dictionary if a non-
+            empty dictionary is provided in the Arguments. Otherwise, a color
+            map with keys only of the various dominant nuclides.
+        dominance_ranges (dict): Dictionary keyed by each nuclide that is the
+            predominant contributor the input pivot table's decay response at
+            some time. Values are lists of all cooling times in which that
+            nuclide is the dominant contributor.
+    '''
+
+    total_piv = piv[piv.index == 'total']
+    piv = piv[piv.index != 'total']
+    dominant_nucs = [piv[t].idxmax() for t in piv.columns]
+    relative_max = np.array([piv[t].max() for t in piv.columns])
+    times = np.asarray(piv.columns, dtype=float)
+    
+    # Calculate relative contribution of the dominant nuclide for a pivot
+    # table containing absolute, rather than relative values
+    if not total_piv.empty:
+        relative_max /= total_piv.T['total'].values
+
+    if not color_map:
+        color_map = build_color_map(
+            cmap_name=cmap_name, all_nucs=set(dominant_nucs)
+        )
+
+    # Calculate logarithmic half-way values for each cooling time for shading
+    # to flow smoothly between nuclide regions
+    logt = np.log10(times)
+    bounds = np.empty(len(times) + 1)
+    bounds[1:-1] = 10 ** ((logt[:-1] + logt[1:]) / 2)
+    bounds[0]    = 10 ** (logt[0] - (logt[1] - logt[0]) / 2)
+    bounds[-1]   = 10 ** (logt[-1] + (logt[-1] - logt[-2]) / 2)
+
+    # Calculate the time bounds for each dominant nuclide's period of leading
+    # contribution to the response variable
+    dominance_ranges = {}
+    for i, nuc in enumerate(dominant_nucs):
+        if nuc not in dominance_ranges:
+            dominance_ranges[nuc] = [bounds[i], bounds[i + 1]]
+        else:
+            dominance_ranges[nuc][1] = bounds[i + 1]
+
+    for i, (nuc, dominance) in enumerate(zip(dominant_nucs, relative_max)):
+        ax.axvspan(
+            bounds[i],
+            bounds[i + 1],
+            color=color_map[nuc],
+            # Shading transparency as an inverse function of the relative
+            # contribution of the dominant nuclide
+            alpha=0.2 * dominance,
+            linewidth=0,
+            label=None
+        )
+
+    return ax, color_map, dominance_ranges
+
+def collect_shading_labels(ax, color_map, all_dominance_ranges, time_unit):
+    '''
+    Unpack and format dominant nuclide data produced from 
+        shade_dominant_nuclides() to be included in a plot's legend in the
+        format:
+
+            nuclide:
+                run_lbl: beginning_of_dominance_range - end_of_dominance_range
+
+    Arguments:
+        ax (matplotlib.axes._axes.Axes): Updated Axes object with shaded
+            regions for dominant nuclides.
+        color_map (dict): Copy of the original color map dictionary if a non-
+            empty dictionary is provided in the Arguments. Otherwise, a color
+            map with keys only of the various dominant nuclides.
+        all_dominance_ranges (dict): Dictionary keyed by nuclides that are the
+            dominant contributor to a decay response over some time time range
+            formatted as:
+
+                {
+                    nuclide: 
+                        (
+                            run_lbl,
+                            beginning_of_dominance_range,
+                            end_of_dominance_range
+                        )
+                }
+
+    Returns:
+        None 
+    '''
+
+    for nuc, run_entries in all_dominance_ranges.items():
+        run_lines = '\n'.join(
+            f'   -  {rl}: {tmin:.2g} - {tmax:.2g} {time_unit}'
+            for rl, tmin, tmax in run_entries
+        )
+        ax.axvspan(
+            0,
+            0,
+            color=color_map[nuc],
+            alpha=0.6,
+            linewidth=0,
+            label = f'{nuc}:\n{run_lines}'
+        )
+
 # ----- Plotting Functions ------
 
 def plot_single_response(
@@ -531,7 +662,8 @@ def plot_single_response(
     separate_legend=False,
     control_run=None,
     sig_figs=3,
-    mark_thalf=False
+    mark_thalf=False,
+    shading=False
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -610,6 +742,10 @@ def plot_single_response(
         mark_thalf (bool, optional): Option to mark a vertical line for the
             half-lives of all nuclides present in the plot.
             (Defaults to False)
+        shading (bool, optional): Option to shade the regions in which any
+            particular nuclide is the dominant contributor to the plotted
+            decay response.
+            (Defaults to False)
 
     Returns:
         fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
@@ -658,7 +794,30 @@ def plot_single_response(
     )
 
     plotted_nucs = []
+    xmax = 0
+    all_dominance_ranges = defaultdict(list)
+
     for run_lbl, filtered, piv, style in data_list:
+        shading_color_map = {} if total else color_map
+        if shading:
+            shade_piv = piv
+            if total:
+                _, shade_piv = preprocess_data(
+                    adf=adf,
+                    run_lbl=run_lbl,
+                    variable=variable,
+                    time_unit=time_unit,
+                    sort_by_time=sort_by_time,
+                    head=head,
+                    half_lives=half_lives
+                )
+
+            ax, shading_color_map, dominance_ranges = shade_dominant_nuclides(
+                shade_piv, ax, shading_color_map, cmap_name=cmap_name
+            )
+            for nuc, (tmin, tmax) in dominance_ranges.items():
+                all_dominance_ranges[nuc].append((run_lbl, tmin, tmax))
+
         for nuc in piv.index:
             if nuc == 'total' and not total:
                 continue
@@ -692,16 +851,22 @@ def plot_single_response(
                 x=piv.columns,
                 y=y,
                 label=(nuc + label_suffix),
-                color=color_map[nuc],
+                color=color_map[nuc] if nuc != 'total' else "#574949",
                 style=style
             )
 
             if mark_thalf and nuc not in plotted_nucs:
                 thalf = filtered.get_thalf(nuc)
-                plt.axvline(x=thalf, color=thalf_cmap[nuc], alpha=0.85, label=(
+                plt.axvline(
+                    x=thalf, color=thalf_cmap[nuc], alpha=0.85, label=(
                     rf'{nuc} ($t_{{1/2}} = {thalf:.2e}{time_unit}$)'
                 ))
                 plotted_nucs.append(nuc)
+
+    if shading and shading_color_map is not None:
+        collect_shading_labels(
+            ax, shading_color_map, all_dominance_ranges, time_unit
+        )
 
     ylabel = f'{variable} [{filtered['var_unit'].unique()[0]}]'
     title_suffix = (
