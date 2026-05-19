@@ -440,7 +440,6 @@ def main():
         element, A, pKZA, endf_path = tuple(file_properties.values())
         TAPE20.write_bytes(endf_path.read_bytes())
 
-        TAPE20.write_bytes(endf_path.read_bytes())
         material_id, MTs = tp.extract_endf_specs(TAPE20)
         endf6_MTs = set(mt_dict)
         if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
