@@ -5,6 +5,7 @@ import njoy_tools as njt
 import numpy as np
 import argparse
 import warnings
+import ENDFtk
 from pathlib import Path
 from collections import defaultdict
 
@@ -48,7 +49,7 @@ def args():
     )
     return parser.parse_args()
 
-def calculate_pKZA(element, A):
+def calculate_pKZA(element, A, endf_path):
     """
     Construct the target (parent) nuclide's KZA value. KZA values are defined
         as ZZAAAM, where ZZ is the nuclide's atomic number, AAA is the mass
@@ -60,12 +61,42 @@ def calculate_pKZA(element, A):
             isomeric tag, such as "m" for the first excited state, "n" for the
             second, etc. (Note: TENDL data should only include up to a maximum
             of the second excited state).
+        endf_path (pathlib._local.PosixPath): Path to the selected ENDF file.
+
 
     Returns:
         pKZA (int): KZA value of the target nuclide.
+        element (str): Copy of original element name for a properly named ENDF
+            file or resolved element name if the element name in the file was
+            invalid.
+        A (int): Integer copy of the original mass number, with removed isomer
+            tag if applicable. For invalid file names, the mass number may be
+            resolved as well and thus different than the input value.
     """
 
-    Z = njt.elements[element]
+    try:
+        Z = njt.elements[element]
+
+    # Special handling for improperly labeled nuclides (i.e. Nh-285 and Nh-286
+    # in TENDL-2014) to find the correct element, atomic number, and mass
+    # number. Will also rename the file to match the actual nuclide whose data
+    # is contained in the ENDF file.
+    except KeyError:
+        tape = ENDFtk.tree.Tape.from_file(str(endf_path))
+        matb = tape.material_numbers[0]
+        za = str(tape.material(matb).section(3,1).parse().target_identifier)
+        Z = int(za[:-3])
+        element = {z: el for el, z in njt.elements.items()}[Z]
+        A_mod = ''
+        for i, char in enumerate(A):
+            if i <= 2:
+                A_mod += char
+            elif char.isalpha():
+                A_mod += char
+
+        A = A_mod
+        endf_path.rename(endf_path.with_stem(f'{element.capitalize()}{A}'))
+
     A = str(A).lower()
 
     # Metastable states classified by TENDL as m = 1, n = 2, etc.
@@ -85,7 +116,9 @@ def calculate_pKZA(element, A):
         )
 
     A = int(A.split(isomer_tag)[0])
-    return (Z * 1000 + A) * 10 + M
+    kza = (Z * 1000 + A) * 10 + M
+
+    return kza, element, A
 
 def interpret_KZA(kza):
     """
@@ -426,13 +459,7 @@ def main():
         element = file_properties['Element']
         A = file_properties['Mass Number']
         endf_path = file_properties['TENDL File Path']
-        try:
-            pKZA = calculate_pKZA(element, A)
-        except KeyError:
-            warnings.warn(
-                f'Invalid nuclide name {element}{A} in {endf_path}. Skipping.'
-            )
-            continue
+        pKZA, element, A = calculate_pKZA(element, A, endf_path)
 
         TAPE20.write_bytes(endf_path.read_bytes())
         material_id, MTs = tp.extract_endf_specs(TAPE20)
