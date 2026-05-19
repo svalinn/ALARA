@@ -71,6 +71,17 @@ stop
     MATD = 0,                                # next mat number to be processed
 ))
 
+gaspr_input = Template(Template(
+"""
+gaspr
+ $NENDF $npend_gaspr $NOUT_gaspr/
+stop
+"""
+).safe_substitute(
+    NENDF = 21,                # unit for endf tape (equivalent to NOUT_moder)
+    NOUT_gaspr = 25,                      # unit for GASPR-produced pendf tape
+))
+
 groupr_input = Template(Template(
 """
 groupr/
@@ -168,7 +179,7 @@ def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
 
 def fill_input_template(
     inp, material_id, MTs, element, A, mt_dict, temperature,
-    pKZA=None, isomer_dict={}
+    pKZA=None, isomer_dict={}, unresr_fail=False
 ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
@@ -201,6 +212,10 @@ def fill_input_template(
             states of the residual daughter. Only needed when filling the
             GROUPR-specific template.
             (Defaults to {})
+        unresr_fail (bool, optional): Boolean flag to indicate if the UNRESR
+            module raised an ***error in rdunf2*** message (see NJOY module
+            section 5.6 for further description of UNRESR errors).
+            (Defaults to False)
     
     Returns:
         template (str): Modified template with the material-
@@ -224,6 +239,13 @@ def fill_input_template(
                 card9_lines.append(f'{MFD} {MT} "{mtname}" /')
 
     card9 = '\n '.join(card9_lines)
+    
+    # Set GASPR PENDF input. If UNRESR fails, apply the previous PENDF tape
+    # for GASPR input
+    npend_gaspr = 24
+    if unresr_fail:
+        npend_gaspr -= 1
+
     return inp.substitute(
         element=element,
         a=A,
@@ -231,8 +253,9 @@ def fill_input_template(
         self_shielding_temp=temperature,
         final_broadr_temp=temperature,
         groupr_temp=temperature,
-        title=title,                                            
-        reactions=card9,                                        
+        title=title,
+        reactions=card9,
+        npend_gaspr=npend_gaspr
     )
 
 def write_njoy_input_file(template):
@@ -353,7 +376,8 @@ def run_njoy(element, A, matb, file_capture):
                                     File path to the newly created GENDF file.
                                     Returns None if NJOY runs unsuccessfuly.
         result.stderr (str or None): Output of NJOY error.
-                                    Returns None if NJOY runs successfully. 
+                                    Returns None if NJOY runs successfully.
+        result.stdout (str): NJOY standard output.
     """
 
     file_metadata = {
@@ -381,7 +405,7 @@ def run_njoy(element, A, matb, file_capture):
         if fileinfo['ext'] == '.gendf':
             ensure_gendf_markers(fileinfo['save'], matb)
             
-    return fileinfo['save'], result.stderr
+    return fileinfo['save'], result.stderr, result.stdout
 
 def cleanup_njoy_files(element, A):
     """

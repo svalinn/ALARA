@@ -5,6 +5,7 @@ import njoy_tools as njt
 import numpy as np
 import argparse
 import warnings
+import ENDFtk
 from pathlib import Path
 from collections import defaultdict
 
@@ -48,7 +49,7 @@ def args():
     )
     return parser.parse_args()
 
-def calculate_pKZA(element, A):
+def calculate_pKZA(element, A, endf_path):
     """
     Construct the target (parent) nuclide's KZA value. KZA values are defined
         as ZZAAAM, where ZZ is the nuclide's atomic number, AAA is the mass
@@ -60,12 +61,42 @@ def calculate_pKZA(element, A):
             isomeric tag, such as "m" for the first excited state, "n" for the
             second, etc. (Note: TENDL data should only include up to a maximum
             of the second excited state).
+        endf_path (pathlib._local.PosixPath): Path to the selected ENDF file.
+
 
     Returns:
         pKZA (int): KZA value of the target nuclide.
+        element (str): Copy of original element name for a properly named ENDF
+            file or resolved element name if the element name in the file was
+            invalid.
+        A (int): Integer copy of the original mass number, with removed isomer
+            tag if applicable. For invalid file names, the mass number may be
+            resolved as well and thus different than the input value.
     """
 
-    Z = njt.elements[element]
+    try:
+        Z = njt.elements[element]
+
+    # Special handling for improperly labeled nuclides (i.e. Nh-285 and Nh-286
+    # in TENDL-2014) to find the correct element, atomic number, and mass
+    # number. Will also rename the file to match the actual nuclide whose data
+    # is contained in the ENDF file.
+    except KeyError:
+        tape = ENDFtk.tree.Tape.from_file(str(endf_path))
+        matb = tape.material_numbers[0]
+        za = str(tape.material(matb).section(3,1).parse().target_identifier)
+        Z = int(za[:-3])
+        element = {z: el for el, z in njt.elements.items()}[Z]
+        A_mod = ''
+        for i, char in enumerate(A):
+            if i <= 2:
+                A_mod += char
+            elif char.isalpha():
+                A_mod += char
+
+        A = A_mod
+        endf_path.rename(endf_path.with_stem(f'{element.capitalize()}{A}'))
+
     A = str(A).lower()
 
     # Metastable states classified by TENDL as m = 1, n = 2, etc.
@@ -85,7 +116,9 @@ def calculate_pKZA(element, A):
         )
 
     A = int(A.split(isomer_tag)[0])
-    return (Z * 1000 + A) * 10 + M
+    kza = (Z * 1000 + A) * 10 + M
+
+    return kza, element, A
 
 def interpret_KZA(kza):
     """
@@ -112,9 +145,7 @@ def interpret_KZA(kza):
 
     return element, A
 
-def process_pendf(
-    njoy_prep_input, material_id, MTs, pKZA, mt_dict, temperature, tendl_path
-):
+def process_pendf(material_id, MTs, pKZA, mt_dict, temperature, tendl_path):
     """
     Prepare and run initial NJOY run with MODER, RECONR, BROADR, UNRESR, and
         GASPR modules to prodece the requisite PENDF file for a subsequent
@@ -150,11 +181,36 @@ def process_pendf(
 
     element, A = interpret_KZA(pKZA)
     njoy_error = ''
-    njoy_input = njt.fill_input_template(
-        njoy_prep_input, material_id, MTs, element, A, mt_dict, temperature
+
+    # Run MODER, RECONR, BROADR, UNRESR
+    njoy_prep_input = njt.fill_input_template(
+        njt.njoy_prep_input, material_id, MTs,
+        element, A, mt_dict, temperature
     )
-    njt.write_njoy_input_file(njoy_input)
-    pendf_path, njoy_error = njt.run_njoy(element, A, material_id, 'PENDF')
+    njt.write_njoy_input_file(njoy_prep_input)
+    pendf_path, prep_error, njoy_out = njt.run_njoy(
+        element, A, material_id, 'PENDF'
+    )
+
+    # If UNRESR fails, run GASPR with PENDF output of BROADR with warning
+    unresr_error_flag = '***error in rdunf2***'
+    if prep_error and unresr_error_flag in njoy_out:
+        warnings.warn(
+            'UNRESR failed to produce cross-sections in the unresolved '\
+            f'energy range for {element}{A}:\n'\
+            f'{njoy_out[njoy_out.find(unresr_error_flag):]}Skipping to GASPR.'
+        )
+        gaspr_input = njt.fill_input_template(
+            njt.gaspr_input, material_id, MTs, element, A,
+            mt_dict, temperature, unresr_fail=True
+        )
+        njt.write_njoy_input_file(gaspr_input)
+        pendf_path, gaspr_error, _ = njt.run_njoy(
+            element, A, material_id, 'PENDF'
+        )
+        njoy_error += gaspr_error
+    else:
+        njoy_error += prep_error
 
     _, pendf_MTs = tp.extract_endf_specs(pendf_path)
     MTs |= pendf_MTs.intersection(set(rxd.GAS_DF['total_mt']))
@@ -213,7 +269,7 @@ def process_gendf(
         A, mt_dict, temperature, pKZA, isomer_dict
     )
     njt.write_njoy_input_file(groupr_input)
-    gendf_path, njoy_error = njt.run_njoy(
+    gendf_path, njoy_error, _ = njt.run_njoy(
         element, A, material_id, 'GENDF'
     )
 
@@ -402,23 +458,22 @@ def main():
     for file_properties in tp.search_for_files(search_dir):
         element = file_properties['Element']
         A = file_properties['Mass Number']
-        pKZA = calculate_pKZA(element, A)
         endf_path = file_properties['TENDL File Path']
-        TAPE20.write_bytes(endf_path.read_bytes())
+        pKZA, element, A = calculate_pKZA(element, A, endf_path)
 
+        TAPE20.write_bytes(endf_path.read_bytes())
         material_id, MTs = tp.extract_endf_specs(TAPE20)
         endf6_MTs = set(mt_dict)
         if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
             invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
             warnings.warn(
                 f'Invalid MTs in provided TENDL file for ' \
-                f'{element}-{A}: {invalid_MTs}'
+                f'{element}{A}: {invalid_MTs}'
             )
         MTs = MTs.intersection(endf6_MTs)
 
         MTs, isomer_dict, njoy_prep_error = process_pendf(
-            njt.njoy_prep_input, material_id, MTs,
-            pKZA, mt_dict, temperature, TAPE20
+            material_id, MTs, pKZA, mt_dict, temperature, TAPE20
         )
 
         if not njoy_prep_error:
