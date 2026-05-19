@@ -103,9 +103,7 @@ def configure_logging(redirect_warnings=False):
 
     logger.addHandler(console_handler)
 
-def process_pendf(
-    njoy_prep_input, material_id, MTs, pKZA, mt_dict, temperature, tendl_path
-):
+def process_pendf(material_id, MTs, pKZA, mt_dict, temperature, tendl_path):
     """
     Prepare and run initial NJOY run with MODER, RECONR, BROADR, UNRESR, and
         GASPR modules to prodece the requisite PENDF file for a subsequent
@@ -141,11 +139,36 @@ def process_pendf(
 
     element, A = tp.interpret_KZA(pKZA)
     njoy_error = ''
-    njoy_input = njt.fill_input_template(
-        njoy_prep_input, material_id, MTs, element, A, mt_dict, temperature
+
+    # Run MODER, RECONR, BROADR, UNRESR
+    njoy_prep_input = njt.fill_input_template(
+        njt.njoy_prep_input, material_id, MTs,
+        element, A, mt_dict, temperature
     )
-    njt.write_njoy_input_file(njoy_input)
-    pendf_path, njoy_error = njt.run_njoy(element, A, material_id, 'PENDF')
+    njt.write_njoy_input_file(njoy_prep_input)
+    pendf_path, prep_error, njoy_out = njt.run_njoy(
+        element, A, material_id, 'PENDF'
+    )
+
+    # If UNRESR fails, run GASPR with PENDF output of BROADR with warning
+    unresr_error_flag = '***error in rdunf2***'
+    if prep_error and unresr_error_flag in njoy_out:
+        warnings.warn(
+            'UNRESR failed to produce cross-sections in the unresolved '\
+            f'energy range for {element}{A}:\n'\
+            f'{njoy_out[njoy_out.find(unresr_error_flag):]}Skipping to GASPR.'
+        )
+        gaspr_input = njt.fill_input_template(
+            njt.gaspr_input, material_id, MTs, element, A,
+            mt_dict, temperature, unresr_fail=True
+        )
+        njt.write_njoy_input_file(gaspr_input)
+        pendf_path, gaspr_error, _ = njt.run_njoy(
+            element, A, material_id, 'PENDF'
+        )
+        njoy_error += gaspr_error
+    else:
+        njoy_error += prep_error
 
     _, pendf_MTs = tp.extract_endf_specs(pendf_path)
     MTs |= pendf_MTs.intersection(set(rxd.GAS_DF['total_mt']))
@@ -216,7 +239,7 @@ def process_gendf(
         ign=ign, ngn=ngn, egn=egn
     )
     njt.write_njoy_input_file(groupr_input)
-    gendf_path, njoy_error = njt.run_njoy(
+    gendf_path, njoy_error, _ = njt.run_njoy(
         element, A, material_id, 'GENDF'
     )
 
@@ -417,19 +440,19 @@ def main():
         element, A, pKZA, endf_path = tuple(file_properties.values())
         TAPE20.write_bytes(endf_path.read_bytes())
 
+        TAPE20.write_bytes(endf_path.read_bytes())
         material_id, MTs = tp.extract_endf_specs(TAPE20)
         endf6_MTs = set(mt_dict)
         if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
             invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
             warnings.warn(
                 f'Invalid MTs in provided TENDL file for ' \
-                f'{element}-{A}: {invalid_MTs}'
+                f'{element}{A}: {invalid_MTs}'
             )
         MTs = MTs.intersection(endf6_MTs)
 
         MTs, isomer_dict, njoy_prep_error = process_pendf(
-            njt.njoy_prep_input, material_id, MTs,
-            pKZA, mt_dict, temperature, TAPE20
+            material_id, MTs, pKZA, mt_dict, temperature, TAPE20
         )
 
         if not njoy_prep_error:
