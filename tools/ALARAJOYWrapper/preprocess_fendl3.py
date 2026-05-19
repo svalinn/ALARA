@@ -44,8 +44,40 @@ def args():
         # Temperature for NJOY run [Kelvin]
         '--temperature', '-t', required=False, nargs=1, default=[293.16]
     )
+    parser.add_argument(
+        '--redirect_warnings', '-r', action='store_true',
+        help=('''
+            Optional argument to redirect any non-fatal warnings that may
+                arise to a log file.
+        ''')
+    )
     return parser.parse_args()
 
+def redirect_warnings_to_log(log_path):
+    """
+    Write out warning messages to a log file if the argument
+        --redirect_warnings (-r) is invoked.
+
+    Arguments:
+        log_path (pathlib._local.PosixPath): Path to the warning log file.
+
+    Returns:
+        None
+    """
+
+    log_path.unlink(missing_ok=True)
+    log_file = open(log_path, 'a')
+
+    def _showwarning(
+        message, category, filename, lineno, file=None, line=None
+    ):
+        log_file.write(
+            f'{category.__name__}: {message} '
+            f'(in {filename}:{lineno})\n'
+        )
+        log_file.flush()
+
+    warnings.showwarning = _showwarning
 
 def process_pendf(
     njoy_prep_input, material_id, MTs, pKZA, mt_dict, temperature, tendl_path
@@ -160,7 +192,7 @@ def process_gendf(
             diffs = sorted(MTs - gendf_MTs)
             warnings.warn(
                 f'GENDF file missing MTs {diffs} present in the ' \
-                'original TENDL file.'
+                f'original TENDL file for {element}{A}.'
             )
         if gendf_MTs:
             all_rxns = tp.iterate_MTs(
@@ -323,6 +355,10 @@ def main():
     """
 
     TAPE20 = Path('tape20')
+    
+    if args().redirect_warnings:
+        warning_log = Path('warnings.log')
+        redirect_warnings_to_log(warning_log)
 
     dir = njt.set_directory()
     search_dir = (
