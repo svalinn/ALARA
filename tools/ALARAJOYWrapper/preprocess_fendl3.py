@@ -133,6 +133,8 @@ def process_pendf(material_id, MTs, pKZA, mt_dict, temperature, tendl_path):
         temperature (float): Temperature at which to run NJOY modules.
         tendl_path (pathlib._local.PosixPath): Path to the original,
             unmodified TENDL file.
+        tendl_dir (pathlib._local.PosixPath): Path to the directory in which
+            the original TENDL nuclide files are contained.
 
     Returns:
         MTs (set): Updated set of all reaction types shared between the
@@ -167,7 +169,7 @@ def process_pendf(material_id, MTs, pKZA, mt_dict, temperature, tendl_path):
             )
             njt.write_njoy_input_file(njoy_prep_input)
             pendf_path, prep_error, njoy_out = njt.run_njoy(
-                element, A, material_id, 'PENDF', timeout=timeout
+                element, A, material_id, 'PENDF', tendl_dir, timeout=timeout
             )
 
             if not isinstance(prep_error, TimeoutExpired):
@@ -205,7 +207,7 @@ def process_pendf(material_id, MTs, pKZA, mt_dict, temperature, tendl_path):
         )
         njt.write_njoy_input_file(gaspr_input)
         pendf_path, gaspr_error, _ = njt.run_njoy(
-            element, A, material_id, 'PENDF'
+            element, A, material_id, 'PENDF', tendl_dir
         )
         njoy_error += gaspr_error
     else:
@@ -219,7 +221,8 @@ def process_pendf(material_id, MTs, pKZA, mt_dict, temperature, tendl_path):
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict, temperature, pKZA,
-    isomer_dict, all_rxns, eaf_nucs, group_name, ign=17, ngn='', egn=''
+    isomer_dict, all_rxns, eaf_nucs, group_name, tendl_dir,
+    ign=17, ngn='', egn=''
 ):
     """
     Prepare and run NJOY run with GROUPR and iteratively extract cross-section
@@ -258,6 +261,8 @@ def process_gendf(
             decay library, with values of their half-lives.
         group_name (str): Name of the group structure for groupwise
             conversion.
+        tendl_dir (pathlib._local.PosixPath): Path to the directory in which
+            the original TENDL nuclide files are contained.
         ign (str or int, optional): GROUPR neutron group structure parameter.
             ign = 1 for arbitrary group structures not contained in NJOY's
             built-in list of options. Default value corresponds to ign key for
@@ -283,7 +288,7 @@ def process_gendf(
     )
     njt.write_njoy_input_file(groupr_input)
     gendf_path, njoy_error, _ = njt.run_njoy(
-        element, A, material_id, 'GENDF'
+        element, A, material_id, 'GENDF', tendl_dir
     )
 
     if gendf_path:
@@ -564,13 +569,13 @@ def main():
         MTs = MTs.intersection(endf6_MTs)
 
         MTs, isomer_dict, njoy_prep_error = process_pendf(
-            material_id, MTs, pKZA, mt_dict, temperature, TAPE20
+            material_id, MTs, pKZA, mt_dict, temperature, TAPE20, search_dir
         )
 
         if not njoy_prep_error:
             all_rxns, nGroups = process_gendf(
                 njt.groupr_input, material_id, MTs, mt_dict, temperature,
-                pKZA, isomer_dict, all_rxns, eaf_nucs, group_name,
+                pKZA, isomer_dict, all_rxns, eaf_nucs, group_name, search_dir,
                 ign=ign, ngn=ngn, egn=egn
             )
 

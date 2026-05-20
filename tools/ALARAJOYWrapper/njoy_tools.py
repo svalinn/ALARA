@@ -572,7 +572,7 @@ def ensure_gendf_markers(gendf_path, matb):
     with open(gendf_path, 'w') as gendf_file:
         gendf_file.write(file_str)
 
-def run_njoy(element, A, matb, file_capture, timeout=None):
+def run_njoy(element, A, matb, file_capture, tendl_dir, timeout=None):
     """
     Use subprocess to run NJOY given a pre-written input card to either
         prepare, format, and produce a PENDF file with NJOY modules RECONR,
@@ -590,6 +590,8 @@ def run_njoy(element, A, matb, file_capture, timeout=None):
         matb (int): Unique material ID for the material in the files.
         file_capture (str): Type of file to be saved from this particular 
             iteration of NJOY runs. Either "PENDF" or "GENDF".
+        tendl_dir (pathlib._local.PosixPath): Path to the directory in which
+            the original TENDL nuclide files are contained.
         timeout (None or int): Runtime limit for NJOY run.
             (Defaults to None)
     
@@ -627,7 +629,7 @@ def run_njoy(element, A, matb, file_capture, timeout=None):
     if not result.stderr:
         save_path = dir / fileinfo['dir']
         save_path.mkdir(exist_ok=True)
-        save_path = save_path / f'tendl_2017_{element}{str(A).zfill(3)}'
+        save_path = save_path / f'{tendl_dir}_{element}{str(A).zfill(3)}'
 
         fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
         tape_save = Path(f'tape{fileinfo['tape']}')
