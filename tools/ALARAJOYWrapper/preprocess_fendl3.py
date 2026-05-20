@@ -147,7 +147,7 @@ def process_pendf(material_id, MTs, pKZA, mt_dict, temperature, tendl_path):
     # successfully.
     err = 0.001
     max_err = 0.02
-    timeouts = [60, 180] # s
+    timeouts = [60, 300] # s
     success = False
     while err <= max_err and not success:
         for timeout in timeouts:
