@@ -164,6 +164,9 @@ def process_pendf(material_id, MTs, pKZA, mt_dict, temperature, tendl_path):
                 success = True
                 break
     
+        if success:
+            break
+
         err += 0.001
 
         print(
