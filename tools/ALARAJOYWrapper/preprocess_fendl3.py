@@ -10,6 +10,7 @@ import warnings
 import logging
 from pathlib import Path
 from collections import defaultdict
+from subprocess import TimeoutExpired
 
 def make_argparser():
     parser = argparse.ArgumentParser()
@@ -151,14 +152,41 @@ def process_pendf(material_id, MTs, pKZA, mt_dict, temperature, tendl_path):
     njoy_error = ''
 
     # Run MODER, RECONR, BROADR, UNRESR
-    njoy_prep_input = njt.fill_input_template(
-        njt.njoy_prep_input, material_id, MTs,
-        element, A, mt_dict, temperature
-    )
-    njt.write_njoy_input_file(njoy_prep_input)
-    pendf_path, prep_error, njoy_out = njt.run_njoy(
-        element, A, material_id, 'PENDF'
-    )
+    # If fractional error tolerance to low for RECONR, can cause NJOY to time
+    # out. If this occurs, increase error tolerance until NJOY can run
+    # successfully.
+    err = 0.001
+    max_err = 0.02
+    timeouts = [60, 180] # s
+    success = False
+    while err <= max_err and not success:
+        for timeout in timeouts:
+            njoy_prep_input = njt.fill_input_template(
+                njt.njoy_prep_input, material_id, MTs,
+                element, A, mt_dict, temperature, err=err
+            )
+            njt.write_njoy_input_file(njoy_prep_input)
+            pendf_path, prep_error, njoy_out = njt.run_njoy(
+                element, A, material_id, 'PENDF', timeout=timeout
+            )
+
+            if not isinstance(prep_error, TimeoutExpired):
+                success = True
+                break
+    
+        err += 0.001
+
+        print(
+            f'NJOY timed out for {element}{A}. Increasing RECONR fractional '\
+            f'reconstruction tolerance to {err:.3f}.'
+        )
+
+        if err > max_err:
+            warnings.warn(
+                f'NJOY repeatedly timed out for {element}{A} up to err='\
+                f'{max_err:.3f}. Skipping file.'
+            )
+            return set(), dict(), prep_error
 
     # If UNRESR fails, run GASPR with PENDF output of BROADR with warning
     unresr_error_flag = '***error in rdunf2***'
