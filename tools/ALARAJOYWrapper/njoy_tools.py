@@ -34,7 +34,7 @@ reconr
  $NENDF $NPEND_reconr/
  $title
  $mat_id/
- $ERR/
+ $err/
  $MATD/
 broadr
  $NENDF $NPEND_reconr $NPEND_broadr/
@@ -57,7 +57,6 @@ stop
     NOUT_moder = 21,                                       # MODER output unit
     NENDF = 21,                # unit for endf tape (equivalent to NOUT_moder)
     NPEND_reconr = 22,                   # unit for RECONR-produced pendf tape
-    ERR = 0.001,                         # fractional reconstruction tolerance
     NPEND_broadr = 23,                   # unit for BROADR-produced pendf tape
     N_FINAL_TEMPS = 1,            # number of final temperatures (default = 1)
     ERRTHN = 0.001,                        # fractional tolerance for thinning
@@ -321,7 +320,8 @@ def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
 
 def fill_input_template(
     inp, material_id, MTs, element, A, mt_dict, temperature,
-    pKZA=None, isomer_dict={}, unresr_fail=False, ign=17, ngn='', egn=''
+    pKZA=None, isomer_dict={}, unresr_fail=False, err=0.001,
+    ign=17, ngn='', egn=''
 ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
@@ -358,6 +358,9 @@ def fill_input_template(
             module raised an ***error in rdunf2*** message (see NJOY module
             section 5.6 for further description of UNRESR errors).
             (Defaults to False)
+        err (float, optional): Option to set the RECONR fractional error
+            tolerance.
+            (Defaults to 0.001)
         ign (str or int, optional): GROUPR neutron group structure parameter.
             ign = 1 for arbitrary group structures not contained in NJOY's
             built-in list of options. Default value corresponds to ign key for
@@ -369,7 +372,7 @@ def fill_input_template(
         egn (str): Space-joined string of all energy group bounds in ascending
             order. Will be an empty string unless ign == 1.
             (Defaults to '')
-    
+
     Returns:
         template (str): Modified template with the material-
             specific information substituted in for the $identifiers,
@@ -426,7 +429,8 @@ def fill_input_template(
         ngn=ngn,
         egn=egn,                     
         reactions=card9,                                        
-        npend_gaspr=npend_gaspr
+        npend_gaspr=npend_gaspr,
+        err=err
     )
 
 def write_njoy_input_file(template):
@@ -523,7 +527,7 @@ def ensure_gendf_markers(gendf_path, matb):
     with open(gendf_path, 'w') as gendf_file:
         gendf_file.write(file_str)
 
-def run_njoy(element, A, matb, file_capture):
+def run_njoy(element, A, matb, file_capture, timeout=None):
     """
     Use subprocess to run NJOY given a pre-written input card to either
         prepare, format, and produce a PENDF file with NJOY modules RECONR,
@@ -541,6 +545,8 @@ def run_njoy(element, A, matb, file_capture):
         matb (int): Unique material ID for the material in the files.
         file_capture (str): Type of file to be saved from this particular 
             iteration of NJOY runs. Either "PENDF" or "GENDF".
+        timeout (None or int): Runtime limit for NJOY run.
+            (Defaults to None)
     
     Returns:
         file_info['save'] (pathlib._local.PosixPath or None):
@@ -557,10 +563,16 @@ def run_njoy(element, A, matb, file_capture):
     }
 
     # Run NJOY
-    with open(INPUT, 'r') as f:
+    try:
         result = subprocess.run(
-            ['njoy'], stdin=f, text=True, capture_output=True
+            ['njoy'],
+            input=open(INPUT).read(),
+            text=True,
+            capture_output=True,
+            timeout=timeout
         )
+    except subprocess.TimeoutExpired as te:
+        return None, te, None
 
     fileinfo = file_metadata[file_capture]
     fileinfo['save'] = None
