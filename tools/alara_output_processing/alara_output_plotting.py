@@ -809,7 +809,7 @@ def plot_single_response(
                 shade_pivs[run_lbl] = shade_piv
             
             else:
-                shade_piv[run_lbl] = piv
+                shade_pivs[run_lbl] = piv
 
     pivs = [data[2] for data in data_list]
     color_map = build_color_map(cmap_name=cmap_name, pivs=pivs)
