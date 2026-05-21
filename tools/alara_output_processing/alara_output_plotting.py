@@ -587,16 +587,21 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
             dominance_ranges[nuc].append(bounds[i], bounds[1 + i])
 
     for i, (nuc, dominance) in enumerate(zip(dominant_nucs, relative_max)):
-        ax.axvspan(
-            bounds[i],
-            bounds[i + 1],
-            color=color_map[nuc],
-            # Shading transparency as an inverse function of the relative
-            # contribution of the dominant nuclide
-            alpha=0.2 * dominance,
-            linewidth=0,
-            label=None
-        )
+        for rnge in dominance_ranges[nuc]:
+            if np.diff(rnge) > 0:
+                ax.axvspan(
+                    bounds[i],
+                    bounds[i + 1],
+                    color=color_map[nuc],
+                    # Shading transparency as an inverse function of the relative
+                    # contribution of the dominant nuclide
+                    alpha=0.2 * dominance,
+                    linewidth=0,
+                    label=None
+                )
+            else:
+                del dominance_ranges[nuc]
+                del color_map[nuc]
 
     return ax, color_map, dominance_ranges
 
@@ -800,9 +805,9 @@ def plot_single_response(
     plotted_nucs = []
     xmax = 0
     all_dominance_ranges = defaultdict(list)
+    shading_color_map = {} if total else color_map
 
     for run_lbl, filtered, piv, style in data_list:
-        shading_color_map = {} if total else color_map
         if shading:
             shade_piv = piv
             if total:
@@ -816,9 +821,10 @@ def plot_single_response(
                     half_lives=half_lives
                 )
 
-            ax, shading_color_map, dominance_ranges = shade_dominant_nuclides(
-                shade_piv, ax, shading_color_map, cmap_name=cmap_name
+            ax, run_shading_cmap, dominance_ranges = shade_dominant_nuclides(
+                shade_piv, ax, {}, cmap_name=cmap_name
             )
+            shading_color_map.update(run_shading_cmap)
 
             for nuc, ranges in dominance_ranges.items():
                 for tmin, tmax in ranges:
