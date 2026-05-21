@@ -774,6 +774,7 @@ def plot_single_response(
         run_lbls = [run_lbls]
 
     data_list = []
+    shade_pivs = {}
     styles = list(
         lines.lineStyles.keys() if plot_type == 'plot'
         else lines.lineMarkers.keys()
@@ -795,22 +796,7 @@ def plot_single_response(
             control_piv = piv
         else:
             data_list.append((run_lbl, filtered, piv, style))
-
-    pivs = [data[2] for data in data_list]
-    color_map = build_color_map(cmap_name=cmap_name, pivs=pivs)
-    thalf_cmap = build_color_map(
-        cmap_name='Reds', pivs=pivs, mark_thalf=mark_thalf
-    )
-
-    plotted_nucs = []
-    xmax = 0
-    all_dominance_ranges = defaultdict(list)
-    shading_color_map = {} if total else color_map
-
-    for run_lbl, filtered, piv, style in data_list:
-        if shading:
-            shade_piv = piv
-            if total:
+            if shading and total:
                 _, shade_piv = preprocess_data(
                     adf=adf,
                     run_lbl=run_lbl,
@@ -820,11 +806,33 @@ def plot_single_response(
                     head=head,
                     half_lives=half_lives
                 )
+                shade_pivs[run_lbl] = shade_piv
+            
+            else:
+                shade_piv[run_lbl] = piv
 
-            ax, run_shading_cmap, dominance_ranges = shade_dominant_nuclides(
-                shade_piv, ax, {}, cmap_name=cmap_name
+    pivs = [data[2] for data in data_list]
+    color_map = build_color_map(cmap_name=cmap_name, pivs=pivs)
+    thalf_cmap = build_color_map(
+        cmap_name='Reds', pivs=pivs, mark_thalf=mark_thalf
+    )
+
+    shading_color_map = {}
+    if shading:
+        shading_color_map = build_color_map(
+            cmap_name=cmap_name, pivs=list(shade_pivs.values())
+        )
+
+    plotted_nucs = []
+    xmax = 0
+    all_dominance_ranges = defaultdict(list)
+
+    for run_lbl, filtered, piv, style in data_list:
+        if shading:
+            ax, _, dominance_ranges = shade_dominant_nuclides(
+                shade_pivs[run_lbl], ax,
+                shading_color_map, cmap_name=cmap_name
             )
-            shading_color_map.update(run_shading_cmap)
 
             for nuc, ranges in dominance_ranges.items():
                 for tmin, tmax in ranges:
