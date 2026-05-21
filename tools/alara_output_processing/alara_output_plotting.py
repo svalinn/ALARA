@@ -568,19 +568,23 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
     # Calculate logarithmic half-way values for each cooling time for shading
     # to flow smoothly between nuclide regions
     logt = np.log10(times)
-    bounds = np.empty(len(times) + 1)
-    bounds[1:-1] = 10 ** ((logt[:-1] + logt[1:]) / 2)
-    bounds[0]    = 10 ** (logt[0] - (logt[1] - logt[0]) / 2)
-    bounds[-1]   = 10 ** (logt[-1] + (logt[-1] - logt[-2]) / 2)
+    half_delta_logt = 0.5 * np.diff(logt)
+    log_bounds = np.empty(len(times) + 1)
+    log_bounds[0] = logt[0] - half_delta_logt[0]
+    log_bounds[1:-1] = logt[:-1] + half_delta_logt
+    log_bounds[-1] = logt[-1] + half_delta_logt[-1]
+    bounds = np.nan_to_num(10**log_bounds, nan=0.0)
 
     # Calculate the time bounds for each dominant nuclide's period of leading
     # contribution to the response variable
     dominance_ranges = {}
     for i, nuc in enumerate(dominant_nucs):
         if nuc not in dominance_ranges:
-            dominance_ranges[nuc] = [bounds[i], bounds[i + 1]]
+            dominance_ranges[nuc] = [[bounds[i], bounds[i + 1]]]
+        elif dominance_ranges[nuc][-1][1] == bounds[i]:
+            dominance_ranges[nuc][-1][1] = bounds[i + 1]
         else:
-            dominance_ranges[nuc][1] = bounds[i + 1]
+            dominance_ranges[nuc].append(bounds[i], bounds[1 + i])
 
     for i, (nuc, dominance) in enumerate(zip(dominant_nucs, relative_max)):
         ax.axvspan(
@@ -815,8 +819,10 @@ def plot_single_response(
             ax, shading_color_map, dominance_ranges = shade_dominant_nuclides(
                 shade_piv, ax, shading_color_map, cmap_name=cmap_name
             )
-            for nuc, (tmin, tmax) in dominance_ranges.items():
-                all_dominance_ranges[nuc].append((run_lbl, tmin, tmax))
+
+            for nuc, ranges in dominance_ranges.items():
+                for tmin, tmax in ranges:
+                    all_dominance_ranges[nuc].append((run_lbl, tmin, tmax))
 
         for nuc in piv.index:
             if nuc == 'total' and not total:
@@ -845,10 +851,15 @@ def plot_single_response(
                         f'\\ \\sigma = {y.std():.{sig_figs}g}$\n――――――'
                     )
 
+            x = piv.columns
+            last_nonzero_time = x[np.flatnonzero(y)[-1]]
+            if last_nonzero_time > xmax:
+                xmax = last_nonzero_time
+
             plot_or_scatter(
                 ax=ax,
                 plot_type=plot_type,
-                x=piv.columns,
+                x=x,
                 y=y,
                 label=(nuc + label_suffix),
                 color=color_map[nuc] if nuc != 'total' else "#574949",
@@ -896,6 +907,7 @@ def plot_single_response(
     ax.set_ylabel(ylabel)
     ax.set_xlabel(f'Time ({time_unit})')
     ax.set_xscale('log')
+    ax.set_xlim(right=xmax)
     ax.set_yscale(yscale)
     if ymin:
         ax.set_ylim(bottom=ymin)
