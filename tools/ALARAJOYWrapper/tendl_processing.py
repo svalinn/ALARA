@@ -219,11 +219,12 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
                 if file and MT in [MT.MT for MT in file.sections]:
                     section = file.section(MT)
                     for line in section.content.split('\n'):
-                        if f' {za} ' in line:
+                        spaced_za = f' {za} '
+                        if spaced_za in line:
                             # Line formatted with ZA cushioned by whitespace
                             # on both sides
                             isomer_dict[MT][MF].append(int(
-                                line.split(za)[1].strip().split(' ')[0]
+                                line.split(spaced_za)[1].strip().split(' ')[0]
                             ))
 
             if not isomer_dict[MT]:
