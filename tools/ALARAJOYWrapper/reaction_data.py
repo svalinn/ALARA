@@ -260,103 +260,26 @@ def process_mt_data(mt_dict):
 
     return mt_dict
 
-def resolve_ukdd_inconsistencies(decay_parser, decay_file):
-    """
-    Check formatting of a single-nuclide UKDD decay file. Expected formatting
-        inconsistencies resolvable by removing blank lines and/or inserting
-        missing TEND records.
-    
-    Arguments:
-        decay_parser (endf_parserpy.interpreter.endf_parser.EndfParserPy): 
-            EndfParserPy parser object.
-        decay_file (pathlib._local.PosixPath): Path to a single-nuclide UKDD
-            decay file.
-
-    Returns:
-        decay_data (dict): Dictionary containing all parsed decay data from a
-            single-nuclide UKDD decay file.
-    """
-
-    decay_MF = 8
-    while True:
-        try:
-            return decay_parser.parsefile(decay_file)#[decay_MF][DECAY_MT]
-
-        except BlankLineError as B:
-            blank_line = int(str(B).split()[1])
-            with open(decay_file, 'r') as f:
-                lines = f.readlines()
-            del lines[blank_line]
-            
-            with open(decay_file, 'w') as f:
-                f.writelines(lines)
-
-        except UnexpectedEndOfInputError:
-            with open(decay_file, 'a') as f:
-                f.write('\n' + TEND_RECORD)
-
-        # NEA Gitlab distribution of UKDD-20 contains a binary reference file
-        # unreadable by the EndfParserPy. Empty dictionary will be returned
-        # and file will be passed over.
-        except UnicodeDecodeError as U:
-            warnings.warn(
-                f'Invalid file {decay_file} causing "{U}" error. Skipping.'
-            )
-            return dict()
-
-def append_to_compiled_lib(
-        decay_file, compiled_file, decay_lib_type, last_file=False
-):
+def append_to_compiled_lib(lines, compiled_file):
     """
     Append the contents of a single- or multi-nuclide decay file to a compiled
         file for the whole library.
 
     Arguments:
-        decay_file (pathlib._local.PosixPath): Path to a single-nuclide UKDD
-            or EAF decay file.
+        lines (list of str): List of parsed lines from a decay file.
         compiled_file (pathlib._local.PosixPath): Path to the compiled decay
             library file.
-        decay_lib_type (str): Tag for one of the two decay library types that
-            can be processed by ALARAJOYWrapper; either 'ukdd' or 'eaf'.
-        last_file (bool, optional): Boolean flag for to mark the final nuclide
-            file in the decay library. Only needed for UKDD decay libraries.
-            (Defaults to False)
 
     Returns:
         None
     """
 
-    with open(decay_file, 'r') as f:
-        lines = f.readlines()
+    # Ensure final line includes a newline signifier
+    if not lines[-1].endswith('\n'):
+        lines[-1] += '\n'
 
     with open(compiled_file, 'a') as f:
         f.writelines(lines)
-
-def ensure_line_length_compliance(compiled_file):
-    """
-    Split lines that may have been joined together without a newline separator
-        during file compilation.
-
-    Arguments:
-        compiled_file (pathlib._local.PosixPath): Path to the compiled decay
-            library file.
-
-    Returns:
-        lines (list of str): List of all lines in the compiled decay library,
-            each with a maximum of 81 characters by ENDF/B formatting
-            conventions.
-    """
-
-    max_line_len = 81
-    max_line_idx = max_line_len - 1
-
-    with open(compiled_file, 'r') as f:
-        lines = f.readlines()
-        for i, line in enumerate(lines):
-            if len(line) > max_line_len:
-                lines[i] = f'{line[:max_line_idx]}\n{line[max_line_idx:]}'
-
-    return lines
 
 def compile_decay_lib(decay_dir, decay_lib_type, dir):
     """
@@ -379,50 +302,58 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
 
     compiled_file = dir / f'{decay_dir}_compiled'
     compiled_file.unlink(missing_ok=True)
-    
+
     ukdd_options = ['ukdd', 'ukaeadd', 'decay_2020', 'decay_2012']
     if decay_lib_type.lower() in ukdd_options:
         decay_lib_type = 'ukdd'
-        all_nucs = dict()
-        for ukdd_file in decay_dir.iterdir():
-            if '.DS_Store' in str(ukdd_file):
-                ukdd_file.unlink()
-                continue
 
+    ukdd_nucs = dict()
+    for decay_file in decay_dir.iterdir():
+        if '.DS_Store' in str(decay_file):
+            decay_file.unlink()
+            continue
+
+        with open(decay_file, 'r') as f:
+            lines = f.readlines()
+
+        # Remove blank lines
+        updated_lines = [line for line in lines if line.strip()]
+
+        # Include missing TEND Records
+        if TEND_RECORD.strip().rstrip('0').strip() not in updated_lines[-1]:
+            tend_line = TEND_RECORD
+            if not updated_lines[-1].endswith('\n'):
+                tend_line = '\n' + tend_line
+            updated_lines.append(tend_line)
+
+        # Overwrite file if changes were made
+        if lines != updated_lines:
+            with open(decay_file, 'w') as f:
+                f.writelines(updated_lines)
+
+        # Save individual nuclide KZAs from UKDD data for ascending KZA
+        # compilation
+        if decay_lib_type == 'ukdd':
             decay_parser = EndfParserPy()
-            parsed_file = resolve_ukdd_inconsistencies(decay_parser, ukdd_file)
-            if parsed_file:
-                decay_data = parsed_file[8][457]
-                decay_data['filepath'] = ukdd_file
-                kza = int(decay_data['ZA']) * 10 + int(decay_data['LISO'])
-                all_nucs[kza] = decay_data
+            decay_data = decay_parser.parsefile(decay_file)[8][457]
+            decay_data['filepath'] = decay_file
+            kza = int(decay_data['ZA']) * 10 + int(decay_data['LISO'])
+            ukdd_nucs[kza] = decay_data
 
-        for i, kza in enumerate(sorted(all_nucs)):
-            last_file = False
-            if i == len(all_nucs) - 1:
-                last_file = True
+        elif 'eaf' in decay_lib_type.lower():
+            append_to_compiled_lib(updated_lines, compiled_file)
 
-            append_to_compiled_lib(
-                all_nucs[kza]['filepath'],
-                compiled_file,
-                decay_lib_type,
-                last_file
+        else:
+            raise ValueError(
+                'Invalid library type. Must be either an EAF or UKDD release.'
             )
 
-    elif 'eaf' in decay_lib_type.lower():
-        for file in decay_dir.iterdir():
-            append_to_compiled_lib(
-                file, compiled_file, decay_lib_type
-            )
+    if decay_lib_type == 'ukdd':
+        for kza in sorted(ukdd_nucs):
+            with open(ukdd_nucs[kza]['filepath'], 'r') as f:
+                lines = f.readlines()
 
-    else:
-        raise ValueError(
-            'Invalid library type. Must be either an EAF or UKDD release.'
-        )
-
-    lines = ensure_line_length_compliance(compiled_file)
-    with open(compiled_file, 'w') as f:
-        f.writelines(lines)
+            append_to_compiled_lib(lines, compiled_file)
 
     print(
         f'Compiled {decay_lib_type.upper()} decay libary to {compiled_file}.'
