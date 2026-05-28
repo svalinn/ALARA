@@ -333,8 +333,7 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
         if decay_lib_type == 'ukdd':
             endf_file_obj, _ = create_endf_file_obj(decay_file, DECAY_MF)
             decay_data = endf_file_obj.section(DECAY_MT).parse()
-            kza = decay_data.ZA * 10 + decay_data.LISO
-            ukdd_nucs[kza] = decay_file
+            ukdd_nucs[decay_data.ZA * 10 + decay_data.LISO] = decay_file
 
         elif 'eaf' in decay_lib_type.lower():
             append_to_compiled_lib(updated_lines, compiled_file)
