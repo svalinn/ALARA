@@ -435,19 +435,7 @@ def find_nucs_from_decay_lib(compiled_decay_lib):
         line = f.readline()
 
         while line:
-
-            try:
-                MT = get_MT_from_line(line)
-            
-            # Certain file headers may not be full 81 character lines
-            # containing an MT value. Does not affect decay library parsing
-            # here or in ALARA.
-            except ValueError as V:
-                if str(V) == "invalid literal for int() with base 10: ''":
-                    pass
-                else:
-                    raise V
-
+            MT = get_MT_from_line(line)
             if not _in_decay_block and MT == DECAY_MT:
                 _in_decay_block = True
 
