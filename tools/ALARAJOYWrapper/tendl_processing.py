@@ -138,7 +138,7 @@ def search_for_files(dir = Path.cwd()):
                     break
 
             else:
-                new_filename = dir / f'{element}{A.split(str(0))[-1]}.tendl'
+                new_filename = dir / f'{element}{A}.tendl'
                 if new_filename != file:
                     file.rename(new_filename)
                     warnings.warn(
