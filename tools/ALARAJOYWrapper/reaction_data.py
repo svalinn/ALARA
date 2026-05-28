@@ -1,7 +1,6 @@
 import csv
 from numpy import array
 import pandas as pd
-from endf_parserpy import EndfParserPy
 
 # Define a dictionary containing all of the pathways for neutron and proton
 # changes in a nucleus following neutron activation
@@ -22,6 +21,7 @@ GAS_DF = pd.DataFrame({
     'kza'       : [10010, 10020, 10030, 20030, 20040],
     'total_mt'  : range(203, 207 + 1)
 })
+DECAY_MF = 8
 DECAY_MT = 457
 TEND_RECORD =  ' ' * 68 + '-1 0  0    0'
 
@@ -295,6 +295,8 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
             library file.
     """
 
+    from tendl_processing import create_endf_file_obj
+
     compiled_file = dir / f'{decay_dir}_compiled'
     compiled_file.unlink(missing_ok=True)
 
@@ -329,11 +331,10 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
         # Save individual nuclide KZAs from UKDD data for ascending KZA
         # compilation
         if decay_lib_type == 'ukdd':
-            decay_parser = EndfParserPy()
-            decay_data = decay_parser.parsefile(decay_file)[8][457]
-            decay_data['filepath'] = decay_file
-            kza = int(decay_data['ZA']) * 10 + int(decay_data['LISO'])
-            ukdd_nucs[kza] = decay_data
+            endf_file_obj, _ = create_endf_file_obj(decay_file, DECAY_MF)
+            decay_data = endf_file_obj.section(DECAY_MT).parse()
+            kza = decay_data.ZA * 10 + decay_data.LISO
+            ukdd_nucs[kza] = decay_file
 
         elif 'eaf' in decay_lib_type.lower():
             append_to_compiled_lib(updated_lines, compiled_file)
@@ -345,7 +346,7 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
 
     if decay_lib_type == 'ukdd':
         for kza in sorted(ukdd_nucs):
-            with open(ukdd_nucs[kza]['filepath'], 'r') as f:
+            with open(ukdd_nucs[kza], 'r') as f:
                 lines = f.readlines()
 
             append_to_compiled_lib(lines, compiled_file)
