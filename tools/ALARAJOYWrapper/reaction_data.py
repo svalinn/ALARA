@@ -2,11 +2,6 @@ import csv
 from numpy import array
 import pandas as pd
 from endf_parserpy import EndfParserPy
-from endf_parserpy.interpreter.endf_utils import (
-    BlankLineError, UnexpectedEndOfInputError, UnexpectedControlRecordError
-)
-import warnings
-from pathlib import Path
 
 # Define a dictionary containing all of the pathways for neutron and proton
 # changes in a nucleus following neutron activation
