@@ -138,12 +138,12 @@ def search_for_files(dir = Path.cwd()):
                     break
 
             else:
-                formatted_filename = dir / f'{element}{A}.tendl'
-                if formatted_filename != file:
-                    file.rename(formatted_filename)
+                new_filename = dir / f'{element}{A.split(str(0))[-1]}.tendl'
+                if new_filename != file:
+                    file.rename(new_filename)
                     warnings.warn(
                         f'Improperly named TENDL file {file} renamed to ' \
-                        f'{formatted_filename} to match nuclide ID.'
+                        f'{new_filename} to match nuclide ID.'
                     )
 
                 file_info.append({
