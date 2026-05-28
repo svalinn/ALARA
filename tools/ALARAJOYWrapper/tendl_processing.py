@@ -150,7 +150,7 @@ def search_for_files(dir = Path.cwd()):
                     'Element'         :            element,
                     'Mass Number'     :                  A,
                     'pKZA'            :               pKZA,
-                    'TENDL File Path' : formatted_filename
+                    'TENDL File Path' :       new_filename
                 })
 
     return file_info
