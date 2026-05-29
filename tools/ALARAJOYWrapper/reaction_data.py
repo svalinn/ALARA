@@ -295,7 +295,7 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
             library file.
     """
 
-    from tendl_processing import create_endf_file_obj
+    from tendl_processing import calculate_KZA_from_ENDF
 
     compiled_file = dir / f'{decay_dir}_compiled'
     compiled_file.unlink(missing_ok=True)
@@ -331,9 +331,8 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
         # Save individual nuclide KZAs from UKDD data for ascending KZA
         # compilation
         if decay_lib_type == 'ukdd':
-            endf_file_obj, _ = create_endf_file_obj(decay_file, DECAY_MF)
-            decay_data = endf_file_obj.section(DECAY_MT).parse()
-            ukdd_nucs[decay_data.ZA * 10 + decay_data.LISO] = decay_file
+            kza = calculate_KZA_from_ENDF(decay_file, DECAY_MF, DECAY_MT)
+            ukdd_nucs[kza] = decay_file
 
         elif 'eaf' in decay_lib_type.lower():
             append_to_compiled_lib(updated_lines, compiled_file)
