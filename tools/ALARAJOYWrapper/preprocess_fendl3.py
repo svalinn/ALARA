@@ -410,8 +410,18 @@ def main():
 
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
     decay_path, decay_lib_type = args.decay_lib
+    ukdd_options = ['ukdd', 'ukaeadd', 'decay_2020', 'decay_2012']
+    if decay_lib_type.lower() in ukdd_options:
+        decay_lib_type = 'ukdd'
+
+    if decay_lib_type.lower() not in ['ukdd', 'eaf']:
+        raise ValueError(
+            'Invalid library type. Must be either an EAF or UKDD release.'
+        )
+
     decay_path = Path(decay_path)
     if decay_path.is_dir():
+        rxd.resolve_decay_file_formatting_issues(decay_path, decay_lib_type)
         decay_path = rxd.compile_decay_lib(decay_path, decay_lib_type, dir)
 
     all_nucs = rxd.find_nucs_from_decay_lib(decay_path)
