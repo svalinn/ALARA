@@ -597,7 +597,6 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
                 label=None
             )
 
-
     return ax, color_map, dominance_ranges
 
 def collect_shading_labels(ax, color_map, all_dominance_ranges, time_unit):
