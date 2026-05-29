@@ -83,17 +83,17 @@ def interpret_KZA(kza):
 
     Returns:
         element (str): Chemical symbol of the target nuclide.
-        A (str or int): Mass number for selected isotope.
+        A (str): Mass number for selected isotope.
             If the target is a metastable isomer, "m" or "n" is written after 
             the mass number, corresponding to the first or second metastable
             states.
     """
 
-    kza = str(kza)
-    A = kza[-4:-1]
-    Z = kza[:kza.find(A)].zfill(2)
-    element = list(elements.keys())[int(Z) - 1]
-    M = int(kza[-1])
+    M = kza % 10
+    za = kza // 10
+    A = str(za % 1000)
+    Z = za // 1000
+    element = list(elements.keys())[Z - 1]
     if M > 0:
         A += ISOMERIC_STATES[M - 1]
 
