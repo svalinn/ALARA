@@ -106,7 +106,7 @@ def configure_logging(redirect_warnings=False):
 
 def process_pendf(
     material_id, MTs, pKZA, mt_dict, temperature,
-    tendl_path, tendl_dir, unresr_err_count
+    tendl_path, tendl_dir, unresr_err_cases
 ):
     """
     Prepare and run initial NJOY run with MODER, RECONR, BROADR, UNRESR, and
@@ -191,10 +191,10 @@ def process_pendf(
     if prep_error and unresr_error_flag in njoy_out:
         warnings.warn(
             'UNRESR failed to produce cross-sections in the unresolved '\
-            f'energy range for {element}{A}:\n'\
+            f'energy range for {element}-{A}:\n'\
             f'{njoy_out[njoy_out.find(unresr_error_flag):]}Skipping to GASPR.'
         )
-        unresr_err_count += 1
+        unresr_err_cases.append(f'{element}-{A}')
         gaspr_input = njt.fill_input_template(
             njt.gaspr_input, material_id, MTs, element, A,
             mt_dict, temperature, unresr_fail=True
@@ -211,7 +211,7 @@ def process_pendf(
     MTs |= pendf_MTs.intersection(set(rxd.GAS_DF['total_mt']))
     isomer_dict = tp.determine_all_excitations(tendl_path, MTs, pKZA, mt_dict)
 
-    return MTs, isomer_dict, njoy_error, unresr_err_count
+    return MTs, isomer_dict, njoy_error, unresr_err_cases
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict,
@@ -476,7 +476,7 @@ def main():
     eaf_nucs = rxd.find_eaf_ref_data(Path(args.decay_lib[0]))
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
-    unresr_err_count = 0
+    unresr_err_cases = []
     for file_properties in tp.search_for_files(search_dir):
         element, A, pKZA, endf_path = tuple(file_properties.values())
         TAPE20.write_bytes(endf_path.read_bytes())
@@ -491,9 +491,9 @@ def main():
             )
         MTs = MTs.intersection(endf6_MTs)
 
-        MTs, isomer_dict, njoy_prep_error, unresr_err_count = process_pendf(
+        MTs, isomer_dict, njoy_prep_error, unresr_err_cases = process_pendf(
             material_id, MTs, pKZA, mt_dict, temperature,
-            TAPE20, search_dir, unresr_err_count
+            TAPE20, search_dir, unresr_err_cases
         )
 
         if not njoy_prep_error:
@@ -512,8 +512,9 @@ def main():
         njt.cleanup_njoy_files(element, A)
 
     warnings.warn(
-        f'A total of {unresr_err_count} TENDL files required ' \
-        'an increase in UNRESR fractional error tolerance.'
+        f'A total of {len(unresr_err_cases)} TENDL files required ' \
+        'an increase in UNRESR fractional error tolerance for the following' \
+        f'nuclides: {unresr_err_cases}'
     )
 
     # Handle gas total production cross-sections, per user specifications
