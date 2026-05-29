@@ -138,6 +138,8 @@ def process_pendf(
             unmodified TENDL file.
         tendl_dir (pathlib._local.PosixPath): Path to the directory in which
             the original TENDL nuclide files are contained.
+        unresr_err_cases (list of str): List of all nuclides that required an
+            increase in the fractional error tolerance for UNRESR.
 
     Returns:
         MTs (set): Updated set of all reaction types shared between the
@@ -151,6 +153,9 @@ def process_pendf(
             TENDL file.
         njoy_error (str): Error message from the NJOY run. Empty string if run
             is successful.
+        unresr_err_cases (list of str): Updated list of nuclides that required
+            an increase in the fractional error tolerance for UNRESR, if the
+            given nuclide was so.
     """
 
     element, A = tp.interpret_KZA(pKZA)
