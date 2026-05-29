@@ -255,22 +255,63 @@ def process_mt_data(mt_dict):
 
     return mt_dict
 
-def append_to_compiled_lib(lines, compiled_file):
+def resolve_decay_file_formatting_issues(decay_dir, decay_lib_type):
     """
-    Append the contents of a single- or multi-nuclide decay file to a compiled
-        file for the whole library.
+    Check a decay file to identify and resolve formatting inconsistencies,
+        which include blank lines, missing TEND records, and files not ending
+        in newlines. For single-nuclide decay files contained in UKDD decay
+        data distributions, rename files by their KZA so that they can be
+        later compiled by ascending KZA value, as expected by EAFLib for decay
+        library processing.
 
     Arguments:
-        lines (list of str): List of parsed lines from a decay file.
-        compiled_file (pathlib._local.PosixPath): Path to the compiled decay
-            library file.
+        decay_dir (pathlib._local.PosixPath): Filepath to the directory
+            exclusively containing decay data files for either an EAF or UKDD
+            decay library.
+        decay_lib_type (str): Identifier tag for either EAF or UKDD data.
 
     Returns:
         None
     """
 
-    with open(compiled_file, 'a') as f:
-        f.writelines(lines)
+    from tendl_processing import calculate_KZA_from_ENDF
+
+    ukdd_options = ['ukdd', 'ukaeadd', 'decay_2020', 'decay_2012']
+    if decay_lib_type.lower() in ukdd_options:
+        decay_lib_type = 'ukdd'
+
+    for decay_file in decay_dir.iterdir():
+        if '.DS_Store' in str(decay_file):
+            decay_file.unlink()
+            continue
+
+        with open(decay_file, 'r') as f:
+            lines = f.readlines()
+
+        # Remove blank lines
+        updated_lines = [line for line in lines if line.strip()]
+
+        # Include missing TEND Records
+        if TEND_RECORD.strip().rstrip('0').strip() not in updated_lines[-1]:
+            tend_line = TEND_RECORD
+            if not updated_lines[-1].endswith('\n'):
+                tend_line = '\n' + tend_line
+            updated_lines.append(tend_line)
+
+        # Ensure file ends with a newline
+        if not updated_lines[-1].endswith('\n'):
+            updated_lines[-1] += '\n'
+
+        # Overwrite file if changes were made
+        if lines != updated_lines:
+            with open(decay_file, 'w') as f:
+                f.writelines(updated_lines)
+
+        # Rename decay file to the KZA value so that a sorted decay directory
+        # iteration will go in order of ascending KZA
+        if decay_lib_type == 'ukdd':
+            kza = calculate_KZA_from_ENDF(decay_file, DECAY_MF, DECAY_MT)
+            decay_file.rename(decay_dir / str(kza))
 
 def compile_decay_lib(decay_dir, decay_lib_type, dir):
     """
@@ -291,67 +332,25 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
             library file.
     """
 
-    from tendl_processing import calculate_KZA_from_ENDF
-
     compiled_file = dir / f'{decay_dir}_compiled'
     compiled_file.unlink(missing_ok=True)
 
-    ukdd_options = ['ukdd', 'ukaeadd', 'decay_2020', 'decay_2012']
-    if decay_lib_type.lower() in ukdd_options:
-        decay_lib_type = 'ukdd'
+    sorted_filepaths = sorted(decay_dir.iterdir())
+    if decay_lib_type == 'ukdd':
+        sorted_KZAs = sorted([int(p.stem) for p in sorted_filepaths])
+        sorted_filepaths = [decay_dir / str(kza) for kza in sorted_KZAs]
 
-    ukdd_nucs = dict()
-    for decay_file in decay_dir.iterdir():
-        if '.DS_Store' in str(decay_file):
-            decay_file.unlink()
-            continue
-
+    for decay_file in sorted_filepaths:
         with open(decay_file, 'r') as f:
             lines = f.readlines()
 
-        # Remove blank lines
-        updated_lines = [line for line in lines if line.strip()]
-
-        # Include missing TEND Records
-        if TEND_RECORD.strip().rstrip('0').strip() not in updated_lines[-1]:
-            tend_line = TEND_RECORD
-            if not updated_lines[-1].endswith('\n'):
-                tend_line = '\n' + tend_line
-            updated_lines.append(tend_line)
-
-        # Ensure file ends with a newline
-        if not lines[-1].endswith('\n'):
-            lines[-1] += '\n'
-
-        # Overwrite file if changes were made
-        if lines != updated_lines:
-            with open(decay_file, 'w') as f:
-                f.writelines(updated_lines)
-
-        # Save individual nuclide KZAs from UKDD data for ascending KZA
-        # compilation
-        if decay_lib_type == 'ukdd':
-            kza = calculate_KZA_from_ENDF(decay_file, DECAY_MF, DECAY_MT)
-            ukdd_nucs[kza] = decay_file
-
-        elif 'eaf' in decay_lib_type.lower():
-            append_to_compiled_lib(updated_lines, compiled_file)
-
-        else:
-            raise ValueError(
-                'Invalid library type. Must be either an EAF or UKDD release.'
-            )
-
-    if decay_lib_type == 'ukdd':
-        for kza in sorted(ukdd_nucs):
-            with open(ukdd_nucs[kza], 'r') as f:
-                lines = f.readlines()
-
-            append_to_compiled_lib(lines, compiled_file)
+        with open(compiled_file, 'a') as f:
+            f.writelines(lines)
 
     print(
         f'Compiled {decay_lib_type.upper()} decay libary to {compiled_file}.'
     )
+
     return compiled_file
 
 def standardize_float(num_str):
