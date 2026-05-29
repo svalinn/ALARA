@@ -269,10 +269,6 @@ def append_to_compiled_lib(lines, compiled_file):
         None
     """
 
-    # Ensure final line includes a newline signifier
-    if not lines[-1].endswith('\n'):
-        lines[-1] += '\n'
-
     with open(compiled_file, 'a') as f:
         f.writelines(lines)
 
@@ -322,6 +318,10 @@ def compile_decay_lib(decay_dir, decay_lib_type, dir):
             if not updated_lines[-1].endswith('\n'):
                 tend_line = '\n' + tend_line
             updated_lines.append(tend_line)
+
+        # Ensure file ends with a newline
+        if not lines[-1].endswith('\n'):
+            lines[-1] += '\n'
 
         # Overwrite file if changes were made
         if lines != updated_lines:
