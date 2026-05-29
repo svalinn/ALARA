@@ -571,6 +571,7 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
     bounds[1:-1] = np.sqrt(times[1:] * times[:-1])
     bounds[0] = times[0] * times[0] / bounds[1]
     bounds[-1] = times[-1] * times[-1] / bounds[-2]
+    bounds = np.nan_to_num(bounds, nan=0.0)
 
     # Calculate the time bounds for each dominant nuclide's period of leading
     # contribution to the response variable
@@ -581,24 +582,21 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
         elif dominance_ranges[nuc][-1][1] == bounds[i]:
             dominance_ranges[nuc][-1][1] = bounds[i + 1]
         else:
-            dominance_ranges[nuc].append(bounds[i], bounds[1 + i])
+            dominance_ranges[nuc].append([bounds[i], bounds[1 + i]])
 
     for i, (nuc, dominance) in enumerate(zip(dominant_nucs, relative_max)):
-        for rnge in dominance_ranges[nuc]:
-            if np.diff(rnge) > 0:
-                ax.axvspan(
-                    bounds[i],
-                    bounds[i + 1],
-                    color=color_map[nuc],
-                    # Shading transparency as an inverse function of the relative
-                    # contribution of the dominant nuclide
-                    alpha=0.2 * dominance,
-                    linewidth=0,
-                    label=None
-                )
-            else:
-                del dominance_ranges[nuc]
-                del color_map[nuc]
+        for _ in dominance_ranges[nuc]:
+            ax.axvspan(
+                bounds[i],
+                bounds[i + 1],
+                color=color_map[nuc],
+                # Shading transparency as an inverse function of the relative
+                # contribution of the dominant nuclide
+                alpha=0.2 * dominance,
+                linewidth=0,
+                label=None
+            )
+
 
     return ax, color_map, dominance_ranges
 
