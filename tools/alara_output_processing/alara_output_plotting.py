@@ -567,13 +567,10 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
 
     # Calculate logarithmic half-way values for each cooling time for shading
     # to flow smoothly between nuclide regions
-    logt = np.log10(times)
-    half_delta_logt = 0.5 * np.diff(logt)
-    log_bounds = np.empty(len(times) + 1)
-    log_bounds[0] = logt[0] - half_delta_logt[0]
-    log_bounds[1:-1] = logt[:-1] + half_delta_logt
-    log_bounds[-1] = logt[-1] + half_delta_logt[-1]
-    bounds = np.nan_to_num(10**log_bounds, nan=0.0)
+    bounds = np.empty(len(times) + 1)
+    bounds[1:-1] = np.sqrt(times[1:] * times[:-1])
+    bounds[0] = times[0] * times[0] / bounds[1]
+    bounds[-1] = times[-1] * times[-1] / bounds[-2]
 
     # Calculate the time bounds for each dominant nuclide's period of leading
     # contribution to the response variable
