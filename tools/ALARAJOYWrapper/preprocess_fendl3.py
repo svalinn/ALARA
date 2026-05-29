@@ -512,7 +512,7 @@ def main():
         njt.cleanup_njoy_files(element, A)
 
     warnings.warn(
-        f'A total of {unresr_err_count} TENDL files required' \
+        f'A total of {unresr_err_count} TENDL files required ' \
         'an increase in UNRESR fractional error tolerance.'
     )
 
