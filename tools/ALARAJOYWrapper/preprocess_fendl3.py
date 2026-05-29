@@ -8,8 +8,6 @@ import warnings
 from pathlib import Path
 from collections import defaultdict
 
-ISOMERIC_STATES = 'mnopqrstuvwxyz'
-
 def args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -48,69 +46,6 @@ def args():
     )
     return parser.parse_args()
 
-def calculate_pKZA(element, A):
-    """
-    Construct the target (parent) nuclide's KZA value. KZA values are defined
-        as ZZAAAM, where ZZ is the nuclide's atomic number, AAA is the mass
-        number, and M is the isomeric state (0 if ground state).
-
-    Arguments:
-        element (str): Chemical symbol of the target nuclide.
-        A (int or str): Mass number of the nuclide, potentially including an
-            isomeric tag, such as "m" for the first excited state, "n" for the
-            second, etc. (Note: TENDL data should only include up to a maximum
-            of the second excited state).
-
-    Returns:
-        pKZA (int): KZA value of the target nuclide.
-    """
-
-    Z = njt.elements[element]
-    A = str(A).lower()
-
-    # Metastable states classified by TENDL as m = 1, n = 2, etc.
-    # (Generally expecting only m, occasionally n, but physically,
-    # values could go higher, so isomeric_states goes up to z = 14)
-    M = 0
-    isomer_tag = next(
-        (tag for tag in ISOMERIC_STATES if tag in A), None
-    )
-    if isomer_tag:
-        M = ISOMERIC_STATES.find(isomer_tag) + 1
-    
-    if M > 2:
-        warnings.warn(
-            f'Isomeric state greater than 2. Unexpected case for TENDL2017.',
-            UserWarning
-        )
-
-    A = int(A.split(isomer_tag)[0])
-    return (Z * 1000 + A) * 10 + M
-
-def interpret_KZA(kza):
-    """
-    Infer the chemical symbol and mass number from a KZA (ZZAAAM) number.
-
-    Arguments:
-        kza (int): Unique ZZAAAM for a given nuclide.
-
-    Returns:
-        element (str): Chemical symbol of the target nuclide.
-        A (str or int): Mass number for selected isotope.
-            If the target is a metastable isomer, "m" or "n" is written after 
-            the mass number, corresponding to the first or second metastable
-            states.
-    """
-
-    kza = str(kza)
-    A = kza[-4:-1]
-    Z = kza[:kza.find(A)].zfill(2)
-    element = list(njt.elements.keys())[int(Z) - 1]
-    M = int(kza[-1])
-    if M > 0:
-        A += ISOMERIC_STATES[M - 1]
-
-    return element, A
 
 def process_pendf(
     njoy_prep_input, material_id, MTs, pKZA, mt_dict, temperature, tendl_path
@@ -148,7 +83,7 @@ def process_pendf(
             is successful.
     """
 
-    element, A = interpret_KZA(pKZA)
+    element, A = tp.interpret_KZA(pKZA)
     njoy_error = ''
     njoy_input = njt.fill_input_template(
         njoy_prep_input, material_id, MTs, element, A, mt_dict, temperature
@@ -207,7 +142,7 @@ def process_gendf(
             reaction pathways for the given parent and its MTs.
     """
 
-    element, A = interpret_KZA(pKZA)
+    element, A = tp.interpret_KZA(pKZA)
     groupr_input = njt.fill_input_template(
         njoy_groupr_input, material_id, MTs, element,
         A, mt_dict, temperature, pKZA, isomer_dict
@@ -232,19 +167,19 @@ def process_gendf(
                 gendf_MTs, mt_dict, xs_line_dict, pKZA, 
                 all_rxns, eaf_nucs, isomer_dict, gendf_path
             )
-            print(f'Finished processing {element}{A}')
+            print(f'Finished processing {element}-{A}')
 
         else:
             warnings.warn(
                 f'''The requested file (MF3) is not present in the
-                ENDF file tree for {element}{A}'''
+                ENDF file tree for {element}-{A}'''
             )
             with open('mf_fail.log', 'a') as fail:
-                fail.write(f'{element}{A} \n')
+                fail.write(f'{element}-{A} \n')
 
     else:
         warnings.warn(
-            f'''Failed to convert {element}{A}.
+            f'''Failed to convert {element}-{A}.
             NJOY error message: {njoy_error}'''
         )
 
@@ -400,10 +335,7 @@ def main():
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
     for file_properties in tp.search_for_files(search_dir):
-        element = file_properties['Element']
-        A = file_properties['Mass Number']
-        pKZA = calculate_pKZA(element, A)
-        endf_path = file_properties['TENDL File Path']
+        element, A, pKZA, endf_path = tuple(file_properties.values())
         TAPE20.write_bytes(endf_path.read_bytes())
 
         material_id, MTs = tp.extract_endf_specs(TAPE20)
@@ -429,7 +361,7 @@ def main():
 
         else:
             warnings.warn(
-                f'''PENDF preparation failed for {element}{A}.
+                f'''PENDF preparation failed for {element}-{A}.
                 NJOY error message: {njoy_prep_error}'''
             )
 

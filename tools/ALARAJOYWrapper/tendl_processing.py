@@ -2,6 +2,7 @@
 import ENDFtk
 from pathlib import Path
 from reaction_data import GAS_DF
+from njoy_tools import elements
 from collections import defaultdict
 import warnings
 import numpy as np
@@ -22,75 +23,7 @@ REVERSE_EXCITATION_DICT = {
     for key, arr in EXCITATION_DICT.items()
     for val in arr
 }
-
-def get_isotope(stem):
-    """
-    Extract the element name and mass number from a given filename.
-    Arguments:
-        stem (str): Stem of a an ENDF (TENDL) and/or PENDF file, formatted
-            as f'{element}{mass_number}.ext'
-
-    Returns:
-        element (str): Chemical symbol of the isotope whose data is contained
-            in the file.
-        A (str): Mass number of the isotope, potentially including the letter
-            "m" at the end if the isotope is in a metastable state.
-    """
-
-    for i, char in enumerate(stem):
-        if char.isdigit():
-            break
-
-    element = stem[:i]
-    A = stem[i:]       
-
-    return element, A
-
-def search_for_files(dir = Path.cwd()):
-    """
-    Search through a directory for all pairs of ENDF (TENDL) and PENDF files
-        that have matching stems. If so, save the paths and the isotopic
-        information to a dictionary.
-    
-    Arguments:
-        directory (pathlib._local.PosixPath, optional): Path to the directory
-            in which to search for ENDF and PENDF files.
-            Defaults to the present working directory (".").
-
-    Returns:
-        file_info (list of dicts): List of dictionaries containing the
-            chemical symbol, mass number, and paths to the TENDL (ENDF) files
-            for a given isotope. These dictionaries are formatted as such:
-                {
-                    'Element'     : Isotope's chemical symbol,
-                    'Mass Number' : Isotope's mass number,
-                    'File Paths'  : endf_path, pendf_path
-                }
-    """
-
-    file_info = []
-    for suffix in ['tendl', 'endf']:
-        # Iterate alphabetically for debugging to spot where process fails
-        for file in sorted(dir.glob(f'*.{suffix}')):
-            element, A = get_isotope(file.stem)
-            for existing_file in file_info:
-                if (
-                    existing_file['Element'] == element
-                    and existing_file['Mass Number'] == A
-                ):
-                    warnings.warn(
-                        f'Multiple files present in {dir} for {element}-{A}'
-                    )
-                    break
-
-            else:
-                file_info.append({
-                    'Element'         :         element,
-                    'Mass Number'     :               A,
-                    'TENDL File Path' :            file
-                })
-
-    return file_info
+ISOMERIC_STATES = 'mnopqrstuvwxyz'
 
 def create_endf_file_obj(path, MF):
     """
@@ -114,6 +47,113 @@ def create_endf_file_obj(path, MF):
         file = material.file(MF)
 
     return file, matb
+
+def calculate_KZA_from_ENDF(filepath, MF=1, MT=451):
+    """
+    Use the ZA and LISO flags from a an MF,MT section of a single nuclide ENDF
+        formatted nuclear data file to construct a unique idenfifier for the
+        nuclide in the KZA (ZZZAAAM) format.
+
+    Arguments:
+        filepath (pathlib._local.PosixPath): Path for an ENDF-formatted file.
+        MF (int, optional): Option to specify the ENDF data block ("file")
+            from which to extract identifying data. Unless specified, will
+            direct to MF = 1 ("General Information").
+            (Defaults to 1).
+        MT (int, optional): Option to specify the file section within an ENDF
+            data block (MF) from which to extract identifying data. Unless
+            specificed, will direct to MF = 451 ("Descriptive Data and
+            Directory").
+            (Defaults to 457)
+
+    Returns:
+        KZA (int): Unique ZZZAAM for a given nuclide.
+    """
+
+    endf_file_obj, _ = create_endf_file_obj(filepath, MF)
+    nuc_data = endf_file_obj.section(MT).parse()
+    return nuc_data.ZA * 10 + nuc_data.LISO
+
+def interpret_KZA(kza):
+    """
+    Infer the chemical symbol and mass number from a KZA (ZZAAAM) number.
+
+    Arguments:
+        kza (int): Unique ZZZAAAM for a given nuclide.
+
+    Returns:
+        element (str): Chemical symbol of the target nuclide.
+        A (str): Mass number for selected isotope.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
+    """
+
+    M = kza % 10
+    za = kza // 10
+    A = str(za % 1000)
+    Z = za // 1000
+    element = list(elements.keys())[Z - 1]
+    if M > 0:
+        A += ISOMERIC_STATES[M - 1]
+
+    return element, A
+
+def search_for_files(dir = Path.cwd()):
+    """
+    Search through a directory for all pairs of ENDF (TENDL) and PENDF files
+        that have matching stems. If so, save the paths and the isotopic
+        information to a dictionary.
+    
+    Arguments:
+        directory (pathlib._local.PosixPath, optional): Path to the directory
+            in which to search for ENDF and PENDF files.
+            Defaults to the present working directory (".").
+
+    Returns:
+        file_info (list of dicts): List of dictionaries containing the
+            chemical symbol, mass number, and paths to the TENDL (ENDF) files
+            for a given nuclide. These dictionaries are formatted as such:
+                {
+                    'Element'     : Nuclide's chemical symbol,
+                    'Mass Number' : Nuclide's mass number,
+                    'pKZA'        : Nuclide's KZA value,
+                    'File Paths'  : endf_path, pendf_path
+                }
+    """
+
+    file_info = []
+    for suffix in ['tendl', 'endf']:
+        # Iterate alphabetically for debugging to spot where process fails
+        for file in sorted(dir.glob(f'*.{suffix}')):
+            pKZA = calculate_KZA_from_ENDF(file, 1, 451)
+            element, A = interpret_KZA(pKZA)
+
+            for existing_file in file_info:
+                if existing_file['pKZA'] == pKZA:
+                    warnings.warn(
+                        f'Multiple files present in {dir} for ' \
+                        f'{element}-{A}.'
+                    )
+                    break
+
+            else:
+                new_filename = dir / f'{element}{A}.tendl'
+                if new_filename != file:
+                    file.rename(new_filename)
+                    warnings.warn(
+                        f'Improperly named TENDL file {file} renamed to ' \
+                        f'{new_filename} to match nuclide ID.'
+                    )
+
+                file_info.append({
+                    'Element'         :            element,
+                    'Mass Number'     :                  A,
+                    'pKZA'            :               pKZA,
+                    'TENDL File Path' :       new_filename
+                })
+
+    return file_info
 
 def extract_endf_specs(path):
     """
