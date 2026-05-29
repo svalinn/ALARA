@@ -362,8 +362,10 @@ def run_njoy(element, A, matb, file_capture):
     }
 
     # Run NJOY
-    result = subprocess.run(['njoy'], input=open(INPUT).read(),
-                        text=True, capture_output=True)
+    with open(INPUT, 'r') as f:
+        result = subprocess.run(
+            ['njoy'], stdin=f, text=True, capture_output=True
+        )
 
     fileinfo = file_metadata[file_capture]
     fileinfo['save'] = None

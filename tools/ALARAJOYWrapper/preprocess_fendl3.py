@@ -5,6 +5,7 @@ import njoy_tools as njt
 import numpy as np
 import argparse
 import warnings
+import logging
 from pathlib import Path
 from collections import defaultdict
 
@@ -53,31 +54,46 @@ def args():
     )
     return parser.parse_args()
 
-def redirect_warnings_to_log(log_path):
+def configure_logging(redirect_warnings=False):
     """
-    Write out warning messages to a log file if the argument
-        --redirect_warnings (-r) is invoked.
+    Configure a logger to redirect output messages away from the terminal.
 
     Arguments:
-        log_path (pathlib._local.PosixPath): Path to the warning log file.
+        redirect_warnings (bool, optional): Option to redirect warning
+            messages to a separate 'warnings.log' file to avoid cluttering
+            the terminal with non-fatal warnings.
 
     Returns:
         None
     """
 
-    log_path.unlink(missing_ok=True)
-    log_file = open(log_path, 'a')
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
 
-    def _showwarning(
-        message, category, filename, lineno, file=None, line=None
-    ):
-        log_file.write(
-            f'{category.__name__}: {message} '
-            f'(in {filename}:{lineno})\n'
-        )
-        log_file.flush()
+    formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s: \n\t%(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
-    warnings.showwarning = _showwarning
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+
+    if redirect_warnings:
+        console_handler.setLevel(logging.INFO)
+        console_handler.addFilter(lambda record: record.levelno < logging.WARNING)
+
+        warning_log = Path('warnings.log')
+        warning_log.unlink(missing_ok=True)
+
+        file_handler = logging.FileHandler(warning_log)
+        file_handler.setLevel(logging.WARNING)
+        file_handler.setFormatter(formatter)
+
+        logger.addHandler(file_handler)
+        warnings.simplefilter('always')
+        logging.captureWarnings(True)
+
+    logger.addHandler(console_handler)
 
 def process_pendf(
     njoy_prep_input, material_id, MTs, pKZA, mt_dict, temperature, tendl_path
@@ -192,7 +208,7 @@ def process_gendf(
             diffs = sorted(MTs - gendf_MTs)
             warnings.warn(
                 f'GENDF file missing MTs {diffs} present in the ' \
-                f'original TENDL file for {element}{A}.'
+                f'original TENDL file for {element}-{A}.'
             )
         if gendf_MTs:
             all_rxns = tp.iterate_MTs(
@@ -354,11 +370,13 @@ def main():
     Main method when run as a command line script.
     """
 
+    warnings.formatwarning = (
+        lambda msg, cat, fname, lineno, file=None, line=None:
+            f"{Path(fname).name}:{lineno}: {cat.__name__}: {msg}\n"
+    )
+    configure_logging(args().redirect_warnings)
+
     TAPE20 = Path('tape20')
-    
-    if args().redirect_warnings:
-        warning_log = Path('warnings.log')
-        redirect_warnings_to_log(warning_log)
 
     dir = njt.set_directory()
     search_dir = (
