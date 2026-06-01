@@ -5,6 +5,7 @@ import njoy_tools as njt
 import numpy as np
 import argparse
 import warnings
+import logging
 from pathlib import Path
 from collections import defaultdict
 
@@ -44,8 +45,55 @@ def args():
         # Temperature for NJOY run [Kelvin]
         '--temperature', '-t', required=False, nargs=1, default=[293.16]
     )
+    parser.add_argument(
+        '--redirect_warnings', '-r', action='store_true',
+        help=('''
+            Optional argument to redirect any non-fatal warnings that may
+                arise to a log file.
+        ''')
+    )
     return parser.parse_args()
 
+def configure_logging(redirect_warnings=False):
+    """
+    Configure a logger to redirect output messages away from the terminal.
+
+    Arguments:
+        redirect_warnings (bool, optional): Option to redirect warning
+            messages to a separate 'warnings.log' file to avoid cluttering
+            the terminal with non-fatal warnings.
+
+    Returns:
+        None
+    """
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s: \n\t%(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+
+    if redirect_warnings:
+        console_handler.setLevel(logging.INFO)
+        console_handler.addFilter(lambda record: record.levelno < logging.WARNING)
+
+        warning_log = Path('warnings.log')
+        warning_log.unlink(missing_ok=True)
+
+        file_handler = logging.FileHandler(warning_log)
+        file_handler.setLevel(logging.WARNING)
+        file_handler.setFormatter(formatter)
+
+        logger.addHandler(file_handler)
+        warnings.simplefilter('always')
+        logging.captureWarnings(True)
+
+    logger.addHandler(console_handler)
 
 def process_pendf(
     njoy_prep_input, material_id, MTs, pKZA, mt_dict, temperature, tendl_path
@@ -160,7 +208,7 @@ def process_gendf(
             diffs = sorted(MTs - gendf_MTs)
             warnings.warn(
                 f'GENDF file missing MTs {diffs} present in the ' \
-                'original TENDL file.'
+                f'original TENDL file for {element}-{A}.'
             )
         if gendf_MTs:
             all_rxns = tp.iterate_MTs(
@@ -321,6 +369,12 @@ def main():
     """
     Main method when run as a command line script.
     """
+
+    warnings.formatwarning = (
+        lambda msg, cat, fname, lineno, file=None, line=None:
+            f"{Path(fname).name}:{lineno}: {cat.__name__}: {msg}\n"
+    )
+    configure_logging(args().redirect_warnings)
 
     TAPE20 = Path('tape20')
 
