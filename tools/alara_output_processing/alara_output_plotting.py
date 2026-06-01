@@ -821,7 +821,7 @@ def plot_single_response(
 
             prev_nuc = dominant_nucs[0]
             lower = bounds[0]
-            for upper, nuc in zip(bounds[1:], dominant_nucs[1:]):
+            for upper, nuc in zip(bounds[1:-1], dominant_nucs[1:]):
                 if nuc != prev_nuc:
                     all_dominance_ranges[prev_nuc].append((
                         run_lbl, lower, upper
@@ -829,6 +829,7 @@ def plot_single_response(
                     lower = upper
                     prev_nuc = nuc
 
+            upper = bounds[-1]
             all_dominance_ranges[prev_nuc].append((run_lbl, lower, upper))
 
         for nuc in piv.index:
