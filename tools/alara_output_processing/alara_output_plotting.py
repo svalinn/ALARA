@@ -152,6 +152,9 @@ def build_color_map(cmap_name, all_nucs=[], pivs=None, mark_thalf=False):
     if 'Other' in set(all_nucs):
         color_map['Other'] = (0.8, 0.8, 0.8, 1.0)
 
+    if 'total' in set(all_nucs):
+        color_map['total'] = "#574949"
+
     return color_map
 
 def split_label(label):
@@ -806,7 +809,7 @@ def plot_single_response(
         )
 
     plotted_nucs = []
-    xmax = 0
+    tmax = 0
     all_dominance_ranges = defaultdict(list)
 
     for run_lbl, filtered, piv, style in data_list:
@@ -816,22 +819,17 @@ def plot_single_response(
                 shading_color_map, cmap_name=cmap_name
             )
 
-            for nuc in set(dominant_nucs):
-                indices = [i for i, n in enumerate(dominant_nucs) if n == nuc]
-                contiguous_ranges = []
-                range_start = indices[0]
-                for prev, curr in zip(indices, indices[1:]):
-                    if curr != prev + 1:
-                        contiguous_ranges.append(range_start, prev)
-                        range_start = curr
-                contiguous_ranges.append((range_start, indices[-1]))
-
-                for lower, upper in contiguous_ranges:
-                    all_dominance_ranges[nuc].append((
-                        run_lbl,
-                        bounds[lower],
-                        bounds[upper + 1]
+            prev_nuc = dominant_nucs[0]
+            lower = bounds[0]
+            for upper, nuc in zip(bounds[1:], dominant_nucs[1:]):
+                if nuc != prev_nuc:
+                    all_dominance_ranges[prev_nuc].append((
+                        run_lbl, lower, upper
                     ))
+                    lower = upper
+                    prev_nuc = nuc
+
+            all_dominance_ranges[prev_nuc].append((run_lbl, lower, upper))
 
         for nuc in piv.index:
             if nuc == 'total' and not total:
@@ -851,27 +849,27 @@ def plot_single_response(
             # not necessarily an error, as various nuclides may not be present
             # across all cooling times.
 
-            y = piv.loc[nuc].to_numpy()
+            series = piv.loc[nuc].to_numpy()
             if ratio_plotting:
-                y /= control_piv.loc[nuc].to_numpy()
-                if not np.isnan(y.mean()) and nuc == 'total':
+                series /= control_piv.loc[nuc].to_numpy()
+                if not np.isnan(series.mean()) and nuc == 'total':
                     label_suffix += (
-                        f'\n$\\mu = {y.mean():.{sig_figs}g},' \
-                        f'\\ \\sigma = {y.std():.{sig_figs}g}$\n――――――'
+                        f'\n$\\mu = {series.mean():.{sig_figs}g},' \
+                        f'\\ \\sigma = {series.std():.{sig_figs}g}$\n――――――'
                     )
 
-            x = piv.columns
-            last_nonzero_time = x[np.flatnonzero(y)[-1]]
-            if last_nonzero_time > xmax:
-                xmax = last_nonzero_time
+            t = piv.columns
+            last_nonzero_time = t[np.flatnonzero(series)[-1]]
+            if last_nonzero_time > tmax:
+                tmax = last_nonzero_time
 
             plot_or_scatter(
                 ax=ax,
                 plot_type=plot_type,
-                x=x,
-                y=y,
+                x=t,
+                y=series,
                 label=(nuc + label_suffix),
-                color=color_map[nuc] if nuc != 'total' else "#574949",
+                color=color_map[nuc],
                 style=style
             )
 
@@ -916,7 +914,7 @@ def plot_single_response(
     ax.set_ylabel(ylabel)
     ax.set_xlabel(f'Time ({time_unit})')
     ax.set_xscale('log')
-    ax.set_xlim(right=xmax)
+    ax.set_xlim(right=tmax)
     ax.set_yscale(yscale)
     if ymin:
         ax.set_ylim(bottom=ymin)
