@@ -586,7 +586,7 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
 
     return ax, bounds, dominant_nucs
 
-def collect_shading_labels(ax, color_map, all_dominance_ranges, time_unit):
+def add_shading_legend_labels(ax, color_map, all_dominance_ranges, time_unit):
     '''
     Unpack and format dominant nuclide data produced from 
         shade_dominant_nuclides() to be included in a plot's legend in the
@@ -623,6 +623,7 @@ def collect_shading_labels(ax, color_map, all_dominance_ranges, time_unit):
             f'   -  {rl}: {tmin:.2g} - {tmax:.2g} {time_unit}'
             for rl, tmin, tmax in run_entries
         )
+        # Zero-width spans for legend purposes only -- not visible on plot fig
         ax.axvspan(
             0,
             0,
@@ -817,11 +818,20 @@ def plot_single_response(
 
             for nuc in set(dominant_nucs):
                 indices = [i for i, n in enumerate(dominant_nucs) if n == nuc]
-                all_dominance_ranges[nuc].append((
-                    run_lbl,
-                    bounds[indices[0]],     # t_min
-                    bounds[indices[-1] + 1] # t_max
-                ))
+                contiguous_ranges = []
+                range_start = indices[0]
+                for prev, curr in zip(indices, indices[1:]):
+                    if curr != prev + 1:
+                        contiguous_ranges.append(range_start, prev)
+                        range_start = curr
+                contiguous_ranges.append((range_start, indices[-1]))
+
+                for lower, upper in contiguous_ranges:
+                    all_dominance_ranges[nuc].append((
+                        run_lbl,
+                        bounds[lower],
+                        bounds[upper + 1]
+                    ))
 
         for nuc in piv.index:
             if nuc == 'total' and not total:
@@ -874,7 +884,7 @@ def plot_single_response(
                 plotted_nucs.append(nuc)
 
     if shading and shading_color_map is not None:
-        collect_shading_labels(
+        add_shading_legend_labels(
             ax, shading_color_map, all_dominance_ranges, time_unit
         )
 
