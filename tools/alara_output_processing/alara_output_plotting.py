@@ -540,13 +540,10 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
     Returns:
         ax (matplotlib.axes._axes.Axes): Updated Axes object with shaded
             regions for dominant nuclides.
-        color_map (dict): Copy of the original color map dictionary if a non-
-            empty dictionary is provided in the Arguments. Otherwise, a color
-            map with keys only of the various dominant nuclides.
-        dominance_ranges (dict): Dictionary keyed by each nuclide that is the
-            predominant contributor the input pivot table's decay response at
-            some time. Values are lists of all cooling times in which that
-            nuclide is the dominant contributor.
+        bounds (numpy.ndarray): Logarithmic half-way values between cooling
+            times to bound axvspan shading regions.
+        dominant_nucs (list of str): List of the dominant nuclide in each
+            logarithmically bounded region.
     '''
 
     total_piv = piv[piv.index == 'total']
@@ -573,31 +570,21 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
     bounds[-1] = times[-1] * times[-1] / bounds[-2]
     bounds = np.nan_to_num(bounds, nan=0.0)
 
-    # Calculate the time bounds for each dominant nuclide's period of leading
-    # contribution to the response variable
-    dominance_ranges = {}
-    for i, nuc in enumerate(dominant_nucs):
-        if nuc not in dominance_ranges:
-            dominance_ranges[nuc] = [[bounds[i], bounds[i + 1]]]
-        elif dominance_ranges[nuc][-1][1] == bounds[i]:
-            dominance_ranges[nuc][-1][1] = bounds[i + 1]
-        else:
-            dominance_ranges[nuc].append([bounds[i], bounds[1 + i]])
+    for lower, upper, nuc, dominance, in zip(
+        bounds[:-1], bounds[1:], dominant_nucs, relative_max
+    ):
+        ax.axvspan(
+            lower,
+            upper,
+            color=color_map[nuc],
+            # Shading transparency as an inverse function of the relative
+            # contribution of the dominant nuclide
+            alpha=0.2 * dominance,
+            linewidth=0,
+            label=None
+        )
 
-    for i, (nuc, dominance) in enumerate(zip(dominant_nucs, relative_max)):
-        for _ in dominance_ranges[nuc]:
-            ax.axvspan(
-                bounds[i],
-                bounds[i + 1],
-                color=color_map[nuc],
-                # Shading transparency as an inverse function of the relative
-                # contribution of the dominant nuclide
-                alpha=0.2 * dominance,
-                linewidth=0,
-                label=None
-            )
-
-    return ax, color_map, dominance_ranges
+    return ax, bounds, dominant_nucs
 
 def collect_shading_labels(ax, color_map, all_dominance_ranges, time_unit):
     '''
@@ -823,14 +810,18 @@ def plot_single_response(
 
     for run_lbl, filtered, piv, style in data_list:
         if shading:
-            ax, _, dominance_ranges = shade_dominant_nuclides(
+            ax, bounds, dominant_nucs = shade_dominant_nuclides(
                 shade_pivs[run_lbl], ax,
                 shading_color_map, cmap_name=cmap_name
             )
 
-            for nuc, ranges in dominance_ranges.items():
-                for tmin, tmax in ranges:
-                    all_dominance_ranges[nuc].append((run_lbl, tmin, tmax))
+            for nuc in set(dominant_nucs):
+                indices = [i for i, n in enumerate(dominant_nucs) if n == nuc]
+                all_dominance_ranges[nuc].append((
+                    run_lbl,
+                    bounds[indices[0]],     # t_min
+                    bounds[indices[-1] + 1] # t_max
+                ))
 
         for nuc in piv.index:
             if nuc == 'total' and not total:
