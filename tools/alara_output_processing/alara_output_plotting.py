@@ -249,6 +249,10 @@ def construct_legend(ax, legend_ax=None):
         grouped_labels.append(f'{isotope} {datalib}')
         prev_isotope = isotope
 
+    # Remove final line separator, which could have been applied above or in
+    # total statistics calculation
+    grouped_labels[-1] = grouped_labels[-1].replace('――――――', '')
+
     if legend_ax:
         target_ax = legend_ax
         loc = 'center'
