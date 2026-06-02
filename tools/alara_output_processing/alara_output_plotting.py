@@ -518,7 +518,7 @@ def add_pie(ax, time_slice, color_map, threshold):
 
     return wedges
 
-def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
+def shade_dominant_nuclides(piv, ax, color_map, cmap_name, n_runs):
     '''
     Identify the time ranges for a single response variable in which any
         individual nuclide is the response's dominant contributor. Over these
@@ -537,6 +537,7 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
             the wedges with the legend. Empty dictionary if no color map
             existing yet for the plot.
         cmap_name (str): Matplotlib Colormap for the plot.
+        n_runs (int): Number of runs being comparatively plotted.
 
     Returns:
         ax (matplotlib.axes._axes.Axes): Updated Axes object with shaded
@@ -579,8 +580,9 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name):
             upper,
             color=color_map[nuc],
             # Shading transparency as an inverse function of the relative
-            # contribution of the dominant nuclide
-            alpha=0.2 * dominance,
+            # contribution of the dominant nuclide and scaled by the number
+            # of runs being compared
+            alpha=(0.2 * dominance) / (n_runs * 0.5),
             linewidth=0,
             label=None
         )
@@ -820,8 +822,8 @@ def plot_single_response(
     for run_lbl, filtered, piv, style in data_list:
         if shading:
             ax, bounds, dominant_nucs = shade_dominant_nuclides(
-                shade_pivs[run_lbl], ax,
-                shading_color_map, cmap_name=cmap_name
+                shade_pivs[run_lbl], ax, shading_color_map,
+                cmap_name=cmap_name, n_runs=len(data_list)
             )
 
             prev_nuc = dominant_nucs[0]
