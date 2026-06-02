@@ -657,7 +657,8 @@ def plot_single_response(
     control_run=None,
     sig_figs=3,
     mark_thalf=False,
-    shading=False
+    shading=False,
+    shading_color_map={}
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -740,6 +741,10 @@ def plot_single_response(
             particular nuclide is the dominant contributor to the plotted
             decay response.
             (Defaults to False)
+        shading_color_map (dict, optional): Option to import a pre-existing
+            nuclide color map to shade dominant regions consistently with
+            other plots.
+            (Defaults to {})
 
     Returns:
         fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
@@ -747,6 +752,8 @@ def plot_single_response(
         legend_fig (matplotlib.figure.Figure or None): Conditionally separated
             Matplotlib Figure object containing only the plot's legend. None
             if separate_legend argument is False.
+        shading_color_map (dict): Color map for dominant nuclide shaded
+            regions. Only populated if shading=True.
     '''
 
     ratio_plotting = (control_run is not None)
@@ -802,8 +809,8 @@ def plot_single_response(
         cmap_name='Reds', pivs=pivs, mark_thalf=mark_thalf
     )
 
-    shading_color_map = {}
-    if shading:
+
+    if shading and not shading_color_map:
         shading_color_map = build_color_map(
             cmap_name=cmap_name, pivs=list(shade_pivs.values())
         )
@@ -931,7 +938,7 @@ def plot_single_response(
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
 
-    return fig, legend_fig
+    return fig, legend_fig, shading_color_map
 
 def single_time_pie_chart(
     agg,
