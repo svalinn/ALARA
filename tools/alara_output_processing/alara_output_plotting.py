@@ -589,7 +589,9 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name, n_runs):
 
     return ax, bounds, dominant_nucs
 
-def add_shading_legend_labels(ax, color_map, all_dominance_ranges, time_unit):
+def add_shading_legend_labels(
+    ax, color_map, all_dominance_ranges, time_unit, show_shading_bounds
+):
     '''
     Unpack and format dominant nuclide data produced from 
         shade_dominant_nuclides() to be included in a plot's legend in the
@@ -626,6 +628,10 @@ def add_shading_legend_labels(ax, color_map, all_dominance_ranges, time_unit):
             f'   -  {rl}: {tmin:.2g} - {tmax:.2g} {time_unit}'
             for rl, tmin, tmax in run_entries
         )
+        label = nuc
+        if show_shading_bounds:
+            label += f':\n{run_lines}' 
+
         # Zero-width spans for legend purposes only -- not visible on plot fig
         ax.axvspan(
             0,
@@ -633,7 +639,7 @@ def add_shading_legend_labels(ax, color_map, all_dominance_ranges, time_unit):
             color=color_map[nuc],
             alpha=0.6,
             linewidth=0,
-            label = f'{nuc}:\n{run_lines}'
+            label=label
         )
 
 # ----- Plotting Functions ------
@@ -658,7 +664,8 @@ def plot_single_response(
     sig_figs=3,
     mark_thalf=False,
     shading=False,
-    shading_color_map={}
+    shading_color_map={},
+    show_shading_bounds=True
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -745,6 +752,11 @@ def plot_single_response(
             nuclide color map to shade dominant regions consistently with
             other plots.
             (Defaults to {})
+        show_shading_bounds (bool, optional): Option to show the time range in
+            which a given nuclide is the dominant nuclide for a given
+            response in the plot's legend, corresponding to the region(s)
+            shaded in the plot.
+            (Defaults to True) 
 
     Returns:
         fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
@@ -891,7 +903,8 @@ def plot_single_response(
 
     if shading and shading_color_map is not None:
         add_shading_legend_labels(
-            ax, shading_color_map, all_dominance_ranges, time_unit
+            ax, shading_color_map, all_dominance_ranges,
+            time_unit, show_shading_bounds
         )
 
     ylabel = f'{variable} [{filtered['var_unit'].unique()[0]}]'
