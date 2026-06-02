@@ -212,7 +212,7 @@ def reformat_isotope(isotope):
         element = element.capitalize()
         return f'$^{{{A}}}${element}{time_bounds}'
 
-def construct_legend(ax, data_comp=False, legend_ax=None):
+def construct_legend(ax, legend_ax=None):
     '''
     Create a custom pyplot legend that exists outside of the grid itself and
         can group like-isotopes together from compared data sets for clarity.
@@ -220,9 +220,6 @@ def construct_legend(ax, data_comp=False, legend_ax=None):
     Arguments:
         ax (matplotlib.axes._axes.Axes): Matplotlib Axes object of the plot
             being constructed.
-        data_comp (bool, optional): Boolean setting for comparison between two
-            data sets.
-            (Defaults to False)
         legend_ax (matplotlib.axes._axes.Axes or None, optional): Optional
             argument to construct the legend on a separate Matplotlib Axes
             object than the plot itself.
@@ -233,12 +230,9 @@ def construct_legend(ax, data_comp=False, legend_ax=None):
     '''
 
     handles, labels = ax.get_legend_handles_labels()
-    labels_sorted_with_handles = sorted(
-        zip(labels, handles),
-        key=lambda x: (
-            split_label(x[0]) if data_comp else (split_label(x[0])[0], x[0])
-        )
-    )
+    labels_sorted_with_handles = sorted(zip(labels, handles), key=lambda x: (
+        (s := split_label(x[0]))[0].lower().startswith('total'), s[0], s[1]
+    ))
 
     grouped_handles = []
     grouped_labels = []
@@ -933,7 +927,7 @@ def plot_single_response(
         _, legend_ax = plt.subplots(figsize=(4, max(4, 0.3 * n_items)))
         legend_ax.axis('off')
 
-    legend_fig = construct_legend(ax, data_comp, legend_ax)
+    legend_fig = construct_legend(ax, legend_ax)
 
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
