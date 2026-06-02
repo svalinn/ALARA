@@ -548,16 +548,10 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name, n_runs):
             logarithmically bounded region.
     '''
 
-    total_piv = piv[piv.index == 'total']
     piv = piv[piv.index != 'total']
     dominant_nucs = [piv[t].idxmax() for t in piv.columns]
-    relative_max = np.array([piv[t].max() for t in piv.columns])
+    relative_max = [piv[t].max() / piv[t].sum() for t in piv.columns]
     times = np.asarray(piv.columns, dtype=float)
-    
-    # Calculate relative contribution of the dominant nuclide for a pivot
-    # table containing absolute, rather than relative values
-    if not total_piv.empty:
-        relative_max /= total_piv.T['total'].values
 
     if not color_map:
         color_map = build_color_map(
