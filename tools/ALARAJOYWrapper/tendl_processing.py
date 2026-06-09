@@ -492,7 +492,7 @@ def iterate_MTs(
             if M > 0:
                 emitted += '*'
 
-            if dKZA in all_nucs:
+            if dKZA in all_nucs or dKZA == 0:
                 all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
                     'emitted'    :  emitted,
                     'xsections'  :  sigmas
