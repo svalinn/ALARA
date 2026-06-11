@@ -164,9 +164,9 @@ def set_group_structure(group_struct_arg):
             Vitamin-J 175 group structure settings to be applied.
 
     Returns:
-        ign (str): GROUPR neutron group structure parameter. ign = 1 for
-            arbitrary group structures not contained in NJOY's built-in list
-            of options.
+        ign (str or int): GROUPR neutron group structure parameter. ign = 1
+            for arbitrary group structures not contained in NJOY's built-in
+            list of options.
         ngn (str): Number of groups. Will be an empty string unless ign == 1.
         egn (str): Space-joined string of all energy group bounds in
             ascending order. Will be an empty string unless ign == 1.
