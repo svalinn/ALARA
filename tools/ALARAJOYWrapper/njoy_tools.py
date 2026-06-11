@@ -184,7 +184,7 @@ def set_group_structure(group_struct_arg):
 
         # Check if provided group structure is among the list of built-in NJOY
         # group structures (ign values 2-34)
-        if group_struct in range(2,35):
+        if group_struct in np.arange(2,35).astype(str):
             ign = group_struct
 
         # NJOY "arbitrary group structure" option
