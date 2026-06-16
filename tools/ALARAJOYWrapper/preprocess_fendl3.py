@@ -407,7 +407,7 @@ def main():
         Path(args.fendlFileDir[0]) if args.fendlFileDir else dir
     )
     temperature = args.temperature[0]
-    ign, ngn, egn = njt.set_group_structure(args.group_structure)
+    ign, ngn, egn, group_name = njt.set_group_structure(args.group_structure)
 
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
     eaf_nucs = rxd.find_eaf_ref_data(Path(args.decay_lib[0]))
@@ -455,6 +455,10 @@ def main():
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     write_dsv(dsv_path, gas_filtered, nGroups)
+    print(
+        f'Neutron activation cross-sections converted to {nGroups} groups ' \
+        f'according to the {group_name} group structure.'
+    )
     print(f'Reaction data saved to: {dsv_path}')
 
 if __name__ == '__main__':

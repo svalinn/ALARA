@@ -118,6 +118,42 @@ elements = [
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
 
+NJOY_GROUPS = {
+    2  :          'CSWEG-239',
+    3  :            'LANL-30',
+    4  :             'ANL-27',
+    5  :             'RRD-50',
+    6  :           'GAM-I-68',
+    7  :         'GAM-II-100',
+    8  :   'LASER-THERMOS-35',
+    9  :        'EPRI-CPM-69',
+    10 :           'LANL-187',
+    11 :            'LANL-70',
+    12 :        'SAND-II-620',
+    13 :            'LANL-80',
+    14 :         'EURLIB-100',
+    15 :       'SAND-IIA-640',
+    16 :      'VITAMIN-E-174',
+    17 :      'VITAMIN-J-175',
+    18 :      'XMAS-NEA-LANL',
+    19 :            'ECCO-33',
+    20 :          'ECCO-1968',
+    21 :        'TRIPOLI-315',
+    22 :      'XMAS-LWPC-172',
+    23 : 'VITAMIN-J-LWPC-175',
+    24 :       'SHEM-CEA-281',
+    25 :       'SHEM-EPM-291',
+    26 :   'SHEM-CEA/EPM-361',
+    27 :       'SHEM-EPM-315',
+    28 :      'RAHAB-AECL-89',
+    29 :           'CCFE-660',
+    30 :         'UKAEA-1025',
+    31 :         'UKAEA-1067',
+    32 :         'UKAEA-1102',
+    33 :          'UKAEA-142',
+    34 :           'LANL-618'
+}
+
 def set_group_structure(group_struct_arg):
     """
     Interpret the group_structure argument (`-g`) to define the requisite NJOY
@@ -170,6 +206,7 @@ def set_group_structure(group_struct_arg):
         ngn (str): Number of groups. Will be an empty string unless ign == 1.
         egn (str): Space-joined string of all energy group bounds in
             ascending order. Will be an empty string unless ign == 1.
+        group_name (str): Name of the provided group structure.
     """
 
     ngn = ''
@@ -177,15 +214,17 @@ def set_group_structure(group_struct_arg):
 
     # Default to Vitamin-J group structure if none is provided from args
     if group_struct_arg is None:
-        ign = 17 # NJOY flag for Vitamin-J
+        ign = 17
+        group_name = 'VITAMIN-J-175'
 
     else:
         group_struct = group_struct_arg[0]
 
         # Check if provided group structure is among the list of built-in NJOY
         # group structures (ign values 2-34)
-        if group_struct in np.arange(2,35).astype(str):
+        if group_struct in np.array(list(NJOY_GROUPS)).astype(str):
             ign = group_struct
+            group_name = NJOY_GROUPS[int(group_struct)]
 
         # NJOY "arbitrary group structure" option
         else:
@@ -195,11 +234,13 @@ def set_group_structure(group_struct_arg):
             # into an array
             if Path(group_struct).is_file():
                 group_bounds = np.loadtxt(group_struct)
+                group_name = f'CUSTOM-{len(group_bounds)}'
 
             # If group structure name is provided, extract values from OpenMC
             else:
                 from openmc.mgxs import GROUP_STRUCTURES
-                group_bounds = GROUP_STRUCTURES.get(group_struct.upper(), [])
+                group_name = group_struct.upper()
+                group_bounds = GROUP_STRUCTURES.get(group_name, [])
 
             if len(group_bounds) == 0:
                 raise ValueError(
@@ -212,7 +253,7 @@ def set_group_structure(group_struct_arg):
             ngn = str(len(group_bounds) - 1)
             egn = ' '.join(np.array(sorted(group_bounds)).astype(str))
 
-    return ign, ngn, egn
+    return ign, ngn, egn, group_name
 
 def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
     """
