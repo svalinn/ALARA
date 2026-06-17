@@ -231,8 +231,8 @@ def set_group_structure(group_struct_arg):
     else:
         ign = 1
         group_bounds = []
-        # If support file containing group bounds is provided, load them
-        # into an array
+        # If support file containing group bounds is provided, load them into
+        # an array
         if Path(group_struct).is_file():
             group_bounds = np.loadtxt(group_struct)
             group_name = 'user-provided ' + (
@@ -247,8 +247,8 @@ def set_group_structure(group_struct_arg):
 
         if len(group_bounds) == 0:
             raise ValueError(
-                'Invalid group structure provided. Must either be an '  \
-                'ign value known by NJOY, a group structure name in '   \
+                'Invalid group structure provided. Must either be an ign '  \
+                'value known by NJOY, a group structure name in '   \
                 '`openmc.mgxs.GROUP_STRUCTURES`, or a file containing ' \
                 'explicit energy group bounds.'
             )
