@@ -56,9 +56,8 @@ def make_argparser():
         '--group_structure', '-g', required=False, nargs=1, default=['17'],
         help=('''
             Specification for group structure in which to convert TENDL cross-
-                sections. See njoy_tools.set_group_structure() for
-                specific details for acceptable forms in which to supply this
-                argument.
+                sections. See njoy_tools.set_group_structure() for specific
+                details for acceptable forms in which to supply this argument.
         ''')
     )
     return parser
