@@ -235,7 +235,9 @@ def set_group_structure(group_struct_arg):
         # into an array
         if Path(group_struct).is_file():
             group_bounds = np.loadtxt(group_struct)
-            group_name = f'CUSTOM-{len(group_bounds)}'
+            group_name = 'user-provided ' + (
+                f'{Path(group_struct).stem.upper()}-{len(group_bounds) - 1}'
+            )
 
         # If group structure name is provided, extract values from OpenMC
         else:
