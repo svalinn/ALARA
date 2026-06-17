@@ -53,10 +53,10 @@ def make_argparser():
         ''')
     )
     parser.add_argument(
-        '--group_structure', '-g', required=False, nargs=1,
+        '--group_structure', '-g', required=False, nargs=1, default=['17'],
         help=('''
             Specification for group structure in which to convert TENDL cross-
-                sections. See tendl_processing.set_group_structure() for
+                sections. See njoy_tools.set_group_structure() for
                 specific details for acceptable forms in which to supply this
                 argument.
         ''')

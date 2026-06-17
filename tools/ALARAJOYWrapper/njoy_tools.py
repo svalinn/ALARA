@@ -164,11 +164,12 @@ def set_group_structure(group_struct_arg):
         structure is desired, however, there are three ways in which this
         group structure can be set:
 
-        1) Provide the GROUPR `ign` key corresponding to the desired group
-        structure. NJOY has 33 built-in group structures from which GROUPR can
-        access their data, including for Vitamin-J. These can be found in
-        Section 8.18 ("Running GROUPR") of the NJOY User Manual
-        (https://github.com/njoy/NJOY2016-manual/raw/master/njoy16.pdf).
+        1) Provide the GROUPR `ign` key or group name corresponding to the
+        desired group structure. NJOY has 33 built-in group structures from
+        which GROUPR can access their data, including for Vitamin-J. These can
+        be found in Section 8.18 ("Running GROUPR") of the NJOY User Manual
+        (https://github.com/njoy/NJOY2016-manual/raw/master/njoy16.pdf) or in
+        the dictionary njoy_tools.NJOY_GROUPS.
 
         2) Provide a support file containing the explicit energy bounds of a
         multi-group energy structure. NJOY is not limited to its pre-set
@@ -195,14 +196,13 @@ def set_group_structure(group_struct_arg):
         can be found at https://docs.openmc.org/en/stable/pythonapi/mgxs.html.
     
     Arguments:
-        group_struct_arg (None or list of str): Group structure argument
-            following procedures described above or None, if default
-            Vitamin-J 175 group structure settings to be applied.
+        group_struct_arg (list of str): Group structure argument following the 
+            procedures described above.
 
     Returns:
-        ign (str or int): GROUPR neutron group structure parameter. ign = 1
-            for arbitrary group structures not contained in NJOY's built-in
-            list of options.
+        ign (int): GROUPR neutron group structure parameter. ign = 1 for
+            arbitrary group structures not contained in NJOY's built-in list
+            of options.
         ngn (str): Number of groups. Will be an empty string unless ign == 1.
         egn (str): Space-joined string of all energy group bounds in
             ascending order. Will be an empty string unless ign == 1.
@@ -211,47 +211,48 @@ def set_group_structure(group_struct_arg):
 
     ngn = ''
     egn = ''
+    group_struct = group_struct_arg[0]
 
-    # Default to Vitamin-J group structure if none is provided from args
-    if group_struct_arg is None:
-        ign = 17
-        group_name = 'VITAMIN-J-175'
+    # Check if provided group structure is among the list of built-in NJOY
+    # group structures by key (ign values 2-34)
+    if group_struct in np.array(list(NJOY_GROUPS)).astype(str):
+        ign = int(group_struct)
+        group_name = NJOY_GROUPS[ign]
 
+    # Check if provided group structure is among the list of built-in NJOY
+    # group structures by name (values of NJOY_GROUPS dict)
+    elif group_struct.upper() in NJOY_GROUPS.values():
+        group_name = group_struct.upper()
+        ign = list(NJOY_GROUPS.keys())[
+            list(NJOY_GROUPS.values()).index(group_name)
+        ]
+
+    # NJOY "arbitrary group structure" option
     else:
-        group_struct = group_struct_arg[0]
+        ign = 1
+        group_bounds = []
+        # If support file containing group bounds is provided, load them
+        # into an array
+        if Path(group_struct).is_file():
+            group_bounds = np.loadtxt(group_struct)
+            group_name = f'CUSTOM-{len(group_bounds)}'
 
-        # Check if provided group structure is among the list of built-in NJOY
-        # group structures (ign values 2-34)
-        if group_struct in np.array(list(NJOY_GROUPS)).astype(str):
-            ign = group_struct
-            group_name = NJOY_GROUPS[int(group_struct)]
-
-        # NJOY "arbitrary group structure" option
+        # If group structure name is provided, extract values from OpenMC
         else:
-            ign = 1
-            group_bounds = []
-            # If support file containing group bounds is provided, load them
-            # into an array
-            if Path(group_struct).is_file():
-                group_bounds = np.loadtxt(group_struct)
-                group_name = f'CUSTOM-{len(group_bounds)}'
+            from openmc.mgxs import GROUP_STRUCTURES
+            group_name = group_struct.upper()
+            group_bounds = GROUP_STRUCTURES.get(group_name, [])
 
-            # If group structure name is provided, extract values from OpenMC
-            else:
-                from openmc.mgxs import GROUP_STRUCTURES
-                group_name = group_struct.upper()
-                group_bounds = GROUP_STRUCTURES.get(group_name, [])
-
-            if len(group_bounds) == 0:
-                raise ValueError(
-                    'Invalid group structure provided. Must either be an '  \
-                    'ign value known by NJOY, a group structure name in '   \
-                    '`openmc.mgxs.GROUP_STRUCTURES`, or a file containing ' \
-                    'explicit energy group bounds.'
-                )
-            
-            ngn = str(len(group_bounds) - 1)
-            egn = ' '.join(np.array(sorted(group_bounds)).astype(str))
+        if len(group_bounds) == 0:
+            raise ValueError(
+                'Invalid group structure provided. Must either be an '  \
+                'ign value known by NJOY, a group structure name in '   \
+                '`openmc.mgxs.GROUP_STRUCTURES`, or a file containing ' \
+                'explicit energy group bounds.'
+            )
+        
+        ngn = str(len(group_bounds) - 1)
+        egn = ' '.join(np.array(sorted(group_bounds)).astype(str))
 
     return ign, ngn, egn, group_name
 
