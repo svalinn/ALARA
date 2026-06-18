@@ -223,7 +223,10 @@ def process_gendf(
     if gendf_path:
         # Extract MT values again from GENDF file as there may be some
         # difference from the original MT values in the ENDF/PENDF files
-        xs_line_dict, gendf_MTs, nGroups = tp.extract_gendf_data(gendf_path)
+        non_zero_xs, gendf_MTs, nGroups = tp.extract_gendf_data(
+            gendf_path, material_id
+        )
+
         if MTs != gendf_MTs:
             diffs = sorted(MTs - gendf_MTs)
             warnings.warn(
@@ -232,7 +235,7 @@ def process_gendf(
             )
         if gendf_MTs:
             all_rxns = tp.iterate_MTs(
-                gendf_MTs, mt_dict, xs_line_dict, pKZA, 
+                gendf_MTs, mt_dict, non_zero_xs, pKZA, 
                 all_rxns, eaf_nucs, isomer_dict, nGroups
             )
             print(f'Finished processing {element}-{A}')
@@ -444,7 +447,7 @@ def main():
                 NJOY error message: {njoy_prep_error}'''
             )
 
-        njt.cleanup_njoy_files(element, A)
+        #njt.cleanup_njoy_files(element, A)
 
     # Handle gas total production cross-sections, per user specifications
     gas_filtered = subtract_gas_from_totals(all_rxns)
