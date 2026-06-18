@@ -223,9 +223,7 @@ def process_gendf(
     if gendf_path:
         # Extract MT values again from GENDF file as there may be some
         # difference from the original MT values in the ENDF/PENDF files
-        non_zero_xs, gendf_MTs, nGroups = tp.extract_gendf_data(
-            gendf_path, material_id
-        )
+        non_zero_xs, gendf_MTs, nGroups = tp.extract_gendf_data(gendf_path)
 
         if MTs != gendf_MTs:
             diffs = sorted(MTs - gendf_MTs)

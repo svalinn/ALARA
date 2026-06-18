@@ -268,7 +268,7 @@ def _gendf_parse_control(line):
     except ValueError:
         return None, None
 
-def extract_gendf_data(gendf_path, material_id):
+def extract_gendf_data(gendf_path):
     """
     Parse a GENDF-formatted (post-GROUPR processing) file for lines containing
         cross-section data for each reaction type, while compiling a full set
@@ -277,8 +277,6 @@ def extract_gendf_data(gendf_path, material_id):
     Arguments
         gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
              which to extract cross-section data.
-        material_id (int): Unique material ID of the parent nuclide catalogued
-            in the GENDF file.
 
     Returns:
         non_zero_xs (collections.defaultdict): Dictionary keyed by MT number
@@ -325,20 +323,18 @@ def extract_gendf_data(gendf_path, material_id):
                     continue
 
                 if line_count % 2 == 0:
-                    current_IG = int(
-                        line[:line.index(str(material_id))].split()[-1]
-                    )
+                    current_IG = int(line[62:66])
 
                 else:
                     current_section[current_IG] = float(
-                        line.split()[2].replace('+','E+').replace('-','E-')
+                        line.split()[1].replace('+','E+').replace('-','E-')
                     )
-            
+
             else:
                 if current_section:
                     non_zero_xs[current_MT].append(current_section)
                     current_section = {}
-                
+
                 current_MT = None
                 current_IG = None
                 line_count = 0
