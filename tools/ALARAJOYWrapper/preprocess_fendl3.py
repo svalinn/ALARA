@@ -516,11 +516,12 @@ def main():
 
         njt.cleanup_njoy_files(element, A)
 
-    warnings.warn(
-        f'A total of {len(unresr_err_cases)} TENDL files required ' \
-        'an increase in UNRESR fractional error tolerance for the following' \
-        f' nuclides: {unresr_err_cases}'
-    )
+    if unresr_err_cases:
+        warnings.warn(
+            f'A total of {len(unresr_err_cases)} TENDL files required ' \
+            'an increase in UNRESR fractional error tolerance for the ' \
+            f'following nuclides: {unresr_err_cases}'
+        )
 
     # Handle gas total production cross-sections, per user specifications
     gas_filtered = subtract_gas_from_totals(all_rxns)
