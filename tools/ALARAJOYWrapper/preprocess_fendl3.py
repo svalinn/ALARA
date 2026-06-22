@@ -519,7 +519,7 @@ def main():
     warnings.warn(
         f'A total of {len(unresr_err_cases)} TENDL files required ' \
         'an increase in UNRESR fractional error tolerance for the following' \
-        f'nuclides: {unresr_err_cases}'
+        f' nuclides: {unresr_err_cases}'
     )
 
     # Handle gas total production cross-sections, per user specifications
