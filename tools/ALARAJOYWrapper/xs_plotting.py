@@ -4,7 +4,7 @@ import argparse
 from openmc.mgxs import GROUP_STRUCTURES
 import njoy_tools as njt
 import tendl_processing as tp
-from collections import defaultdict
+from collections import defaultdict, abc
 from pathlib import Path
 from pathlib._local import PosixPath 
 import reaction_data as rxd
@@ -216,7 +216,7 @@ def plot_cross_sections(plotting_dict):
                 else element_dict['all']
             )
 
-            if not isinstance(MTs, list):
+            if not isinstance(MTs, abc.Iterable) or isinstance(MTs, str):
                 MTs = [MTs]
     
             if check_all_tag(MTs):
@@ -224,7 +224,7 @@ def plot_cross_sections(plotting_dict):
                     njt.set_directory() / 'mt_table.csv'
                 )).keys()
 
-            for MT in MTs:
+            for MT in [flagged_num_to_int(MT) for MT in MTs]:
                 fig, ax = plt.subplots(figsize=(10,6))
                 stair_plot = None
                 group_names = []
