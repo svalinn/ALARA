@@ -260,7 +260,7 @@ def plot_cross_sections(plotting_dict):
 
                     if xs.size > 0:
                         stair_plot = ax.stairs(
-                            xs, energy_bounds[::-1], label=group_name
+                            xs[::-1], energy_bounds, label=group_name
                         )
                 
                 if stair_plot:
