@@ -2,6 +2,7 @@
 import reaction_data as rxd
 import tendl_processing as tp
 import njoy_tools as njt
+import xs_plotting as xp
 import numpy as np
 import argparse
 import warnings
@@ -58,6 +59,14 @@ def make_argparser():
             Specification for group structure in which to convert TENDL cross-
                 sections. See njoy_tools.set_group_structure() for specific
                 details for acceptable forms in which to supply this argument.
+        ''')
+    )
+    parser.add_argument(
+        '--xs_plotting', '-p', action='store_true',
+        help=('''
+            Optional argument to comparatively plot all converted groupwise
+                neutron cross-sections over the continuous energy cross-
+                sections from the original TENDL file.
         ''')
     )
     return parser
@@ -327,13 +336,14 @@ def combine_daughter_pathways(gas_filtered, nGroups):
 
     return gas_filtered
 
-def rxn_to_str(parent, daughter, rxn):
+def rxn_to_str(parent, daughter, MT, rxn):
     """
     Generate the list of strings to be written in a single row of the DSV file.
 
     Arguments:
         parent (int): KZA of the reaction's parent nuclide.
         daughter (int): KZA of the reaction's daughter nuclide.
+        MT (int): Reaction identifying number.
         rxn (dict): Dictionary for the given reaction containing cross-section
             and emitted particle data.
 
@@ -341,12 +351,11 @@ def rxn_to_str(parent, daughter, rxn):
         dsv_row (str): Joined string of all row data for a single reaction.
     """
 
-    dsv_row = f'{parent} {daughter} {rxn['emitted']} '
-    dsv_row += ' '.join(str(xs) for xs in rxn['xsections'])
+    dsv_row = f'{parent} {daughter} {MT} {rxn['emitted']} '
 
-    return dsv_row
+    return dsv_row + ' '.join(str(xs) for xs in rxn['xsections'])
 
-def write_dsv(dsv_path, all_rxns, nGroups):
+def write_dsv(dsv_path, all_rxns, nGroups, group_name):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
         dsv_path, produced by iterating through each reaction of each isotope
@@ -370,19 +379,23 @@ def write_dsv(dsv_path, all_rxns, nGroups):
                     }
                 }    
             }
+        group_name (str): Name of the group structure into which cross-
+            sections were converted.
 
     Returns:
         None 
     """
 
     with open(dsv_path, 'w') as dsv:
-        dsv.write(str(nGroups) + '\n')
+        dsv.write(f'{nGroups} {group_name}\n')
         for parent in sorted(all_rxns):
             for daughter in all_rxns[parent]:
                 if parent != daughter:
-                    for rxn in all_rxns[parent][daughter].values():
+                    for MT, rxn in all_rxns[parent][daughter].items():
                         if rxn['xsections'].sum() > 0:
-                            dsv.write(f'{rxn_to_str(parent,daughter,rxn)}\n')
+                            dsv.write(
+                                f'{rxn_to_str(parent, daughter, MT, rxn)}\n'
+                            )
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv.write(str(-1))
 
@@ -454,12 +467,18 @@ def main():
         gas_filtered = combine_daughter_pathways(gas_filtered, nGroups)
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
-    write_dsv(dsv_path, gas_filtered, nGroups)
+    write_dsv(dsv_path, gas_filtered, nGroups, group_name)
+
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
         f'according to the {group_name} group structure.'
     )
     print(f'Reaction data saved to: {dsv_path}')
+
+    if args.xs_plotting:
+        xp.plot_cross_sections(xp.all_rxns_to_plotting_dict(
+            gas_filtered, search_dir
+        ))
 
 if __name__ == '__main__':
     main()
