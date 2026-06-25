@@ -240,9 +240,9 @@ def plot_cross_sections(plotting_dict):
                     # openmc.mgxs.GROUP_STRUCTURES, a reference file must
                     # exist in the CWD with a matching name to the group_name
                     # containing the group bounds explicitly
-                    energy_bounds = GROUP_STRUCTURES.get(
-                        group_name, sorted(np.loadtxt(group_name))
-                    )
+                    energy_bounds = GROUP_STRUCTURES.get(group_name, [])
+                    if len(energy_bounds) == 0:
+                        energy_bounds = sorted(np.loadtxt(group_name))
 
                     xs = np.array([])
                     for line in dsv_lines[1:-1]:
