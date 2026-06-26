@@ -19,6 +19,7 @@ This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Dat
 - Generic Python packages
   * [NumPy](https://numpy.org/install/)
   * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+  * [PyYAML](https://pyyaml.org/wiki/PyYAMLDocumentation) (only needed if running `spectra_plotting.py` as an independent script.)
 - Domain-specific packages
   * [ENDFtk](https://github.com/njoy/ENDFtk)
   * [NJOY 2016](https://github.com/njoy/NJOY2016) (built with `develop` branch)
@@ -34,7 +35,7 @@ To run this preprocessor, the user must first have acquired TENDL files for each
 
 Running ALARAJOYWrapper can be done with one Python command:
 ```
-python preprocess_fendl3.py -f /path/to/fendl3_data_dir/ -d /path/to/eaf_decay_library/ -a -t -r -g
+python preprocess_fendl3.py -f /path/to/fendl3_data_dir/ -d /path/to/eaf_decay_library/ -a -t -r -g -p
 ```
 To read in detail about each of these arguments, call this command:
 ```
@@ -62,6 +63,80 @@ Running `preprocess_fendl3.py` will return the file path to the resultant space-
 - Cross Sections: List of all non-zero neutron cross sections.
 
 It should be noted that TENDL 2017 activation data contains many reactions that leave the residual nucleus in various quantized excited states, potentially up to a 40<sup>th</sup> excited state. Most of these daughter isomers, however, are extremely short-lived and lack decay data. When converting an ALARAJOY DSV file in ALARA, as discussed below, an EAF decay library is required, given that FENDL3.2x only contains activation data. Cross-referencing exotic isomers against this decay data ensures that ultra-short-lived reaction products are not passed on to ALARA's library conversion appearing as stable nuclides. Rather, the lack of decay data signifies such a short half-life that decay evaluations are not practical. For excited daughter nuclides produced from a given reaction lacking corresponding EAAF decay data, ALARAJOY will incrementally de-excite the nuclear state one-by-one down to the next lowest energy level with known decay data (or ultimately to ground).
+
+## Neutron Cross-Section Plotting
+The conversion of neutron cross-sections from a continuous energy form to a groupwise form according to some multigroup energy structure necessarily makes approximations to the data. Visualizing groupwise cross-sections against continous TENDL data can be useful in fundamental validation of the conversion methods employed by ALARAJOY and to understand the effects of different choices of group structures on the final form of groupwise data to be used within ALARA.
+
+Either as an optional inclusion within the main ALARAJOY groupwise processing pipeline or as a standalone tool, cross-sections can be plotted to compare groupwise cross-sections with continous-energy values contained in the orignal TENDL files with `xs_plotting.py`. The core functionality is contained in `xs_plotting.plot_cross_sections()`, which produces plots for each nuclide/reaction combination to be assessed, with additional capacity to overlay multiple different DSV data sources from ALARAJOY conversions with different group structures. These plots are saved according to the following structure:
+
+  ```
+  TENDL_DATA_SOURCE
+    ⤷ ELEMENT
+      ⤷ NUCLIDE
+        ⤷ REACTION_1
+        ⤷ ...
+        ⤷ REACTION_N
+  ```
+
+When the optional `-p` argument is invoked when executing `preprocess_fendl3.py`, all reactions for all nuclides written out to `cumulative_gendf_data.dsv` will be produced and saved according to the above directory structure. The highest level directory will be the same name as the `-f` TENDL data directory, with an additional "`_plots`" tag (e.g. `tendl2017/` → `tendl2017_plots/`).
+
+To run `xs_plotting.py` as a standalone script, an input `.yaml` file must be supplied to specify the nuclides and reactions to be plotted. Additionally, the groupwise and continuous data sources to comparatively plot can be specified in this input file. These, however, are not required and will default to `cumulative_gendf_data.dsv` and `tendl2017/` respectively. The format of this input is shown below, as well as in `example_xs_plotting_input.yaml`, which can be used as a basis to supply custom plotting parameters according to their needs. Reactions are specified by their MT number, whose reference can be found at https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf. 
+
+```
+# Option to specify arbitrary number of groupwise data sources
+# Default: cumulative_gendf_data.dsv
+DSV:
+  - groupwise_struct_1.dsv # (e.g. vitamin_j_175.dsv)
+  - groupwise_struct_2.dsv # (e.g. ccfe_709.dsv)
+  - ...
+  - groupwise_struct_n.dsv
+
+# Option to specify the TENDL data source from which groupwise data were produced
+# Default: tendl2017/
+TENDL:
+  - tendl_directory/
+
+# Reactions specified by ELEMENT → MASS NUMBER → REACTIONS
+# ELEMENT_1:
+#   A_1:
+#     - REACTION_1_1
+#     - ...
+#     - REACTION_1_N
+#   ...
+#   A_N:
+#     - REACTION_N_1
+#     - ...
+#     - REACTION_N_N
+
+Fe:
+  54:
+    - 16  # (n,2n)
+    - 102 # (n,g)
+  55:
+    - 103 # (n,p)
+  56:
+    - 203 # (n,Xp)
+
+W:
+  all: # Iterates through all W nuclides
+    - 205 # (n,Xt)
+
+C:
+  12:
+    - all # Iterates through all C-12 reactions
+
+N:
+  all:
+    - all
+```
+
+Using parameter `all` for any category of element, mass number, or reaction will iterate through all possible values of that parameter and produce plots accordingly, which can be done for any or all of these parameters, together or individually.
+
+The cross-section plotting script is run as follows:
+
+```
+python xs_plotting.py -y /path/to/input_file.yaml
+```
 
 ## Application of Processed Data to ALARA Data Conversion Methods
 Data library conversion to ALARA binary libraries is done with the `convert_lib` input block in the ALARA input file. Converting preprocessed TENDL data contained in the resultant space-delimited DSV from ALARAJOYWrapper is done as such in the input file:
