@@ -7,7 +7,6 @@ from collections import defaultdict
 import warnings
 import numpy as np
 
-VITAMIN_J_ENERGY_GROUPS = 175
 EXCITATION_DICT = {
     4   : np.arange(51 ,  92), # (n,n*)  reactions
     103 : np.arange(600, 650), # (n,p*)  reactions
@@ -276,87 +275,118 @@ def extract_gendf_data(gendf_path):
         of all MT numbers corresponding to that reaction.
 
     Arguments
-         gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
+        gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
              which to extract cross-section data.
 
     Returns:
-        xs_line_dict (collections.defaultdict): Dictionary keyed by MT number
-            with values of lists of all line strings in the MT-section from
-            the parsed GENDF file containing cross-section data.
+        non_zero_xs (collections.defaultdict): Dictionary keyed by MT number
+            valued by lists of sub-dictionaries. Each of these are keyed by
+                the GROUPR group index tag (`IG`) and valued by the associated
+                groupwise cross-section value for that energy group.
          MTs (set of ints): All reaction types with cross-section data in the
             provided GENDF.
+        nGroups (int): Number of energy groups into which the groupwise cross
+            sections were calculated.
     """
 
     MTs = set()
-    xs_line_dict = defaultdict(list)
-    current_section_lines = []
+    non_zero_xs = defaultdict(list)
+
     current_MT = None
+    current_section = {}
+    current_IG = None
     line_count = 0
+    nGroups = None
 
     with open(gendf_path, 'r') as f:
         for line in f:
             mf, mt = _gendf_parse_control(line)
+            
+            # Extract number of groups, found in second line of file
+            # description section
+            if mf == 1 and mt == 451 and int(line.rstrip('\n')[-3:]) == 2:
+               nGroups = int(line.split()[2])
+
             if mf == 3 and mt != 0:
                 MTs.add(mt)
                 if mt != current_MT:
-                    if current_section_lines:
-                        xs_line_dict[current_MT].append(current_section_lines)
-                        current_section_lines = []
+                    if current_section:
+                        non_zero_xs[current_MT].append(current_section)
+                    
+                    current_section = {}
                     current_MT = mt
                     line_count = 0
 
                 line_count += 1
 
-                if line_count >= 3 and line_count % 2 == 1:
-                    current_section_lines.append(line)
+                if line_count < 2:
+                    continue
+
+                if line_count % 2 == 0:
+                    current_IG = int(line[62:66])
+
+                else:
+                    current_section[current_IG] = float(
+                        line.split()[1].replace('+','E+').replace('-','E-')
+                    )
 
             else:
-                if current_section_lines:
-                    xs_line_dict[current_MT].append(current_section_lines)
-                    current_section_lines = []
+                if current_section:
+                    non_zero_xs[current_MT].append(current_section)
+                    current_section = {}
+
                 current_MT = None
+                current_IG = None
                 line_count = 0
 
-    return xs_line_dict, MTs
+    if nGroups is None:
+        raise ValueError(
+            f'{gendf_path} misformatted. Expecting to find group number in ' \
+            'MF1, MT451.'
+        )
 
-def process_xsections(xs_lines, M_values):
+    return non_zero_xs, MTs, nGroups
+
+def populate_xs(xs_by_index, M_values, nGroups):
     """
-    Given a list of lines containing all cross-section data for a given
-        reaction type, identify all excitation pathways and save reformatted
-        and padded cross-section arrays to a dictionary keyed by isomeric
-        states (M). Each reaction type may have multiple actual reaction
-        pathways, corresponding to different isomeric states of the daughter,
-        which appear within the file in ascending order of excitation.
+    Given a dictionary containing all cross-section data for a given reaction
+        type, identify all excitation pathways and save group-positioned 
+        cross-section arrays to a dictionary keyed by isomeric states (M).
+        Each reaction type may have multiple actual reaction pathways,
+        corresponding to different isomeric states of the daughter, which
+        appear within the file in ascending order of excitation.
     
     Arguments:
-        xs_lines (line of str): List of all lines in the MT-section containing
-            cross-section data.
+        xs_by_index (dict): Dictionary of all non-zero cross-sections for a
+            given MT value keyed by the GROUPR group index tag (`IG`) and
+            valued by the groupwise cross-section in barns.
         M_values (list of int): All possible isomeric states of the residual
             daughter produced from the given reaction type.
+        nGroups (int): Number of energy groups into which the groupwise cross
+            sections were calculated.
     
     Returns:
         sigma_dict (dict): Dictionary keyed by excitation levels (M) with
             values of padded NumPy arrays containing groupwise cross-sections
-            following the VITAMIN-J group structure.
+            following the group structure provided by the user or the default
+            Vitamin-J 175 group structure if none is otherwise specified.
     """
 
     sigma_dict = {}
     excitations = len(M_values)
-    N = min(excitations, len(xs_lines))
-    
-    # If multiple excitations, M values equal the list indices of LFS values
+    N = min(excitations, len(xs_by_index))
+
     if excitations > 1:
         M_values = list(range(excitations))
 
-    for M, lines in zip(M_values[:N], xs_lines[:N]):
-        sigmas = [
-            float(line.split(' ')[2].replace('+','E+').replace('-','E-'))
-            for line in lines
-        ][::-1]
-        sigma_dict[M] = np.pad(
-            sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
-        )
-    
+    for M, ordered_xs in zip(M_values[:N], xs_by_index[:N]):
+        sigmas = np.zeros(nGroups)
+
+        for IG, sigma in ordered_xs.items():
+            sigmas[IG - 1] = sigma
+
+        sigma_dict[M] = sigmas[::-1]
+
     return sigma_dict
 
 def incrementally_deexcite_isomer(M, dKZA, eaf_nucs):
@@ -384,7 +414,7 @@ def incrementally_deexcite_isomer(M, dKZA, eaf_nucs):
     return dKZA + trial_M
 
 def iterate_MTs(
-    MTs, mt_dict, xs_line_dict, pKZA, all_rxns, eaf_nucs, isomer_dict, gendf_path
+    MTs, mt_dict, non_zero_xs, pKZA, all_rxns, eaf_nucs, isomer_dict, nGroups
 ):
     """
     Iterate through all of the MTs present in a given GENDF file to extract
@@ -399,9 +429,11 @@ def iterate_MTs(
     
     Arguments:
         MTs (list of int): List of reaction types present in the GENDF file.
-        file_obj (ENDFtk.tree.File): ENDFtk file object containing the
-            contents for a specific material's cross-section data.
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv
+        non_zero_xs (collections.defaultdict): Dictionary keyed by MT number
+            valued by lists of sub-dictionaries. Each of these are keyed by
+                the GROUPR group index tag (`IG`) and valued by the associated
+                groupwise cross-section value for that energy group.        
         pKZA (int): Parent KZA identifier.
         all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
             parent nuclides to store all reaction data, with structured as:
@@ -423,8 +455,8 @@ def iterate_MTs(
             level has a list of all isomeric states of possible daughter
             nuclides for which there are cross-section data in the original
             TENDL file.
-        gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
-            which to extract groupwise cross-sections.
+        nGroups (int): Number of energy groups into which the groupwise cross
+            sections were calculated.
             
     Returns:
         all_rxns (collections.defaultdict): Updated dictionary for all
@@ -438,14 +470,13 @@ def iterate_MTs(
             filtered_MTs.add(MT)
 
     for MT in filtered_MTs:
-        xs_lines = xs_line_dict[MT]
+        xs_by_index = non_zero_xs[MT]
         M_values = list(isomer_dict[MT].values())[0]
-        isomer_specific_rxns = process_xsections(xs_lines, M_values)
         rxn = mt_dict[MT]
         gas = rxn['gas']
         
         # Calculate dKZA values for each excitation pathway in MF10
-        for M, sigmas in isomer_specific_rxns.items():
+        for M, sigmas in populate_xs(xs_by_index, M_values, nGroups).items():
             emitted = rxn['emitted']
             dKZA = (((pKZA // 10) * 10 + rxn['delKZA']) // 10) * 10 + M
             if gas:
@@ -481,13 +512,9 @@ def iterate_MTs(
                 if special_MT not in all_rxns[pKZA][dKZA]:
                     all_rxns[pKZA][dKZA][special_MT] = {
                         'emitted'  : emitted,
-                        'xsections': np.zeros(VITAMIN_J_ENERGY_GROUPS)
+                        'xsections': np.zeros(nGroups)
                     }
 
-                all_rxns[pKZA][dKZA][special_MT][
-                    'xsections'
-                ] += np.pad(
-                    sigmas, (0, VITAMIN_J_ENERGY_GROUPS - len(sigmas))
-                )
+                all_rxns[pKZA][dKZA][special_MT]['xsections'] += sigmas
 
     return all_rxns

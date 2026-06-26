@@ -3,6 +3,7 @@ from string import Template
 import subprocess
 from pathlib import Path
 import re
+import numpy as np
 
 def set_directory():
     '''
@@ -75,10 +76,12 @@ groupr_input = Template(Template(
 """
 groupr/
  $NENDF $NPEND $NGOUT1 $NGOUT2/
- $mat_id $IGN $IGG $IWT $LORD $NTEMP $NSIGZ $IPRINT_groupr/
+ $mat_id $ign $IGG $IWT $LORD $NTEMP $NSIGZ $IPRINT_groupr/
  $title/
  $groupr_temp
  $SIGZ_groupr/
+ $ngn
+ $egn
  $reactions
  $MATD/
  0/
@@ -89,7 +92,6 @@ stop
     NPEND = 25,         # unit for final PENDF tape (equivalent to NOUT_gaspr)
     NGOUT1 = 0,                         # unit for input gout tape (default=0)
     NGOUT2 = 31,                       # unit for output gout tape (default=0)
-    IGN = 17,    # neutron group structure option (corresponding to Vitamin J)
     IGG = 0,                                    # gamma group structure option
     IWT = 11,            # weight function option (corresponding to Vitamin E)
     LORD = 0,                                                 # Legendre order
@@ -115,6 +117,146 @@ elements = [
     'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og'
 ]
 elements = dict(zip(elements, range(1, len(elements)+1)))
+
+NJOY_GROUPS = {
+    2  :          'CSWEG-239',
+    3  :            'LANL-30',
+    4  :             'ANL-27',
+    5  :             'RRD-50',
+    6  :           'GAM-I-68',
+    7  :         'GAM-II-100',
+    8  :   'LASER-THERMOS-35',
+    9  :        'EPRI-CPM-69',
+    10 :           'LANL-187',
+    11 :            'LANL-70',
+    12 :        'SAND-II-620',
+    13 :            'LANL-80',
+    14 :         'EURLIB-100',
+    15 :       'SAND-IIA-640',
+    16 :      'VITAMIN-E-174',
+    17 :      'VITAMIN-J-175',
+    18 :      'XMAS-NEA-LANL',
+    19 :            'ECCO-33',
+    20 :          'ECCO-1968',
+    21 :        'TRIPOLI-315',
+    22 :      'XMAS-LWPC-172',
+    23 : 'VITAMIN-J-LWPC-175',
+    24 :       'SHEM-CEA-281',
+    25 :       'SHEM-EPM-291',
+    26 :   'SHEM-CEA/EPM-361',
+    27 :       'SHEM-EPM-315',
+    28 :      'RAHAB-AECL-89',
+    29 :           'CCFE-660',
+    30 :         'UKAEA-1025',
+    31 :         'UKAEA-1067',
+    32 :         'UKAEA-1102',
+    33 :          'UKAEA-142',
+    34 :           'LANL-618'
+}
+
+def set_group_structure(group_struct_arg):
+    """
+    Interpret the group_structure argument (`-g`) to define the requisite NJOY
+        parameters to convert TENDL data to the given multi-group energy
+        structure. By default, the Vitamin-J 175 group structure is used for
+        ALARAJOY preprocessing and this function will return the appropriate
+        values for NJOY to run GROUPR with these settings. If another group
+        structure is desired, however, there are three ways in which this
+        group structure can be set:
+
+        1) Provide the GROUPR `ign` key or group name corresponding to the
+        desired group structure. NJOY has 33 built-in group structures from
+        which GROUPR can access their data, including for Vitamin-J. These can
+        be found in Section 8.18 ("Running GROUPR") of the NJOY User Manual
+        (https://github.com/njoy/NJOY2016-manual/raw/master/njoy16.pdf) or in
+        the dictionary njoy_tools.NJOY_GROUPS.
+
+        2) Provide a support file containing the explicit energy bounds of a
+        multi-group energy structure. NJOY is not limited to its pre-set
+        structures, and is capable of converting cross-sections to an
+        arbitrary group structure, so long as the energy bounds and number of
+        groups are provided. To use this option format the support file as:
+
+            BOUND_1
+            BOUND_2
+            ...
+            BOUND_N
+        
+        The order in the support file can be arbitrary because after being
+        read in, the values will be sorted to ensure compliance to NJOY's
+        expectation of ascending energy bounds for an arbitrary group
+        structure.
+
+        3) Provide a group-structure name corresponding to a key in the
+        `openmc.mgxs.GROUP_STRUCTURES` dictionary. The open-source Monte Carlo
+        neutron transport code OpenMC contains a number of multi-group energy
+        structures that may be applicable for activation studies but are not
+        included in the list of NJOY options mentioned in `(1)`, such as the
+        'CCFE-709' group structure used by FISPACT-II. These group structures
+        can be found at https://docs.openmc.org/en/stable/pythonapi/mgxs.html.
+    
+    Arguments:
+        group_struct_arg (list of str): Group structure argument following the 
+            procedures described above.
+
+    Returns:
+        ign (int): GROUPR neutron group structure parameter. ign = 1 for
+            arbitrary group structures not contained in NJOY's built-in list
+            of options.
+        ngn (str): Number of groups. Will be an empty string unless ign == 1.
+        egn (str): Space-joined string of all energy group bounds in
+            ascending order. Will be an empty string unless ign == 1.
+        group_name (str): Name of the provided group structure.
+    """
+
+    ngn = ''
+    egn = ''
+    group_struct = group_struct_arg[0]
+
+    # Check if provided group structure is among the list of built-in NJOY
+    # group structures by key (ign values 2-34)
+    if group_struct in np.array(list(NJOY_GROUPS)).astype(str):
+        ign = int(group_struct)
+        group_name = NJOY_GROUPS[ign]
+
+    # Check if provided group structure is among the list of built-in NJOY
+    # group structures by name (values of NJOY_GROUPS dict)
+    elif group_struct.upper() in NJOY_GROUPS.values():
+        group_name = group_struct.upper()
+        ign = list(NJOY_GROUPS.keys())[
+            list(NJOY_GROUPS.values()).index(group_name)
+        ]
+
+    # NJOY "arbitrary group structure" option
+    else:
+        ign = 1
+        group_bounds = []
+        # If support file containing group bounds is provided, load them into
+        # an array
+        if Path(group_struct).is_file():
+            group_bounds = np.loadtxt(group_struct)
+            group_name = 'user-provided ' + (
+                f'{Path(group_struct).stem.upper()}-{len(group_bounds) - 1}'
+            )
+
+        # If group structure name is provided, extract values from OpenMC
+        else:
+            from openmc.mgxs import GROUP_STRUCTURES
+            group_name = group_struct.upper()
+            group_bounds = GROUP_STRUCTURES.get(group_name, [])
+
+        if len(group_bounds) == 0:
+            raise ValueError(
+                'Invalid group structure provided. Must either be an ign '  \
+                'value known by NJOY, a group structure name in '   \
+                '`openmc.mgxs.GROUP_STRUCTURES`, or a file containing ' \
+                'explicit energy group bounds.'
+            )
+        
+        ngn = str(len(group_bounds) - 1)
+        egn = ' '.join(np.array(sorted(group_bounds)).astype(str))
+
+    return ign, ngn, egn, group_name
 
 def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
     """
@@ -168,7 +310,7 @@ def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
 
 def fill_input_template(
     inp, material_id, MTs, element, A, mt_dict, temperature,
-    pKZA=None, isomer_dict={}
+    pKZA=None, isomer_dict={}, ign=17, ngn='', egn=''
 ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
@@ -201,12 +343,38 @@ def fill_input_template(
             states of the residual daughter. Only needed when filling the
             GROUPR-specific template.
             (Defaults to {})
+        ign (str or int, optional): GROUPR neutron group structure parameter.
+            ign = 1 for arbitrary group structures not contained in NJOY's
+            built-in list of options. Default value corresponds to ign key for
+            the Vitamin-J 175 energy group structure.
+            (Defaults to 17)
+        ngn (str, optional): Number of groups. Will be an empty string unless
+            ign == 1.
+            (Defaults to '')
+        egn (str): Space-joined string of all energy group bounds in ascending
+            order. Will be an empty string unless ign == 1.
+            (Defaults to '')
     
     Returns:
         template (str): Modified template with the material-
             specific information substituted in for the $identifiers,
             converted to a string.
     """
+
+    # Card 6 special handling for explicitly defined energy groups
+    if ign == 1:
+        if not ngn or not egn:
+            raise ValueError(
+                'In order to convert to arbitrary group structure ' \
+                '(ign == 1), GROUPR requires the number of groups (ngn) and' \
+                ' the group boundaries (egn).\nWhen using njoy_tools within ' \
+                'preprocess_fendl3.py, either include a group structure ' \
+                'defined in openmc.mgxs.GROUP_STRUCTURES or provide a file ' \
+                'as a second value for the -g argument that explicitly ' \
+                'lists the group boundaries.'
+            )
+        ngn += ' /'
+        egn += ' /'
 
     Z = str(elements[element]).zfill(2)
     title = f'"{Z}-{element}-{A} for TENDL 2017"'
@@ -231,7 +399,10 @@ def fill_input_template(
         self_shielding_temp=temperature,
         final_broadr_temp=temperature,
         groupr_temp=temperature,
-        title=title,                                            
+        title=title,
+        ign=ign,
+        ngn=ngn,
+        egn=egn,                     
         reactions=card9,                                        
     )
 
