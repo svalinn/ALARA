@@ -62,16 +62,14 @@ def plot_single_nuc_rxn_xs(
     if groupwise_dict:
         for data_set, arrays in groupwise_dict.items():
             ax.stairs(arrays['xs'][::-1], arrays['energies'], label=data_set)
+        
+        title += ', '.join([g for g in groupwise_dict]) + ' (Groupwise)'
 
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlabel('Energy [eV]')
     ax.set_ylabel('Cross-Section [b]')
-    ax.set_title(
-        title
-        + ', '.join([g for g in groupwise_dict if g != 'continuous'])
-        + ' (Groupwise)'
-    )
+    ax.set_title(title)
     ax.grid()
     ax.legend()
 
