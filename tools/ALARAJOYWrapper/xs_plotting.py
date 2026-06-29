@@ -194,3 +194,49 @@ def plot_single_nuc_rxn_xs(
     ax.legend()
 
     return ax
+
+def set_plot_save_path(
+    element, A, tendl_dir, emitted, group_names, img_ext='png'
+):
+    """
+    For a given reaction's cross-section plot produced by
+        plot_single_nuc_rxn_xs(), ensure/create a directory storage structure
+        of TENDL-LIBRARY -> ELEMENT -> NUCLIDE to write the path at which the
+        plot can be saved by its reaction type within the nuclide-level sub-
+        directory.
+
+    Arguments:
+        element (str): Symbol of the element to which the nuclide being
+            plotted belongs.
+        A (str or int): Mass number for selected isonuclide.
+            If the target is a metastable isomer, "m" or "n" is written after 
+            the mass number, corresponding to the first or second metastable
+            states.
+        tendl_dir (pathlib._local.PosixPath): Path to the directory in which
+            the original TENDL data from which the cross-section data is
+            extracted or derived.
+        emitted (str): Particle(s) emitted from a nuclear reaction.
+        group_names (array-like): Iterable of all group-structures with data
+            included in the plot.
+        img_ext (str, optional): Option to set the image filetype for the plot
+            to be saved, limited to Matplotlib filetypes: png, ps, pdf, svg.
+            (Defaults to 'png')
+    
+    Returns:
+        save_path (pathlib._local.PosixPath): PNG filepath for a given
+            reaction plot of the format:
+            
+                TENDL_LIB_PLOTS/ELEMENT/NUCLIDE/RXN_WITH_GROUPS.png
+
+            For example, the Fe-56 (n,p) reaction plotting VITAMIN-J-175 group
+                data based on the continuous TENDL-2017 data would have the
+                filepath:
+
+                CWD/tendl2017_plots/Fe/Fe56/Fe56_(n,p)_VITAMIN-J-175.png
+    """
+
+    nuc = f'{element}{A}'
+    nuc_dir = Path(f'{tendl_dir}_plots') / element / nuc
+    nuc_dir.mkdir(parents=True, exist_ok=True)
+
+    return nuc_dir / f'{nuc}_(n,{emitted})_{"_".join(group_names)}.{img_ext}'
