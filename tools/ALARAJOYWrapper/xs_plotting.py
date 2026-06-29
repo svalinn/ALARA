@@ -54,7 +54,7 @@ def set_plot_save_path(
 
 def plot_single_nuc_rxn_xs(
     ax, element, A, emitted, tendl_dir,
-    continuous_dict={}, groupwise_dict={}, img_ext='png'
+    continuous_dict={}, groupwise_dict={}, saving=True, img_ext='png'
 ):
     """
     Create and save a plot for a singular nuclide/reaction's cross-sections
@@ -97,6 +97,10 @@ def plot_single_nuc_rxn_xs(
                 }
 
             (Defaults to {})
+        saving (bool, optional): Option to save the plot to an image file
+            within a hierarchical directory structure of TENDL-LIBRARY ->
+            ELEMENT -> NUCLIDE.
+            (Defaults to True)
         img_ext (str, optional): Option to set the image filetype for the plot
             to be saved, limited to Matplotlib filetypes: png, ps, pdf, svg.
             (Defaults to 'png')
@@ -132,8 +136,9 @@ def plot_single_nuc_rxn_xs(
     ax.grid()
     ax.legend()
 
-    plt.savefig(set_plot_save_path(
-        element, A, emitted, tendl_dir, groupwise_dict.keys(), img_ext
-    ))
+    if saving:
+        plt.savefig(set_plot_save_path(
+            element, A, emitted, tendl_dir, groupwise_dict.keys(), img_ext
+        ))
 
     return ax
