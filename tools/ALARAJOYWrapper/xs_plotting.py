@@ -72,6 +72,5 @@ def plot_single_nuc_rxn_xs(
     ax.set_title(title)
     ax.grid()
     ax.legend()
-    print(ax.get_title())
 
     return ax
