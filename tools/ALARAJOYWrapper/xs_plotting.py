@@ -1,5 +1,5 @@
 def plot_single_nuc_rxn_xs(
-    ax, element, A, emitted, continuous_dict={}, groupwise_dict={},
+    ax, element, A, emitted, continuous_dict={}, groupwise_dict={}
 ):
     """
     Create a plot for a singular nuclide/reaction's cross-sections vs. energy.
@@ -72,5 +72,6 @@ def plot_single_nuc_rxn_xs(
     ax.set_title(title)
     ax.grid()
     ax.legend()
+    print(ax.get_title())
 
     return ax
