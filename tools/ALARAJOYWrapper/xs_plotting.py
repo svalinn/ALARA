@@ -95,8 +95,8 @@ def set_plot_save_path(
             If the target is a metastable isomer, "m" or "n" is written after 
             the mass number, corresponding to the first or second metastable
             states.
-        tendl_dir (pathlib._local.PosixPath): Path to the directory in which
-            the original TENDL data from which the cross-section data is
+        tendl_dir (pathlib._local.PosixPath or str): Path to the directory in
+            which the original TENDL data from which the cross-section data is
             extracted or derived.
         emitted (str): Particle(s) emitted from a nuclear reaction.
         group_names (array-like or str): Iterable of all group structures with
@@ -108,13 +108,13 @@ def set_plot_save_path(
             (Defaults to 'png')
     
     Returns:
-        save_path (pathlib._local.PosixPath): PNG filepath for a given
-            reaction plot of the format:
+        save_path (pathlib._local.PosixPath): Filepath for a given reaction
+            plot of the format:
             
-                TENDL_LIB_PLOTS/ELEMENT/NUCLIDE/RXN_WITH_GROUPS.png
+                TENDL_LIB_PLOTS/ELEMENT/NUCLIDE/RXN_WITH_GROUPS.img_ext
 
             For example, the Fe-56 (n,p) reaction plotting VITAMIN-J-175 group
-                data based on the continuous TENDL-2017 data would have the
+                data based on the continuous TENDL-2017 data could have the
                 filepath:
 
                 CWD/tendl2017_plots/Fe/Fe56/Fe56_(n,p)_VITAMIN-J-175.png
