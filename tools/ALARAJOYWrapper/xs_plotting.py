@@ -26,15 +26,15 @@ def extract_continuous_data(tendl_path, MT):
         MT (int): Reaction identifying number.
 
     Returns:
-        tendl_xs (list): Continuous-energy cross-sections for a given
-            nuclide-reaction combination from the original TENDL file. If the
-            provided reaction type does not exist in the TENDL file (such as
-            gas production totals, which are calculated by the data
-            preprocessor), then tendl_xs will be empty.
-        tendl_energies (list): Corresponding energies for the cross-sections
-            for a given nuclide-reaction combination from the original TENDL
-            file. If the provided reaction type does not exist in the TENDL
-            file), then tendl_energies will be empty.
+        continuous_dict (dict, optional): Dictionary containing an individual
+            nuclide's continous TENDL cross-sections and energies for a given
+            reaction. Formatted as:
+                {'xs' : continuous_xs, 'energies' : continous_energies}
+
+            If the provided reaction type does not exist in the TENDL file
+            (such as gas production totals, which are calculated by the data
+            preprocessor), then the dictionary values will be stored as empty
+            lists.
     """
 
     tendl_xs = []
