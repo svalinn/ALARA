@@ -160,8 +160,10 @@ def set_plot_save_path(
             the original TENDL data from which the cross-section data is
             extracted or derived.
         emitted (str): Particle(s) emitted from a nuclear reaction.
-        group_names (array-like): Iterable of all group-structures with data
-            included in the plot.
+        group_names (array-like or str): Iterable of all group structures with
+            data included in the plot. If only a single group structure has
+            data being plotted, then this parameter can be a string of the
+            singular group name.
         img_ext (str, optional): Option to set the image filetype for the plot
             to be saved, limited to Matplotlib filetypes: png, ps, pdf, svg.
             (Defaults to 'png')
@@ -178,6 +180,9 @@ def set_plot_save_path(
 
                 CWD/tendl2017_plots/Fe/Fe56/Fe56_(n,p)_VITAMIN-J-175.png
     """
+
+    if isinstance(group_names, str):
+        group_names = [group_names]
 
     nuc = f'{element}{A}'
     nuc_dir = Path(f'{tendl_dir}_plots') / element / nuc
