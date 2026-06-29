@@ -18,6 +18,7 @@ def plot_single_nuc_rxn_xs(
             If the target is a metastable isomer, "m" or "n" is written after 
             the mass number, corresponding to the first or second metastable
             states.
+        emitted (str): Particle(s) emitted from a nuclear reaction.
         continuous_dict (dict, optional): Dictionary containing an individual
             nuclide's continous TENDL cross-sections and energies for a given
             reaction. Formatted as:
