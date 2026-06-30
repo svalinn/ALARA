@@ -453,7 +453,7 @@ def main():
                 NJOY error message: {njoy_prep_error}'''
             )
 
-        #njt.cleanup_njoy_files(element, A)
+        njt.cleanup_njoy_files(element, A)
 
     # Handle gas total production cross-sections, per user specifications
     gas_filtered = subtract_gas_from_totals(all_rxns)
