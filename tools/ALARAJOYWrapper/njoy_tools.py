@@ -154,6 +154,73 @@ NJOY_GROUPS = {
     34 :           'LANL-618'
 }
 
+def load_non_njoy_group_struct(group_struct):
+    """
+    For a group-structure that is not included among the built-in group
+        structures in NJOY, determine its group name and energy bounds. These
+        can be provided in one of two ways (options 2 and 3 for
+        set_group_structure()):
+
+        1) Provide a support file containing the explicit energy bounds of a
+        multi-group energy structure. NJOY is not limited to its pre-set
+        structures, and is capable of converting cross-sections to an
+        arbitrary group structure, so long as the energy bounds and number of
+        groups are provided. To use this option format the support file as:
+
+            BOUND_1
+            BOUND_2
+            ...
+            BOUND_N
+        
+        The order in the support file can be arbitrary because after being
+        read in, the values will be sorted to ensure compliance to NJOY's
+        expectation of ascending energy bounds for an arbitrary group
+        structure.
+
+        2) Provide a group-structure name corresponding to a key in the
+        `openmc.mgxs.GROUP_STRUCTURES` dictionary. The open-source Monte Carlo
+        neutron transport code OpenMC contains a number of multi-group energy
+        structures that may be applicable for activation studies but are not
+        included in the list of NJOY options mentioned in `(1)`, such as the
+        'CCFE-709' group structure used by FISPACT-II. These group structures
+        can be found at https://docs.openmc.org/en/stable/pythonapi/mgxs.html.
+
+    Arguments:
+        group_struct (str): Name of a group structure, either corresponding to
+            a user-provided reference file of the same name or a key in the
+            dictionary openmc.mgxs.GROUP_STRUCTURES.
+
+    Returns:
+        group_name (str): Reformatted group structure name, derived from the
+            group_struct argument.
+        energy_bounds (numpy.ndarray): Array of energy group bounds for the
+            provided group structure.
+    """
+
+    # If support file containing group bounds is provided, load them into
+    # an array
+    if Path(group_struct).is_file():
+        group_bounds = np.loadtxt(group_struct)
+        group_name = 'user-provided ' + (
+            f'{Path(group_struct).stem.upper()}-{len(group_bounds) - 1}'
+        )
+
+    # If group structure name is provided, extract values from OpenMC
+    else:
+        from openmc.mgxs import GROUP_STRUCTURES
+        group_name = group_struct.upper()
+        group_bounds = GROUP_STRUCTURES.get(group_name, [])
+
+    if len(group_bounds) == 0:
+        raise ValueError(
+            'Invalid group structure provided. Must either be an ign value'  \
+            ' known by NJOY, a group structure name in '   \
+            '`openmc.mgxs.GROUP_STRUCTURES`, or a file containing explicit' \
+            ' energy group bounds.'
+        )
+    
+    return group_name, group_bounds
+
 def set_group_structure(group_struct_arg):
     """
     Interpret the group_structure argument (`-g`) to define the requisite NJOY
@@ -230,29 +297,7 @@ def set_group_structure(group_struct_arg):
     # NJOY "arbitrary group structure" option
     else:
         ign = 1
-        group_bounds = []
-        # If support file containing group bounds is provided, load them into
-        # an array
-        if Path(group_struct).is_file():
-            group_bounds = np.loadtxt(group_struct)
-            group_name = 'user-provided ' + (
-                f'{Path(group_struct).stem.upper()}-{len(group_bounds) - 1}'
-            )
-
-        # If group structure name is provided, extract values from OpenMC
-        else:
-            from openmc.mgxs import GROUP_STRUCTURES
-            group_name = group_struct.upper()
-            group_bounds = GROUP_STRUCTURES.get(group_name, [])
-
-        if len(group_bounds) == 0:
-            raise ValueError(
-                'Invalid group structure provided. Must either be an ign '  \
-                'value known by NJOY, a group structure name in '   \
-                '`openmc.mgxs.GROUP_STRUCTURES`, or a file containing ' \
-                'explicit energy group bounds.'
-            )
-        
+        group_name, group_bounds = load_non_njoy_group_struct(group_struct)
         ngn = str(len(group_bounds) - 1)
         egn = ' '.join(np.array(sorted(group_bounds)).astype(str))
 
@@ -555,6 +600,38 @@ def run_njoy(element, A, matb, file_capture):
             ensure_gendf_markers(fileinfo['save'], matb)
             
     return fileinfo['save'], result.stderr
+
+def copy_energy_groups_from_njoy_output(group_name, nGroups):
+    """
+    Copy the energy bounds printed out to an NJOY output file from a GROUPR
+        run to a new file in ascending order.
+
+    Arguments:
+        group_name (str): Name of the group structure according to which
+            GROUPR converted continuous energy cross-sections to groupwise
+            cross-sections.
+        nGroups (int): Number of groups in the given group structure.
+
+    Returns:
+        None
+    """
+
+    with open('output', 'r') as f:
+        lines = f.readlines()
+
+    last_group_line = next(
+        i - 1 for i, line in enumerate(lines)
+        if ' weight function......' in line
+    )
+
+    energy_bounds = {
+        float(energy)
+        for line in lines[last_group_line - nGroups : last_group_line]
+        for energy in line.split()[1::2]
+    }
+
+    with open(group_name, 'w') as f:
+        f.write('\n'.join(map(str, sorted(energy_bounds))))
 
 def cleanup_njoy_files(element, A):
     """
