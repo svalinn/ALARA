@@ -155,7 +155,7 @@ def process_pendf(
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict, temperature, pKZA,
-    isomer_dict, all_rxns, eaf_nucs, ign=17, ngn='', egn=''
+    isomer_dict, all_rxns, eaf_nucs, group_name, ign=17, ngn='', egn=''
 ):
     """
     Prepare and run NJOY run with GROUPR and iteratively extract cross-section
@@ -192,6 +192,8 @@ def process_gendf(
             }
         eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
             decay library, with values of their half-lives.
+        group_name (str): Name of the group structure for groupwise
+            conversion.
         ign (str or int, optional): GROUPR neutron group structure parameter.
             ign = 1 for arbitrary group structures not contained in NJOY's
             built-in list of options. Default value corresponds to ign key for
@@ -224,6 +226,12 @@ def process_gendf(
         # Extract MT values again from GENDF file as there may be some
         # difference from the original MT values in the ENDF/PENDF files
         non_zero_xs, gendf_MTs, nGroups = tp.extract_gendf_data(gendf_path)
+        
+        # Conditionally save group bounds from NJOY/GROUPR output
+        if not Path(group_name.split()[-1]).is_file():
+            njt.copy_energy_groups_from_njoy_output(
+                group_name.split()[-1], nGroups
+            )
 
         if MTs != gendf_MTs:
             diffs = sorted(MTs - gendf_MTs)
@@ -434,8 +442,8 @@ def main():
 
         if not njoy_prep_error:
             all_rxns, nGroups = process_gendf(
-                njt.groupr_input, material_id, MTs, mt_dict,
-                temperature, pKZA, isomer_dict, all_rxns, eaf_nucs,
+                njt.groupr_input, material_id, MTs, mt_dict, temperature,
+                pKZA, isomer_dict, all_rxns, eaf_nucs, group_name,
                 ign=ign, ngn=ngn, egn=egn
             )
 
