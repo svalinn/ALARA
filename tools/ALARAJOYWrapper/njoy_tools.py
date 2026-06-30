@@ -601,7 +601,9 @@ def run_njoy(element, A, matb, file_capture):
             
     return fileinfo['save'], result.stderr
 
-def copy_energy_groups_from_njoy_output(group_name, nGroups):
+def copy_energy_groups_from_njoy_output(
+    group_name, nGroups, groupr_output='output'
+):
     """
     Copy the energy bounds printed out to an NJOY output file from a GROUPR
         run to a new file in ascending order.
@@ -611,12 +613,15 @@ def copy_energy_groups_from_njoy_output(group_name, nGroups):
             GROUPR converted continuous energy cross-sections to groupwise
             cross-sections.
         nGroups (int): Number of groups in the given group structure.
+        groupr_output (str or pathlib._local.PosixPath, optional): Option to
+            set filepath for NJOY/GROUPR output from which to read in energy
+            group bounds.
 
     Returns:
         None
     """
 
-    with open('output', 'r') as f:
+    with open(groupr_output, 'r') as f:
         lines = f.readlines()
 
     last_group_line = next(
