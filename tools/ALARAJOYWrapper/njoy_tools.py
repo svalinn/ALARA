@@ -154,7 +154,7 @@ NJOY_GROUPS = {
     34 :           'LANL-618'
 }
 
-def load_non_njoy_group_struct(group_struct):
+def load_external_group_struct(group_struct):
     """
     For a group-structure that is not included among the built-in group
         structures in NJOY, determine its group name and energy bounds. These
@@ -297,7 +297,7 @@ def set_group_structure(group_struct_arg):
     # NJOY "arbitrary group structure" option
     else:
         ign = 1
-        group_name, group_bounds = load_non_njoy_group_struct(group_struct)
+        group_name, group_bounds = load_external_group_struct(group_struct)
         ngn = str(len(group_bounds) - 1)
         egn = ' '.join(np.array(sorted(group_bounds)).astype(str))
 
