@@ -233,7 +233,7 @@ def process_gendf(
         if gendf_MTs:
             all_rxns = tp.iterate_MTs(
                 gendf_MTs, mt_dict, non_zero_xs, pKZA, 
-                all_rxns, all_nucs, isomer_dict, gendf_path, nGroups
+                all_rxns, all_nucs, isomer_dict, nGroups
             )
             print(f'Finished processing {element}-{A}')
 
