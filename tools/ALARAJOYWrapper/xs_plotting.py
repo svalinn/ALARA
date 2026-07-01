@@ -306,8 +306,7 @@ def set_plot_save_path(
     return nuc_dir / f'{nuc}_(n,{emitted})_{"_".join(group_names)}.{img_ext}'
 
 def plot_single_nuc_rxn_xs(
-    ax, element, A, emitted, tendl_dir,
-    continuous_dict={}, groupwise_dict={}, img_ext='png'
+    ax, element, A, emitted, continuous_dict={}, groupwise_dict={}
 ):
     """
     Create and save a plot for a singular nuclide/reaction's cross-sections
