@@ -1,3 +1,4 @@
+import re
 import tendl_processing as tp
 
 def flagged_num_to_int(num):
@@ -13,7 +14,14 @@ def flagged_num_to_int(num):
         integer form.
     """
 
-    return int(''.join(char for char in str(num) if char.isdigit()))
+    re_match = re.match(r'^\d+', str(num))
+    if not re_match:
+        raise ValueError(
+            f'Invalid flagged number {num}. Must be formatted with numeric ' \
+            'characters before non-numeric characters.'
+        )
+    
+    return int(re_match.group())
 
 def extract_continuous_data(tendl_path, MT):
     """
