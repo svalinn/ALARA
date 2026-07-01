@@ -1,5 +1,4 @@
 import re
-import matplotlib.pyplot as plt
 import numpy as np
 import tendl_processing as tp
 import matplotlib.pyplot as plt
