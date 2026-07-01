@@ -2,6 +2,7 @@ import re
 import tendl_processing as tp
 import matplotlib.pyplot as plt
 from pathlib import Path
+from reaction_data import GAS_DF
 
 def flagged_num_to_int(num):
     """
@@ -165,6 +166,32 @@ def extract_continuous_data(tendl_path, MT):
         'energies'      :     tendl_energies
     }
 
+def ensure_emission_specificity(emitted, dKZA):
+    """
+    Check an emitted particle string for a gas total production reaction
+        signature ('x'). Given that each type of these reactions (MTs 203-207)
+        is only saved in the groupwise preprocessing collection nested-
+        dictionaries according in the general form, this function cross-checks
+        with reaction_data.GAS_DF with the daughter nuclide's KZA identifier
+        to clarify the specific gas total reaction in question, if applicable.
+
+    Arguments:
+        emitted (str): Particle(s) emitted from a nuclear reaction.
+        dKZA (int or str): Unique KZA identifier for the residual nuclide of a
+            given nuclear reaction.
+
+    Returns:
+        emitted (str): Updated emitted particle string clarifying the specific
+            type of gas production total reaction, if applicable. Otherwise
+            emitted is unchanged from the input.
+    """
+
+    if emitted == 'x':
+        gas_type = GAS_DF.loc[GAS_DF['kza'] == int(dKZA), 'gas'].iat[0]
+        emitted = emitted.upper() + gas_type
+
+    return emitted
+
 def plot_single_nuc_rxn_xs(
     ax, element, A, emitted, tendl_dir,
     continuous_dict={}, groupwise_dict={}, saving=True, img_ext='png'
@@ -249,9 +276,11 @@ def plot_single_nuc_rxn_xs(
     ax.grid()
     ax.legend()
 
+    save_path = ''
     if saving:
-        plt.savefig(set_plot_save_path(
+        save_path = set_plot_save_path(
             element, A, emitted, tendl_dir, groupwise_dict.keys(), img_ext
-        ))
+        )
+        plt.savefig(save_path)
 
-    return ax
+    return ax, save_path
