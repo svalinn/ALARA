@@ -43,7 +43,7 @@ python preprocess_fendl3.py -h
 
 
 ## Data Output
-Running `preprocess_fendl3.py` will return the file path to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
+Running `preprocess_fendl3.py` will return the file path to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). The header of this DSV file will contain two entries, the number of groups of the group structure according to which the data was converted and the name of said group-structure. Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
 
 - Parent KZA: Unique isotope identifier for the parent isotope in the format **ZZAAAM**, where ZZ is the isotope's atomic number, AAA is the mass number, and M is the isomeric state (0 if non-excited).
 - Daughter KZA: Unique isotope identifier of the daughter isotope produced from a particular transmutation reaction in the format **ZZAAAM**.
@@ -58,10 +58,9 @@ Running `preprocess_fendl3.py` will return the file path to the resultant space-
 
   For reactions with multiple emitted particles, the format of the text string is along the lines '3n2p', representing an emission of three neutrons and two protons. An emission containing only one of a certain particle will just contain the particle identifier, without any numerical tag (e.g. 'n' for a single neutron).
 
-- Non-Zero Groups: Count of total number of energy groups in the Vitamin-J 175 energy group structure with non-zero neutron cross sections.
 - Cross Sections: List of all non-zero neutron cross sections.
 
-It should be noted that TENDL 2017 activation data contains many reactions that leave the residual nucleus in various quantized excited states, potentially up to a 40<sup>th</sup> excited state. Most of these daughter isomers, however, are extremely short-lived and lack decay data. When converting an ALARAJOY DSV file in ALARA, as discussed below, an EAF decay library is required, given that FENDL3.2x only contains activation data. Cross-referencing exotic isomers against this decay data ensures that ultra-short-lived reaction products are not passed on to ALARA's library conversion appearing as stable nuclides. Rather, the lack of decay data signifies such a short half-life that decay evaluations are not practical. For excited daughter nuclides produced from a given reaction lacking corresponding EAAF decay data, ALARAJOY will incrementally de-excite the nuclear state one-by-one down to the next lowest energy level with known decay data (or ultimately to ground).
+It should be noted that TENDL 2017 activation data contains many reactions that leave the residual nucleus in various quantized excited states, potentially up to a 40<sup>th</sup> excited state. Most of these daughter isomers, however, are extremely short-lived and lack decay data. When converting an ALARAJOY DSV file in ALARA, as discussed below, an EAF decay library is required, given that FENDL3.2x only contains activation data. Cross-referencing exotic isomers against this decay data ensures that ultra-short-lived reaction products are not passed on to ALARA's library conversion appearing as stable nuclides. Rather, the lack of decay data signifies such a short half-life that decay evaluations are not practical. For excited daughter nuclides produced from a given reaction lacking corresponding EAF decay data, ALARAJOY will incrementally de-excite the nuclear state one-by-one down to the next lowest energy level with known decay data (or ultimately to ground).
 
 ## Application of Processed Data to ALARA Data Conversion Methods
 Data library conversion to ALARA binary libraries is done with the `convert_lib` input block in the ALARA input file. Converting preprocessed TENDL data contained in the resultant space-delimited DSV from ALARAJOYWrapper is done as such in the input file:
