@@ -451,6 +451,9 @@ def produce_all_possible_mass_nums():
     
 def main():
 
+    # Only load in yaml module when executing xs_plotting.py as a script,
+    # to allow for it to be used within preprocess_fendl3.py without
+    # additional necessary dependencies
     from yaml import safe_load
 
     plt.rcParams.update({'figure.max_open_warning': 0})
