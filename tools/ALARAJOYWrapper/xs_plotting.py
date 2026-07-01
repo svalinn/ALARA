@@ -1,5 +1,4 @@
 import re
-import tendl_processing as tp
 import matplotlib.pyplot as plt
 import tendl_processing as tp
 from pathlib import Path
