@@ -1,9 +1,10 @@
 import re
 import matplotlib.pyplot as plt
+import numpy as np
 import tendl_processing as tp
-import matplotlib.pyplot as plt
 from pathlib import Path
 from reaction_data import GAS_DF
+from njoy_tools import load_external_group_struct
 
 def flagged_num_to_int(num):
     """
@@ -272,6 +273,59 @@ def extract_continuous_data(tendl_path, MT):
         'xs'            :           tendl_xs,
         'energies'      :     tendl_energies
     }
+
+def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
+    """
+    Given a list of DSV files containing ALARAJOY-processed groupwise cross-
+        sections, read through through each file to find the line
+        corresponding to the nuclide, reaction pair provided as (KZA, MT).
+        Compile these data to a dictionary of the form:
+                {
+                    'group_name_1' : {
+                        'xs'       : groupwise_xs,
+                        'energies' : energy_group_bounds
+                    },
+                    ...
+                    'group_name_n' : {
+                        'xs'       : groupwise_xs,
+                        'energies' : energy_group_bounds
+                    },
+                }
+
+    Arguments:
+        dsv_list (list): List of paths to ALARAJOY-processed DSV files
+            containing groupwise cross-sections converted from continuous
+            energy TENDL files.
+        KZA (int): Unique nuclide identifier of the form ZZZAAAM.
+        MT (int or str): Unique reaction identifier.
+
+    Returns:
+        groupwise_dict (dict): Nested dictionary keyed at the highest level by
+            the name of the group structure according to which an array of
+            cross-sections were processed.
+    """
+
+    groupwise_dict = {}
+    for dsv in dsv_list:
+        with open(dsv, 'r') as f:
+            dsv_lines = f.readlines()
+
+        group_name = dsv_lines[0].split()[-1]
+        _, energy_bounds = load_external_group_struct(group_name)
+
+        for line in dsv_lines[1:-1]:
+            rxn = line.split()
+            dsv_pKZA, dsv_dKZA, dsv_MT, emitted = rxn[:4]
+            emitted = ensure_emission_specificity(emitted, dsv_dKZA)
+
+            if KZA == dsv_pKZA and MT == flagged_num_to_int(dsv_MT):
+                groupwise_dict[group_name] = {
+                    'xs'          :    np.array(rxn[4:]).astype(float),
+                    'energies'    :    energy_bounds
+                }
+                break
+
+    return groupwise_dict
 
 def set_plot_save_path(
     element, A, emitted, tendl_dir, group_names, img_ext='png'
