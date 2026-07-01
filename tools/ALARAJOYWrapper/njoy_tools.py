@@ -34,7 +34,7 @@ reconr
  $NENDF $NPEND_reconr/
  $title
  $mat_id/
- $ERR/
+ $err/
  $MATD/
 broadr
  $NENDF $NPEND_reconr $NPEND_broadr/
@@ -57,7 +57,6 @@ stop
     NOUT_moder = 21,                                       # MODER output unit
     NENDF = 21,                # unit for endf tape (equivalent to NOUT_moder)
     NPEND_reconr = 22,                   # unit for RECONR-produced pendf tape
-    ERR = 0.001,                         # fractional reconstruction tolerance
     NPEND_broadr = 23,                   # unit for BROADR-produced pendf tape
     N_FINAL_TEMPS = 1,            # number of final temperatures (default = 1)
     ERRTHN = 0.001,                        # fractional tolerance for thinning
@@ -70,6 +69,17 @@ stop
     NPEND_gaspr = 24,  # unit for input pendf tape (equivalent to NOUT_unresr)
     NOUT_gaspr = 25,                      # unit for GASPR-produced pendf tape
     MATD = 0,                                # next mat number to be processed
+))
+
+gaspr_input = Template(Template(
+"""
+gaspr
+ $NENDF $npend_gaspr $NOUT_gaspr/
+stop
+"""
+).safe_substitute(
+    NENDF = 21,                # unit for endf tape (equivalent to NOUT_moder)
+    NOUT_gaspr = 25,                      # unit for GASPR-produced pendf tape
 ))
 
 groupr_input = Template(Template(
@@ -310,7 +320,8 @@ def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
 
 def fill_input_template(
     inp, material_id, MTs, element, A, mt_dict, temperature,
-    pKZA=None, isomer_dict={}, ign=17, ngn='', egn=''
+    pKZA=None, isomer_dict={}, unresr_fail=False, err=0.001,
+    ign=17, ngn='', egn=''
 ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
@@ -343,6 +354,13 @@ def fill_input_template(
             states of the residual daughter. Only needed when filling the
             GROUPR-specific template.
             (Defaults to {})
+        unresr_fail (bool, optional): Boolean flag to indicate if the UNRESR
+            module raised an ***error in rdunf2*** message (see NJOY module
+            section 5.6 for further description of UNRESR errors).
+            (Defaults to False)
+        err (float, optional): Option to set the RECONR fractional error
+            tolerance.
+            (Defaults to 0.001)
         ign (str or int, optional): GROUPR neutron group structure parameter.
             ign = 1 for arbitrary group structures not contained in NJOY's
             built-in list of options. Default value corresponds to ign key for
@@ -354,7 +372,7 @@ def fill_input_template(
         egn (str): Space-joined string of all energy group bounds in ascending
             order. Will be an empty string unless ign == 1.
             (Defaults to '')
-    
+
     Returns:
         template (str): Modified template with the material-
             specific information substituted in for the $identifiers,
@@ -392,6 +410,13 @@ def fill_input_template(
                 card9_lines.append(f'{MFD} {MT} "{mtname}" /')
 
     card9 = '\n '.join(card9_lines)
+    
+    # Set GASPR PENDF input. If UNRESR fails, apply the previous PENDF tape
+    # for GASPR input
+    npend_gaspr = 24
+    if unresr_fail:
+        npend_gaspr -= 1
+
     return inp.substitute(
         element=element,
         a=A,
@@ -404,6 +429,8 @@ def fill_input_template(
         ngn=ngn,
         egn=egn,                     
         reactions=card9,                                        
+        npend_gaspr=npend_gaspr,
+        err=err
     )
 
 def write_njoy_input_file(template):
@@ -500,7 +527,7 @@ def ensure_gendf_markers(gendf_path, matb):
     with open(gendf_path, 'w') as gendf_file:
         gendf_file.write(file_str)
 
-def run_njoy(element, A, matb, file_capture):
+def run_njoy(element, A, matb, file_capture, tendl_dir, timeout=None):
     """
     Use subprocess to run NJOY given a pre-written input card to either
         prepare, format, and produce a PENDF file with NJOY modules RECONR,
@@ -518,13 +545,18 @@ def run_njoy(element, A, matb, file_capture):
         matb (int): Unique material ID for the material in the files.
         file_capture (str): Type of file to be saved from this particular 
             iteration of NJOY runs. Either "PENDF" or "GENDF".
+        tendl_dir (pathlib._local.PosixPath): Path to the directory in which
+            the original TENDL nuclide files are contained.
+        timeout (None or int): Runtime limit for NJOY run.
+            (Defaults to None)
     
     Returns:
         file_info['save'] (pathlib._local.PosixPath or None):
                                     File path to the newly created GENDF file.
                                     Returns None if NJOY runs unsuccessfuly.
         result.stderr (str or None): Output of NJOY error.
-                                    Returns None if NJOY runs successfully. 
+                                    Returns None if NJOY runs successfully.
+        result.stdout (str): NJOY standard output.
     """
 
     file_metadata = {
@@ -533,10 +565,16 @@ def run_njoy(element, A, matb, file_capture):
     }
 
     # Run NJOY
-    with open(INPUT, 'r') as f:
+    try:
         result = subprocess.run(
-            ['njoy'], stdin=f, text=True, capture_output=True
+            ['njoy'],
+            input=open(INPUT).read(),
+            text=True,
+            capture_output=True,
+            timeout=timeout
         )
+    except subprocess.TimeoutExpired as te:
+        return None, te, None
 
     fileinfo = file_metadata[file_capture]
     fileinfo['save'] = None
@@ -546,7 +584,7 @@ def run_njoy(element, A, matb, file_capture):
     if not result.stderr:
         save_path = dir / fileinfo['dir']
         save_path.mkdir(exist_ok=True)
-        save_path = save_path / f'tendl_2017_{element}{str(A).zfill(3)}'
+        save_path = save_path / f'{tendl_dir}_{element}{str(A).zfill(3)}'
 
         fileinfo['save'] = save_path.with_suffix(fileinfo['ext'])
         tape_save = Path(f'tape{fileinfo['tape']}')
@@ -554,7 +592,7 @@ def run_njoy(element, A, matb, file_capture):
         if fileinfo['ext'] == '.gendf':
             ensure_gendf_markers(fileinfo['save'], matb)
             
-    return fileinfo['save'], result.stderr
+    return fileinfo['save'], result.stderr, result.stdout
 
 def cleanup_njoy_files(element, A):
     """
