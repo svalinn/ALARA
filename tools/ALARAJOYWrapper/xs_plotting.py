@@ -1,10 +1,11 @@
 import re
+import argparse
 import numpy as np
 import tendl_processing as tp
+import njoy_tools as njt
+import reaction_data as rxd
 import matplotlib.pyplot as plt
 from pathlib import Path
-from reaction_data import GAS_DF
-from njoy_tools import load_external_group_struct
 
 def flagged_num_to_int(num):
     """
@@ -189,7 +190,7 @@ def ensure_emission_specificity(emitted, dKZA):
     """
 
     if emitted == 'x':
-        gas_type = GAS_DF.loc[GAS_DF['kza'] == int(dKZA), 'gas'].iat[0]
+        gas_type = rxd.GAS_DF.loc[rxd.GAS_DF['kza']==int(dKZA), 'gas'].iat[0]
         emitted = emitted.upper() + gas_type
 
     return emitted
@@ -234,7 +235,7 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
             dsv_lines = f.readlines()
 
         group_name = dsv_lines[0].split()[-1]
-        _, energy_bounds = load_external_group_struct(group_name)
+        _, energy_bounds = njt.load_external_group_struct(group_name)
 
         for line in dsv_lines[1:-1]:
             rxn = line.split()
@@ -248,7 +249,7 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
                 }
                 break
 
-    return groupwise_dict, ensure_emission_specificity(emitted)
+    return groupwise_dict, ensure_emission_specificity(emitted, dsv_dKZA)
 
 def plot_single_nuc_rxn_xs(
     ax, element, A, emitted, tendl_dir,
@@ -342,3 +343,141 @@ def plot_single_nuc_rxn_xs(
         plt.savefig(save_path)
 
     return ax, save_path
+
+def check_all_tag(param):
+    """
+    For a given plotting parameter (mass number or reaction), identify if the
+        stored value is `'all'`, as read in from the input `.yaml` file.
+
+    Arguments:
+        param (str or list): Object containing all values for either the mass
+            number or reaction parameter. If multiple values are present, then
+            `param` will necessarily be a list, otherwise it can be a string.
+
+    Returns:
+        is_all_tag (bool): Boolean descriptor of whether the given parameter
+            corresponds to `'all'` being selected.
+    """
+
+    return (
+        len(param) == 1
+        and isinstance(param[0], str)
+        and param[0].lower() == 'all'
+    )
+
+def adjust_dict_for_all_tag(d, key):
+    """
+    If a dictionary read from the xs_plotting input YAML file has specific
+        values, return them, but if the 'all' parameter is provided, ignore
+        other keys, as they will not be present
+
+    Arguments:
+        d (dict): Dictionary at some level of the hierarchical dictionary
+            nuc_hierarchy derived from the YAML input file.
+        key (str or int): Dictionary key at the provided level.
+
+    Returns:
+        val (dict, list, int, or str): Values corresponding to the selected
+            dictionary key, be they they actual key read in or the 'all' key. 
+    """
+
+    return d[key] if key in d else d['all']
+
+def produce_all_possible_mass_nums():
+    """
+    Given the selection of "all" mass numbers from an xs_plotting YAML input
+        file, create a list of all mass numbers ranging up to A = 294 (mass
+        number of only known isotope of Og). Additionally, for each mass
+        number, include two isomeric states. While most of these values will
+        be non-physical, this method allows for any possible nuclide to be
+        encompassed without domain knowledge of the particular element in
+        question.
+
+    Arguments:
+        None
+
+    Returns:
+        mass_nums (list): List of all integers from 1-294, as well as
+            each of those with additions of 'm' or 'n' corresponding to the
+            first two isomeric states at each mass number.
+    """
+
+    mass_range = range(1, 295)
+    mass_nums = list(mass_range)
+    for iso in tp.ISOMERIC_STATES[:2]:
+        mass_nums.extend([f'{a}{iso}' for a in mass_range])
+    
+def main():
+
+    from yaml import safe_load
+
+    plt.rcParams.update({'figure.max_open_warning': 0})
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--yaml', '-y')
+    args = parser.parse_args()
+
+    with open(args.yaml, 'r') as f:
+        parameter_dict = safe_load(f)
+
+    dsv_list = parameter_dict.get('DSV', ['cumulative_gendf_data.dsv'])
+    tendl_dir = Path(parameter_dict.get('TENDL', 'tendl2017'))
+
+    nuc_hierarchy = {
+    k: v
+    for k, v in parameter_dict.items()
+    if k not in ['DSV', 'TENDL']
+    }
+
+    elements = (
+        set(njt.elements) if 'all' in [key.lower() for key in nuc_hierarchy]
+        else set(nuc_hierarchy) & set(njt.elements)
+    )
+
+    for element in elements:
+        element_dict = adjust_dict_for_all_tag(nuc_hierarchy, element)
+        mass_nums = list(element_dict)
+
+        if check_all_tag(mass_nums):
+            produce_all_possible_mass_nums()
+
+        for A in mass_nums:
+            KZA = str((
+                njt.elements[element] * 1000 + flagged_num_to_int(A)
+            ) * 10 + tp.ISOMERIC_STATES.find(str(A)[-1]) + 1)
+
+            MTs = adjust_dict_for_all_tag(element_dict, A)
+
+            if isinstance(MTs, str):
+                MTs = [MTs]
+    
+            if check_all_tag(MTs):
+                MTs = rxd.process_mt_data(rxd.load_mt_table(
+                    njt.set_directory() / 'mt_table.csv'
+                )).keys()
+
+            for MT in [flagged_num_to_int(MT) for MT in MTs]:
+                fig, ax = plt.subplots(figsize=(10,6))
+                
+                continuous_dict = extract_continuous_data(
+                    tendl_dir / f'{element}{A}.tendl', flagged_num_to_int(MT)
+                )
+
+                groupwise_dict, emitted = extract_groupwise_data_from_DSV(
+                    dsv_list, KZA, MT
+                )
+
+                if groupwise_dict:
+                    _, plot_path = plot_single_nuc_rxn_xs(
+                        ax, element, A, emitted, tendl_dir,
+                        continuous_dict, groupwise_dict
+                    )
+
+    print(
+        f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
+        'organized by element, nuclide, reaction.'
+    )
+
+
+if __name__ == '__main__':
+    main()
