@@ -414,16 +414,16 @@ def incrementally_deexcite_isomer(M, dKZA, eaf_nucs):
     return dKZA + trial_M
 
 def iterate_MTs(
-    MTs, mt_dict, non_zero_xs, pKZA, all_rxns, eaf_nucs, isomer_dict, nGroups
+    MTs, mt_dict, non_zero_xs, pKZA, all_rxns, all_nucs, isomer_dict, nGroups
 ):
     """
     Iterate through all of the MTs present in a given GENDF file to extract
         the necessary data to be able to run ALARA. For isomeric daughters
         with an excited state less than 10 that do not have known half-lives
         (determined by the keys of radionucs, itself derived from the provided
-        EAF decay library), this function assumes a infinitesimal half-life
-        with discrete deexcitations to the next lowest isomeric state, until 
-        reaching a level with a known half-life. As such, the cross-sections 
+        decay library), this function assumes a infinitesimal half-life with
+        discrete deexcitations to the next lowest isomeric state, until 
+        reaching a level with a known half-life or the ground state. As such, the cross-sections 
         for these isomer daughters are accumulated to the appropriate isomeric 
         state cross-sections by energy group.
     
@@ -447,8 +447,8 @@ def iterate_MTs(
                     }
                 }    
             }
-        eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
+        all_nucs (dict): Dictionary keyed by all nuclide KZAs in the decay
+            library, with values of their half-lives (-1 for stable nuclides).
          isomer_dict (collections.defaultdict): Dictionary keyed by reaction
             type (MT), with each MT containing a subdictionary of the MF from
             which the isomeric pathways are extracted. At the lowest MT/MF
@@ -491,7 +491,7 @@ def iterate_MTs(
             if M > 0:
                 emitted += '*'
 
-            if dKZA in eaf_nucs or M == 0:
+            if dKZA in all_nucs:
                 all_rxns[pKZA][dKZA][str(MT) + '*' * M] = {
                     'emitted'    :  emitted,
                     'xsections'  :  sigmas
@@ -503,8 +503,12 @@ def iterate_MTs(
                 
                 if M > 1:
                     dKZA = incrementally_deexcite_isomer(
-                        M, dKZA, eaf_nucs
+                        M, dKZA, all_nucs
                     )
+
+                # Skip daughters without decay data
+                if dKZA not in all_nucs:
+                    continue
 
                 if dKZA not in all_rxns[pKZA]:
                     all_rxns[pKZA][dKZA] = defaultdict(dict)

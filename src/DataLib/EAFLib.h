@@ -120,13 +120,13 @@ protected:
   void readDiscreteGammas(int, int, float, char*);
   void readContGammas(int, float, char*);
   int getGammaData();
+  int parse_MT(const char* );
 
   /* Interface from ASCIILib */
   void getTransInfo();
   void getDecayInfo();
   int getTransData();
   int getDecayData();
-
 
 public:
 

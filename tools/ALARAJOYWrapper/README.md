@@ -1,6 +1,6 @@
-# FENDL3 Preprocessor with NJOY Wrapping for ALARA (*ALARAJOYWrapper*)
+# FENDL3.2x Preprocessor with NJOY Wrapping for ALARA (*ALARAJOYWrapper*)
 
-This preprocessor is designed to update ALARA's data input capabilities for updated FENDL3.2x data sets formatted as TENDL (ENDF-6) files. Unlike previous versions of [FENDL](https://www-nds.iaea.org/fendl_library/websites/fendl32b/) (Fusion Evaluated Nuclear Data Library), which have available groupwise cross-section data for neutron activation, as is required for ALARA's functionality, FENDL3 data requires conversion to that format.
+This preprocessor is designed to update ALARA's data input capabilities for updated FENDL3.2x data sets formatted as TENDL (ENDF-6) files. Unlike previous versions of [FENDL](https://www-nds.iaea.org/fendl/) (Fusion Evaluated Nuclear Data Library), which have available groupwise cross-section data for neutron activation, as is required for ALARA's functionality, FENDL3.2x data requires conversion to that format.
 
 This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Data Processing System to produce requisite pointwise data (PENDF) to subsequntly convert to the Vitamin-J 175 energy group groupwise format (GENDF) for activation cross-sections and to handle the processed data to be fed back to ALARA. For pointwise conversion, ALARAJOYWrapper uses the NJOY modules MODER, RECONR, BROADR, UNRESR, and GASPR, and for the ultimate conversion to the groupwise format, GROUPR. Note that in order to properly handle isomeric reactions, NJOY 2016 has to be built with from the commit `1dbce787` or newer of the `develop` branch, which includes the necessary support for holistic isomer handling.
 
@@ -21,20 +21,39 @@ This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Dat
   * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 - Domain-specific packages
   * [ENDFtk](https://github.com/njoy/ENDFtk)
-  * [NJOY 2016](https://github.com/njoy/NJOY2016) (built with `develop` branch)
+  * [NJOY 2016](https://github.com/njoy/NJOY2016) (at Git hash `1dbce787`)
   * [OpenMC](https://docs.openmc.org/en/stable/quickinstall.html) (only needed if specifying a multigroup energy structure by name from the dictionary `openmc.mgxs.GROUP_STRUCTURES`)
 
 
+
+## Data Acquisition
+
+Activation/inventory solvers such as ALARA require both neutron activation cross-sections and decay data. ALARAJOYWrapper is designed with the specific intent for processing FENDL3.2x data in a format readable by ALARA, corresponding to TENDL-2017 activation cross-sections and UKDD-2020 decay data. Nevertheless, to create custom ALARA libraries, any combination of TENDL and EAF or UKDD data can be supplied to ALARAJOYWrapper.
+
+Many decay data libraries are distributed in repositories containing individual data files for each nuclide in the library. ALARA requires a single decay data file, so ALARAJOYWrapper can also compile these data libraries into a single file referable by `decayFname` (see _Application of Processed Data to ALARA Data Conversion Methods_ below). 
+
+- Activation Cross-Sections
+  * [TENDL](https://tendl.imperial.ac.uk/)
+     - Usable with any TENDL release
+     - For FENDL3.2x processing, [TENDL 2017](https://tendl.imperial.ac.uk/tendl_2017/tendl2017.html) is the standard version.
+
+- Decay Data
+  * EAF
+      - [EAF-2010](https://git.oecd-nea.org/fispact/nuclear_data/EAF2010data.tar.bz2) (Must separate out ` eaf_dec_20100.0*` from the rest of the files after unzipping)
+      - [EAF-4.1](https://nds.iaea.org/fendl20/fen-decay.htm) (FENDL2.x decay library)
+  * UKDD
+      - [UKDD-20](https://www.oecd-nea.org/dbdata/fispact/decay2020.tar.bz2) (FENDL3.2x decay library)
+      - [UKDD-12](https://git.oecd-nea.org/fispact/nuclear_data/decay.tar.bz2)
+
+
 ## Usage
-This preprocessor can and should be used independently of any ALARA run. While the data format produced from ALARAJOYWrapper is necessary to run `convert_lib` on ALARA to convert TENDL data to an ALARA binary, once the user has a space-delimited DSV file produced from this preprocessor, usage of this preprocessor is not strictly necessary for the particular isotopes processed by the user.
+This preprocessor can and should be used independently of any ALARA run. While the data format produced from ALARAJOYWrapper is necessary to run `convert_lib` on ALARA to convert TENDL data to an ALARA binary, once the user has a space-delimited DSV file produced from this preprocessor, usage of this script is not strictly necessary for the particular isotopes processed by the user.
 
-ALARAJOYWrapper is designed to produce a space-delimited DSV containing data that can be directly read by the ALARA data library, ALARAJOY, without any further processing.
-
-To run this preprocessor, the user must first have acquired TENDL files for each isotope from a selected [TENDL distribution](https://tendl.imperial.ac.uk/). While this tool is designed specifically for the purpose of making FENDL3.2x activation data available to be used in ALARA, the formatting of TENDL 2017 is not unique to that release, and users can apply any version of TENDL desired from the Imperial College London TENDL database to be processed in the ALARAJOY format. Otherwise, [TENDL 2017](https://tendl.imperial.ac.uk/tendl_2017/tendl2017.html) is the source for FENDL3.2x neutron activation data and is the standard intended input for this tool. All TENDL files to be processed must be in the same directory as each other to be properly identified by ALARAJOYWrapper.
+ALARAJOYWrapper is designed to produce a space-delimited DSV containing cross-data that can be directly read by the ALARA data library, ALARAJOY, without any further processing.
 
 Running ALARAJOYWrapper can be done with one Python command:
 ```
-python preprocess_fendl3.py -f /path/to/fendl3_data_dir/ -d /path/to/eaf_decay_library/ -a -t -r -g
+python preprocess_fendl3.py -f /path/to/fendl3_data_dir/ -d /path/to/decay_library/ decay_library-type -a -t -r -g
 ```
 To read in detail about each of these arguments, call this command:
 ```
@@ -43,7 +62,7 @@ python preprocess_fendl3.py -h
 
 
 ## Data Output
-Running `preprocess_fendl3.py` will return the file path to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
+Running `preprocess_fendl3.py` will produce two file paths. The first is to the compiled decay data file, which will either be identical to the input for the first argument in `-d` if a pre-compiled decay library is being used or to the newly produced compiled decay library. The second is to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
 
 - Parent KZA: Unique isotope identifier for the parent isotope in the format **ZZAAAM**, where ZZ is the isotope's atomic number, AAA is the mass number, and M is the isomeric state (0 if non-excited).
 - Daughter KZA: Unique isotope identifier of the daughter isotope produced from a particular transmutation reaction in the format **ZZAAAM**.
@@ -61,7 +80,7 @@ Running `preprocess_fendl3.py` will return the file path to the resultant space-
 - Non-Zero Groups: Count of total number of energy groups in the Vitamin-J 175 energy group structure with non-zero neutron cross sections.
 - Cross Sections: List of all non-zero neutron cross sections.
 
-It should be noted that TENDL 2017 activation data contains many reactions that leave the residual nucleus in various quantized excited states, potentially up to a 40<sup>th</sup> excited state. Most of these daughter isomers, however, are extremely short-lived and lack decay data. When converting an ALARAJOY DSV file in ALARA, as discussed below, an EAF decay library is required, given that FENDL3.2x only contains activation data. Cross-referencing exotic isomers against this decay data ensures that ultra-short-lived reaction products are not passed on to ALARA's library conversion appearing as stable nuclides. Rather, the lack of decay data signifies such a short half-life that decay evaluations are not practical. For excited daughter nuclides produced from a given reaction lacking corresponding EAAF decay data, ALARAJOY will incrementally de-excite the nuclear state one-by-one down to the next lowest energy level with known decay data (or ultimately to ground).
+It should be noted that TENDL 2017 activation data contains many reactions that leave the residual nucleus in various quantized excited states, potentially up to a 40<sup>th</sup> excited state. Most of these daughter isomers, however, are extremely short-lived and lack decay data. When converting an ALARAJOY DSV file in ALARA, as discussed below, a decay library is required, given that FENDL3.2x only contains activation data. Cross-referencing exotic isomers against this decay data ensures that ultra-short-lived reaction products are not passed on to ALARA's library conversion appearing as stable nuclides. Rather, the lack of decay data signifies such a short half-life that decay evaluations are not practical. For excited daughter nuclides produced from a given reaction lacking corresponding EAAF decay data, ALARAJOY will incrementally de-excite the nuclear state one-by-one down to the next lowest energy level with known decay data (or ultimately to ground).
 
 ## Application of Processed Data to ALARA Data Conversion Methods
 Data library conversion to ALARA binary libraries is done with the `convert_lib` input block in the ALARA input file. Converting preprocessed TENDL data contained in the resultant space-delimited DSV from ALARAJOYWrapper is done as such in the input file:
@@ -70,7 +89,7 @@ Data library conversion to ALARA binary libraries is done with the `convert_lib`
 wherein: 
 - `ajoylib` is the library value for ALARAJOY
 - `transFname` is the file path to the DSV containing the preprocessed FENDL3 transmutation data
-- `decayFname` is the file path to EAF decay data.
+- `decayFname` is the file path to the compiled EAF or UKDD decay library, which may be produced by ALARAJOYWrapper.
 - `alaraFname` is the file path template for resultant ALARA data libraries (.lib, .idx. .gam, .gdx)
 
 The ALARA run for library conversion should precede and be independent from subsequent activation calculations with ALARA, as specified in the [ALARA Users' Guide](https://svalinn.github.io/ALARA/usersguide/index.html):

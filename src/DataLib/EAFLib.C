@@ -58,7 +58,7 @@ void EAFLib::extract(char* input, float* value)
   char section[32];
 
   /* find beginning of exponent */
-  int expStart = strcspn(input,"+-");
+  int expStart = strcspn(input+1,"+-") + 1;
 
   /* extract mantissa portion to string variable */
   strncpy(section,input,expStart);
@@ -393,18 +393,45 @@ int EAFLib::getTransData()
 /* read the head of the file and get the following info:
  *  - Title
  * and then advance to first isotope */
-void EAFLib::getDecayInfo()
+int EAFLib::parse_MT(const char* buffer) {
+  int MT_start = 72;
+  int MT_length = 3;
+
+  if (strlen(buffer) < MT_start + MT_length) return -1;
+
+  char mtField[4] = {0};
+  strncpy(mtField, buffer + MT_start, MT_length);
+  return atoi(mtField);
+}
+
+ void EAFLib::getDecayInfo()
 {
 
   char buffer[MAXLINELENGTH];
-  int junkInt,i;
+  int MT = -1;
 
-  /* read number of initial comment lines */
-  inDecay >> junkInt;
+  std::streampos lineStart;
 
-  /* read end of this line and comment lines */
-  for (i=0;i<=junkInt;i++)
-    inDecay.getline(buffer,MAXLINELENGTH);
+  lineStart = inDecay.tellg();
+  if (inDecay.getline(buffer, MAXLINELENGTH))
+  {
+    MT = parse_MT(buffer);
+  }
+
+  while (inDecay && MT != 457)
+  {
+    lineStart = inDecay.tellg();
+
+    if (!inDecay.getline(buffer, MAXLINELENGTH))
+      break;
+
+    MT = parse_MT(buffer);
+  }
+
+  if (MT == 457)
+  {
+    inDecay.seekg(lineStart);
+  }
 
   decayKza = new int[MAXEAFDCYMODES];
   memCheck(decayKza,"EAFLib::getDecayInfo(...): decayKza");
@@ -433,14 +460,22 @@ int EAFLib::getDecayData()
   float pBranch, aBranch, dIsoFlag;
   
 
-  do
-    {
-      /* scan for first 457 card */
-      inDecay.getline(buffer,MAXLINELENGTH);
-      /* extract the MT number of this line */
-      buffer[75] = '\0';
-      MT = atoi(buffer+72);
-    } while (MT != 457 && !inDecay.eof());
+  MT = -1;
+
+  /* prime loop with first MT value */
+  if (inDecay.getline(buffer, MAXLINELENGTH))
+  {
+    MT = parse_MT(buffer);
+  }
+
+  /* scan for first 457 card */
+  while (MT != 457 && !inDecay.eof())
+  {
+    if (!inDecay.getline(buffer, MAXLINELENGTH))
+      break;
+
+    MT = parse_MT(buffer);
+  }  
 
   if (inDecay.eof())
     {
@@ -552,15 +587,18 @@ int EAFLib::getDecayData()
     numSpec = getGammaData();
 
   /* skip to end of this file section */
-  do
-    {
-      /* scan for last 457 card */
-      inDecay.getline(buffer,MAXLINELENGTH);
-      /* extract the MT number of this line */
-      buffer[75] = '\0';
-      MT = atoi(buffer+72);
-    } while (MT == 457 && !inDecay.eof());
+  if (inDecay.getline(buffer, MAXLINELENGTH))
+  {
+    MT = parse_MT(buffer);
+  }
 
+  while (MT == 457 && !inDecay.eof())
+  {
+    if (!inDecay.getline(buffer, MAXLINELENGTH))
+      break;
+
+    MT = parse_MT(buffer);
+  }
 
   debug(6,"Returning %d decay branches for %d.",nDRxns,zak);
 
