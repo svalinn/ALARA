@@ -223,9 +223,12 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
         groupwise_dict (dict): Nested dictionary keyed at the highest level by
             the name of the group structure according to which an array of
             cross-sections were processed.
+        emitted (str): Particle(s) emitted from the nuclear reaction
+            corresponding to the MT number provided.
     """
 
     groupwise_dict = {}
+    emitted = ''
     for dsv in dsv_list:
         with open(dsv, 'r') as f:
             dsv_lines = f.readlines()
@@ -245,7 +248,7 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
                 }
                 break
 
-    return groupwise_dict
+    return groupwise_dict, ensure_emission_specificity(emitted)
 
 def plot_single_nuc_rxn_xs(
     ax, element, A, emitted, tendl_dir,
