@@ -327,13 +327,14 @@ def combine_daughter_pathways(gas_filtered, nGroups):
 
     return gas_filtered
 
-def rxn_to_str(parent, daughter, rxn):
+def rxn_to_str(parent, daughter, MT, rxn):
     """
     Generate the list of strings to be written in a single row of the DSV file.
 
     Arguments:
         parent (int): KZA of the reaction's parent nuclide.
         daughter (int): KZA of the reaction's daughter nuclide.
+        MT (int): Reaction identifying number.
         rxn (dict): Dictionary for the given reaction containing cross-section
             and emitted particle data.
 
@@ -341,17 +342,18 @@ def rxn_to_str(parent, daughter, rxn):
         dsv_row (str): Joined string of all row data for a single reaction.
     """
 
-    dsv_row = f'{parent} {daughter} {rxn['emitted']} '
-    dsv_row += ' '.join(str(xs) for xs in rxn['xsections'])
+    dsv_row = f'{parent} {daughter} {MT} {rxn['emitted']} '
 
-    return dsv_row
+    return dsv_row + ' '.join(str(xs) for xs in rxn['xsections'])
 
-def write_dsv(dsv_path, all_rxns, nGroups):
+def write_dsv(dsv_path, all_rxns, nGroups, group_name):
     """
     Write out a space-delimited DSV file from the list of dictionaries,
         dsv_path, produced by iterating through each reaction of each isotope
         to be processed. Each row in the resultant DSV file is ordered as such:
-            pKZA dKZA emitted_particles non_zero_groups xs_1 xs_2 ... xs_n
+        
+            pKZA dKZA MT emitted_particles non_zero_groups xs_1 xs_2 ... xs_n
+        
         Each row can have different lengths, as only non-zero cross-sections
         are written out. The file is sorted by ascending parent KZA value.
 
@@ -370,19 +372,23 @@ def write_dsv(dsv_path, all_rxns, nGroups):
                     }
                 }    
             }
+        group_name (str): Name of the group structure into which cross-
+            sections were converted.
 
     Returns:
         None 
     """
 
     with open(dsv_path, 'w') as dsv:
-        dsv.write(str(nGroups) + '\n')
+        dsv.write(f'{nGroups} {group_name}\n')
         for parent in sorted(all_rxns):
             for daughter in all_rxns[parent]:
                 if parent != daughter:
-                    for rxn in all_rxns[parent][daughter].values():
+                    for MT, rxn in all_rxns[parent][daughter].items():
                         if rxn['xsections'].sum() > 0:
-                            dsv.write(f'{rxn_to_str(parent,daughter,rxn)}\n')
+                            dsv.write(
+                                f'{rxn_to_str(parent, daughter, MT, rxn)}\n'
+                            )
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv.write(str(-1))
 
@@ -454,7 +460,7 @@ def main():
         gas_filtered = combine_daughter_pathways(gas_filtered, nGroups)
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
-    write_dsv(dsv_path, gas_filtered, nGroups)
+    write_dsv(dsv_path, gas_filtered, nGroups, group_name)
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
         f'according to the {group_name} group structure.'
