@@ -1,3 +1,65 @@
+import re
+import tendl_processing as tp
+
+def flagged_num_to_int(num):
+    """
+    Convert numerical values that may be in string form containing additional
+        tags (i.e. '26m' or '4*') left over from groupwise processing to their
+        base integer form.
+
+    num (int or str): Numerical value, which may be in string form with
+        additional tags such as 'm' or '*'.
+
+    num_int (int): Numerical value stripped of any non-numerical characters in
+        integer form.
+    """
+
+    re_match = re.match(r'^\d+', str(num))
+    if not re_match:
+        raise ValueError(
+            f'Invalid flagged number {num}. Must be formatted with numeric ' \
+            'characters before non-numeric characters.'
+        )
+    
+    return int(re_match.group())
+
+def extract_continuous_data(tendl_path, MT):
+    """
+    For a given nuclide and reaction, extract its continuous-energy cross-
+        sections and corresponding energies from its original TENDL file.
+
+    Arguments:
+        tendl_path (pathlib._local.PosixPath): Path to the nuclide's original
+            TENDL file.
+        MT (int): Reaction identifying number.
+
+    Returns:
+        continuous_dict (dict, optional): Dictionary containing an individual
+            nuclide's continous TENDL cross-sections and energies for a given
+            reaction. Formatted as:
+                {'xs' : continuous_xs, 'energies' : continous_energies}
+
+            If the provided reaction type does not exist in the TENDL file
+            (such as gas production totals, which are calculated by the data
+            preprocessor), then the dictionary values will be stored as empty
+            lists.
+    """
+
+    tendl_xs = []
+    tendl_energies = []
+
+    file, _ = tp.create_endf_file_obj(tendl_path, 3)
+    MT = flagged_num_to_int(MT)
+    if MT in [MT.MT for MT in file.sections]:
+        section = file.section(MT).parse()
+        tendl_xs = list(section.cross_sections)
+        tendl_energies = list(section.energies)
+
+    return {
+        'xs'            :           tendl_xs,
+        'energies'      :     tendl_energies
+    }
+
 def plot_single_nuc_rxn_xs(
     ax, element, A, emitted, continuous_dict={}, groupwise_dict={}
 ):
