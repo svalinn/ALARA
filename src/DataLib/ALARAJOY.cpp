@@ -33,14 +33,18 @@ void ALARAJOYLib::loadDSVData()
     currentParent = -1;
     DSVRow row;
 
-    // Read header containing energy group number
-    inTrans >> nGroups;
+    // Read header containing energy group number in first entry
+    std::string groupName;
+    inTrans >> nGroups >> groupName;
 
     // Extract Parent KZA until EOF at pKZA == -1
     while ((inTrans >> row.parentKZA) && row.parentKZA != -1)
     {
-        // Extract Daughter KZA, emitted particles, and non-zero groups
-        inTrans >> row.daughterKZA >> row.emittedParticles;
+        // Store MT as temporary variable
+        int MT;
+
+        // Extract Daughter KZA, emitted particles, non-zero groups; pass MT
+        inTrans >> row.daughterKZA >> MT >> row.emittedParticles;
 
         /* Iterate through rest of line for cross sections 
            based on non-zero groups*/
