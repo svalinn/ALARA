@@ -513,10 +513,14 @@ def main():
                 )
 
                 if groupwise_dict:
-                    _, plot_path = plot_single_nuc_rxn_xs(
-                        ax, element, A, emitted, tendl_dir,
+                    plot_single_nuc_rxn_xs(
+                        ax, element, A, emitted,
                         continuous_dict, groupwise_dict
                     )
+                    plot_path = set_plot_save_path(
+                        element, A, emitted, tendl_dir, groupwise_dict.keys()
+                    )
+                    plt.savefig(plot_path)
 
     print(
         f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
