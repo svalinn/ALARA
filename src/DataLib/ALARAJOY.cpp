@@ -35,7 +35,7 @@ void ALARAJOYLib::loadDSVData()
 
     // Read header containing energy group number in first entry
     std::string groupName;
-    inTrans >> nGroups >> groupname;
+    inTrans >> nGroups >> groupName;
 
     // Extract Parent KZA until EOF at pKZA == -1
     while ((inTrans >> row.parentKZA) && row.parentKZA != -1)
