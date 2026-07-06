@@ -447,10 +447,17 @@ def store_results(
                                     'energies'    :    energies
                                 }}
 
-                                _, plot_path = xp.plot_single_nuc_rxn_xs(
-                                    ax, element, A, emitted, tendl_dir,
+                                xp.plot_single_nuc_rxn_xs(
+                                    ax, element, A, emitted,
                                     continuous_dict, groupwise_dict
                                 )
+
+                                plot_path = xp.set_plot_save_path(
+                                    element, A, emitted, tendl_dir, group_name
+                                )
+                                
+                                plt.savefig(plot_path)
+
 
         if plotting:
             print(
