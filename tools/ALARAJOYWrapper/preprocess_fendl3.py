@@ -167,24 +167,19 @@ def process_pendf(
     # successfully.
     err = 0.001
     max_err = 0.02
-    timeouts = [60, 300] # s
     success = False
     while err <= max_err and not success:
-        for timeout in timeouts:
-            njoy_prep_input = njt.fill_input_template(
-                njt.njoy_prep_input, material_id, MTs,
-                element, A, mt_dict, temperature, err=err
-            )
-            njt.write_njoy_input_file(njoy_prep_input)
-            pendf_path, prep_error, njoy_out = njt.run_njoy(
-                element, A, material_id, 'PENDF', tendl_dir, timeout=timeout
-            )
+        njoy_prep_input = njt.fill_input_template(
+            njt.njoy_prep_input, material_id, MTs,
+            element, A, mt_dict, temperature, err=err
+        )
+        njt.write_njoy_input_file(njoy_prep_input)
+        pendf_path, prep_error, njoy_out = njt.run_njoy(
+            element, A, material_id, 'PENDF', tendl_dir, timeout=300 # 5 mins
+        )
 
-            if not isinstance(prep_error, TimeoutExpired):
-                success = True
-                break
-    
-        if success:
+        if not isinstance(prep_error, TimeoutExpired):
+            success = True
             break
 
         err += 0.001
