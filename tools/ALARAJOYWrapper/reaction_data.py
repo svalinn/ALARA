@@ -23,7 +23,7 @@ GAS_DF = pd.DataFrame({
 })
 DECAY_MF = 8
 DECAY_MT = 457
-TEND_RECORD =  ' ' * 68 + '-1 0  0    0'
+TEND_RECORD =  ' ' * 68 + '-1 0  0    0\n'
 
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
@@ -281,37 +281,38 @@ def resolve_decay_file_formatting_issues(decay_dir, decay_lib_type):
         decay_lib_type = 'ukdd'
 
     for decay_file in decay_dir.iterdir():
-        if '.DS_Store' in str(decay_file):
-            decay_file.unlink()
-            continue
-
         with open(decay_file, 'r') as f:
             lines = f.readlines()
 
-        # Remove blank lines
-        updated_lines = [line for line in lines if line.strip()]
+        # Ensure proper file formatting -- All ENDF formatted files will
+        # include the line number of the first section at the end of the first
+        # line
+        if int(lines[0].strip()[-1]) == 0:
 
-        # Include missing TEND Records
-        if TEND_RECORD.strip().rstrip('0').strip() not in updated_lines[-1]:
-            tend_line = TEND_RECORD
+            # Remove blank lines
+            updated_lines = [line for line in lines if line.strip()]
+
+            # Ensure file ends with a newline
             if not updated_lines[-1].endswith('\n'):
-                tend_line = '\n' + tend_line
-            updated_lines.append(tend_line)
+                updated_lines[-1] += '\n'
 
-        # Ensure file ends with a newline
-        if not updated_lines[-1].endswith('\n'):
-            updated_lines[-1] += '\n'
+            # Include missing TEND record
+            if (
+                TEND_RECORD.strip().rstrip('0').strip()
+                not in updated_lines[-1]
+            ):
+                updated_lines.append(TEND_RECORD)
 
-        # Overwrite file if changes were made
-        if lines != updated_lines:
-            with open(decay_file, 'w') as f:
-                f.writelines(updated_lines)
+            # Overwrite file if changes were made
+            if lines != updated_lines:
+                with open(decay_file, 'w') as f:
+                    f.writelines(updated_lines)
 
-        # Rename decay file to the KZA value so that a sorted decay directory
-        # iteration will go in order of ascending KZA
-        if decay_lib_type == 'ukdd':
-            kza = calculate_KZA_from_ENDF(decay_file, DECAY_MF, DECAY_MT)
-            decay_file.rename(decay_dir / str(kza))
+            # Rename decay file to the KZA value so that a sorted decay
+            # directory iteration will go in order of ascending KZA
+            if decay_lib_type == 'ukdd':
+                kza = calculate_KZA_from_ENDF(decay_file, DECAY_MF, DECAY_MT)
+                decay_file.rename(decay_dir / str(kza))
 
 def compile_decay_lib(decay_dir, decay_lib_type, dir):
     """
@@ -434,9 +435,9 @@ def find_nucs_from_decay_lib(compiled_decay_lib):
 
                 # Parse nuclide KZA
                 za = int(standardize_float(line[:11]))
-                M = int(line[33:44].strip())
+                M = int(line[33:44])
                 kza = za * 10 + M
-                stability = int(line[44:56].strip()) # 0->unstable , 1->stable
+                stability = int(line[44:56]) # 0->unstable , 1->stable
 
                 # Read half-life (next line)
                 line = f.readline()
