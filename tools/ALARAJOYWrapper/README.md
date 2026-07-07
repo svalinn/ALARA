@@ -17,6 +17,7 @@ This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Dat
   * [Subprocess](https://docs.python.org/3/library/subprocess.html)
   * [Warnings](https://docs.python.org/3/library/warnings.html)
 - Generic Python packages
+  * [Matplotlib.pyplot](https://matplotlib.org/3.5.3/api/_as_gen/matplotlib.pyplot.html)
   * [NumPy](https://numpy.org/install/)
   * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 - Domain-specific packages
@@ -34,7 +35,7 @@ To run this preprocessor, the user must first have acquired TENDL files for each
 
 Running ALARAJOYWrapper can be done with one Python command:
 ```
-python preprocess_fendl3.py -f /path/to/fendl3_data_dir/ -d /path/to/eaf_decay_library/ -a -t -r -g
+python preprocess_fendl3.py -f /path/to/fendl3_data_dir/ -d /path/to/eaf_decay_library/ -a -t -r -g -p
 ```
 To read in detail about each of these arguments, call this command:
 ```

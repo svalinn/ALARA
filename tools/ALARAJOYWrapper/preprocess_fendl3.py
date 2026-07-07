@@ -2,7 +2,9 @@
 import reaction_data as rxd
 import tendl_processing as tp
 import njoy_tools as njt
+import xs_plotting as xp
 import numpy as np
+import matplotlib.pyplot as plt
 import argparse
 import warnings
 import logging
@@ -58,6 +60,14 @@ def make_argparser():
             Specification for group structure in which to convert TENDL cross-
                 sections. See njoy_tools.set_group_structure() for specific
                 details for acceptable forms in which to supply this argument.
+        ''')
+    )
+    parser.add_argument(
+        '--xs_plotting', '-p', action='store_true',
+        help=('''
+            Optional argument to comparatively plot all converted groupwise
+                neutron cross-sections over the continuous energy cross-
+                sections from the original TENDL file.
         ''')
     )
     return parser
@@ -354,16 +364,25 @@ def rxn_to_str(parent, daughter, MT, rxn):
 
     return dsv_row + ' '.join(str(xs) for xs in rxn['xsections'])
 
-def write_dsv(dsv_path, all_rxns, nGroups, group_name):
+def store_results(
+    dsv_path, all_rxns, nGroups, tendl_dir, group_name, plotting
+):
     """
-    Write out a space-delimited DSV file from the list of dictionaries,
-        dsv_path, produced by iterating through each reaction of each isotope
-        to be processed. Each row in the resultant DSV file is ordered as such:
-        
-            pKZA dKZA MT emitted_particles non_zero_groups xs_1 xs_2 ... xs_n
-        
+    Save groupwise-converted cross-section data to a space-delimited DSV file
+        and optionally, individual reaction cross-section plots. The DSV file
+        is written from the list of dictionaries, all_rxns, and produced by
+        iterating through each reaction of each isotope to be processed. Each
+        row in the resultant DSV file is ordered as such:
+            pKZA dKZA emitted_particles non_zero_groups xs_1 xs_2 ... xs_n
         Each row can have different lengths, as only non-zero cross-sections
         are written out. The file is sorted by ascending parent KZA value.
+
+        If the Boolean argument plotting is set to True, tools from the
+        connected xs_plotting.py module are employed to save each individual
+        reaction's groupwise cross-sections vs. energy comparatively with the
+        original TENDL cross-sections, if applicable. These plots are saved
+        according to the directory structure from 
+        xs_plotting.set_plot_save_path(): TENDL-LIBRARY -> ELEMENT -> NUCLIDE.
 
     Arguments:
         dsv_path (pathlib._local.PosixPath): Filepath for the DSV file to be
@@ -380,8 +399,16 @@ def write_dsv(dsv_path, all_rxns, nGroups, group_name):
                     }
                 }    
             }
-        group_name (str): Name of the group structure into which cross-
-            sections were converted.
+        nGroups (int): Number of groups in the group structure according to
+            which the cross-section data were processed.
+        tendl_dir (pathlib._local.PosixPath): Path to the directory in which
+            the original continuous-energy TENDL files from which the
+            groupwise data was converted is located.
+        group_name (str): Name of the group structure according to which
+            GROUPR converted continuous energy cross-sections to groupwise
+            cross-sections.
+        plotting (bool): Boolean to set whether to produce cross-section
+            plots.
 
     Returns:
         None 
@@ -390,13 +417,54 @@ def write_dsv(dsv_path, all_rxns, nGroups, group_name):
     with open(dsv_path, 'w') as dsv:
         dsv.write(f'{nGroups} {group_name}\n')
         for parent in sorted(all_rxns):
+            element, A = tp.interpret_KZA(parent)
             for daughter in all_rxns[parent]:
                 if parent != daughter:
                     for MT, rxn in all_rxns[parent][daughter].items():
                         if rxn['xsections'].sum() > 0:
-                            dsv.write(
-                                f'{rxn_to_str(parent, daughter, MT, rxn)}\n'
-                            )
+                            # Save reaction data to DSV
+                            dsv.write(f'{rxn_to_str(parent,daughter,rxn)}\n')
+
+                            # Conditionally plot reaction groupwise/continuous
+                            # data with xs_plotting.py tool
+                            if plotting:
+                                fig, ax = plt.subplots(figsize=(10,6))
+
+                                emitted = xp.ensure_emission_specificity(
+                                    rxn['emitted'], daughter
+                                )
+
+                                continuous_dict = xp.extract_continuous_data(
+                                    tendl_dir / f'{element}{A}.tendl',
+                                    xp.flagged_num_to_int(MT)
+                                )
+
+                                energies = njt.load_external_group_struct(
+                                    group_name
+                                )[-1]
+                                groupwise_dict = {group_name : {
+                                    'xs'          :    rxn['xsections'],
+                                    'energies'    :    energies
+                                }}
+
+                                xp.plot_single_nuc_rxn_xs(
+                                    ax, element, A, emitted,
+                                    continuous_dict, groupwise_dict
+                                )
+
+                                plot_path = xp.set_plot_save_path(
+                                    element, A, emitted, tendl_dir, group_name
+                                )
+                                
+                                plt.savefig(plot_path)
+
+
+        if plotting:
+            print(
+                f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
+                'organized by element, nuclide, reaction.'
+            )
+
         # End of File (EOF) signifier to be read by ALARAJOY
         dsv.write(str(-1))
 
@@ -468,7 +536,10 @@ def main():
         gas_filtered = combine_daughter_pathways(gas_filtered, nGroups)
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
-    write_dsv(dsv_path, gas_filtered, nGroups, group_name)
+    store_results(
+        dsv_path, gas_filtered, nGroups,
+        search_dir, group_name, args.xs_plotting 
+    )
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
         f'according to the {group_name} group structure.'
