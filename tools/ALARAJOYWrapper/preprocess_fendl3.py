@@ -485,7 +485,9 @@ def store_results(
                     for MT, rxn in all_rxns[parent][daughter].items():
                         if rxn['xsections'].sum() > 0:
                             # Save reaction data to DSV
-                            dsv.write(f'{rxn_to_str(parent,daughter,rxn)}\n')
+                            dsv.write(
+                                f'{rxn_to_str(parent, daughter, MT, rxn)}\n'
+                            )
 
                             # Conditionally plot reaction groupwise/continuous
                             # data with xs_plotting.py tool
