@@ -23,7 +23,7 @@ GAS_DF = pd.DataFrame({
 })
 DECAY_MF = 8
 DECAY_MT = 457
-TEND_RECORD =  ' ' * 68 + '-1 0  0    0\n'
+TEND_RECORD =  ' ' * 68 + '-1 0  0    0'
 
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
@@ -297,11 +297,8 @@ def resolve_decay_file_formatting_issues(decay_dir, decay_lib_type):
                 updated_lines[-1] += '\n'
 
             # Include missing TEND record
-            if (
-                TEND_RECORD.strip().rstrip('0').strip()
-                not in updated_lines[-1]
-            ):
-                updated_lines.append(TEND_RECORD)
+            if TEND_RECORD.rstrip('0').strip() not in updated_lines[-1]:
+                updated_lines.append(TEND_RECORD + '\n')
 
             # Overwrite file if changes were made
             if lines != updated_lines:
