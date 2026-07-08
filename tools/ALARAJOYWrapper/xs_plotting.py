@@ -344,6 +344,8 @@ def produce_all_possible_mass_nums():
     mass_nums = list(mass_range)
     for iso in tp.ISOMERIC_STATES[:2]:
         mass_nums.extend([f'{a}{iso}' for a in mass_range])
+
+    return mass_nums
     
 def main():
 
@@ -380,43 +382,45 @@ def main():
         mass_nums = list(element_dict)
 
         if check_all_tag(mass_nums):
-            produce_all_possible_mass_nums()
+            mass_nums = produce_all_possible_mass_nums()
 
         for A in mass_nums:
-            KZA = str((
-                njt.elements[element] * 1000 + flagged_num_to_int(A)
-            ) * 10 + tp.ISOMERIC_STATES.find(str(A)[-1]) + 1)
+            tendl_path = tendl_dir / f'{element}{A}.tendl'
+            if tendl_path.is_file():
+                KZA = str((
+                    njt.elements[element] * 1000 + flagged_num_to_int(A)
+                ) * 10 + tp.ISOMERIC_STATES.find(str(A)[-1]) + 1)
 
-            MTs = adjust_dict_for_all_tag(element_dict, A)
+                MTs = adjust_dict_for_all_tag(element_dict, A)
 
-            if isinstance(MTs, str):
-                MTs = [MTs]
-    
-            if check_all_tag(MTs):
-                MTs = rxd.process_mt_data(rxd.load_mt_table(
-                    njt.set_directory() / 'mt_table.csv'
-                )).keys()
+                if isinstance(MTs, str):
+                    MTs = [MTs]
+        
+                if check_all_tag(MTs):
+                    MTs = rxd.process_mt_data(rxd.load_mt_table(
+                        njt.set_directory() / 'mt_table.csv'
+                    )).keys()
 
-            for MT in [flagged_num_to_int(MT) for MT in MTs]:
-                fig, ax = plt.subplots(figsize=(10,6))
-                
-                continuous_dict = extract_continuous_data(
-                    tendl_dir / f'{element}{A}.tendl', flagged_num_to_int(MT)
-                )
-
-                groupwise_dict, emitted = extract_groupwise_data_from_DSV(
-                    dsv_list, KZA, MT
-                )
-
-                if groupwise_dict:
-                    plot_single_nuc_rxn_xs(
-                        ax, element, A, emitted,
-                        continuous_dict, groupwise_dict
+                for MT in [flagged_num_to_int(MT) for MT in MTs]:
+                    fig, ax = plt.subplots(figsize=(10,6))
+                    
+                    continuous_dict = extract_continuous_data(
+                        tendl_path, flagged_num_to_int(MT)
                     )
-                    plot_path = set_plot_save_path(
-                        element, A, emitted, tendl_dir, groupwise_dict.keys()
+
+                    groupwise_dict, emitted = extract_groupwise_data_from_DSV(
+                        dsv_list, KZA, MT
                     )
-                    plt.savefig(plot_path)
+
+                    if groupwise_dict:
+                        plot_single_nuc_rxn_xs(
+                            ax, element, A, emitted,
+                            continuous_dict, groupwise_dict
+                        )
+                        plot_path = set_plot_save_path(
+                            element, A, emitted, tendl_dir, groupwise_dict.keys()
+                        )
+                        plt.savefig(plot_path)
 
     print(
         f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
