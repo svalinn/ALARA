@@ -339,10 +339,15 @@ def find_all_mass_nums(tendl_dir, element):
             in the repository of TENDL data. 
     """
 
-    return {
-        path.stem.removeprefix(element)
-        for path in tendl_dir.glob(f'{element}*.tendl')
-    }
+    mass_nums = set()
+    for path in tendl_dir.glob(f'{element}*.tendl'):
+        nuc_match = re.compile(
+            rf'{re.escape(element)}(\d+[mn]?)$'
+        ).fullmatch(path.stem)
+        if nuc_match:
+            mass_nums.add(nuc_match.group(1))
+
+    return mass_nums
     
 def main():
 
