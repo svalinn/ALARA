@@ -321,32 +321,28 @@ def adjust_dict_for_all_tag(d, key):
 
     return d[key] if key in d else d['all']
 
-def produce_all_possible_mass_nums(tendl_dir, elements):
+def find_all_mass_nums(tendl_dir, element):
     """
     Given the selection of 'all' mass numbers from an xs_plotting YAML input
-        file, create a list of all mass numbers of nuclides contained in the
-        reference TENDL data directory.
+        file, create a list of all mass numbers of nuclides of the provided 
+        element contained in the reference TENDL data. 
 
     Arguments:
         tendl_dir (pathlib._local.PosixPath or str): Path to the directory in
             which the original TENDL data from which the cross-section data is
             extracted or derived.
-        elements (set): Set of all elements over which to iterate.
+        element (str): Chemical symbol of element for which to find mass
+            numbers.
 
     Returns:
-        mass_nums (set): List of all mass numbers of nuclides contained in
-            the repository of TENDL data. 
+        mass_nums (set): List of all mass numbers of a given element contained
+            in the repository of TENDL data. 
     """
 
-    mass_nums = set()
-    for tendl_path in tendl_dir.iterdir():
-        nuc = tendl_path.stem
-        for element in sorted(elements, key=len, reverse=True):
-            if nuc.startswith(element):
-                mass_nums.add(nuc.removeprefix(element))
-                break
-
-    return mass_nums
+    return {
+        path.stem.removeprefix(element)
+        for path in tendl_dir.glob(f'{element}*.tendl')
+    }
     
 def main():
 
@@ -383,45 +379,43 @@ def main():
         mass_nums = list(element_dict)
 
         if check_all_tag(mass_nums):
-            mass_nums = produce_all_possible_mass_nums(tendl_dir, elements)
+            mass_nums = find_all_mass_nums(tendl_dir, element)
 
         for A in mass_nums:
-            tendl_path = tendl_dir / f'{element}{A}.tendl'
-            if tendl_path.is_file():
-                KZA = str((
-                    njt.elements[element] * 1000 + flagged_num_to_int(A)
-                ) * 10 + tp.ISOMERIC_STATES.find(str(A)[-1]) + 1)
+            KZA = str((
+                njt.elements[element] * 1000 + flagged_num_to_int(A)
+            ) * 10 + tp.ISOMERIC_STATES.find(str(A)[-1]) + 1)
 
-                MTs = adjust_dict_for_all_tag(element_dict, A)
+            MTs = adjust_dict_for_all_tag(element_dict, A)
 
-                if isinstance(MTs, str):
-                    MTs = [MTs]
-        
-                if check_all_tag(MTs):
-                    MTs = rxd.process_mt_data(rxd.load_mt_table(
-                        njt.set_directory() / 'mt_table.csv'
-                    )).keys()
+            if isinstance(MTs, str):
+                MTs = [MTs]
+    
+            if check_all_tag(MTs):
+                MTs = rxd.process_mt_data(rxd.load_mt_table(
+                    njt.set_directory() / 'mt_table.csv'
+                )).keys()
 
-                for MT in [flagged_num_to_int(MT) for MT in MTs]:
-                    fig, ax = plt.subplots(figsize=(10,6))
-                    
-                    continuous_dict = extract_continuous_data(
-                        tendl_path, flagged_num_to_int(MT)
+            for MT in [flagged_num_to_int(MT) for MT in MTs]:
+                fig, ax = plt.subplots(figsize=(10,6))
+                
+                continuous_dict = extract_continuous_data(
+                    tendl_dir / f'{element}{A}.tendl', flagged_num_to_int(MT)
+                )
+
+                groupwise_dict, emitted = extract_groupwise_data_from_DSV(
+                    dsv_list, KZA, MT
+                )
+
+                if groupwise_dict:
+                    plot_single_nuc_rxn_xs(
+                        ax, element, A, emitted,
+                        continuous_dict, groupwise_dict
                     )
-
-                    groupwise_dict, emitted = extract_groupwise_data_from_DSV(
-                        dsv_list, KZA, MT
+                    plot_path = set_plot_save_path(
+                        element, A, emitted, tendl_dir, groupwise_dict.keys()
                     )
-
-                    if groupwise_dict:
-                        plot_single_nuc_rxn_xs(
-                            ax, element, A, emitted,
-                            continuous_dict, groupwise_dict
-                        )
-                        plot_path = set_plot_save_path(
-                            element, A, emitted, tendl_dir, groupwise_dict.keys()
-                        )
-                        plt.savefig(plot_path)
+                    plt.savefig(plot_path)
 
     print(
         f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
