@@ -321,29 +321,30 @@ def adjust_dict_for_all_tag(d, key):
 
     return d[key] if key in d else d['all']
 
-def produce_all_possible_mass_nums():
+def produce_all_possible_mass_nums(tendl_dir, elements):
     """
-    Given the selection of "all" mass numbers from an xs_plotting YAML input
-        file, create a list of all mass numbers ranging up to A = 294 (mass
-        number of only known isotope of Og). Additionally, for each mass
-        number, include two isomeric states. While most of these values will
-        be non-physical, this method allows for any possible nuclide to be
-        encompassed without domain knowledge of the particular element in
-        question.
+    Given the selection of 'all' mass numbers from an xs_plotting YAML input
+        file, create a list of all mass numbers of nuclides contained in the
+        reference TENDL data directory.
 
     Arguments:
-        None
+        tendl_dir (pathlib._local.PosixPath or str): Path to the directory in
+            which the original TENDL data from which the cross-section data is
+            extracted or derived.
+        elements (set): Set of all elements over which to iterate.
 
     Returns:
-        mass_nums (list): List of all integers from 1-294, as well as
-            each of those with additions of 'm' or 'n' corresponding to the
-            first two isomeric states at each mass number.
+        mass_nums (set): List of all mass numbers of nuclides contained in
+            the repository of TENDL data. 
     """
 
-    mass_range = range(1, 295)
-    mass_nums = list(mass_range)
-    for iso in tp.ISOMERIC_STATES[:2]:
-        mass_nums.extend([f'{a}{iso}' for a in mass_range])
+    mass_nums = set()
+    for tendl_path in tendl_dir.iterdir():
+        nuc = tendl_path.stem
+        for element in sorted(elements, key=len, reverse=True):
+            if nuc.startswith(element):
+                mass_nums.add(nuc.removeprefix(element))
+                break
 
     return mass_nums
     
@@ -382,7 +383,7 @@ def main():
         mass_nums = list(element_dict)
 
         if check_all_tag(mass_nums):
-            mass_nums = produce_all_possible_mass_nums()
+            mass_nums = produce_all_possible_mass_nums(tendl_dir, elements)
 
         for A in mass_nums:
             tendl_path = tendl_dir / f'{element}{A}.tendl'
