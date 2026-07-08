@@ -374,9 +374,15 @@ def main():
     if k not in ['DSV', 'TENDL']
     }
 
+    # Only search for elements which have files in the reference TENDL
+    # directory
+    tendl_elements = set(
+        re.match(r'[A-Z][a-z]?', path.stem).group()
+        for path in tendl_dir.glob('*.tendl')
+    )
     elements = (
-        set(njt.elements) if 'all' in [key.lower() for key in nuc_hierarchy]
-        else set(nuc_hierarchy) & set(njt.elements)
+        tendl_elements if 'all' in [key.lower() for key in nuc_hierarchy]
+        else set(nuc_hierarchy) & tendl_elements
     )
 
     for element in elements:
