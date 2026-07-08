@@ -17,7 +17,7 @@ def flagged_num_to_int(num):
         integer form.
     """
 
-    re_match = re.match(r'^\d+', str(num))
+    re_match = re.match(r'^-?\d+', str(num))
     if not re_match:
         raise ValueError(
             f'Invalid flagged number {num}. Must be formatted with numeric ' \
