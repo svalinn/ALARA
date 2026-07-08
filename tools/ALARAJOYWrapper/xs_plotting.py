@@ -382,8 +382,7 @@ def set_plot_save_path(
     return nuc_dir / f'{nuc}_(n,{emitted})_{"_".join(group_names)}.{img_ext}'
 
 def plot_single_nuc_rxn_xs(
-    ax, element, A, emitted, tendl_dir,
-    continuous_dict={}, groupwise_dict={}, img_ext='png'
+    ax, element, A, emitted, continuous_dict={}, groupwise_dict={}
 ):
     """
     Create and save a plot for a singular nuclide/reaction's cross-sections
@@ -426,9 +425,6 @@ def plot_single_nuc_rxn_xs(
                 }
 
             (Defaults to {})
-        img_ext (str, optional): Option to set the image filetype for the plot
-            to be saved, limited to Matplotlib filetypes: png, ps, pdf, svg.
-            (Defaults to 'png')
 
     Returns:
         ax (matplotlib.axes._axes.Axes): Updated Matplotlib Axes object of the
