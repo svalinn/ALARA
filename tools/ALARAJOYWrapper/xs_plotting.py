@@ -63,6 +63,32 @@ def extract_continuous_data(tendl_path, MT):
         'energies'      :     tendl_energies
     }
 
+def ensure_emission_specificity(emitted, dKZA):
+    """
+    Check an emitted particle string for a gas total production reaction
+        signature ('x'). Given that each type of these reactions (MTs 203-207)
+        is only saved in the groupwise preprocessing collection nested-
+        dictionaries according in the general form, this function cross-checks
+        with reaction_data.GAS_DF with the daughter nuclide's KZA identifier
+        to clarify the specific gas total reaction in question, if applicable.
+
+    Arguments:
+        emitted (str): Particle(s) emitted from a nuclear reaction.
+        dKZA (int or str): Unique KZA identifier for the residual nuclide of a
+            given nuclear reaction.
+
+    Returns:
+        emitted (str): Updated emitted particle string clarifying the specific
+            type of gas production total reaction, if applicable. Otherwise
+            emitted is unchanged from the input.
+    """
+
+    if emitted == 'x':
+        gas_type = GAS_DF.loc[GAS_DF['kza'] == int(dKZA), 'gas'].iat[0]
+        emitted = emitted.upper() + gas_type
+
+    return emitted
+
 def set_plot_save_path(
     element, A, emitted, tendl_dir, group_names, img_ext='png'
 ):
@@ -113,84 +139,6 @@ def set_plot_save_path(
     nuc_dir.mkdir(parents=True, exist_ok=True)
 
     return nuc_dir / f'{nuc}_(n,{emitted})_{"_".join(group_names)}.{img_ext}'
-
-def flagged_num_to_int(num):
-    """
-    Convert numerical values that may be in string form containing additional
-        tags (i.e. '26m' or '4*') left over from groupwise processing to their
-        base integer form.
-
-    num (int or str): Numerical value, which may be in string form with
-        additional tags such as 'm' or '*'.
-
-    num_int (int): Numerical value stripped of any non-numerical characters in
-        integer form.
-    """
-
-    return int(''.join(char for char in str(num) if char.isdigit()))
-
-def extract_continuous_data(tendl_path, MT):
-    """
-    For a given nuclide and reaction, extract its continuous-energy cross-
-        sections and corresponding energies from its original TENDL file.
-
-    Arguments:
-        tendl_path (pathlib._local.PosixPath): Path to the nuclide's original
-            TENDL file.
-        MT (int): Reaction identifying number.
-
-    Returns:
-        tendl_xs (list): Continuous-energy cross-sections for a given
-            nuclide-reaction combination from the original TENDL file. If the
-            provided reaction type does not exist in the TENDL file (such as
-            gas production totals, which are calculated by the data
-            preprocessor), then tendl_xs will be empty.
-        tendl_energies (list): Corresponding energies for the cross-sections
-            for a given nuclide-reaction combination from the original TENDL
-            file. If the provided reaction type does not exist in the TENDL
-            file), then tendl_energies will be empty.
-    """
-
-    tendl_xs = []
-    tendl_energies = []
-
-    file, _ = tp.create_endf_file_obj(tendl_path, 3)
-    MT = flagged_num_to_int(MT)
-    if MT in [MT.MT for MT in file.sections]:
-        section = file.section(MT).parse()
-        tendl_xs = list(section.cross_sections)
-        tendl_energies = list(section.energies)
-
-    return {
-        'xs'            :           tendl_xs,
-        'energies'      :     tendl_energies
-    }
-
-def ensure_emission_specificity(emitted, dKZA):
-    """
-    Check an emitted particle string for a gas total production reaction
-        signature ('x'). Given that each type of these reactions (MTs 203-207)
-        is only saved in the groupwise preprocessing collection nested-
-        dictionaries according in the general form, this function cross-checks
-        with reaction_data.GAS_DF with the daughter nuclide's KZA identifier
-        to clarify the specific gas total reaction in question, if applicable.
-
-    Arguments:
-        emitted (str): Particle(s) emitted from a nuclear reaction.
-        dKZA (int or str): Unique KZA identifier for the residual nuclide of a
-            given nuclear reaction.
-
-    Returns:
-        emitted (str): Updated emitted particle string clarifying the specific
-            type of gas production total reaction, if applicable. Otherwise
-            emitted is unchanged from the input.
-    """
-
-    if emitted == 'x':
-        gas_type = GAS_DF.loc[GAS_DF['kza'] == int(dKZA), 'gas'].iat[0]
-        emitted = emitted.upper() + gas_type
-
-    return emitted
 
 def plot_single_nuc_rxn_xs(
     ax, element, A, emitted, continuous_dict={}, groupwise_dict={}
