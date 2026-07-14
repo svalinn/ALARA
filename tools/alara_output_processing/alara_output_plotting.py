@@ -873,8 +873,9 @@ def plot_single_response(
                     )
 
             t = piv.columns
-            if series.sum() > 0:
-                last_nonzero_time = t[np.flatnonzero(series)[-1]]
+            non_zeroes = np.flatnonzero(series)
+            if non_zeroes.size > 0:
+                last_nonzero_time = t[non_zeroes[-1]]
                 if last_nonzero_time > tmax:
                     tmax = last_nonzero_time
 
