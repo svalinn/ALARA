@@ -10,6 +10,7 @@ import warnings
 import logging
 from pathlib import Path
 from collections import defaultdict
+from subprocess import TimeoutExpired
 
 def make_argparser():
     parser = argparse.ArgumentParser()
@@ -114,7 +115,8 @@ def configure_logging(redirect_warnings=False):
     logger.addHandler(console_handler)
 
 def process_pendf(
-    njoy_prep_input, material_id, MTs, pKZA, mt_dict, temperature, tendl_path
+    material_id, MTs, pKZA, mt_dict, temperature,
+    tendl_path, tendl_dir, unresr_err_cases
 ):
     """
     Prepare and run initial NJOY run with MODER, RECONR, BROADR, UNRESR, and
@@ -134,6 +136,10 @@ def process_pendf(
         temperature (float): Temperature at which to run NJOY modules.
         tendl_path (pathlib._local.PosixPath): Path to the original,
             unmodified TENDL file.
+        tendl_dir (pathlib._local.PosixPath): Path to the directory in which
+            the original TENDL nuclide files are contained.
+        unresr_err_cases (list of str): List of all nuclides that required an
+            increase in the fractional error tolerance for UNRESR.
 
     Returns:
         MTs (set): Updated set of all reaction types shared between the
@@ -147,25 +153,80 @@ def process_pendf(
             TENDL file.
         njoy_error (str): Error message from the NJOY run. Empty string if run
             is successful.
+        unresr_err_cases (list of str): Updated list of nuclides that required
+            an increase in the fractional error tolerance for UNRESR, if the
+            given nuclide was so.
     """
 
     element, A = tp.interpret_KZA(pKZA)
     njoy_error = ''
-    njoy_input = njt.fill_input_template(
-        njoy_prep_input, material_id, MTs, element, A, mt_dict, temperature
-    )
-    njt.write_njoy_input_file(njoy_input)
-    pendf_path, njoy_error = njt.run_njoy(element, A, material_id, 'PENDF')
+
+    # Run MODER, RECONR, BROADR, UNRESR
+    # If fractional error tolerance to low for RECONR, can cause NJOY to time
+    # out. If this occurs, increase error tolerance until NJOY can run
+    # successfully.
+    err = 0.001
+    max_err = 0.02
+    success = False
+    while err <= max_err and not success:
+        njoy_prep_input = njt.fill_input_template(
+            njt.njoy_prep_input, material_id, MTs,
+            element, A, mt_dict, temperature, err=err
+        )
+        njt.write_njoy_input_file(njoy_prep_input)
+        pendf_path, prep_error, njoy_out = njt.run_njoy(
+            element, A, material_id, 'PENDF', tendl_dir, timeout=300 # 5 mins
+        )
+
+        if not isinstance(prep_error, TimeoutExpired):
+            success = True
+            break
+
+        err += 0.001
+
+        print(
+            f'NJOY timed out for {element}{A}. Increasing RECONR fractional '\
+            f'reconstruction tolerance to {err:.3f}.'
+        )
+
+        if err > max_err:
+            warnings.warn(
+                f'NJOY repeatedly timed out for {element}{A} up to err='\
+                f'{max_err:.3f}. Skipping file.'
+            )
+            return set(), dict(), prep_error
+
+    # If UNRESR fails, run GASPR with PENDF output of BROADR with warning
+    unresr_error_flag = '***error in rdunf2***'
+    if prep_error and unresr_error_flag in njoy_out:
+        warnings.warn(
+            'UNRESR failed to produce cross-sections in the unresolved '\
+            f'energy range for {element}-{A}:\n'\
+            f'{njoy_out[njoy_out.find(unresr_error_flag):]}Skipping to GASPR.'
+        )
+        unresr_err_cases.append(f'{element}-{A}')
+        gaspr_input = njt.fill_input_template(
+            njt.gaspr_input, material_id, MTs, element, A,
+            mt_dict, temperature, unresr_fail=True
+        )
+        njt.write_njoy_input_file(gaspr_input)
+        pendf_path, gaspr_error, _ = njt.run_njoy(
+            element, A, material_id, 'PENDF', tendl_dir
+        )
+        njoy_error += gaspr_error
+    else:
+        njoy_error += prep_error
 
     _, pendf_MTs = tp.extract_endf_specs(pendf_path)
     MTs |= pendf_MTs.intersection(set(rxd.GAS_DF['total_mt']))
     isomer_dict = tp.determine_all_excitations(tendl_path, MTs, pKZA, mt_dict)
 
-    return MTs, isomer_dict, njoy_error
+    return MTs, isomer_dict, njoy_error, unresr_err_cases
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict, temperature, pKZA,
-    isomer_dict, all_rxns, eaf_nucs, group_name, ign=17, ngn='', egn=''
+    isomer_dict, all_rxns, eaf_nucs, group_name, tendl_dir,
+    ign=17, ngn='', egn=''
 ):
     """
     Prepare and run NJOY run with GROUPR and iteratively extract cross-section
@@ -204,6 +265,8 @@ def process_gendf(
             decay library, with values of their half-lives.
         group_name (str): Name of the group structure for groupwise
             conversion.
+        tendl_dir (pathlib._local.PosixPath): Path to the directory in which
+            the original TENDL nuclide files are contained.
         ign (str or int, optional): GROUPR neutron group structure parameter.
             ign = 1 for arbitrary group structures not contained in NJOY's
             built-in list of options. Default value corresponds to ign key for
@@ -228,8 +291,8 @@ def process_gendf(
         ign=ign, ngn=ngn, egn=egn
     )
     njt.write_njoy_input_file(groupr_input)
-    gendf_path, njoy_error = njt.run_njoy(
-        element, A, material_id, 'GENDF'
+    gendf_path, njoy_error, _ = njt.run_njoy(
+        element, A, material_id, 'GENDF', tendl_dir
     )
 
     if gendf_path:
@@ -495,6 +558,7 @@ def main():
     eaf_nucs = rxd.find_eaf_ref_data(Path(args.decay_lib[0]))
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
+    unresr_err_cases = []
     for file_properties in tp.search_for_files(search_dir):
         element, A, pKZA, endf_path = tuple(file_properties.values())
         TAPE20.write_bytes(endf_path.read_bytes())
@@ -505,19 +569,19 @@ def main():
             invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
             warnings.warn(
                 f'Invalid MTs in provided TENDL file for ' \
-                f'{element}-{A}: {invalid_MTs}'
+                f'{element}{A}: {invalid_MTs}'
             )
         MTs = MTs.intersection(endf6_MTs)
 
-        MTs, isomer_dict, njoy_prep_error = process_pendf(
-            njt.njoy_prep_input, material_id, MTs,
-            pKZA, mt_dict, temperature, TAPE20
+        MTs, isomer_dict, njoy_prep_error, unresr_err_cases = process_pendf(
+            material_id, MTs, pKZA, mt_dict, temperature,
+            TAPE20, search_dir, unresr_err_cases
         )
 
         if not njoy_prep_error:
             all_rxns, nGroups = process_gendf(
                 njt.groupr_input, material_id, MTs, mt_dict, temperature,
-                pKZA, isomer_dict, all_rxns, eaf_nucs, group_name,
+                pKZA, isomer_dict, all_rxns, eaf_nucs, group_name, search_dir,
                 ign=ign, ngn=ngn, egn=egn
             )
 
@@ -528,6 +592,13 @@ def main():
             )
 
         njt.cleanup_njoy_files(element, A)
+
+    if unresr_err_cases:
+        warnings.warn(
+            f'A total of {len(unresr_err_cases)} TENDL files required ' \
+            'an increase in UNRESR fractional error tolerance for the ' \
+            f'following nuclides: {unresr_err_cases}'
+        )
 
     # Handle gas total production cross-sections, per user specifications
     gas_filtered = subtract_gas_from_totals(all_rxns)
