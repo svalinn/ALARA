@@ -21,6 +21,9 @@ GAS_DF = pd.DataFrame({
     'kza'       : [10010, 10020, 10030, 20030, 20040],
     'total_mt'  : range(203, 207 + 1)
 })
+DECAY_MF = 8
+DECAY_MT = 457
+TEND_RECORD =  ' ' * 68 + '-1 0  0    0'
 
 # Track edge cases of unquantifiable MT reaction types
 spec_reactions = [
@@ -252,13 +255,109 @@ def process_mt_data(mt_dict):
 
     return mt_dict
 
-def eaf_float(num_str):
+def resolve_decay_file_formatting_issues(decay_dir, decay_lib_type):
+    """
+    Check a decay file to identify and resolve formatting inconsistencies,
+        which include blank lines, missing TEND records, and files not ending
+        in newlines. For single-nuclide decay files contained in UKDD decay
+        data distributions, rename files by their KZA so that they can be
+        later compiled by ascending KZA value, as expected by EAFLib for decay
+        library processing.
+
+    Arguments:
+        decay_dir (pathlib._local.PosixPath): Filepath to the directory
+            exclusively containing decay data files for either an EAF or UKDD
+            decay library.
+        decay_lib_type (str): Identifier tag for either EAF or UKDD data.
+
+    Returns:
+        None
+    """
+
+    from tendl_processing import calculate_KZA_from_ENDF
+
+    ukdd_options = ['ukdd', 'ukaeadd', 'decay_2020', 'decay_2012']
+    if decay_lib_type.lower() in ukdd_options:
+        decay_lib_type = 'ukdd'
+
+    for decay_file in decay_dir.iterdir():
+        with open(decay_file, 'r') as f:
+            lines = f.readlines()
+
+        # Ensure proper file formatting -- All ENDF formatted files will
+        # include the line number of the first section at the end of the first
+        # line
+        if int(lines[0].strip()[-1]) == 0:
+
+            # Remove blank lines
+            updated_lines = [line for line in lines if line.strip()]
+
+            # Ensure file ends with a newline
+            if not updated_lines[-1].endswith('\n'):
+                updated_lines[-1] += '\n'
+
+            # Include missing TEND record
+            if TEND_RECORD.rstrip('0').strip() not in updated_lines[-1]:
+                updated_lines.append(TEND_RECORD + '\n')
+
+            # Overwrite file if changes were made
+            if lines != updated_lines:
+                with open(decay_file, 'w') as f:
+                    f.writelines(updated_lines)
+
+            # Rename decay file to the KZA value so that a sorted decay
+            # directory iteration will go in order of ascending KZA
+            if decay_lib_type == 'ukdd':
+                kza = calculate_KZA_from_ENDF(decay_file, DECAY_MF, DECAY_MT)
+                decay_file.rename(decay_dir / str(kza))
+
+def compile_decay_lib(decay_dir, decay_lib_type, dir):
+    """
+    Iteratively compile the data from individual-nuclide decay files into a
+        single file in ascending order of KZA. Can either be an EAF or UKDD
+        decay library.
+
+    Arguments:
+        decay_dir (pathlib._local.PosixPath): Filepath to the directory
+            exclusively containing decay data files for either an EAF or UKDD
+            decay library.
+        decay_lib_type (str): Identifier tag for either EAF or UKDD data.
+        dir (pathlib._local.PosixPath): Path to the current working directory
+            (CWD) from which the command was called.
+
+    Returns:
+        compiled_file (pathlib._local.PosixPath): Path to the compiled decay
+            library file.
+    """
+
+    compiled_file = dir / f'{decay_dir}_compiled'
+    compiled_file.unlink(missing_ok=True)
+
+    sorted_filepaths = sorted(decay_dir.iterdir())
+    if decay_lib_type == 'ukdd':
+        sorted_KZAs = sorted([int(p.stem) for p in sorted_filepaths])
+        sorted_filepaths = [decay_dir / str(kza) for kza in sorted_KZAs]
+
+    for decay_file in sorted_filepaths:
+        with open(decay_file, 'r') as f:
+            lines = f.readlines()
+
+        with open(compiled_file, 'a') as f:
+            f.writelines(lines)
+
+    print(
+        f'Compiled {decay_lib_type.upper()} decay libary to {compiled_file}.'
+    )
+
+    return compiled_file
+
+def standardize_float(num_str):
     """
     Process non-uniformly formatted scientific notation numbers from parsed
-        EAF data to standard floating point numbers.
+        decay data to standard floating point numbers.
     
     Arguments:
-        num_str (str): Number from an EAF file with non-uniform formatting.
+        num_str (str): Number from an decay file with non-uniform formatting.
 
     Returns:
         num (float): Reformatted number to be able to be properly converted to
@@ -293,63 +392,62 @@ def get_MT_from_line(line):
     
     return int(line[72:75])
 
-def find_eaf_ref_data(eaf_path):
+def find_nucs_from_decay_lib(compiled_decay_lib):
     """
-    Parse through an EAF file to build a dictionary keyed by all radionuclides
-        with their respective half-lives as the values. Modeled after the
-        file parsing methods in ALARA/src/DataLib/EAFLib.C.
+    Parse through an pre-compiled decay library file to build a dictionary
+        keyed by all radionuclides with their respective half-lives as the
+        values. Modeled after the file parsing methods in
+        ALARA/src/DataLib/EAFLib.C.
 
     Arguments:
-        eaf_path (pathlib._local.PosixPath): Filepath to an EAF decay library
-            or directory containing individual nuclide-decay data files
-            formatted with a ".dat" extension.
+        compiled_decay_lib (pathlib._local.PosixPath): Filepath to a pre-
+            compiled decay library. Must be either an EAF decay library (i.e. 
+            EAF4.1, EAF2010, etc.) or a UKDD decay library (UKDD-12, UKDD-20).
 
     Returns:
-        eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
+        all_nucs (dict): Dictionary keyed by all nuclide KZAs in the decay
+            library, with values of their half-lives (-1 for stable nuclides).
     """
 
-    radionucs = {}
-    decay_MT = 457
+    all_nucs = {}
+    with open(compiled_decay_lib, 'r') as f:
+        
+        # Read header and skip introductory comment lines
+        first_line = f.readline().strip()
+        try:
+            n_comment_lines = int(first_line.split()[0])
+        except ValueError:
+            n_comment_lines = 1
 
-    for eaf in (eaf_path.glob('*.dat') if eaf_path.is_dir() else [eaf_path]):
-        with open(eaf, 'r') as f:
-            
-            # Read header and skip introductory comment lines
-            first_line = f.readline().strip()
-            try:
-                n_comment_lines = int(first_line.split()[0])
-            except ValueError:
-                n_comment_lines = 1
+        for _ in range(n_comment_lines):
+            f.readline()
 
-            for _ in range(n_comment_lines):
-                f.readline()
+        _in_decay_block = False
+        line = f.readline()
 
-            _in_decay_block = False
+        while line:
+            MT = get_MT_from_line(line)
+            if not _in_decay_block and MT == DECAY_MT:
+                _in_decay_block = True
+
+                # Parse nuclide KZA
+                za = int(standardize_float(line[:11]))
+                M = int(line[33:44])
+                kza = za * 10 + M
+                stability = int(line[44:56]) # 0->unstable , 1->stable
+
+                # Read half-life (next line)
+                line = f.readline()
+                if stability == 0:
+                    thalf = standardize_float(line[:11])
+                    all_nucs[kza] = thalf
+
+                else:
+                    all_nucs[kza] = -1
+
+            elif MT != DECAY_MT:
+                _in_decay_block = False
+
             line = f.readline()
 
-            while line:
-
-                # Radionuclide processing
-                MT = get_MT_from_line(line)
-
-                if not _in_decay_block and MT == decay_MT:
-                    _in_decay_block = True
-
-                    # Parse nuclide KZA
-                    za = int(eaf_float(line[:11]))
-                    M = int(line[33:44].strip())
-                    kza = za * 10 + M
-
-                    # Read half-life (next line)
-                    line = f.readline()
-                    thalf = eaf_float(line[:11])
-                    if thalf > 0:
-                        radionucs[kza] = thalf
-
-                elif MT != decay_MT:
-                    _in_decay_block = False
-
-                line = f.readline()
-
-    return radionucs
+    return all_nucs

@@ -15,15 +15,14 @@ from subprocess import TimeoutExpired
 def make_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--decay_lib', '-d', required=True, nargs=1,
+        '--decay_lib', '-d', required=True, nargs=2,
         help=('''
-            Required argument to direct ALARAJOYWrapper to an EAF decay
-                library or directory containing EAF decay files for
-                individual nuclides. Necessary for cross-referencing short-
-                lived isomeric daughters against known half-life data.
-              
-                Note: If using --decay_lib to direct to a directory of EAF
-                decay files, all files must have the extension ".dat".
+            Required argument pair to direct ALARAJOYWrapper to a decay data
+                library. The first part of the argument is the path to either
+                an EAF or UKDD pre-compiled decay file or a repository
+                containing multiple decay files to be compiled internally. See
+                the README.md for access to various decay library
+                distributions.
         ''')
     )
     parser.add_argument(
@@ -225,7 +224,7 @@ def process_pendf(
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict, temperature, pKZA,
-    isomer_dict, all_rxns, eaf_nucs, group_name, tendl_dir,
+    isomer_dict, all_rxns, all_nucs, group_name, tendl_dir,
     ign=17, ngn='', egn=''
 ):
     """
@@ -261,8 +260,8 @@ def process_gendf(
                     }
                 }    
             }
-        eaf_nucs (dict): Dictionary keyed by all radionuclides in the EAF
-            decay library, with values of their half-lives.
+        all_nucs (dict): Dictionary keyed by all nuclide KZAs in the decay
+            library, with values of their half-lives (-1 for stable nuclides).
         group_name (str): Name of the group structure for groupwise
             conversion.
         tendl_dir (pathlib._local.PosixPath): Path to the directory in which
@@ -315,7 +314,7 @@ def process_gendf(
         if gendf_MTs:
             all_rxns = tp.iterate_MTs(
                 gendf_MTs, mt_dict, non_zero_xs, pKZA, 
-                all_rxns, eaf_nucs, isomer_dict, nGroups
+                all_rxns, all_nucs, isomer_dict, nGroups
             )
             print(f'Finished processing {element}-{A}')
 
@@ -486,7 +485,9 @@ def store_results(
                     for MT, rxn in all_rxns[parent][daughter].items():
                         if rxn['xsections'].sum() > 0:
                             # Save reaction data to DSV
-                            dsv.write(f'{rxn_to_str(parent,daughter,rxn)}\n')
+                            dsv.write(
+                                f'{rxn_to_str(parent, daughter, MT, rxn)}\n'
+                            )
 
                             # Conditionally plot reaction groupwise/continuous
                             # data with xs_plotting.py tool
@@ -555,7 +556,22 @@ def main():
     ign, ngn, egn, group_name = njt.set_group_structure(args.group_structure)
 
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
-    eaf_nucs = rxd.find_eaf_ref_data(Path(args.decay_lib[0]))
+    decay_path, decay_lib_type = args.decay_lib
+    ukdd_options = ['ukdd', 'ukaeadd', 'decay_2020', 'decay_2012']
+    if decay_lib_type.lower() in ukdd_options:
+        decay_lib_type = 'ukdd'
+
+    if decay_lib_type.lower() not in ['ukdd', 'eaf']:
+        raise ValueError(
+            'Invalid library type. Must be either an EAF or UKDD release.'
+        )
+
+    decay_path = Path(decay_path)
+    if decay_path.is_dir():
+        rxd.resolve_decay_file_formatting_issues(decay_path, decay_lib_type)
+        decay_path = rxd.compile_decay_lib(decay_path, decay_lib_type, dir)
+
+    all_nucs = rxd.find_nucs_from_decay_lib(decay_path)
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
     unresr_err_cases = []
@@ -581,7 +597,7 @@ def main():
         if not njoy_prep_error:
             all_rxns, nGroups = process_gendf(
                 njt.groupr_input, material_id, MTs, mt_dict, temperature,
-                pKZA, isomer_dict, all_rxns, eaf_nucs, group_name, search_dir,
+                pKZA, isomer_dict, all_rxns, all_nucs, group_name, search_dir,
                 ign=ign, ngn=ngn, egn=egn
             )
 
@@ -615,7 +631,8 @@ def main():
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
         f'according to the {group_name} group structure.'
     )
-    print(f'Reaction data saved to: {dsv_path}')
+    print(f'Compiled decay data: {decay_path}')
+    print(f'Reaction cross-sections: {dsv_path}')
 
 if __name__ == '__main__':
     main()
