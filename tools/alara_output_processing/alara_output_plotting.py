@@ -649,7 +649,7 @@ def plot_single_response(
     half_lives=10,
     total=False,
     yscale='log',
-    ymin=None,
+    y_limits=(None, None),
     relative=False,
     cmap_name='Dark2',
     plot_type='plot',
@@ -712,9 +712,12 @@ def plot_single_response(
             (Defaults to False) 
         yscale (str, optional): Option to set the y-axis scale.
             (Defaults to 'log')
-        ymin (int, float, or None, optional): Option to set a bottom limit for
-            the y-axis.
-            (Defaults to None)
+        y_limits (tuple, optional): Option to set the lower and/or upper
+            plotting bounds for the y-axis. Formatted as (bottom, top). Each
+            can be applied individually or together, but if only one setting
+            is chosen the other must be listed explicitly as None (i.e. 
+            setting only a lower limit of 1e4 would be (1e4, None)).
+            (Defaults to (None, None))
         relative (bool, optional): Option to plot relative values with respect
             to totals at each cooling time.
             (Defaults to False)
@@ -931,8 +934,7 @@ def plot_single_response(
     ax.set_xscale('log')
     ax.set_xlim(right=tmax)
     ax.set_yscale(yscale)
-    if ymin:
-        ax.set_ylim(bottom=ymin)
+    ax.set_ylim(bottom=y_limits[0], top=y_limits[1])
 
     legend_ax = None
     if separate_legend:
