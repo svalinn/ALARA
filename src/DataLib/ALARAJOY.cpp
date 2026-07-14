@@ -41,7 +41,7 @@ void ALARAJOYLib::loadDSVData()
     while ((inTrans >> row.parentKZA) && row.parentKZA != -1)
     {
         // Store MT as temporary variable
-        int MT;
+        std::string MT;
 
         // Extract Daughter KZA, emitted particles, non-zero groups; pass MT
         inTrans >> row.daughterKZA >> MT >> row.emittedParticles;
