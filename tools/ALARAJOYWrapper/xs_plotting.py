@@ -26,14 +26,15 @@ def flagged_num_to_int(num):
             instance of '*' contained in the original value.
     """
 
-    re_match = re.match(r'^-?\d+', str(num))
+    num = str(num)
+    re_match = re.match(r'^-?\d+', num)
     if not re_match:
         raise ValueError(
             f'Invalid flagged number {num}. Must be formatted with numeric ' \
             'characters before non-numeric characters.'
         )
-    
-    return int(re_match.group())
+
+    return int(re_match.group()), '*' * num.count('*')
 
 def ensure_emission_specificity(emitted, dKZA):
     """
