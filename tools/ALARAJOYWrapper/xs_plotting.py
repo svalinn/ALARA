@@ -8,13 +8,19 @@ def flagged_num_to_int(num):
     """
     Convert numerical values that may be in string form containing additional
         tags (i.e. '26m' or '4*') left over from groupwise processing to their
-        base integer form.
+        base integer form. Retain the isomeric flag separately if it is
+        formatted with '*'.
 
-    num (int or str): Numerical value, which may be in string form with
-        additional tags such as 'm' or '*'.
+    Arguments:
+        num (int or str): Numerical value, which may be in string form with
+            additional tags such as 'm' or '*'.
 
-    num_int (int): Numerical value stripped of any non-numerical characters in
-        integer form.
+    Returns:
+        num_int (int): Numerical value stripped of any non-numerical
+            characters in integer form.
+        isomer_flag (str): Sequence of '*' values corresponding to the
+            isomeric flag contained in the original value. Empty string if no
+            instance of '*' contained in the original value.
     """
 
     re_match = re.match(r'^-?\d+', str(num))
