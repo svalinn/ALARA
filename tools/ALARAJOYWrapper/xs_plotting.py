@@ -8,23 +8,30 @@ def flagged_num_to_int(num):
     """
     Convert numerical values that may be in string form containing additional
         tags (i.e. '26m' or '4*') left over from groupwise processing to their
-        base integer form.
+        base integer form. Retain the isomeric flag separately if it is
+        formatted with '*'.
 
-    num (int or str): Numerical value, which may be in string form with
-        additional tags such as 'm' or '*'.
+    Arguments:
+        num (int or str): Numerical value, which may be in string form with
+            additional tags such as 'm' or '*'.
 
-    num_int (int): Numerical value stripped of any non-numerical characters in
-        integer form.
+    Returns:
+        num_int (int): Numerical value stripped of any non-numerical
+            characters in integer form.
+        isomer_flag (str): Sequence of '*' values corresponding to the
+            isomeric flag contained in the original value. Empty string if no
+            instance of '*' contained in the original value.
     """
 
-    re_match = re.match(r'^-?\d+', str(num))
+    num = str(num)
+    re_match = re.match(r'^-?\d+', num)
     if not re_match:
         raise ValueError(
             f'Invalid flagged number {num}. Must be formatted with numeric ' \
             'characters before non-numeric characters.'
         )
-    
-    return int(re_match.group())
+
+    return int(re_match.group()), '*' * num.count('*')
 
 def extract_continuous_data(tendl_path, MT):
     """
@@ -52,7 +59,7 @@ def extract_continuous_data(tendl_path, MT):
     tendl_energies = []
 
     file, _ = tp.create_endf_file_obj(tendl_path, 3)
-    MT = flagged_num_to_int(MT)
+    MT = flagged_num_to_int(MT)[0]
     if MT in [MT.MT for MT in file.sections]:
         section = file.section(MT).parse()
         tendl_xs = list(section.cross_sections)
