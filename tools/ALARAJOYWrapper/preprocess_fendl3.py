@@ -216,9 +216,11 @@ def process_pendf(
     else:
         njoy_error += prep_error
 
-    _, pendf_MTs = tp.extract_endf_specs(pendf_path)
+    pendf_MTs = set(tp.parse_endf_file_level_data(
+        pendf_path, endf_format='pendf'
+    )[0])
     MTs |= pendf_MTs.intersection(set(rxd.GAS_DF['total_mt']))
-    isomer_dict = tp.determine_all_excitations(tendl_path, MTs, pKZA, mt_dict)
+    isomer_dict = tp.determine_all_excitations(tendl_path, MTs)
 
     return MTs, isomer_dict, njoy_error, unresr_err_cases
 
@@ -556,6 +558,8 @@ def main():
     ign, ngn, egn, group_name = njt.set_group_structure(args.group_structure)
 
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
+    endf6_MTs = set(mt_dict)
+
     decay_path, decay_lib_type = args.decay_lib
     ukdd_options = ['ukdd', 'ukaeadd', 'decay_2020', 'decay_2012']
     if decay_lib_type.lower() in ukdd_options:
@@ -578,9 +582,9 @@ def main():
     for file_properties in tp.search_for_files(search_dir):
         element, A, pKZA, endf_path = tuple(file_properties.values())
         TAPE20.write_bytes(endf_path.read_bytes())
+        endf_file_dict, material_id = tp.parse_endf_file_level_data(TAPE20)
+        MTs = set(endf_file_dict)
 
-        material_id, MTs = tp.extract_endf_specs(TAPE20)
-        endf6_MTs = set(mt_dict)
         if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
             invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
             warnings.warn(
