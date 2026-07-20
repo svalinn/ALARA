@@ -48,19 +48,15 @@ def extract_continuous_data(tendl_path, MT):
             lists.
     """
 
-    tendl_xs = []
-    tendl_energies = []
-
-    file, _ = tp.create_endf_file_obj(tendl_path, 3)
-    MT = flagged_num_to_int(MT)
-    if MT in [MT.MT for MT in file.sections]:
-        section = file.section(MT).parse()
-        tendl_xs = list(section.cross_sections)
-        tendl_energies = list(section.energies)
+    xs_table = (
+        tp.parse_endf_file_level_data(tendl_path)[0]
+        .get(MT, {})
+        .get('xstable', {'E' : [], 'xs' : []})
+    )
 
     return {
-        'xs'            :           tendl_xs,
-        'energies'      :     tendl_energies
+        'xs'         :   xs_table['xs'],
+        'energies'   :    xs_table['E']
     }
 
 def ensure_emission_specificity(emitted, dKZA):

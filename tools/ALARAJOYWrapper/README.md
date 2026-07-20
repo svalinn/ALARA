@@ -21,7 +21,7 @@ This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Dat
   * [NumPy](https://numpy.org/install/)
   * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 - Domain-specific packages
-  * [ENDFtk](https://github.com/njoy/ENDFtk)
+  * [Endf-parserpy](https://github.com/IAEA-NDS/endf-parserpy)
   * [NJOY 2016](https://github.com/njoy/NJOY2016)
   * [OpenMC](https://docs.openmc.org/en/stable/quickinstall.html) (only needed if specifying a multigroup energy structure by name from the dictionary `openmc.mgxs.GROUP_STRUCTURES`)
 

@@ -1,5 +1,5 @@
 # Import packages
-import ENDFtk
+from endf_parserpy import EndfParserPy
 from pathlib import Path
 from reaction_data import GAS_DF
 from njoy_tools import elements
@@ -24,28 +24,35 @@ REVERSE_EXCITATION_DICT = {
 }
 ISOMERIC_STATES = 'mnopqrstuvwxyz'
 
-def create_endf_file_obj(path, MF):
+def parse_endf_file_level_data(endf_path, MF=3, endf_format='endf6-ext'):
     """
-    For a TENDL (ENDF) file containing activation data for a single nuclide,
-        store a single MF's "file" data in an ENDFtk file object.
+    For an ENDF-formatted TENDL file containing neutron activation data for a
+        single nuclide, parse and store the file's data into a nested
+        dictionary with endf_parserpy.EndfParserPy().parsefile().
 
     Arguments:
-        path (str): Filepath to an ENDF file.
-        MF (int): ENDF file number.
+        endf_path (pathlib._local.PosixPath or str): Path to an ENDF-formatted
+            file.
+        MF (int, optional): Option to set ENDF file number. If no option is
+            selected, will default to 3, corresponding to "Reaction Cross
+            Sections".
+            (Defaults to 3).
+        endf_format (str, optional): Option to set the specific ENDF file
+            format, according to the endf_parserpy options, which include:
+                    ('endf6-ext', 'endf6', 'jendl', 'pendf', 'errorr')
+            (Defaults to 'endf6-ext).
 
     Returns:
-        file (ENDFtk.tree.File): Single MF ENDFtk file object.
-        matb (int): Unique material ID extracted from the file.
+        endf_file_dict (dict): Dictionary containing all reaction data within
+            an ENDF file. Keyed by MT number. If the provided MF is not
+            present in the ENDF file, file_dict will be returned as an empty
+            dictionary.
+        material_id (int): Unique nuclide ID extracted from the file.
     """
+    
+    endf_dict = EndfParserPy(endf_format=endf_format).parsefile(endf_path)
 
-    file = None
-    tape = ENDFtk.tree.Tape.from_file(str(path))
-    matb = tape.material_numbers[0]
-    material = tape.material(matb)
-    if MF in [MF.MF for MF in material.files]:
-        file = material.file(MF)
-
-    return file, matb
+    return endf_dict.get(MF, {}), endf_dict[1][451]['MAT']
 
 def calculate_KZA_from_ENDF(filepath, MF=1, MT=451):
     """
@@ -54,7 +61,7 @@ def calculate_KZA_from_ENDF(filepath, MF=1, MT=451):
         nuclide in the KZA (ZZZAAAM) format.
 
     Arguments:
-        filepath (pathlib._local.PosixPath): Path for an ENDF-formatted file.
+        filepath (pathlib._local.PosixPath): Path to an ENDF-formatted file.
         MF (int, optional): Option to specify the ENDF data block ("file")
             from which to extract identifying data. Unless specified, will
             direct to MF = 1 ("General Information").
@@ -63,15 +70,15 @@ def calculate_KZA_from_ENDF(filepath, MF=1, MT=451):
             data block (MF) from which to extract identifying data. Unless
             specificed, will direct to MF = 451 ("Descriptive Data and
             Directory").
-            (Defaults to 457)
+            (Defaults to 451)
 
     Returns:
-        KZA (int): Unique ZZZAAM for a given nuclide.
+        KZA (int): Unique ZZZAAAM identifier for a given nuclide.
     """
 
-    endf_file_obj, _ = create_endf_file_obj(filepath, MF)
-    nuc_data = endf_file_obj.section(MT).parse()
-    return nuc_data.ZA * 10 + nuc_data.LISO
+    nuc_data = parse_endf_file_level_data(filepath, MF)[0][MT]
+
+    return int(nuc_data['ZA'] * 10 + nuc_data['LISO'])
 
 def interpret_KZA(kza):
     """
@@ -154,31 +161,7 @@ def search_for_files(dir = Path.cwd()):
 
     return file_info
 
-def extract_endf_specs(path):
-    """
-    Extract the material ID and MT numbers from an ENDF file.
-    Arguments:
-        path (pathlib._local.PosixPath): File path to the selected ENDF file.
-    
-    Returns:
-        matb (int): Unique material ID extracted from the file.
-        MTs (set): Set of reaction types (MT's) present in the file.
-    """
-
-    # Set MF for cross-sections
-    xs_MF=3
-    file, matb = create_endf_file_obj(path, xs_MF)
-    
-    if file:
-        # Extract the MT numbers that are present in the file
-        MTs = set(MT.MT for MT in file.sections.to_list())
-
-        return (matb, MTs)
-    
-    else:
-        return (matb, None)
-
-def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
+def determine_all_excitations(endf_path, MTs):
     """
     Reference an ENDF file's MF9 and MF10 file data and explicitly defined
         excitation reactions to construct a nested dictionary keyed by
@@ -192,8 +175,6 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
         endf_path (pathlib._local.PosixPath): Path to the ENDF (TENDL) file to
             be processed.
         MTs (set): Set of all MT reaction numbers contained in the TENDL file.
-        pKZA (int): KZA identifier of the TENDL file's single nuclide.
-        mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
 
     Returns:
          isomer_dict (collections.defaultdict): Dictionary keyed by reaction
@@ -206,26 +187,22 @@ def determine_all_excitations(endf_path, MTs, pKZA, mt_dict):
 
     isomer_dict = defaultdict(lambda: defaultdict(list))
 
+    path_specific_MFs = (9,10)
+    mf_dict = {
+        MF: parse_endf_file_level_data(endf_path, MF)[0]
+        for MF in path_specific_MFs
+    }
+
     for MT in MTs:
         cumulative_MT = REVERSE_EXCITATION_DICT.get(MT)
         if MT not in EXCITATION_REACTIONS:
-            za = f'{(pKZA // 10) * 10 + mt_dict[MT]['delKZA']}'[:-1]
-
             # Isomer pathways contained either in MF 9 ("Multiplicities for
             # Production of Radioactive Nuclides") and MF 10 ("Cross Sections
             # for Production of Radioactive Nuclides").
-            for MF in [9, 10]:
-                file, _ = create_endf_file_obj(endf_path, MF)
-                if file and MT in [MT.MT for MT in file.sections]:
-                    section = file.section(MT)
-                    for line in section.content.split('\n'):
-                        spaced_za = f' {za} '
-                        if spaced_za in line:
-                            # Line formatted with ZA cushioned by whitespace
-                            # on both sides
-                            isomer_dict[MT][MF].append(int(
-                                line.split(spaced_za)[1].strip().split(' ')[0]
-                            ))
+            for MF in path_specific_MFs:
+                pathways = mf_dict[MF].get(MT, {}).get('subsection', {})
+                for pathway_data in pathways.values():
+                    isomer_dict[MT][MF].append(pathway_data['LFS'])
 
             if not isomer_dict[MT]:
                 isomer_dict[MT][3].append(0)
