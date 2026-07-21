@@ -524,7 +524,6 @@ def store_results(
                                 
                                 plt.savefig(plot_path)
 
-
         if plotting:
             print(
                 f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
