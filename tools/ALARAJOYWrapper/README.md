@@ -18,7 +18,11 @@ This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Dat
   * [Warnings](https://docs.python.org/3/library/warnings.html)
 - Generic Python packages
   * [Matplotlib.pyplot](https://matplotlib.org/3.5.3/api/_as_gen/matplotlib.pyplot.html)
-  * [NumPy](https://numpy.org/install/)
+  * [NumPy](https://numpy.org/install/) ([numpy.f2py](https://numpy.org/doc/stable/f2py/) is used for Fortran interfacing, which depends on the following):
+    * C-compiler (i.e. [gcc](https://hprc.tamu.edu/kb/Software/GNU-Compiler-Collection/#gcc-versions))
+    * Fortran-compiler (i.e. [gfortran](https://fortran-lang.org/learn/os_setup/install_gfortran/))
+    * [Meson](https://mesonbuild.com/)
+    * [Ninja](https://github.com/ninja-build/ninja.git)
   * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
   * [PyYAML](https://pyyaml.org/wiki/PyYAMLDocumentation) (only needed if running `xs_plotting.py` as an independent script.)
 - Domain-specific packages
