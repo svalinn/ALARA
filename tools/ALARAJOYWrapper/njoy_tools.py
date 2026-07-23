@@ -4,6 +4,8 @@ import subprocess
 from pathlib import Path
 import re
 import numpy as np
+from sys import executable
+from shutil import which
 
 def set_directory():
     '''
@@ -700,3 +702,48 @@ def cleanup_njoy_files(element, A):
     output_dir = dir / 'njoy_outputs'
     output_dir.mkdir(exist_ok=True)
     Path('output').rename(output_dir / f'njoy_output_{element}{A}.out')
+
+def import_njoy_endf_wrapper():
+    """
+    Import the njoy_endf_wrapper module defined by the targeted NJOY-wrapper
+        njoy_endf_wrapper.f90. This wrapper utilizes the NJOY function
+        `endf.terpa()`, which interpolates TAB1 data according to the encoded
+        interpolation scheme(s). If the module cannot be accessed, compile
+        njoy_endf_wrapper.f90 to a CPython executable using NumPy.f2py and
+        subsequently import the module.
+
+    Arguments:
+        None
+
+    Returns:
+        njoy_endf_wrapper.njoy_endf_wrapper (fortran object): Python module of
+            the compiled njoy_endf_wrapper.f90 NJOY wrapper containing the
+            subroutine `interpolate_tab1()`, which can be used to apply
+            `endf.terpa()` to interpolate TAB1 according to the encoded
+            interpolation scheme(s).
+    """
+
+    try:
+        import njoy_endf_wrapper
+    
+    except (ModuleNotFoundError, ImportError):
+        njoy_dir = Path(which('njoy')).parent
+        subprocess.run(
+            [
+                executable,
+                '-m',
+                'numpy.f2py',
+                '-c',
+                '-m',
+                'njoy_endf_wrapper',
+                str(Path(__file__).parent / 'njoy_endf_wrapper.f90'),
+                f'-I{njoy_dir / "fortran_modules"}',
+                f'-L{njoy_dir}',
+                '-lnjoy'
+            ],
+            check=True,
+            cwd=Path.cwd()
+        )
+        import njoy_endf_wrapper
+    
+    return njoy_endf_wrapper.njoy_endf_wrapper
