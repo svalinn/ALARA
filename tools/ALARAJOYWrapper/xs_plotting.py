@@ -63,28 +63,6 @@ def ensure_emission_specificity(emitted, dKZA):
 
     return emitted
 
-def get_section_dict(endf_dict, MF, MT):
-    """
-    Produce a reaction (MT)-specific subdictionary from a nested EndfParserPy-
-        formatted nested dictionary containing a whole TENDL file's parsed
-        nuclear data. Will return an empty dictionary if either the MF or MT
-        are not present in the provided dictionary.
-
-    Arguments:
-        endf_dict (dict): Nested EndfParserPy-formatted dictionary containing
-            all parsed nuclear data from a TENDL file.
-        MF (int): ENDF file number.
-        MT (int): Unique reaction identifier.
-
-    Returns:
-        section (dict): Sub-dictionary containing nuclear data for a
-            given MF/MT combination from a parsed TENDL file. Will return an
-            empty dictionary if either the MF or MT is not present in
-            `endf_dict`.
-    """
-
-    return endf_dict.get(MF, {}).get(MT, {})
-
 def vectorize_tab1(endf_dict={}, MT=0, pathway_data={}):
     """
     Interpret and reformat ENDF6 TAB1 data into a 1-D array for a specific
@@ -168,7 +146,7 @@ def vectorize_tab1(endf_dict={}, MT=0, pathway_data={}):
 
     # MF 3
     else:
-        section  = get_section_dict(endf_dict, 3, MT)
+        section  = tp.get_section_dict(endf_dict, 3, MT)
         xs_table = section.get('xstable')
         
         nbt      = np.asarray(xs_table['NBT'])
@@ -223,7 +201,9 @@ def extract_continuous_data(endf_dict, MT):
 
     if isomeric_state > 0:
         for MF in tp.PATH_SPECIFIC_MFS:
-            subsection = get_section_dict(endf_dict, MF, MT).get('subsection')
+            subsection = tp.get_section_dict(
+                endf_dict, MF, MT
+            ).get('subsection')
             if subsection and isomeric_state < len(subsection):
                 pathway_data = subsection[list(subsection)[isomeric_state]]
                 continuous_dict['energies'] = pathway_data['E']
@@ -258,7 +238,7 @@ def extract_continuous_data(endf_dict, MT):
     # For non-excitation reactions, cross-sections can be extracted directly
     # from MF3
     else:
-        xs_table = get_section_dict(
+        xs_table = tp.get_section_dict(
             endf_dict, 3, MT
         ).get('xstable', {'E' : [], 'xs' : []})
         continuous_dict['xs'] = xs_table['xs']

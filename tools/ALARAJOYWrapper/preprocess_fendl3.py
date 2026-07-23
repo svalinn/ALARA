@@ -11,7 +11,6 @@ import logging
 from pathlib import Path
 from collections import defaultdict
 from subprocess import TimeoutExpired
-from endf_parserpy import EndfParserPy
 
 def make_argparser():
     parser = argparse.ArgumentParser()
@@ -116,7 +115,7 @@ def configure_logging(redirect_warnings=False):
 
 def process_pendf(
     material_id, MTs, pKZA, mt_dict, temperature,
-    tendl_path, tendl_dir, unresr_err_cases
+    endf_dict, tendl_dir, unresr_err_cases
 ):
     """
     Prepare and run initial NJOY run with MODER, RECONR, BROADR, UNRESR, and
@@ -134,8 +133,8 @@ def process_pendf(
         MTs (set): Set of all MTs from the original TENDL file.
         mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
         temperature (float): Temperature at which to run NJOY modules.
-        tendl_path (pathlib._local.PosixPath): Path to the original,
-            unmodified TENDL file.
+        endf_dict (dict): Nested EndfParserPy-formatted dictionary containing
+            all parsed nuclear data from a TENDL file.
         tendl_dir (pathlib._local.PosixPath): Path to the directory in which
             the original TENDL nuclide files are contained.
         unresr_err_cases (list of str): List of all nuclides that required an
@@ -217,11 +216,9 @@ def process_pendf(
     else:
         njoy_error += prep_error
 
-    pendf_MTs = set(tp.parse_endf_file_level_data(
-        pendf_path, endf_format='pendf'
-    )[0])
+    pendf_MTs = set(tp.parse_endf_data(pendf_path, endf_format='pendf')[1])
     MTs |= pendf_MTs.intersection(set(rxd.GAS_DF['total_mt']))
-    isomer_dict = tp.determine_all_excitations(tendl_path, MTs)
+    isomer_dict = tp.determine_all_excitations(endf_dict, MTs)
 
     return MTs, isomer_dict, njoy_error, unresr_err_cases
 
@@ -430,7 +427,7 @@ def rxn_to_str(parent, daughter, MT, rxn):
     return dsv_row + ' '.join(str(xs) for xs in rxn['xsections'])
 
 def store_results(
-    dsv_path, all_rxns, nGroups, tendl_dir, group_name, plotting
+    dsv_path, all_rxns, nGroups, tendl_dir, group_name, plotting, endf_dict
 ):
     """
     Save groupwise-converted cross-section data to a space-delimited DSV file
@@ -474,7 +471,9 @@ def store_results(
             cross-sections.
         plotting (bool): Boolean to set whether to produce cross-section
             plots.
-
+        endf_dict (dict): Nested EndfParserPy-formatted dictionary containing
+            all parsed nuclear data from a TENDL file.
+            
     Returns:
         None 
     """
@@ -483,9 +482,6 @@ def store_results(
         dsv.write(f'{nGroups} {group_name}\n')
         for parent in sorted(all_rxns):
             element, A = tp.interpret_KZA(parent)
-            endf_dict = EndfParserPy().parsefile(
-                tendl_dir / f'{element}{A}.tendl'
-            )
             for daughter in all_rxns[parent]:
                 if parent != daughter:
                     for MT, rxn in all_rxns[parent][daughter].items():
@@ -584,8 +580,8 @@ def main():
     for file_properties in tp.search_for_files(search_dir):
         element, A, pKZA, endf_path = tuple(file_properties.values())
         TAPE20.write_bytes(endf_path.read_bytes())
-        endf_file_dict, material_id = tp.parse_endf_file_level_data(TAPE20)
-        MTs = set(endf_file_dict)
+        endf_dict, mf3_file_dict, material_id = tp.parse_endf_data(TAPE20)
+        MTs = set(mf3_file_dict)
 
         if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
             invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
@@ -597,7 +593,7 @@ def main():
 
         MTs, isomer_dict, njoy_prep_error, unresr_err_cases = process_pendf(
             material_id, MTs, pKZA, mt_dict, temperature,
-            TAPE20, search_dir, unresr_err_cases
+            endf_dict, search_dir, unresr_err_cases
         )
 
         if not njoy_prep_error:
@@ -631,7 +627,7 @@ def main():
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     store_results(
         dsv_path, gas_filtered, nGroups,
-        search_dir, group_name, args.xs_plotting 
+        search_dir, group_name, args.xs_plotting, endf_dict
     )
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
