@@ -23,8 +23,9 @@ REVERSE_EXCITATION_DICT = {
     for val in arr
 }
 ISOMERIC_STATES = 'mnopqrstuvwxyz'
+PATH_SPECIFIC_MFS = (9,10)
 
-def parse_endf_file_level_data(endf_path, MF=3, endf_format='endf6-ext'):
+def parse_endf_data(endf_path, MF=3, endf_format='endf6-ext'):
     """
     For an ENDF-formatted TENDL file containing neutron activation data for a
         single nuclide, parse and store the file's data into a nested
@@ -52,7 +53,29 @@ def parse_endf_file_level_data(endf_path, MF=3, endf_format='endf6-ext'):
     
     endf_dict = EndfParserPy(endf_format=endf_format).parsefile(endf_path)
 
-    return endf_dict.get(MF, {}), endf_dict[1][451]['MAT']
+    return endf_dict, endf_dict.get(MF, {}), endf_dict[1][451]['MAT']
+
+def get_section_dict(endf_dict, MF, MT):
+    """
+    Produce a reaction (MT)-specific subdictionary from a nested EndfParserPy-
+        formatted nested dictionary containing a whole TENDL file's parsed
+        nuclear data. Will return an empty dictionary if either the MF or MT
+        are not present in the provided dictionary.
+
+    Arguments:
+        endf_dict (dict): Nested EndfParserPy-formatted dictionary containing
+            all parsed nuclear data from a TENDL file.
+        MF (int): ENDF file number.
+        MT (int): Unique reaction identifier.
+
+    Returns:
+        section (dict): Sub-dictionary containing nuclear data for a
+            given MF/MT combination from a parsed TENDL file. Will return an
+            empty dictionary if either the MF or MT is not present in
+            `endf_dict`.
+    """
+
+    return endf_dict.get(MF, {}).get(MT, {})
 
 def calculate_KZA_from_ENDF(filepath, MF=1, MT=451):
     """
@@ -76,7 +99,7 @@ def calculate_KZA_from_ENDF(filepath, MF=1, MT=451):
         KZA (int): Unique ZZZAAAM identifier for a given nuclide.
     """
 
-    nuc_data = parse_endf_file_level_data(filepath, MF)[0][MT]
+    nuc_data = parse_endf_data(filepath, MF)[1][MT]
 
     return int(nuc_data['ZA'] * 10 + nuc_data['LISO'])
 
@@ -161,7 +184,7 @@ def search_for_files(dir = Path.cwd()):
 
     return file_info
 
-def determine_all_excitations(endf_path, MTs):
+def determine_all_excitations(endf_dict, MTs):
     """
     Reference an ENDF file's MF9 and MF10 file data and explicitly defined
         excitation reactions to construct a nested dictionary keyed by
@@ -172,8 +195,8 @@ def determine_all_excitations(endf_path, MTs):
         cross-section data.
 
     Arguments:
-        endf_path (pathlib._local.PosixPath): Path to the ENDF (TENDL) file to
-            be processed.
+        endf_dict (dict): Nested EndfParserPy-formatted dictionary containing
+            all parsed nuclear data from a TENDL file.
         MTs (set): Set of all MT reaction numbers contained in the TENDL file.
 
     Returns:
@@ -187,20 +210,16 @@ def determine_all_excitations(endf_path, MTs):
 
     isomer_dict = defaultdict(lambda: defaultdict(list))
 
-    path_specific_MFs = (9,10)
-    mf_dict = {
-        MF: parse_endf_file_level_data(endf_path, MF)[0]
-        for MF in path_specific_MFs
-    }
-
     for MT in MTs:
         cumulative_MT = REVERSE_EXCITATION_DICT.get(MT)
         if MT not in EXCITATION_REACTIONS:
             # Isomer pathways contained either in MF 9 ("Multiplicities for
             # Production of Radioactive Nuclides") and MF 10 ("Cross Sections
             # for Production of Radioactive Nuclides").
-            for MF in path_specific_MFs:
-                pathways = mf_dict[MF].get(MT, {}).get('subsection', {})
+            for MF in PATH_SPECIFIC_MFS:
+                pathways = get_section_dict(
+                    endf_dict, MF, MT
+                ).get('subsection', {})
                 for pathway_data in pathways.values():
                     isomer_dict[MT][MF].append(pathway_data['LFS'])
 
