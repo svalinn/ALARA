@@ -778,7 +778,7 @@ void Volume::write(int response, int writeComp, CoolingTime* coolList,
   cout << Result::getReminderStr() << endl;
 
   /* write header for totals */
-  coolList->writeTotalHeader("interval");
+  coolList->writeTotalHeader("interval", Result::getCooltimeMode());
 
   /* for each interval */
   while (ptr->next != NULL)
