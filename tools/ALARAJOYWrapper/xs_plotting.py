@@ -707,8 +707,8 @@ def main():
                     endf.Evaluation(tendl_dir / f'{element}{A}.tendl'), MT
                 )
 
-                groupwise_dict, emitted, reference_group = extract_groupwise_data_from_DSV(
-                    dsv_list, KZA, MT
+                groupwise_dict, emitted, reference_group = (
+                    extract_groupwise_data_from_DSV(dsv_list, KZA, MT)
                 )
 
                 if groupwise_dict:
