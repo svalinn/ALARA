@@ -442,7 +442,13 @@ def compute_groupwise_xs_ratios(groupwise_dict, reference_group=''):
         """
 
         idx = np.searchsorted(bin_edges, midpoints, side='right') - 1
-        return xs[np.clip(idx, 0, len(xs) - 1)]
+        re_binned_xs = xs[np.clip(idx, 0, len(xs) - 1)]
+
+        re_binned_xs[
+            (midpoints < bin_edges[0]) | (midpoints >= bin_edges[-1])
+        ] = 0.0
+
+        return re_binned_xs
 
     reference_group = reference_group or next(iter(groupwise_dict))
     ref_xs, ref_energies = groupwise_dict[reference_group].values()
@@ -453,11 +459,7 @@ def compute_groupwise_xs_ratios(groupwise_dict, reference_group=''):
             continue
 
         group_xs, group_energies = group_data.values()
-
-        low = max(group_energies[0], ref_energies[0])
-        high = min(group_energies[-1], ref_energies[-1])
-        union = np.union1d(group_energies, ref_energies)
-        merged_energies = union[(union >= low) & (union <= high)]
+        merged_energies = np.union1d(group_energies, ref_energies)
         midpoints = np.sqrt(merged_energies[:-1] * merged_energies[1:])
 
         binned_group = _re_bin_xs(group_energies, group_xs[::-1], midpoints)
@@ -475,7 +477,8 @@ def compute_groupwise_xs_ratios(groupwise_dict, reference_group=''):
     return ratio_dict, reference_group
 
 def plot_relative_group_xs(
-    ax, element, A, emitted, groupwise_dict, color_dict, reference_group=''
+    ax, element, A, emitted, groupwise_dict, color_dict,
+    reference_group='', x_limits=(None, None)
 ):
     """
     Create a plot of the ratio series of groupwise cross-sections relative to
@@ -520,6 +523,9 @@ def plot_relative_group_xs(
             sections. If not supplied, then the first group name key in
             `groupwise_dict` will be set by default as the reference group.
             (Defaults to '')
+        xlimits (tuple, optional): Option to specify the x-axis limits for
+            the plot.
+            (Defaults to (None, None))
 
     Returns:
         ax (matplotlib.axes._axes.Axes): Updated Matplotlib Axes object of the
@@ -545,6 +551,7 @@ def plot_relative_group_xs(
             )
         )
 
+    ax.set_xlim(x_limits)
     title = ( 
         f'Relative Cross-Section for $^{{{A}}}${element}(n,{emitted}):\n'
         f'Reference Group = {reference_group}'
@@ -712,7 +719,7 @@ def main():
                 )
 
                 if groupwise_dict:
-                    plot_single_nuc_rxn_xs(
+                    ax = plot_single_nuc_rxn_xs(
                         ax, element, A, emitted,
                         continuous_dict, groupwise_dict
                     )
@@ -726,7 +733,7 @@ def main():
                         color_dict = collect_all_stair_colors(ax)
                         plot_relative_group_xs(
                             ratio_ax, element, A, emitted, groupwise_dict,
-                            color_dict, reference_group
+                            color_dict, reference_group, ax.get_xlim()
                         )
                         ratio_plot_path = set_plot_save_path(
                             element, A, emitted, tendl_dir,
