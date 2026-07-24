@@ -235,6 +235,10 @@ def extract_groupwise_data_from_DSV(dsv_dict, KZA, MT):
             according to which an array of cross-sections were processed.
         emitted (str): Particle(s) emitted from the nuclear reaction
             corresponding to the MT number provided.
+        reference_group (str): Group name of the reference group against which
+            to divide other group structures' cross-sections. Will be an empty
+            string if none of the provided DSV paths in `dsv_list` contain a
+            '(reference)' tag in the string (i.e. example.dsv (reference)).
     """
 
     emitted = ''
@@ -364,8 +368,8 @@ def set_plot_parameters(ax, title, ratio_plotting=False):
 
     if np.log10(np.ptp(ax.get_ylim())) > 1:
         ax.set_yscale('log')
-
     ax.set_xscale('log')
+
     ax.set_xlabel('Energy [eV]')
     ax.set_ylabel(ylabel)
     ax.set_title(title)
