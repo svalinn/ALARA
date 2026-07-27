@@ -10,23 +10,6 @@ from matplotlib.patches import StepPatch
 from pathlib import Path
 from openmc.data import Reaction, endf
 
-CONVERSION_DICT = {
-    'a' : 1e-18,
-    'f' : 1e-15,
-    'p' : 1e-12,
-    'n' : 1e-9,
-    'u' : 1e-6, # Accepts u or "μ" for micro-
-    'μ' : 1e-6, # Accepts u or "μ" for micro-
-    'm' : 1e-3,
-    'c' : 1e-2,
-    'k' : 1e3,
-    'M' : 1e6,
-    'G' : 1e9,
-    'T' : 1e12,
-    'P' : 1e15,
-    'E' : 1e18
-}
-
 def flagged_num_to_int(num):
     """
     Convert numerical values that may be in string form containing additional
@@ -523,6 +506,63 @@ def plot_single_nuc_rxn_data(
 
     return set_plot_parameters(ax, title, reaction_rates=reaction_rates)
 
+def convert_to_eV(energy_vline_arg, parser=None):
+    """
+    Convert an energy value to units of electron-volts, if it is specified to
+        be in some SI multiple of eV (i.e. MeV).
+
+    Arguments:
+        energy_vline_arg (list of str): List specifying the neutron energy to
+            denote with a vertical line. If only a single value is provided,
+            then eV units will be assumed. Otherwise, any SI unit prefix can
+            be supplied as the second value in the list, to be converted
+            internally to eV (i.e. ['14.1', 'MeV'] will be converted to
+            1.41e+07 eV).
+        parser (argparser.ArgumentParser, optional): Option to include the
+            argparser ArgumentParser object through which to channel
+            improperly supplied `energy_vline_arg` values. Needed if being
+            called within `main()`.
+            (Defaults to None)
+
+    Returns:
+        converted_energy (float): Energy value in electron-volts      
+    """
+
+    conversion_dict = {
+        'a' : 1e-18,
+        'f' : 1e-15,
+        'p' : 1e-12,
+        'n' : 1e-9,
+        'u' : 1e-6, # Accepts u or "μ" for micro-
+        'μ' : 1e-6, # Accepts u or "μ" for micro-
+        'm' : 1e-3,
+        'c' : 1e-2,
+        'k' : 1e3,
+        'M' : 1e6,
+        'G' : 1e9,
+        'T' : 1e12,
+        'P' : 1e15,
+        'E' : 1e18
+    }
+
+    vline_energy = float(energy_vline_arg[0])
+    if len(energy_vline_arg) == 2:
+        energy_units = energy_vline_arg[1]
+    elif len(energy_vline_arg) > 2:
+        error_message = (
+            'Too many values for energy_vline. ' \
+            'Can provide upt to two values: energy, energy_units'
+        )
+        if parser:
+            parser.error(error_message)
+        else:
+            raise TypeError(error_message)
+
+    if energy_units and energy_units.lower() != 'eV':
+        vline_energy *= conversion_dict[energy_units[0]]
+
+    return vline_energy
+
 def plot_neutron_energy_axvline(ax, energy_vline_arg, parser=None):
     """
     Given a pre-exisisting Matplotlib Axes object, include a vertical line at
@@ -548,22 +588,7 @@ def plot_neutron_energy_axvline(ax, energy_vline_arg, parser=None):
             plot being constructed.
     """
 
-    vline_energy = float(energy_vline_arg[0])
-    if len(energy_vline_arg) == 2:
-        energy_units = energy_vline_arg[1]
-    elif len(energy_vline_arg) > 2:
-        error_message = (
-            'Too many values for energy_vline. ' \
-            'Can provide upt to two values: energy, energy_units'
-        )
-        if parser:
-            parser.error(error_message)
-        else:
-            raise TypeError(error_message)
-
-    if energy_units and energy_units.lower() != 'eV':
-        vline_energy *= CONVERSION_DICT[energy_units[0]]
-
+    vline_energy = convert_to_eV(energy_vline_arg, parser)
     ax.axvline(
         vline_energy,
         color='r', 
