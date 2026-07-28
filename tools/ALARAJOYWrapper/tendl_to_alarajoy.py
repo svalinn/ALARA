@@ -12,6 +12,7 @@ from pathlib import Path
 from collections import defaultdict
 from subprocess import TimeoutExpired
 from endf_parserpy import EndfParserPy
+from openmc.data import endf
 
 def make_argparser():
     parser = argparse.ArgumentParser()
@@ -485,9 +486,10 @@ def store_results(
         dsv.write(f'{nGroups} {group_name}\n')
         for parent in sorted(all_rxns):
             element, A = tp.interpret_KZA(parent)
-            endf_dict = EndfParserPy().parsefile(
-                tendl_dir / f'{element}{A}.tendl'
-            )
+            # endf_dict = EndfParserPy().parsefile(
+            #     tendl_dir / f'{element}{A}.tendl'
+            # )
+            endf_obj = endf.Evaluation(tendl_dir / f'{element}{A}.tendl')
             for daughter in all_rxns[parent]:
                 if parent != daughter:
                     for MT, rxn in all_rxns[parent][daughter].items():
@@ -507,7 +509,7 @@ def store_results(
                                 )
 
                                 continuous_dict = xp.extract_continuous_data(
-                                    endf_dict, MT
+                                    endf_obj, MT
                                 )
 
                                 energies = njt.load_external_group_struct(

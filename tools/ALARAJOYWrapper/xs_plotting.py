@@ -6,7 +6,7 @@ import njoy_tools as njt
 import reaction_data as rxd
 import matplotlib.pyplot as plt
 from pathlib import Path
-from endf_parserpy import EndfParserPy
+from openmc.data import Reaction, endf
 
 def flagged_num_to_int(num):
     """
@@ -63,147 +63,13 @@ def ensure_emission_specificity(emitted, dKZA):
 
     return emitted
 
-def get_section_dict(endf_dict, MF, MT):
-    """
-    Produce a reaction (MT)-specific subdictionary from a nested EndfParserPy-
-        formatted nested dictionary containing a whole TENDL file's parsed
-        nuclear data. Will return an empty dictionary if either the MF or MT
-        are not present in the provided dictionary.
-
-    Arguments:
-        endf_dict (dict): Nested EndfParserPy-formatted dictionary containing
-            all parsed nuclear data from a TENDL file.
-        MF (int): ENDF file number.
-        MT (int): Unique reaction identifier.
-
-    Returns:
-        section (dict): Sub-dictionary containing nuclear data for a
-            given MF/MT combination from a parsed TENDL file. Will return an
-            empty dictionary if either the MF or MT is not present in
-            `endf_dict`.
-    """
-
-    return endf_dict.get(MF, {}).get(MT, {})
-
-def vectorize_tab1(endf_dict={}, MT=0, pathway_data={}):
-    """
-    Interpret and reformat ENDF6 TAB1 data into a 1-D array for a specific
-        reaction. This can be done for any ENDF MF (file), with different
-        input requirements for MF3 versus MF9. TAB1 formatting is based on
-        the ENDF-6 manual
-        (https://www.nndc.bnl.gov/endfdocs/ENDF-102-2023.pdf). NJOY's
-        endf.terpa() TAB1 interpolation function necessitates the array
-        formatting of TAB1 data that vectorize_tab1() outputs, which is
-        necessary to produce matching energies and energy-dependent values
-        between MF3 and MF9 for a given reaction to produce excitation
-        pathway-specific cross-sections from the multiplication of MF3
-        cumulative cross-sections with MF9 multiplicites.
-
-        MF3 ('Reaction Cross Sections'):
-            The TAB1 formatting for MF3 is as follows:
-                [QM, QI, 0, LR, NR, NP/ E_int/ sigma(E)]
-            Descriptions of each of these values can be found in section 3.2
-            ('Formats') of the ENDF6 manual.
-            
-            To vectorize this TAB1 data, an EndfParserPy-formatted nested
-            dictionary containing a whole TENDL file's parsed nuclear data
-            must be provided as the `endf_dict` argument and the specific
-            reaction type as the `MT` argument.
-
-        MF 9 ('Multiplicities for Production of Radioactive Nuclides'):
-
-            The TAB1 formatting for MF9/10 is as follows:
-                [QM, QI, IZAP, LFS, NR, NP/ E_int / Y(E)]
-            Descriptions of each of these values can be found in section 9.2
-            ('Formats') of the ENDF6 manual.
-
-            To vectorize this TAB1 data, a subdictionary of an EndfParserPy-
-            formatted nested dictionary must be supplied for a specific
-            reaction, parent-daughter pathway. Because MF9 contains specific
-            daughter excitation pathways for a given reaction, these
-            'subsections' are contained in their own dictionaries in the
-            EndfParserPy dictionary structure below the `MT` key. Such a
-            subdictionary must be provided as the `pathway_data` argument.
-
-    Arguments:
-        endf_dict (dict, optional): Nested EndfParserPy-formatted dictionary
-            containing all parsed nuclear data from a TENDL file. Only
-            necessary for MF3.
-            (Defaults to {})
-        MT (int, optional): Unique reaction identifier. Only necessary for
-            MF3.
-            (Defaults to 0)
-        pathway_data (dict, optional): Dictionary containing the TAB1 data for
-            a specific MF9, MT reaction pathway to a specified daughter
-            nuclide. Only necessary for MF9.
-            (Defaults to {})
-
-    Returns:
-        tab1_array (numpy.ndarray): 1-D array of the reaction's TAB1 data from
-            the implied MF handling scheme.
-    """
-
-    if (not endf_dict and MT == 0) and not pathway_data:
-        raise TypeError(
-            'Must supply either supply endf_dict and MT arguments together ' \
-            'or pathway_data individually.'
-        )
-
-    # MF 9
-    if pathway_data:
-        nbt     = np.asarray(pathway_data['NBT'])
-        ints    = np.asarray(pathway_data['INT'])
-        ninterp = len(nbt)
-        npoints = len(pathway_data['E'])
-        header  = np.array([
-            pathway_data['QM'],
-            pathway_data['QI'],
-            pathway_data['IZAP'],
-            pathway_data['LFS'],
-            ninterp,
-            npoints
-        ])
-        energy_arr           = pathway_data['E']
-        energy_dependent_var = pathway_data['Y']
-
-    # MF 3
-    else:
-        section  = get_section_dict(endf_dict, 3, MT)
-        xs_table = section.get('xstable')
-        
-        nbt      = np.asarray(xs_table['NBT'])
-        ints     = np.asarray(xs_table['INT'])
-        ninterp  = len(nbt)
-        npoints  = len(xs_table['E'])
-        header   = np.array([
-            section['QM'],
-            section['QI'],
-            0,
-            section['LR'],
-            ninterp,
-            npoints
-        ])
-        energy_arr           = xs_table['E']
-        energy_dependent_var = xs_table['xs']
-
-    interpolation_scheme = np.empty(2 * ninterp)
-    interpolation_scheme[::2]  = nbt
-    interpolation_scheme[1::2] = ints
-
-    tabular_data = np.empty(2 * npoints)
-    tabular_data[::2]  = energy_arr
-    tabular_data[1::2] = energy_dependent_var
-
-    return np.concatenate([header, interpolation_scheme, tabular_data])
-
-def extract_continuous_data(endf_dict, MT):
+def extract_continuous_data(endf_obj, MT):
     """
     For a given nuclide and reaction, extract its continuous-energy cross-
         sections and corresponding energies from its original TENDL file.
 
     Arguments:
-        endf_dict (dict): Nested EndfParserPy-formatted dictionary containing
-            all parsed nuclear data from a TENDL file.
+        endf_obj (openmc.data.endf.Evaluation): OpenMC parsed-ENDF object.
         MT (int): Reaction identifying number.
 
     Returns:
@@ -220,49 +86,34 @@ def extract_continuous_data(endf_dict, MT):
 
     continuous_dict = dict()
     MT, isomeric_state = flagged_num_to_int(MT)
+    rxn = Reaction.from_endf(endf_obj, MT)
 
+    # For excitation reactions, calculate specific pathway reactions by
+    # multiplying reaction multiplicities by MF3 cumulative cross-sections
+    # interpolated by the multiplicities' energy array
     if isomeric_state > 0:
-        for MF in tp.PATH_SPECIFIC_MFS:
-            subsection = get_section_dict(endf_dict, MF, MT).get('subsection')
-            if subsection and isomeric_state < len(subsection):
-                pathway_data = subsection[list(subsection)[isomeric_state]]
-                continuous_dict['energies'] = pathway_data['E']
 
-                # Calculate interpolated proportional cross-section from MF3
-                # cumulative cross-sections and MF9 multiplicities
-                if MF == 9:
-                    njoy_endf_wrapper = njt.import_njoy_endf_wrapper()
+        pathways = {}
+        for product in rxn.products:
+            if product.particle not in {'neutron', 'photon', 'electron'}:
+                iso_flag = re.compile(r'_e(\d+)$').search(product.particle)
+                excited_state = int(iso_flag.group(1)) if iso_flag else 0
+                pathways[excited_state] = product
 
-                    mf3_tab1 = vectorize_tab1(endf_dict=endf_dict, MT=MT)
-                    mf3_interpolated_xs = njoy_endf_wrapper.interpolate_tab1(
-                        mf3_tab1, pathway_data['E']
-                    )
+        if pathways and isomeric_state < len(pathways):
+            product = pathways[list(pathways)[isomeric_state]]
+            energies = product.yield_.x
+            continuous_dict['energies'] = energies
+            continuous_dict['xs'] = product.yield_.y * rxn.xs['0K'](energies)
 
-                    mf9_tab1 = vectorize_tab1(pathway_data=pathway_data)
-                    mf9_interpolated_multiplicities = (
-                        njoy_endf_wrapper.interpolate_tab1(
-                            mf9_tab1, pathway_data['E']
-                        )
-                    )
-
-                    continuous_dict['xs'] = (
-                        mf3_interpolated_xs * mf9_interpolated_multiplicities
-                    )
-                    break
-                
-                # MF10 cross-sections can be extracted directly without need
-                # for interpolation
-                else:
-                    continuous_dict['xs'] = pathway_data['sigma']
-
-    # For non-excitation reactions, cross-sections can be extracted directly
-    # from MF3
     else:
-        xs_table = get_section_dict(
-            endf_dict, 3, MT
-        ).get('xstable', {'E' : [], 'xs' : []})
-        continuous_dict['xs'] = xs_table['xs']
-        continuous_dict['energies'] = xs_table['E']
+        mf3_xs_table = rxn.xs.get('0K')
+        if mf3_xs_table:
+            continuous_dict['energies'] = mf3_xs_table.x
+            continuous_dict['xs'] = mf3_xs_table.y
+
+    continuous_dict.setdefault('energies', [])
+    continuous_dict.setdefault('xs', [])
 
     return continuous_dict
 
@@ -593,10 +444,6 @@ def main():
             mass_nums = find_all_mass_nums(tendl_dir, element)
 
         for A in mass_nums:
-            endf_dict = EndfParserPy().parsefile(
-                tendl_dir / f'{element}{A}.tendl'
-            )
-
             KZA = str((
                 njt.elements[element] * 1000 + flagged_num_to_int(A)[0]
             ) * 10 + tp.ISOMERIC_STATES.find(str(A)[-1]) + 1)
@@ -612,7 +459,9 @@ def main():
             for MT in MTs:
                 fig, ax = plt.subplots(figsize=(10,6))
                 
-                continuous_dict = extract_continuous_data(endf_dict, MT)
+                continuous_dict = extract_continuous_data(
+                    endf.Evaluation(tendl_dir / f'{element}{A}.tendl'), MT
+                )
                 groupwise_dict, emitted = extract_groupwise_data_from_DSV(
                     dsv_list, KZA, MT
                 )
