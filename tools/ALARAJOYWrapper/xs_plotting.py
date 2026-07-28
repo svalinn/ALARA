@@ -84,7 +84,7 @@ def extract_continuous_data(endf_obj, MT):
             lists.
     """
 
-    continuous_dict = dict()
+    continuous_dict = {'energies' : [], 'xs' : []}
     MT, isomeric_state = flagged_num_to_int(MT)
     rxn = Reaction.from_endf(endf_obj, MT)
 
@@ -103,17 +103,16 @@ def extract_continuous_data(endf_obj, MT):
         if pathways and isomeric_state < len(pathways):
             product = pathways[list(pathways)[isomeric_state]]
             energies = product.yield_.x
-            continuous_dict['energies'] = energies
-            continuous_dict['xs'] = product.yield_.y * rxn.xs['0K'](energies)
+            continuous_dict['energies'].extend(energies)
+            continuous_dict['xs'].extend(
+                product.yield_.y * rxn.xs['0K'](energies)
+            )
 
     else:
         mf3_xs_table = rxn.xs.get('0K')
         if mf3_xs_table:
-            continuous_dict['energies'] = mf3_xs_table.x
-            continuous_dict['xs'] = mf3_xs_table.y
-
-    continuous_dict.setdefault('energies', [])
-    continuous_dict.setdefault('xs', [])
+            continuous_dict['energies'].extend(mf3_xs_table.x)
+            continuous_dict['xs'].extend(mf3_xs_table.y)
 
     return continuous_dict
 
