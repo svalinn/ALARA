@@ -11,7 +11,6 @@ import logging
 from pathlib import Path
 from collections import defaultdict
 from subprocess import TimeoutExpired
-from endf_parserpy import EndfParserPy
 from openmc.data import endf
 
 def make_argparser():
@@ -486,9 +485,6 @@ def store_results(
         dsv.write(f'{nGroups} {group_name}\n')
         for parent in sorted(all_rxns):
             element, A = tp.interpret_KZA(parent)
-            # endf_dict = EndfParserPy().parsefile(
-            #     tendl_dir / f'{element}{A}.tendl'
-            # )
             endf_obj = endf.Evaluation(tendl_dir / f'{element}{A}.tendl')
             for daughter in all_rxns[parent]:
                 if parent != daughter:
