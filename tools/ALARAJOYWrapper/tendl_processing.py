@@ -189,7 +189,7 @@ def collect_excitation_pathways(endf_obj, MT, single_MF=None):
             matched_MF = MF
             break
 
-    return  sorted(pathways, key=lambda pathway: pathway[0]), matched_MF
+    return sorted(pathways, key=lambda pathway: pathway[0]), matched_MF
 
 def determine_all_excitations(endf_obj, MTs):
     """
@@ -230,6 +230,11 @@ def determine_all_excitations(endf_obj, MTs):
                     endf_obj, MT, MF
                 )
                 isomer_dict[MT][MF].extend([p[0] for p in pathways])
+=======
+                isomer_dict[MT][MF].extend(collect_excitation_pathways(
+                    Reaction.from_endf(endf_obj, MT)
+                ))
+>>>>>>> c8ad932 (Migrating all ENDF interfacing to openmc.data)
 
             if not isomer_dict[MT]:
                 isomer_dict[MT][3].append(0)
