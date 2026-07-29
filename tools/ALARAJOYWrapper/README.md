@@ -24,7 +24,7 @@ This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Dat
 - Domain-specific packages
   * [Endf-parserpy](https://github.com/IAEA-NDS/endf-parserpy)
   * [NJOY 2016](https://github.com/njoy/NJOY2016)
-  * [OpenMC](https://docs.openmc.org/en/stable/quickinstall.html) (needed if specifying a multigroup energy structure by name from the dictionary `openmc.mgxs.GROUP_STRUCTURES` or utilizing the `xs_plotting` module)
+  * [OpenMC](https://docs.openmc.org/en/stable/quickinstall.html)
 
 
 
