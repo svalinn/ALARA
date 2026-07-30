@@ -5,6 +5,7 @@ import tendl_processing as tp
 import njoy_tools as njt
 import reaction_data as rxd
 import matplotlib.pyplot as plt
+import pandas as pd
 from pathlib import Path
 from openmc.data import Reaction, endf
 
@@ -93,15 +94,17 @@ def extract_continuous_data(endf_obj, MT):
     # interpolated by the multiplicities' energy array
     if isomeric_state > 0:
 
-        pathways = {}
+        pathways = []
         for product in rxn.products:
             if product.particle not in {'neutron', 'photon', 'electron'}:
                 iso_flag = re.compile(r'_e(\d+)$').search(product.particle)
                 excited_state = int(iso_flag.group(1)) if iso_flag else 0
-                pathways[excited_state] = product
+                pathways.append((excited_state, product))
+
+        pathways.sort(key=lambda pathway: pathway[0])
 
         if pathways and isomeric_state < len(pathways):
-            product = pathways[list(pathways)[isomeric_state]]
+            product = pathways[isomeric_state][1]
             energies = product.yield_.x
             continuous_dict['energies'].extend(energies)
             continuous_dict['xs'].extend(
@@ -389,14 +392,9 @@ def find_all_MTs(dsv_list, pKZA):
 
     MTs = set()
     for dsv in dsv_list:
-        with open(dsv, 'r') as f:
-            dsv_lines = f.readlines()
+        df = pd.read_csv(dsv, sep=r'\s+', skiprows=1, header=None)
+        MTs.update(df.loc[df[0] == pKZA, 2])
 
-        for line in dsv_lines[1:-1]:
-            rxn = line.split()
-            if rxn[0] == str(pKZA):
-                MTs.add(rxn[2])
-    
     return MTs
 
 def main():
@@ -407,6 +405,7 @@ def main():
     from yaml import safe_load
 
     plt.rcParams.update({'figure.max_open_warning': 0})
+    plot_path = None
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--yaml', '-y')
@@ -475,10 +474,11 @@ def main():
                     )
                     plt.savefig(plot_path)
 
-    print(
-        f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
-        'organized by element, nuclide, reaction.'
-    )
+    if plot_path:
+        print(
+            f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
+            'organized by element, nuclide, reaction.'
+        )
 
 
 if __name__ == '__main__':
