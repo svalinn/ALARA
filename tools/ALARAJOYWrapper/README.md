@@ -38,6 +38,10 @@ Many decay data libraries are distributed in repositories containing individual 
   * [TENDL](https://tendl.imperial.ac.uk/)
      - Usable with any TENDL release
      - For FENDL3.2x processing, [TENDL 2017](https://tendl.imperial.ac.uk/tendl_2017/tendl2017.html) is the standard version.
+  * [PREPRO-Processed TENDL Data (FISPACT-II)](https://git.oecd-nea.org/fispact/nuclear_data)
+     - Nuclear data repository for use specifically with FISPACT-II.
+     - TENDL 2017/14 availble.
+     - Convertable to ALARAJOY-readable DSV file by calling `preprocess_fendl3` with `-n` flag.
 
 - Decay Data
   * EAF
@@ -55,7 +59,7 @@ ALARAJOYWrapper is designed to produce a space-delimited DSV containing cross-da
 
 Running ALARAJOYWrapper can be done with one Python command:
 ```
-python tendl_to_alarajoy.py -f /path/to/fendl3_data_dir/ -d /path/to/decay_library/ decay_library-type -g group_name -w weight_function -a -t -r -p
+python tendl_to_alarajoy.py -f /path/to/fendl3_data_dir/ -d /path/to/decay_library/ decay_library-type -g group_name -w weight_function -a -t -r -p -n
 ```
 To read in detail about each of these arguments, call this command:
 ```
