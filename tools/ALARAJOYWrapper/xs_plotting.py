@@ -166,9 +166,11 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
         with open(dsv, 'r') as f:
             dsv_lines = f.readlines()
 
-        group_name = dsv_lines[0].split()[-1]
-
+        group_name, processing_code = dsv_lines[0].split()[-2:]
         _, energy_bounds = njt.load_external_group_struct(group_name)
+
+        if processing_code != 'NJOY':
+            group_name += f' ({processing_code})'
 
         for line in dsv_lines[1:-1]:
             rxn = line.split()
@@ -276,8 +278,10 @@ def set_plot_parameters(ax, title, ratio_plotting=False):
     if ratio_plotting:
         ylabel = 'Ratio of Cross-Sections'
 
+    if np.log10(np.ptp(ax.get_ylim())) > 1:
+        ax.set_yscale('log')
+
     ax.set_xscale('log')
-    ax.set_yscale('log')
     ax.set_xlabel('Energy [eV]')
     ax.set_ylabel(ylabel)
     ax.set_title(title)
@@ -410,7 +414,6 @@ def compute_groupwise_xs_ratios(groupwise_dict):
     """
 
     reference_group = next(iter(groupwise_dict))
-    print(reference_group)
     ref_xs, ref_energies = groupwise_dict[reference_group].values()
 
     ratio_dict = {}
@@ -419,12 +422,12 @@ def compute_groupwise_xs_ratios(groupwise_dict):
             continue
 
         group_xs, group_energies = group_data.values()
-        if len(group_energies) == len(ref_energies) and group_energies == ref_energies:
+        if np.allclose(ref_energies, group_energies, rtol=1e-5):
             ratio_dict[group_name] = {
                 'ratio_xs' : np.divide(
                     group_xs, ref_xs,
-                    out=np.full_like(group_energies, np.nan, dtype=float),
-                    where=ref_xs != 0
+                    out=np.full_like(ref_xs, np.nan, dtype=float),
+                    where=(ref_xs != 0)
                 )[::-1],
                 'energies' : ref_energies
             }
@@ -498,6 +501,7 @@ def plot_relative_group_xs(
     for group_name, group_data in ratio_dict.items():
         ax.stairs(
             group_data['ratio_xs'], group_data['energies'],
+            baseline=None,
             label=f'{group_name} / {reference_group}',
             color=np.mean(
                 [color_dict[group_name], color_dict[reference_group]], axis=0
