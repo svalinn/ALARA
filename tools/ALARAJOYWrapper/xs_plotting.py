@@ -502,8 +502,6 @@ def compute_groupwise_xs_ratios(groupwise_dict, reference_data):
     """
 
     ref_xs, ref_energies = groupwise_dict[reference_data].values()
-
-
     ratio_dict = {}
     for name, group_data in groupwise_dict.items():
         if name == reference_data:
