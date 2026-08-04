@@ -409,7 +409,7 @@ def collect_all_prepro_TENDL_data(
 
     # File format from FISPACT NEA GitLab: {element}{A}g.asc
     # ("g" for "groupwise")
-    for gendf_path in prepro_tendl_dir.glob(f'*g.asc'):
+    for gendf_path in sorted(prepro_tendl_dir.glob(f'*g.asc')):
         gendf_dict, nGroups, pKZA = tp.GENDFParser(
             MFs=[3,10], prepro=True
         ).parse(gendf_path)
@@ -515,7 +515,8 @@ def rxn_to_str(parent, daughter, MT, rxn):
     return dsv_row + ' '.join(str(xs) for xs in rxn['xsections'])
 
 def store_results(
-    dsv_path, all_rxns, nGroups, tendl_dir, group_name, plotting
+    dsv_path, all_rxns, nGroups, tendl_dir,
+    group_name, processing_code, plotting
 ):
     """
     Save groupwise-converted cross-section data to a space-delimited DSV file
@@ -557,6 +558,9 @@ def store_results(
         group_name (str): Name of the group structure according to which
             GROUPR converted continuous energy cross-sections to groupwise
             cross-sections.
+        processing_code (str): Name of the nuclear data processing code used.
+            NJOY for standard ALARAJOY workflow, PREPRO if `-n` flag is
+            applied for FISPACT-II formatted TENDL data.
         plotting (bool): Boolean to set whether to produce cross-section
             plots.
 
@@ -565,7 +569,7 @@ def store_results(
     """
 
     with open(dsv_path, 'w') as dsv:
-        dsv.write(f'{nGroups} {group_name}\n')
+        dsv.write(f'{nGroups} {group_name} {processing_code}\n')
         for parent in sorted(all_rxns):
             element, A = tp.interpret_KZA(parent)
             endf_obj = endf.Evaluation(tendl_dir / f'{element}{A}.tendl')
@@ -665,11 +669,13 @@ def main():
 
     if args.nea_prepro:
         group_name = 'CCFE-709'
+        processing_code = 'PREPRO'
         all_rxns, nGroups = collect_all_prepro_TENDL_data(
             search_dir, mt_dict, all_rxns, all_nucs
         )
 
     else:
+        processing_code = 'NJOY'
         unresr_err_cases = []
         gendf_parser = tp.GENDFParser()
         for file_properties in tp.search_for_files(search_dir):
@@ -726,8 +732,8 @@ def main():
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     store_results(
-        dsv_path, gas_filtered, nGroups,
-        search_dir, group_name, args.xs_plotting 
+        dsv_path, gas_filtered, nGroups, search_dir, 
+        group_name, processing_code, args.xs_plotting 
     )
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
