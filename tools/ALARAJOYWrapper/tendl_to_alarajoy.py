@@ -244,7 +244,7 @@ def process_pendf(
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict, temperature, pKZA,
-    isomer_dict, all_rxns, all_nucs, group_name, tendl_dir, gendf_parser
+    isomer_dict, all_rxns, all_nucs, group_name, tendl_dir, gendf_parser,
     iwt=11, ign=17, ngn='', egn=''
 ):
     """
@@ -415,7 +415,7 @@ def collect_all_prepro_TENDL_data(
 
     # File format from FISPACT NEA GitLab: {element}{A}g.asc
     # ("g" for "groupwise")
-    for gendf_path in prepro_tendl_dir.glob(f'*g.asc'):
+    for gendf_path in sorted(prepro_tendl_dir.glob(f'*g.asc')):
         gendf_dict, nGroups, pKZA = tp.GENDFParser(
             MFs=[3,10], prepro=True
         ).parse(gendf_path)
@@ -522,7 +522,7 @@ def rxn_to_str(parent, daughter, MT, rxn):
 
 def store_results(
     dsv_path, all_rxns, nGroups, tendl_dir, group_name,
-    weight_function, plotting, endf_obj_dict
+    weight_function, processing_code, plotting, endf_obj_dict
 ):
     """
     Save groupwise-converted cross-section data to a space-delimited DSV file
@@ -566,6 +566,9 @@ def store_results(
             cross-sections.
         weight_function (str): Name of the weight function with which GROUPR
             calibrated groupwise cross-section conversion calculations.
+        processing_code (str): Name of the nuclear data processing code used.
+            NJOY for standard ALARAJOY workflow, PREPRO if `-n` flag is
+            applied for FISPACT-II formatted TENDL data.
         plotting (bool): Boolean to set whether to produce cross-section
             plots.
         endf_obj_dict (dict): Dictionary with a key for each parent nuclide
@@ -578,7 +581,9 @@ def store_results(
     """
 
     with open(dsv_path, 'w') as dsv:
-        dsv.write(f'{nGroups} {group_name} {weight_function}\n')
+        dsv.write(
+            f'{nGroups} {group_name} {weight_function} {processing_code}\n'
+        )
         for parent in sorted(all_rxns):
             element, A = tp.interpret_KZA(parent)
             for daughter in all_rxns[parent]:
@@ -682,11 +687,13 @@ def main():
 
     if args.nea_prepro:
         group_name = 'CCFE-709'
+        processing_code = 'PREPRO'
         all_rxns, nGroups = collect_all_prepro_TENDL_data(
             search_dir, mt_dict, all_rxns, all_nucs
         )
 
     else:
+        processing_code = 'NJOY'
         unresr_err_cases = []
         endf_obj_dict = {}
         gendf_parser = tp.GENDFParser()
@@ -744,7 +751,7 @@ def main():
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     store_results(
         dsv_path, gas_filtered, nGroups, search_dir, group_name,
-        weight_function, args.xs_plotting, endf_obj_dict
+        weight_function, processing_code, args.xs_plotting, endf_obj_dict
     )
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
