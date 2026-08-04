@@ -161,20 +161,12 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
 
     groupwise_dict = {}
     emitted = ''
-    reference_path = ''
-    reference_group = ''
 
     for dsv in dsv_list:
-        if 'reference' in dsv.lower():
-            reference_path = dsv.split('reference')[0].strip('(').strip()
-            dsv = reference_path
-
         with open(dsv, 'r') as f:
             dsv_lines = f.readlines()
 
         group_name = dsv_lines[0].split()[-1]
-        if dsv == reference_path:
-            reference_group = group_name
 
         _, energy_bounds = njt.load_external_group_struct(group_name)
 
@@ -391,23 +383,17 @@ def collect_all_stair_colors(ax):
 
     return color_dict
 
-def compute_groupwise_xs_ratios(groupwise_dict, reference_group=''):
+def compute_groupwise_xs_ratios(groupwise_dict):
     """
     Calculate the ratios of groupwise cross-sections for each group in
-        `groupwise_dict` and a single reference series. For each group
-        pairing, adjust the energies and cross-sections to be on a merged
-        grid that accounts for potentially distinct bin boundaries between
-        energy groups.
+        `groupwise_dict` that shares a group structure as a single reference
+        series. `ValueError` is raised if no other groupwise data matches the
+        group structure of the reference group structure.
 
     Arguments:
         groupwise_dict (dict): Nested dictionary keyed at the highest level by
             the name of the group structure according to which an array of
             cross-sections were processed.
-        reference_group (str, optional): Group name of the reference group
-            structure against which to divide other group structures' cross-
-            sections. If not supplied, then the first group name key in
-            `groupwise_dict` will be set by default as the reference group.
-            (Defaults to '')
 
     Returns:
         ratio_dict (dict): Nested dictionary keyed at the highest level by
@@ -415,42 +401,16 @@ def compute_groupwise_xs_ratios(groupwise_dict, reference_group=''):
             cross-sections were processed. Similar to `groupwise_dict`, but
             without a designated key for the reference group name, as all
             other group names are implicitly refering to that group's cross-
-            section data divided by the reference group's (according to the
-            re-computed bins to appropriately match cross-sections and
-            energies between the two group structures).
+            section data divided by the reference group's. All data must be of
+            the same group structure.
         reference_group (str): Group name of the reference group structure.
             Will be the same as `reference_group` from Arguments if one is
             supplied, otherwise, will be the group name of the first key in
             `groupwise_dict`.
     """
 
-    def _re_bin_xs(bin_edges, xs, midpoints):
-        """
-        Adjust an array of groupwise cross-sections to fit a new set of energy
-            bin edges.
-
-        Arguments:
-            bin_edges (numpy.ndarray): Iterable of ascending energy bounds
-                according to which to set the new cross-section binning.
-            xs (numpy.ndarray): Iterable of energy dependent cross-sections.
-            midpoint (numpy.ndarray): Midpoint energies at which to look up
-                the containing bin's cross-section.
-        
-        Returns:
-            re_binned_xs (numpy.ndarray): Cross-sections corresponding to each
-                energy group midpoint.
-        """
-
-        idx = np.searchsorted(bin_edges, midpoints, side='right') - 1
-        re_binned_xs = xs[np.clip(idx, 0, len(xs) - 1)]
-
-        re_binned_xs[
-            (midpoints < bin_edges[0]) | (midpoints >= bin_edges[-1])
-        ] = 0.0
-
-        return re_binned_xs
-
-    reference_group = reference_group or next(iter(groupwise_dict))
+    reference_group = next(iter(groupwise_dict))
+    print(reference_group)
     ref_xs, ref_energies = groupwise_dict[reference_group].values()
 
     ratio_dict = {}
@@ -459,26 +419,26 @@ def compute_groupwise_xs_ratios(groupwise_dict, reference_group=''):
             continue
 
         group_xs, group_energies = group_data.values()
-        merged_energies = np.union1d(group_energies, ref_energies)
-        midpoints = np.sqrt(merged_energies[:-1] * merged_energies[1:])
+        if len(group_energies) == len(ref_energies) and group_energies == ref_energies:
+            ratio_dict[group_name] = {
+                'ratio_xs' : np.divide(
+                    group_xs, ref_xs,
+                    out=np.full_like(group_energies, np.nan, dtype=float),
+                    where=ref_xs != 0
+                )[::-1],
+                'energies' : ref_energies
+            }
 
-        binned_group = _re_bin_xs(group_energies, group_xs[::-1], midpoints)
-        binned_ref = _re_bin_xs(ref_energies, ref_xs[::-1], midpoints)
-
-        ratio_dict[group_name] = {
-            'ratio_xs' : np.divide(
-                binned_group, binned_ref,
-                out=np.full_like(binned_group, np.nan, dtype=float),
-                where=binned_ref != 0
-            ),
-            'energies' : merged_energies
-        }
+    if not ratio_dict:
+        raise ValueError(
+            'No groupwise cross-sections provided with the same group ' \
+            f'structure as the reference structure "{reference_group}".'
+        )
 
     return ratio_dict, reference_group
 
 def plot_relative_group_xs(
-    ax, element, A, emitted, groupwise_dict, color_dict,
-    reference_group='', x_limits=(None, None)
+    ax, element, A, emitted, groupwise_dict, color_dict, x_limits=(None, None)
 ):
     """
     Create a plot of the ratio series of groupwise cross-sections relative to
@@ -518,11 +478,6 @@ def plot_relative_group_xs(
         color_dict (dict): Dictionary keyed by each group structure, with
             values of the tuple of 0-1 RGBA values defining the color/
             transparency of each series.
-        reference_group (str, optional): Group name of the reference group
-            structure against which to divide other group structures' cross-
-            sections. If not supplied, then the first group name key in
-            `groupwise_dict` will be set by default as the reference group.
-            (Defaults to '')
         xlimits (tuple, optional): Option to specify the x-axis limits for
             the plot.
             (Defaults to (None, None))
@@ -538,9 +493,7 @@ def plot_relative_group_xs(
             'relative cross-section.'
         )
 
-    ratio_dict, reference_group = compute_groupwise_xs_ratios(
-        groupwise_dict, reference_group
-    )
+    ratio_dict, reference_group = compute_groupwise_xs_ratios(groupwise_dict)
 
     for group_name, group_data in ratio_dict.items():
         ax.stairs(
@@ -714,7 +667,7 @@ def main():
                     endf.Evaluation(tendl_dir / f'{element}{A}.tendl'), MT
                 )
 
-                groupwise_dict, emitted, reference_group = (
+                groupwise_dict, emitted = (
                     extract_groupwise_data_from_DSV(dsv_list, KZA, MT)
                 )
 
@@ -733,7 +686,7 @@ def main():
                         color_dict = collect_all_stair_colors(ax)
                         plot_relative_group_xs(
                             ratio_ax, element, A, emitted, groupwise_dict,
-                            color_dict, reference_group, ax.get_xlim()
+                            color_dict, ax.get_xlim()
                         )
                         ratio_plot_path = set_plot_save_path(
                             element, A, emitted, tendl_dir,
