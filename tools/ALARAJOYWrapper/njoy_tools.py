@@ -86,7 +86,7 @@ groupr_input = Template(Template(
 """
 groupr/
  $NENDF $NPEND $NGOUT1 $NGOUT2/
- $mat_id $ign $IGG $IWT $LORD $NTEMP $NSIGZ $IPRINT_groupr/
+ $mat_id $ign $IGG $iwt $LORD $NTEMP $NSIGZ $IPRINT_groupr/
  $title/
  $groupr_temp
  $SIGZ_groupr/
@@ -103,7 +103,7 @@ stop
     NGOUT1 = 0,                         # unit for input gout tape (default=0)
     NGOUT2 = 31,                       # unit for output gout tape (default=0)
     IGG = 0,                                    # gamma group structure option
-    IWT = 11,            # weight function option (corresponding to Vitamin E)
+#    IWT = 11,            # weight function option (corresponding to Vitamin E)
     LORD = 0,                                                 # Legendre order
     NTEMP = 1,                            # number of temperatures (default=1)
     NSIGZ = 1,                            # number of sigma zeroes (default=1)
@@ -162,6 +162,20 @@ NJOY_GROUPS = {
     32 :         'UKAEA-1102',
     33 :          'UKAEA-142',
     34 :           'LANL-618'
+}
+
+NJOY_WEIGHT_FUNCTIONS = {
+    2    :                                                     'CONSTANT',
+    3    :                                                          '1/E',
+    4    :                  '1/E_+_FISSION_SPECTRUM_+_THERMAL MAXWELLIAN',
+    5    :                                                'EPRI-CELL_LWR',
+    6    :                         '(THERMAL)--(1/E)--(FISSION_+_FUSION)',
+    7    : '(THERMAL)--(1/E)--(FISSION_+_FUSION)_WITH_T-DEP_THERMAL_PART',
+    8    :                 'THERMAL--1/E--FAST REACTOR--FISSION_+_FUSION',
+    9    :                                         'CLAW_WEIGHT_FUNCTION',
+    10   :                           'CLAW_WITH_T-DEPENDENT_THERMAL_PART',
+    11   :                        'VITAMIN-E_WEIGHT_FUNCTION_(ORNL_5505)',
+    12   :                                'VIT-E_WITH_T-DEP_THERMAL_PART'
 }
 
 def load_external_group_struct(group_struct):
@@ -231,23 +245,33 @@ def load_external_group_struct(group_struct):
     
     return group_name, group_bounds
 
-def set_group_structure(group_struct_arg):
+def set_modifiable_groupr_parameters(parsed_arg, njoy_ref_dict):
     """
-    Interpret the group_structure argument (`-g`) to define the requisite NJOY
-        parameters to convert TENDL data to the given multi-group energy
-        structure. By default, the Vitamin-J 175 group structure is used for
-        ALARAJOY preprocessing and this function will return the appropriate
-        values for NJOY to run GROUPR with these settings. If another group
-        structure is desired, however, there are three ways in which this
-        group structure can be set:
+    Interpret the group structure (`-g`) or weight function (`-w`) argument
+        in `preprocess_fendl3` to define the requisite NJOY parameters to
+        convert TENDL data to the specified multi-group energy structure
+        weighted by a specified weight function. By default, ALARAJOY
+        preprocessing is done by converting to the Vitamin-J 175 group
+        structure and weighted by the Vitamin-E weight function. If one or
+        both of these optional arguments is not supplied when running the
+        preprocessor, the respective default value will be passed to this
+        function. However, one of the two, group structure or weight function,
+        can be customized without affecting the other. To select a non-default
+        group structure or weight function by which to process TENDL data, one
+        of the following approaches can be taken (only Option 1 is currently
+        available for custom weight function selection):
 
-        1) Provide the GROUPR `ign` key or group name corresponding to the
-        desired group structure. NJOY has 33 built-in group structures from
-        which GROUPR can access their data, including for Vitamin-J. These can
-        be found in Section 8.18 ("Running GROUPR") of the NJOY User Manual
+        1) Provide the GROUPR `ign` or `iwt` key or name corresponding to the
+        desired group structure or weight function, respectively. NJOY has 33
+        built-in group structures from which GROUPR can access their data,
+        including for Vitamin-J. Likewise, NJOY has 11 built-in weight
+        functions, including Vitamin-E. These can be fond in Section 8.18
+        ("Running GROUPR") fo the NJOY User manual
         (https://github.com/njoy/NJOY2016-manual/raw/master/njoy16.pdf) or in
-        the dictionary njoy_tools.NJOY_GROUPS.
-
+        either of the dictionaries `njoy_tools.NJOY_GROUPS`,
+        `njoy_tools.NJOY_WEIGHT_FUNCTIONS`.
+        (Available for group structure or weight function selection)
+        
         2) Provide a support file containing the explicit energy bounds of a
         multi-group energy structure. NJOY is not limited to its pre-set
         structures, and is capable of converting cross-sections to an
@@ -263,6 +287,7 @@ def set_group_structure(group_struct_arg):
         read in, the values will be sorted to ensure compliance to NJOY's
         expectation of ascending energy bounds for an arbitrary group
         structure.
+        (Only available for group structure selection)
 
         3) Provide a group-structure name corresponding to a key in the
         `openmc.mgxs.GROUP_STRUCTURES` dictionary. The open-source Monte Carlo
@@ -271,47 +296,72 @@ def set_group_structure(group_struct_arg):
         included in the list of NJOY options mentioned in `(1)`, such as the
         'CCFE-709' group structure used by FISPACT-II. These group structures
         can be found at https://docs.openmc.org/en/stable/pythonapi/mgxs.html.
-    
+        (Only available for group structure selection)
+
+        Functionality to wrap NJOY's arbitrary weight function application is
+        not currently available in ALARAJOYWrapper. If desired, please open an
+        Issue on the ALARA GitHub (https://github.com/svalinn/ALARA/issues) to
+        request development of this capability.
+
     Arguments:
-        group_struct_arg (list of str): Group structure argument following the 
-            procedures described above.
+        parsed_arg (list of str): Group structure or weight function argument
+            following procedures described above.
+        njoy_ref_dict (dict): Reference dictionary from which to look for
+            appropriate NJOY parameter keys, names. Either
+            `njoy_tools.NJOY_GROUPS` or `njoy_tools.NJOY_WEIGHT_FUNCTIONS` for
+            group structure or weight function, respectively.
 
     Returns:
-        ign (int): GROUPR neutron group structure parameter. ign = 1 for
-            arbitrary group structures not contained in NJOY's built-in list
-            of options.
-        ngn (str): Number of groups. Will be an empty string unless ign == 1.
-        egn (str): Space-joined string of all energy group bounds in
-            ascending order. Will be an empty string unless ign == 1.
-        group_name (str): Name of the provided group structure.
+        characteristic_parameter (int): GROUPR parameter value for either
+            group structure (`ign`) or weight function (`iwt`).
+        parameter_name (str): Name of the provided group structure or weight
+            function.
+        ngn (str): Number of groups. Will be an empty string unless
+            `ign == 1`; always empty for weight function case.
+        egn (str): Space-joined string of all energy group bounds in ascending
+            order. Will be an empty string unless `ign == 1`; always empty for
+            weight function case.
     """
 
+    characteristic_parameter = None
+    parameter_name = ''
+    value = parsed_arg[0]
+
+    # Default values only needed for group structure case
     ngn = ''
     egn = ''
-    group_struct = group_struct_arg[0]
 
-    # Check if provided group structure is among the list of built-in NJOY
-    # group structures by key (ign values 2-34)
-    if group_struct in np.array(list(NJOY_GROUPS)).astype(str):
-        ign = int(group_struct)
-        group_name = NJOY_GROUPS[ign]
+    # Check if provided parameter is among the list of built-in NJOY group
+    # structures or weight functions by key (ign values 2-34; iwt values 2-12)
+    if value in np.asarray(list(njoy_ref_dict), dtype=str):
+        characteristic_parameter = int(value)
+        parameter_name = njoy_ref_dict[characteristic_parameter]
 
-    # Check if provided group structure is among the list of built-in NJOY
-    # group structures by name (values of NJOY_GROUPS dict)
-    elif group_struct.upper() in NJOY_GROUPS.values():
-        group_name = group_struct.upper()
-        ign = list(NJOY_GROUPS.keys())[
-            list(NJOY_GROUPS.values()).index(group_name)
+    # Check if the provided parameter is among the list of built-in NJOY group
+    # structures or weight functions by name (values of NJOY_GROUPS or
+    # NJOY_WEIGHT_FUNCTIONS dictionaries, respectively)
+    elif value.upper() in njoy_ref_dict.values():
+        parameter_name = value.upper()
+        characteristic_parameter = list(njoy_ref_dict)[
+            list(njoy_ref_dict.values()).index(parameter_name)
         ]
 
-    # NJOY "arbitrary group structure" option
-    else:
-        ign = 1
-        group_name, group_bounds = load_external_group_struct(group_struct)
+    # Group structure case: NJOY "arbitrary group structure" option
+    elif njoy_ref_dict == NJOY_GROUPS:
+        characteristic_parameter = 1
+        parameter_name, group_bounds = load_external_group_struct(value)
         ngn = str(len(group_bounds) - 1)
-        egn = ' '.join(np.array(sorted(group_bounds)).astype(str))
+        egn = ' '.join(np.asarray(sorted(group_bounds), dtype=str))
 
-    return ign, ngn, egn, group_name
+    if not (characteristic_parameter and parameter_name):
+        raise ValueError(
+            f'Invalid argument "{value}" for associated GROUPR parameter. ' \
+            'Consult set_modifiable_groupr_parameters() docstring for ' \
+            'guidance on accepted inputs for group structure, weight ' \
+            'function parameters.'
+        )
+
+    return characteristic_parameter, parameter_name, ngn, egn
 
 def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
     """
@@ -323,7 +373,6 @@ def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
         appropriate values supplied in the input isomer_dict.
 
         The formatting for isomeric states follows the guidelines provided in
-        the develop branch (db71977593d084ae5bbb9e5c88a926541718d313) of
         NJOY-2016, described in NJOY2016/src/groupr.f90:
 
             card9a     Extended residual format (mfd = -1 only)
@@ -366,7 +415,7 @@ def card9_special_isomer_reactions(pKZA, MT, mt_data, isomer_data, mtname):
 def fill_input_template(
     inp, material_id, MTs, element, A, mt_dict, temperature,
     pKZA=None, isomer_dict={}, unresr_fail=False, err=0.001,
-    ign=17, ngn='', egn=''
+    iwt=11, ign=17, ngn='', egn=''
 ):
     """
     Substitute in the material-specific values for a given ENDF/PENDF file
@@ -472,7 +521,8 @@ def fill_input_template(
         title=title,
         ign=ign,
         ngn=ngn,
-        egn=egn,                     
+        egn=egn,
+        iwt=iwt,             
         reactions=card9,                                        
         npend_gaspr=npend_gaspr,
         err=err
