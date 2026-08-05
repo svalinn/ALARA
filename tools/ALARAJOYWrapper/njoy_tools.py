@@ -103,7 +103,6 @@ stop
     NGOUT1 = 0,                         # unit for input gout tape (default=0)
     NGOUT2 = 31,                       # unit for output gout tape (default=0)
     IGG = 0,                                    # gamma group structure option
-#    IWT = 11,            # weight function option (corresponding to Vitamin E)
     LORD = 0,                                                 # Legendre order
     NTEMP = 1,                            # number of temperatures (default=1)
     NSIGZ = 1,                            # number of sigma zeroes (default=1)
