@@ -34,8 +34,8 @@ def read_pulse_histories(lines):
             delay_line = lines[line_idx + 3].strip()
 
             pulse_hist_name = line.split()[1].strip("':")
-            num_pulses = num_pulse_line.split(":")[1]
-            delays = delay_line.split(":")[1]
+            num_pulses = eval(num_pulse_line.split(":")[1])
+            delays = eval(delay_line.split(":")[1])
 
             pulse_dict[pulse_hist_name] = {
                 "num_pulses_all_levels": num_pulses,
@@ -52,8 +52,8 @@ def make_sch_sub_dict(sch_line):
         "type" : "schedule",
         "sched_name": sch_line[1],
         "sched_ph_name": sch_line[3],
-        "sched_delay_dur": float(sch_line[5]) * unit_multipliers[sch_line[6]],
-        "sched_delay_unit": "s",
+        "delay_dur": float(sch_line[5]) * unit_multipliers[sch_line[6]],
+        "delay_unit": "s",
         "children" : [],
     }
     return sch_sub_dict
@@ -62,11 +62,11 @@ def make_sch_sub_dict(sch_line):
 def make_pe_sub_dict(pe_line):
     pe_sub_dict = {
         "type" : "pulse_entry",
-        "pe_dur": float(pe_line[1]) * unit_multipliers[pe_line[2]],
-        "pe_dur_unit": "s",
+        "pulse_length": float(pe_line[1]) * unit_multipliers[pe_line[2]],
+        "pulse_length_unit": "s",
         "corr_ph_name": pe_line[4],
-        "pe_delay_dur": float(pe_line[6]) * unit_multipliers[pe_line[7]],
-        "pe_delay_unit": "s",
+        "delay_dur": float(pe_line[6]) * unit_multipliers[pe_line[7]],
+        "delay_unit": "s",
     }
     return pe_sub_dict
 
@@ -77,14 +77,15 @@ def make_nested_dict(lines):
     in the section of the output with schedule details.
     A sub-dictionary is created for each additional indented level.
     """
-    sched_tree = {0: {"children": []}}
-    line_idx = 0
-    # next section of output
-    current_sched = sched_tree[0]
-    ancestors = [current_sched]
     top_schedule = "top_schedule"
     schedule = "schedule"
     pulse_entry = "pulse_entry:"
+    sched_tree = {top_schedule : {"children": []}}
+    line_idx = 0
+    # next section of output
+    current_sched = sched_tree[top_schedule]
+    ancestors = [current_sched]
+    
     keywords = [top_schedule, schedule, pulse_entry]
 
     while any(lines[line_idx].strip().startswith(keyword) for keyword in keywords):
@@ -92,7 +93,11 @@ def make_nested_dict(lines):
         tokens = lines[line_idx].strip().split()
         while new_child_level < len(ancestors):
             current_sched = ancestors.pop()
-        if tokens[0] == schedule:
+
+        if tokens[0] == top_schedule:
+            sched_tree['top_schedule_name'] = tokens[1].strip(":'")
+
+        elif tokens[0] == schedule:
 
             current_sched["children"].append(make_sch_sub_dict(tokens))
             ancestors.append(current_sched)
@@ -120,7 +125,7 @@ def main():
     lines = read_out(output_path)
 
     pulse_dict = read_pulse_histories(lines)
-    sch_dict = make_nested_dict(lines)
+    sch_tree = make_nested_dict(lines)
 
 
 if __name__ == "__main__":
