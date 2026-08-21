@@ -166,11 +166,16 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
         with open(dsv, 'r') as f:
             dsv_lines = f.readlines()
 
-        group_name, processing_code = dsv_lines[0].split()[-2:]
+        group_name, processing_code, weight_function = (
+            dsv_lines[0].split()[1:]
+        )
+
         _, energy_bounds = njt.load_external_group_struct(group_name)
 
+        group_name += ' ('
         if processing_code != 'NJOY':
-            group_name += f' ({processing_code})'
+            group_name += f'{processing_code}, '
+        group_name += f'{weight_function} weight function)'
 
         for line in dsv_lines[1:-1]:
             rxn = line.split()
@@ -241,6 +246,8 @@ def set_plot_save_path(
 
     if isinstance(group_names, str):
         group_names = [group_names]
+
+    group_names = [g.replace(' ', '_').replace('/','') for g in group_names]
 
     nuc = f'{element}{A}'
     nuc_dir = Path(f'{tendl_dir}_plots') / element / nuc
