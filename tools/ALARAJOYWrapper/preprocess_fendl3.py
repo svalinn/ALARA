@@ -98,7 +98,9 @@ def configure_logging(redirect_warnings=False):
 
     if redirect_warnings:
         console_handler.setLevel(logging.INFO)
-        console_handler.addFilter(lambda record: record.levelno < logging.WARNING)
+        console_handler.addFilter(
+            lambda record: record.levelno < logging.WARNING
+        )
 
         warning_log = Path('warnings.log')
         warning_log.unlink(missing_ok=True)
