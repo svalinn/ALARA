@@ -23,6 +23,7 @@ REVERSE_EXCITATION_DICT = {
     for val in arr
 }
 ISOMERIC_STATES = 'mnopqrstuvwxyz'
+PATH_SPECIFIC_MFS = (9,10)
 
 def parse_endf_file_level_data(endf_path, MF=3, endf_format='endf6-ext'):
     """
@@ -187,10 +188,9 @@ def determine_all_excitations(endf_path, MTs):
 
     isomer_dict = defaultdict(lambda: defaultdict(list))
 
-    path_specific_MFs = (9,10)
     mf_dict = {
         MF: parse_endf_file_level_data(endf_path, MF)[0]
-        for MF in path_specific_MFs
+        for MF in PATH_SPECIFIC_MFS
     }
 
     for MT in MTs:
@@ -199,7 +199,7 @@ def determine_all_excitations(endf_path, MTs):
             # Isomer pathways contained either in MF 9 ("Multiplicities for
             # Production of Radioactive Nuclides") and MF 10 ("Cross Sections
             # for Production of Radioactive Nuclides").
-            for MF in path_specific_MFs:
+            for MF in PATH_SPECIFIC_MFS:
                 pathways = mf_dict[MF].get(MT, {}).get('subsection', {})
                 for pathway_data in pathways.values():
                     isomer_dict[MT][MF].append(pathway_data['LFS'])
