@@ -499,8 +499,8 @@ def plot_relative_group_xs(
     
     if len(groupwise_dict) < 2:
         raise ValueError(
-            'At least two group structures are required to compute a ' \
-            'relative cross-section.'
+            'At least two groupwise DSV files with equivalent group' \
+            'structures are required to compute a relative cross-section.'
         )
 
     ratio_dict, reference_group = compute_groupwise_xs_ratios(groupwise_dict)
