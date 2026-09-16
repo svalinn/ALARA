@@ -118,7 +118,7 @@ def extract_continuous_data(endf_obj, MT):
 
         pathways.sort(key=lambda pathway: pathway[0])
 
-        if pathways and isomeric_state < len(pathways):
+        if pathways and isomeric_state in pathways:
             tab1 = pathways[isomeric_state][1]
             energies = tab1.x
             continuous_dict['energies'].extend(energies)
