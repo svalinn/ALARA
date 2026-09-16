@@ -6,6 +6,7 @@ Contained within `ALARA/tools` is the Python package, `alara_output_processing`,
 - Standard Python libraries
     * [ArgParse](https://docs.python.org/3/library/argparse.html)
     * [CSV](https://docs.python.org/3/library/csv.html)
+    * [Numbers](https://docs.python.org/3/library/numbers.html)
     * [Operator](https://docs.python.org/3/library/operator.html)
     * [Warnings](https://docs.python.org/3/library/warnings.html)
 - Generic Python packages
@@ -75,7 +76,7 @@ The columns for `adfs` are:
 * `nuclide`: Nuclide name formatted as "element-A" (i.e. "h-1" for <sup>1</sup>H) or "total".
 * `half_life`: Half-life in seconds of an unstable nuclide. `-1` for stable nuclides, `0` for "total" rows.
 * `run_lbl`: Distinguisher between runs (i.e. "run1", "run2", etc.).
-* `block`: Integer enumerator for the geometric block key name. Possible block keys are "Interval", "Material", or "Zone", and their enumerator values can be accessed through `ALARADFrame().BLOCK_ENUM[block]`, where `block` is one of the above keys. For FISPACT-II data, `block`, `block_name`, and `block_num` are all set to `-1`.
+* `block`: Integer enumerator for the geometric block key name. Possible block keys are "Interval", "Zone", or "Material", and their enumerator values can be accessed through `ALARADFrame().BLOCK_ENUM[block]`, where `block` is one of the above keys. For FISPACT-II data, `block`, `block_name`, and `block_num` are all set to `-1`.
 * `block_name`: Name of the block.
 * `block_num`: Geometric position of the block.
 * `variable`: Integer enumerator for the response variable key name. Possible variable keys are:
@@ -94,15 +95,15 @@ The columns for `adfs` are:
 Below is the example `head()` of an `ALARADFrame`:
 
 
-||time|time_unit|nuclide|half_life|run_lbl|block|block_num|variable| var_unit|value|
-|-|-|-|-|-|-|-|-|-|-|-|
-| 0 | -1 | 's' | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 0.000000e+0
-| 1 | 0.000000e+00| 's'  | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 2 | 3.153600e+02 | 's' | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 3 | 3.153600e+05 |'s' |  h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 4 | 3.153600e+07 | 's' |  h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+||time|time_unit|nuclide|half_life|run_lbl|block|block_name|block_num|variable| var_unit|value|
+|-|-|-|-|-|-|-|-|-|-|-|-|
+| 0 | -1 | 's' | h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 0.000000e+0
+| 1 | 0.000000e+00| 's'  | h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 1.176100e+22
+| 2 | 3.153600e+02 | 's' | h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 1.176100e+22
+| 3 | 3.153600e+05 |'s' |  h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 1.176100e+22
+| 4 | 3.153600e+07 | 's' |  h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 1.176100e+22
 
-The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times. Note that the 0<sup>th</sup> row's time of `-1` corresponds to the pre-irradiation state, and not any singular cooling time, like all positive and zero times do.
+The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times. Note that the 0<sup>th</sup> row's time of `-1` corresponds to the pre-irradiation state, and not any singular cooling time, like all positive and zero times do. The shutdown time is equivalent to a cooling time of 0.
 
 Once `adf` is created, `ALARADFrame.filter_rows()` can be called to select data that matches user specifications for one or more columns:
 
@@ -118,6 +119,8 @@ filtered_adf = adf.filter_rows(
 The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive, unless otherwise specified.
 
 To filter pre-irradiation values, which are identified by `adf["time"] == -1` (see above), write `filter_dict["time"] = -1`. Otherwise, to filter post-irradiation cooling times, any other value for `filter_dict["time"]` will be accepted and will remove the pre-irradiation rows. For clarity, `filter_dict["time"] = "post_irradiation"` is recommended.
+
+To filter values above or below a certain threshold for a given response variable, both the variable and the value inequality expression must be included by having a `filter_dict` like such: `filter_dict = {'variable' : ALARADFRAME.VARIABLE_ENUM[{variable}], 'value' : [{operator}, {threshold}]}`.
 
 When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`. It is also possible to filter by a combination of whole elements and individual nuclides.
 

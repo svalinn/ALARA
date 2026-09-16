@@ -6,6 +6,7 @@ from csv import DictReader
 from numpy import array
 from pathlib import Path
 from collections import defaultdict
+from numbers import Number
 
 # ---------- General Utility Methods ----------
 
@@ -273,7 +274,8 @@ class FileParser:
             'variable'      :     ALARADFrame.VARIABLE_ENUM[variable],
             'var_unit'      :                      unit.split(']')[0],
             'value'         :                   float(row[str(time)])
-        } for row in reader for time in converted_times]
+        } for row in reader for time in converted_times
+        if row[nuclide_col] != 'total']
 
     def extract_tables(self):
         '''
@@ -429,7 +431,7 @@ class FispactParser:
                         row['value'] = value
                         rows.append(row.copy())
 
-        return ALARADFrame(rows).create_total_rows(), all_nucs
+        return ALARADFrame(rows), all_nucs
 
 class OpenMCParser:
     UNIT_DICT = {
@@ -578,9 +580,7 @@ class OpenMCParser:
                             'value'      : responses[t][mat.id][var].get(n,0)
                         })
 
-        return ALARADFrame(rows).create_total_rows()[
-            ALARADFrame.CANONICAL_COLUMN_ORDER
-        ]
+        return ALARADFrame(rows)[ALARADFrame.CANONICAL_COLUMN_ORDER]
 
 
 class ALARADFrame(pd.DataFrame):
@@ -745,10 +745,14 @@ class ALARADFrame(pd.DataFrame):
             if not isinstance(filters, list):
                 filters = [filters]
 
-            if col_name == 'time' and filters[0] in OPS:
-                filters = filtered_adf._filter_numerically(
-                    filters, set(filtered_adf['time'])
-                )
+            if (
+                col_name in ['time', 'value']
+                and filters[0] in OPS
+                and isinstance(filters[1], Number)
+            ):
+                    filters = filtered_adf._filter_numerically(
+                        filters, set(filtered_adf[col_name])
+                    )
 
             if col_name == 'nuclide':
                 nuclides = set()
@@ -980,7 +984,8 @@ class DataLibrary:
          self.adf = None
 
     def make_entries(
-        self, runs_dict, time_unit='s', xs_path=Path(), chain_path=Path()
+        self, runs_dict, time_unit='s', xs_path=Path(), chain_path=Path(),
+        half_lives=None
     ):
         '''
         Flexibly create a dictionary of subdictionaries containing
@@ -1017,7 +1022,11 @@ class DataLibrary:
                 simulation. Only required if any of the runs in runs_dict is
                 an OpenMC depletion simulation HDF5 results file. If included,
                 must have the file suffix ".xml".
-                
+            half_lives (int or None, optional): Option to set a cutoff number
+                of half-lives for each radionuclide after which point to force
+                decay responses to 0.
+                (Defaults to None) 
+
         Returns:
             self.adf (alara_output_processing.ALARADFrame): Specialized ALARA
                 output DataFrame containing combined data from all tables in 
@@ -1052,6 +1061,10 @@ class DataLibrary:
             dfs.append(data)
 
         self.adf = ALARADFrame(pd.concat(dfs).fillna(0.0))
+        if half_lives is not None:
+            self.adf = self.adf.zero_long_decay_responses(half_lives=half_lives)
+
+        self.adf = self.adf.create_total_rows()
 
         return self.adf
 
