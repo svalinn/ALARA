@@ -1,6 +1,6 @@
 /* $Id: alara.C,v 1.20 2004-07-29 19:24:10 wilsonp Exp $ */
 #include "alara.h"
-
+#include "git_hash.h"
 #include "Input.h"
 #include "Root.h"
 #include "Statistics.h"
@@ -181,6 +181,7 @@ int main(int argc, char *argv[])
   Input problemInput(inFname);
 
   /* INPUT */
+  verbose(-1, "The version of ALARA used to run this simulation was built with Git commit: %s", GIT_COMMIT_HASH);
   verbose(0,"Starting problem input processing.");
   verbose(1,"Reading input.");
   problemInput.read();
