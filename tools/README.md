@@ -76,7 +76,7 @@ The columns for `adfs` are:
 * `nuclide`: Nuclide name formatted as "element-A" (i.e. "h-1" for <sup>1</sup>H) or "total".
 * `half_life`: Half-life in seconds of an unstable nuclide. `-1` for stable nuclides, `0` for "total" rows.
 * `run_lbl`: Distinguisher between runs (i.e. "run1", "run2", etc.).
-* `block`: Integer enumerator for the geometric block key name. Possible block keys are "Interval", "Material", or "Zone", and their enumerator values can be accessed through `ALARADFrame().BLOCK_ENUM[block]`, where `block` is one of the above keys. For FISPACT-II data, `block`, `block_name`, and `block_num` are all set to `-1`.
+* `block`: Integer enumerator for the geometric block key name. Possible block keys are "Interval", "Zone", or "Material", and their enumerator values can be accessed through `ALARADFrame().BLOCK_ENUM[block]`, where `block` is one of the above keys. For FISPACT-II data, `block`, `block_name`, and `block_num` are all set to `-1`.
 * `block_name`: Name of the block.
 * `block_num`: Geometric position of the block.
 * `variable`: Integer enumerator for the response variable key name. Possible variable keys are:
@@ -95,15 +95,15 @@ The columns for `adfs` are:
 Below is the example `head()` of an `ALARADFrame`:
 
 
-||time|time_unit|nuclide|half_life|run_lbl|block|block_num|variable| var_unit|value|
-|-|-|-|-|-|-|-|-|-|-|-|
-| 0 | -1 | 's' | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 0.000000e+0
-| 1 | 0.000000e+00| 's'  | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 2 | 3.153600e+02 | 's' | h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 3 | 3.153600e+05 |'s' |  h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
-| 4 | 3.153600e+07 | 's' |  h-1 | -1 | fendl2 | 0 | 1 | 0 | atoms/kg | 1.176100e+22
+||time|time_unit|nuclide|half_life|run_lbl|block|block_name|block_num|variable| var_unit|value|
+|-|-|-|-|-|-|-|-|-|-|-|-|
+| 0 | -1 | 's' | h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 0.000000e+0
+| 1 | 0.000000e+00| 's'  | h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 1.176100e+22
+| 2 | 3.153600e+02 | 's' | h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 1.176100e+22
+| 3 | 3.153600e+05 |'s' |  h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 1.176100e+22
+| 4 | 3.153600e+07 | 's' |  h-1 | -1 | fendl2 | 0 | int_1 | 1 | 0 | atoms/kg | 1.176100e+22
 
-The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times. Note that the 0<sup>th</sup> row's time of `-1` corresponds to the pre-irradiation state, and not any singular cooling time, like all positive and zero times do.
+The five rows in the head correspond to the number density of <sup>1</sup>H in the 1st interval of a run of FENDL2 data with four cooling times. Note that the 0<sup>th</sup> row's time of `-1` corresponds to the pre-irradiation state, and not any singular cooling time, like all positive and zero times do. The shutdown time is equivalent to a cooling time of 0.
 
 Once `adf` is created, `ALARADFrame.filter_rows()` can be called to select data that matches user specifications for one or more columns:
 
