@@ -6,6 +6,7 @@ Contained within `ALARA/tools` is the Python package, `alara_output_processing`,
 - Standard Python libraries
     * [ArgParse](https://docs.python.org/3/library/argparse.html)
     * [CSV](https://docs.python.org/3/library/csv.html)
+    * [Numbers](https://docs.python.org/3/library/numbers.html)
     * [Operator](https://docs.python.org/3/library/operator.html)
     * [Warnings](https://docs.python.org/3/library/warnings.html)
 - Generic Python packages
@@ -118,6 +119,8 @@ filtered_adf = adf.filter_rows(
 The parameter `filter_dict` allows filtering over any number of columns and any number of filters per column, so long as multi-filters are input as a list. Filters are case-sensitive, unless otherwise specified.
 
 To filter pre-irradiation values, which are identified by `adf["time"] == -1` (see above), write `filter_dict["time"] = -1`. Otherwise, to filter post-irradiation cooling times, any other value for `filter_dict["time"]` will be accepted and will remove the pre-irradiation rows. For clarity, `filter_dict["time"] = "post_irradiation"` is recommended.
+
+To filter values above or below a certain threshold for a given response variable, both the variable and the value inequality expression must be included by having a `filter_dict` like such: `filter_dict = {'variable' : ALARADFRAME.VARIABLE_ENUM[{variable}], 'value' : [{operator}, {threshold}]}`.
 
 When filtering the `nuclide` column, `ALARADFrame.filter_rows()` has functionality to select all nuclides of a particular element, as well as selecting individual nuclides. To do so, instead of  `filter_dict["nuclide"] = "fe-55"`, write `filter_dict["nuclide"] = "fe"` to filter all iron isotopes, instead of just <sup>55</sup>Fe, for example. Similarly, multiple whole elements can be selected by inputting them as a list for `filter_dict["nuclide"]`. It is also possible to filter by a combination of whole elements and individual nuclides.
 
