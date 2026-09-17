@@ -21,9 +21,9 @@ def read_out(output_path):
 
 def read_pulse_histories(lines):
     """
-    Creates a dictionary with the name of the pulse history as the key, and a dictionary containing the number of pulses
-    in all pulsing levels & the delay (in seconds) of all pulsing levels as the value. All pulse histories are stored
-    regardless of usage in any schedule item.
+    Creates a dictionary with the name of the pulse history as the key. The value is an iterable of tuples, where 
+    each tuple has the form (# pulses (int), delay time (float), delay time unit ('s')). All pulse histories are
+    stored regardless of usage in any schedule item.
     """
     pulse_dict = {}
     line_idx = 0
@@ -34,13 +34,13 @@ def read_pulse_histories(lines):
             delay_line = lines[line_idx + 3].strip()
 
             pulse_hist_name = line.split()[1].strip("':")
-            num_pulses = num_pulse_line.split(":")[1]
-            delays = delay_line.split(":")[1]
+            nums_pulses = eval(num_pulse_line.split(":")[1])
+            delays = eval(delay_line.split(":")[1])
 
-            pulse_dict[pulse_hist_name] = {
-                "num_pulses_all_levels": num_pulses,
-                "delay_seconds_all_levels": delays,
-            }
+            pulse_hist_list = []
+            for num_pulse, delay in zip(nums_pulses, delays):
+                pulse_hist_list.append(tuple([num_pulse, delay, 's']))
+            pulse_dict[pulse_hist_name] = pulse_hist_list
             line_idx += 4
         else:
             line_idx += 1
@@ -52,8 +52,8 @@ def make_sch_sub_dict(sch_line):
         "type" : "schedule",
         "sched_name": sch_line[1],
         "sched_ph_name": sch_line[3],
-        "sched_delay_dur": float(sch_line[5]) * unit_multipliers[sch_line[6]],
-        "sched_delay_unit": "s",
+        "delay_dur": float(sch_line[5]) * unit_multipliers[sch_line[6]],
+        "delay_unit": "s",
         "children" : [],
     }
     return sch_sub_dict
@@ -62,11 +62,11 @@ def make_sch_sub_dict(sch_line):
 def make_pe_sub_dict(pe_line):
     pe_sub_dict = {
         "type" : "pulse_entry",
-        "pe_dur": float(pe_line[1]) * unit_multipliers[pe_line[2]],
-        "pe_dur_unit": "s",
+        "pulse_length": float(pe_line[1]) * unit_multipliers[pe_line[2]],
+        "pulse_length_unit": "s",
         "corr_ph_name": pe_line[4],
-        "pe_delay_dur": float(pe_line[6]) * unit_multipliers[pe_line[7]],
-        "pe_delay_unit": "s",
+        "delay_dur": float(pe_line[6]) * unit_multipliers[pe_line[7]],
+        "delay_unit": "s",
     }
     return pe_sub_dict
 
@@ -77,14 +77,15 @@ def make_nested_dict(lines):
     in the section of the output with schedule details.
     A sub-dictionary is created for each additional indented level.
     """
-    sched_tree = {0: {"children": []}}
-    line_idx = 0
-    # next section of output
-    current_sched = sched_tree[0]
-    ancestors = [current_sched]
     top_schedule = "top_schedule"
     schedule = "schedule"
     pulse_entry = "pulse_entry:"
+    sched_tree = {top_schedule : {"children": []}}
+    line_idx = 0
+    # next section of output
+    current_sched = sched_tree[top_schedule]
+    ancestors = [current_sched]
+    
     keywords = [top_schedule, schedule, pulse_entry]
 
     while any(lines[line_idx].strip().startswith(keyword) for keyword in keywords):
@@ -92,7 +93,11 @@ def make_nested_dict(lines):
         tokens = lines[line_idx].strip().split()
         while new_child_level < len(ancestors):
             current_sched = ancestors.pop()
-        if tokens[0] == schedule:
+
+        if tokens[0] == top_schedule:
+            sched_tree['top_schedule_name'] = tokens[1].strip(":'")
+
+        elif tokens[0] == schedule:
 
             current_sched["children"].append(make_sch_sub_dict(tokens))
             ancestors.append(current_sched)
@@ -104,23 +109,52 @@ def make_nested_dict(lines):
         line_idx += 1
     return sched_tree
 
+def add_ph_to_sch_tree(sch_tree, pulse_dict):
+    """
+    Combines the pulse history's information into the schedule dictionary, instead of only referring to the
+    pulse histories in the schedule tree by name.
+    """
+    orig_sch_tree = sch_tree.copy() # Creates a static version of the nested dictionary for iteration
+    for corr_ph_name in pulse_dict.keys():
+        for value in orig_sch_tree.values():
+            if value == corr_ph_name:
+                sch_tree['pulse_history'] = pulse_dict[value]
+            elif isinstance(value, dict):
+                add_ph_to_sch_tree(value, pulse_dict)
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, dict):
+                        add_ph_to_sch_tree(item, pulse_dict)
+    return sch_tree
+
 
 def parse_arg():
     parser = argparse.ArgumentParser()
     parser.add_argument("-f",
+                        "--filepath",
                         required=True,
                         type=str,
                         help="path to file containing ALARA output")
-    arg = parser.parse_args()
-    return arg.f
+    parser.add_argument("-c",
+                        "--combine_dicts",
+                        default=False,
+                        type=bool,
+                        help="Add pulse history information into schedule dictionary")
+    args = parser.parse_args()
+    return args
 
 
 def main():
-    output_path = parse_arg()
+    outputs = parse_arg()
+    output_path = outputs.filepath
+    to_combine = outputs.combine_dicts
     lines = read_out(output_path)
 
     pulse_dict = read_pulse_histories(lines)
-    sch_dict = make_nested_dict(lines)
+    sch_tree = make_nested_dict(lines)
+
+    if to_combine:
+        sch_tree = add_ph_to_sch_tree(sch_tree, pulse_dict)
 
 
 if __name__ == "__main__":
