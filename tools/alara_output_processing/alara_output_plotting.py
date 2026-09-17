@@ -1209,7 +1209,7 @@ def plot_single_response(
     shade_pivs = {}
     styles = define_line_styles(run_lbls, plot_type=plot_type)
 
-    filtered_concat = pd.DataFrame()
+    var_units = set()
     for run_lbl, style in zip(run_lbls, styles):
         filtered, piv = preprocess_data(
             adf=adf,
