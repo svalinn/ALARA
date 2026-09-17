@@ -1280,7 +1280,6 @@ def plot_single_response(
                 continue
 
             label_suffix = f' ({run_lbl})' if data_comp else ''
-            print(label_suffix)
             # Vectorized division to calculate time-series ratio against the
             # control run. If zeros exist in the control run, a zero-division
             # RuntimeWarning will be raised, but does not cause plotting
