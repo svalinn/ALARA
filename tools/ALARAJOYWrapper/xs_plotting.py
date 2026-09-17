@@ -7,6 +7,7 @@ import reaction_data as rxd
 import matplotlib.pyplot as plt
 from matplotlib.patches import StepPatch
 from pathlib import Path
+from warnings import warn
 
 def flagged_num_to_int(num):
     """
@@ -122,45 +123,49 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
 
     Returns:
         groupwise_dict (dict): Nested dictionary keyed at the highest level by
-            the name of the group structure according to which an array of
-            cross-sections were processed.
+            the name of the group structure/weight function combination,
+            according to which an array of cross-sections were processed.
         emitted (str): Particle(s) emitted from the nuclear reaction
             corresponding to the MT number provided.
-        reference_group (str): Group name of the reference group against which
-            to divide other group structures' cross-sections. Will be an empty
-            string if none of the provided DSV paths in `dsv_list` contain a
-            '(reference)' tag in the string (i.e. example.dsv (reference)).
     """
 
     groupwise_dict = {}
-    emitted = ''
-
     for dsv in dsv_list:
+        i = 0
         with open(dsv, 'r') as f:
-            dsv_lines = f.readlines()
+            for line in f:
+                rxn = line.split()
 
-        group_name, processing_code, weight_function = (
-            dsv_lines[0].split()[1:]
-        )
+                # EOF condition; if reached, (KZA, MT) pair not in DSV file
+                if int(rxn[0]) == -1:
+                    break
 
-        _, energy_bounds = njt.load_external_group_struct(group_name)
+                # Process metadata from first line
+                if i == 0:
+                    group_name, processing_code, weight_function = rxn[1:]
+                    _, energy_bounds = njt.load_external_group_struct(
+                        group_name
+                    )
 
-        group_name += ' ('
-        if processing_code != 'NJOY':
-            group_name += f'{processing_code}, '
-        group_name += f'{weight_function} weight function)'
+                    group_name += ' ('
+                    if processing_code != 'NJOY':
+                        group_name += f'{processing_code}, '
 
-        for line in dsv_lines[1:-1]:
-            rxn = line.split()
-            dsv_pKZA, dsv_dKZA, dsv_MT, emitted = rxn[:4]
-            emitted = ensure_emission_specificity(emitted, dsv_dKZA)
+                    group_name += f'{weight_function} weight function)'
 
-            if KZA == dsv_pKZA and MT == flagged_num_to_int(dsv_MT):
-                groupwise_dict[group_name] = {
-                    'xs'          :    np.array(rxn[4:]).astype(float),
-                    'energies'    :    energy_bounds
-                }
-                break
+                # Reaction data parsing, search for matching (KZA, MT) pair
+                else:
+                    dsv_pKZA, dsv_dKZA, dsv_MT, emitted = rxn[:4]
+                    emitted = ensure_emission_specificity(emitted, dsv_dKZA)
+
+                    if KZA == dsv_pKZA and MT == flagged_num_to_int(dsv_MT):
+                        groupwise_dict[group_name] = {
+                            'xs'         :   np.asarray(rxn[4:], dtype=float),
+                            'energies'   :   energy_bounds
+                        }
+                        break
+
+                i += 1
 
     return groupwise_dict, emitted
 
@@ -224,15 +229,16 @@ def set_plot_save_path(
 
     nuc = f'{element}{A}'
     nuc_dir = Path(f'{tendl_dir}_plots') / element / nuc
+    ratio_suffix = ''
     if ratio_plotting:
         nuc_dir /= 'ratio_plots'
+        ratio_suffix ='_ratios'
+
     nuc_dir.mkdir(parents=True, exist_ok=True)
 
-    stem = str(nuc_dir / f'{nuc}_(n,{emitted})_{"_".join(group_names)}')
-    if ratio_plotting:
-        stem += '_ratios'
-
-    return Path(stem).with_suffix(f'.{img_ext}')
+    return (
+        nuc_dir / f'{nuc}_(n,{emitted})_{"_".join(group_names)}{ratio_suffix}'
+    ).with_suffix(f'.{img_ext}')
 
 def set_plot_parameters(ax, title, ratio_plotting=False):
     """
@@ -296,10 +302,10 @@ def plot_single_nuc_rxn_xs(
                 {'xs' : continuous_xs, 'energies' : continous_energies}
 
             (Defaults to {})
-        groupwise_dict (dict, optional): Nested dictionary keyed at the
-            highest level by the name of the group structure according to
-            which an array of cross-sections were processed. The form of this
-            data structure is as follows:
+        groupwise_dict (dict): Nested dictionary keyed at the highest level by
+            the name of the group structure/weight function combination,
+            according to which an array of cross-sections were processed. The
+            form of this data structure is as follows:
                 {
                     'group_name_1' : {
                         'xs'       : groupwise_xs,
@@ -367,43 +373,42 @@ def collect_all_stair_colors(ax):
 
     return color_dict
 
-def compute_groupwise_xs_ratios(groupwise_dict):
+def compute_groupwise_xs_ratios(groupwise_dict, reference_data):
     """
     Calculate the ratios of groupwise cross-sections for each group in
         `groupwise_dict` that shares a group structure as a single reference
         series. `ValueError` is raised if no other groupwise data matches the
-        group structure of the reference group structure.
+        group structure of the reference data set.
 
     Arguments:
         groupwise_dict (dict): Nested dictionary keyed at the highest level by
-            the name of the group structure according to which an array of
-            cross-sections were processed.
+            the name of the group structure/weight function combination,
+            according to which an array of cross-sections were processed.
+        reference_data (str): Stem of the reference data DSV path. Will be the
+            same as `reference_data` from Arguments if one is supplied,
+            otherwise, will be the group name of the first key in
+            `groupwise_dict`.
 
     Returns:
         ratio_dict (dict): Nested dictionary keyed at the highest level by
             the name of the group structure according to which an array of
             cross-sections were processed. Similar to `groupwise_dict`, but
-            without a designated key for the reference group name, as all
+            without a designated key for the reference data set name, as all
             other group names are implicitly refering to that group's cross-
-            section data divided by the reference group's. All data must be of
+            section data divided by the reference data's. All data must be of
             the same group structure.
-        reference_group (str): Group name of the reference group structure.
-            Will be the same as `reference_group` from Arguments if one is
-            supplied, otherwise, will be the group name of the first key in
-            `groupwise_dict`.
     """
 
-    reference_group = next(iter(groupwise_dict))
-    ref_xs, ref_energies = groupwise_dict[reference_group].values()
+    ref_xs, ref_energies = groupwise_dict[reference_data].values()
 
     ratio_dict = {}
-    for group_name, group_data in groupwise_dict.items():
-        if group_name == reference_group:
+    for name, group_data in groupwise_dict.items():
+        if name == reference_data:
             continue
 
         group_xs, group_energies = group_data.values()
         if np.allclose(ref_energies, group_energies, rtol=1e-5):
-            ratio_dict[group_name] = {
+            ratio_dict[name] = {
                 'ratio_xs' : np.divide(
                     group_xs, ref_xs,
                     out=np.full_like(ref_xs, np.nan, dtype=float),
@@ -415,13 +420,14 @@ def compute_groupwise_xs_ratios(groupwise_dict):
     if not ratio_dict:
         raise ValueError(
             'No groupwise cross-sections provided with the same group ' \
-            f'structure as the reference structure "{reference_group}".'
+            f'structure as the reference structure in "{reference_data}".'
         )
 
-    return ratio_dict, reference_group
+    return ratio_dict
 
 def plot_relative_group_xs(
-    ax, element, A, emitted, groupwise_dict, color_dict, x_limits=(None, None)
+    ax, element, A, emitted, groupwise_dict, reference_data, color_dict,
+    x_limits=(None, None)
 ):
     """
     Create a plot of the ratio series of groupwise cross-sections relative to
@@ -444,20 +450,24 @@ def plot_relative_group_xs(
 
             (Defaults to {})
         groupwise_dict (dict): Nested dictionary keyed at the highest level by
-            the name of the group structure according to which an array of
-            cross-sections were processed. The form of this data structure is
-            as follows:
+            the name of the group structure/weight function combination,
+            according to which an array of cross-sections were processed. The
+            form of this data structure is as follows:
                 {
-                    'group_name_1' : {
+                    'data_set_1' : {
                         'xs'       : groupwise_xs,
                         'energies' : energy_group_bounds
                     },
                     ...
-                    'group_name_n' : {
+                    'data_set_n' : {
                         'xs'       : groupwise_xs,
                         'energies' : energy_group_bounds
                     },
                 }
+        reference_data (str): Stem of the reference data DSV path. Will be the
+            same as `reference_data` from Arguments if one is supplied,
+            otherwise, will be the group name of the first key in
+            `groupwise_dict`.
         color_dict (dict): Dictionary keyed by each group structure, with
             values of the tuple of 0-1 RGBA values defining the color/
             transparency of each series.
@@ -476,22 +486,21 @@ def plot_relative_group_xs(
             'structures are required to compute a relative cross-section.'
         )
 
-    ratio_dict, reference_group = compute_groupwise_xs_ratios(groupwise_dict)
-
-    for group_name, group_data in ratio_dict.items():
+    ratio_dict = compute_groupwise_xs_ratios(groupwise_dict, reference_data)
+    for name, group_data in ratio_dict.items():
         ax.stairs(
             group_data['ratio_xs'], group_data['energies'],
             baseline=None,
-            label=f'{group_name} / {reference_group}',
+            label=f'{name} / {reference_data}',
             color=np.mean(
-                [color_dict[group_name], color_dict[reference_group]], axis=0
+                [color_dict[name], color_dict[reference_data]], axis=0
             )
         )
 
     ax.set_xlim(x_limits)
     title = ( 
         f'Relative Cross-Section for $^{{{A}}}${element}(n,{emitted}):\n'
-        f'Reference Group = {reference_group}'
+        f'Reference Data = {reference_data}'
     )
 
     return set_plot_parameters(ax, title=title, ratio_plotting=True)
@@ -575,6 +584,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--yaml', '-y')
     parser.add_argument('--ratio_plotting', '-r', action='store_true')
+    parser.add_argument('--reference_data', '-d', required=False)
     args = parser.parse_args()
 
     with open(args.yaml, 'r') as f:
@@ -644,11 +654,17 @@ def main():
                     plt.savefig(plot_path)
 
                     if args.ratio_plotting:
+                        reference_data = (
+                            args.reference_data
+                            if args.reference_data
+                            else next(iter(groupwise_dict))
+                        )
+
                         ratio_fig, ratio_ax = plt.subplots(figsize=(10,6))
                         color_dict = collect_all_stair_colors(ax)
                         plot_relative_group_xs(
                             ratio_ax, element, A, emitted, groupwise_dict,
-                            color_dict, ax.get_xlim()
+                            reference_data, color_dict, ax.get_xlim()
                         )
                         ratio_plot_path = set_plot_save_path(
                             element, A, emitted, tendl_dir,
