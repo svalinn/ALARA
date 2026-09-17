@@ -352,7 +352,7 @@ def find_all_mass_nums(tendl_dir, element):
 def main():
 
     # Only load in yaml module when executing xs_plotting.py as a script,
-    # to allow for it to be used within preprocess_fendl3.py without
+    # to allow for it to be used within tendl_to_alarajoy.py without
     # additional necessary dependencies
     from yaml import safe_load
 

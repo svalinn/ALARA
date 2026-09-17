@@ -431,7 +431,7 @@ def fill_input_template(
                 'In order to convert to arbitrary group structure ' \
                 '(ign == 1), GROUPR requires the number of groups (ngn) and' \
                 ' the group boundaries (egn).\nWhen using njoy_tools within ' \
-                'preprocess_fendl3.py, either include a group structure ' \
+                'tendl_to_alarajoy.py, either include a group structure ' \
                 'defined in openmc.mgxs.GROUP_STRUCTURES or provide a file ' \
                 'as a second value for the -g argument that explicitly ' \
                 'lists the group boundaries.'

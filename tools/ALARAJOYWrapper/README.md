@@ -1,6 +1,6 @@
-# FENDL3.2x Preprocessor with NJOY Wrapping for ALARA (*ALARAJOYWrapper*)
+# TENDL Preprocessor with NJOY Wrapping for ALARA (*ALARAJOYWrapper*)
 
-This preprocessor is designed to update ALARA's data input capabilities for updated FENDL3.2x data sets formatted as TENDL (ENDF-6) files. Unlike previous versions of [FENDL](https://www-nds.iaea.org/fendl/) (Fusion Evaluated Nuclear Data Library), which have available groupwise cross-section data for neutron activation, as is required for ALARA's functionality, FENDL3.2x data requires conversion to that format.
+This preprocessor is designed to update ALARA's data input capabilities for TENDL (ENDF-6) files, with particular focus on allowing ALARA to be compatible with the FENDL3.2x data sets. Unlike previous versions of [FENDL](https://www-nds.iaea.org/fendl/) (Fusion Evaluated Nuclear Data Library), which have available groupwise cross-section data for neutron activation, as is required for ALARA's functionality, FENDL3.2x data requires conversion to that format. Similarly, beyond FENDL, TENDL data is distributed in the continuous-energy format.
 
 This preprocessor uses [NJOY 2016](https://github.com/njoy/NJOY2016) Nuclear Data Processing System to produce requisite pointwise data (PENDF) to subsequntly convert to the Vitamin-J 175 energy group groupwise format (GENDF) for activation cross-sections and to handle the processed data to be fed back to ALARA. For pointwise conversion, ALARAJOYWrapper uses the NJOY modules MODER, RECONR, BROADR, UNRESR, and GASPR, and for the ultimate conversion to the groupwise format, GROUPR.
 
@@ -55,16 +55,16 @@ ALARAJOYWrapper is designed to produce a space-delimited DSV containing cross-da
 
 Running ALARAJOYWrapper can be done with one Python command:
 ```
-python preprocess_fendl3.py -f /path/to/fendl3_data_dir/ -d /path/to/decay_library/ decay_library-type -g group_name -a -t -r -p
+python tendl_to_alarajoy.py -f /path/to/fendl3_data_dir/ -d /path/to/decay_library/ decay_library-type -g group_name -a -t -r -p
 ```
 To read in detail about each of these arguments, call this command:
 ```
-python preprocess_fendl3.py -h
+python tendl_to_alarajoy.py -h
 ```
 
 
 ## Data Output
-Running `preprocess_fendl3.py` will produce two file paths. The first is to the compiled decay data file, which will either be identical to the input for the first argument in `-d` if a pre-compiled decay library is being used or to the newly produced compiled decay library. The second is to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). The header of this DSV file will contain two entries, the number of groups of the group structure according to which the data was converted and the name of said group-structure. Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
+Running `tendl_to_alarajoy.py` will produce two file paths. The first is to the compiled decay data file, which will either be identical to the input for the first argument in `-d` if a pre-compiled decay library is being used or to the newly produced compiled decay library. The second is to the resultant space-delimited DSV file containing transmutation reaction pathways for the neutron activation of the given isotope(s). The header of this DSV file will contain two entries, the number of groups of the group structure according to which the data was converted and the name of said group-structure. Each row in the DSV represents a different reaction, and contains the following data needed by ALARA for a library conversion:
 
 - Parent KZA: Unique isotope identifier for the parent isotope in the format **ZZAAAM**, where ZZ is the isotope's atomic number, AAA is the mass number, and M is the isomeric state (0 if non-excited).
 - Daughter KZA: Unique isotope identifier of the daughter isotope produced from a particular transmutation reaction in the format **ZZAAAM**.
@@ -97,7 +97,7 @@ Either as an optional inclusion within the main ALARAJOY groupwise processing pi
         ⤷ REACTION_N
   ```
 
-When the optional `-p` argument is invoked when executing `preprocess_fendl3.py`, all reactions for all nuclides written out to `cumulative_gendf_data.dsv` will be produced and saved according to the above directory structure. The highest level directory will be the same name as the `-f` TENDL data directory, with an additional "`_plots`" tag (e.g. `tendl2017/` → `tendl2017_plots/`).
+When the optional `-p` argument is invoked when executing `tendl_to_alarajoy.py`, all reactions for all nuclides written out to `cumulative_gendf_data.dsv` will be produced and saved according to the above directory structure. The highest level directory will be the same name as the `-f` TENDL data directory, with an additional "`_plots`" tag (e.g. `tendl2017/` → `tendl2017_plots/`).
 
 To run `xs_plotting.py` as a standalone script, an input `.yaml` file must be supplied to specify the nuclides and reactions to be plotted. Additionally, the groupwise and continuous data sources to comparatively plot can be specified in this input file. These, however, are not required and will default to `cumulative_gendf_data.dsv` and `tendl2017/` respectively. The format of this input is shown below, as well as in `example_xs_plotting_input.yaml`, which can be used as a basis to supply custom plotting parameters according to their needs. Reactions are specified by their MT number, whose reference can be found at https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf. 
 
