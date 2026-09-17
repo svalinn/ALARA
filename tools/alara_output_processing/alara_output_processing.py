@@ -3,7 +3,7 @@ import argparse
 from operator import gt, lt, ge
 from warnings import warn
 from csv import DictReader
-from numpy import array
+import numpy as np
 from pathlib import Path
 from collections import defaultdict
 from numbers import Number
@@ -72,7 +72,7 @@ def extract_time_vals(cols, to_unit='s'):
 
     for time, unit in zip(cols[::2], cols[1::2]):
         converted_times.append(convert_times(
-            array([float(time)]), from_unit=unit, to_unit=to_unit
+            np.array([float(time)]), from_unit=unit, to_unit=to_unit
         )[0])
 
     return converted_times
@@ -712,6 +712,32 @@ class ALARADFrame(pd.DataFrame):
 
         return half_lives
 
+    @staticmethod
+    def _normalize_filters_format(filters):
+        """
+        Convert any formatting of a filter to be passed into filter_rows() to
+            a standard, flat list format.
+        
+        Arguments:
+            filters (any): Filter to apply to the given row.
+        
+        Returns:
+            filters (list): List format of the `filters` argument. Potentially
+                unmodified if already format-compliant.
+        """
+
+        iterables = (list, tuple, set, np.ndarray)
+        if not isinstance(filters, iterables):
+            return [filters]
+
+        if len(filters) == 1:
+            first = next(iter(filters))
+
+            if isinstance(first, iterables):
+                return list(first)
+
+        return list(filters)
+
     def filter_rows(self, filter_dict):
         '''
         Filter all rows that match user specifications for one or more
@@ -742,8 +768,7 @@ class ALARADFrame(pd.DataFrame):
                 warn(f'Column "{col_name}" not found. Skipping.')
                 continue
             
-            if not isinstance(filters, list):
-                filters = [filters]
+            filters = filtered_adf._normalize_filters_format(filters)
 
             if (
                 col_name in ['time', 'value']
