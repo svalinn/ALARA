@@ -873,6 +873,13 @@ def plot_single_response(
 
             series = piv.loc[nuc].to_numpy()
             if ratio_plotting:
+                if nuc not in control_piv.index:
+                    warn(
+                        f'{nuc.capitalize()} present in {run_lbl}' \
+                        f'but not in {control_run}. Skipping.'
+                    )
+                    continue
+
                 series /= control_piv.loc[nuc].to_numpy()
                 if not np.isnan(series.mean()) and nuc == 'total':
                     label_suffix += (
