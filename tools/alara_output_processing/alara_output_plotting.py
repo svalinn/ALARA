@@ -157,6 +157,29 @@ def build_color_map(cmap_name, all_nucs=[], pivs=None, mark_thalf=False):
 
     return color_map
 
+def get_var_unit(filtered_adf):
+    '''
+    Given a single-variable, pre-filtered ALARADFrame, check that all values
+        are stored in the same units. Raise a ValueError if they are not.
+        Otherwise, return the single unit type of the data.
+
+    Arguments:
+        filtered_adf (alara_output_processing.ALARADFrame): Filtered
+            ALARADFrame containing the data from a single variable.
+
+    Returns:
+        unit (str): Units of the variable's data in the ALARADFrame.
+    '''
+
+    units = filtered_adf['var_unit'].unique()
+    if len(units) > 1:
+        raise ValueError(
+            'ADF contains data in inconsistent units. Single variable data ' \
+            'must all be represented by the same unit form.'
+        )
+
+    return units[0]
+
 def split_label(label):
     '''
     Split the string of a series' label to extract the isotope being plotted
@@ -785,6 +808,7 @@ def plot_single_response(
         lines.lineStyles.keys() if plot_type == 'plot'
         else lines.lineMarkers.keys()
     )[:len(run_lbls)]
+    filtered_concat = pd.DataFrame()
 
     for run_lbl, style in zip(run_lbls, styles):
         filtered, piv = preprocess_data(
@@ -797,6 +821,7 @@ def plot_single_response(
             head=head,
             half_lives=half_lives
         )
+        filtered_concat = pd.concat([filtered_concat, filtered])
 
         if run_lbl == control_run:
             control_piv = piv
@@ -918,7 +943,7 @@ def plot_single_response(
             time_unit, show_shading_bounds
         )
 
-    ylabel = f'{variable} [{filtered['var_unit'].unique()[0]}]'
+    ylabel = f'{variable} [{get_var_unit(filtered_concat)}]'
     title_suffix = (
         f'Ratio of {variable} against {control_run}' if ratio_plotting
         else f'{variable}'
