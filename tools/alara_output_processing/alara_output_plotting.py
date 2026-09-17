@@ -82,7 +82,7 @@ def preprocess_data(
 
     if nuclides:
         filter_dict['nuclide'] = nuclides
-    
+
     filtered = adf.filter_rows(filter_dict)
 
     if half_lives is not None:
@@ -225,8 +225,8 @@ def construct_legend(ax, legend_ax=None):
             object than the plot itself.
     
     Returns:
-        legend (matplotlib.legend.Legend): Matplotlib Legend object containing
-            the constructed legend.
+        legend (matplotlib.figure.Figure): Matplotlib Figure object to which
+            the constructed legend belongs.
     '''
 
     handles, labels = ax.get_legend_handles_labels()
@@ -273,7 +273,7 @@ def construct_legend(ax, legend_ax=None):
         handletextpad=0.5,
     )
 
-    return legend
+    return legend.get_figure()
 
 def plot_or_scatter(plot_type, ax, x, y, label, color, style):
     '''
