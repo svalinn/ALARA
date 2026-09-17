@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import re
 import matplotlib.pyplot as plt
 import re
 from matplotlib import lines
@@ -468,6 +469,7 @@ def reformat_isotope(isotope):
     Restructure the string describing an isotope to capitalize its first
         letter and place the atomic number in a superscript for cleaner
         presentation in legend. Skips "isotope" entries of "total" or "Other".
+
     Arguments:
         isotope (str): Identifier of the isotope of the form element-A.
     
