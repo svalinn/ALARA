@@ -659,7 +659,8 @@ def plot_single_response(
     mark_thalf=False,
     shading=False,
     shading_color_map={},
-    show_shading_bounds=True
+    show_shading_bounds=True,
+    figsize=(10,6)
 ):
     '''
     Create a simple x-y plot of a given variable tracked in an ALARA output
@@ -754,6 +755,10 @@ def plot_single_response(
             response in the plot's legend, corresponding to the region(s)
             shaded in the plot.
             (Defaults to True) 
+        figsize (tuple of float, optional): Option to set the Matplotlib
+            Figure size, by (width, height). Identical to
+            `matplotlib.pyplot.Figure.figsize` parameter.
+            (Defaults to (10,6))
 
     Returns:
         fig (matplotlib.figure.Figure): Closed Matplotlib Figure object
@@ -767,7 +772,7 @@ def plot_single_response(
 
     ratio_plotting = (control_run is not None)
     data_comp = False
-    fig, ax = plt.subplots(figsize=(10,6))
+    fig, ax = plt.subplots(figsize=figsize)
 
     if isinstance(run_lbls, list):
         data_comp=True
