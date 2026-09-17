@@ -1205,7 +1205,6 @@ def plot_single_response(
     data_list = []
     shade_pivs = {}
     styles = define_line_styles(run_lbls, plot_type=plot_type)
-
     var_units = set()
     for run_lbl, style in zip(run_lbls, styles):
         filtered, piv = preprocess_data(
@@ -1738,22 +1737,6 @@ def plot_computational_with_experimental(
                 label, computed, stat_types,
                 sig_figs=3, lead_newline=True, trailing_separator=None
             )
-            stats_rows.append(row)
-
-            #     statistic = stats_obj.calculate_statistic()
-            #     row[stat_type] = statistic
-
-            #     if stat_type not in stat_types:
-            #         continue
-
-            #     # Include only selected statistic(s) to plot legend
-            #     formatted_statistic = f'{statistic:.3g}'
-            #     percent = r'\%'
-            #     if percent in stats_obj.tex_name:
-            #         formatted_statistic += percent
-
-            #     label += '\n' + rf'${{{stats_obj.tex_name} = {formatted_statistic}}}$'
-
             stats_rows.append(row)
 
         if len(cooling_times) == 0:
