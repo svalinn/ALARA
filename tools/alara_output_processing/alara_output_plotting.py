@@ -253,7 +253,7 @@ def preprocess_data(
     Arguments:
         adf (alara_output_processing.ALARADFrame): ALARADFrame containing 
             response data from one or more ALARA runs.
-        run_lbl (str): Distinguisher of the specified ALARA run.
+        run_lbl (str): Distinguisher of the specified run.
         variable (str): Name of the response variable.
         nuclides (str, list, or None, optional): Optional parameter for
             nuclide selection. For a single nuclide, input should be a string
@@ -654,7 +654,7 @@ def pie_chart_aggregation(
     Arguments:
         adf (alara_output_processing.ALARADFrame): ALARADFrame containing 
             response data from one or more ALARA runs.
-        run_lbl (str): Distinguisher of the specified ALARA run.
+        run_lbl (str): Distinguisher of the specified run.
         variable (str): Name of the response variable.
         threshold (float, optional): Proportional threshold for small-value
             aggregation.
@@ -917,8 +917,44 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name, n_runs):
     return ax, bounds, dominant_nucs
 
 def deliniate_shading_regions_by_run(
-    all_dominance_ranges, run_lbl, piv, ax, color_map, cmap_name, n_runs 
+    all_dominance_ranges, run_lbl, piv, ax, color_map, cmap_name, n_runs
 ):
+    '''
+    For a single run to be plotted, compile the time ranges in which each
+        predominant nuclide for a given response variable contributes the
+        greatest proportion of the total response.
+
+    Arguments:
+        all_dominance_ranges (collections.defaultdict): Dictionary keyed by
+            nuclides that are the dominant contributor to a decay response
+            over some time time range formatted as:
+
+                {
+                    nuclide: 
+                        (
+                            run_lbl,
+                            beginning_of_dominance_range,
+                            end_of_dominance_range
+                        )
+                }
+        run_lbl (str): Distinguisher of the specified run.
+        piv (pandas.DataFrame): Pivot table indexed by nuclides with values
+            for each cooling time.
+        ax (matplotlib.axes._axes.Axes): Matplotlib Axes object of the plot
+            being constructed.
+        color_map (dict): Pre-constructed color map for each nuclide to match
+            the wedges with the legend.
+        cmap_name (str): Matplotlib Colormap for the plot.
+        n_runs (int): Number of total runs in the plot.
+    
+    Returns
+        all_dominance_ranges (collections.defaultdict): Updated dictionary
+            containing the dominance ranges for the dominant nuclides in the
+            specified run.
+        ax (matplotlib.axes._axes.Axes): Updated Matplotlib Axes object of the
+            plot being constructed.
+    '''
+
     ax, bounds, dominant_nucs = shade_dominant_nuclides(
         piv, ax, color_map, cmap_name=cmap_name, n_runs=n_runs
     )
@@ -955,9 +991,9 @@ def add_shading_legend_labels(
         color_map (dict): Copy of the original color map dictionary if a non-
             empty dictionary is provided in the Arguments. Otherwise, a color
             map with keys only of the various dominant nuclides.
-        all_dominance_ranges (dict): Dictionary keyed by nuclides that are the
-            dominant contributor to a decay response over some time time range
-            formatted as:
+        all_dominance_ranges (collections.defaultdict): Dictionary keyed by
+            nuclides that are the dominant contributor to a decay response
+            over some time time range formatted as:
 
                 {
                     nuclide: 
@@ -1210,23 +1246,6 @@ def plot_single_response(
                 cmap_name=cmap_name,
                 n_runs=len(data_list)
             )
-            # ax, bounds, dominant_nucs = shade_dominant_nuclides(
-            #     shade_pivs[run_lbl], ax, shading_color_map,
-            #     cmap_name=cmap_name, n_runs=len(data_list)
-            # )
-
-            # prev_nuc = dominant_nucs[0]
-            # lower = bounds[0]
-            # for upper, nuc in zip(bounds[1:-1], dominant_nucs[1:]):
-            #     if nuc != prev_nuc:
-            #         all_dominance_ranges[prev_nuc].append((
-            #             run_lbl, lower, upper
-            #         ))
-            #         lower = upper
-            #         prev_nuc = nuc
-
-            # upper = bounds[-1]
-            # all_dominance_ranges[prev_nuc].append((run_lbl, lower, upper))
 
         for nuc in piv.index:
             if nuc == 'total' and not total:
@@ -1237,7 +1256,6 @@ def plot_single_response(
                 continue
 
             label_suffix = f' ({run_lbl})' if data_comp else ''
-            print(label_suffix)
             # Vectorized division to calculate time-series ratio against the
             # control run. If zeros exist in the control run, a zero-division
             # RuntimeWarning will be raised, but does not cause plotting
@@ -1364,7 +1382,7 @@ def single_time_pie_chart(
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
             (potentially) with new "Other" rows for each time,containing all
             aggregated data below the thresholds.
-        run_lbl (str): Distinguisher of the specified ALARA run.
+        run_lbl (str): Distinguisher of the specified run.
         variable (str): Name of the response variable.
         threshold (float): Proportional threshold for small-value aggregation.
         time_idx (int): Cooling time interval number (i.e. 0 for shutdown).
@@ -1461,7 +1479,7 @@ def multi_time_pie_grid(
         agg (alara_output_processing.ALARADFrame): Processed ALARADFrame
             (potentially) with new "Other" rows for each time, containing all
             aggregated data below the thresholds.
-        run_lbl (str): Distinguisher of the specified ALARA run.
+        run_lbl (str): Distinguisher of the specified run.
         variable (str): Name of the response variable.
         var_unit (str): Unit of the variable being processed.
         totals (list): List of total values at each cooling time.
