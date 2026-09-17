@@ -99,7 +99,9 @@ Either as an optional inclusion within the main ALARAJOY groupwise processing pi
 
 When the optional `-p` argument is invoked when executing `tendl_to_alarajoy.py`, all reactions for all nuclides written out to `cumulative_gendf_data.dsv` will be produced and saved according to the above directory structure. The highest level directory will be the same name as the `-f` TENDL data directory, with an additional "`_plots`" tag (e.g. `tendl2017/` → `tendl2017_plots/`).
 
-To run `xs_plotting.py` as a standalone script, an input `.yaml` file must be supplied to specify the nuclides and reactions to be plotted. Additionally, the groupwise and continuous data sources to comparatively plot can be specified in this input file. These, however, are not required and will default to `cumulative_gendf_data.dsv` and `tendl2017/` respectively. The format of this input is shown below, as well as in `example_xs_plotting_input.yaml`, which can be used as a basis to supply custom plotting parameters according to their needs. Reactions are specified by their MT number, whose reference can be found at https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf. 
+To run `xs_plotting.py` as a standalone script, an input `.yaml` file must be supplied to specify the nuclides and reactions to be plotted. Additionally, the groupwise and continuous data sources to comparatively plot can be specified in this input file. These, however, are not required and will default to `cumulative_gendf_data.dsv` and `tendl2017/` respectively. The format of this input is shown below, as well as in `example_xs_plotting_input.yaml`, which can be used as a basis to supply custom plotting parameters according to their needs. Reactions are specified by their MT number, whose reference can be found at https://www.oecd-nea.org/dbdata/data/manual-endf/endf102_MT.pdf.
+
+Relative cross-section plots can also be produced between datasets that have been produced with the same group-structure (i.e. ALARAJOY CCFE-709 cross-sections against FISPACT-II PREPRO/GROUPIE CCFE-709 cross-sections processed into an ALARAJOY DSV). To do so, when listing the DSV paths in the input YAML, put the reference data set to be divided against first. When calling `xs_plotting.py`, include the `-r` flag.
 
 ```
 # Option to specify arbitrary number of groupwise data sources
@@ -154,7 +156,7 @@ Using parameter `all` for any category of element, mass number, or reaction will
 The cross-section plotting script is run as follows:
 
 ```
-python xs_plotting.py -y /path/to/input_file.yaml
+python xs_plotting.py -y /path/to/input_file.yaml -r
 ```
 
 ## Application of Processed Data to ALARA Data Conversion Methods
