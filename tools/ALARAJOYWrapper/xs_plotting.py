@@ -5,7 +5,10 @@ import tendl_processing as tp
 import njoy_tools as njt
 import reaction_data as rxd
 import matplotlib.pyplot as plt
+import pandas as pd
 from pathlib import Path
+from openmc.data import Reaction, endf
+from io import StringIO
 
 def flagged_num_to_int(num):
     """
@@ -26,14 +29,15 @@ def flagged_num_to_int(num):
             instance of '*' contained in the original value.
     """
 
-    re_match = re.match(r'^-?\d+', str(num))
+    num = str(num)
+    re_match = re.match(r'^-?\d+', num)
     if not re_match:
         raise ValueError(
             f'Invalid flagged number {num}. Must be formatted with numeric ' \
             'characters before non-numeric characters.'
         )
-    
-    return int(re_match.group())
+
+    return int(re_match.group()), num.count('*')
 
 def ensure_emission_specificity(emitted, dKZA):
     """
@@ -61,14 +65,13 @@ def ensure_emission_specificity(emitted, dKZA):
 
     return emitted
 
-def extract_continuous_data(tendl_path, MT):
+def extract_continuous_data(endf_obj, MT):
     """
     For a given nuclide and reaction, extract its continuous-energy cross-
         sections and corresponding energies from its original TENDL file.
 
     Arguments:
-        tendl_path (pathlib._local.PosixPath): Path to the nuclide's original
-            TENDL file.
+        endf_obj (openmc.data.endf.Evaluation): OpenMC parsed-ENDF object.
         MT (int): Reaction identifying number.
 
     Returns:
@@ -83,16 +86,62 @@ def extract_continuous_data(tendl_path, MT):
             lists.
     """
 
-    xs_table = (
-        tp.parse_endf_file_level_data(tendl_path)[0]
-        .get(MT, {})
-        .get('xstable', {'E' : [], 'xs' : []})
-    )
+    continuous_dict = {'energies' : [], 'xs' : []}
+    MT, isomeric_state = flagged_num_to_int(MT)
+    rxn = Reaction.from_endf(endf_obj, MT)
 
-    return {
-        'xs'         :   xs_table['xs'],
-        'energies'   :    xs_table['E']
-    }
+    # For excitation reactions, calculate specific pathway reactions by
+    # multiplying reaction multiplicities by MF3 cumulative cross-sections
+    # interpolated by the multiplicities' energy array if MF9 data is
+    # present. Otherwise, extract pathway-specific cross-sections directly
+    # from MF10
+    if isomeric_state > 0:
+        pathways = []
+        matched_MF = None
+        for MF in tp.PATH_SPECIFIC_MFS:
+            section_text = endf_obj.section.get((MF, MT))
+            if not section_text:
+                continue
+
+            io_obj = StringIO(section_text)
+            head_record = endf.get_head_record(io_obj)
+            n_states = head_record[4]
+
+            for _ in range(n_states):
+                tab1_params, tab1 = endf.get_tab1_record(io_obj)
+                LFS = tab1_params[3]
+                pathways.append((LFS, tab1))
+
+            if pathways:
+                matched_MF = MF
+                break
+
+        pathways.sort(key=lambda pathway: pathway[0])
+
+        if pathways and isomeric_state in pathways:
+            tab1 = pathways[isomeric_state][1]
+            energies = tab1.x
+            continuous_dict['energies'].extend(energies)
+
+            # Calculate interpolated proportional cross-section from MF3
+            # cumulative cross-sections and MF9 multiplicities
+            if matched_MF == 9:
+                continuous_dict['xs'].extend(
+                    tab1.y * rxn.xs['0K'](energies)
+                )
+
+            # MF10 cross-sections can be extracted directly without need for
+            # interpolation
+            else:
+                continuous_dict['xs'].extend(tab1.y)
+
+    else:
+        mf3_xs_table = rxn.xs.get('0K')
+        if mf3_xs_table:
+            continuous_dict['energies'].extend(mf3_xs_table.x)
+            continuous_dict['xs'].extend(mf3_xs_table.y)
+
+    return continuous_dict
 
 def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
     """
@@ -141,14 +190,14 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
             dsv_pKZA, dsv_dKZA, dsv_MT, emitted = rxn[:4]
             emitted = ensure_emission_specificity(emitted, dsv_dKZA)
 
-            if KZA == dsv_pKZA and MT == flagged_num_to_int(dsv_MT):
+            if KZA == dsv_pKZA and str(MT) == dsv_MT:
                 groupwise_dict[group_name] = {
                     'xs'          :    np.array(rxn[4:]).astype(float),
                     'energies'    :    energy_bounds
                 }
                 break
 
-    return groupwise_dict, ensure_emission_specificity(emitted, dsv_dKZA)
+    return groupwise_dict, emitted
 
 def set_plot_save_path(
     element, A, emitted, tendl_dir, group_names, img_ext='png'
@@ -348,7 +397,30 @@ def find_all_mass_nums(tendl_dir, element):
             mass_nums.add(nuc_match.group(1))
 
     return mass_nums
-    
+
+def find_all_MTs(dsv_list, pKZA):
+    """
+    Given a list of preprocessed groupwise DSV files and a parent nuclide
+        identified by its KZA, compile all reaction identifiers (MTs) that
+        exist for that nuclide in any of the DSVs.
+
+    Arguments:
+        dsv_list (list): List of filepaths to DSV files containing
+            ALARAJOYWrapper-processed groupwise TENDL data.
+        pKZA (int): ZZZAAAM identifier of the parent nuclide.
+
+    Returns:
+        MTs (set): Set of all reaction types for the parent nuclide present in
+            any of the DSV files provided.
+    """
+
+    MTs = set()
+    for dsv in dsv_list:
+        df = pd.read_csv(dsv, sep=r'\s+', skiprows=1, header=None)
+        MTs.update(df.loc[df[0] == pKZA, 2])
+
+    return MTs
+
 def main():
 
     # Only load in yaml module when executing xs_plotting.py as a script,
@@ -357,6 +429,7 @@ def main():
     from yaml import safe_load
 
     plt.rcParams.update({'figure.max_open_warning': 0})
+    plot_path = None
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--yaml', '-y')
@@ -394,7 +467,7 @@ def main():
 
         for A in mass_nums:
             KZA = str((
-                njt.elements[element] * 1000 + flagged_num_to_int(A)
+                njt.elements[element] * 1000 + flagged_num_to_int(A)[0]
             ) * 10 + tp.ISOMERIC_STATES.find(str(A)[-1]) + 1)
 
             MTs = adjust_dict_for_all_tag(element_dict, A)
@@ -403,17 +476,14 @@ def main():
                 MTs = [MTs]
     
             if check_all_tag(MTs):
-                MTs = rxd.process_mt_data(rxd.load_mt_table(
-                    njt.set_directory() / 'mt_table.csv'
-                )).keys()
+                MTs = find_all_MTs(dsv_list, KZA)
 
-            for MT in [flagged_num_to_int(MT) for MT in MTs]:
+            for MT in MTs:
                 fig, ax = plt.subplots(figsize=(10,6))
                 
                 continuous_dict = extract_continuous_data(
-                    tendl_dir / f'{element}{A}.tendl', flagged_num_to_int(MT)
+                    endf.Evaluation(tendl_dir / f'{element}{A}.tendl'), MT
                 )
-
                 groupwise_dict, emitted = extract_groupwise_data_from_DSV(
                     dsv_list, KZA, MT
                 )
@@ -428,10 +498,11 @@ def main():
                     )
                     plt.savefig(plot_path)
 
-    print(
-        f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
-        'organized by element, nuclide, reaction.'
-    )
+    if plot_path:
+        print(
+            f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
+            'organized by element, nuclide, reaction.'
+        )
 
 
 if __name__ == '__main__':
