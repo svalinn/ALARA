@@ -3,7 +3,7 @@ from endf_parserpy import EndfParserPy
 from pathlib import Path
 from reaction_data import GAS_DF
 from njoy_tools import elements
-from collections import defaultdict
+from collections import defaultdict, abc
 import warnings
 import numpy as np
 
@@ -219,113 +219,15 @@ def determine_all_excitations(endf_path, MTs):
   
     return isomer_dict
 
-def _gendf_parse_control(line):
-    """
-    Extract the integer values of the MF (file) and MT (reaction) numbers from
-        a given line of an ENDF-formatted file. By ENDF formatting
-        conventions, these values are always in a fixed position, but may
-        contain additional whitespace.
-    
-    Arguments:
-        line (str): Text of a whole line of an ENDF-formatted file.
-    
-    Returns:
-        MF (int or None): ENDF file number. None if the file is incorrectly
-            formatted.
-        MT (int): Reaction number. None if the file is incorrectly formatted.
-    """
+def _section_to_group_array(section, nGroups):
+    sigmas = np.zeros(nGroups)
+    for IG, sigma in section.items():
+        if IG <= nGroups:
+            sigmas[IG - 1] = sigma
 
-    if len(line) < 75:
-        return None, None
-    
-    try:
-        return (
-            int(line[70:72]), # MF
-            int(line[72:75])  # MT
-        )
-    except ValueError:
-        return None, None
+    return sigmas[::-1]
 
-def extract_gendf_data(gendf_path):
-    """
-    Parse a GENDF-formatted (post-GROUPR processing) file for lines containing
-        cross-section data for each reaction type, while compiling a full set
-        of all MT numbers corresponding to that reaction.
-
-    Arguments
-        gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
-             which to extract cross-section data.
-
-    Returns:
-        non_zero_xs (collections.defaultdict): Dictionary keyed by MT number
-            valued by lists of sub-dictionaries. Each of these are keyed by
-                the GROUPR group index tag (`IG`) and valued by the associated
-                groupwise cross-section value for that energy group.
-         MTs (set of ints): All reaction types with cross-section data in the
-            provided GENDF.
-        nGroups (int): Number of energy groups into which the groupwise cross
-            sections were calculated.
-    """
-
-    MTs = set()
-    non_zero_xs = defaultdict(list)
-
-    current_MT = None
-    current_section = {}
-    current_IG = None
-    line_count = 0
-    nGroups = None
-
-    with open(gendf_path, 'r') as f:
-        for line in f:
-            mf, mt = _gendf_parse_control(line)
-            
-            # Extract number of groups, found in second line of file
-            # description section
-            if mf == 1 and mt == 451 and int(line.rstrip('\n')[-3:]) == 2:
-               nGroups = int(line.split()[2])
-
-            if mf == 3 and mt != 0:
-                MTs.add(mt)
-                if mt != current_MT:
-                    if current_section:
-                        non_zero_xs[current_MT].append(current_section)
-                    
-                    current_section = {}
-                    current_MT = mt
-                    line_count = 0
-
-                line_count += 1
-
-                if line_count < 2:
-                    continue
-
-                if line_count % 2 == 0:
-                    current_IG = int(line[62:66])
-
-                else:
-                    current_section[current_IG] = float(
-                        line.split()[1].replace('+','E+').replace('-','E-')
-                    )
-
-            else:
-                if current_section:
-                    non_zero_xs[current_MT].append(current_section)
-                    current_section = {}
-
-                current_MT = None
-                current_IG = None
-                line_count = 0
-
-    if nGroups is None:
-        raise ValueError(
-            f'{gendf_path} misformatted. Expecting to find group number in ' \
-            'MF1, MT451.'
-        )
-
-    return non_zero_xs, MTs, nGroups
-
-def populate_xs(xs_by_index, M_values, nGroups):
+def populate_xs(gendf_dict, MT, nGroups, isomer_dict={}, prepro=False):
     """
     Given a dictionary containing all cross-section data for a given reaction
         type, identify all excitation pathways and save group-positioned 
@@ -342,6 +244,16 @@ def populate_xs(xs_by_index, M_values, nGroups):
             daughter produced from the given reaction type.
         nGroups (int): Number of energy groups into which the groupwise cross
             sections were calculated.
+        isomer_dict (collections.defaultdict, optional): Dictionary keyed by
+            reaction type (MT), with each MT containing a subdictionary of the
+            MF from which the isomeric pathways are extracted. The lowest
+            MT/MF level has a list of all isomeric states of possible daughter
+            nuclides for which there are cross-section data in the original
+            TENDL file.
+            (Defaults to {})
+        prepro (bool, optional): Option to handle PREPRO/GROUPIE-processed
+            groupwise nuclear data.
+            (Defaults to False)
     
     Returns:
         sigma_dict (dict): Dictionary keyed by excitation levels (M) with
@@ -350,22 +262,24 @@ def populate_xs(xs_by_index, M_values, nGroups):
             Vitamin-J 175 group structure if none is otherwise specified.
     """
 
-    sigma_dict = {}
-    excitations = len(M_values)
-    N = min(excitations, len(xs_by_index))
+    if MT in gendf_dict[10]['MTs']:
+        sections = gendf_dict[10]['non_zero_xs'][MT]
+        keys = list(sections)
+        M_values = keys
+        section_iter = [sections[key] for key in keys]
 
-    if excitations > 1:
-        M_values = list(range(excitations))
+    else:
+        section_iter = gendf_dict[3]['non_zero_xs'][MT]
+        M_values = [0] if prepro else list(isomer_dict[MT].values())[0]
+        section_iter = section_iter[:len(M_values)]
 
-    for M, ordered_xs in zip(M_values[:N], xs_by_index[:N]):
-        sigmas = np.zeros(nGroups)
+    if len(M_values) > 1:
+        M_values = range(len(M_values))
 
-        for IG, sigma in ordered_xs.items():
-            sigmas[IG - 1] = sigma
-
-        sigma_dict[M] = sigmas[::-1]
-
-    return sigma_dict
+    return {
+        M: _section_to_group_array(section, nGroups)
+        for M, section in zip(M_values, section_iter)
+    }
 
 def incrementally_deexcite_isomer(M, dKZA, eaf_nucs):
     """
@@ -392,7 +306,8 @@ def incrementally_deexcite_isomer(M, dKZA, eaf_nucs):
     return dKZA + trial_M
 
 def iterate_MTs(
-    MTs, mt_dict, non_zero_xs, pKZA, all_rxns, all_nucs, isomer_dict, nGroups
+    gendf_dict, mt_dict, pKZA, all_rxns, all_nucs, nGroups,
+    isomer_dict={}, prepro=False
 ):
     """
     Iterate through all of the MTs present in a given GENDF file to extract
@@ -407,7 +322,7 @@ def iterate_MTs(
     
     Arguments:
         MTs (list of int): List of reaction types present in the GENDF file.
-        mt_dict (dict): Dictionary formatted data structure for mt_table.csv
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
         non_zero_xs (collections.defaultdict): Dictionary keyed by MT number
             valued by lists of sub-dictionaries. Each of these are keyed by
                 the GROUPR group index tag (`IG`) and valued by the associated
@@ -427,20 +342,26 @@ def iterate_MTs(
             }
         all_nucs (dict): Dictionary keyed by all nuclide KZAs in the decay
             library, with values of their half-lives (-1 for stable nuclides).
-         isomer_dict (collections.defaultdict): Dictionary keyed by reaction
-            type (MT), with each MT containing a subdictionary of the MF from
-            which the isomeric pathways are extracted. At the lowest MT/MF
-            level has a list of all isomeric states of possible daughter
-            nuclides for which there are cross-section data in the original
-            TENDL file.
         nGroups (int): Number of energy groups into which the groupwise cross
             sections were calculated.
+        isomer_dict (collections.defaultdict, optional): Dictionary keyed by
+            reaction type (MT), with each MT containing a subdictionary of the
+            MF from which the isomeric pathways are extracted. The lowest
+            MT/MF level has a list of all isomeric states of possible daughter
+            nuclides for which there are cross-section data in the original
+            TENDL file.
+            (Defaults to {})
+        prepro (bool, optional): Option to handle PREPRO/GROUPIE-processed
+            groupwise nuclear data.
+            (Defaults to False)
+
             
     Returns:
         all_rxns (collections.defaultdict): Updated dictionary for all
             reaction pathways for the given parent and its MTs.
     """
 
+    MTs =  gendf_dict[3]['MTs']
     filtered_MTs = MTs - EXCITATION_REACTIONS
     for MT in MTs:
         cumulative_MT = REVERSE_EXCITATION_DICT.get(MT)
@@ -448,13 +369,18 @@ def iterate_MTs(
             filtered_MTs.add(MT)
 
     for MT in filtered_MTs:
-        xs_by_index = non_zero_xs[MT]
-        M_values = list(isomer_dict[MT].values())[0]
-        rxn = mt_dict[MT]
+        rxn = mt_dict.get(MT)
+        if not rxn:
+            continue
+
         gas = rxn['gas']
-        
-        # Calculate dKZA values for each excitation pathway in MF10
-        for M, sigmas in populate_xs(xs_by_index, M_values, nGroups).items():
+
+        # Calculate dKZA values for each excitation pathway in MF9/10
+        sigma_dict = populate_xs(
+            gendf_dict, MT, nGroups, 
+            isomer_dict=isomer_dict, prepro=prepro
+        )
+        for M, sigmas in sigma_dict.items():
             emitted = rxn['emitted']
             dKZA = (((pKZA // 10) * 10 + rxn['delKZA']) // 10) * 10 + M
             if gas:
@@ -500,3 +426,352 @@ def iterate_MTs(
                 all_rxns[pKZA][dKZA][special_MT]['xsections'] += sigmas
 
     return all_rxns
+
+class GENDFParser:
+
+    def __init__(self, MFs=(3,), prepro=False):
+        if not isinstance(MFs, abc.Iterable):
+            MFs = [MFs]
+
+        self.MFs = MFs
+        self.prepro = prepro
+        self.gendf_dict = None
+        self.nGroups = None
+        self.pKZA = None
+        self._reset_section_state()
+        self.current_MF = None
+        self.current_MT = None
+
+    @staticmethod
+    def _parse_control(line):
+        """
+        Extract the integer values of the MF (file) and MT (reaction) numbers from
+            a given line of an ENDF-formatted file. By ENDF formatting
+            conventions, these values are always in a fixed position, but may
+            contain additional whitespace.
+        
+        Arguments:
+            line (str): Text of a whole line of an ENDF-formatted file.
+        
+        Returns:
+            MF (int or None): ENDF file number. None if the file is incorrectly
+                formatted.
+            MT (int): Reaction number. None if the file is incorrectly formatted.
+        """
+
+        if len(line) < 75:
+            return None, None
+        
+        try:
+            return (
+                int(line[70:72]), # MF
+                int(line[72:75])  # MT
+            )
+        except ValueError:
+            return None, None
+
+    @staticmethod
+    def _reformat_endf_float(num_str):
+        """
+        Convert a parsed ENDF numeric string to a standard Python-usable
+            floating point number.
+
+        Argument:
+            num_str (str): Numeric string parsed from an ENDF file. Can be in
+                plain decimal for (0.1), explicit E/D notation (1.0E-1,
+                1.0D-1), or a Fortran shortand exponent with implicit 'E'
+                (1.0-1).
+
+        Returns:
+            num_float (float or None): Converted numeric value as a floating
+                point number, if one could be found in `num_str`. Otherwise,
+                `None`.
+        """
+
+        v = num_str.strip()
+        if not v:
+            return None
+
+        if 'E' in v or 'e' in v or 'D' in v or 'd' in v:
+            v = v.replace('D', 'E').replace('d', 'e')
+        else:
+            for i in range(1, len(v)):
+                if v[i] in '+-':
+                    v = v[:i] + 'E' + v[i:]
+                    break
+
+        return float(v)
+
+    @staticmethod
+    def _parse_tab1_header(line, with_lfs=False):
+        """
+        Extract three integer parameters from an ENDF reaction header needed
+            to identify the reaction's file section (or subsection for MF9/10
+            specific excitation pathways). For further information on these
+            TAB1 parameters, see the ENDF6 Manual
+            (https://www.nndc.bnl.gov/endfdocs/ENDF-102-2023.pdf).
+
+        Arguments:
+            line (str): Text of a whole line of an ENDF-formatted file.
+            with_lfs (bool, optional): Option to search for the LFS parameter.
+                Only needed when parsing MF9/10 for reaction subsections for
+                specific excitation pathways.
+                (Defaults to False)
+        
+        Returns:
+            LFS (int or None): Excited state of the daughter nuclide resultant
+                from the given reaction/excitation pathway. `None` if
+                `with_lfs` is `False`.
+            NR (int): "Number of energy ranges. A different scheme may be
+                given for each range" (ENDF6 Manual, Section 9.2).
+            NP (int): "Total number of energy points used to specify the
+                data" (ENDF6 Manual, Section 9.2).
+        """
+
+        LFS = int(line[33:44]) if with_lfs else None
+        NR = int(line[44:55])
+        NP = int(line[55:66])
+
+        return LFS, NR, NP
+
+    @classmethod
+    def _parse_prepro_tab1_xs(cls, line):
+        """
+        For a given line in a PREPRO-formatted TAB1 data table (i.e. after the
+            header), extract, reformat, and organize all cross sections into a
+            list.
+
+        Arguments:
+            line (str): A single TAB1 data line.
+
+        Returns:
+            line_xs (list of float): List of all cross-section values parsed
+                from the provided TAB1 data line.
+        """
+
+        return [
+            v for v in (
+                cls._reformat_endf_float(line[i : i + 11])
+                for i in range(0, 66, 11)
+            ) if v is not None
+        ][1::2]
+
+    def _reset_section_state(self):
+        """
+        Reset all state variables tracked within the section currently being
+            parsed.
+
+        Arguments:
+            None
+
+        Returns:
+            None
+        """
+
+        self.current_section = {}
+        self.current_LFS = None
+
+        # Standard NJOY/GROUPR (IG) state
+        self.line_count = 0
+        self.current_IG = None
+
+        # PREPRO/GROUPIE state (TAB1) state
+        self.section_line_idx = 0
+        self.NR = None
+        self.NP = None
+        self.interp_lines_left = 0
+        self.points_collected = 0
+        self.point_idx = 0
+
+    def _save_current_section(self):
+        """
+        Store the currently accumulated section, if non-empty.
+
+        Arguments:
+            None
+
+        Returns:
+            None
+        """
+
+        if not self.current_section:
+            return
+
+        if self.current_MF == 10:
+            self.gendf_dict[self.current_MF]['non_zero_xs'][self.current_MT][
+                self.current_LFS
+            ] = self.current_section
+
+        else:
+            self.gendf_dict[self.current_MF]['non_zero_xs'][
+                self.current_MT
+            ].append(self.current_section)
+
+    def _handle_groupr_line(self, line):
+        """
+        Parse one line of a standard GROUPR IG-tagged MF section to save
+            either the current IG (group-index) for even line counts or the
+            associated energy-dependent cross section for odd line counts.
+
+        Arguments:
+            line (str): Text of a whole line of an ENDF-formatted file.
+
+        Returns:
+            None
+        """
+
+        self.line_count += 1
+        if self.line_count < 2:
+            return
+
+        if self.line_count % 2 == 0:
+            self.current_IG = int(line[62:66])
+        else:
+            self.current_section[self.current_IG] = self._reformat_endf_float(
+                line.split()[1]
+            )
+
+    def _handle_prepro_line(self, line, MF):
+        """
+        Parse one line of a PREPRO/GROUPIE TAB1 section. Handles both single-
+            TAB1-record MFs and MF10's multi-subsection (per-LFS) layout
+            uniformly, by detecting new subsections via NP exhaustion rather
+            than a fixed line index.
+
+        Arguments:
+            line (str): Text of a whole line of an ENDF-formatted file.
+            MF (int): ENDF file number.
+
+        Returns:
+            None
+        """
+
+        self.section_line_idx += 1
+        if self.section_line_idx == 1:
+            return
+
+        if self.NP is None or self.points_collected >= self.NP:
+            self._save_current_section()
+            self.current_section = {}
+            self.current_LFS, self.NR, self.NP = self._parse_tab1_header(
+                line, with_lfs=(MF == 10)
+            )
+            self.interp_lines_left = int(np.ceil(self.NR / 3))
+            self.points_collected = 0
+            self.point_idx = 0
+            return
+
+        if self.interp_lines_left > 0:
+            self.interp_lines_left -= 1
+            return
+
+        for sigma in self._parse_prepro_tab1_xs(line):
+            if self.points_collected >= self.NP:
+                break
+
+            self.point_idx += 1
+            self.current_section[self.point_idx] = sigma
+            self.points_collected += 1
+
+    def parse(self, gendf_path):
+        """
+        Main externally callable function on a GENDFParser parser object to
+            parse a GENDF file for all cross-sections for each MF/MT pair, as
+            specified in the GENDFParser initialization. Capable of parsing
+            either NJOY/GROUPR or PREPRO/GROUPIE processed GENDF files.
+
+        Arguments:
+            gendf_path (pathlib._local.PosixPath): Path to the GENDF file from
+                which to extract activation data.
+
+        Returns:
+            gendf_dict (dict): Dictionary keyed by MF file number and valued
+                by a subdictionary with keys `'MTs'` and `'non_zero_xs'`. The
+                `'MTs'` key is valued by a set of all reaction types with
+                associated activation cross-sections within that `MF`. The
+                `'non_zero_xs'` key will be valued by either a
+                `collections.defaultdict(dict)` structure keyed by each MT
+                with subkeys for each LFS in the case of MF == 10, or a
+                `collections.defaultdict(list)` list of dictionaries of
+                groupwise-energy bound keys with associated cross-sections.
+            nGroups (int): Number of energy groups into which the groupwise
+                cross-sections were calculated.
+            pKZA (int or None): Parent KZA value. Only extracted when
+                `prepro` is True for the parser initialization. Otherwise
+                `None`.
+        """
+
+        self.gendf_dict = {
+            MF : {
+                'MTs' : set(),
+                'non_zero_xs' : (
+                    defaultdict(dict) if MF == 10 else defaultdict(list)
+                )
+            }
+            for MF in self.MFs
+        }
+
+        self.nGroups = None
+        self.pKZA = None
+        self._reset_section_state()
+        self.current_MF = None
+        self.current_MT = None
+
+        with open(gendf_path, 'r') as f:
+            lines = f.readlines()
+
+            if self.prepro:
+                self.pKZA = int(
+                    self._reformat_endf_float(lines[1].split()[0]) * 10
+                    + self._reformat_endf_float(lines[2].split()[3])
+                )
+
+            for line in lines:
+                mf, mt = self._parse_control(line)
+
+                # Extract number of groups, found in second line of file
+                # description sectino
+                if (
+                    not self.prepro and mf == 1 and mt == 451
+                    and int(line.rstrip('\n')[-3:]) == 2
+                ):
+                    self.nGroups = int(line.split()[2])
+                elif self.prepro:
+                    groupie_tag = 'Unshielded Group Averages Using'
+                    if groupie_tag in line:
+                        self.nGroups = int(
+                            line.split(groupie_tag)[1].split()[0]
+                        )
+
+                if mf in self.MFs and mt != 0:
+                    self.gendf_dict[mf]['MTs'].add(mt)
+
+                    if mt != self.current_MT or mf != self.current_MF:
+                        self._save_current_section()
+                        self._reset_section_state()
+                        self.current_MT = mt
+                        self.current_MF = mf
+
+                    if self.prepro:
+                        self._handle_prepro_line(line, mf)
+                    else:
+                        self._handle_groupr_line(line)
+
+                else:
+                    self._save_current_section()
+                    self._reset_section_state()
+                    self.current_MT = None
+                    self.current_MF = None
+
+            self._save_current_section()
+
+        if not self.gendf_dict.get(10):
+            self.gendf_dict.setdefault(10, {'MTs' : [], 'non_zero_xs' : []})
+
+        if not self.nGroups:
+            raise ValueError(
+                f'{gendf_path} misformatted. Expecting to find group number' \
+                ' in MF1, MT451.'
+            )
+
+        return self.gendf_dict, self.nGroups, self.pKZA
