@@ -154,6 +154,11 @@ def collect_excitation_pathways(endf_obj, MT, single_MF=None):
 
     Arguments:
         endf_obj (openmc.data.endf.Evaluation): OpenMC parsed-ENDF object.
+        MT (int): Reaction number.
+        single_MF (int or None, optional): Option to avoid iterating over both
+            MF 9 and 10 if the file containing the excitation pathway data is
+            already known.
+            (Defaults to None)
 
     Returns:
         pathways (list): List of tuples, each containing the isomeric state
