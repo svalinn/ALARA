@@ -330,35 +330,32 @@ def set_modifiable_groupr_parameters(parsed_arg, njoy_ref_dict):
     ngn = ''
     egn = ''
 
-    # Check if provided parameter is among the list of built-in NJOY group
-    # structures or weight functions by key (ign values 2-34; iwt values 2-12)
-    if value in np.asarray(list(njoy_ref_dict), dtype=str):
-        characteristic_parameter = int(value)
-        parameter_name = njoy_ref_dict[characteristic_parameter]
-
     # Check if the provided parameter is among the list of built-in NJOY group
-    # structures or weight functions by name (values of NJOY_GROUPS or
-    # NJOY_WEIGHT_FUNCTIONS dictionaries, respectively)
-    elif value.upper() in njoy_ref_dict.values():
-        parameter_name = value.upper()
-        characteristic_parameter = list(njoy_ref_dict)[
-            list(njoy_ref_dict.values()).index(parameter_name)
-        ]
+    # structures or weight function by either key (ign values 2-34; iwt values
+    # 2-12) or by name (values of NJOY_GROUPS or NJOY_WEIGHT_FUNCTIONS
+    # dictionaries, respetively)
+    for param, name in njoy_ref_dict.items():
+        if (value == str(param) or value == name):
+            characteristic_parameter = param
+            parameter_name = name
+            break
 
-    # Group structure case: NJOY "arbitrary group structure" option
-    elif njoy_ref_dict == NJOY_GROUPS:
-        characteristic_parameter = 1
-        parameter_name, group_bounds = load_external_group_struct(value)
-        ngn = str(len(group_bounds) - 1)
-        egn = ' '.join(np.asarray(sorted(group_bounds), dtype=str))
+    if not characteristic_parameter:
 
-    if not (characteristic_parameter and parameter_name):
-        raise ValueError(
-            f'Invalid argument "{value}" for associated GROUPR parameter. ' \
-            'Consult set_modifiable_groupr_parameters() docstring for ' \
-            'guidance on accepted inputs for group structure, weight ' \
-            'function parameters.'
-        )
+        # Group structure case: NJOY "arbitrary group structure" option
+        if njoy_ref_dict == NJOY_GROUPS:
+            characteristic_parameter = 1
+            parameter_name, group_bounds = load_external_group_struct(value)
+            ngn = str(len(group_bounds) - 1)
+            egn = ' '.join(np.asarray(sorted(group_bounds), dtype=str))
+
+        if not parameter_name:
+            raise ValueError(
+                f'Invalid argument "{value}" for associated GROUPR ' \
+                'parameter. Consult set_modifiable_groupr_parameters() ' \
+                'docstring for guidance on accepted inputs for group ' \
+                'structure, weight function parameters.'
+            )
 
     return characteristic_parameter, parameter_name, ngn, egn
 
