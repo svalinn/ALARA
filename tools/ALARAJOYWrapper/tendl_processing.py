@@ -230,11 +230,6 @@ def determine_all_excitations(endf_obj, MTs):
                     endf_obj, MT, MF
                 )
                 isomer_dict[MT][MF].extend([p[0] for p in pathways])
-=======
-                isomer_dict[MT][MF].extend(collect_excitation_pathways(
-                    Reaction.from_endf(endf_obj, MT)
-                ))
->>>>>>> c8ad932 (Migrating all ENDF interfacing to openmc.data)
 
             if not isomer_dict[MT]:
                 isomer_dict[MT][3].append(0)
