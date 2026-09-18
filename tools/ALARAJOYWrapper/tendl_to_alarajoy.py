@@ -64,6 +64,14 @@ def make_argparser():
         ''')
     )
     parser.add_argument(
+        '--weight_function', '-w', required=False, nargs=1, default=[11],
+        help=('''
+            Specification for weight function with which to group TENDL cross-
+                sections. See njoy_tools.set_weight_function() for specific
+                details for acceptable forms in which to supply this argument.
+        ''')
+    )
+    parser.add_argument(
         '--xs_plotting', '-p', action='store_true',
         help=('''
             Optional argument to comparatively plot all converted groupwise
@@ -230,7 +238,7 @@ def process_pendf(
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict, temperature, pKZA,
     isomer_dict, all_rxns, all_nucs, group_name, tendl_dir,
-    ign=17, ngn='', egn=''
+    iwt=11, ign=17, ngn='', egn=''
 ):
     """
     Prepare and run NJOY run with GROUPR and iteratively extract cross-section
@@ -292,7 +300,7 @@ def process_gendf(
     groupr_input = njt.fill_input_template(
         njoy_groupr_input, material_id, MTs, element,
         A, mt_dict, temperature, pKZA, isomer_dict,
-        ign=ign, ngn=ngn, egn=egn
+        iwt=iwt, ign=ign, ngn=ngn, egn=egn
     )
     njt.write_njoy_input_file(groupr_input)
     gendf_path, njoy_error, _ = njt.run_njoy(
@@ -432,7 +440,7 @@ def rxn_to_str(parent, daughter, MT, rxn):
     return dsv_row + ' '.join(str(xs) for xs in rxn['xsections'])
 
 def store_results(
-    dsv_path, all_rxns, nGroups, tendl_dir, group_name, plotting
+    dsv_path, all_rxns, nGroups, tendl_dir, group_name, weight_function, plotting
 ):
     """
     Save groupwise-converted cross-section data to a space-delimited DSV file
@@ -474,6 +482,8 @@ def store_results(
         group_name (str): Name of the group structure according to which
             GROUPR converted continuous energy cross-sections to groupwise
             cross-sections.
+        weight_function (str): Name of the weight function with which GROUPR
+            calibrated groupwise cross-section conversion calculations.
         plotting (bool): Boolean to set whether to produce cross-section
             plots.
 
@@ -482,7 +492,7 @@ def store_results(
     """
 
     with open(dsv_path, 'w') as dsv:
-        dsv.write(f'{nGroups} {group_name}\n')
+        dsv.write(f'{nGroups} {group_name} {weight_function}\n')
         for parent in sorted(all_rxns):
             element, A = tp.interpret_KZA(parent)
             endf_obj = endf.Evaluation(tendl_dir / f'{element}{A}.tendl')
@@ -557,7 +567,12 @@ def main():
         Path(args.fendlFileDir[0]) if args.fendlFileDir else dir
     )
     temperature = args.temperature[0]
-    ign, ngn, egn, group_name = njt.set_group_structure(args.group_structure)
+    ign, group_name, ngn, egn = njt.set_modifiable_groupr_parameters(
+        args.group_structure, njt.NJOY_GROUPS
+    )
+    iwt, weight_function, _, _ = njt.set_modifiable_groupr_parameters(
+        args.weight_function, njt.NJOY_WEIGHT_FUNCTIONS
+    )
 
     mt_dict = rxd.process_mt_data(rxd.load_mt_table(dir / 'mt_table.csv'))
     endf6_MTs = set(mt_dict)
@@ -604,7 +619,7 @@ def main():
             all_rxns, nGroups = process_gendf(
                 njt.groupr_input, material_id, MTs, mt_dict, temperature,
                 pKZA, isomer_dict, all_rxns, all_nucs, group_name, search_dir,
-                ign=ign, ngn=ngn, egn=egn
+                iwt=iwt, ign=ign, ngn=ngn, egn=egn
             )
 
         else:
@@ -630,8 +645,8 @@ def main():
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     store_results(
-        dsv_path, gas_filtered, nGroups,
-        search_dir, group_name, args.xs_plotting 
+        dsv_path, gas_filtered, nGroups, search_dir, 
+        group_name, weight_function, args.xs_plotting 
     )
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
