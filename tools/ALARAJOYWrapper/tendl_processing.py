@@ -5,7 +5,7 @@ from njoy_tools import elements
 from collections import defaultdict
 import warnings
 import numpy as np
-import re
+from io import StringIO
 from openmc.data import Reaction, endf
 
 EXCITATION_DICT = {
@@ -144,7 +144,7 @@ def search_for_files(dir = Path.cwd()):
 
     return file_info
 
-def collect_excitation_pathways(rxn_obj):
+def collect_excitation_pathways(endf_obj, MT, single_MF=None):
     """
     For a given excitation-nonspecific nuclear reaction, organize all distinct
         excitation pathways into a list of tuples, each containing the
@@ -153,24 +153,38 @@ def collect_excitation_pathways(rxn_obj):
         excitation.
 
     Arguments:
-        rxn_obj (openmc.data.reaction.Reaction): OpenMC reaction object
-            containing pathway data for all possible daughter excitations of a
-            given MT reaction type. 
+        endf_obj (openmc.data.endf.Evaluation): OpenMC parsed-ENDF object.
 
     Returns:
         pathways (list): List of tuples, each containing the isomeric state
-        and the `openmc.data.product.Product` object containing the nuclear
-        data for the pathway to each product in ascending order of excitation.
+            and the `openmc.data.Tabulated1D` object containing the reaction's
+            TAB1 data.
+        matched_MF (int): ENDF file number corresponding to the MF containing
+            excitation pathway data.
     """
 
     pathways = []
-    for product in rxn_obj.products:
-        if product.particle not in {'neutron', 'photon', 'electron'}:
-            iso_flag = re.compile(r'_e(\d+)$').search(product.particle)
-            excited_state = int(iso_flag.group(1)) if iso_flag else 0
-            pathways.append((excited_state, product))
+    matched_MF = None
+    MF_search = [single_MF] if single_MF else PATH_SPECIFIC_MFS
+    for MF in MF_search:
+        section_text = endf_obj.section.get((MF, MT))
+        if not section_text:
+            continue
 
-    return pathways.sort(key=lambda pathway: pathway[0])
+        io_obj = StringIO(section_text)
+        head_record = endf.get_head_record(io_obj)
+        n_states = head_record[4]
+
+        for _ in range(n_states):
+            tab1_params, tab1 = endf.get_tab1_record(io_obj)
+            LFS = tab1_params[3]
+            pathways.append((LFS, tab1))
+
+        if pathways:
+            matched_MF = MF
+            break
+
+    return  sorted(pathways, key=lambda pathway: pathway[0]), matched_MF
 
 def determine_all_excitations(endf_obj, MTs):
     """
@@ -207,9 +221,10 @@ def determine_all_excitations(endf_obj, MTs):
             ), None)
 
             if MF:
-                isomer_dict[MT][MF].extend(collect_excitation_pathways(
-                    Reaction.from_endf(endf_obj, MT)
-                ))
+                pathways, _ = collect_excitation_pathways(
+                    endf_obj, MT, MF
+                )
+                isomer_dict[MT][MF].extend([p[0] for p in pathways])
 
             if not isomer_dict[MT]:
                 isomer_dict[MT][3].append(0)

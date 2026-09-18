@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 from openmc.data import Reaction, endf
-from io import StringIO
 
 def flagged_num_to_int(num):
     """
@@ -96,28 +95,7 @@ def extract_continuous_data(endf_obj, MT):
     # present. Otherwise, extract pathway-specific cross-sections directly
     # from MF10
     if isomeric_state > 0:
-        pathways = []
-        matched_MF = None
-        for MF in tp.PATH_SPECIFIC_MFS:
-            section_text = endf_obj.section.get((MF, MT))
-            if not section_text:
-                continue
-
-            io_obj = StringIO(section_text)
-            head_record = endf.get_head_record(io_obj)
-            n_states = head_record[4]
-
-            for _ in range(n_states):
-                tab1_params, tab1 = endf.get_tab1_record(io_obj)
-                LFS = tab1_params[3]
-                pathways.append((LFS, tab1))
-
-            if pathways:
-                matched_MF = MF
-                break
-
-        pathways.sort(key=lambda pathway: pathway[0])
-
+        pathways, matched_MF = tp.collect_excitation_pathways(endf_obj, MT)
         if pathways and isomeric_state in pathways:
             tab1 = pathways[isomeric_state][1]
             energies = tab1.x
