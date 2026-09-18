@@ -335,7 +335,7 @@ def set_modifiable_groupr_parameters(parsed_arg, njoy_ref_dict):
     # 2-12) or by name (values of NJOY_GROUPS or NJOY_WEIGHT_FUNCTIONS
     # dictionaries, respetively)
     for param, name in njoy_ref_dict.items():
-        if (value == str(param) or value == name):
+        if (str(value) == str(param) or value == name):
             characteristic_parameter = param
             parameter_name = name
             break
