@@ -1,11 +1,12 @@
 # Import packages
-from endf_parserpy import EndfParserPy
 from pathlib import Path
 from reaction_data import GAS_DF
 from njoy_tools import elements
 from collections import defaultdict
 import warnings
 import numpy as np
+from io import StringIO
+from openmc.data import Reaction, endf
 
 EXCITATION_DICT = {
     4   : np.arange(51 ,  92), # (n,n*)  reactions
@@ -25,61 +26,42 @@ REVERSE_EXCITATION_DICT = {
 ISOMERIC_STATES = 'mnopqrstuvwxyz'
 PATH_SPECIFIC_MFS = (9,10)
 
-def parse_endf_file_level_data(endf_path, MF=3, endf_format='endf6-ext'):
+def compile_MTs_from_ENDF_obj(endf_obj):
     """
-    For an ENDF-formatted TENDL file containing neutron activation data for a
-        single nuclide, parse and store the file's data into a nested
-        dictionary with endf_parserpy.EndfParserPy().parsefile().
+    Collect all reaction types (MTs) contained in the MF3 
+        ("Reaction Cross Sections") file of an `openmc.data.endf.Evaluation()`
+        parsed ENDF-formatted file.
 
     Arguments:
-        endf_path (pathlib._local.PosixPath or str): Path to an ENDF-formatted
-            file.
-        MF (int, optional): Option to set ENDF file number. If no option is
-            selected, will default to 3, corresponding to "Reaction Cross
-            Sections".
-            (Defaults to 3).
-        endf_format (str, optional): Option to set the specific ENDF file
-            format, according to the endf_parserpy options, which include:
-                    ('endf6-ext', 'endf6', 'jendl', 'pendf', 'errorr')
-            (Defaults to 'endf6-ext).
-
-    Returns:
-        endf_file_dict (dict): Dictionary containing all reaction data within
-            an ENDF file. Keyed by MT number. If the provided MF is not
-            present in the ENDF file, file_dict will be returned as an empty
-            dictionary.
-        material_id (int): Unique nuclide ID extracted from the file.
-    """
+        endf_obj (openmc.data.endf.Evaluation): OpenMC ENDF file parsing
+            object.
     
-    endf_dict = EndfParserPy(endf_format=endf_format).parsefile(endf_path)
-
-    return endf_dict.get(MF, {}), endf_dict[1][451]['MAT']
-
-def calculate_KZA_from_ENDF(filepath, MF=1, MT=451):
+    Returns:
+        MTs (set): Set of all MT reaction numbers contained in the ENDF-
+            formatted file.
     """
-    Use the ZA and LISO flags from a an MF,MT section of a single nuclide ENDF
-        formatted nuclear data file to construct a unique idenfifier for the
-        nuclide in the KZA (ZZZAAAM) format.
+
+    return {MT for (MF, MT) in endf_obj.section if MF == 3}
+
+def calculate_KZA_from_ENDF(filepath):
+    """
+    By parsing a single nuclide ENDF-formatted file with
+        `openmc.data.endf.Evaluation()`, produce the nuclide's unique KZA
+        (ZZAAAM) identifier.
 
     Arguments:
         filepath (pathlib._local.PosixPath): Path to an ENDF-formatted file.
-        MF (int, optional): Option to specify the ENDF data block ("file")
-            from which to extract identifying data. Unless specified, will
-            direct to MF = 1 ("General Information").
-            (Defaults to 1).
-        MT (int, optional): Option to specify the file section within an ENDF
-            data block (MF) from which to extract identifying data. Unless
-            specificed, will direct to MF = 451 ("Descriptive Data and
-            Directory").
-            (Defaults to 451)
 
     Returns:
         KZA (int): Unique ZZZAAAM identifier for a given nuclide.
     """
 
-    nuc_data = parse_endf_file_level_data(filepath, MF)[0][MT]
+    nuc_data = endf.Evaluation(filepath).target
 
-    return int(nuc_data['ZA'] * 10 + nuc_data['LISO'])
+    return (
+        (nuc_data['atomic_number'] * 1000 + nuc_data['mass_number']) * 10
+        + nuc_data['isomeric_state']
+    )
 
 def interpret_KZA(kza):
     """
@@ -133,7 +115,7 @@ def search_for_files(dir = Path.cwd()):
     for suffix in ['tendl', 'endf']:
         # Iterate alphabetically for debugging to spot where process fails
         for file in sorted(dir.glob(f'*.{suffix}')):
-            pKZA = calculate_KZA_from_ENDF(file, 1, 451)
+            pKZA = calculate_KZA_from_ENDF(file)
             element, A = interpret_KZA(pKZA)
 
             for existing_file in file_info:
@@ -162,7 +144,54 @@ def search_for_files(dir = Path.cwd()):
 
     return file_info
 
-def determine_all_excitations(endf_path, MTs):
+def collect_excitation_pathways(endf_obj, MT, single_MF=None):
+    """
+    For a given excitation-nonspecific nuclear reaction, organize all distinct
+        excitation pathways into a list of tuples, each containing the
+        isomeric state and the `openmc.data.product.Product` object containing
+        the nuclear data for the pathway to each product in ascending order of
+        excitation.
+
+    Arguments:
+        endf_obj (openmc.data.endf.Evaluation): OpenMC parsed-ENDF object.
+        MT (int): Reaction number.
+        single_MF (int or None, optional): Option to avoid iterating over both
+            MF 9 and 10 if the file containing the excitation pathway data is
+            already known.
+            (Defaults to None)
+
+    Returns:
+        pathways (list): List of tuples, each containing the isomeric state
+            and the `openmc.data.Tabulated1D` object containing the reaction's
+            TAB1 data.
+        matched_MF (int): ENDF file number corresponding to the MF containing
+            excitation pathway data.
+    """
+
+    pathways = []
+    matched_MF = None
+    MF_search = [single_MF] if single_MF else PATH_SPECIFIC_MFS
+    for MF in MF_search:
+        section_text = endf_obj.section.get((MF, MT))
+        if not section_text:
+            continue
+
+        io_obj = StringIO(section_text)
+        head_record = endf.get_head_record(io_obj)
+        n_states = head_record[4]
+
+        for _ in range(n_states):
+            tab1_params, tab1 = endf.get_tab1_record(io_obj)
+            LFS = tab1_params[3]
+            pathways.append((LFS, tab1))
+
+        if pathways:
+            matched_MF = MF
+            break
+
+    return  sorted(pathways, key=lambda pathway: pathway[0]), matched_MF
+
+def determine_all_excitations(endf_obj, MTs):
     """
     Reference an ENDF file's MF9 and MF10 file data and explicitly defined
         excitation reactions to construct a nested dictionary keyed by
@@ -173,8 +202,7 @@ def determine_all_excitations(endf_path, MTs):
         cross-section data.
 
     Arguments:
-        endf_path (pathlib._local.PosixPath): Path to the ENDF (TENDL) file to
-            be processed.
+        endf_obj (openmc.data.endf.Evaluation): OpenMC parsed-ENDF object.
         MTs (set): Set of all MT reaction numbers contained in the TENDL file.
 
     Returns:
@@ -187,22 +215,21 @@ def determine_all_excitations(endf_path, MTs):
     """
 
     isomer_dict = defaultdict(lambda: defaultdict(list))
-
-    mf_dict = {
-        MF: parse_endf_file_level_data(endf_path, MF)[0]
-        for MF in PATH_SPECIFIC_MFS
-    }
-
     for MT in MTs:
         cumulative_MT = REVERSE_EXCITATION_DICT.get(MT)
         if MT not in EXCITATION_REACTIONS:
             # Isomer pathways contained either in MF 9 ("Multiplicities for
             # Production of Radioactive Nuclides") and MF 10 ("Cross Sections
             # for Production of Radioactive Nuclides").
-            for MF in PATH_SPECIFIC_MFS:
-                pathways = mf_dict[MF].get(MT, {}).get('subsection', {})
-                for pathway_data in pathways.values():
-                    isomer_dict[MT][MF].append(pathway_data['LFS'])
+            MF = next((
+                MF for MF in PATH_SPECIFIC_MFS if (MF, MT) in endf_obj.section
+            ), None)
+
+            if MF:
+                pathways, _ = collect_excitation_pathways(
+                    endf_obj, MT, MF
+                )
+                isomer_dict[MT][MF].extend([p[0] for p in pathways])
 
             if not isomer_dict[MT]:
                 isomer_dict[MT][3].append(0)
@@ -216,7 +243,7 @@ def determine_all_excitations(endf_path, MTs):
             if cumulative_MT == 4:
                 M += 1
             isomer_dict[MT][3].append(M)
-  
+
     return isomer_dict
 
 def _gendf_parse_control(line):

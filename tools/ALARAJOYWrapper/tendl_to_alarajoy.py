@@ -118,7 +118,7 @@ def configure_logging(redirect_warnings=False):
 
 def process_pendf(
     material_id, MTs, pKZA, mt_dict, temperature,
-    tendl_path, tendl_dir, unresr_err_cases
+    endf_obj, tendl_dir, unresr_err_cases
 ):
     """
     Prepare and run initial NJOY run with MODER, RECONR, BROADR, UNRESR, and
@@ -219,11 +219,9 @@ def process_pendf(
     else:
         njoy_error += prep_error
 
-    pendf_MTs = set(tp.parse_endf_file_level_data(
-        pendf_path, endf_format='pendf'
-    )[0])
+    pendf_MTs = tp.compile_MTs_from_ENDF_obj(endf.Evaluation(pendf_path))
     MTs |= pendf_MTs.intersection(set(rxd.GAS_DF['total_mt']))
-    isomer_dict = tp.determine_all_excitations(tendl_path, MTs)
+    isomer_dict = tp.determine_all_excitations(endf_obj, MTs)
 
     return MTs, isomer_dict, njoy_error, unresr_err_cases
 
@@ -432,7 +430,8 @@ def rxn_to_str(parent, daughter, MT, rxn):
     return dsv_row + ' '.join(str(xs) for xs in rxn['xsections'])
 
 def store_results(
-    dsv_path, all_rxns, nGroups, tendl_dir, group_name, plotting
+    dsv_path, all_rxns, nGroups, tendl_dir,
+    group_name, plotting, endf_obj_dict
 ):
     """
     Save groupwise-converted cross-section data to a space-delimited DSV file
@@ -476,6 +475,10 @@ def store_results(
             cross-sections.
         plotting (bool): Boolean to set whether to produce cross-section
             plots.
+        endf_obj_dict (dict): Dictionary with a key for each parent nuclide
+            in the TENDL data source formatted as {element}{A}, with each
+            having a single value of the `openmc.data.Evaluation()` object
+            containing the nuclear data from the parsed ENDF-formatted file.
 
     Returns:
         None 
@@ -485,7 +488,6 @@ def store_results(
         dsv.write(f'{nGroups} {group_name}\n')
         for parent in sorted(all_rxns):
             element, A = tp.interpret_KZA(parent)
-            endf_obj = endf.Evaluation(tendl_dir / f'{element}{A}.tendl')
             for daughter in all_rxns[parent]:
                 if parent != daughter:
                     for MT, rxn in all_rxns[parent][daughter].items():
@@ -505,7 +507,7 @@ def store_results(
                                 )
 
                                 continuous_dict = xp.extract_continuous_data(
-                                    endf_obj, MT
+                                    endf_obj_dict[f'{element}{A}'], MT
                                 )
 
                                 energies = njt.load_external_group_struct(
@@ -581,11 +583,13 @@ def main():
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
     unresr_err_cases = []
+    endf_obj_dict = {}
     for file_properties in tp.search_for_files(search_dir):
         element, A, pKZA, endf_path = tuple(file_properties.values())
         TAPE20.write_bytes(endf_path.read_bytes())
-        endf_file_dict, material_id = tp.parse_endf_file_level_data(TAPE20)
-        MTs = set(endf_file_dict)
+        endf_obj = endf.Evaluation(TAPE20)
+        endf_obj_dict[f'{element}{A}'] = endf_obj
+        MTs = tp.compile_MTs_from_ENDF_obj(endf_obj)
 
         if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
             invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
@@ -596,13 +600,13 @@ def main():
         MTs = MTs.intersection(endf6_MTs)
 
         MTs, isomer_dict, njoy_prep_error, unresr_err_cases = process_pendf(
-            material_id, MTs, pKZA, mt_dict, temperature,
-            TAPE20, search_dir, unresr_err_cases
+            endf_obj.material, MTs, pKZA, mt_dict, temperature,
+            endf_obj, search_dir, unresr_err_cases
         )
 
         if not njoy_prep_error:
             all_rxns, nGroups = process_gendf(
-                njt.groupr_input, material_id, MTs, mt_dict, temperature,
+                njt.groupr_input, endf_obj.material, MTs, mt_dict, temperature,
                 pKZA, isomer_dict, all_rxns, all_nucs, group_name, search_dir,
                 ign=ign, ngn=ngn, egn=egn
             )
@@ -630,8 +634,8 @@ def main():
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     store_results(
-        dsv_path, gas_filtered, nGroups,
-        search_dir, group_name, args.xs_plotting 
+        dsv_path, gas_filtered, nGroups, search_dir,
+        group_name, args.xs_plotting, endf_obj_dict
     )
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
