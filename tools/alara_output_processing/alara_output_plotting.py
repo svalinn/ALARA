@@ -2,11 +2,234 @@ import numpy as np
 import pandas as pd
 import re
 import matplotlib.pyplot as plt
+import re
 from matplotlib import lines
 import matplotlib.cm as cm
 from warnings import warn
 import alara_output_processing as aop
 from collections import defaultdict
+
+# ------ Comparative Series Statistics -------
+
+class PlotStats:
+    '''
+    Class containing attributes and methods used for quantitatively assessing
+        time-series plots in ALARAPlot. Can be applied for analysis simulated
+        and computational data. Contains computational capabilities for
+        statistical metrics organized as such (internal calling names in
+        parentheses):
+
+            1) Unweighted Single Series Metrics
+                a) Mean (mean)
+                b) Median (median)
+                c) Standard Deviation (std)
+                d) Variance (var)
+
+            2) Weighted Single Series Metrics
+                a) Uncertainty Weighted Mean (uncertainty-weighted-mean)
+
+            3) Unweighted Compartive Metrics
+                a) Root Mean Square Deviation (rmsd)
+                b) Mean Percent Difference (mean-pct-diff)
+
+            4) Weighted Comparative Metrics
+                a) Uncertainty Weighted Root Mean Square Deviation
+                   (uncertainty-weighted-rmsd)
+                b) Uncertainty Weighted Mean Percent Difference
+                   (uncertainty-weighted-mean-pct-diff)
+    '''
+
+    unweighted_single_series_metrics = {
+        'mean': ('_compute_mean', r'\mu'),
+        'median': ('_compute_median', 'median'),
+        'std': ('_compute_std', r'\sigma'),
+        'var': ('_compute_var', 'Var'),
+    }
+    weighted_single_series_metrics = {
+        'uncertainty-weighted-mean': (
+            '_compute_weighted_mean', r'Uncertainty\ Weighted\ Mean'
+        ),
+    }
+    single_series_metrics = (
+        unweighted_single_series_metrics | weighted_single_series_metrics
+    )
+
+    unweighted_comparative_metrics = {
+        'rmsd': ('_compute_rmsd', 'RMSD'),
+        'mean-percent-diff': ('_compute_mean_pct_diff', r'Mean\ \%\ Diff'),
+    }
+    weighted_comparative_metrics = {
+        'uncertainty-weighted-rmsd': (
+            '_compute_weighted_rmsd', r'Uncertainty\ Weighted\ RMSD'
+        ),
+        'uncertainty-weighted-mean-percent-diff': (
+            '_compute_weighted_mean_pct_diff',
+            r'Uncertainty\ Weighted\ Mean\ \%\ Diff'
+        ),
+    }
+    comparative_metrics = (
+        unweighted_comparative_metrics | weighted_comparative_metrics
+    )
+
+    all_metrics = single_series_metrics | comparative_metrics
+
+    def __init__(
+        self,
+        series,
+        stat_type='mean',
+        skip_nans=True,
+        secondary_series=np.array([]),
+        uncertainties=np.array([])
+    ):
+        self.series = np.asarray(series)
+        self.secondary_series = np.asarray(secondary_series)
+        self.uncertainties = np.asarray(uncertainties)
+        self.stat_type = stat_type.lower()
+
+        self.skip_nans = skip_nans
+        if self.skip_nans:
+            self._mean = np.nanmean
+            self._median = np.nanmedian
+            self._std = np.nanstd
+            self._var = np.nanvar
+            self._average = self._nan_average
+        else:
+            self._mean = np.mean
+            self._median = np.median
+            self._std = np.std
+            self._var = np.var
+            self._average = np.average
+
+        self.weights = None
+        if self.uncertainties.size > 0:
+            self.weights = self.uncertainties ** -2
+
+        self.metrics = self.single_series_metrics
+        if self.secondary_series.size > 0:
+            self.metrics = self.all_metrics
+
+        if self.stat_type not in self.metrics:
+            raise ValueError(f'Unknown stat_type: {self.stat_type!r}')
+        
+        method_name, self.tex_name = self.metrics[self.stat_type]
+        self._compute = getattr(self, method_name)
+        self.stat = None
+
+    def _require_weights(self, value):
+        if self.weights is None:
+            raise ValueError(
+                f'stat_type={self.stat_type!r} requires uncertainties to ' \
+                'be provided during PlotStats instantiation.'
+            )
+
+        return value
+
+    # ------- Internal Formulae -------
+    @staticmethod
+    def _nan_average(s, weights):
+        return np.nansum(s * weights) / np.nansum(weights)
+
+    def _perc_diff(self):
+        return (self.secondary_series - self.series) / self.series * 100
+
+    def _square_err(self):
+        return (self.series - self.secondary_series) ** 2
+
+    # ------- Individual Statistics Computations -------
+    def _compute_mean(self):
+        return self._mean(self.series)
+
+    def _compute_weighted_mean(self):
+        return self._require_weights(
+            self._average(self.series, weights=self.weights)
+        )
+
+    def _compute_median(self):
+        return self._median(self.series)
+
+    def _compute_std(self):
+        return self._std(self.series)
+
+    def _compute_var(self):
+        return self._var(self.series)
+
+    def _compute_rmsd(self):
+        return np.sqrt(self._mean(self._square_err()))
+
+    def _compute_weighted_rmsd(self):
+        return self._require_weights(
+            np.sqrt(self._average(self._square_err(), weights=self.weights))
+        )
+
+    def _compute_mean_pct_diff(self):
+        return self._mean(self._perc_diff())
+
+    def _compute_weighted_mean_pct_diff(self):
+        return self._require_weights(
+            self._average(self._perc_diff(), weights=self.weights)
+        )
+
+    # ------- Outward Facing Functionality -------
+    @staticmethod
+    def initialize_row(run, variable):
+        return {'run' : run, 'variable' : variable}
+
+    def calculate_statistic(self):
+        self.stat = self._compute()
+        return self.stat
+
+    @classmethod
+    def compute_all_metrics(
+        cls,
+        series,
+        metrics=all_metrics,
+        secondary_series=np.array([]),
+        uncertainties=np.array([]),
+        skip_nans=True
+    ):
+        '''
+        Calculate and store all statistical metrics for a given series.
+
+        Arguments:
+            series (numpy.ndarray): Array containing data to be analyzed.
+            metrics (list or dict, optional): Collection of statistical
+                metrics to calculate. Can accept any combination of metrics
+                contained in PlotStats.all_metrics.
+                (Defaults to PlotStats.all_metrics)
+            secondary_series (numpy.ndarray, optional): Array equivalent in
+                size to `series`, used for comparative statistics
+                calculations.
+                (Defaults to numpy.array([]))
+            uncertainties (numpy.ndarray, optional): Array equivalent in size
+                to `series` containing experimental uncertainties. Can be used
+                for comparative statistics; only necessary for weighted
+                statistical metrics.
+                (Defaults to numpy.arrray([]))
+            skip_nans (bool, optional): Boolean to determine whether NaN
+                values encountered in the provided series will be skipped
+                (`True`) or raise a `ValueError` (`False`).
+                (Defaults to True)
+
+        Returns:
+            computed (dict): Dictionary keyed by the names of each evaluated
+                statistical metric, valued by the PlotStats object containing
+                the associated computed value. 
+        '''
+
+        computed = {}
+        for stat_type in metrics:
+            stats_obj = cls(
+                series=series,
+                stat_type=stat_type,
+                secondary_series=secondary_series,
+                uncertainties=uncertainties,
+                skip_nans=skip_nans
+            )
+            stats_obj.calculate_statistic()
+            computed[stat_type] = stats_obj
+
+        return computed
+
 
 # ------- Utility and Helper Functions -------
 
@@ -109,6 +332,52 @@ def preprocess_data(
 
     return filtered, piv
 
+def compile_all_nucs(
+    adf, 
+    runs,
+    variables,
+    cmap_name='tab20',
+    threshold=0.025,
+    sort_by_time=None,
+    time_unit='s'
+):
+    all_nucs = set()
+    if not isinstance(variables, list):
+        variables = [variables]
+
+    for var in variables:
+        aggs = []
+        for run in runs:
+            aggs.append(pie_chart_aggregation(
+                adf=adf,
+                run_lbl=run,
+                variable=var,
+                threshold=threshold,
+                time_unit=time_unit,
+                half_lives=None
+            ))
+
+        _, _, cm, _ = plot_single_response(
+            adf=pd.concat(aggs),
+            run_lbls=runs,
+            variable=var,
+            time_unit=time_unit,
+            relative=True,
+            cmap_name=cmap_name,
+            half_lives=None,
+            shading=True,
+            sort_by_time=sort_by_time
+        )
+        all_nucs.update(set(cm.keys()))
+
+    return set([n for n in all_nucs if n.lower() != 'other'])
+
+def define_line_styles(run_lbls=[], plot_type='plot'):
+    return list(
+        lines.lineStyles.keys() if plot_type == 'plot'
+        else lines.lineMarkers.keys()
+    )[:len(run_lbls)]
+
 def build_color_map(cmap_name, all_nucs=[], pivs=None, mark_thalf=False):
     '''
     Given a list of pivot DataFrames (one per run) or a 1D array-like data
@@ -158,6 +427,16 @@ def build_color_map(cmap_name, all_nucs=[], pivs=None, mark_thalf=False):
 
     return color_map
 
+def get_var_unit(filtered_adf):
+    units = filtered_adf['var_unit'].unique()
+    if len(units) > 1:
+        raise ValueError(
+            'ADF contains data in inconsistent units. Single variable data ' \
+            'must all be represented by the same unit form.'
+        )
+
+    return units[0]
+
 def split_label(label):
     '''
     Split the string of a series' label to extract the isotope being plotted
@@ -179,7 +458,7 @@ def split_label(label):
         parts = label.split('(')
         isotope = parts[0].strip()
         run_lbl = f'({parts[1].strip(')')})'
-        if '$\\mu' in run_lbl:
+        if '\n' in run_lbl:
             run_lbl = run_lbl.strip(')')
     else:
         isotope = label.strip()
@@ -216,6 +495,57 @@ def reformat_isotope(isotope):
         element, A = isotope.split('-')
         element = element.capitalize()
         return f'$^{{{A}}}${element}{time_bounds}'
+
+def append_stats_to_label(
+    label,
+    computed_stats,
+    stat_types,
+    sig_figs=3,
+    lead_newline=True,
+    trailing_separator='――――――'
+):
+    '''
+    For plots that have had statistics calculated, include each of these
+        values accordingly within the plot's legend.
+
+    Arguments:
+        label (str): Pre-existing label text upon which to append statistical
+            summaries.
+        computed_stats (dict): Dictionary keyed by the names of each evaluated
+            statistical metric, valued by the PlotStats object containing
+            the associated computed value. 
+        stat_types (list of str): List containing the names of each
+            statistical metric evaluated. Can be any combination of values
+            contained in PlotStats.all_metrics.
+        sig_figs (int, optional): Option to set a number of significant
+            figures for the represenation of statistics in the legend.
+            (Defaults to 3)
+        lead_newline (bool, optional): Option to include a newline before the
+            appending of the statistics bloc.
+            (Defaults to True)
+        trailing_separator (str, optional): Option to include a separator at
+            the end of each run's statistics.
+            (Defaults to "――――――")
+    '''
+    
+    if lead_newline:
+        label += '\n'
+
+    for stat_type, stats_obj in computed_stats.items():
+        if stat_type not in stat_types:
+            continue
+
+        formatted_statistic = f'{stats_obj.stat:.{sig_figs}g}'
+        tex_percent = r'\%'
+        if tex_percent in stats_obj.tex_name:
+            formatted_statistic += tex_percent
+
+        label += rf'${{{stats_obj.tex_name} = {formatted_statistic}}}$' + '\n'
+
+    if trailing_separator is not None:
+        label += trailing_separator
+
+    return label
 
 def construct_legend(ax, legend_ax=None):
     '''
@@ -588,6 +918,28 @@ def shade_dominant_nuclides(piv, ax, color_map, cmap_name, n_runs):
 
     return ax, bounds, dominant_nucs
 
+def deliniate_shading_regions_by_run(
+    all_dominance_ranges, run_lbl, piv, ax, color_map, cmap_name, n_runs 
+):
+    ax, bounds, dominant_nucs = shade_dominant_nuclides(
+        piv, ax, color_map, cmap_name=cmap_name, n_runs=n_runs
+    )
+
+    prev_nuc = dominant_nucs[0]
+    lower = bounds[0]
+    for upper, nuc in zip(bounds[1:-1], dominant_nucs[1:]):
+        if nuc != prev_nuc:
+            all_dominance_ranges[prev_nuc].append((
+                run_lbl, lower, upper 
+            ))
+            lower = upper
+            prev_nuc = nuc
+
+    upper = bounds[-1]
+    all_dominance_ranges[prev_nuc].append((run_lbl, lower, upper))
+
+    return all_dominance_ranges, ax
+
 def add_shading_legend_labels(
     ax, color_map, all_dominance_ranges, time_unit, show_shading_bounds
 ):
@@ -627,7 +979,7 @@ def add_shading_legend_labels(
             f'   -  {rl}: {tmin:.2g} - {tmax:.2g} {time_unit}'
             for rl, tmin, tmax in run_entries
         )
-        label = nuc
+        label = reformat_isotope(nuc)
         if show_shading_bounds:
             label += f':\n{run_lines}' 
 
@@ -661,6 +1013,8 @@ def plot_single_response(
     separate_legend=False,
     control_run=None,
     sig_figs=3,
+    stat_types=['mean'],
+    skip_nans=True,
     mark_thalf=False,
     shading=False,
     shading_color_map={},
@@ -740,10 +1094,18 @@ def plot_single_response(
             If used, must case-sensitively match one of the labels in the list
             run_lbl.
             (Defaults to '')
-        sig_figs (int): Option to set a number of significant figures for the
-            represenation of statistics calculated for time-series ratios (in
-            conjunction with control_run).
+        sig_figs (int, optional): Option to set a number of significant
+            figures for the represenation of statistics calculated for time-
+            series ratios (in conjunction with control_run).
             (Defaults to 3)
+        stat_types (list of str, optional): List containing the names of each
+            statistical metric evaluated. Can be any combination of values
+            contained in PlotStats.all_metrics.
+            (Defaults to ['mean'])
+        skip_nans (bool, optional): Boolean to determine whether NaN values
+            encountered in the provided series will be skipped (`True`) or
+            raise a `ValueError` (`False`) when calculating plot statistics.
+            (Defaults to True)
         mark_thalf (bool, optional): Option to mark a vertical line for the
             half-lives of all nuclides present in the plot.
             (Defaults to False)
@@ -780,17 +1142,16 @@ def plot_single_response(
     fig, ax = plt.subplots(figsize=figsize)
 
     if isinstance(run_lbls, list):
-        data_comp=True
+        data_comp = True
     else:
         run_lbls = [run_lbls]
+        data_comp = False
 
     data_list = []
     shade_pivs = {}
-    styles = list(
-        lines.lineStyles.keys() if plot_type == 'plot'
-        else lines.lineMarkers.keys()
-    )[:len(run_lbls)]
+    styles = define_line_styles(run_lbls, plot_type=plot_type)
 
+    filtered_concat = pd.DataFrame()
     for run_lbl, style in zip(run_lbls, styles):
         filtered, piv = preprocess_data(
             adf=adf,
@@ -802,6 +1163,7 @@ def plot_single_response(
             head=head,
             half_lives=half_lives
         )
+        filtered_concat = pd.concat([filtered_concat, filtered])
 
         if run_lbl == control_run:
             control_piv = piv
@@ -837,26 +1199,36 @@ def plot_single_response(
     plotted_nucs = []
     tmax = 0
     all_dominance_ranges = defaultdict(list)
+    stats_rows = []
 
     for run_lbl, filtered, piv, style in data_list:
         if shading:
-            ax, bounds, dominant_nucs = shade_dominant_nuclides(
-                shade_pivs[run_lbl], ax, shading_color_map,
-                cmap_name=cmap_name, n_runs=len(data_list)
+            all_dominance_ranges, ax = deliniate_shading_regions_by_run(
+                all_dominance_ranges,
+                run_lbl,
+                shade_pivs[run_lbl],
+                ax,
+                shading_color_map,
+                cmap_name=cmap_name,
+                n_runs=len(data_list)
             )
+            # ax, bounds, dominant_nucs = shade_dominant_nuclides(
+            #     shade_pivs[run_lbl], ax, shading_color_map,
+            #     cmap_name=cmap_name, n_runs=len(data_list)
+            # )
 
-            prev_nuc = dominant_nucs[0]
-            lower = bounds[0]
-            for upper, nuc in zip(bounds[1:-1], dominant_nucs[1:]):
-                if nuc != prev_nuc:
-                    all_dominance_ranges[prev_nuc].append((
-                        run_lbl, lower, upper
-                    ))
-                    lower = upper
-                    prev_nuc = nuc
+            # prev_nuc = dominant_nucs[0]
+            # lower = bounds[0]
+            # for upper, nuc in zip(bounds[1:-1], dominant_nucs[1:]):
+            #     if nuc != prev_nuc:
+            #         all_dominance_ranges[prev_nuc].append((
+            #             run_lbl, lower, upper
+            #         ))
+            #         lower = upper
+            #         prev_nuc = nuc
 
-            upper = bounds[-1]
-            all_dominance_ranges[prev_nuc].append((run_lbl, lower, upper))
+            # upper = bounds[-1]
+            # all_dominance_ranges[prev_nuc].append((run_lbl, lower, upper))
 
         for nuc in piv.index:
             if nuc == 'total' and not total:
@@ -886,11 +1258,19 @@ def plot_single_response(
                     continue
 
                 series /= control_piv.loc[nuc].to_numpy()
-                if not np.isnan(series.mean()) and nuc == 'total':
-                    label_suffix += (
-                        f'\n$\\mu = {series.mean():.{sig_figs}g},' \
-                        f'\\ \\sigma = {series.std():.{sig_figs}g}$\n――――――'
+                if len(stat_types) > 0 and nuc == 'total':
+                    computed = PlotStats.compute_all_metrics(
+                        series=series,
+                        metrics=PlotStats.unweighted_single_series_metrics,
+                        skip_nans=skip_nans
                     )
+                    row = PlotStats.initialize_row(run_lbl, variable)
+                    row.update({st: obj.stat for st, obj in computed.items()})
+
+                    label_suffix = append_stats_to_label(
+                        label_suffix, computed, stat_types, sig_figs=sig_figs
+                    )
+                    stats_rows.append(row)
 
             t = piv.columns
             non_zeroes = np.flatnonzero(series)
@@ -923,7 +1303,7 @@ def plot_single_response(
             time_unit, show_shading_bounds
         )
 
-    ylabel = f'{variable} [{filtered['var_unit'].unique()[0]}]'
+    ylabel = f'{variable} [{get_var_unit(filtered_concat)}]'
     title_suffix = (
         f'Ratio of {variable} against {control_run}' if ratio_plotting
         else f'{variable}'
@@ -949,7 +1329,7 @@ def plot_single_response(
 
     ax.set_title(title_prefix + title_suffix)
     ax.set_ylabel(ylabel)
-    ax.set_xlabel(f'Time ({time_unit})')
+    ax.set_xlabel(f'Time [{time_unit}]')
     ax.set_xscale('log')
     ax.set_xlim(right=tmax)
     ax.set_yscale(yscale)
@@ -966,7 +1346,7 @@ def plot_single_response(
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
 
-    return fig, legend_fig, shading_color_map
+    return fig, legend_fig, shading_color_map, pd.DataFrame(stats_rows)
 
 def single_time_pie_chart(
     agg,
@@ -1218,3 +1598,221 @@ def multi_time_pie_grid(
     )
 
     return fig
+
+def plot_computational_with_experimental(
+    adf,
+    variable,
+    experimental_data,
+    start_zeros,
+    experiment_name='Experiment',
+    irradiation_description='',
+    uncertainties=[],
+    cooling_times=[],
+    comparison_type='raw',
+    runs=[],
+    sort_by_time=None,
+    time_unit='s',
+    half_lives=None,
+    threshold=0.025,
+    cmap_name='Dark2',
+    stat_types=['rmsd'],
+    shading=True,
+    show_shading_bounds=False,
+):
+
+    fig, ax = plt.subplots(figsize=(12,6))
+    yscale='log'
+    if not irradiation_description:
+        irradiation_description = experiment_name
+
+    runs = runs if len(runs) > 0 else list(adf['run_lbl'].unique())
+    all_nucs = compile_all_nucs(
+        adf,
+        runs,
+        variable,
+        cmap_name=cmap_name,
+        threshold=threshold,
+        sort_by_time=sort_by_time,
+        time_unit=time_unit
+    )
+
+    shading_color_map = build_color_map(cmap_name, all_nucs)
+    styles = define_line_styles(run_lbls=runs)
+
+    computational_max = 0
+    computational_min = np.inf
+    all_dominance_ranges = defaultdict(list)
+    filtered_concat = pd.DataFrame()
+    stats_rows = []
+    for i, run in enumerate(runs):
+        filtered, piv = preprocess_data(
+            adf,
+            run,
+            variable,
+            nuclides=['total'],
+            time_unit=time_unit,
+            sort_by_time=sort_by_time,
+            half_lives=half_lives
+        )
+        filtered_concat = pd.concat([filtered_concat, filtered])
+
+        computational_data = filtered['value'][:start_zeros]
+        if len(computational_data) != len(experimental_data):
+            warn(
+                f'{run}: Length mismatch, ' \
+                f'C={len(computational_data)}, E={len(experimental_data)}. ' \
+                'Skipping.'
+            )
+            continue
+
+        computational_min = min(computational_min, min(computational_data))
+        computational_max = max(computational_max, max(computational_data))
+
+        y = computational_data
+        c_over_e = computational_data / experimental_data
+        run_split = run.split(',')[0].upper()
+        label = rf'$\mathbf{{{run_split.replace(' ', r'\ ')}}}$'
+
+        if comparison_type != 'raw':
+            y = c_over_e
+            if isinstance(stat_types, str):
+                stat_types = [stat_types]
+
+            # Calculate full range of PlotStats statistics
+            row = PlotStats.initialize_row(run_split, variable)
+            computed = {}
+            for stat_type in PlotStats.all_metrics:
+                stats_series = (
+                    y if 'rmsd' not in stat_type
+                    and 'percent-diff' not in stat_type
+                    else experimental_data 
+                )
+                stats_obj = PlotStats(
+                    series=stats_series,
+                    stat_type=stat_type,
+                    secondary_series=computational_data,
+                    uncertainties=uncertainties
+                )
+                stats_obj.calculate_statistic()
+                computed[stat_type] = stats_obj
+                row[stat_type] = stats_obj.stat
+
+            label = append_stats_to_label(
+                label, computed, stat_types,
+                sig_figs=3, lead_newline=True, trailing_separator=None
+            )
+            stats_rows.append(row)
+
+            #     statistic = stats_obj.calculate_statistic()
+            #     row[stat_type] = statistic
+
+            #     if stat_type not in stat_types:
+            #         continue
+
+            #     # Include only selected statistic(s) to plot legend
+            #     formatted_statistic = f'{statistic:.3g}'
+            #     percent = r'\%'
+            #     if percent in stats_obj.tex_name:
+            #         formatted_statistic += percent
+
+            #     label += '\n' + rf'${{{stats_obj.tex_name} = {formatted_statistic}}}$'
+
+            stats_rows.append(row)
+
+        if len(cooling_times) == 0:
+            cooling_times = piv.columns
+
+        ax.plot(
+            cooling_times,
+            y,
+            linestyle=styles[i],
+            label=label,
+            color='dimgray'
+        )
+
+        if shading:
+            _, shade_piv = preprocess_data(
+                adf,
+                run,
+                variable,
+                time_unit=time_unit,
+                sort_by_time=sort_by_time,
+                half_lives=half_lives
+            )
+            all_dominance_ranges, ax = deliniate_shading_regions_by_run(
+                all_dominance_ranges, run, shade_piv, ax, shading_color_map,
+                cmap_name=cmap_name, n_runs=len(runs)
+            )
+
+    title = (
+        f'{variable} vs. Cooling Time\n'\
+        f'for {irradiation_description} Irradiation'
+    )
+
+    if comparison_type == 'raw':
+        ms = 3
+        exp_min = np.min(experimental_data)
+        exp_upper = 0
+        if len(uncertainties) == len(cooling_times):
+            ax.errorbar(
+                cooling_times,
+                experimental_data,
+                yerr=uncertainties,
+                fmt='*',
+                ms=ms,
+                color='k',
+                label=experiment_name,
+                ecolor='k',
+                elinewidth=1,
+                capsize=3
+            )
+            exp_lower = experimental_data - uncertainties
+            positive_exp_lower = exp_lower[exp_lower > 0]
+            exp_min = (
+                np.min(positive_exp_lower)
+                if positive_exp_lower.size
+                else np.min(experimental_data)
+            )
+            exp_upper = experimental_data + uncertainties
+
+        else:
+            ax.scatter(
+                cooling_times,
+                experimental_data,
+                marker='*',
+                s=ms**2,
+                color='k',
+                label=experiment_name
+            )
+
+        total_min = min(computational_min, exp_min)
+        total_max = max(computational_max, np.max(exp_upper))
+
+        if total_max / total_min < 10:
+            yscale = 'linear'
+            ax.ticklabel_format(style='sci', scilimits=(0,0), axis='y')
+
+        ylabel = f'{variable} [{get_var_unit(filtered_concat)}]'
+
+    # Experimental over computatational plot
+    else:
+        ylabel = f'C/E: {variable}'
+        yscale = 'linear'
+        title = 'Computational/Experimental Ratio Series for ' + title
+
+    if shading and shading_color_map is not None:
+        add_shading_legend_labels(
+            ax, shading_color_map, all_dominance_ranges,
+            time_unit, show_shading_bounds
+        )
+
+    ax.set_title(title)
+    ax.set_xlabel(f'Cooling Time [{time_unit}]')
+    ax.set_ylabel(ylabel)
+    ax.set_xscale('log')
+    ax.set_yscale(yscale)
+
+    ax.grid()
+    ax.legend(loc='center left', bbox_to_anchor=(1,0.5))
+
+    return fig, pd.DataFrame(stats_rows)
