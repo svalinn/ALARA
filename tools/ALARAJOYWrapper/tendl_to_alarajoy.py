@@ -4,6 +4,7 @@ import tendl_processing as tp
 import njoy_tools as njt
 import xs_plotting as xp
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
 import warnings
@@ -132,6 +133,63 @@ def configure_logging(redirect_warnings=False):
         logging.captureWarnings(True)
 
     logger.addHandler(console_handler)
+
+def validate_tendl_source(
+    endf_obj, tendl_dir, tendl_external_sources, element, A,
+    tendl_version=None
+):
+    """
+    For a given nuclide's TENDL file loaded as an openmc.data.endf.Evaluation,
+        check that it is sourced from the provided TENDL version, to ensure
+        that all files in its directory belong to the same distribution. For
+        TENDL distributions 2015-25, up to 24 nuclide files may be sourced
+        from ENDF/B-VII.1, JENDL-4.0, ENDF/B-VIII, JEFF-3.3, or ENDF/B-VIII.0.
+        For these cases, a pre-loaded Pandas DataFrame containing reference
+        information for each nuclide, TENDL case is checked to ensure
+        compliance. If violations are found, a ValueError will be raised.
+
+    Arguments:
+        endf_obj (openmc.data.endf.Evaluation): OpenMC parsed-ENDF object.
+        tendl_dir (pathlib._local.PosixPath): Path to the directory containing
+            all of the individual TENDL files in the provided TENDL
+            distribution.
+        tendl_external_sources (pandas.DataFrame): DataFrame read in from the
+            support file `tendl_external_sources.csv`, with data originally
+            from https://tendl.imperial.ac.uk/.
+        element (str): Chemical symbol of the target nuclide.
+        A (str): Mass number for selected isotope.
+        tendl_version (str or None, optional): Name of the TENDL distribution
+            being iterated over. If this is the first file being checked
+            within `tendl_dir`, then tendl_version must be None.
+            (Defaults to None)
+    
+    Returns:
+        tendl_version (str): Name of the TENDL  distribution being iterated
+            over. Will be identical to the input tendl_version, unless this is
+            the first file checked. If validation fails, then a ValueError is
+            raised instead of any return.
+    """
+    
+    endf_ref = endf_obj.info['reference'].strip()
+    if endf_ref.startswith('TENDL'):
+        if not tendl_version:
+            tendl_version = endf_ref
+
+        elif tendl_version != endf_ref:
+            raise ValueError(
+                'Nuclide files from multiple TENDL distributions present in' \
+                f' {tendl_dir}: {endf_ref}, {tendl_version}.' 
+            )
+
+    elif tendl_version and tendl_external_sources.at[
+        f'{element}-{A}', tendl_version
+    ] != endf_ref:
+        raise ValueError(
+            f'Incorrect external source for {element}-{A} ({endf_ref}) ' \
+            f'given proided distribution {tendl_version}'
+        )
+
+    return tendl_version
 
 def process_pendf(
     material_id, MTs, pKZA, mt_dict, temperature,
@@ -521,8 +579,8 @@ def rxn_to_str(parent, daughter, MT, rxn):
     return dsv_row + ' '.join(str(xs) for xs in rxn['xsections'])
 
 def store_results(
-    dsv_path, all_rxns, nGroups, tendl_dir, group_name,
-    weight_function, processing_code, plotting, endf_obj_dict
+    dsv_path, all_rxns, nGroups, tendl_dir, tendl_version, group_name,
+    weight_function, processing_code, decay_path, plotting, endf_obj_dict
 ):
     """
     Save groupwise-converted cross-section data to a space-delimited DSV file
@@ -561,6 +619,7 @@ def store_results(
         tendl_dir (pathlib._local.PosixPath): Path to the directory in which
             the original continuous-energy TENDL files from which the
             groupwise data was converted is located.
+        tendl_version (str): Name of the TENDL distribution processed.
         group_name (str): Name of the group structure according to which
             GROUPR converted continuous energy cross-sections to groupwise
             cross-sections.
@@ -582,7 +641,8 @@ def store_results(
 
     with open(dsv_path, 'w') as dsv:
         dsv.write(
-            f'{nGroups} {group_name} {weight_function} {processing_code}\n'
+            f'{nGroups} {tendl_version} {group_name} ' \
+            f'{weight_function} {processing_code} {decay_path}\n'
         )
         for parent in sorted(all_rxns):
             element, A = tp.interpret_KZA(parent)
@@ -697,10 +757,19 @@ def main():
         unresr_err_cases = []
         endf_obj_dict = {}
         gendf_parser = tp.GENDFParser()
+        tendl_version = None
+        tendl_external_sources = pd.read_csv(
+            'tendl_external_sources.csv', index_col='nuclide'
+        )
         for file_properties in tp.search_for_files(search_dir):
             element, A, pKZA, endf_path = tuple(file_properties.values())
             TAPE20.write_bytes(endf_path.read_bytes())
             endf_obj = endf.Evaluation(TAPE20)
+            tendl_version = validate_tendl_source(
+                endf_obj, search_dir, tendl_external_sources, element, A,
+                tendl_version=tendl_version
+            )
+
             endf_obj_dict[f'{element}{A}'] = endf_obj
             MTs = tp.compile_MTs_from_ENDF_obj(endf_obj)
 
@@ -750,8 +819,9 @@ def main():
 
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     store_results(
-        dsv_path, gas_filtered, nGroups, search_dir, group_name,
-        weight_function, processing_code, args.xs_plotting, endf_obj_dict
+        dsv_path, gas_filtered, nGroups, search_dir, tendl_version,
+        group_name, weight_function, processing_code, decay_path,
+        args.xs_plotting, endf_obj_dict
     )
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
