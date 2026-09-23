@@ -12,6 +12,7 @@
 
 #include "CoolingTime.h"
 #include "Input_def.h"
+#include "Output_def.h"
 
 /***************************
  ********* Service *********
@@ -131,7 +132,7 @@ int CoolingTime::makeCoolingTimes(double *& coolingTimes)
 
 /** There is a column for the isotope, a column for the @shutdown
     result, and then a column for each after-shutdown cooling time. */
-void CoolingTime::writeHeader()
+void CoolingTime::writeHeader(int cooltime_units)
 {
   CoolingTime *ptr = this;
   char textBuf[16];
@@ -141,7 +142,16 @@ void CoolingTime::writeHeader()
   while (ptr->next != NULL)
     {
       ptr = ptr->next;
-      sprintf(textBuf,"%7g %c   ",ptr->coolingTime, ptr->units);
+      if (cooltime_units == COOLTIME_S) // print cooling time converted to seconds
+      {
+        double t_sec = convertTime(ptr->coolingTime, ptr->units);
+        sprintf(textBuf, "%9.3e s ", t_sec);
+      }
+      else  // print cooling time in default units
+      {
+        sprintf(textBuf, "%7g %c   ", ptr->coolingTime, ptr->units);
+      }
+      
       cout << textBuf;
     }
   cout << endl;
@@ -168,7 +178,7 @@ void CoolingTime::getCoolTimesStrings(std::vector<std::string>& coolTimesList)
 /** There is a  column indicating the counter for the total in question,
     one column for @ shutdown results, and then one column for each of the
     after-shutdown cooling times. */
-void CoolingTime::writeTotalHeader(const char* type)
+void CoolingTime::writeTotalHeader(const char* type, int cooltime_units)
 {
   CoolingTime *ptr = this;
   char textBuf[16];
@@ -181,7 +191,16 @@ void CoolingTime::writeTotalHeader(const char* type)
   while (ptr->next != NULL)
   {
       ptr = ptr->next;
-      sprintf(textBuf,"%7g %c   ",ptr->coolingTime, ptr->units);
+      if (cooltime_units == COOLTIME_S) // print cooling time converted to seconds
+      {
+        double t_sec = convertTime(ptr->coolingTime, ptr->units);
+        sprintf(textBuf, "%9.3e s ", t_sec);
+      }
+      else  // print cooling time in default units
+      {
+        sprintf(textBuf, "%7g %c   ", ptr->coolingTime, ptr->units);
+      }
+      
       cout << textBuf;
   }
   cout << endl;
