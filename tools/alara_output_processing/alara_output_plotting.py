@@ -454,11 +454,9 @@ def split_label(label):
 
     # Label formatted as f"{element}-{A} ({run_lbl})" for comparative plots
     if '(' in label:
-        parts = label.split('(')
-        isotope = parts[0].strip()
-        run_lbl = f'({parts[1].strip(')')})'
-        if '\n' in run_lbl:
-            run_lbl = run_lbl.strip(')')
+        idx = label.index('(')
+        isotope = label[:idx].strip()
+        run_lbl = label[idx:].rstrip()
     else:
         isotope = label.strip()
         run_lbl = ''
@@ -1237,7 +1235,7 @@ def plot_single_response(
                 continue
 
             label_suffix = f' ({run_lbl})' if data_comp else ''
-
+            print(label_suffix)
             # Vectorized division to calculate time-series ratio against the
             # control run. If zeros exist in the control run, a zero-division
             # RuntimeWarning will be raised, but does not cause plotting
