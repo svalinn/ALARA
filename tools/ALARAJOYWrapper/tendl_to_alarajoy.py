@@ -79,6 +79,15 @@ def make_argparser():
                 sections from the original TENDL file.
         ''')
     )
+    parser.add_argument(
+        '--nea_prepro', '-n', action='store_true',
+        help=('''
+            Option to convert PREPRO-formatted CCFE-709 groupwise data into
+            an ALARAJOY-formatted DSV. If true, must also provide the path to
+            the directory containing PREPRO .asc GENDF files for the `-f`
+            argument.
+        ''')
+    )
     return parser
 
 def configure_logging(redirect_warnings=False):
@@ -235,7 +244,7 @@ def process_pendf(
 
 def process_gendf(
     njoy_groupr_input, material_id, MTs, mt_dict, temperature, pKZA,
-    isomer_dict, all_rxns, all_nucs, group_name, tendl_dir,
+    isomer_dict, all_rxns, all_nucs, group_name, tendl_dir, gendf_parser,
     iwt=11, ign=17, ngn='', egn=''
 ):
     """
@@ -308,7 +317,8 @@ def process_gendf(
     if gendf_path:
         # Extract MT values again from GENDF file as there may be some
         # difference from the original MT values in the ENDF/PENDF files
-        non_zero_xs, gendf_MTs, nGroups = tp.extract_gendf_data(gendf_path)
+        gendf_dict, nGroups, _ = gendf_parser.parse(gendf_path)
+        gendf_MTs = gendf_dict[3]['MTs']
         
         # Conditionally save group bounds from NJOY/GROUPR output
         if not Path(group_name.split()[-1]).is_file():
@@ -322,12 +332,13 @@ def process_gendf(
                 f'GENDF file missing MTs {diffs} present in the ' \
                 f'original TENDL file for {element}-{A}.'
             )
+
         if gendf_MTs:
             all_rxns = tp.iterate_MTs(
-                gendf_MTs, mt_dict, non_zero_xs, pKZA, 
-                all_rxns, all_nucs, isomer_dict, nGroups
+                gendf_dict, mt_dict, pKZA, all_rxns, all_nucs, nGroups,
+                isomer_dict=isomer_dict
             )
-            print(f'Finished processing {element}-{A}')
+            notify_nuc_completion(element, A)
 
         else:
             warnings.warn(
@@ -342,6 +353,78 @@ def process_gendf(
             f'''Failed to convert {element}-{A}.
             NJOY error message: {njoy_error}'''
         )
+
+    return all_rxns, nGroups
+
+def notify_nuc_completion(element, A):
+    """
+    Print to output stream to notify the completion of all processing for a
+        single nuclide.
+
+    Arguments:
+        element (str): Chemical symbol of the nuclide whose data was
+            processed.
+        A (str): Mass number for the provided nuclide, including an "m" or "n"
+            for the first two isomeric states, if applicable.
+
+    Returns:
+        None
+    """
+
+    print(f'Finished processing {element}-{A}')
+
+def collect_all_prepro_TENDL_data(
+        prepro_tendl_dir, mt_dict, all_rxns, all_nucs
+    ):
+    """
+    As an alternate pathway to the standard NJOY-based processing procedure,
+        if the path to a directory containing PREPRO-processed groupwise TENDL
+        files is provided as the `-f` argument and the `-n` flag is included
+        when running `main()`, then the reaction data from these files are
+        parsed and stored directly to `all_rxns`. Nuclear data of this format
+        is usable by FISPACT-II and is disbtributed through the NEA GitLab
+        (https://git.oecd-nea.org/fispact/nuclear_data/), with options for
+        both TENDL-2017 and TENDL-2014.
+
+    Arguments:
+        prepro_tendl_dir (pathlib._local.PosixPath): Path to the directory
+            containing PREPRO-processed TENDL data files.
+        mt_dict (dict): Dictionary formatted data structure for mt_table.csv.
+        all_rxns (collections.defaultdict): Hierarchical dictionary keyed by
+            parent nuclides to store all reaction data, with structured as:
+            {parent:
+                {daughter:
+                    {MT:
+                        {
+                            'emitted': (str of emitted particles)
+                            'xsections': (array of groupwise XS)
+                        }
+                    }
+                }    
+            }
+        all_nucs (dict): Dictionary keyed by all nuclide KZAs in the decay
+            library, with values of their half-lives (-1 for stable nuclides).
+
+    Returns:
+        all_rxns (collections.defaultdict): Updated dictionary for all
+            reactions and sub-pathways for all nuclides with TENDL files
+            present in `prepro_tendl_dir`.
+        nGroups (int): Number of energy groups into which the groupwise cross
+            sections were calculated.
+    """
+
+    # File format from FISPACT NEA GitLab: {element}{A}g.asc
+    # ("g" for "groupwise")
+    for gendf_path in sorted(prepro_tendl_dir.glob(f'*g.asc')):
+        gendf_dict, nGroups, pKZA = tp.GENDFParser(
+            MFs=[3,10], prepro=True
+        ).parse(gendf_path)
+
+        all_rxns |= tp.iterate_MTs(
+            gendf_dict, mt_dict, pKZA, all_rxns, all_nucs, nGroups,
+            prepro=True
+        )
+        notify_nuc_completion(*tp.interpret_KZA(pKZA))
 
     return all_rxns, nGroups
 
@@ -439,7 +522,7 @@ def rxn_to_str(parent, daughter, MT, rxn):
 
 def store_results(
     dsv_path, all_rxns, nGroups, tendl_dir, group_name,
-    weight_function, plotting, endf_obj_dict
+    weight_function, processing_code, plotting, endf_obj_dict
 ):
     """
     Save groupwise-converted cross-section data to a space-delimited DSV file
@@ -483,6 +566,9 @@ def store_results(
             cross-sections.
         weight_function (str): Name of the weight function with which GROUPR
             calibrated groupwise cross-section conversion calculations.
+        processing_code (str): Name of the nuclear data processing code used.
+            NJOY for standard ALARAJOY workflow, PREPRO if `-n` flag is
+            applied for FISPACT-II formatted TENDL data.
         plotting (bool): Boolean to set whether to produce cross-section
             plots.
         endf_obj_dict (dict): Dictionary with a key for each parent nuclide
@@ -495,7 +581,9 @@ def store_results(
     """
 
     with open(dsv_path, 'w') as dsv:
-        dsv.write(f'{nGroups} {group_name} {weight_function}\n')
+        dsv.write(
+            f'{nGroups} {group_name} {weight_function} {processing_code}\n'
+        )
         for parent in sorted(all_rxns):
             element, A = tp.interpret_KZA(parent)
             for daughter in all_rxns[parent]:
@@ -597,49 +685,62 @@ def main():
     all_nucs = rxd.find_nucs_from_decay_lib(decay_path)
     all_rxns = defaultdict(lambda: defaultdict(dict))
 
-    unresr_err_cases = []
-    endf_obj_dict = {}
-    for file_properties in tp.search_for_files(search_dir):
-        element, A, pKZA, endf_path = tuple(file_properties.values())
-        TAPE20.write_bytes(endf_path.read_bytes())
-        endf_obj = endf.Evaluation(TAPE20)
-        endf_obj_dict[f'{element}{A}'] = endf_obj
-        MTs = tp.compile_MTs_from_ENDF_obj(endf_obj)
-
-        if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
-            invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
-            warnings.warn(
-                f'Invalid MTs in provided TENDL file for ' \
-                f'{element}{A}: {invalid_MTs}'
-            )
-        MTs = MTs.intersection(endf6_MTs)
-
-        MTs, isomer_dict, njoy_prep_error, unresr_err_cases = process_pendf(
-            endf_obj.material, MTs, pKZA, mt_dict, temperature,
-            endf_obj, search_dir, unresr_err_cases
+    if args.nea_prepro:
+        group_name = 'CCFE-709'
+        processing_code = 'PREPRO'
+        all_rxns, nGroups = collect_all_prepro_TENDL_data(
+            search_dir, mt_dict, all_rxns, all_nucs
         )
 
-        if not njoy_prep_error:
-            all_rxns, nGroups = process_gendf(
-                njt.groupr_input, endf_obj.material, MTs, mt_dict, temperature,
-                pKZA, isomer_dict, all_rxns, all_nucs, group_name, search_dir,
-                iwt=iwt, ign=ign, ngn=ngn, egn=egn
+    else:
+        processing_code = 'NJOY'
+        unresr_err_cases = []
+        endf_obj_dict = {}
+        gendf_parser = tp.GENDFParser()
+        for file_properties in tp.search_for_files(search_dir):
+            element, A, pKZA, endf_path = tuple(file_properties.values())
+            TAPE20.write_bytes(endf_path.read_bytes())
+            endf_obj = endf.Evaluation(TAPE20)
+            endf_obj_dict[f'{element}{A}'] = endf_obj
+            MTs = tp.compile_MTs_from_ENDF_obj(endf_obj)
+
+            if len((MTs - rxd.SPEC_MTS) - endf6_MTs) > 0:
+                invalid_MTs = sorted((MTs - rxd.SPEC_MTS) - endf6_MTs)
+                warnings.warn(
+                    f'Invalid MTs in provided TENDL file for ' \
+                    f'{element}{A}: {invalid_MTs}'
+                )
+            MTs = MTs.intersection(endf6_MTs)
+
+            MTs, isomer_dict, njoy_prep_error, unresr_err_cases = (
+                process_pendf(
+                    endf_obj.material, MTs, pKZA, mt_dict, temperature,
+                    endf_obj, search_dir, unresr_err_cases
+                )
             )
 
-        else:
+            if not njoy_prep_error:
+                all_rxns, nGroups = process_gendf(
+                    njt.groupr_input, endf_obj.material, MTs, mt_dict, 
+                    temperature, pKZA, isomer_dict, all_rxns,
+                    all_nucs, group_name, search_dir, gendf_parser,
+                    iwt=iwt, ign=ign, ngn=ngn, egn=egn
+                )
+
+            else:
+                warnings.warn(
+                    f'''PENDF preparation failed for {element}-{A}.
+                    NJOY error message: {njoy_prep_error}'''
+                )
+
+            njt.cleanup_njoy_files(element, A)
+
+        if unresr_err_cases:
             warnings.warn(
-                f'''PENDF preparation failed for {element}-{A}.
-                NJOY error message: {njoy_prep_error}'''
+                f'A total of {len(unresr_err_cases)} TENDL files required ' \
+                'an increase in UNRESR fractional error tolerance for the ' \
+                f'following nuclides: {unresr_err_cases}'
             )
-
-        njt.cleanup_njoy_files(element, A)
-
-    if unresr_err_cases:
-        warnings.warn(
-            f'A total of {len(unresr_err_cases)} TENDL files required ' \
-            'an increase in UNRESR fractional error tolerance for the ' \
-            f'following nuclides: {unresr_err_cases}'
-        )
 
     # Handle gas total production cross-sections, per user specifications
     gas_filtered = subtract_gas_from_totals(all_rxns)
@@ -650,7 +751,7 @@ def main():
     dsv_path = dir / 'cumulative_gendf_data.dsv'
     store_results(
         dsv_path, gas_filtered, nGroups, search_dir, group_name,
-        weight_function, args.xs_plotting, endf_obj_dict
+        weight_function, processing_code, args.xs_plotting, endf_obj_dict
     )
     print(
         f'Neutron activation cross-sections converted to {nGroups} groups ' \
