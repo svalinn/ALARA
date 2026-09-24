@@ -168,16 +168,22 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
 
                 # Process metadata from first line
                 if i == 0:
-                    group_name, processing_code, weight_function = rxn[1:]
+                    (
+                        tendl_version,
+                        group_name,
+                        weight_function,
+                        processing_code,
+                        decay_lib   
+                    ) = rxn[1:]
                     _, energy_bounds = njt.load_external_group_struct(
                         group_name
                     )
 
-                    group_name += ' ('
+                    data_id = group_name + ' ('
                     if processing_code != 'NJOY':
-                        group_name += f'{processing_code}, '
+                        data_id += f'{processing_code}, '
 
-                    group_name += f'{weight_function} weight function)'
+                    data_id += f'{weight_function} weight function)'
 
                 # Reaction data parsing, search for matching (KZA, MT) pair
                 else:
@@ -185,7 +191,7 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
                     emitted = ensure_emission_specificity(emitted, dsv_dKZA)
 
                     if KZA == dsv_pKZA and str(MT) == dsv_MT:
-                        groupwise_dict[group_name] = {
+                        groupwise_dict[data_id] = {
                             'xs'         :   np.asarray(rxn[4:], dtype=float),
                             'energies'   :   energy_bounds
                         }
