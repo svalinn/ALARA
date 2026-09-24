@@ -715,7 +715,7 @@ def main():
             MTs, isomer_dict, njoy_prep_error, unresr_err_cases = (
                 process_pendf(
                     endf_obj.material, MTs, pKZA, mt_dict, temperature,
-                    TAPE20, search_dir, unresr_err_cases
+                    endf_obj, search_dir, unresr_err_cases
                 )
             )
 
