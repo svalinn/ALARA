@@ -176,11 +176,9 @@ def split_label(label):
 
     # Label formatted as f"{element}-{A} ({run_lbl})" for comparative plots
     if '(' in label:
-        parts = label.split('(')
-        isotope = parts[0].strip()
-        run_lbl = f'({parts[1].strip(')')})'
-        if '$\\mu' in run_lbl:
-            run_lbl = run_lbl.strip(')')
+        idx = label.index('(')
+        isotope = label[:idx].strip()
+        run_lbl = label[idx:].rstrip()
     else:
         isotope = label.strip()
         run_lbl = ''
