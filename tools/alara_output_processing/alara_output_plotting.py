@@ -8,6 +8,228 @@ from warnings import warn
 import alara_output_processing as aop
 from collections import defaultdict
 
+# ------ Comparative Series Statistics -------
+
+class PlotStats:
+    '''
+    Class containing attributes and methods used for quantitatively assessing
+        time-series plots in ALARAPlot. Can be applied for analysis simulated
+        and computational data. Contains computational capabilities for
+        statistical metrics organized as such (internal calling names in
+        parentheses):
+
+            1) Unweighted Single Series Metrics
+                a) Mean (mean)
+                b) Median (median)
+                c) Standard Deviation (std)
+                d) Variance (var)
+
+            2) Weighted Single Series Metrics
+                a) Uncertainty Weighted Mean (uncertainty-weighted-mean)
+
+            3) Unweighted Compartive Metrics
+                a) Root Mean Square Deviation (rmsd)
+                b) Mean Percent Difference (mean-pct-diff)
+
+            4) Weighted Comparative Metrics
+                a) Uncertainty Weighted Root Mean Square Deviation
+                   (uncertainty-weighted-rmsd)
+                b) Uncertainty Weighted Mean Percent Difference
+                   (uncertainty-weighted-mean-pct-diff)
+    '''
+
+    unweighted_single_series_metrics = {
+        'mean': ('_compute_mean', r'\mu'),
+        'median': ('_compute_median', 'median'),
+        'std': ('_compute_std', r'\sigma'),
+        'var': ('_compute_var', 'Var'),
+    }
+    weighted_single_series_metrics = {
+        'uncertainty-weighted-mean': (
+            '_compute_weighted_mean', r'Uncertainty\ Weighted\ Mean'
+        ),
+    }
+    single_series_metrics = (
+        unweighted_single_series_metrics | weighted_single_series_metrics
+    )
+
+    unweighted_comparative_metrics = {
+        'rmsd': ('_compute_rmsd', 'RMSD'),
+        'mean-percent-diff': ('_compute_mean_pct_diff', r'Mean\ \%\ Diff'),
+    }
+    weighted_comparative_metrics = {
+        'uncertainty-weighted-rmsd': (
+            '_compute_weighted_rmsd', r'Uncertainty\ Weighted\ RMSD'
+        ),
+        'uncertainty-weighted-mean-percent-diff': (
+            '_compute_weighted_mean_pct_diff',
+            r'Uncertainty\ Weighted\ Mean\ \%\ Diff'
+        ),
+    }
+    comparative_metrics = (
+        unweighted_comparative_metrics | weighted_comparative_metrics
+    )
+
+    all_metrics = single_series_metrics | comparative_metrics
+
+    def __init__(
+        self,
+        series,
+        stat_type='mean',
+        skip_nans=True,
+        secondary_series=np.array([]),
+        uncertainties=np.array([])
+    ):
+        self.series = np.asarray(series)
+        self.secondary_series = np.asarray(secondary_series)
+        self.uncertainties = np.asarray(uncertainties)
+        self.stat_type = stat_type.lower()
+
+        self.skip_nans = skip_nans
+        if self.skip_nans:
+            self._mean = np.nanmean
+            self._median = np.nanmedian
+            self._std = np.nanstd
+            self._var = np.nanvar
+            self._average = self._nan_average
+        else:
+            self._mean = np.mean
+            self._median = np.median
+            self._std = np.std
+            self._var = np.var
+            self._average = np.average
+
+        self.weights = None
+        if self.uncertainties.size > 0:
+            self.weights = self.uncertainties ** -2
+
+        self.metrics = self.single_series_metrics
+        if self.secondary_series.size > 0:
+            self.metrics = self.all_metrics
+
+        if self.stat_type not in self.metrics:
+            raise ValueError(f'Unknown stat_type: {self.stat_type!r}')
+        
+        method_name, self.tex_name = self.metrics[self.stat_type]
+        self._compute = getattr(self, method_name)
+        self.stat = None
+
+    def _require_weights(self, value):
+        if self.weights is None:
+            raise ValueError(
+                f'stat_type={self.stat_type!r} requires uncertainties to ' \
+                'be provided during PlotStats instantiation.'
+            )
+
+        return value
+
+    # ------- Internal Formulae -------
+    @staticmethod
+    def _nan_average(s, weights):
+        return np.nansum(s * weights) / np.nansum(weights)
+
+    def _perc_diff(self):
+        return (self.secondary_series - self.series) / self.series * 100
+
+    def _square_err(self):
+        return (self.series - self.secondary_series) ** 2
+
+    # ------- Individual Statistics Computations -------
+    def _compute_mean(self):
+        return self._mean(self.series)
+
+    def _compute_weighted_mean(self):
+        return self._require_weights(
+            self._average(self.series, weights=self.weights)
+        )
+
+    def _compute_median(self):
+        return self._median(self.series)
+
+    def _compute_std(self):
+        return self._std(self.series)
+
+    def _compute_var(self):
+        return self._var(self.series)
+
+    def _compute_rmsd(self):
+        return np.sqrt(self._mean(self._square_err()))
+
+    def _compute_weighted_rmsd(self):
+        return self._require_weights(
+            np.sqrt(self._average(self._square_err(), weights=self.weights))
+        )
+
+    def _compute_mean_pct_diff(self):
+        return self._mean(self._perc_diff())
+
+    def _compute_weighted_mean_pct_diff(self):
+        return self._require_weights(
+            self._average(self._perc_diff(), weights=self.weights)
+        )
+
+    # ------- Outward Facing Functionality -------
+    @staticmethod
+    def initialize_row(run, variable):
+        return {'run' : run, 'variable' : variable}
+
+    def calculate_statistic(self):
+        self.stat = self._compute()
+        return self.stat
+
+    @classmethod
+    def compute_all_metrics(
+        cls,
+        series,
+        metrics=all_metrics,
+        secondary_series=np.array([]),
+        uncertainties=np.array([]),
+        skip_nans=True
+    ):
+        '''
+        Calculate and store all statistical metrics for a given series.
+
+        Arguments:
+            series (numpy.ndarray): Array containing data to be analyzed.
+            metrics (list or dict, optional): Collection of statistical
+                metrics to calculate. Can accept any combination of metrics
+                contained in PlotStats.all_metrics.
+                (Defaults to PlotStats.all_metrics)
+            secondary_series (numpy.ndarray, optional): Array equivalent in
+                size to `series`, used for comparative statistics
+                calculations.
+                (Defaults to numpy.array([]))
+            uncertainties (numpy.ndarray, optional): Array equivalent in size
+                to `series` containing experimental uncertainties. Can be used
+                for comparative statistics; only necessary for weighted
+                statistical metrics.
+                (Defaults to numpy.arrray([]))
+            skip_nans (bool, optional): Boolean to determine whether NaN
+                values encountered in the provided series will be skipped
+                (`True`) or raise a `ValueError` (`False`).
+                (Defaults to True)
+
+        Returns:
+            computed (dict): Dictionary keyed by the names of each evaluated
+                statistical metric, valued by the PlotStats object containing
+                the associated computed value. 
+        '''
+
+        computed = {}
+        for stat_type in metrics:
+            stats_obj = cls(
+                series=series,
+                stat_type=stat_type,
+                secondary_series=secondary_series,
+                uncertainties=uncertainties,
+                skip_nans=skip_nans
+            )
+            stats_obj.calculate_statistic()
+            computed[stat_type] = stats_obj
+
+        return computed
+
+
 # ------- Utility and Helper Functions -------
 
 def preprocess_data(
@@ -179,7 +401,7 @@ def split_label(label):
         parts = label.split('(')
         isotope = parts[0].strip()
         run_lbl = f'({parts[1].strip(')')})'
-        if '$\\mu' in run_lbl:
+        if '\n' in run_lbl:
             run_lbl = run_lbl.strip(')')
     else:
         isotope = label.strip()
@@ -216,6 +438,57 @@ def reformat_isotope(isotope):
         element, A = isotope.split('-')
         element = element.capitalize()
         return f'$^{{{A}}}${element}{time_bounds}'
+
+def append_stats_to_label(
+    label,
+    computed_stats,
+    stat_types,
+    sig_figs=3,
+    lead_newline=True,
+    trailing_separator='――――――'
+):
+    '''
+    For plots that have had statistics calculated, include each of these
+        values accordingly within the plot's legend.
+
+    Arguments:
+        label (str): Pre-existing label text upon which to append statistical
+            summaries.
+        computed_stats (dict): Dictionary keyed by the names of each evaluated
+            statistical metric, valued by the PlotStats object containing
+            the associated computed value. 
+        stat_types (list of str): List containing the names of each
+            statistical metric evaluated. Can be any combination of values
+            contained in PlotStats.all_metrics.
+        sig_figs (int, optional): Option to set a number of significant
+            figures for the represenation of statistics in the legend.
+            (Defaults to 3)
+        lead_newline (bool, optional): Option to include a newline before the
+            appending of the statistics bloc.
+            (Defaults to True)
+        trailing_separator (str, optional): Option to include a separator at
+            the end of each run's statistics.
+            (Defaults to "――――――")
+    '''
+    
+    if lead_newline:
+        label += '\n'
+
+    for stat_type, stats_obj in computed_stats.items():
+        if stat_type not in stat_types:
+            continue
+
+        formatted_statistic = f'{stats_obj.stat:.{sig_figs}g}'
+        tex_percent = r'\%'
+        if tex_percent in stats_obj.tex_name:
+            formatted_statistic += tex_percent
+
+        label += rf'${{{stats_obj.tex_name} = {formatted_statistic}}}$' + '\n'
+
+    if trailing_separator is not None:
+        label += trailing_separator
+
+    return label
 
 def construct_legend(ax, legend_ax=None):
     '''
@@ -719,6 +992,8 @@ def plot_single_response(
     separate_legend=False,
     control_run=None,
     sig_figs=3,
+    stat_types=['mean'],
+    skip_nans=True,
     mark_thalf=False,
     shading=False,
     shading_color_map={},
@@ -798,10 +1073,17 @@ def plot_single_response(
             If used, must case-sensitively match one of the labels in the list
             run_lbl.
             (Defaults to '')
-        sig_figs (int): Option to set a number of significant figures for the
-            represenation of statistics calculated for time-series ratios (in
-            conjunction with control_run).
-            (Defaults to 3)
+        sig_figs (int, optional): Option to set a number of significant
+            figures for the represenation of statistics calculated for time-
+            series ratios (in conjunction with control_run).
+        stat_types (list of str, optional): List containing the names of each
+            statistical metric evaluated. Can be any combination of values
+            contained in PlotStats.all_metrics.
+            (Defaults to ['mean'])
+        skip_nans (bool, optional): Boolean to determine whether NaN values
+            encountered in the provided series will be skipped (`True`) or
+            raise a `ValueError` (`False`) when calculating plot statistics.
+            (Defaults to True)
         mark_thalf (bool, optional): Option to mark a vertical line for the
             half-lives of all nuclides present in the plot.
             (Defaults to False)
@@ -831,6 +1113,9 @@ def plot_single_response(
             if separate_legend argument is False.
         shading_color_map (dict): Color map for dominant nuclide shaded
             regions. Only populated if shading=True.
+        stats_df (pd.DataFrame): Pandas DataFrame containing all computed
+            statistics for each comparative run in a ratio plot (if any). Will
+            return an empty DataFrame if statistics not calculated.
     '''
 
     ratio_plotting = (control_run is not None)
@@ -895,6 +1180,7 @@ def plot_single_response(
     plotted_nucs = []
     tmax = 0
     all_dominance_ranges = defaultdict(list)
+    stats_rows = []
 
     for run_lbl, filtered, piv, style in data_list:
         if shading:
@@ -936,11 +1222,19 @@ def plot_single_response(
                     continue
 
                 series /= control_piv.loc[nuc].to_numpy()
-                if not np.isnan(series.mean()) and nuc == 'total':
-                    label_suffix += (
-                        f'\n$\\mu = {series.mean():.{sig_figs}g},' \
-                        f'\\ \\sigma = {series.std():.{sig_figs}g}$\n――――――'
+                if len(stat_types) > 0 and nuc == 'total':
+                    computed = PlotStats.compute_all_metrics(
+                        series=series,
+                        metrics=PlotStats.unweighted_single_series_metrics,
+                        skip_nans=skip_nans
                     )
+                    row = PlotStats.initialize_row(run_lbl, variable)
+                    row.update({st: obj.stat for st, obj in computed.items()})
+
+                    label_suffix = append_stats_to_label(
+                        label_suffix, computed, stat_types, sig_figs=sig_figs
+                    )
+                    stats_rows.append(row)
 
             t = piv.columns
             non_zeroes = np.flatnonzero(series)
@@ -1016,7 +1310,7 @@ def plot_single_response(
     ax.grid(True)
     plt.tight_layout(rect=[0, 0, 0.85, 1])
 
-    return fig, legend_fig, shading_color_map
+    return fig, legend_fig, shading_color_map, pd.DataFrame(stats_rows)
 
 def single_time_pie_chart(
     agg,
