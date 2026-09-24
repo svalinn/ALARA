@@ -41,7 +41,7 @@ void ALARAJOYLib::loadDSVData()
     std::string decayData;
     inTrans
         >> nGroups
-        >> tendlVersion;
+        >> tendlVersion
         >> groupName
         >> weightFunction
         >> processingCode
