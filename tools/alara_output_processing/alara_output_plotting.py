@@ -157,28 +157,36 @@ def build_color_map(cmap_name, all_nucs=[], pivs=None, mark_thalf=False):
 
     return color_map
 
-def get_var_unit(filtered_adf):
+def check_var_units(filtered_adf, units=set()):
     '''
-    Given a single-variable, pre-filtered ALARADFrame, check that all values
-        are stored in the same units. Raise a ValueError if they are not.
-        Otherwise, return the single unit type of the data.
+    Given a single-variable, pre-filtered ALARADFrame and an accumulated set
+        containing up to one variable names from other ALARADFrames being used
+        for the same plot, check that all values are stored in the same units.
+        Raise a ValueError if they are not. Otherwise, return the length=1
+        set.
 
     Arguments:
         filtered_adf (alara_output_processing.ALARADFrame): Filtered
             ALARADFrame containing the data from a single variable.
+        units (set of str, optional): Set with up to one unit type for the
+            variable whose data is stored in the ALARADFrame. If this is the
+            first calling in an iteration with multiple ALARADFrames, then
+            this will be a null set.
+            (Defaults to set()) 
 
     Returns:
-        unit (str): Units of the variable's data in the ALARADFrame.
+        units (set): Set with only a single variable, corresponding to the
+            unique 'var_units' value in filtered_adf.
     '''
 
-    units = filtered_adf['var_unit'].unique()
+    units |= set(filtered_adf['var_unit'])
     if len(units) > 1:
         raise ValueError(
             'ADF contains data in inconsistent units. Single variable data ' \
             'must all be represented by the same unit form.'
         )
 
-    return units[0]
+    return units
 
 def split_label(label):
     '''
@@ -808,7 +816,7 @@ def plot_single_response(
         lines.lineStyles.keys() if plot_type == 'plot'
         else lines.lineMarkers.keys()
     )[:len(run_lbls)]
-    filtered_concat = pd.DataFrame()
+    var_units = set()
 
     for run_lbl, style in zip(run_lbls, styles):
         filtered, piv = preprocess_data(
@@ -821,7 +829,7 @@ def plot_single_response(
             head=head,
             half_lives=half_lives
         )
-        filtered_concat = pd.concat([filtered_concat, filtered])
+        var_units = check_var_units(filtered, var_units)
 
         if run_lbl == control_run:
             control_piv = piv
@@ -943,7 +951,7 @@ def plot_single_response(
             time_unit, show_shading_bounds
         )
 
-    ylabel = f'{variable} [{get_var_unit(filtered_concat)}]'
+    ylabel = f'{variable} [{var_units[0]}]'
     title_suffix = (
         f'Ratio of {variable} against {control_run}' if ratio_plotting
         else f'{variable}'
