@@ -1707,7 +1707,7 @@ def plot_computational_with_experimental(
         y = computational_data
         c_over_e = computational_data / experimental_data
         run_split = run.split(',')[0].upper()
-        label = rf'$\mathbf{{{run_split.replace(' ', r'\ ')}}}$'
+        label = run_split
 
         if comparison_type != 'raw':
             y = c_over_e
