@@ -456,12 +456,22 @@ def iterate_MTs(
 
 class GENDFParser:
 
-    def __init__(self, MFs=(3,), prepro=False):
+    def __init__(self, MFs=(3,), prepro=False, energy_bounds=[]):
         if not isinstance(MFs, abc.Iterable):
             MFs = [MFs]
 
         self.MFs = MFs
         self.prepro = prepro
+        self.energy_bounds = None
+        if self.prepro:
+            if len(energy_bounds) == 0:
+                raise ValueError(
+                    'Groupwise energy bounds for the associated group ' \
+                    'structure must be supplied when prepro=True to map ' \
+                    'PREPRO TAB1 tabulated points to group indices.'
+                )
+            self.energy_bounds = np.asarray(energy_bounds, dtype=float)
+
         self.gendf_dict = None
         self.nGroups = None
         self.pKZA = None
@@ -572,16 +582,53 @@ class GENDFParser:
             line (str): A single TAB1 data line.
 
         Returns:
-            line_xs (list of float): List of all cross-section values parsed
-                from the provided TAB1 data line.
+            line_data (list of tuples): List of all (energy, cross-section)
+                pairs parsed from the provided TAB1 data line.
         """
 
-        return [
+        vals = [
             v for v in (
                 cls._reformat_endf_float(line[i : i + 11])
                 for i in range(0, 66, 11)
             ) if v is not None
-        ][1::2]
+        ]
+
+        return list(zip(vals[0::2], vals[1::2]))
+
+    @staticmethod
+    def _match_boundary_index(energy, energy_bounds, rtol=1e-4):
+        """
+        Given a parsed energy value from a PREPRO-processed GENDF file,
+            identify its index within an ascending array of its associated
+            energy group structure bounds. ValueError raised if provided
+            energy value is not present within the energy bounds.
+
+        Arguments:
+            energy (float): Single groupwise energy in eV.
+            energy_bounds (array-like): Ascending array of groupwise energy
+                boundaries for the given group structure.
+            rtol (float, optional): Relative tolerance parameter for
+                np.isclose().
+                (Defaults to 1e-4)
+
+        Returns:
+            idx (int): Index of the provided energy value within the group
+                energy bound array.
+        """
+
+        idx = int(np.searchsorted(energy_bounds, energy))
+        if idx < len(energy_bounds) and np.isclose(
+            energy_bounds[idx], energy, rtol=rtol
+        ):
+            return idx
+
+        if idx > 0 and np.isclose(energy_bounds[idx - 1], energy, rtol=rtol):
+            return idx - 1
+
+        raise ValueError(
+            f'Tabulated PREPRO boundary energy {energy:.3e} eV does not ' \
+            'match any boundary in the supplied group structure.'
+        )
 
     def _reset_section_state(self):
         """
@@ -608,7 +655,7 @@ class GENDFParser:
         self.NP = None
         self.interp_lines_left = 0
         self.points_collected = 0
-        self.point_idx = 0
+        self.group_bound_idx = None
 
     def _save_current_section(self):
         """
@@ -679,26 +726,42 @@ class GENDFParser:
 
         if self.NP is None or self.points_collected >= self.NP:
             self._save_current_section()
-            self.current_section = {}
+
+            # Zero-fill every group up front son groups the PREPRO table omits
+            # (below threshold) are explicitly zero, not missing
+            self.current_section = {g: 0. for g in range(1, self.nGroups + 1)}
+            
             self.current_LFS, self.NR, self.NP = self._parse_tab1_header(
                 line, with_lfs=(MF == 10)
             )
             self.interp_lines_left = int(np.ceil(self.NR / 3))
             self.points_collected = 0
-            self.point_idx = 0
+            self.group_bound_idx = None
             return
 
         if self.interp_lines_left > 0:
             self.interp_lines_left -= 1
             return
 
-        for sigma in self._parse_prepro_tab1_xs(line):
+        for energy, sigma in self._parse_prepro_tab1_xs(line):
             if self.points_collected >= self.NP:
                 break
 
-            self.point_idx += 1
-            self.current_section[self.point_idx] = sigma
             self.points_collected += 1
+
+            if self.group_bound_idx is None:
+                self.group_bound_idx = self._match_boundary_index(
+                    energy, self.energy_bounds
+                )
+
+            else:
+                self.group_bound_idx += 1
+
+            if self.points_collected == self.NP:
+                continue
+
+            group_num = self.group_bound_idx + 1
+            self.current_section[group_num] = sigma
 
     def parse(self, gendf_path):
         """

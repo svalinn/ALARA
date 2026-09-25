@@ -374,7 +374,7 @@ def notify_nuc_completion(element, A):
     print(f'Finished processing {element}-{A}')
 
 def collect_all_prepro_TENDL_data(
-        prepro_tendl_dir, mt_dict, all_rxns, all_nucs
+        prepro_tendl_dir, mt_dict, all_rxns, all_nucs, energy_bounds
     ):
     """
     As an alternate pathway to the standard NJOY-based processing procedure,
@@ -404,6 +404,8 @@ def collect_all_prepro_TENDL_data(
             }
         all_nucs (dict): Dictionary keyed by all nuclide KZAs in the decay
             library, with values of their half-lives (-1 for stable nuclides).
+        energy_bounds (array-like): Ascending array of groupwise energy
+            boundaries for the given group structure. 
 
     Returns:
         all_rxns (collections.defaultdict): Updated dictionary for all
@@ -417,7 +419,7 @@ def collect_all_prepro_TENDL_data(
     # ("g" for "groupwise")
     for gendf_path in sorted(prepro_tendl_dir.glob(f'*g.asc')):
         gendf_dict, nGroups, pKZA = tp.GENDFParser(
-            MFs=[3,10], prepro=True
+            MFs=[3,10], prepro=True, energy_bounds=energy_bounds
         ).parse(gendf_path)
 
         all_rxns |= tp.iterate_MTs(
@@ -522,7 +524,7 @@ def rxn_to_str(parent, daughter, MT, rxn):
 
 def store_results(
     dsv_path, all_rxns, nGroups, tendl_dir, group_name,
-    weight_function, processing_code, plotting, endf_obj_dict
+    weight_function, processing_code, plotting, endf_obj_dict={}
 ):
     """
     Save groupwise-converted cross-section data to a space-delimited DSV file
@@ -597,7 +599,7 @@ def store_results(
 
                             # Conditionally plot reaction groupwise/continuous
                             # data with xs_plotting.py tool
-                            if plotting:
+                            if plotting and endf_obj_dict:
                                 fig, ax = plt.subplots(figsize=(10,6))
 
                                 emitted = xp.ensure_emission_specificity(
@@ -684,18 +686,19 @@ def main():
 
     all_nucs = rxd.find_nucs_from_decay_lib(decay_path)
     all_rxns = defaultdict(lambda: defaultdict(dict))
+    endf_obj_dict = {}
 
     if args.nea_prepro:
         group_name = 'CCFE-709'
+        _, energy_bounds = njt.load_external_group_struct(group_name)
         processing_code = 'PREPRO'
         all_rxns, nGroups = collect_all_prepro_TENDL_data(
-            search_dir, mt_dict, all_rxns, all_nucs
+            search_dir, mt_dict, all_rxns, all_nucs, energy_bounds
         )
 
     else:
         processing_code = 'NJOY'
         unresr_err_cases = []
-        endf_obj_dict = {}
         gendf_parser = tp.GENDFParser()
         for file_properties in tp.search_for_files(search_dir):
             element, A, pKZA, endf_path = tuple(file_properties.values())
