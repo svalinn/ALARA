@@ -190,7 +190,7 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
                     dsv_pKZA, dsv_dKZA, dsv_MT, emitted = rxn[:4]
                     emitted = ensure_emission_specificity(emitted, dsv_dKZA)
 
-                    if KZA == dsv_pKZA and str(MT) == dsv_MT:
+                    if KZA == dsv_pKZA and str(MT) == str(dsv_MT):
                         groupwise_dict[data_id] = {
                             'xs'         :   np.asarray(rxn[4:], dtype=float),
                             'energies'   :   energy_bounds
