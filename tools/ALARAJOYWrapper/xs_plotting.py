@@ -310,7 +310,7 @@ def set_plot_parameters(
         ylabel = 'Reaction Rate per Nucleus [1/s]'
 
     if ratio_plotting:
-        ylabel = f'Ratio of {ylabel}'.split(' [') + 's'
+        ylabel = f'Ratio of {ylabel}'.split(' [')[0] + 's'
 
     if np.log10(np.ptp(ax.get_ylim())) > 1:
         ax.set_yscale('log')
