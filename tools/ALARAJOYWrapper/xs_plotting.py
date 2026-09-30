@@ -203,7 +203,7 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
 
 def set_plot_save_path(
     element, A, emitted, tendl_dir, group_names,
-    img_ext='png', ratio_plotting=False
+    img_ext='png', ratio_plotting=False, reaction_rates=False
 ):
     """
     For a given reaction's cross-section plot produced by
@@ -233,6 +233,10 @@ def set_plot_save_path(
         ratio_plotting (bool, optional): Option to specify the path for
             plotting the ratio series between different group structures.
             (Defaults to False)
+        reaction_rates (bool, optional): Option to specify a path for plotting
+            reaction rates per nucleus vs neutron energy rather than cross-
+            section.
+            (Defaults to False)
     
     Returns:
         save_path (pathlib._local.PosixPath): Filepath for a given reaction
@@ -261,18 +265,23 @@ def set_plot_save_path(
 
     nuc = f'{element}{A}'
     nuc_dir = Path(f'{tendl_dir}_plots') / element / nuc
-    ratio_suffix = ''
+    stem_suffix = ''
+    if reaction_rates:
+        stem_suffix += '_reaction_rates'
+
     if ratio_plotting:
         nuc_dir /= 'ratio_plots'
-        ratio_suffix ='_ratios'
+        stem_suffix ='_ratios'
 
     nuc_dir.mkdir(parents=True, exist_ok=True)
 
     return (
-        nuc_dir / f'{nuc}_(n,{emitted})_{"_".join(group_names)}{ratio_suffix}'
+        nuc_dir / f'{nuc}_(n,{emitted})_{"_".join(group_names)}{stem_suffix}'
     ).with_suffix(f'.{img_ext}')
 
-def set_plot_parameters(ax, title, ratio_plotting=False):
+def set_plot_parameters(
+        ax, title, ratio_plotting=False, reaction_rates=False
+):
     """
     Apply standard plotting parameters for either of the two types of plots
         producable by `xs_plotting`: `plot_single_nuc_rxn_xs()` or
@@ -286,6 +295,10 @@ def set_plot_parameters(ax, title, ratio_plotting=False):
             comparing different group structures' cross-sections with
             `plot_relative_group_xs()`.
             (Defaults to False)
+        reaction_rates (bool, optional): Option to produce a plot of reaction
+            rates per nucleus vs neutron energy for a given neutron flux
+            spectrum, calculated from the groupwise cross-sections.
+            (Defaults to False)
 
     Returns:
         ax (matplotlib.axes._axes.Axes): Updated Matplotlib Axes object of the
@@ -293,8 +306,11 @@ def set_plot_parameters(ax, title, ratio_plotting=False):
     """
 
     ylabel = 'Cross-Section [b]'
+    if reaction_rates:
+        ylabel = 'Reaction Rate per Nucleus [1/s]'
+
     if ratio_plotting:
-        ylabel = 'Ratio of Cross-Sections'
+        ylabel = f'Ratio of {ylabel}'.split(' [') + 's'
 
     if np.log10(np.ptp(ax.get_ylim())) > 1:
         ax.set_yscale('log')
@@ -308,8 +324,8 @@ def set_plot_parameters(ax, title, ratio_plotting=False):
 
     return ax
 
-def plot_single_nuc_rxn_xs(
-    ax, element, A, emitted, continuous_dict={}, groupwise_dict={}
+def plot_single_nuc_rxn_data(
+    ax, element, A, emitted, continuous_dict={}, groupwise_dict={}, fluxes=[]
 ):
     """
     Create a plot for a singular nuclide/reaction's cross-sections vs. energy.
@@ -334,10 +350,10 @@ def plot_single_nuc_rxn_xs(
                 {'xs' : continuous_xs, 'energies' : continous_energies}
 
             (Defaults to {})
-        groupwise_dict (dict): Nested dictionary keyed at the highest level by
-            the name of the group structure/weight function combination,
-            according to which an array of cross-sections were processed. The
-            form of this data structure is as follows:
+        groupwise_dict (dict, optional): Nested dictionary keyed at the
+            highest level by the name of the group structure/weight function
+            combination, according to which an array of cross-sections were
+            processed. The form of this data structure is as follows:
                 {
                     'group_name_1' : {
                         'xs'       : groupwise_xs,
@@ -349,8 +365,11 @@ def plot_single_nuc_rxn_xs(
                         'energies' : energy_group_bounds
                     },
                 }
-
             (Defaults to {})
+        fluxes (array-like, optional): Optional argument to provide the
+            groupwise neutron flux values to calculate reaction rates per
+            nucleus.
+            (Defaults to [])
 
     Returns:
         ax (matplotlib.axes._axes.Axes): Updated Matplotlib Axes object of the
@@ -361,9 +380,14 @@ def plot_single_nuc_rxn_xs(
         f'Energy-Dependent Neutron Cross-Sections for ' \
         f'$^{{{A}}}${element}(n,{emitted}):\n'
     )
+    rxn_rates = len(fluxes) > 0
+    if rxn_rates:
+        title = title.replace(
+            'Neutron Cross-Sections', 'Reaction Rates per Nucleus'
+        )
 
     # Conditionally plot continous data
-    if continuous_dict:
+    if continuous_dict and not rxn_rates:
         ax.plot(
             continuous_dict['energies'], continuous_dict['xs'], label='TENDL'
         )
@@ -371,11 +395,18 @@ def plot_single_nuc_rxn_xs(
     # Conditionally plot each group structure's data provided
     if groupwise_dict:
         for data_set, arrays in groupwise_dict.items():
-            ax.stairs(arrays['xs'][::-1], arrays['energies'], label=data_set)
-        
+            values = arrays['xs'][::-1]
+            if rxn_rates:
+                if not isinstance(fluxes, np.ndarray):
+                    fluxes = np.asarray(fluxes, dtype=float)
+
+                values *= (fluxes * 1e-24) # Conversion from b/cm^2-s to 1/s
+
+            ax.stairs(values, arrays['energies'], label=data_set)
+
         title += ', '.join([g for g in groupwise_dict]) + ' (Groupwise)'
 
-    return set_plot_parameters(ax, title)
+    return set_plot_parameters(ax, title, reaction_rates=rxn_rates)
 
 def collect_all_stair_colors(ax):
     """
@@ -641,6 +672,8 @@ def main():
     parser.add_argument('--yaml', '-y')
     parser.add_argument('--ratio_plotting', '-r', action='store_true')
     parser.add_argument('--reference_data', '-d', required=False)
+    parser.add_argument('--flux_file', '-f')
+
     args = parser.parse_args()
 
     with open(args.yaml, 'r') as f:
@@ -650,9 +683,9 @@ def main():
     tendl_dir = Path(parameter_dict.get('TENDL', 'tendl2017'))
 
     nuc_hierarchy = {
-    k: v
-    for k, v in parameter_dict.items()
-    if k not in ['DSV', 'TENDL']
+        k: v
+        for k, v in parameter_dict.items()
+        if k not in ['DSV', 'TENDL']
     }
 
     # Only search for elements which have files in the reference TENDL
@@ -665,6 +698,14 @@ def main():
         tendl_elements if 'all' in [key.lower() for key in nuc_hierarchy]
         else set(nuc_hierarchy) & tendl_elements
     )
+
+    fluxes = []
+    if args.flux_file:
+        with open(args.flux_file, 'r') as f:
+            for line in f:
+                fluxes.extend(line.split())
+
+        fluxes = np.asarray(fluxes, dtype=float)[::-1]
 
     for element in elements:
         element_dict = adjust_dict_for_all_tag(nuc_hierarchy, element)
@@ -698,7 +739,7 @@ def main():
                 )
 
                 if groupwise_dict:
-                    ax = plot_single_nuc_rxn_xs(
+                    ax = plot_single_nuc_rxn_data(
                         ax, element, A, emitted,
                         continuous_dict, groupwise_dict
                     )
@@ -706,6 +747,20 @@ def main():
                         element, A, emitted, tendl_dir, groupwise_dict.keys()
                     )
                     plt.savefig(plot_path)
+                    plt.close()
+
+                    if len(fluxes) > 0:
+                        rate_fig, rate_ax = plt.subplots(figsize=(10,6))
+                        rate_ax = plot_single_nuc_rxn_data(
+                            rate_ax, element, A, emitted,
+                            groupwise_dict=groupwise_dict, fluxes=fluxes
+                        )
+                        rate_path = set_plot_save_path(
+                            element, A, emitted, tendl_dir,
+                            groupwise_dict.keys(), reaction_rates=True
+                        )
+                        plt.savefig(rate_path)
+                        plt.close()
 
                     if args.ratio_plotting:
                         reference_data = (
@@ -726,6 +781,7 @@ def main():
                             ratio_plotting=args.ratio_plotting
                         )
                         plt.savefig(ratio_plot_path)
+                        plt.close()
 
     print(
         f'Cross-section plots saved to {plot_path.parents[2]}/, ' \
