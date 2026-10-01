@@ -1639,7 +1639,7 @@ def plot_computational_with_experimental(
     adf,
     variable,
     experimental_data,
-    start_zeros,
+    start_zeros=None,
     experiment_name='Experiment',
     irradiation_description='',
     uncertainties=[],
@@ -1651,10 +1651,91 @@ def plot_computational_with_experimental(
     half_lives=None,
     threshold=0.025,
     cmap_name='Dark2',
-    stat_types=['rmsd'],
+    stat_types=[],
     shading=True,
     show_shading_bounds=False,
 ):
+    '''
+    Create a plot containing both measured experimental data for a given decay
+        response variable against ALARADFrame simulated data. Includes
+        capabilities to plot experimental uncertainties and simulated nuclide
+        dominance ranges. Additionally, statistical metrics for computational/
+        experimental comparison can be calculated by the `PlotStats` class and
+        included within the legend of the plot and/or in an output DataFrame.
+
+    Arguments:
+        adf (alara_output_processing.ALARADFrame): ALARADFrame containing
+            response data from one or more simulated activation responses.
+        variable (str): Name of the response variable to be visualized.
+        experimental_data (array_like): 1-D array containing measured
+            experimental data for the given decay response variable.
+        start_zeros (int or None, optional): Index of first zero value in the
+            array of experimental data, if any.
+            (Defaults to None)
+        experiment_name (str, optional): Option to set the name of the
+            experiment from which data were collected.
+            (Defaults to "Experiment")
+        irrdiation_description (str, optional): Option to specify further
+            characteristic information about the particular irradiation
+            parameters in the given experimental data.
+            (Defaults to "")
+        uncertainties (array-like, optional): 1-D array of the same length as
+            experimental_data containing their associated uncertainties. If
+            provided, error bars will be included for the experimental series.
+            (Defaults to [])
+        cooling_times (array-like, optional): Option to include the measured
+            experimental cooling time values as a 1-D array. If none is
+            provided, the ADF cooling times will be extracted.
+            (Defaults to [])
+        comparison_type (str, optional): Option to specify the type of
+            computational-experimental comparison. To plot the measured and
+            simulated decay response values, select "raw". To plot the C/E
+            ratios, select "ratio".
+            (Defaults to "raw")
+        runs (array-like, optional): Option to specify the runs to plot. If
+            not provided, all unique runs from the provided ALARADFrame will
+            be included.
+            (Defaults to [])
+        sort_by_time (str, optional): Option to sort the ALARADFrame by the
+            data in a particular time column.
+            (Defaults to '')
+        time_unit (str, optional): Optional paramter to set units for cooling
+            times. Accepted values: 's', 'm', 'h', 'd', 'w', 'y', 'c'.
+            (Defaults to 's')
+        half_lives (int, float, or None, optional): Option to specify the
+            number of half-lives to pass in cooling time before zeroing
+            subsequent decay responses. Used to eliminate round-off error for
+            long cooling times (relative to half-life length). To avoid half-
+            life zeroing, set half_lives to None.
+            (Defaults to None) 
+        threshold (float, optional): Proportional threshold for small-value
+            aggregation.
+            (Defaults to 0.025)
+        cmap_name (str, optional): Option to set the Matplotlib Colormap for
+            the plots. Reference guide for Matplotlib Colormaps can be found
+            at matplotlib.org/stable/gallery/color/colormap_reference.html
+            (Defaults to "Dark2")
+        stat_types (list of str): Option to specify the C/E statistical
+            metrics to include in the plot legend. Available metrics can be
+            found in PlotStats.all_metrics.
+            (Defaults to [])
+        shading (bool, optional): Option to shade the regions in which any
+            particular nuclide is the dominant contributor to the plotted
+            decay response.
+            (Defaults to True)
+        show_shading_bounds (bool, optional): Option to show the time range in
+            which a given nuclide is the dominant nuclide for a given
+            response in the plot's legend, corresponding to the region(s)
+            shaded in the plot.
+            (Defaults to False)
+
+    Returns:
+        fig (matplotlib.figure.Figure): Matplotlib Figure object containing
+            the constructed plot.
+        stats_df (pandas.DataFrame): DataFrame containing values for all
+            applicable statistical metrics for each activation simulation
+            compared to the provided experimental data.
+    '''
 
     fig, ax = plt.subplots(figsize=(12,6))
     yscale='log'
@@ -1678,8 +1759,8 @@ def plot_computational_with_experimental(
     computational_max = 0
     computational_min = np.inf
     all_dominance_ranges = defaultdict(list)
-    filtered_concat = pd.DataFrame()
     stats_rows = []
+    var_units = set()
     for i, run in enumerate(runs):
         filtered, piv = preprocess_data(
             adf,
@@ -1690,7 +1771,7 @@ def plot_computational_with_experimental(
             sort_by_time=sort_by_time,
             half_lives=half_lives
         )
-        filtered_concat = pd.concat([filtered_concat, filtered])
+        var_units = check_var_units(filtered, var_units)
 
         computational_data = filtered['value'][:start_zeros]
         if len(computational_data) != len(experimental_data):
@@ -1812,7 +1893,7 @@ def plot_computational_with_experimental(
             yscale = 'linear'
             ax.ticklabel_format(style='sci', scilimits=(0,0), axis='y')
 
-        ylabel = f'{variable} [{get_var_unit(filtered_concat)}]'
+        ylabel = f'{variable} [{var_units[0]}]'
 
     # Experimental over computatational plot
     else:
