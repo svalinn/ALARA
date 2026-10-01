@@ -1339,7 +1339,7 @@ def plot_single_response(
             time_unit, show_shading_bounds
         )
 
-    ylabel = f'{variable} [{var_units[0]}]'
+    ylabel = f'{variable} [{list(var_units)[0]}]'
     title_suffix = (
         f'Ratio of {variable} against {control_run}' if ratio_plotting
         else f'{variable}'
@@ -1893,7 +1893,7 @@ def plot_computational_with_experimental(
             yscale = 'linear'
             ax.ticklabel_format(style='sci', scilimits=(0,0), axis='y')
 
-        ylabel = f'{variable} [{var_units[0]}]'
+        ylabel = f'{variable} [{list(var_units)[0]}]'
 
     # Experimental over computatational plot
     else:
