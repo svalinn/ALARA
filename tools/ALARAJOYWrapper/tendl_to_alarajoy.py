@@ -72,7 +72,7 @@ def make_argparser():
         ''')
     )
     parser.add_argument(
-        '--xs_plotting', '-p', action='store_true',
+        '--xs_plotting', '-x', action='store_true',
         help=('''
             Optional argument to comparatively plot all converted groupwise
                 neutron cross-sections over the continuous energy cross-
@@ -80,7 +80,7 @@ def make_argparser():
         ''')
     )
     parser.add_argument(
-        '--nea_prepro', '-n', action='store_true',
+        '--prepro', '-p', action='store_true',
         help=('''
             Option to convert PREPRO-formatted CCFE-709 groupwise data into
             an ALARAJOY-formatted DSV. If true, must also provide the path to
@@ -688,7 +688,7 @@ def main():
     all_rxns = defaultdict(lambda: defaultdict(dict))
     endf_obj_dict = {}
 
-    if args.nea_prepro:
+    if args.prepro:
         group_name = 'CCFE-709'
         _, energy_bounds = njt.load_external_group_struct(group_name)
         processing_code = 'PREPRO'

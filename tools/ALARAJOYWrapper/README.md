@@ -59,7 +59,7 @@ ALARAJOYWrapper is designed to produce a space-delimited DSV containing cross-da
 
 Running ALARAJOYWrapper can be done with one Python command:
 ```
-python tendl_to_alarajoy.py -f /path/to/fendl3_data_dir/ -d /path/to/decay_library/ decay_library-type -g group_name -w weight_function -a -t -r -p -n
+python tendl_to_alarajoy.py -f /path/to/fendl3_data_dir/ -d /path/to/decay_library/ decay_library-type -g group_name -w weight_function -a -t -r -x -p
 ```
 To read in detail about each of these arguments, call this command:
 ```
