@@ -13,6 +13,8 @@ from collections import defaultdict
 from subprocess import TimeoutExpired
 from openmc.data import endf
 
+NOTIFY_NUC_COMPLETION = 'Finished processing {0}-{1}'
+
 def make_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -318,7 +320,7 @@ def process_gendf(
         # Extract MT values again from GENDF file as there may be some
         # difference from the original MT values in the ENDF/PENDF files
         gendf_dict, nGroups, _ = gendf_parser.parse(gendf_path)
-        gendf_MTs = gendf_dict[3]['MTs']
+        gendf_MTs = gendf_dict[tp.RXN_XS_MF]['MTs']
         
         # Conditionally save group bounds from NJOY/GROUPR output
         if not Path(group_name.split()[-1]).is_file():
@@ -338,7 +340,7 @@ def process_gendf(
                 gendf_dict, mt_dict, pKZA, all_rxns, all_nucs, nGroups,
                 isomer_dict=isomer_dict
             )
-            notify_nuc_completion(element, A)
+            print(NOTIFY_NUC_COMPLETION.format(element, A))
 
         else:
             warnings.warn(
@@ -356,26 +358,9 @@ def process_gendf(
 
     return all_rxns, nGroups
 
-def notify_nuc_completion(element, A):
-    """
-    Print to output stream to notify the completion of all processing for a
-        single nuclide.
-
-    Arguments:
-        element (str): Chemical symbol of the nuclide whose data was
-            processed.
-        A (str): Mass number for the provided nuclide, including an "m" or "n"
-            for the first two isomeric states, if applicable.
-
-    Returns:
-        None
-    """
-
-    print(f'Finished processing {element}-{A}')
-
 def collect_all_prepro_TENDL_data(
-        prepro_tendl_dir, mt_dict, all_rxns, all_nucs, energy_bounds
-    ):
+    prepro_tendl_dir, mt_dict, all_rxns, all_nucs, energy_bounds
+):
     """
     As an alternate pathway to the standard NJOY-based processing procedure,
         if the path to a directory containing PREPRO-processed groupwise TENDL
@@ -419,14 +404,16 @@ def collect_all_prepro_TENDL_data(
     # ("g" for "groupwise")
     for gendf_path in sorted(prepro_tendl_dir.glob(f'*g.asc')):
         gendf_dict, nGroups, pKZA = tp.GENDFParser(
-            MFs=[3,10], prepro=True, energy_bounds=energy_bounds
+            MFs=[tp.RXN_XS_MF, tp.RADIONUC_PRODUCTION_MF],
+            prepro=True,
+            energy_bounds=energy_bounds
         ).parse(gendf_path)
 
         all_rxns |= tp.iterate_MTs(
             gendf_dict, mt_dict, pKZA, all_rxns, all_nucs, nGroups,
             prepro=True
         )
-        notify_nuc_completion(*tp.interpret_KZA(pKZA))
+        print(NOTIFY_NUC_COMPLETION.format(*tp.interpret_KZA(pKZA)))
 
     return all_rxns, nGroups
 

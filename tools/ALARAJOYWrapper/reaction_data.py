@@ -274,7 +274,7 @@ def resolve_decay_file_formatting_issues(decay_dir, decay_lib_type):
         None
     """
 
-    from tendl_processing import calculate_KZA_from_ENDF
+    from tendl_processing import construct_KZA_from_ENDF
 
     ukdd_options = ['ukdd', 'ukaeadd', 'decay_2020', 'decay_2012']
     if decay_lib_type.lower() in ukdd_options:
@@ -308,7 +308,7 @@ def resolve_decay_file_formatting_issues(decay_dir, decay_lib_type):
             # Rename decay file to the KZA value so that a sorted decay
             # directory iteration will go in order of ascending KZA
             if decay_lib_type == 'ukdd':
-                kza = calculate_KZA_from_ENDF(decay_file, DECAY_MF, DECAY_MT)
+                kza = construct_KZA_from_ENDF(decay_file)
                 decay_file.rename(decay_dir / str(kza))
 
 def compile_decay_lib(decay_dir, decay_lib_type, dir):
