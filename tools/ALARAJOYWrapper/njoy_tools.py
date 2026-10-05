@@ -236,8 +236,8 @@ def load_external_group_struct(group_struct):
 
     if len(group_bounds) == 0:
         raise ValueError(
-            'Invalid group structure provided. Must either be an ign value'  \
-            ' known by NJOY, a group structure name in '   \
+            f'Invalid group structure provided: {group_name}. Must either ' \
+            'be an ign value known by NJOY, a group structure name in '   \
             '`openmc.mgxs.GROUP_STRUCTURES`, or a file containing explicit' \
             ' energy group bounds.'
         )
