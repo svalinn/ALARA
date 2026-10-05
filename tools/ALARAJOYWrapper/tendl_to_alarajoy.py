@@ -617,6 +617,8 @@ def store_results(
         processing_code (str): Name of the nuclear data processing code used.
             NJOY for standard ALARAJOY workflow, PREPRO if `-n` flag is
             applied for FISPACT-II formatted TENDL data.
+        decay_path (pathlib._local.PosixPath): Path to the decay data library
+            referenced for data processing.
         plotting (bool): Boolean to set whether to produce cross-section
             plots.
         endf_obj_dict (dict, optional): Dictionary with a key for each parent
