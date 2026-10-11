@@ -39,29 +39,43 @@ def flagged_num_to_int(num):
 
     return int(re_match.group()), num.count('*')
 
-def ensure_emission_specificity(emitted, dKZA):
+def ensure_emission_specificity(dsv_data):
     """
-    Check an emitted particle string for a gas total production reaction
-        signature ('x'). Given that each type of these reactions (MTs 203-207)
-        is only saved in the groupwise preprocessing collection nested-
-        dictionaries according in the general form, this function cross-checks
-        with reaction_data.GAS_DF with the daughter nuclide's KZA identifier
-        to clarify the specific gas total reaction in question, if applicable.
+    For all emitted particles in a column of a groupwise DSV loaded into a
+        Pandas DataFrame, check the particle string for a gas total production
+        reaction signature ('x'). Given that each type of these reactions (MTs
+        203-207) is only saved in the groupwise preprocessing collection
+        nested-dictionaries in the general form, this function cross-checks
+        against reaction_data.GAS_DF with the daughter nuclide's KZA
+        identifier to clarify the specific gas total reaction in question, if
+        applicable.
 
     Arguments:
-        emitted (str): Particle(s) emitted from a nuclear reaction.
-        dKZA (int or str): Unique KZA identifier for the residual nuclide of a
-            given nuclear reaction.
+        dsv_data (pandas.core.frame.DataFrame): DataFrame containing all
+            reaction row-level data from a `tendl_to_alarajoy` produced DSV.
 
     Returns:
-        emitted (str): Updated emitted particle string clarifying the specific
-            type of gas production total reaction, if applicable. Otherwise
-            emitted is unchanged from the input.
+        emitted_series (pandas.core.series.Series): Updated emitted column.
+            Row values where the emitted particle string was not equal to 'x'
+            are left unchanged. Gas total rows become 'X' + gas_type (e.g.,
+            'Xp').
     """
 
-    if emitted == 'x':
-        gas_type = rxd.GAS_DF.loc[rxd.GAS_DF['kza']==int(dKZA), 'gas'].iat[0]
-        emitted = emitted.upper() + gas_type
+    gas_map = rxd.GAS_DF.drop_duplicates('kza').set_index('kza')['gas']
+    emitted = dsv_data['emitted'].copy()
+    mask = (emitted == 'x')
+
+    if mask.any():
+        kzas = dsv_data.loc[mask, 'dKZA']
+        gas_types = kzas.map(gas_map)
+
+        missing = gas_types.isna()
+        if missing.any():
+            raise KeyError(
+                f'No gas type found for KZAs: {kzas[missing].unique()}.'
+            )
+
+        emitted.loc[mask] = 'X' + gas_types
 
     return emitted
 
@@ -155,49 +169,61 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
             corresponding to the MT number provided.
     """
 
+    emitted = ''
     groupwise_dict = {}
+    reaction_cols = {
+        'pKZA'    : int,
+        'dKZA'    : int,
+        'MT'      : str,
+        'emitted' : str
+    }
     for dsv in dsv_list:
-        i = 0
+        # Parse header metadata
         with open(dsv, 'r') as f:
-            for line in f:
-                rxn = line.split()
+            (
+                nGroups,
+                tendl_version,
+                group_name,
+                weight_function,
+                processing_code,
+                decay_lib
+            ) = f.readline().split()
 
-                # EOF condition; if reached, (KZA, MT) pair not in DSV file
-                if int(rxn[0]) == -1:
-                    break
+        nGroups = int(nGroups)
+        _, energy_bounds = njt.load_external_group_struct(group_name)
 
-                # Process metadata from first line
-                if i == 0:
-                    (
-                        tendl_version,
-                        group_name,
-                        weight_function,
-                        processing_code,
-                        decay_lib   
-                    ) = rxn[1:]
-                    _, energy_bounds = njt.load_external_group_struct(
-                        group_name
-                    )
+        data_id = group_name + ' ('
+        if processing_code != 'NJOY':
+            data_id += f'{processing_code}, '
+        data_id += f'{weight_function} weight function)'
 
-                    data_id = group_name + ' ('
-                    if processing_code != 'NJOY':
-                        data_id += f'{processing_code}, '
-
-                    data_id += f'{weight_function} weight function)'
-
-                # Reaction data parsing, search for matching (KZA, MT) pair
-                else:
-                    dsv_pKZA, dsv_dKZA, dsv_MT, emitted = rxn[:4]
-                    emitted = ensure_emission_specificity(emitted, dsv_dKZA)
-
-                    if KZA == dsv_pKZA and str(MT) == str(dsv_MT):
-                        groupwise_dict[data_id] = {
-                            'xs'         :   np.asarray(rxn[4:], dtype=float),
-                            'energies'   :   energy_bounds
-                        }
-                        break
-
-                i += 1
+        # Load in rest of reaction-level data from DSV; match provided KZA, MT
+        dsv_data = pd.read_csv(
+            dsv,
+            sep=r'\s+',
+            header=None,
+            skiprows=1,
+            low_memory=False
+        )
+        xs_cols = {
+            f'group_{i}' : float
+            for i in range(1, (nGroups + 1))
+        }
+        col_dict = reaction_cols | xs_cols
+        dsv_data.columns = list(col_dict)
+        dsv_data = dsv_data[dsv_data['pKZA'] != -1]
+        dsv_data = dsv_data.astype(col_dict)
+        dsv_data['emitted'] = ensure_emission_specificity(dsv_data)
+        
+        rxn = dsv_data.loc[
+            (dsv_data['pKZA'] == KZA) & (dsv_data['MT'] == str(MT))
+        ]
+        if not rxn.empty:
+            emitted = rxn['emitted'].iat[0]
+            groupwise_dict[data_id] = {
+                'xs'         :    rxn[list(xs_cols)].to_numpy()[0],
+                'energies'   :    energy_bounds
+            }
 
     return groupwise_dict, emitted
 
@@ -674,7 +700,7 @@ def main():
             mass_nums = find_all_mass_nums(tendl_dir, element)
 
         for A in mass_nums:
-            KZA = str((
+            KZA = int((
                 njt.elements[element] * 1000 + flagged_num_to_int(A)[0]
             ) * 10 + tp.ISOMERIC_STATES.find(str(A)[-1]) + 1)
 
