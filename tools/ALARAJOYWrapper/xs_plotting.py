@@ -79,6 +79,74 @@ def ensure_emission_specificity(dsv_data):
 
     return emitted
 
+def parse_dsv_firstline(dsv):
+    """
+    Process the header of an ALARAJOY DSV file to a list of metadata values.
+
+    Arguments:
+        dsv (str or pathlib._local.PosixPath): Path to a provided DSV file.
+
+    Returns:
+        header (list): List of each metadata value in the DSV header.
+    """
+
+    with open(dsv, 'r') as f:
+        header = f.readline().split()
+
+    header[0] = int(header[0])
+
+    return header
+
+def load_dsvs_to_dfs(dsv_paths):
+    """
+    Given a list of DSV files, load in each file as a Pandas DataFrame and
+        store each in a dictionary keyed by the DSV filepath.
+
+    Arguments:
+        dsv_paths (list): List of paths to all DSV files being loaded.
+
+    Returns:
+        dsv_dict (dict): Dictionary keyed by each DSV filepath containing a
+            Pandas DataFrame for each parsed file as its value.
+    """
+
+    reaction_cols = {
+        'pKZA'    : int,
+        'dKZA'    : int,
+        'MT'      : str,
+        'emitted' : str
+    }
+
+    dsv_dict = dict()
+    ref_nGroups = None
+    ref_dsv = None
+    for dsv in dsv_paths:
+        nGroups = parse_dsv_firstline(dsv)[0]
+
+        if ref_nGroups is None:
+            ref_nGroups, ref_dsv = nGroups, dsv
+
+        elif nGroups != ref_nGroups:
+            raise ValueError(
+                'Number of groups/group structures in provided DSV data ' \
+                f'sets must be the same as each other.\n {ref_dsv!r} has ' \
+                f'{ref_nGroups} groups, but {dsv!r} has {nGroups}.'
+            )
+
+        dsv_data = pd.read_csv(
+            dsv, sep=r'\s+', skiprows=1, header=None, low_memory=False
+        )
+        xs_cols = {f'group_{i}' : float for i in range(1, (nGroups + 1))}
+        col_dict = reaction_cols | xs_cols
+        dsv_data.columns = list(col_dict)
+        dsv_data = dsv_data[dsv_data['pKZA'] != -1]
+        dsv_data = dsv_data.astype(col_dict)
+        dsv_data['emitted'] = ensure_emission_specificity(dsv_data)
+
+        dsv_dict[dsv] = dsv_data
+
+    return dsv_dict
+
 def extract_continuous_data(endf_obj, MT):
     """
     For a given nuclide and reaction, extract its continuous-energy cross-
@@ -136,7 +204,7 @@ def extract_continuous_data(endf_obj, MT):
 
     return continuous_dict
 
-def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
+def extract_groupwise_data_from_DSV(dsv_dict, KZA, MT):
     """
     Given a list of DSV files containing ALARAJOY-processed groupwise cross-
         sections, read through through each file to find the line
@@ -171,25 +239,15 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
 
     emitted = ''
     groupwise_dict = {}
-    reaction_cols = {
-        'pKZA'    : int,
-        'dKZA'    : int,
-        'MT'      : str,
-        'emitted' : str
-    }
-    for dsv in dsv_list:
-        # Parse header metadata
-        with open(dsv, 'r') as f:
-            (
-                nGroups,
-                tendl_version,
-                group_name,
-                weight_function,
-                processing_code,
-                decay_lib
-            ) = f.readline().split()
-
-        nGroups = int(nGroups)
+    for dsv, dsv_data in dsv_dict.items():
+        (
+            nGroups,
+            tendl_version,
+            group_name,
+            weight_function,
+            processing_code,
+            decay_lib
+        ) = parse_dsv_firstline(dsv)
         _, energy_bounds = njt.load_external_group_struct(group_name)
 
         data_id = group_name + ' ('
@@ -197,31 +255,13 @@ def extract_groupwise_data_from_DSV(dsv_list, KZA, MT):
             data_id += f'{processing_code}, '
         data_id += f'{weight_function} weight function)'
 
-        # Load in rest of reaction-level data from DSV; match provided KZA, MT
-        dsv_data = pd.read_csv(
-            dsv,
-            sep=r'\s+',
-            header=None,
-            skiprows=1,
-            low_memory=False
-        )
-        xs_cols = {
-            f'group_{i}' : float
-            for i in range(1, (nGroups + 1))
-        }
-        col_dict = reaction_cols | xs_cols
-        dsv_data.columns = list(col_dict)
-        dsv_data = dsv_data[dsv_data['pKZA'] != -1]
-        dsv_data = dsv_data.astype(col_dict)
-        dsv_data['emitted'] = ensure_emission_specificity(dsv_data)
-        
         rxn = dsv_data.loc[
             (dsv_data['pKZA'] == KZA) & (dsv_data['MT'] == str(MT))
         ]
         if not rxn.empty:
             emitted = rxn['emitted'].iat[0]
             groupwise_dict[data_id] = {
-                'xs'         :    rxn[list(xs_cols)].to_numpy()[0],
+                'xs'         :    rxn.filter(like='group').to_numpy()[0],
                 'energies'   :    energy_bounds
             }
 
@@ -630,15 +670,16 @@ def find_all_mass_nums(tendl_dir, element):
 
     return mass_nums
 
-def find_all_MTs(dsv_list, pKZA):
+def find_all_MTs(dfs, pKZA):
     """
     Given a list of preprocessed groupwise DSV files and a parent nuclide
         identified by its KZA, compile all reaction identifiers (MTs) that
         exist for that nuclide in any of the DSVs.
 
     Arguments:
-        dsv_list (list): List of filepaths to DSV files containing
-            ALARAJOYWrapper-processed groupwise TENDL data.
+        dfs (dict_values of pandas.core.frame.DataFrame): Iterable of all
+            DataFrames containing ALARAJOY DSV data for the case(s) being
+            plotted.
         pKZA (int): ZZZAAAM identifier of the parent nuclide.
 
     Returns:
@@ -646,12 +687,10 @@ def find_all_MTs(dsv_list, pKZA):
             any of the DSV files provided.
     """
 
-    MTs = set()
-    for dsv in dsv_list:
-        df = pd.read_csv(dsv, sep=r'\s+', skiprows=1, header=None)
-        MTs.update(df.loc[df[0] == pKZA, 2])
-
-    return MTs
+    return {
+        MT for dsv_data in dfs
+        for MT in dsv_data.loc[dsv_data['pKZA'] == pKZA, 'MT']
+    }
 
 def main():
 
@@ -672,7 +711,10 @@ def main():
     with open(args.yaml, 'r') as f:
         parameter_dict = safe_load(f)
 
-    dsv_list = parameter_dict.get('DSV', ['cumulative_gendf_data.dsv'])
+    #dsv_list = parameter_dict.get('DSV', ['cumulative_gendf_data.dsv'])
+    dsv_dict = load_dsvs_to_dfs(
+        parameter_dict.get('DSV', ['cumulative_gendf_data.dsv'])
+    )
     tendl_dir = Path(parameter_dict.get('TENDL', 'tendl2017'))
 
     nuc_hierarchy = {
@@ -705,12 +747,11 @@ def main():
             ) * 10 + tp.ISOMERIC_STATES.find(str(A)[-1]) + 1)
 
             MTs = adjust_dict_for_all_tag(element_dict, A)
-
             if isinstance(MTs, str):
                 MTs = [MTs]
-    
+
             if check_all_tag(MTs):
-                MTs = find_all_MTs(dsv_list, KZA)
+                MTs = find_all_MTs(dsv_dict.values(), KZA)
 
             for MT in MTs:
                 fig, ax = plt.subplots(figsize=(10,6))
@@ -720,7 +761,7 @@ def main():
                 )
 
                 groupwise_dict, emitted = (
-                    extract_groupwise_data_from_DSV(dsv_list, KZA, MT)
+                    extract_groupwise_data_from_DSV(dsv_dict, KZA, MT)
                 )
 
                 if groupwise_dict:
