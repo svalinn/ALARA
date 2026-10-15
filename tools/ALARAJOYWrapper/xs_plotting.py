@@ -534,14 +534,14 @@ def collect_all_stair_colors(ax):
 
     return color_dict
 
-def compute_groupwise_ratios(groupwise_dict, reference_data, fluxes=[]):
+def compute_groupwise_ratios(groupwise_dict, reference_data):
     """
     Calculate the ratios of groupwise cross-sections for each group in
         `groupwise_dict` that shares a group structure as a single reference
         series. `ValueError` is raised if no other groupwise data matches the
-        group structure of the reference data set. If a an array of fluxes is
-        provided, multiply with the cross-section values to produce ratios of
-        reaction rates per nucleus instead.
+        group structure of the reference data set. This ratio series is
+        equivalent for a reaction rates plot as both sets of cross-sections
+        are multiplied by the same flux constants.
 
     Arguments:
         groupwise_dict (dict): Nested dictionary keyed at the highest level by
@@ -551,10 +551,6 @@ def compute_groupwise_ratios(groupwise_dict, reference_data, fluxes=[]):
             same as `reference_data` from Arguments if one is supplied,
             otherwise, will be the group name of the first key in
             `groupwise_dict`.
-        fluxes (array-like, optional): Optional argument to provide the
-            groupwise neutron flux values to calculate ratios of reaction
-            rates per nucleus.
-            (Defaults to [])
 
     Returns:
         ratio_dict (dict): Nested dictionary keyed at the highest level by
@@ -579,10 +575,6 @@ def compute_groupwise_ratios(groupwise_dict, reference_data, fluxes=[]):
                 out=np.full_like(ref_xs, np.nan, dtype=float),
                 where=(ref_xs != 0)
             )[::-1]
-
-            if _is_rxn_rate(fluxes):
-                values = _xs_to_rxn_rate(values, fluxes) 
-
             ratio_dict[name] = {'ratios' : values, 'energies' : ref_energies}
 
     if not ratio_dict:
