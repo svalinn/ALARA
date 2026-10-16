@@ -16,6 +16,15 @@ set(PACKAGE_STRING "ALARA ${PACKAGE_VERSION}")
 set(DFLT_DATADIR ${CMAKE_INSTALL_PREFIX}/data)
 set(DFLT_XSDIR   ${CMAKE_INSTALL_PREFIX}/data)
 
+set(GIT_HASH_HEADER "${CMAKE_CURRENT_BINARY_DIR}/git_hash.h")
+
+add_custom_target(update_git_hash ALL
+    COMMAND ${CMAKE_COMMAND}
+        -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+        -DOUTPUT_FILE=${GIT_HASH_HEADER}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/FindGitHash.cmake
+)
+
 # Build ALARA executable
 add_subdirectory(src)
 
