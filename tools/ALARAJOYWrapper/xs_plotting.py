@@ -656,9 +656,7 @@ def plot_relative_energy_dependent_func(
         )
 
     reaction_rates = _is_rxn_rate(fluxes)
-    ratio_dict = compute_groupwise_ratios(
-        groupwise_dict, reference_data, fluxes=fluxes
-    )
+    ratio_dict = compute_groupwise_ratios(groupwise_dict, reference_data)
 
     for name, group_data in ratio_dict.items():
         comparison = f'{name} /\n {reference_data}'
