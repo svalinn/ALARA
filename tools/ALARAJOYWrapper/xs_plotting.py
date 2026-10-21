@@ -551,7 +551,7 @@ def convert_to_eV(energy_vline_arg, parser=None):
     elif len(energy_vline_arg) > 2:
         error_message = (
             'Too many values for energy_vline. ' \
-            'Can provide upt to two values: energy, energy_units'
+            'Can provide up to two values: energy, energy_units'
         )
         if parser:
             parser.error(error_message)
