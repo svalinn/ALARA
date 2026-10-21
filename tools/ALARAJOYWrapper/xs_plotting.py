@@ -648,7 +648,7 @@ def plot_relative_energy_dependent_func(
         ratio_stats_df (pandas.DataFrame): Updated DataFrame containing mean
             and standard deviation statistics for each ratio plot produced.
     """
-
+    print(groupwise_dict.keys())
     if len(groupwise_dict) < 2:
         raise ValueError(
             'At least two groupwise DSV files with equivalent group' \
@@ -656,9 +656,7 @@ def plot_relative_energy_dependent_func(
         )
 
     reaction_rates = _is_rxn_rate(fluxes)
-    ratio_dict = compute_groupwise_ratios(
-        groupwise_dict, reference_data, fluxes=fluxes
-    )
+    ratio_dict = compute_groupwise_ratios(groupwise_dict, reference_data)
 
     for name, group_data in ratio_dict.items():
         comparison = f'{name} /\n {reference_data}'
