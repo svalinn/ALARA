@@ -882,8 +882,8 @@ def main():
                     plot_path = set_plot_save_path(
                         element, A, emitted, tendl_dir, groupwise_dict.keys()
                     )
-                    plt.savefig(plot_path)
-                    plt.close()
+                    fig.savefig(plot_path)
+                    plt.close(fig)
 
                     if reaction_rates:
                         rate_fig, rate_ax = plt.subplots(figsize=(10,6))
@@ -896,8 +896,8 @@ def main():
                             groupwise_dict.keys(),
                             reaction_rates=reaction_rates
                         )
-                        plt.savefig(rate_path)
-                        plt.close()
+                        rate_fig.savefig(rate_path)
+                        plt.close(rate_fig)
 
                     if args.ratio_plotting:
                         reference_data = (
@@ -919,8 +919,8 @@ def main():
                             ratio_plotting=args.ratio_plotting,
                             reaction_rates=reaction_rates
                         )
-                        plt.savefig(ratio_plot_path)
-                        plt.close()
+                        ratio_fig.savefig(ratio_plot_path)
+                        plt.close(ratio_fig)
 
     top_save_dir = plot_path.parents[2]
     print(
