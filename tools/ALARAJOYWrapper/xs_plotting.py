@@ -10,6 +10,23 @@ from matplotlib.patches import StepPatch
 from pathlib import Path
 from openmc.data import Reaction, endf
 
+SI_CONVERSIONS = {
+    'a' : 1e-18,
+    'f' : 1e-15,
+    'p' : 1e-12,
+    'n' : 1e-9,
+    'u' : 1e-6, # Accepts u or "μ" for micro-
+    'μ' : 1e-6, # Accepts u or "μ" for micro-
+    'm' : 1e-3,
+    'c' : 1e-2,
+    'k' : 1e3,
+    'M' : 1e6,
+    'G' : 1e9,
+    'T' : 1e12,
+    'P' : 1e15,
+    'E' : 1e18
+}
+
 def flagged_num_to_int(num):
     """
     Convert numerical values that may be in string form containing additional
@@ -346,7 +363,7 @@ def set_plot_save_path(
     ).with_suffix(f'.{img_ext}')
 
 def set_plot_parameters(
-        ax, title, ratio_plotting=False, reaction_rates=False
+    ax, title, ratio_plotting=False, reaction_rates=False
 ):
     """
     Apply standard plotting parameters for either of the two types of plots
@@ -382,7 +399,7 @@ def set_plot_parameters(
         ax.set_yscale('log')
     ax.set_xscale('log')
 
-    ax.set_xlabel('Energy [eV]')
+    ax.set_xlabel(f'Energy [eV]')
     ax.set_ylabel(ylabel)
     ax.set_title(title)
     ax.grid()
@@ -500,11 +517,58 @@ def plot_single_nuc_rxn_data(
             if reaction_rates:
                 values = _xs_to_rxn_rate(values, fluxes)
 
-            ax.stairs(values, arrays['energies'], label=data_set)
+            ax.stairs(
+                values, arrays['energies'], label=data_set
+            )
 
         title += ', '.join([g for g in groupwise_dict]) + ' (Groupwise)'
 
     return set_plot_parameters(ax, title, reaction_rates=reaction_rates)
+
+def plot_neutron_energy_axvline(ax, energy_vline_arg, parser=None):
+    """
+    Given a pre-exisisting Matplotlib Axes object, include a vertical line at
+        a specified energy to highlight the cross-section data in that region.
+    
+    Arguments:
+        ax (matplotlib.axes._axes.Axes): Matplotlib Axes object of the plot
+            being constructed.
+        energy_vline_arg (list of str): List specifying the neutron energy to
+            denote with a vertical line. If only a single value is provided,
+            then eV units will be assumed. Otherwise, any SI unit prefix can
+            be supplied as the second value in the list, to be converted
+            internally to eV (i.e. ['14.1', 'MeV'] will be converted to
+            1.41e+07 eV).
+        parser (argparser.ArgumentParser, optional): Option to include the
+            argparser ArgumentParser object through which to channel
+            improperly supplied `energy_vline_arg` values. Needed if being
+            called within `main()`.
+            (Defaults to None)
+
+    Returns:
+        None
+    """
+
+    vline_energy = float(energy_vline_arg[0])
+    if len(energy_vline_arg) == 2:
+        energy_units = energy_vline_arg[1]
+    elif len(energy_vline_arg) > 2:
+        error_message = (
+            'Too many values for energy_vline. ' \
+            'Can provide up to two values: energy, energy_units'
+        )
+        if parser:
+            parser.error(error_message)
+        else:
+            raise TypeError(error_message)
+
+    ax.axvline(
+        vline_energy * SI_CONVERSIONS.get(energy_units[0], 1), # Plot in eV
+        color='r', 
+        alpha=0.4, 
+        label=f'{vline_energy:.2e} {energy_units}', # Label in provided units
+        linestyle='--'
+    )
 
 def collect_all_stair_colors(ax):
     """
@@ -801,13 +865,12 @@ def main():
     parser.add_argument('--ratio_plotting', '-r', action='store_true')
     parser.add_argument('--reference_data', '-d', required=False)
     parser.add_argument('--flux_file', '-f')
-
+    parser.add_argument('--energy_vline', '-e', nargs='*')
     args = parser.parse_args()
 
     with open(args.yaml, 'r') as f:
         parameter_dict = safe_load(f)
 
-    #dsv_list = parameter_dict.get('DSV', ['cumulative_gendf_data.dsv'])
     dsv_dict = load_dsvs_to_dfs(
         parameter_dict.get('DSV', ['cumulative_gendf_data.dsv'])
     )
@@ -843,7 +906,6 @@ def main():
         fluxes = np.asarray(fluxes, dtype=float)[::-1]
 
     reaction_rates = _is_rxn_rate(fluxes)
-
     for element in elements:
         element_dict = adjust_dict_for_all_tag(nuc_hierarchy, element)
         mass_nums = list(element_dict)
@@ -875,10 +937,16 @@ def main():
                 )
 
                 if groupwise_dict:
+                    if args.energy_vline:
+                        plot_neutron_energy_axvline(
+                            ax, args.energy_vline, parser=parser
+                        )
+
                     ax = plot_single_nuc_rxn_data(
                         ax, element, A, emitted,
                         continuous_dict, groupwise_dict
                     )
+
                     plot_path = set_plot_save_path(
                         element, A, emitted, tendl_dir, groupwise_dict.keys()
                     )
@@ -887,6 +955,12 @@ def main():
 
                     if reaction_rates:
                         rate_fig, rate_ax = plt.subplots(figsize=(10,6))
+
+                        if args.energy_vline:
+                            plot_neutron_energy_axvline(
+                                rate_ax, args.energy_vline, parser=parser
+                            )
+
                         rate_ax = plot_single_nuc_rxn_data(
                             rate_ax, element, A, emitted,
                             groupwise_dict=groupwise_dict, fluxes=fluxes
@@ -907,6 +981,12 @@ def main():
                         )
 
                         ratio_fig, ratio_ax = plt.subplots(figsize=(10,6))
+
+                        if args.energy_vline:
+                            plot_neutron_energy_axvline(
+                                ratio_ax, args.energy_vline, parser=parser
+                            )
+
                         color_dict = collect_all_stair_colors(ax)
                         _, ratio_stats_df = plot_relative_energy_dependent_func(
                             ratio_ax, element, A, MT, emitted, groupwise_dict,
