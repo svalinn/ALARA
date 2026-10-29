@@ -1,0 +1,28 @@
+Case Name:
+    "ALARAJOY vs FISPACT-II (EAF)"
+# Option to set name of comparison study, if left blank
+# compile all runs into a single string for the name
+
+# Format as (run, solver, alaralib)
+Run Specs:
+    ALARA, ALARAJOY TENDL-2017:
+      - ALARA
+      - tendl17_ukdd20_709_1e
+
+    # CCFE-709:
+    #   - ALARA
+    #   - tendl17_ukdd20_709
+
+    # VITAMIN-J-175:
+    #   - ALARA
+    #   - tendl17_ukdd20_175
+    
+    FISPACT-II, TENDL-2017:
+      - FISPACT
+
+    # ALARA, EAF-2010:
+    #     - ALARA
+    #     - eaf2010_ukdd2020
+      
+    # FISPACT-II, EAF-2010:
+    #     - FISPACT
