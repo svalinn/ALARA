@@ -49,7 +49,7 @@ def make_argparser():
     )
     parser.add_argument(
         # Temperature for NJOY run [Kelvin]
-        '--temperature', '-t', required=False, nargs=1, default=[293.16]
+        '--temperature', '-t', required=False, nargs=1, default=[293.6]
     )
     parser.add_argument(
         '--redirect_warnings', '-r', action='store_true',
