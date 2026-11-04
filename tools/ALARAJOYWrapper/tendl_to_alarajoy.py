@@ -145,10 +145,10 @@ def validate_tendl_source(
         check that it is sourced from the provided TENDL version, to ensure
         that all files in its directory belong to the same distribution. For
         TENDL distributions 2015-25, up to 24 nuclide files may be sourced
-        from ENDF/B-VII.1, JENDL-4.0, ENDF/B-VIII, JEFF-3.3, or ENDF/B-VIII.0.
-        For these cases, a pre-loaded Pandas DataFrame containing reference
-        information for each nuclide, TENDL case is checked to ensure
-        compliance. If violations are found, a ValueError will be raised.
+        from ENDF/B-VII.1, JENDL-4.0, or ENDF/B-VIII.0. For these cases, a
+        pre-loaded Pandas DataFrame containing reference information for each
+        nuclide, TENDL case is checked to ensure compliance. If violations are
+        found, a ValueError will be raised.
 
     Arguments:
         endf_obj (openmc.data.endf.Evaluation): OpenMC parsed-ENDF object.
@@ -171,24 +171,24 @@ def validate_tendl_source(
             the first file checked. If validation fails, then a ValueError is
             raised instead of any return.
     """
-    
-    endf_ref = endf_obj.info['reference'].strip()
-    if endf_ref.startswith('TENDL'):
-        if not tendl_version:
-            tendl_version = endf_ref
 
-        elif tendl_version != endf_ref:
+    endf_id = endf_obj.info['identifier'][0].split()[0].strip('--')
+    if endf_id.startswith('TENDL'):
+        if not tendl_version:
+            tendl_version = endf_id
+
+        elif tendl_version != endf_id:
             raise ValueError(
                 'Nuclide files from multiple TENDL distributions present in' \
-                f' {tendl_dir}: {endf_ref}, {tendl_version}.' 
+                f' {tendl_dir}: {endf_id}, {tendl_version}.' 
             )
 
     elif tendl_version and tendl_external_sources.at[
         f'{element}-{A}', tendl_version
-    ] != endf_ref:
+    ] != endf_id:
         raise ValueError(
-            f'Incorrect external source for {element}-{A} ({endf_ref}) ' \
-            f'given proided distribution {tendl_version}'
+            f'Incorrect external source for {element}-{A} ({endf_id}) ' \
+            f'given provided distribution {tendl_version}'
         )
 
     return tendl_version
