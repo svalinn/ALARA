@@ -46,6 +46,10 @@ def prep_arrays_for_measures(parent_nuc, child_nucs, arr_Children_p_test,
 
 def create_error_measures(L_ref, L_test, arr_children_star_p_ref,
                           arr_children_star_p_test):
+    '''
+    Formulate different measures of error between predicted
+    and ground-truth datasets.
+    '''
     measure_A = np.divide(L_test,
                           L_ref,
                           out=np.full_like(L_test, np.nan),
