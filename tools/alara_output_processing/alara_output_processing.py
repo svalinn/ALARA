@@ -13,12 +13,12 @@ from numbers import Number
 OPS = { '>' : gt, '<' : lt , '>=' : ge }
 
 SECONDS_CONV = {'s': 1}
-SECONDS_CONV['m'] = 60  * SECONDS_CONV['s']
-SECONDS_CONV['h'] = 60  * SECONDS_CONV['m']
-SECONDS_CONV['d'] = 24  * SECONDS_CONV['h']
-SECONDS_CONV['w'] = 7   * SECONDS_CONV['d']
-SECONDS_CONV['y'] = 365 * SECONDS_CONV['d']
-SECONDS_CONV['c'] = 100 * SECONDS_CONV['y']
+SECONDS_CONV['m'] = 60     * SECONDS_CONV['s']
+SECONDS_CONV['h'] = 60     * SECONDS_CONV['m']
+SECONDS_CONV['d'] = 24     * SECONDS_CONV['h']
+SECONDS_CONV['w'] = 7      * SECONDS_CONV['d']
+SECONDS_CONV['y'] = 365.25 * SECONDS_CONV['d']
+SECONDS_CONV['c'] = 100    * SECONDS_CONV['y']
 
 def convert_times(vector, from_unit, to_unit):
     '''

@@ -97,7 +97,7 @@ double convertTime(double inTime, char units)
     case 'c' : /* century */
       inTime *= 100;
     case 'y' : /* year */
-      inTime *= 365/7;
+      inTime *= 365.25/7;
     case 'w' : /* week */
       inTime *= 7;
     case 'd' : /* day */
