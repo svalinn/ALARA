@@ -2,7 +2,7 @@ import numpy as np
 
 
 def prep_arrays_for_measures(parent_nuc, child_nucs, arr_Children_p_test,
-                              arr_Children_p_ref):
+                             arr_Children_p_ref):
     '''
     Takes input arrays of activation responses and removes entries containing
     the original parent nuclide. Also calculates a sum of the responses across
@@ -27,6 +27,7 @@ def prep_arrays_for_measures(parent_nuc, child_nucs, arr_Children_p_test,
     arr_Children_star_p_ref = np.delete(arr_Children_p_ref, parent_idx, axis=1)
 
     L_ref = np.sum(arr_Children_star_p_ref, axis=1)
+
     L_test = np.sum(arr_Children_star_p_test, axis=1)
 
     arr_children_star_p_test = np.divide(arr_Children_star_p_test,
@@ -56,6 +57,7 @@ def create_error_measures(L_ref, L_test, arr_children_star_p_ref,
                           where=L_ref != 0)
 
     diff_test_ref = arr_children_star_p_test - arr_children_star_p_ref
+
     measure_B = np.linalg.norm(diff_test_ref, axis=1)
 
     denominator = (np.linalg.norm(arr_children_star_p_test, axis=1) *
@@ -67,5 +69,11 @@ def create_error_measures(L_ref, L_test, arr_children_star_p_ref,
                           denominator,
                           out=np.full_like(denominator, np.nan),
                           where=denominator != 0)
+    measure_D = np.sqrt(
+        np.nansum(np.divide(diff_test_ref,
+                            arr_children_star_p_ref,
+                            out=np.full_like(diff_test_ref, np.nan),
+                            where=arr_children_star_p_ref != 0)**2,
+                  axis=1))
 
-    return measure_A, measure_B, measure_C
+    return measure_A, measure_B, measure_C, measure_D
