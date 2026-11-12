@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import re
 import matplotlib.pyplot as plt
-import re
 from matplotlib import lines
 import matplotlib.cm as cm
 from warnings import warn
@@ -1656,7 +1655,7 @@ def plot_computational_with_experimental(
     cmap_name='Dark2',
     stat_types=[],
     shading=True,
-    show_shading_bounds=False,
+    show_shading_bounds=False
 ):
     '''
     Create a plot containing both measured experimental data for a given decay
