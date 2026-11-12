@@ -331,6 +331,52 @@ def preprocess_data(
 
     return filtered, piv
 
+def compile_all_nucs(
+    adf, 
+    runs,
+    variables,
+    cmap_name='tab20',
+    threshold=0.025,
+    sort_by_time=None,
+    time_unit='s'
+):
+    all_nucs = set()
+    if not isinstance(variables, list):
+        variables = [variables]
+
+    for var in variables:
+        aggs = []
+        for run in runs:
+            aggs.append(pie_chart_aggregation(
+                adf=adf,
+                run_lbl=run,
+                variable=var,
+                threshold=threshold,
+                time_unit=time_unit,
+                half_lives=None
+            ))
+
+        _, _, cm, _ = plot_single_response(
+            adf=pd.concat(aggs),
+            run_lbls=runs,
+            variable=var,
+            time_unit=time_unit,
+            relative=True,
+            cmap_name=cmap_name,
+            half_lives=None,
+            shading=True,
+            sort_by_time=sort_by_time
+        )
+        all_nucs.update(set(cm.keys()))
+
+    return set([n for n in all_nucs if n.lower() != 'other'])
+
+def define_line_styles(run_lbls=[], plot_type='plot'):
+    return list(
+        lines.lineStyles.keys() if plot_type == 'plot'
+        else lines.lineMarkers.keys()
+    )[:len(run_lbls)]
+
 def build_color_map(cmap_name, all_nucs=[], pivs=None, mark_thalf=False):
     '''
     Given a list of pivot DataFrames (one per run) or a 1D array-like data
@@ -429,11 +475,9 @@ def split_label(label):
 
     # Label formatted as f"{element}-{A} ({run_lbl})" for comparative plots
     if '(' in label:
-        parts = label.split('(')
-        isotope = parts[0].strip()
-        run_lbl = f'({parts[1].strip(')')})'
-        if '\n' in run_lbl:
-            run_lbl = run_lbl.strip(')')
+        idx = label.index('(')
+        isotope = label[:idx].strip()
+        run_lbl = label[idx:].rstrip()
     else:
         isotope = label.strip()
         run_lbl = ''
@@ -989,7 +1033,7 @@ def add_shading_legend_labels(
             f'   -  {rl}: {tmin:.2g} - {tmax:.2g} {time_unit}'
             for rl, tmin, tmax in run_entries
         )
-        label = nuc
+        label = reformat_isotope(nuc)
         if show_shading_bounds:
             label += f':\n{run_lines}' 
 
@@ -1107,6 +1151,7 @@ def plot_single_response(
         sig_figs (int, optional): Option to set a number of significant
             figures for the represenation of statistics calculated for time-
             series ratios (in conjunction with control_run).
+            (Defaults to 3)
         stat_types (list of str, optional): List containing the names of each
             statistical metric evaluated. Can be any combination of values
             contained in PlotStats.all_metrics.
@@ -1154,18 +1199,15 @@ def plot_single_response(
     fig, ax = plt.subplots(figsize=figsize)
 
     if isinstance(run_lbls, list):
-        data_comp=True
+        data_comp = True
     else:
         run_lbls = [run_lbls]
+        data_comp = False
 
     data_list = []
     shade_pivs = {}
-    styles = list(
-        lines.lineStyles.keys() if plot_type == 'plot'
-        else lines.lineMarkers.keys()
-    )[:len(run_lbls)]
+    styles = define_line_styles(run_lbls, plot_type=plot_type)
     var_units = set()
-
     for run_lbl, style in zip(run_lbls, styles):
         filtered, piv = preprocess_data(
             adf=adf,
@@ -1224,7 +1266,7 @@ def plot_single_response(
                 ax,
                 shading_color_map,
                 cmap_name=cmap_name,
-                n_runs=len(data_list) 
+                n_runs=len(data_list)
             )
 
         for nuc in piv.index:
@@ -1236,7 +1278,6 @@ def plot_single_response(
                 continue
 
             label_suffix = f' ({run_lbl})' if data_comp else ''
-
             # Vectorized division to calculate time-series ratio against the
             # control run. If zeros exist in the control run, a zero-division
             # RuntimeWarning will be raised, but does not cause plotting
@@ -1300,7 +1341,7 @@ def plot_single_response(
             time_unit, show_shading_bounds
         )
 
-    ylabel = f'{variable} [{var_units[0]}]'
+    ylabel = f'{variable} [{list(var_units)[0]}]'
     title_suffix = (
         f'Ratio of {variable} against {control_run}' if ratio_plotting
         else f'{variable}'
@@ -1326,7 +1367,7 @@ def plot_single_response(
 
     ax.set_title(title_prefix + title_suffix)
     ax.set_ylabel(ylabel)
-    ax.set_xlabel(f'Time ({time_unit})')
+    ax.set_xlabel(f'Time [{time_unit}]')
     ax.set_xscale('log')
     ax.set_xlim(right=tmax)
     ax.set_yscale(yscale)
@@ -1595,3 +1636,286 @@ def multi_time_pie_grid(
     )
 
     return fig
+
+def plot_computational_with_experimental(
+    adf,
+    variable,
+    experimental_data,
+    start_zeros=None,
+    experiment_name='Experiment',
+    irradiation_description='',
+    uncertainties=[],
+    cooling_times=[],
+    comparison_type='raw',
+    runs=[],
+    sort_by_time=None,
+    time_unit='s',
+    half_lives=None,
+    threshold=0.025,
+    cmap_name='Dark2',
+    stat_types=[],
+    shading=True,
+    show_shading_bounds=False
+):
+    '''
+    Create a plot containing both measured experimental data for a given decay
+        response variable against ALARADFrame simulated data. Includes
+        capabilities to plot experimental uncertainties and simulated nuclide
+        dominance ranges. Additionally, statistical metrics for computational/
+        experimental comparison can be calculated by the `PlotStats` class and
+        included within the legend of the plot and/or in an output DataFrame.
+
+    Arguments:
+        adf (alara_output_processing.ALARADFrame): ALARADFrame containing
+            response data from one or more simulated activation responses.
+        variable (str): Name of the response variable to be visualized.
+        experimental_data (array_like): 1-D array containing measured
+            experimental data for the given decay response variable.
+        start_zeros (int or None, optional): Index of first zero value in the
+            array of experimental data, if any.
+            (Defaults to None)
+        experiment_name (str, optional): Option to set the name of the
+            experiment from which data were collected.
+            (Defaults to "Experiment")
+        irrdiation_description (str, optional): Option to specify further
+            characteristic information about the particular irradiation
+            parameters in the given experimental data.
+            (Defaults to "")
+        uncertainties (array-like, optional): 1-D array of the same length as
+            experimental_data containing their associated uncertainties. If
+            provided, error bars will be included for the experimental series.
+            (Defaults to [])
+        cooling_times (array-like, optional): Option to include the measured
+            experimental cooling time values as a 1-D array. If none is
+            provided, the ADF cooling times will be extracted.
+            (Defaults to [])
+        comparison_type (str, optional): Option to specify the type of
+            computational-experimental comparison. To plot the measured and
+            simulated decay response values, select "raw". To plot the C/E
+            ratios, select "ratio".
+            (Defaults to "raw")
+        runs (array-like, optional): Option to specify the runs to plot. If
+            not provided, all unique runs from the provided ALARADFrame will
+            be included.
+            (Defaults to [])
+        sort_by_time (str, optional): Option to sort the ALARADFrame by the
+            data in a particular time column.
+            (Defaults to '')
+        time_unit (str, optional): Optional paramter to set units for cooling
+            times. Accepted values: 's', 'm', 'h', 'd', 'w', 'y', 'c'.
+            (Defaults to 's')
+        half_lives (int, float, or None, optional): Option to specify the
+            number of half-lives to pass in cooling time before zeroing
+            subsequent decay responses. Used to eliminate round-off error for
+            long cooling times (relative to half-life length). To avoid half-
+            life zeroing, set half_lives to None.
+            (Defaults to None) 
+        threshold (float, optional): Proportional threshold for small-value
+            aggregation.
+            (Defaults to 0.025)
+        cmap_name (str, optional): Option to set the Matplotlib Colormap for
+            the plots. Reference guide for Matplotlib Colormaps can be found
+            at matplotlib.org/stable/gallery/color/colormap_reference.html
+            (Defaults to "Dark2")
+        stat_types (list of str): Option to specify the C/E statistical
+            metrics to include in the plot legend. Available metrics can be
+            found in PlotStats.all_metrics.
+            (Defaults to [])
+        shading (bool, optional): Option to shade the regions in which any
+            particular nuclide is the dominant contributor to the plotted
+            decay response.
+            (Defaults to True)
+        show_shading_bounds (bool, optional): Option to show the time range in
+            which a given nuclide is the dominant nuclide for a given
+            response in the plot's legend, corresponding to the region(s)
+            shaded in the plot.
+            (Defaults to False)
+
+    Returns:
+        fig (matplotlib.figure.Figure): Matplotlib Figure object containing
+            the constructed plot.
+        stats_df (pandas.DataFrame): DataFrame containing values for all
+            applicable statistical metrics for each activation simulation
+            compared to the provided experimental data.
+    '''
+
+    fig, ax = plt.subplots(figsize=(12,6))
+    yscale='log'
+    if not irradiation_description:
+        irradiation_description = experiment_name
+
+    runs = runs if len(runs) > 0 else list(adf['run_lbl'].unique())
+    all_nucs = compile_all_nucs(
+        adf,
+        runs,
+        variable,
+        cmap_name=cmap_name,
+        threshold=threshold,
+        sort_by_time=sort_by_time,
+        time_unit=time_unit
+    )
+
+    shading_color_map = build_color_map(cmap_name, all_nucs)
+    styles = define_line_styles(run_lbls=runs)
+
+    computational_max = 0
+    computational_min = np.inf
+    all_dominance_ranges = defaultdict(list)
+    stats_rows = []
+    var_units = set()
+    for i, run in enumerate(runs):
+        filtered, piv = preprocess_data(
+            adf,
+            run,
+            variable,
+            nuclides=['total'],
+            time_unit=time_unit,
+            sort_by_time=sort_by_time,
+            half_lives=half_lives
+        )
+        var_units = check_var_units(filtered, var_units)
+
+        computational_data = filtered['value'][:start_zeros]
+        if len(computational_data) != len(experimental_data):
+            warn(
+                f'{run}: Length mismatch, ' \
+                f'C={len(computational_data)}, E={len(experimental_data)}. ' \
+                'Skipping.'
+            )
+            continue
+
+        computational_min = min(computational_min, min(computational_data))
+        computational_max = max(computational_max, max(computational_data))
+
+        y = computational_data
+        c_over_e = computational_data / experimental_data
+        run_split = run.split(',')[0].upper()
+        label = run_split
+
+        if comparison_type != 'raw':
+            y = c_over_e
+            if isinstance(stat_types, str):
+                stat_types = [stat_types]
+
+            # Calculate full range of PlotStats statistics
+            row = PlotStats.initialize_row(run_split, variable)
+            computed = {}
+            for stat_type in PlotStats.all_metrics:
+                stats_series = (
+                    y if 'rmsd' not in stat_type
+                    and 'percent-diff' not in stat_type
+                    else experimental_data 
+                )
+                stats_obj = PlotStats(
+                    series=stats_series,
+                    stat_type=stat_type,
+                    secondary_series=computational_data,
+                    uncertainties=uncertainties
+                )
+                stats_obj.calculate_statistic()
+                computed[stat_type] = stats_obj
+                row[stat_type] = stats_obj.stat
+
+            label = append_stats_to_label(
+                label, computed, stat_types,
+                sig_figs=3, lead_newline=True, trailing_separator=None
+            )
+            stats_rows.append(row)
+
+        if len(cooling_times) == 0:
+            cooling_times = piv.columns
+
+        ax.plot(
+            cooling_times,
+            y,
+            linestyle=styles[i],
+            label=label,
+            color='dimgray'
+        )
+
+        if shading:
+            _, shade_piv = preprocess_data(
+                adf,
+                run,
+                variable,
+                time_unit=time_unit,
+                sort_by_time=sort_by_time,
+                half_lives=half_lives
+            )
+            all_dominance_ranges, ax = deliniate_shading_regions_by_run(
+                all_dominance_ranges, run, shade_piv, ax, shading_color_map,
+                cmap_name=cmap_name, n_runs=len(runs)
+            )
+
+    title = (
+        f'{variable} vs. Cooling Time\n'\
+        f'for {irradiation_description} Irradiation'
+    )
+
+    if comparison_type == 'raw':
+        ms = 3
+        exp_min = np.min(experimental_data)
+        exp_upper = 0
+        if len(uncertainties) == len(cooling_times):
+            ax.errorbar(
+                cooling_times,
+                experimental_data,
+                yerr=uncertainties,
+                fmt='*',
+                ms=ms,
+                color='k',
+                label=experiment_name,
+                ecolor='k',
+                elinewidth=1,
+                capsize=3
+            )
+            exp_lower = experimental_data - uncertainties
+            positive_exp_lower = exp_lower[exp_lower > 0]
+            exp_min = (
+                np.min(positive_exp_lower)
+                if positive_exp_lower.size
+                else np.min(experimental_data)
+            )
+            exp_upper = experimental_data + uncertainties
+
+        else:
+            ax.scatter(
+                cooling_times,
+                experimental_data,
+                marker='*',
+                s=ms**2,
+                color='k',
+                label=experiment_name
+            )
+
+        total_min = min(computational_min, exp_min)
+        total_max = max(computational_max, np.max(exp_upper))
+
+        if total_max / total_min < 10:
+            yscale = 'linear'
+            ax.ticklabel_format(style='sci', scilimits=(0,0), axis='y')
+
+        ylabel = f'{variable} [{list(var_units)[0]}]'
+
+    # Experimental over computatational plot
+    else:
+        ylabel = f'C/E: {variable}'
+        yscale = 'linear'
+        title = 'Computational/Experimental Ratio Series for ' + title
+
+    if shading and shading_color_map is not None:
+        add_shading_legend_labels(
+            ax, shading_color_map, all_dominance_ranges,
+            time_unit, show_shading_bounds
+        )
+
+    ax.set_title(title)
+    ax.set_xlabel(f'Cooling Time [{time_unit}]')
+    ax.set_ylabel(ylabel)
+    ax.set_xscale('log')
+    ax.set_yscale(yscale)
+
+    ax.grid()
+    ax.legend(loc='center left', bbox_to_anchor=(1,0.5))
+
+    return fig, pd.DataFrame(stats_rows)
