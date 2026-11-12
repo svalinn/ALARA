@@ -35,7 +35,7 @@ def prep_arrays_for_measures(parent_nuc, child_nucs,
             sample_response_array_p_removed,
             response_sum_p_removed[case].reshape(-1, 1),
             out=np.full_like(sample_response_array_p_removed, np.nan),
-            where=sample_response_array_p_removed.reshape(-1, 1) != 0)
+            where=response_sum_p_removed[case].reshape(-1, 1) != 0)
 
     return response_sum_p_removed, rel_sample_responses_p_removed
 
