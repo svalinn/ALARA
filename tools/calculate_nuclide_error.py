@@ -1,8 +1,9 @@
 import numpy as np
 
 
-def prep_arrays_for_measures(parent_nuc, child_nucs, arr_Children_p_test,
-                             arr_Children_p_ref):
+def prep_arrays_for_measures(parent_nuc, child_nucs,
+                             predicted_sample_response_array,
+                             true_sample_response_array):
     '''
     Takes input arrays of activation responses and removes entries containing
     the original parent nuclide. Also calculates a sum of the responses across
@@ -10,70 +11,94 @@ def prep_arrays_for_measures(parent_nuc, child_nucs, arr_Children_p_test,
 
     :param parent_nuc (str): name of irradiated nuclide 
     :param child_nucs (iterable of str): names of all possible daughter nuclides resulting from
-    the irradiation of any parent nuclide
-    :param arr_Children_p_test: 2D numpy array or nested list of predicted activation responses,
+    the irradiation of any parent nuclide (must contain the parent nuclide)
+    :param predicted_sample_response_array: 2D numpy array or nested list of predicted activation responses,
     where the rows correspond to the different samples or irradiation conditions, and the columns 
     are correspond to the different daughter nuclides
-    :param arr_Children_p_ref: 2D numpy array or nested list of ground-truth activation responses,
+    :param true_sample_response_array: 2D numpy array or nested list of ground-truth activation responses,
     where the rows correspond to the different samples or irradiation conditions, and the columns 
     are correspond to the different daughter nuclides
     '''
-    arr_Children_p_test = np.asarray(arr_Children_p_test)
-    arr_Children_p_ref = np.asarray(arr_Children_p_ref)
     parent_idx = child_nucs.index(parent_nuc)
-    arr_Children_star_p_test = np.delete(arr_Children_p_test,
-                                         parent_idx,
-                                         axis=1)
-    arr_Children_star_p_ref = np.delete(arr_Children_p_ref, parent_idx, axis=1)
+    sample_response_arrays = {
+        'predicted': np.asarray(predicted_sample_response_array),
+        'true': np.asarray(true_sample_response_array)
+    }
+    response_sum_p_removed = {}
+    rel_sample_responses_p_removed = {}
+    for case in sample_response_arrays.keys():
+        sample_response_array_p_removed = np.delete(
+            sample_response_arrays[case], parent_idx, axis=1)
+        response_sum_p_removed[case] = np.sum(sample_response_array_p_removed,
+                                              axis=1)
+        rel_sample_responses_p_removed[case] = np.divide(
+            sample_response_array_p_removed,
+            response_sum_p_removed[case].reshape(-1, 1),
+            out=np.full_like(sample_response_array_p_removed, np.nan),
+            where=sample_response_array_p_removed.reshape(-1, 1) != 0)
 
-    L_ref = np.sum(arr_Children_star_p_ref, axis=1)
-
-    L_test = np.sum(arr_Children_star_p_test, axis=1)
-
-    arr_children_star_p_test = np.divide(arr_Children_star_p_test,
-                                         L_test.reshape(-1, 1),
-                                         out=np.full_like(
-                                             arr_Children_star_p_test, np.nan),
-                                         where=L_test.reshape(-1, 1) != 0)
-
-    arr_children_star_p_ref = np.divide(arr_Children_star_p_ref,
-                                        L_ref.reshape(-1, 1),
-                                        out=np.full_like(
-                                            arr_Children_star_p_ref, np.nan),
-                                        where=L_ref.reshape(-1, 1) != 0)
-
-    return L_ref, L_test, arr_children_star_p_ref, arr_children_star_p_test
+    return response_sum_p_removed, rel_sample_responses_p_removed
 
 
-def create_error_measures(L_ref, L_test, arr_children_star_p_ref,
-                          arr_children_star_p_test):
+def make_child_sum_ratio(predicted_response_sum_p_removed,
+                         true_response_sum_p_removed):
+    child_sum_ratio = np.divide(predicted_response_sum_p_removed,
+                                true_response_sum_p_removed,
+                                out=np.full_like(
+                                    predicted_response_sum_p_removed, np.nan),
+                                where=true_response_sum_p_removed != 0)
+    return child_sum_ratio
+
+
+def make_norm_abs_diff(diff_test_ref):
+
+    norm_abs_diff = np.linalg.norm(diff_test_ref, axis=1)
+    return norm_abs_diff
+
+
+def make_cosine_similarity(predicted_sample_responses_p_removed,
+                           true_sample_responses_p_removed):
+    denominator = (
+        np.linalg.norm(predicted_sample_responses_p_removed, axis=1) *
+        np.linalg.norm(true_sample_responses_p_removed, axis=1))
+
+    cosine_similarity = np.divide(np.sum(predicted_sample_responses_p_removed *
+                                         true_sample_responses_p_removed,
+                                         axis=1),
+                                  denominator,
+                                  out=np.full_like(denominator, np.nan),
+                                  where=denominator != 0)
+    return cosine_similarity
+
+
+def make_norm_rel_diff(diff_test_ref, true_sample_responses_p_removed):
+    norm_rel_diff = np.sqrt(
+        np.nansum(np.divide(diff_test_ref,
+                            true_sample_responses_p_removed,
+                            out=np.full_like(diff_test_ref, np.nan),
+                            where=true_sample_responses_p_removed != 0)**2,
+                  axis=1))
+    return norm_rel_diff
+
+
+def create_error_measures(response_sum_p_removed,
+                          rel_sample_responses_p_removed):
     '''
     Formulate different measures of error between predicted
     and ground-truth datasets.
     '''
-    measure_A = np.divide(L_test,
-                          L_ref,
-                          out=np.full_like(L_test, np.nan),
-                          where=L_ref != 0)
+    err_measures = {}
 
-    diff_test_ref = arr_children_star_p_test - arr_children_star_p_ref
+    diff_test_ref = rel_sample_responses_p_removed[
+        'predicted'] - rel_sample_responses_p_removed['true']
 
-    measure_B = np.linalg.norm(diff_test_ref, axis=1)
+    err_measures['child_sum_ratio'] = make_child_sum_ratio(
+        response_sum_p_removed['predicted'], response_sum_p_removed['true'])
+    err_measures['norm_abs_diff'] = make_norm_abs_diff(diff_test_ref)
+    err_measures['cosine_similarity'] = make_cosine_similarity(
+        rel_sample_responses_p_removed['predicted'],
+        rel_sample_responses_p_removed['true'])
+    err_measures['norm_rel_diff'] = make_norm_rel_diff(
+        diff_test_ref, rel_sample_responses_p_removed['true'])
 
-    denominator = (np.linalg.norm(arr_children_star_p_test, axis=1) *
-                   np.linalg.norm(arr_children_star_p_ref, axis=1))
-
-    measure_C = np.divide(np.sum(arr_children_star_p_test *
-                                 arr_children_star_p_ref,
-                                 axis=1),
-                          denominator,
-                          out=np.full_like(denominator, np.nan),
-                          where=denominator != 0)
-    measure_D = np.sqrt(
-        np.nansum(np.divide(diff_test_ref,
-                            arr_children_star_p_ref,
-                            out=np.full_like(diff_test_ref, np.nan),
-                            where=arr_children_star_p_ref != 0)**2,
-                  axis=1))
-
-    return measure_A, measure_B, measure_C, measure_D
+    return err_measures
